@@ -8,352 +8,352 @@ import { useSync } from '../contexts/SyncContext';
 import PremiumHeader from '../components/PremiumHeader';
 
 const NFPA10_CHECKLIST = [
-    { id: 'c1', text: 'Ubicación correcta y asignada' },
-    { id: 'c2', text: 'Visibilidad y acceso sin obstrucciones' },
-    { id: 'c3', text: 'Manómetro en zona verde (presión operable)' },
-    { id: 'c4', text: 'Manguera y boquilla libres de obstrucciones / cortes' },
-    { id: 'c5', text: 'Precinto de seguridad y pasador intactos' },
-    { id: 'c6', text: 'Cartelería y señalización reglamentaria en buen estado' },
-    { id: 'c7', text: 'Estado físico general (sin abolladuras ni corrosión)' }
-];
+{ id: 'c1', text: 'Ubicación correcta y asignada' },
+{ id: 'c2', text: 'Visibilidad y acceso sin obstrucciones' },
+{ id: 'c3', text: 'Manómetro en zona verde (presión operable)' },
+{ id: 'c4', text: 'Manguera y boquilla libres de obstrucciones / cortes' },
+{ id: 'c5', text: 'Precinto de seguridad y pasador intactos' },
+{ id: 'c6', text: 'Cartelería y señalización reglamentaria en buen estado' },
+{ id: 'c7', text: 'Estado físico general (sin abolladuras ni corrosión)' }];
+
 
 export default function ExtinguisherInspection() {
   const { requirePro } = usePaywall();
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const { syncCollection } = useSync();
-    const [extintor, setExtintor] = useState(null);
-    const [checklist, setChecklist] = useState(
-        NFPA10_CHECKLIST.map(item => ({ ...item, status: null, notes: '', photos: [] }))
-    );
-    const [inspectorName, setInspectorName] = useState('');
-    const [generalPhotos, setGeneralPhotos] = useState([]);
-    const [generalObservations, setGeneralObservations] = useState('');
-    const [inspectionDate, setInspectionDate] = useState(new Date().toISOString().split('T')[0]);
-    const [isSaving, setIsSaving] = useState(false);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { syncCollection } = useSync();
+  const [extintor, setExtintor] = useState(null);
+  const [checklist, setChecklist] = useState(
+    NFPA10_CHECKLIST.map((item) => ({ ...item, status: null, notes: '', photos: [] }))
+  );
+  const [inspectorName, setInspectorName] = useState('');
+  const [generalPhotos, setGeneralPhotos] = useState([]);
+  const [generalObservations, setGeneralObservations] = useState('');
+  const [inspectionDate, setInspectionDate] = useState(new Date().toISOString().split('T')[0]);
+  const [isSaving, setIsSaving] = useState(false);
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-        // Cargar inventario y buscar el extintor
-        // Se compara tanto como string como número para compatibilidad con IDs viejos y nuevos
-        const tryLoad = (storageKey: string) => {
-            const dataRaw = localStorage.getItem(storageKey);
-            if (!dataRaw) return null;
-            try {
-                const inventory = JSON.parse(dataRaw);
-                return inventory.find((e: any) => String(e.id) === String(id)) || null;
-            } catch { return null; }
-        };
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    // Cargar inventario y buscar el extintor
+    // Se compara tanto como string como número para compatibilidad con IDs viejos y nuevos
+    const tryLoad = (storageKey: string) => {
+      const dataRaw = localStorage.getItem(storageKey);
+      if (!dataRaw) return null;
+      try {
+        const inventory = JSON.parse(dataRaw);
+        return inventory.find((e: any) => String(e.id) === String(id)) || null;
+      } catch {return null;}
+    };
 
-        // Primero busca en la BD unificada, luego en la vieja por si no migró
-        const found = tryLoad('extinguishers_inventory') || tryLoad('extintores_inventory');
+    // Primero busca en la BD unificada, luego en la vieja por si no migró
+    const found = tryLoad('extinguishers_inventory') || tryLoad('extintores_inventory');
 
-        if (found) {
-            setExtintor(found);
-            
-            // Cargar checklist de la inspección anterior si existe
-            const historyRaw = localStorage.getItem('extintores_history');
-            if (historyRaw) {
-                try {
-                    const history = JSON.parse(historyRaw);
-                    const extHistory = history.filter((h: any) => String(h.extintorId) === String(id) || String(h.extintorNum) === String(found.numero || found.chapa));
-                    if (extHistory.length > 0) {
-                        extHistory.sort((a: any, b: any) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
-                        const lastInsp = extHistory[0];
-                        if (lastInsp.items && Array.isArray(lastInsp.items) && lastInsp.items.length > 0) {
-                            setChecklist(lastInsp.items);
-                        }
-                        if (lastInsp.observaciones) {
-                            setGeneralObservations(lastInsp.observaciones);
-                        }
-                        // Opcionalmente podemos cargar las fotos generales también, pero suele ser mejor que sean nuevas en cada inspección
-                    }
-                } catch (e) {}
+    if (found) {
+      setExtintor(found);
+
+      // Cargar checklist de la inspección anterior si existe
+      const historyRaw = localStorage.getItem('extintores_history');
+      if (historyRaw) {
+        try {
+          const history = JSON.parse(historyRaw);
+          const extHistory = history.filter((h: any) => String(h.extintorId) === String(id) || String(h.extintorNum) === String(found.numero || found.chapa));
+          if (extHistory.length > 0) {
+            extHistory.sort((a: any, b: any) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+            const lastInsp = extHistory[0];
+            if (lastInsp.items && Array.isArray(lastInsp.items) && lastInsp.items.length > 0) {
+              setChecklist(lastInsp.items);
             }
-        } else {
-            toast.error('Extintor no encontrado. Puede que no esté sincronizado.');
-            navigate('/extintores');
-        }
-        
-        // Cargar nombre del inspector
-        const pData = localStorage.getItem('personalData');
-        if (pData) {
-            try { setInspectorName(JSON.parse(pData).name || ''); } catch {}
-        }
-    }, [id, navigate]);
-
-    const handleStatus = (index, status) => {
-        const newChecklist = [...checklist];
-        newChecklist[index].status = status;
-        setChecklist(newChecklist);
-    };
-
-    const handleNotes = (index, text) => {
-        const newChecklist = [...checklist];
-        newChecklist[index].notes = text;
-        setChecklist(newChecklist);
-    };
-
-    const handleItemTextChange = (index, text) => {
-        const newChecklist = [...checklist];
-        newChecklist[index].text = text;
-        setChecklist(newChecklist);
-    };
-
-    const handleAddItem = () => {
-        setChecklist([...checklist, { id: 'c' + Date.now(), text: '', status: null, notes: '', photos: [] }]);
-    };
-
-    const handleRemoveItem = (index) => {
-        const newChecklist = [...checklist];
-        newChecklist.splice(index, 1);
-        setChecklist(newChecklist);
-    };
-
-    const handlePhoto = (index, files) => {
-        if (!files.length) return;
-        const newChecklist = [...checklist];
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            newChecklist[index].photos.push(reader.result);
-            setChecklist(newChecklist);
-        };
-        reader.readAsDataURL(files[0]);
-    };
-
-    const removePhoto = (itemIndex, photoIndex) => {
-        const newChecklist = [...checklist];
-        newChecklist[itemIndex].photos.splice(photoIndex, 1);
-        setChecklist(newChecklist);
-    };
-
-    const handleGeneralPhoto = (files) => {
-        if (!files.length) return;
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setGeneralPhotos([...generalPhotos, reader.result]);
-        };
-        reader.readAsDataURL(files[0]);
-    };
-
-    const removeGeneralPhoto = (index) => {
-        const newPhotos = [...generalPhotos];
-        newPhotos.splice(index, 1);
-        setGeneralPhotos(newPhotos);
-    };
-
-    const setAllOk = () => {
-        setChecklist(checklist.map(c => ({ ...c, status: 'C' })));
-    };
-
-    const handleSave = async () => {
-        if (checklist.some(c => !c.status)) {
-            toast.error('Por favor, completa todos los puntos del checklist.');
-            return;
-        }
-
-        const calculatedResult = checklist.every(c => c.status === 'C' || c.status === 'NA') ? 'APROBADO' : 'RECHAZADO';
-
-        setIsSaving(true);
-        const report = {
-            id: Date.now().toString(),
-            extintorId: extintor.id,
-            extintorNum: extintor.numero || extintor.chapa || '',
-            fecha: `${inspectionDate}T12:00:00.000Z`,
-            inspector: inspectorName,
-            items: checklist,
-            fotos: generalPhotos,
-            observaciones: generalObservations,
-            resultado: calculatedResult
-        };
-
-        const historyRaw = localStorage.getItem('extintores_history');
-        const history = historyRaw ? JSON.parse(historyRaw) : [];
-        const newHistory = [report, ...history];
-
-        localStorage.setItem('extintores_history', JSON.stringify(newHistory));
-        await syncCollection('extintores_history', newHistory);
-
-        // Update inventory date and add inspection for PDF
-        const pdfInspection = {
-            fechaVisita: report.fecha.split('T')[0],
-            resultado: report.resultado === 'APROBADO' ? 'C' : 'NC',
-            controles: {
-                acceso: checklist[1]?.status || 'C',
-                manometro: checklist[2]?.status || 'C',
-                manguera: checklist[3]?.status || 'C',
-                cilindro: checklist[6]?.status || 'C',
-                senalizacion: checklist[5]?.status || 'C'
-            },
-            observacion: report.observaciones,
-            fotos: report.fotos
-        };
-
-        const inventoryRaw = localStorage.getItem('extinguishers_inventory');
-        const inventory = inventoryRaw ? JSON.parse(inventoryRaw) : [];
-        const updatedInv = inventory.map((e: any) => {
-            if (e.id === extintor.id) {
-                const insps = e.inspections || [];
-                return { 
-                    ...e, 
-                    ultimaInspeccion: report.resultado === 'APROBADO' ? report.fecha : e.ultimaInspeccion,
-                    inspections: [...insps, pdfInspection]
-                };
+            if (lastInsp.observaciones) {
+              setGeneralObservations(lastInsp.observaciones);
             }
-            return e;
-        });
-        localStorage.setItem('extinguishers_inventory', JSON.stringify(updatedInv));
-        await syncCollection('extinguishers_inventory', updatedInv);
+            // Opcionalmente podemos cargar las fotos generales también, pero suele ser mejor que sean nuevas en cada inspección
+          }
+        } catch (e) {}
+      }
+    } else {
+      toast.error('Extintor no encontrado. Puede que no esté sincronizado.');
+      navigate('/extintores');
+    }
 
-        setIsSaving(false);
-        toast.success(`Inspección guardada: ${report.resultado}`);
-        navigate('/extintores');
+    // Cargar nombre del inspector
+    const pData = localStorage.getItem('personalData');
+    if (pData) {
+      try {setInspectorName(JSON.parse(pData).name || '');} catch {}
+    }
+  }, [id, navigate]);
+
+  const handleStatus = (index, status) => {
+    const newChecklist = [...checklist];
+    newChecklist[index].status = status;
+    setChecklist(newChecklist);
+  };
+
+  const handleNotes = (index, text) => {
+    const newChecklist = [...checklist];
+    newChecklist[index].notes = text;
+    setChecklist(newChecklist);
+  };
+
+  const handleItemTextChange = (index, text) => {
+    const newChecklist = [...checklist];
+    newChecklist[index].text = text;
+    setChecklist(newChecklist);
+  };
+
+  const handleAddItem = () => {
+    setChecklist([...checklist, { id: 'c' + Date.now(), text: '', status: null, notes: '', photos: [] }]);
+  };
+
+  const handleRemoveItem = (index) => {
+    const newChecklist = [...checklist];
+    newChecklist.splice(index, 1);
+    setChecklist(newChecklist);
+  };
+
+  const handlePhoto = (index, files) => {
+    if (!files.length) return;
+    const newChecklist = [...checklist];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      newChecklist[index].photos.push(reader.result);
+      setChecklist(newChecklist);
+    };
+    reader.readAsDataURL(files[0]);
+  };
+
+  const removePhoto = (itemIndex, photoIndex) => {
+    const newChecklist = [...checklist];
+    newChecklist[itemIndex].photos.splice(photoIndex, 1);
+    setChecklist(newChecklist);
+  };
+
+  const handleGeneralPhoto = (files) => {
+    if (!files.length) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setGeneralPhotos([...generalPhotos, reader.result]);
+    };
+    reader.readAsDataURL(files[0]);
+  };
+
+  const removeGeneralPhoto = (index) => {
+    const newPhotos = [...generalPhotos];
+    newPhotos.splice(index, 1);
+    setGeneralPhotos(newPhotos);
+  };
+
+  const setAllOk = () => {
+    setChecklist(checklist.map((c) => ({ ...c, status: 'C' })));
+  };
+
+  const handleSave = async () => {
+    if (checklist.some((c) => !c.status)) {
+      toast.error('Por favor, completa todos los puntos del checklist.');
+      return;
+    }
+
+    const calculatedResult = checklist.every((c) => c.status === 'C' || c.status === 'NA') ? 'APROBADO' : 'RECHAZADO';
+
+    setIsSaving(true);
+    const report = {
+      id: Date.now().toString(),
+      extintorId: extintor.id,
+      extintorNum: extintor.numero || extintor.chapa || '',
+      fecha: `${inspectionDate}T12:00:00.000Z`,
+      inspector: inspectorName,
+      items: checklist,
+      fotos: generalPhotos,
+      observaciones: generalObservations,
+      resultado: calculatedResult
     };
 
-    if (!extintor) return <div className="p-8 text-center text-slate-500">Cargando datos del equipo...</div>;
+    const historyRaw = localStorage.getItem('extintores_history');
+    const history = historyRaw ? JSON.parse(historyRaw) : [];
+    const newHistory = [report, ...history];
 
-    return (
-        <div className="container" style={{ maxWidth: '600px', paddingBottom: '6rem' }}>
+    localStorage.setItem('extintores_history', JSON.stringify(newHistory));
+    await syncCollection('extintores_history', newHistory);
+
+    // Update inventory date and add inspection for PDF
+    const pdfInspection = {
+      fechaVisita: report.fecha.split('T')[0],
+      resultado: report.resultado === 'APROBADO' ? 'C' : 'NC',
+      controles: {
+        acceso: checklist[1]?.status || 'C',
+        manometro: checklist[2]?.status || 'C',
+        manguera: checklist[3]?.status || 'C',
+        cilindro: checklist[6]?.status || 'C',
+        senalizacion: checklist[5]?.status || 'C'
+      },
+      observacion: report.observaciones,
+      fotos: report.fotos
+    };
+
+    const inventoryRaw = localStorage.getItem('extinguishers_inventory');
+    const inventory = inventoryRaw ? JSON.parse(inventoryRaw) : [];
+    const updatedInv = inventory.map((e: any) => {
+      if (e.id === extintor.id) {
+        const insps = e.inspections || [];
+        return {
+          ...e,
+          ultimaInspeccion: report.resultado === 'APROBADO' ? report.fecha : e.ultimaInspeccion,
+          inspections: [...insps, pdfInspection]
+        };
+      }
+      return e;
+    });
+    localStorage.setItem('extinguishers_inventory', JSON.stringify(updatedInv));
+    await syncCollection('extinguishers_inventory', updatedInv);
+
+    setIsSaving(false);
+    toast.success(`Inspección guardada: ${report.resultado}`);
+    navigate('/extintores');
+  };
+
+  if (!extintor) return <div className="p-8 text-center text-slate-500">Cargando datos del equipo...</div>;
+
+  return (
+    <div className="container max-w-[600px] pb-[6rem]">
             <PremiumHeader
-                title={`Inspección: ${extintor.numero}`}
-                subtitle={`${extintor.tipo} - ${extintor.ubicacion} ${extintor.marca ? `(${extintor.marca})` : ''}`}
-                icon={<ShieldCheck size={32} color="#ffffff" />}
-                color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
-            />
+        title={`Inspección: ${extintor.numero}`}
+        subtitle={`${extintor.tipo} - ${extintor.ubicacion} ${extintor.marca ? `(${extintor.marca})` : ''}`}
+        icon={<ShieldCheck size={32} color="#ffffff" />}
+        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
+      
 
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+            <div className="flex gap-[1rem] mb-[1.5rem] mt-[1.5rem] flex-wrap">
                 <></>
             </div>
 
-            <div className="card" style={{ padding: '1.2rem', marginBottom: '1.5rem', background: 'var(--color-surface)', border: '2px solid var(--color-border)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--color-primary)' }}>Inspección NFPA 10</h3>
-                    <button onClick={setAllOk} style={{ padding: '0.4rem 0.8rem', background: '#10b981', color: '#fff', fontSize: '0.7rem', fontWeight: 800, border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
+            <div className="card p-[1.2rem] mb-[1.5rem] bg-[var(--color-surface)] border-[2px_solid_var(--color-border)]">
+                <div className="flex justify-space-between items-center mb-[1rem]">
+                    <h3 className="m-[0] text-[0.9rem] font-[900] uppercase text-[var(--color-primary)]">Inspección NFPA 10</h3>
+                    <button onClick={setAllOk} className="p-[0.4rem_0.8rem] bg-[#10b981] text-[#fff] text-[0.7rem] font-[800] border-none rounded-[8px] cursor-pointer">
                         MARCAR TODO OK
                     </button>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {checklist.map((item, idx) => (
-                        <div key={item.id} style={{ padding: '1rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '12px' }}>
-                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.8rem' }}>
-                                <span style={{ fontWeight: 800, color: 'var(--color-primary)', marginTop: '0.4rem' }}>{idx + 1}.</span>
+                <div className="flex flex-col gap-4">
+                    {checklist.map((item, idx) =>
+          <div key={item.id} className="p-[1rem] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[12px]">
+                            <div className="flex items-start gap-[0.5rem] mb-[0.8rem]">
+                                <span className="font-[800] text-[var(--color-primary)] mt-[0.4rem]">{idx + 1}.</span>
                                 <textarea
-                                    value={item.text}
-                                    onChange={e => handleItemTextChange(idx, e.target.value)}
-                                    placeholder="Detalle a inspeccionar..."
-                                    style={{ flex: 1, padding: '0.4rem', fontSize: '0.85rem', fontWeight: 600, border: '1px solid transparent', borderRadius: '8px', background: 'transparent', outline: 'none', resize: 'none', minHeight: '40px', lineHeight: 1.4 }}
-                                    className="hover:border-slate-300 focus:border-blue-500 focus:bg-white"
-                                />
-                                <button onClick={() => handleRemoveItem(idx)} style={{ background: 'transparent', border: 'none', color: '#ef4444', padding: '0.4rem', cursor: 'pointer', borderRadius: '8px' }} className="hover:bg-red-50">
+                value={item.text}
+                onChange={(e) => handleItemTextChange(idx, e.target.value)}
+                placeholder="Detalle a inspeccionar..."
+
+                className="hover:border-slate-300 focus:border-blue-500 focus:bg-white flex-[1] p-[0.4rem] text-[0.85rem] font-[600] border-[1px_solid_transparent] rounded-[8px] bg-[transparent] outline-[none] resize-[none] min-h-[40px] line-height-[1.4]" />
+              
+                                <button onClick={() => handleRemoveItem(idx)} className="hover:bg-red-50 bg-[transparent] border-none text-[#ef4444] p-[0.4rem] cursor-pointer rounded-[8px]">
                                     <X size={16} />
                                 </button>
                             </div>
                             
-                            <div className="ats-status-group" style={{ marginBottom: '0.8rem' }}>
+                            <div className="ats-status-group mb-[0.8rem]">
                                 <button className={`ats-status-btn ${item.status === 'C' ? 'active-ok' : ''}`} onClick={() => handleStatus(idx, 'C')}>C</button>
                                 <button className={`ats-status-btn ${item.status === 'NC' ? 'active-fail' : ''}`} onClick={() => handleStatus(idx, 'NC')}>NC</button>
                                 <button className={`ats-status-btn ${item.status === 'NA' ? 'active-na' : ''}`} onClick={() => handleStatus(idx, 'NA')}>N/A</button>
                                 
-                                <label style={{ padding: '0 0.8rem', background: 'rgba(37,99,235,0.05)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.2)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', marginLeft: 'auto' }} title="Agregar Foto">
+                                <label title="Agregar Foto" className="p-[0_0.8rem] bg-[rgba(37,99,235,0.05)] text-[#2563eb] border-[1px_solid_rgba(37,99,235,0.2)] rounded-[8px] cursor-pointer flex items-center justify-center transition-[all_0.2s] ml-[auto]">
                                     <Camera size={18} />
-                                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handlePhoto(idx, e.target.files)} />
+                                    <input type="file" accept="image/*" onChange={(e) => handlePhoto(idx, e.target.files)} className="none" />
                                 </label>
                             </div>
 
-                            <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px dashed var(--color-border)' }}>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <input 
-                                        type="text" 
-                                        placeholder="Observaciones / Detalles..." 
-                                        value={item.notes} 
-                                        onChange={e => handleNotes(idx, e.target.value)} 
-                                        style={{ flex: 1, padding: '0.6rem', fontSize: '0.8rem', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-surface)', outline: 'none' }} 
-                                    />
+                            <div className="animate-fade-in flex flex-col gap-[0.5rem] mt-[0.5rem] pt-[0.5rem] border-top-[1px_dashed_var(--color-border)]">
+                                <div className="flex gap-[0.5rem]">
+                                    <input
+                  type="text"
+                  placeholder="Observaciones / Detalles..."
+                  value={item.notes}
+                  onChange={(e) => handleNotes(idx, e.target.value)} className="flex-[1] p-[0.6rem] text-[0.8rem] border-[1px_solid_var(--color-border)] rounded-[8px] bg-[var(--color-surface)] outline-[none]" />
+
+                
                                 </div>
                             </div>
                             
-                            {item.photos.length > 0 && (
-                                <div className="animate-fade-in" style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
-                                    {item.photos.map((p, pIdx) => (
-                                        <div key={pIdx} style={{ position: 'relative', width: '45px', height: '45px', borderRadius: '6px', overflow: 'hidden' }}>
-                                            <img src={p} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Evidencia" />
-                                            <button onClick={() => removePhoto(idx, pIdx)} style={{ position: 'absolute', top: 0, right: 0, background: '#ef4444', color: '#fff', border: 'none', width: '16px', height: '16px', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>✕</button>
+                            {item.photos.length > 0 &&
+            <div className="animate-fade-in flex gap-[0.4rem] flex-wrap mt-[0.5rem]">
+                                    {item.photos.map((p, pIdx) =>
+              <div key={pIdx} className="relative w-[45px] h-[45px] rounded-[6px] overflow-[hidden]">
+                                            <img src={p} alt="Evidencia" className="w-[100%] h-[100%] object-fit-[cover]" />
+                                            <button onClick={() => removePhoto(idx, pIdx)} className="absolute top-[0] right-[0] bg-[#ef4444] text-[#fff] border-none w-[16px] h-[16px] text-[10px] flex items-center justify-center cursor-pointer">✕</button>
                                         </div>
-                                    ))}
+              )}
                                 </div>
-                            )}
+            }
                         </div>
-                    ))}
+          )}
                     
-                    <button onClick={handleAddItem} style={{ padding: '0.8rem', background: 'rgba(37,99,235,0.1)', color: '#2563eb', border: '1px dashed rgba(37,99,235,0.3)', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+                    <button onClick={handleAddItem} className="p-[0.8rem] bg-[rgba(37,99,235,0.1)] text-[#2563eb] border-[1px_dashed_rgba(37,99,235,0.3)] rounded-[12px] font-[800] cursor-pointer flex justify-center items-center gap-[0.5rem]">
                         <Plus size={18} /> AGREGAR PREGUNTA AL CHECKLIST
                     </button>
                 </div>
             </div>
 
-            <div className="card" style={{ padding: '1.2rem', marginBottom: '1.5rem', background: 'var(--color-surface)', border: '2px solid var(--color-border)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)', textTransform: 'uppercase' }}>Evidencia General</label>
-                    <label style={{ padding: '0.5rem 1rem', background: 'rgba(37,99,235,0.1)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.2)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: 700 }}>
+            <div className="card p-[1.2rem] mb-[1.5rem] bg-[var(--color-surface)] border-[2px_solid_var(--color-border)]">
+                <div className="flex justify-space-between items-center">
+                    <label className="block text-[0.85rem] font-[800] text-[var(--color-text)] uppercase">Evidencia General</label>
+                    <label className="p-[0.5rem_1rem] bg-[rgba(37,99,235,0.1)] text-[#2563eb] border-[1px_solid_rgba(37,99,235,0.2)] rounded-[8px] cursor-pointer flex items-center gap-[0.5rem] text-[0.8rem] font-[700]">
                         <Camera size={16} /> Agregar Foto
-                        <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleGeneralPhoto(e.target.files)} />
+                        <input type="file" accept="image/*" onChange={(e) => handleGeneralPhoto(e.target.files)} className="none" />
                     </label>
                 </div>
-                {generalPhotos.length > 0 && (
-                    <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', marginTop: '1rem' }}>
-                        {generalPhotos.map((p, pIdx) => (
-                            <div key={pIdx} style={{ position: 'relative', width: '80px', height: '80px', borderRadius: '10px', overflow: 'hidden', border: '2px solid var(--color-border)' }}>
-                                <img src={p} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Evidencia" />
-                                <button onClick={() => removeGeneralPhoto(pIdx)} style={{ position: 'absolute', top: 0, right: 0, background: '#ef4444', color: '#fff', border: 'none', width: '22px', height: '22px', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>✕</button>
+                {generalPhotos.length > 0 &&
+        <div className="flex gap-[0.8rem] flex-wrap mt-[1rem]">
+                        {generalPhotos.map((p, pIdx) =>
+          <div key={pIdx} className="relative w-[80px] h-[80px] rounded-[10px] overflow-[hidden] border-[2px_solid_var(--color-border)]">
+                                <img src={p} alt="Evidencia" className="w-[100%] h-[100%] object-fit-[cover]" />
+                                <button onClick={() => removeGeneralPhoto(pIdx)} className="absolute top-[0] right-[0] bg-[#ef4444] text-[#fff] border-none w-[22px] h-[22px] text-[12px] flex items-center justify-center cursor-pointer">✕</button>
                             </div>
-                        ))}
+          )}
                     </div>
-                )}
+        }
             </div>
 
-            <div className="card" style={{ padding: '1.2rem', marginBottom: '1.5rem', background: 'var(--color-surface)', border: '2px solid var(--color-border)' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)', textTransform: 'uppercase', marginBottom: '0.8rem' }}>Observaciones Generales</label>
-                <textarea 
-                    value={generalObservations}
-                    onChange={e => setGeneralObservations(e.target.value)}
-                    placeholder="Agregue comentarios adicionales sobre la inspección..."
-                    style={{ width: '100%', padding: '0.8rem', borderRadius: '10px', border: '1px solid var(--color-border)', outline: 'none', minHeight: '80px', resize: 'vertical' }}
-                />
+            <div className="card p-[1.2rem] mb-[1.5rem] bg-[var(--color-surface)] border-[2px_solid_var(--color-border)]">
+                <label className="block text-[0.85rem] font-[800] text-[var(--color-text)] uppercase mb-[0.8rem]">Observaciones Generales</label>
+                <textarea
+          value={generalObservations}
+          onChange={(e) => setGeneralObservations(e.target.value)}
+          placeholder="Agregue comentarios adicionales sobre la inspección..." className="w-[100%] p-[0.8rem] rounded-[10px] border-[1px_solid_var(--color-border)] outline-[none] min-h-[80px] resize-[vertical]" />
+
+        
             </div>
 
-            <div className="card" style={{ padding: '1.2rem', background: 'var(--color-surface)', border: '2px solid var(--color-border)', marginBottom: '4rem' }}>
-                <div style={{ marginBottom: '1rem' }}>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Fecha de Inspección</label>
-                    <input 
-                        type="date" 
-                        value={inspectionDate} 
-                        onChange={e => setInspectionDate(e.target.value)} 
-                        style={{ width: '100%', padding: '0.8rem', borderRadius: '10px', border: '1px solid var(--color-border)', outline: 'none', fontWeight: 700, fontFamily: 'inherit' }} 
-                    />
+            <div className="card p-[1.2rem] bg-[var(--color-surface)] border-[2px_solid_var(--color-border)] mb-[4rem]">
+                <div className="mb-[1rem]">
+                    <label className="block text-[0.75rem] font-[800] text-[var(--color-text-muted)] mb-[0.5rem] uppercase">Fecha de Inspección</label>
+                    <input
+            type="date"
+            value={inspectionDate}
+            onChange={(e) => setInspectionDate(e.target.value)} className="w-[100%] p-[0.8rem] rounded-[10px] border-[1px_solid_var(--color-border)] outline-[none] font-[700] font-family-[inherit]" />
+
+          
                 </div>
                 <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Firma del Inspector</label>
-                    <input 
-                        type="text" 
-                        placeholder="Nombre completo" 
-                        value={inspectorName} 
-                        onChange={e => setInspectorName(e.target.value)} 
-                        style={{ width: '100%', padding: '0.8rem', borderRadius: '10px', border: '1px solid var(--color-border)', outline: 'none', fontWeight: 700 }} 
-                    />
+                    <label className="block text-[0.75rem] font-[800] text-[var(--color-text-muted)] mb-[0.5rem] uppercase">Firma del Inspector</label>
+                    <input
+            type="text"
+            placeholder="Nombre completo"
+            value={inspectorName}
+            onChange={(e) => setInspectorName(e.target.value)} className="w-[100%] p-[0.8rem] rounded-[10px] border-[1px_solid_var(--color-border)] outline-[none] font-[700]" />
+
+          
                 </div>
             </div>
 
             {/* Mobile Floating Save Button */}
-            <div style={{ position: 'fixed', bottom: '1rem', left: '1rem', right: '1rem', zIndex: 10 }}>
-                <button 
-                    onClick={(e) => { e.preventDefault(); requirePro(handleSave); }} 
-                    disabled={isSaving}
-                    style={{ width: '100%', padding: '1rem', background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: '16px', fontWeight: 900, fontSize: '1rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', boxShadow: '0 8px 25px rgba(37,99,235,0.4)' }}
-                >
+            <div className="fixed bottom-[1rem] left-[1rem] right-[1rem] z-[10]">
+                <button
+          onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
+          disabled={isSaving} className="w-[100%] p-[1rem] bg-[var(--color-primary)] text-[#fff] border-none rounded-[16px] font-[900] text-[1rem] cursor-pointer flex justify-center items-center gap-[0.5rem] box-shadow-[0_8px_25px_rgba(37,99,235,0.4)]">
+
+          
                     <Save size={20} /> {isSaving ? 'GUARDANDO...' : 'FINALIZAR INSPECCIÓN'}
                 </button>
             </div>
-        </div>
-    );
+        </div>);
+
 }

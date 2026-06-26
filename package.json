@@ -33,6 +33,7 @@
     "@google/generative-ai": "^0.24.1",
     "@phosphor-icons/react": "^2.1.10",
     "@sentry/react": "^10.53.1",
+    "@tailwindcss/vite": "^4.3.1",
     "@types/canvas-confetti": "^1.9.0",
     "canvas-confetti": "^1.9.4",
     "compression": "^1.8.1",
@@ -66,7 +67,8 @@
     "react-to-print": "^3.3.0",
     "recharts": "^3.8.0",
     "resend": "^6.9.3",
-    "sirv": "^3.0.2"
+    "sirv": "^3.0.2",
+    "tailwindcss": "^4.3.1"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",

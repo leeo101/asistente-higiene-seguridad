@@ -36,7 +36,7 @@ function readLogoFromStorage(): string | null {
         if (typeof parsed.value === 'string' && parsed.value) return parsed.value;
         if (typeof parsed.logo === 'string' && parsed.logo) return parsed.logo;
       }
-    } catch { /* no era JSON */ }
+    } catch {/* no era JSON */}
     return raw;
   } catch {
     return null;
@@ -53,7 +53,7 @@ function readShowLogoFromStorage(): boolean {
     try {
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === 'object' && 'value' in parsed) return Boolean(parsed.value);
-    } catch { /* no era JSON */ }
+    } catch {/* no era JSON */}
     return true;
   } catch {
     return true;
@@ -91,15 +91,15 @@ export default function CompanyLogo({ style = {}, className = '' }: CompanyLogoP
       <img
         src={companyLogo}
         alt="Logo de empresa"
-        className={`shared-company-logo ${className}`}
+        className={`shared-company-logo  h-[45px] w-[auto] object-fit-[contain] max-w-[150px] ${className}`}
         style={{
-          height: '45px',
-          width: 'auto',
-          objectFit: 'contain',
-          maxWidth: '150px',
+
+
+
+
           ...style
-        }}
-      />
-    </>
-  );
+        }} />
+      
+    </>);
+
 }

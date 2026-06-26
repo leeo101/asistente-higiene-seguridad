@@ -10,165 +10,160 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { getCountryNormativa } from '../data/legislationData';
 
 const HAZARD_TYPES = [
-    { value: '', label: 'Seleccionar...', icon: null, color: 'var(--color-text-muted)' },
-    { value: 'Físico', label: 'Físico', icon: <Zap size={12} />, color: '#3b82f6' },
-    { value: 'Químico', label: 'Químico', icon: <Flame size={12} />, color: '#f59e0b' },
-    { value: 'Biológico', label: 'Biológico', icon: <Leaf size={12} />, color: '#10b981' },
-    { value: 'Ergonómico', label: 'Ergonómico', icon: <Activity size={12} />, color: '#8b5cf6' },
-    { value: 'Psicosocial', label: 'Psicosocial', icon: <Brain size={12} />, color: '#ec4899' },
-    { value: 'Mecánico', label: 'Mecánico', icon: <Wrench size={12} />, color: '#6366f1' },
-    { value: 'Eléctrico', label: 'Eléctrico', icon: <Zap size={12} />, color: '#f97316' },
-];
+{ value: '', label: 'Seleccionar...', icon: null, color: 'var(--color-text-muted)' },
+{ value: 'Físico', label: 'Físico', icon: <Zap size={12} />, color: '#3b82f6' },
+{ value: 'Químico', label: 'Químico', icon: <Flame size={12} />, color: '#f59e0b' },
+{ value: 'Biológico', label: 'Biológico', icon: <Leaf size={12} />, color: '#10b981' },
+{ value: 'Ergonómico', label: 'Ergonómico', icon: <Activity size={12} />, color: '#8b5cf6' },
+{ value: 'Psicosocial', label: 'Psicosocial', icon: <Brain size={12} />, color: '#ec4899' },
+{ value: 'Mecánico', label: 'Mecánico', icon: <Wrench size={12} />, color: '#6366f1' },
+{ value: 'Eléctrico', label: 'Eléctrico', icon: <Zap size={12} />, color: '#f97316' }];
+
 
 const PROB_LABELS = ['', 'Baja', 'Media', 'Alta', 'Muy Alta'];
 const SEV_LABELS = ['', 'Leve', 'Moderada', 'Grave', 'Crítica'];
 
 const getRiskLevel = (p, s) => {
-      
-    const val = p * s;
-    if (val <= 4) return { label: 'BAJO', bg: '#dcfce7', color: '#16a34a', border: '#86efac', score: val };
-    if (val <= 9) return { label: 'MODERADO', bg: '#fef9c3', color: '#ca8a04', border: '#fde047', score: val };
-    return { label: 'CRÍTICO', bg: '#fee2e2', color: '#dc2626', border: '#fca5a5', score: val };
+
+  const val = p * s;
+  if (val <= 4) return { label: 'BAJO', bg: '#dcfce7', color: '#16a34a', border: '#86efac', score: val };
+  if (val <= 9) return { label: 'MODERADO', bg: '#fef9c3', color: '#ca8a04', border: '#fde047', score: val };
+  return { label: 'CRÍTICO', bg: '#fee2e2', color: '#dc2626', border: '#fca5a5', score: val };
 };
 
 const emptyRow = () => {
-    return {
-        id: Date.now() + Math.random(),
-        task: '', hazardType: '', hazard: '', probableEffect: '',
-        exposedCount: 1, probability: 1, severity: 1, controls: ''
-    };
+  return {
+    id: Date.now() + Math.random(),
+    task: '', hazardType: '', hazard: '', probableEffect: '',
+    exposedCount: 1, probability: 1, severity: 1, controls: ''
+  };
 };
 
 export default function RiskMatrix(): React.ReactElement | null {
-    const { requirePro } = usePaywall();
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { syncCollection } = useSync();
-    const savedData = localStorage.getItem('personalData');
-    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
-    const countryNorms = getCountryNormativa(userCountry);
+  const { requirePro } = usePaywall();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { syncCollection } = useSync();
+  const savedData = localStorage.getItem('personalData');
+  const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+  const countryNorms = getCountryNormativa(userCountry);
 
-    useDocumentTitle('Matriz de Riesgos');
-    const [projectData, setProjectData] = useState({
-        name: '', location: '',
-        date: new Date().toISOString().split('T')[0],
-        responsable: ''
-    });
-    const [rows, setRows] = useState([emptyRow()]);
-    const [showShare, setShowShare] = useState(false);
+  useDocumentTitle('Matriz de Riesgos');
+  const [projectData, setProjectData] = useState({
+    name: '', location: '',
+    date: new Date().toISOString().split('T')[0],
+    responsable: ''
+  });
+  const [rows, setRows] = useState([emptyRow()]);
+  const [showShare, setShowShare] = useState(false);
 
-    useEffect(() => {
-        if (location.state?.editData) {
-            const data = location.state.editData;
-            setProjectData({
-                id: data.id,
-                name: data.name || '',
-                location: data.location || '',
-                date: data.date || new Date().toISOString().split('T')[0],
-                responsable: data.responsable || ''
-            } as any);
-            if (data.rows && data.rows.length > 0) {
-                setRows(data.rows);
-            }
-        } else {
-            const saved = localStorage.getItem('personalData');
-            if (saved) {
-                const p = JSON.parse(saved);
-                setProjectData(prev => ({ ...prev, responsable: p.name || '' }));
-            }
-        }
-    }, [location.state]);
+  useEffect(() => {
+    if (location.state?.editData) {
+      const data = location.state.editData;
+      setProjectData({
+        id: data.id,
+        name: data.name || '',
+        location: data.location || '',
+        date: data.date || new Date().toISOString().split('T')[0],
+        responsable: data.responsable || ''
+      } as any);
+      if (data.rows && data.rows.length > 0) {
+        setRows(data.rows);
+      }
+    } else {
+      const saved = localStorage.getItem('personalData');
+      if (saved) {
+        const p = JSON.parse(saved);
+        setProjectData((prev) => ({ ...prev, responsable: p.name || '' }));
+      }
+    }
+  }, [location.state]);
 
-    const addRow = () => setRows([...rows, emptyRow()]);
-    const removeRow = (id) => {
-        setRows(rows.filter(r => r.id !== id));
-    };
-    const updateRow = (id, field, value) => setRows(rows.map(r => r.id === id ? { ...r, [field]: value } : r));
+  const addRow = () => setRows([...rows, emptyRow()]);
+  const removeRow = (id) => {
+    setRows(rows.filter((r) => r.id !== id));
+  };
+  const updateRow = (id, field, value) => setRows(rows.map((r) => r.id === id ? { ...r, [field]: value } : r));
 
-    const handleSave = async () => {
-        if (!projectData.name) { toast.error('Ingresá el nombre de la obra / proyecto.'); return; }
-        const activeRowsToSave = rows.filter(r => r.task.trim() || r.hazard.trim());
-        if (activeRowsToSave.length === 0) {
-            toast.error('Agregue al menos una evaluación con contenido.');
-            return;
-        }
-        const entryId = (projectData as any).id || Date.now();
-        const entry = { id: entryId, ...projectData, rows: activeRowsToSave, createdAt: new Date().toISOString() };
-        const history = JSON.parse(localStorage.getItem('risk_matrix_history') || '[]');
+  const handleSave = async () => {
+    if (!projectData.name) {toast.error('Ingresá el nombre de la obra / proyecto.');return;}
+    const activeRowsToSave = rows.filter((r) => r.task.trim() || r.hazard.trim());
+    if (activeRowsToSave.length === 0) {
+      toast.error('Agregue al menos una evaluación con contenido.');
+      return;
+    }
+    const entryId = (projectData as any).id || Date.now();
+    const entry = { id: entryId, ...projectData, rows: activeRowsToSave, createdAt: new Date().toISOString() };
+    const history = JSON.parse(localStorage.getItem('risk_matrix_history') || '[]');
 
-        let updated;
-        if ((projectData as any).id) {
-            // Update existing
-            updated = history.map((h: any) => h.id === entryId ? entry : h);
-        } else {
-            // Add new
-            updated = [entry, ...history];
-        }
-        await syncCollection('risk_matrix_history', updated);
-        localStorage.setItem('current_risk_matrix', JSON.stringify(entry));
-        navigate('/risk-matrix-report');
-    };
+    let updated;
+    if ((projectData as any).id) {
+      // Update existing
+      updated = history.map((h: any) => h.id === entryId ? entry : h);
+    } else {
+      // Add new
+      updated = [entry, ...history];
+    }
+    await syncCollection('risk_matrix_history', updated);
+    localStorage.setItem('current_risk_matrix', JSON.stringify(entry));
+    navigate('/risk-matrix-report');
+  };
 
-    const activeRows = rows.filter(r => r.task.trim() || r.hazard.trim() || r.hazardType);
+  const activeRows = rows.filter((r) => r.task.trim() || r.hazard.trim() || r.hazardType);
 
-    const summary = {
-        bajo: activeRows.filter(r => getRiskLevel(r.probability, r.severity).label === 'BAJO').length,
-        moderado: activeRows.filter(r => getRiskLevel(r.probability, r.severity).label === 'MODERADO').length,
-        critico: activeRows.filter(r => getRiskLevel(r.probability, r.severity).label === 'CRÍTICO').length,
-        total: activeRows.length
-    };
+  const summary = {
+    bajo: activeRows.filter((r) => getRiskLevel(r.probability, r.severity).label === 'BAJO').length,
+    moderado: activeRows.filter((r) => getRiskLevel(r.probability, r.severity).label === 'MODERADO').length,
+    critico: activeRows.filter((r) => getRiskLevel(r.probability, r.severity).label === 'CRÍTICO').length,
+    total: activeRows.length
+  };
 
-    return (
-        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '5rem 1rem 8rem 1rem' }}>
+  return (
+    <div className="w-full max-w-[1300px] mx-auto pt-20 pb-32 px-4">
             <ShareModal
-                isOpen={showShare}
-                open={showShare}
-                onClose={() => setShowShare(false)}
-                title={`Matriz de Riesgos – ${projectData.name}`}
-                text={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${projectData.name}\n📍 Ubicación: ${projectData.location}\n👷 Responsable: ${projectData.responsable}\n\nGenerado con Asistente HYS`}
-                rawMessage={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${projectData.name}\n📍 Ubicación: ${projectData.location}\n👷 Responsable: ${projectData.responsable}\n\nGenerado con Asistente HYS`}
-                elementIdToPrint="pdf-content"
-                fileName={`Matriz_${projectData.name || 'Riesgos'}.pdf`}
-            />
+        isOpen={showShare}
+        open={showShare}
+        onClose={() => setShowShare(false)}
+        title={`Matriz de Riesgos – ${projectData.name}`}
+        text={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${projectData.name}\n📍 Ubicación: ${projectData.location}\n👷 Responsable: ${projectData.responsable}\n\nGenerado con Asistente HYS`}
+        rawMessage={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${projectData.name}\n📍 Ubicación: ${projectData.location}\n👷 Responsable: ${projectData.responsable}\n\nGenerado con Asistente HYS`}
+        elementIdToPrint="pdf-content"
+        fileName={`Matriz_${projectData.name || 'Riesgos'}.pdf`} />
+      
 
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">
-                <button onClick={(e) => { e.preventDefault(); requirePro(() => handleSave()); }}
-                    className="btn-floating-action"
-                    style={{ background: '#36B37E', color: '#ffffff' }}
-                >
+                <button onClick={(e) => {e.preventDefault();requirePro(() => handleSave());}}
+        className="btn-floating-action bg-[#36B37E] text-[#ffffff]">
+
+          
                     <Save size={18} /> GUARDAR
                 </button>
                 <button
-                    onClick={() => requirePro(() => setShowShare(true))}
-                    className="btn-floating-action"
-                    style={{ background: '#0052CC', color: '#ffffff' }}
-                >
+          onClick={() => requirePro(() => setShowShare(true))}
+          className="btn-floating-action bg-[#0052CC] text-[#ffffff]">
+
+          
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
-                    onClick={() => requirePro(() => window.print())}
-                    className="btn-floating-action"
-                    style={{ background: '#FF8B00', color: '#ffffff' }}
-                >
+          onClick={() => requirePro(() => window.print())}
+          className="btn-floating-action bg-[#FF8B00] text-[#ffffff]">
+
+          
                     <Printer size={18} /> IMPRIMIR PDF
                 </button>
             </div>
 
             {/* ─── HEADER ─── */}
-            <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                marginBottom: '2rem', background: 'var(--color-surface)', borderRadius: '20px',
-                padding: '1.5rem 2rem', border: '1px solid #e2e8f0',
-                boxShadow: '0 4px 24px rgba(0,0,0,0.04)'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
+            <div className="flex items-center justify-between mb-8 bg-white dark:bg-slate-800 rounded-[20px] p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div className="flex items-center gap-[1.2rem]">
                     <></>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                        <h1 className="m-[0] text-[1.6rem] font-[900] text-[var(--color-text)] letter-spacing-[-0.5px] flex items-center gap-[0.7rem]">
                             <TriangleAlert size={28} color="#f59e0b" /> Matriz de Riesgos
                         </h1>
-                        <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                        <p className="m-[0] text-[var(--color-text-muted)] text-[0.8rem] font-[600] uppercase letter-spacing-[1px]">
                             {countryNorms.general} - HYS
                         </p>
                     </div>
@@ -176,94 +171,85 @@ export default function RiskMatrix(): React.ReactElement | null {
             </div>
 
             {/* ─── PROJECT DATA ─── */}
-            <div style={{
-                display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                gap: '1rem', marginBottom: '2rem'
-            }}>
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 mb-8">
                 {[
-                    { label: 'OBRA / PROYECTO', key: 'name', placeholder: 'Ej: Edificio Central' },
-                    { label: 'UBICACIÓN', key: 'location', placeholder: 'Ej: Planta Norte' },
-                    { label: 'RESPONSABLE HYS', key: 'responsable', placeholder: 'Profesional actuante' },
-                ].map(f => (
-                    <div key={f.key} style={{
-                        background: 'var(--color-surface)', borderRadius: '14px', padding: '1.2rem',
-                        border: '1px solid var(--color-border)', boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-                    }}>
-                        <label style={{ fontSize: '0.65rem', fontWeight: 900, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '0.5rem' }}>
+        { label: 'OBRA / PROYECTO', key: 'name', placeholder: 'Ej: Edificio Central' },
+        { label: 'UBICACIÓN', key: 'location', placeholder: 'Ej: Planta Norte' },
+        { label: 'RESPONSABLE HYS', key: 'responsable', placeholder: 'Profesional actuante' }].
+        map((f) =>
+        <div key={f.key} className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <label className="text-[0.65rem] font-black text-indigo-500 uppercase tracking-widest block mb-2">
                             {f.label}
                         </label>
                         <input
-                            type="text" value={projectData[f.key]}
-                            onChange={e => setProjectData({ ...projectData, [f.key]: e.target.value })}
-                            placeholder={f.placeholder}
-                            style={{ margin: 0, border: 'none', background: 'transparent', fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-text)', outline: 'none', width: '100%' }}
-                        />
+            type="text" value={projectData[f.key]}
+            onChange={(e) => setProjectData({ ...projectData, [f.key]: e.target.value })}
+            placeholder={f.placeholder}
+            className="m-0 border-none bg-transparent font-bold text-[0.95rem] text-slate-900 dark:text-slate-100 outline-none w-full" />
+          
                     </div>
-                ))}
-                <div style={{
-                    background: 'var(--color-surface)', borderRadius: '14px', padding: '1.2rem',
-                    border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
-                }}>
-                    <label style={{ fontSize: '0.65rem', fontWeight: 900, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '0.5rem' }}>FECHA</label>
+        )}
+                <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <label className="text-[0.65rem] font-black text-indigo-500 uppercase tracking-widest block mb-2">FECHA</label>
                     <input type="date" value={projectData.date}
-                        onChange={e => setProjectData({ ...projectData, date: e.target.value })}
-                        style={{ margin: 0, border: 'none', background: 'transparent', fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-text)', outline: 'none', width: '100%' }} />
+          onChange={(e) => setProjectData({ ...projectData, date: e.target.value })}
+          className="m-0 border-none bg-transparent font-bold text-[0.95rem] text-slate-900 dark:text-slate-100 outline-none w-full" />
                 </div>
             </div>
 
             {/* ─── DASHBOARD (Summary + Heatmap) ─── */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', alignContent: 'start' }}>
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-6 mb-8">
+                <div className="grid grid-template-columns-[1fr_1fr] gap-[1rem] align-content-[start]">
                     {[
-                        { label: 'Riesgos Bajos', count: summary.bajo, bg: '#dcfce7', color: '#16a34a', border: '#86efac' },
-                        { label: 'Riesgos Moderados', count: summary.moderado, bg: '#fef9c3', color: '#ca8a04', border: '#fde047' },
-                        { label: 'Riesgos Críticos', count: summary.critico, bg: '#fee2e2', color: '#dc2626', border: '#fca5a5' },
-                        { label: 'Total Evaluados', count: summary.total, bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe' },
-                    ].map(s => (
-                        <div key={s.label} style={{
-                            background: s.bg, border: `2px solid ${s.border}`,
-                            borderRadius: '16px', padding: '1.5rem 1rem', textAlign: 'center',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
-                        }}>
-                            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: s.color, lineHeight: 1 }}>{s.count}</div>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: s.color, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.5rem' }}>{s.label}</div>
+          { label: 'Riesgos Bajos', count: summary.bajo, bg: '#dcfce7', color: '#16a34a', border: '#86efac' },
+          { label: 'Riesgos Moderados', count: summary.moderado, bg: '#fef9c3', color: '#ca8a04', border: '#fde047' },
+          { label: 'Riesgos Críticos', count: summary.critico, bg: '#fee2e2', color: '#dc2626', border: '#fca5a5' },
+          { label: 'Total Evaluados', count: summary.total, bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe' }].
+          map((s) =>
+          <div key={s.label} style={{
+            background: s.bg, border: `2px solid ${s.border}`
+
+
+          }} className="rounded-[16px] p-[1.5rem_1rem] text-center box-shadow-[0_4px_12px_rgba(0,0,0,0.03)]">
+                            <div style={{ color: s.color }} className="text-[2.5rem] font-[900] line-height-[1]">{s.count}</div>
+                            <div style={{ color: s.color }} className="text-[0.75rem] font-[800] uppercase letter-spacing-[0.5px] mt-[0.5rem]">{s.label}</div>
                         </div>
-                    ))}
+          )}
                 </div>
 
-                <div style={{ background: 'var(--color-surface)', borderRadius: '16px', padding: '1.5rem', border: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column' }}>
-                    <h3 style={{ margin: '0 0 1rem 0', fontSize: '0.9rem', fontWeight: 900, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Mapa de Calor (Probabilidad vs Severidad)</h3>
-                    <div style={{ display: 'flex', flex: 1, gap: '0.5rem' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', paddingBottom: '2rem', paddingRight: '0.5rem', borderRight: '1px solid var(--color-border)' }}>
-                            <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--color-text-muted)', transform: 'rotate(-90deg)', transformOrigin: 'left center', whiteSpace: 'nowrap', marginTop: 'auto', marginBottom: 'auto' }}>PROBABILIDAD</span>
+                <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 flex flex-col">
+                    <h3 className="m-[0_0_1rem_0] text-[0.9rem] font-[900] text-[var(--color-text-muted)] uppercase letter-spacing-[0.05em]">Mapa de Calor (Probabilidad vs Severidad)</h3>
+                    <div className="flex flex-[1] gap-[0.5rem]">
+                        <div className="flex flex-col justify-space-between pb-[2rem] pr-[0.5rem] border-right-[1px_solid_var(--color-border)]">
+                            <span className="text-[0.65rem] font-[800] text-[var(--color-text-muted)] transform-[rotate(-90deg)] transform-origin-[left_center] white-space-[nowrap] mt-[auto] mb-[auto]">PROBABILIDAD</span>
                         </div>
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(4, 1fr)', gap: '4px', flex: 1 }}>
-                                {[4, 3, 2, 1].map(p => (
-                                    [1, 2, 3, 4].map(s => {
-                                        const count = activeRows.filter(r => r.probability === p && r.severity === s).length;
-                                        const lvl = getRiskLevel(p, s);
-                                        return (
-                                            <div key={`${p}-${s}`} style={{
-                                                background: count > 0 ? lvl.color : 'var(--color-background)',
-                                                border: count > 0 ? 'none' : `1px dashed ${lvl.border}`,
-                                                borderRadius: '6px',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                color: count > 0 ? '#fff' : 'transparent',
-                                                fontWeight: 900, fontSize: '1.2rem',
-                                                transition: 'all 0.3s'
-                                            }}>
+                        <div className="flex-[1] flex flex-col">
+                            <div className="grid grid-template-columns-[repeat(4,_1fr)] grid-template-rows-[repeat(4,_1fr)] gap-[4px] flex-[1]">
+                                {[4, 3, 2, 1].map((p) =>
+                [1, 2, 3, 4].map((s) => {
+                  const count = activeRows.filter((r) => r.probability === p && r.severity === s).length;
+                  const lvl = getRiskLevel(p, s);
+                  return (
+                    <div key={`${p}-${s}`} style={{
+                      background: count > 0 ? lvl.color : 'var(--color-background)',
+                      border: count > 0 ? 'none' : `1px dashed ${lvl.border}`,
+
+
+                      color: count > 0 ? '#fff' : 'transparent'
+
+
+                    }} className="rounded-[6px] flex items-center justify-center font-[900] text-[1.2rem] transition-[all_0.3s]">
                                                 {count > 0 ? count : ''}
-                                            </div>
-                                        );
-                                    })
-                                ))}
+                                            </div>);
+
+                })
+                )}
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px', marginTop: '0.5rem', textAlign: 'center' }}>
-                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--color-text-muted)' }}>S1</span>
-                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--color-text-muted)' }}>S2</span>
-                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--color-text-muted)' }}>S3</span>
-                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--color-text-muted)' }}>S4</span>
+                            <div className="grid grid-template-columns-[repeat(4,_1fr)] gap-[4px] mt-[0.5rem] text-center">
+                                <span className="text-[0.6rem] font-[800] text-[var(--color-text-muted)]">S1</span>
+                                <span className="text-[0.6rem] font-[800] text-[var(--color-text-muted)]">S2</span>
+                                <span className="text-[0.6rem] font-[800] text-[var(--color-text-muted)]">S3</span>
+                                <span className="text-[0.6rem] font-[800] text-[var(--color-text-muted)]">S4</span>
                             </div>
                         </div>
                     </div>
@@ -271,187 +257,175 @@ export default function RiskMatrix(): React.ReactElement | null {
             </div>
 
             {/* ─── RISK ROWS ─── */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div className="flex flex-col gap-4 mb-6">
                 {rows.map((row, idx) => {
-                    const level = getRiskLevel(row.probability, row.severity);
-                    const hazardInfo = HAZARD_TYPES.find(h => h.value === row.hazardType) || HAZARD_TYPES[0];
-                    return (
-                        <div key={row.id} style={{
-                            background: 'var(--color-surface)', borderRadius: '18px',
-                            border: `2px solid ${level.border}`,
-                            padding: '1.5rem', boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
-                            position: 'relative'
-                        }}>
+          const level = getRiskLevel(row.probability, row.severity);
+          const hazardInfo = HAZARD_TYPES.find((h) => h.value === row.hazardType) || HAZARD_TYPES[0];
+          return (
+            <div key={row.id} style={{
+
+              border: `2px solid ${level.border}`
+
+
+            }} className="bg-[var(--color-surface)] rounded-[18px] p-[1.5rem] box-shadow-[0_4px_16px_rgba(0,0,0,0.04)] relative">
                             {/* Row Header */}
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                            <div className="flex justify-space-between items-center mb-[1.2rem]">
+                                <div className="flex items-center gap-[0.8rem]">
+                                    <span className="bg-[var(--color-background)] text-[var(--color-text-muted)] rounded-[8px] p-[0.3rem_0.7rem] font-[900] text-[0.75rem]">
+
+
+                    #{idx + 1}</span>
                                     <span style={{
-                                        background: 'var(--color-background)', color: 'var(--color-text-muted)', borderRadius: '8px',
-                                        padding: '0.3rem 0.7rem', fontWeight: 900, fontSize: '0.75rem'
-                                    }}>#{idx + 1}</span>
-                                    <span style={{
-                                        background: level.bg, color: level.color, border: `1.5px solid ${level.border}`,
-                                        borderRadius: '20px', padding: '0.3rem 1rem',
-                                        fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em'
-                                    }}>
+                    background: level.bg, color: level.color, border: `1.5px solid ${level.border}`
+
+
+                  }} className="rounded-[20px] p-[0.3rem_1rem] font-[900] text-[0.75rem] uppercase letter-spacing-[0.05em]">
                                         {level.label} · {level.score}
                                     </span>
-                                    {row.hazardType && (
-                                        <span style={{
-                                            background: hazardInfo.color + '18', color: hazardInfo.color,
-                                            border: `1.5px solid ${hazardInfo.color}40`,
-                                            borderRadius: '20px', padding: '0.3rem 0.9rem',
-                                            fontWeight: 800, fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '0.3rem'
-                                        }}>
+                                    {row.hazardType &&
+                  <span style={{
+                    background: hazardInfo.color + '18', color: hazardInfo.color,
+                    border: `1.5px solid ${hazardInfo.color}40`
+
+
+                  }} className="rounded-[20px] p-[0.3rem_0.9rem] font-[800] text-[0.7rem] flex items-center gap-[0.3rem]">
                                             {hazardInfo.icon} {row.hazardType}
                                         </span>
-                                    )}
+                  }
                                 </div>
-                                <button onClick={() => removeRow(row.id)} style={{
-                                    background: '#fee2e2', border: 'none', borderRadius: '8px',
-                                    color: '#dc2626', cursor: 'pointer', padding: '0.4rem 0.6rem', display: 'flex'
-                                }}>
+                                <button onClick={() => removeRow(row.id)} className="bg-[#fee2e2] border-none rounded-[8px] text-[#dc2626] cursor-pointer p-[0.4rem_0.6rem] flex">
+
+
+                  
                                     <Trash2 size={16} />
                                 </button>
                             </div>
 
                             {/* Row Fields - Grid */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr 2fr', gap: '1rem', marginBottom: '1rem' }}>
+                            <div className="grid grid-template-columns-[2fr_1fr_2fr_2fr] gap-[1rem] mb-[1rem]">
                                 <div>
-                                    <label style={labelStyle}>Tarea / Proceso</label>
-                                    <textarea value={row.task} onChange={e => updateRow(row.id, 'task', e.target.value)}
-                                        onInput={e => { (e.target as any).style.height = 'auto'; (e.target as any).style.height = (e.target as any).scrollHeight + 'px'; }}
-                                        placeholder="Describa la tarea o proceso..." style={textareaStyle as any} />
+                                    <label className={labelStyle}>Tarea / Proceso</label>
+                                    <textarea value={row.task} onChange={(e) => updateRow(row.id, 'task', e.target.value)}
+                  onInput={(e) => {(e.target as any).style.height = 'auto';(e.target as any).style.height = (e.target as any).scrollHeight + 'px';}}
+                  placeholder="Describa la tarea o proceso..." className={textareaStyle} />
                                 </div>
                                 <div>
-                                    <label style={labelStyle}>Tipo de Peligro</label>
-                                    <select value={row.hazardType} onChange={e => updateRow(row.id, 'hazardType', e.target.value)} style={selectStyle}>
-                                        {HAZARD_TYPES.map(h => <option key={h.value} value={h.value}>{h.label}</option>)}
+                                    <label className={labelStyle}>Tipo de Peligro</label>
+                                    <select value={row.hazardType} onChange={(e) => updateRow(row.id, 'hazardType', e.target.value)} className={selectStyle}>
+                                        {HAZARD_TYPES.map((h) => <option key={h.value} value={h.value}>{h.label}</option>)}
                                     </select>
                                 </div>
                                 <div>
-                                    <label style={labelStyle}>Peligro / Riesgo Identificado</label>
-                                    <textarea value={row.hazard} onChange={e => updateRow(row.id, 'hazard', e.target.value)}
-                                        onInput={e => { (e.target as any).style.height = 'auto'; (e.target as any).style.height = (e.target as any).scrollHeight + 'px'; }}
-                                        placeholder="¿Qué puede causar daño?" style={textareaStyle as any} />
+                                    <label className={labelStyle}>Peligro / Riesgo Identificado</label>
+                                    <textarea value={row.hazard} onChange={(e) => updateRow(row.id, 'hazard', e.target.value)}
+                  onInput={(e) => {(e.target as any).style.height = 'auto';(e.target as any).style.height = (e.target as any).scrollHeight + 'px';}}
+                  placeholder="¿Qué puede causar daño?" className={textareaStyle} />
                                 </div>
                                 <div>
-                                    <label style={labelStyle}>Efecto Probable</label>
-                                    <textarea value={row.probableEffect} onChange={e => updateRow(row.id, 'probableEffect', e.target.value)}
-                                        onInput={e => { (e.target as any).style.height = 'auto'; (e.target as any).style.height = (e.target as any).scrollHeight + 'px'; }}
-                                        placeholder="Ej: Laceración, Hipoacusia..." style={textareaStyle as any} />
+                                    <label className={labelStyle}>Efecto Probable</label>
+                                    <textarea value={row.probableEffect} onChange={(e) => updateRow(row.id, 'probableEffect', e.target.value)}
+                  onInput={(e) => {(e.target as any).style.height = 'auto';(e.target as any).style.height = (e.target as any).scrollHeight + 'px';}}
+                  placeholder="Ej: Laceración, Hipoacusia..." className={textareaStyle} />
                                 </div>
                             </div>
 
                             {/* Scoring Row */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 1fr 2fr', gap: '1rem', alignItems: 'start' }}>
+                            <div className="grid grid-template-columns-[80px_1fr_1fr_2fr] gap-[1rem] items-start">
                                 <div>
-                                    <label style={labelStyle}>Expuestos</label>
+                                    <label className={labelStyle}>Expuestos</label>
                                     <input type="number" value={row.exposedCount} min="0"
-                                        onChange={e => updateRow(row.id, 'exposedCount', parseInt(e.target.value) || 0)}
-                                        style={{ ...selectStyle, textAlign: 'center' }} />
+                  onChange={(e) => updateRow(row.id, 'exposedCount', parseInt(e.target.value) || 0)}
+                  className={`${selectStyle} text-center`} />
                                 </div>
                                 <div>
-                                    <label style={labelStyle}>Probabilidad (P)</label>
-                                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                                        {[1, 2, 3, 4].map(v => (
-                                            <button key={v} onClick={() => updateRow(row.id, 'probability', v)} style={{
-                                                flex: 1, padding: '0.6rem 0.2rem', borderRadius: '10px',
-                                                background: row.probability === v ? '#4f46e5' : 'var(--color-background)',
-                                                border: `2px solid ${row.probability === v ? '#4f46e5' : 'var(--color-border)'}`,
-                                                color: row.probability === v ? 'white' : 'var(--color-text-muted)',
-                                                fontWeight: 900, fontSize: '0.7rem', cursor: 'pointer',
-                                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
-                                                transition: 'all 0.2s', boxShadow: row.probability === v ? '0 4px 12px rgba(79, 70, 229, 0.3)' : 'none'
-                                            }}>
-                                                <span style={{ fontSize: '1.1rem' }}>{v}</span>
-                                                <span style={{ fontSize: '0.55rem', textAlign: 'center', lineHeight: 1, opacity: row.probability === v ? 1 : 0.7 }}>{PROB_LABELS[v]}</span>
+                                    <label className={labelStyle}>Probabilidad (P)</label>
+                                    <div className="flex gap-[0.4rem] flex-wrap">
+                                        {[1, 2, 3, 4].map((v) =>
+                    <button key={v} onClick={() => updateRow(row.id, 'probability', v)} style={{
+
+                      background: row.probability === v ? '#4f46e5' : 'var(--color-background)',
+                      border: `2px solid ${row.probability === v ? '#4f46e5' : 'var(--color-border)'}`,
+                      color: row.probability === v ? 'white' : 'var(--color-text-muted)',
+
+
+                      boxShadow: row.probability === v ? '0 4px 12px rgba(79, 70, 229, 0.3)' : 'none'
+                    }} className="flex-[1] p-[0.6rem_0.2rem] rounded-[10px] font-[900] text-[0.7rem] cursor-pointer flex flex-col items-center gap-[2px] transition-[all_0.2s]">
+                                                <span className="text-[1.1rem]">{v}</span>
+                                                <span style={{ opacity: row.probability === v ? 1 : 0.7 }} className="text-[0.55rem] text-center line-height-[1]">{PROB_LABELS[v]}</span>
                                             </button>
-                                        ))}
+                    )}
                                     </div>
                                 </div>
                                 <div>
-                                    <label style={labelStyle}>Severidad (S)</label>
-                                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                                        {[1, 2, 3, 4].map(v => (
-                                            <button key={v} onClick={() => updateRow(row.id, 'severity', v)} style={{
-                                                flex: 1, padding: '0.6rem 0.2rem', borderRadius: '10px',
-                                                background: row.severity === v ? '#ea580c' : 'var(--color-background)',
-                                                border: `2px solid ${row.severity === v ? '#ea580c' : 'var(--color-border)'}`,
-                                                color: row.severity === v ? 'white' : 'var(--color-text-muted)',
-                                                fontWeight: 900, fontSize: '0.7rem', cursor: 'pointer',
-                                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
-                                                transition: 'all 0.2s', boxShadow: row.severity === v ? '0 4px 12px rgba(234, 88, 12, 0.3)' : 'none'
-                                            }}>
-                                                <span style={{ fontSize: '1.1rem' }}>{v}</span>
-                                                <span style={{ fontSize: '0.55rem', textAlign: 'center', lineHeight: 1, opacity: row.severity === v ? 1 : 0.7 }}>{SEV_LABELS[v]}</span>
+                                    <label className={labelStyle}>Severidad (S)</label>
+                                    <div className="flex gap-[0.4rem] flex-wrap">
+                                        {[1, 2, 3, 4].map((v) =>
+                    <button key={v} onClick={() => updateRow(row.id, 'severity', v)} style={{
+
+                      background: row.severity === v ? '#ea580c' : 'var(--color-background)',
+                      border: `2px solid ${row.severity === v ? '#ea580c' : 'var(--color-border)'}`,
+                      color: row.severity === v ? 'white' : 'var(--color-text-muted)',
+
+
+                      boxShadow: row.severity === v ? '0 4px 12px rgba(234, 88, 12, 0.3)' : 'none'
+                    }} className="flex-[1] p-[0.6rem_0.2rem] rounded-[10px] font-[900] text-[0.7rem] cursor-pointer flex flex-col items-center gap-[2px] transition-[all_0.2s]">
+                                                <span className="text-[1.1rem]">{v}</span>
+                                                <span style={{ opacity: row.severity === v ? 1 : 0.7 }} className="text-[0.55rem] text-center line-height-[1]">{SEV_LABELS[v]}</span>
                                             </button>
-                                        ))}
+                    )}
                                     </div>
                                 </div>
                                 <div>
-                                    <label style={labelStyle}>Medidas de Control</label>
-                                    <textarea value={row.controls} onChange={e => updateRow(row.id, 'controls', e.target.value)}
-                                        onInput={e => { (e.target as any).style.height = 'auto'; (e.target as any).style.height = (e.target as any).scrollHeight + 'px'; }}
-                                        placeholder="EPP, capacitación, procedimientos..." style={textareaStyle as any} />
+                                    <label className={labelStyle}>Medidas de Control</label>
+                                    <textarea value={row.controls} onChange={(e) => updateRow(row.id, 'controls', e.target.value)}
+                  onInput={(e) => {(e.target as any).style.height = 'auto';(e.target as any).style.height = (e.target as any).scrollHeight + 'px';}}
+                  placeholder="EPP, capacitación, procedimientos..." className={textareaStyle} />
                                 </div>
                             </div>
-                        </div>
-                    );
-                })}
+                        </div>);
+
+        })}
             </div>
 
             {/* ─── ADD ROW BUTTON ─── */}
-            <button onClick={addRow} style={{
-                width: '100%', padding: '1rem', display: 'flex', alignItems: 'center',
-                justifyContent: 'center', gap: '0.6rem', borderRadius: '14px',
-                border: '2px dashed #cbd5e1', background: 'var(--color-background)',
-                color: 'var(--color-text-muted)', fontWeight: 800, fontSize: '0.85rem',
-                cursor: 'pointer', marginBottom: '2rem', transition: 'all 0.2s'
-            }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = '#6366f1'; e.currentTarget.style.color = '#6366f1'; e.currentTarget.style.background = '#eef2ff'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = 'var(--color-text-muted)'; e.currentTarget.style.background = 'var(--color-background)'; }}
-            >
+            <button onClick={addRow}
+
+
+
+
+
+
+      onMouseEnter={(e) => {e.currentTarget.style.borderColor = '#6366f1';e.currentTarget.style.color = '#6366f1';e.currentTarget.style.background = '#eef2ff';}}
+      onMouseLeave={(e) => {e.currentTarget.style.borderColor = '#cbd5e1';e.currentTarget.style.color = 'var(--color-text-muted)';e.currentTarget.style.background = 'var(--color-background)';}} className="w-[100%] p-[1rem] flex items-center justify-center gap-[0.6rem] rounded-[14px] border-[2px_dashed_#cbd5e1] bg-[var(--color-background)] text-[var(--color-text-muted)] font-[800] text-[0.85rem] cursor-pointer mb-[2rem] transition-[all_0.2s]">
+        
                 <Plus size={18} /> AGREGAR NUEVA EVALUACIÓN DE RIESGO
             </button>
 
             {/* ─── LEGEND ─── */}
-            <div style={{ background: 'var(--color-background)', borderRadius: '14px', padding: '1.2rem', border: '1px solid var(--color-border)' }}>
-                <p style={{ margin: '0 0 0.8rem 0', fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div className="bg-[var(--color-background)] rounded-[14px] p-[1.2rem] border-[1px_solid_var(--color-border)]">
+                <p className="m-[0_0_0.8rem_0] text-[0.75rem] font-[800] text-[var(--color-text-muted)] uppercase letter-spacing-[0.05em]">
                     Guía de Valoración (P × S)
                 </p>
-                <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                <div className="flex gap-[1.5rem] flex-wrap">
                     {[
-                        { range: '1 – 4', label: 'BAJO', desc: 'Riesgo tolerable', bg: '#dcfce7', color: '#16a34a' },
-                        { range: '5 – 9', label: 'MODERADO', desc: 'Requiere control', bg: '#fef9c3', color: '#ca8a04' },
-                        { range: '10 – 16', label: 'CRÍTICO', desc: 'Acción inmediata', bg: '#fee2e2', color: '#dc2626' },
-                    ].map(l => (
-                        <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                            <div style={{ width: '32px', height: '20px', background: l.bg, border: `1.5px solid ${l.color}40`, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <span style={{ fontSize: '0.6rem', fontWeight: 900, color: l.color }}>{l.label[0]}</span>
+          { range: '1 – 4', label: 'BAJO', desc: 'Riesgo tolerable', bg: '#dcfce7', color: '#16a34a' },
+          { range: '5 – 9', label: 'MODERADO', desc: 'Requiere control', bg: '#fef9c3', color: '#ca8a04' },
+          { range: '10 – 16', label: 'CRÍTICO', desc: 'Acción inmediata', bg: '#fee2e2', color: '#dc2626' }].
+          map((l) =>
+          <div key={l.label} className="flex items-center gap-[0.6rem]">
+                            <div style={{ background: l.bg, border: `1.5px solid ${l.color}40` }} className="w-[32px] h-[20px] rounded-[4px] flex items-center justify-center">
+                                <span style={{ color: l.color }} className="text-[0.6rem] font-[900]">{l.label[0]}</span>
                             </div>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}><strong style={{ color: l.color }}>{l.label}</strong> ({l.range}): {l.desc}</span>
+                            <span className="text-[0.75rem] text-[var(--color-text-muted)]"><strong style={{ color: l.color }}>{l.label}</strong> ({l.range}): {l.desc}</span>
                         </div>
-                    ))}
+          )}
                 </div>
             </div>
-        </div>
-    );
+        </div>);
+
 }
 
 // ─── Shared micro-styles ───
-const labelStyle = {
-    display: 'block', fontSize: '0.65rem', fontWeight: 900,
-    color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem'
-};
-const textareaStyle = {
-    width: '100%', minHeight: '72px', padding: '0.6rem 0.8rem', margin: 0,
-    background: 'var(--color-background)', border: '1.5px solid var(--color-border)', borderRadius: '10px',
-    fontSize: '0.82rem', resize: 'none', overflow: 'hidden', color: 'var(--color-text)', fontFamily: 'inherit',
-    outline: 'none', boxSizing: 'border-box' as any
-};
-const selectStyle = {
-    width: '100%', padding: '0.6rem 0.8rem', margin: 0,
-    background: 'var(--color-background)', border: '1.5px solid var(--color-border)', borderRadius: '10px',
-    fontSize: '0.82rem', color: 'var(--color-text)', outline: 'none', boxSizing: 'border-box' as any
-};
+const labelStyle = "block text-[0.65rem] font-black text-slate-500 uppercase tracking-widest mb-1.5";
+const textareaStyle = "w-full min-h-[72px] p-2.5 m-0 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm resize-none overflow-hidden text-slate-900 dark:text-slate-100 outline-none box-border focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500";
+const selectStyle = "w-full p-2.5 m-0 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 outline-none box-border focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500";

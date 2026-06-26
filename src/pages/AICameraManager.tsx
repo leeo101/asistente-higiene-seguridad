@@ -13,304 +13,304 @@ import AiReportPdfGenerator from '../components/AiReportPdfGenerator';
 import PremiumHeader from '../components/PremiumHeader';
 
 function DeleteConfirm({ onConfirm, onCancel }: any) {
-    return (
-        <ConfirmModal
-            isOpen={true}
-            onClose={onCancel}
-            onConfirm={onConfirm}
-            title="¿Eliminar registro?"
-            message="Esta acción no se puede deshacer."
-            iconEmoji="🗑️"
-        />
-    );
+  return (
+    <ConfirmModal
+      isOpen={true}
+      onClose={onCancel}
+      onConfirm={onConfirm}
+      title="¿Eliminar registro?"
+      message="Esta acción no se puede deshacer."
+      iconEmoji="🗑️" />);
+
+
 }
 
 export default function AICameraManager(): React.ReactElement | null {
-    const navigate = useNavigate();
-    const { syncCollection, syncPulse } = useSync();
-    const { currentUser } = useAuth();
-    const [history, setHistory] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [deleteTarget, setDeleteTarget] = useState(null);
-    const [qrTarget, setQrTarget] = useState(null);
-    const [shareItem, setShareItem] = useState(null);
+  const navigate = useNavigate();
+  const { syncCollection, syncPulse } = useSync();
+  const { currentUser } = useAuth();
+  const [history, setHistory] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [qrTarget, setQrTarget] = useState(null);
+  const [shareItem, setShareItem] = useState(null);
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-        const raw = localStorage.getItem('ai_camera_history');
-        if (!raw) return;
-        try {
-            const parsed = JSON.parse(raw);
-            const valid = parsed.filter(item => {
-                if (!item || !item.id) return false;
-                if (!item.date) return false;
-                if (item.type !== 'ppe_check' && item.ppeComplete === undefined) return false; // Solo EPP
-                return true;
-            });
-            setHistory(valid);
-        } catch {
-            setHistory([]);
-        }
-    }, [syncPulse]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const raw = localStorage.getItem('ai_camera_history');
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw);
+      const valid = parsed.filter((item) => {
+        if (!item || !item.id) return false;
+        if (!item.date) return false;
+        if (item.type !== 'ppe_check' && item.ppeComplete === undefined) return false; // Solo EPP
+        return true;
+      });
+      setHistory(valid);
+    } catch {
+      setHistory([]);
+    }
+  }, [syncPulse]);
 
-    const confirmDelete = () => {
-        // Obtenemos todos, porque en localStorage están mezclados EPP y Riesgos
-        const raw = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
-        const updated = raw.filter(item => item.id !== deleteTarget);
-        
-        localStorage.setItem('ai_camera_history', JSON.stringify(updated));
-        localStorage.removeItem(`ai_report_full_${deleteTarget}`);
-        syncCollection('ai_camera_history', updated);
-        
-        setHistory(history.filter(item => item.id !== deleteTarget));
-        setDeleteTarget(null);
-        toast.success("Inspección eliminada");
-    };
+  const confirmDelete = () => {
+    // Obtenemos todos, porque en localStorage están mezclados EPP y Riesgos
+    const raw = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
+    const updated = raw.filter((item) => item.id !== deleteTarget);
 
-    const filtered = history.filter(item =>
-        item.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.location?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    localStorage.setItem('ai_camera_history', JSON.stringify(updated));
+    localStorage.removeItem(`ai_report_full_${deleteTarget}`);
+    syncCollection('ai_camera_history', updated);
 
-    const total = history.length;
-    const eppOk = history.filter(i => i.ppeComplete).length;
-    const eppFail = history.filter(i => i.ppeComplete === false).length;
-    const compliance = total > 0 ? Math.round((eppOk / Math.max(eppOk + eppFail, 1)) * 100) : 0;
+    setHistory(history.filter((item) => item.id !== deleteTarget));
+    setDeleteTarget(null);
+    toast.success("Inspección eliminada");
+  };
 
-    const getWeeklyStats = () => {
-        const stats = [];
-        const now = new Date();
-        for (let i = 5; i >= 0; i--) {
-            const start = new Date(now);
-            start.setDate(now.getDate() - (i * 7 + 6));
-            start.setHours(0, 0, 0, 0);
-            const end = new Date(now);
-            end.setDate(now.getDate() - (i * 7));
-            end.setHours(23, 59, 59, 999);
+  const filtered = history.filter((item) =>
+  item.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  item.location?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-            const weekItems = history.filter(item => {
-                const d = new Date(item.date);
-                return d >= start && d <= end;
-            });
+  const total = history.length;
+  const eppOk = history.filter((i) => i.ppeComplete).length;
+  const eppFail = history.filter((i) => i.ppeComplete === false).length;
+  const compliance = total > 0 ? Math.round(eppOk / Math.max(eppOk + eppFail, 1) * 100) : 0;
 
-            const wTotal = weekItems.length;
-            const wOk = weekItems.filter(item => item.ppeComplete).length;
-            const wFail = weekItems.filter(item => item.ppeComplete === false).length;
-            const wComp = wTotal > 0 ? Math.round((wOk / Math.max(wOk + wFail, 1)) * 100) : 0;
+  const getWeeklyStats = () => {
+    const stats = [];
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const start = new Date(now);
+      start.setDate(now.getDate() - (i * 7 + 6));
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(now);
+      end.setDate(now.getDate() - i * 7);
+      end.setHours(23, 59, 59, 999);
 
-            stats.push({ label: i === 0 ? 'Hoy' : `hace ${i}s`, value: wComp, count: wTotal });
-        }
-        return stats;
-    };
-    const weeklyStats = getWeeklyStats();
+      const weekItems = history.filter((item) => {
+        const d = new Date(item.date);
+        return d >= start && d <= end;
+      });
 
-    const handleExportCSV = () => {
-        downloadCSV(filtered.map(i => ({
-            empresa: i.company, ubicacion: i.location,
-            fecha: i.date ? new Date(i.date).toLocaleDateString('es-AR') : '',
-            resultado: i.ppeComplete ? 'EPP OK' : 'Falta EPP'
-        })), 'camara_epp_historial', {
-            empresa: 'Empresa', ubicacion: 'Ubicación', fecha: 'Fecha', resultado: 'Resultado'
-        });
-    };
+      const wTotal = weekItems.length;
+      const wOk = weekItems.filter((item) => item.ppeComplete).length;
+      const wFail = weekItems.filter((item) => item.ppeComplete === false).length;
+      const wComp = wTotal > 0 ? Math.round(wOk / Math.max(wOk + wFail, 1) * 100) : 0;
 
-    return (
-        <div className="container" style={{ maxWidth: '900px', paddingBottom: '5rem' }}>
+      stats.push({ label: i === 0 ? 'Hoy' : `hace ${i}s`, value: wComp, count: wTotal });
+    }
+    return stats;
+  };
+  const weeklyStats = getWeeklyStats();
+
+  const handleExportCSV = () => {
+    downloadCSV(filtered.map((i) => ({
+      empresa: i.company, ubicacion: i.location,
+      fecha: i.date ? new Date(i.date).toLocaleDateString('es-AR') : '',
+      resultado: i.ppeComplete ? 'EPP OK' : 'Falta EPP'
+    })), 'camara_epp_historial', {
+      empresa: 'Empresa', ubicacion: 'Ubicación', fecha: 'Fecha', resultado: 'Resultado'
+    });
+  };
+
+  return (
+    <div className="container max-w-[900px] pb-[5rem]">
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
             {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
 
             <ShareModal
-                isOpen={!!shareItem && !document.body.classList.contains('printing-isolated')}
-                open={!!shareItem && !document.body.classList.contains('printing-isolated')}
-                onClose={() => setShareItem(null)}
-                title={`Inspección EPP IA - ${shareItem?.company || ''}`}
-                text={shareItem ? `📸 Inspección de EPP con IA\n🏗️ Empresa: ${shareItem.company || 'Local'}\n🛡️ Resultado: ${shareItem.ppeComplete ? '✅ EPP OK' : '⚠️ Falta EPP'}` : ''}
-                rawMessage={shareItem ? `📸 Inspección de EPP con IA\n🏗️ Empresa: ${shareItem.company || 'Local'}\n🛡️ Resultado: ${shareItem.ppeComplete ? '✅ EPP OK' : '⚠️ Falta EPP'}` : ''}
-                elementIdToPrint="pdf-content"
-                fileName={`Inspeccion_EPP_${shareItem?.company || 'Sin_Nombre'}.pdf`}
-            />
+        isOpen={!!shareItem && !document.body.classList.contains('printing-isolated')}
+        open={!!shareItem && !document.body.classList.contains('printing-isolated')}
+        onClose={() => setShareItem(null)}
+        title={`Inspección EPP IA - ${shareItem?.company || ''}`}
+        text={shareItem ? `📸 Inspección de EPP con IA\n🏗️ Empresa: ${shareItem.company || 'Local'}\n🛡️ Resultado: ${shareItem.ppeComplete ? '✅ EPP OK' : '⚠️ Falta EPP'}` : ''}
+        rawMessage={shareItem ? `📸 Inspección de EPP con IA\n🏗️ Empresa: ${shareItem.company || 'Local'}\n🛡️ Resultado: ${shareItem.ppeComplete ? '✅ EPP OK' : '⚠️ Falta EPP'}` : ''}
+        elementIdToPrint="pdf-content"
+        fileName={`Inspeccion_EPP_${shareItem?.company || 'Sin_Nombre'}.pdf`} />
+      
 
             {typeof document !== 'undefined' && createPortal(
-                <div className="ats-pdf-offscreen">
+        <div className="ats-pdf-offscreen">
                     {shareItem && <AiReportPdfGenerator item={shareItem} />}
                 </div>,
-                document.body
-            )}
+        document.body
+      )}
 
             <PremiumHeader
-                title="Cámara IA (EPP)"
-                subtitle="Detección y cumplimiento de EPP"
-                icon={<Camera size={36} color="#ffffff" />}
-            />
+        title="Cámara IA (EPP)"
+        subtitle="Detección y cumplimiento de EPP"
+        icon={<Camera size={36} color="#ffffff" />} />
+      
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+            <div className="flex items-center justify-space-between gap-[1rem] mt-[1.5rem] mb-[2rem] flex-wrap">
                 
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <div className="flex gap-[1rem] flex-wrap">
                     <></>
                     <button
-                        onClick={() => navigate('/ai-camera')}
-                        style={{
-                            display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
-                            background: 'linear-gradient(135deg, #36B37E 0%, #2A9365 100%)', color: 'white', border: 'none', borderRadius: '12px',
-                            fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
-                            boxShadow: '0 4px 15px rgba(54, 179, 126, 0.4)'
-                        }}
-                    >
+            onClick={() => navigate('/ai-camera')} className="flex items-center gap-[0.8rem] p-[0.8rem_1.5rem] bg-[linear-gradient(135deg,_#36B37E_0%,_#2A9365_100%)] text-[white] border-none rounded-[12px] font-[800] text-[0.95rem] cursor-pointer box-shadow-[0_4px_15px_rgba(54,_179,_126,_0.4)]">
+
+
+
+
+
+
+            
                         <Camera size={20} /> NUEVA DETECCIÓN
                     </button>
-                    {history.length > 0 && (
-                        <button onClick={handleExportCSV} style={{
-                            display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
-                            background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
-                            borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer'
-                        }}>
+                    {history.length > 0 &&
+          <button onClick={handleExportCSV} className="flex items-center gap-[0.8rem] p-[0.8rem_1.5rem] bg-[var(--color-surface)] text-[var(--color-text)] border-[1px_solid_var(--color-border)] rounded-[12px] font-[800] text-[0.95rem] cursor-pointer">
+
+
+
+            
                             <Download size={20} /> EXPORTAR CSV
                         </button>
-                    )}
+          }
                 </div>
             </div>
 
-            {total > 0 && (
-                <div style={{ marginBottom: '2rem' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.7rem', marginBottom: '1rem' }}>
-                        <div style={{ background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: '12px', padding: '1rem', textAlign: 'center' }}>
-                            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#06b6d4' }}>{total}</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>ESCANEO EPP</div>
+            {total > 0 &&
+      <div className="mb-8">
+                    <div className="grid grid-template-columns-[repeat(3,_1fr)] gap-[0.7rem] mb-[1rem]">
+                        <div className="bg-[rgba(6,182,212,0.08)] border-[1px_solid_rgba(6,182,212,0.2)] rounded-[12px] p-[1rem] text-center">
+                            <div className="text-[1.8rem] font-[900] text-[#06b6d4]">{total}</div>
+                            <div className="text-[0.75rem] text-[var(--color-text-muted)] font-[700]">ESCANEO EPP</div>
                         </div>
-                        <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '12px', padding: '1rem', textAlign: 'center' }}>
-                            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#10b981' }}>{compliance}%</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>COMPLIANCE</div>
+                        <div className="bg-[rgba(16,185,129,0.08)] border-[1px_solid_rgba(16,185,129,0.2)] rounded-[12px] p-[1rem] text-center">
+                            <div className="text-[1.8rem] font-[900] text-[#10b981]">{compliance}%</div>
+                            <div className="text-[0.75rem] text-[var(--color-text-muted)] font-[700]">COMPLIANCE</div>
                         </div>
-                        <div style={{ background: eppFail > 0 ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${eppFail > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}`, borderRadius: '12px', padding: '1rem', textAlign: 'center' }}>
-                            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: eppFail > 0 ? '#ef4444' : '#10b981' }}>{eppFail}</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>SIN EPP</div>
+                        <div style={{ background: eppFail > 0 ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${eppFail > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}` }} className="rounded-[12px] p-[1rem] text-center">
+                            <div style={{ color: eppFail > 0 ? '#ef4444' : '#10b981' }} className="text-[1.8rem] font-[900]">{eppFail}</div>
+                            <div className="text-[0.75rem] text-[var(--color-text-muted)] font-[700]">SIN EPP</div>
                         </div>
                     </div>
 
-                    <div className="card" style={{ padding: '1.2rem', background: 'var(--color-surface)', borderRadius: '16px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
-                            <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-text)' }}>Tendencia de Compliance (últimas 6 semanas)</h3>
+                    <div className="card p-[1.2rem] bg-[var(--color-surface)] rounded-[16px]">
+                        <div className="flex justify-space-between items-center mb-[1.2rem]">
+                            <h3 className="m-[0] text-[0.85rem] font-[800] text-[var(--color-text)]">Tendencia de Compliance (últimas 6 semanas)</h3>
                             <BarChart2 size={16} color="var(--color-text-muted)" />
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '100px', gap: '8px', padding: '0 5px' }}>
-                            {weeklyStats.map((s, i) => (
-                                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                                    <div style={{ position: 'relative', width: '100%', height: '80px', display: 'flex', alignItems: 'flex-end' }}>
-                                        <div style={{ position: 'absolute', width: '100%', height: '100%', background: 'var(--color-background)', borderRadius: '4px', opacity: 0.5 }} />
+                        <div className="flex items-end justify-space-between h-[100px] gap-[8px] p-[0_5px]">
+                            {weeklyStats.map((s, i) =>
+            <div key={i} className="flex-[1] flex flex-col items-center gap-[8px]">
+                                    <div className="relative w-[100%] h-[80px] flex items-end">
+                                        <div className="absolute w-[100%] h-[100%] bg-[var(--color-background)] rounded-[4px] opacity-[0.5]" />
                                         <div style={{
-                                            width: '100%',
-                                            height: `${s.value}%`,
-                                            background: s.value > 80 ? '#10b981' : (s.value > 50 ? '#f59e0b' : '#ef4444'),
-                                            borderRadius: '4px',
-                                            zIndex: 1,
-                                            transition: 'height 1s ease-out'
-                                        }} title={`${s.value}% compliance (${s.count} insp)`} />
+
+                  height: `${s.value}%`,
+                  background: s.value > 80 ? '#10b981' : s.value > 50 ? '#f59e0b' : '#ef4444'
+
+
+
+                }} title={`${s.value}% compliance (${s.count} insp)`} className="w-[100%] rounded-[4px] z-[1] transition-[height_1s_ease-out]" />
                                     </div>
-                                    <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>{s.label}</span>
+                                    <span className="text-[0.6rem] text-[var(--color-text-muted)] font-[700] uppercase">{s.label}</span>
                                 </div>
-                            ))}
+            )}
                         </div>
                     </div>
                 </div>
-            )}
+      }
 
-            <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
-                <Search style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} size={18} />
+            <div className="relative mb-[1.5rem]">
+                <Search size={18} className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)] text-[var(--color-text-muted)]" />
                 <input
-                    type="text"
-                    placeholder="Buscar por empresa o ubicación..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{
-                        width: '100%', padding: '1rem 1rem 1rem 2.8rem',
-                        borderRadius: '16px', border: '1px solid var(--color-border)',
-                        background: 'var(--color-surface)', fontSize: '0.95rem'
-                    }}
-                />
+          type="text"
+          placeholder="Buscar por empresa o ubicación..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[1rem_1rem_1rem_2.8rem] rounded-[16px] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.95rem]" />
+
+
+
+
+
+        
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {filtered.length > 0 ? (
-                    filtered.map((item) => (
-                        <div key={item.id} className="card" style={{ padding: '1.5rem', borderRadius: '16px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, minWidth: 0 }}>
-                                    <div style={{ width: '48px', height: '48px', background: 'rgba(6,182,212,0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#06b6d4' }}>
+            <div className="flex flex-col gap-4">
+                {filtered.length > 0 ?
+        filtered.map((item) =>
+        <div key={item.id} className="card p-[1.5rem] rounded-[16px]">
+                            <div className="flex justify-space-between items-start mb-[1rem] flex-wrap gap-[1rem]">
+                                <div className="flex items-center gap-[1rem] flex-[1] min-width-[0]">
+                                    <div className="w-[48px] h-[48px] bg-[rgba(6,182,212,0.1)] rounded-[12px] flex items-center justify-center text-[#06b6d4]">
                                         <Camera size={24} />
                                     </div>
                                     <div>
-                                        <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.company || 'Empresa sin nombre'}</h3>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '0.3rem' }}>
+                                        <h3 className="m-[0] text-[1.1rem] font-[800] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">{item.company || 'Empresa sin nombre'}</h3>
+                                        <div className="flex items-center gap-[0.4rem] text-[0.85rem] text-[var(--color-text-muted)] mt-[0.3rem]">
                                             <Calendar size={14} /> {new Date(item.date).toLocaleDateString('es-AR')} — <Building2 size={14} /> {item.location}
                                         </div>
                                     </div>
                                 </div>
                                 <div style={{
-                                    display: 'flex', alignItems: 'center', gap: '0.4rem',
-                                    fontSize: '0.8rem', fontWeight: 800,
-                                    padding: '0.4rem 0.8rem', borderRadius: '100px',
-                                    background: item.ppeComplete ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
-                                    color: item.ppeComplete ? '#10b981' : '#ef4444',
-                                    flexShrink: 0
-                                }}>
+
+
+
+              background: item.ppeComplete ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+              color: item.ppeComplete ? '#10b981' : '#ef4444'
+
+            }} className="flex items-center gap-[0.4rem] text-[0.8rem] font-[800] p-[0.4rem_0.8rem] rounded-[100px] flex-shrink-[0]">
                                     {item.ppeComplete ? <ShieldCheck size={16} /> : <TriangleAlert size={16} />}
                                     {item.ppeComplete ? 'EPP OK' : 'Falta EPP'}
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem', flexWrap: 'wrap' }}>
+                            <div className="flex gap-[0.8rem] mt-[1.5rem] border-top-[1px_solid_var(--color-border)] pt-[1.5rem] flex-wrap">
                                 <button
-                                    onClick={() => {
-                                        const fullReportKey = `ai_report_full_${item.id}`;
-                                        const savedFull = localStorage.getItem(fullReportKey);
-                                        const reportToLoad = savedFull ? JSON.parse(savedFull) : item;
-                                        localStorage.setItem('current_ai_inspection', JSON.stringify(reportToLoad));
-                                        navigate('/ai-report');
-                                    }}
-                                    className="btn-primary"
-                                    style={{ flex: 2, padding: '0.8rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center', borderRadius: '12px' }}
-                                >
+              onClick={() => {
+                const fullReportKey = `ai_report_full_${item.id}`;
+                const savedFull = localStorage.getItem(fullReportKey);
+                const reportToLoad = savedFull ? JSON.parse(savedFull) : item;
+                localStorage.setItem('current_ai_inspection', JSON.stringify(reportToLoad));
+                navigate('/ai-report');
+              }}
+              className="btn-primary flex-[2] p-[0.8rem] text-[0.9rem] flex items-center gap-[0.4rem] justify-center rounded-[12px]">
+
+              
                                     <FileText size={18} /> Ver Reporte Completo
                                 </button>
                                 <button
-                                    onClick={() => {
-                                        const fullReportKey = `ai_report_full_${item.id}`;
-                                        const savedFull = localStorage.getItem(fullReportKey);
-                                        const reportToLoad = savedFull ? JSON.parse(savedFull) : item;
-                                        setShareItem(reportToLoad);
-                                    }}
-                                    style={{ flex: 1, padding: '0.8rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '12px', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', fontWeight: 800 }}
-                                    title="Compartir Reporte"
-                                >
-                                    <Share2 size={18} /> <span style={{ marginLeft: '0.3rem' }}>Compartir</span>
+              onClick={() => {
+                const fullReportKey = `ai_report_full_${item.id}`;
+                const savedFull = localStorage.getItem(fullReportKey);
+                const reportToLoad = savedFull ? JSON.parse(savedFull) : item;
+                setShareItem(reportToLoad);
+              }}
+
+              title="Compartir Reporte" className="flex-[1] p-[0.8rem] bg-[#dcfce7] border-[1px_solid_#86efac] rounded-[12px] text-[#16a34a] flex items-center justify-center text-decoration-[none] font-[800]">
+              
+                                    <Share2 size={18} /> <span className="ml-[0.3rem]">Compartir</span>
                                 </button>
                                 <button
-                                    onClick={() => {
-                                        const url = `${window.location.origin}/v/${currentUser?.uid}/camera/${item.id}?print=true`;
-                                        setQrTarget({ text: url, title: `Inspección EPP — ${item.company || 'IA'}` });
-                                    }}
-                                    style={{ padding: '0.8rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '12px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                    title="Generar QR"
-                                >
-                                    <QrCode size={18}  />
+              onClick={() => {
+                const url = `${window.location.origin}/v/${currentUser?.uid}/camera/${item.id}?print=true`;
+                setQrTarget({ text: url, title: `Inspección EPP — ${item.company || 'IA'}` });
+              }}
+
+              title="Generar QR" className="p-[0.8rem] bg-[rgba(139,92,246,0.06)] border-[1px_solid_rgba(139,92,246,0.18)] rounded-[12px] text-[#8b5cf6] cursor-pointer flex items-center justify-center">
+              
+                                    <QrCode size={18} />
                         </button>
                                 <button
-                                    onClick={() => setDeleteTarget(item.id)}
-                                    style={{ padding: '0.8rem', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '12px', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                >
+              onClick={() => setDeleteTarget(item.id)} className="p-[0.8rem] bg-[rgba(239,68,68,0.05)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[12px] text-[#ef4444] cursor-pointer flex items-center justify-center">
+
+              
                                     <Trash2 size={18} />
                                 </button>
                             </div>
                         </div>
-                    ))
-                ) : (
-                    <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--color-text-muted)', background: 'var(--color-surface)', borderRadius: '16px', border: '1px dashed var(--color-border)' }}>
-                        <Camera size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
-                        <h3 style={{ margin: '0 0 0.5rem', fontWeight: 800, color: 'var(--color-text)' }}>No hay inspecciones EPP</h3>
+        ) :
+
+        <div className="text-center p-[4rem_1rem] text-[var(--color-text-muted)] bg-[var(--color-surface)] rounded-[16px] border-[1px_dashed_var(--color-border)]">
+                        <Camera size={48} className="opacity-[0.2] mb-[1rem]" />
+                        <h3 className="m-[0_0_0.5rem] font-[800] text-[var(--color-text)]">No hay inspecciones EPP</h3>
                         <p>No se registraron inspecciones de EPP todavía.</p>
                     </div>
-                )}
+        }
             </div>
-        </div>
-    );
+        </div>);
+
 }

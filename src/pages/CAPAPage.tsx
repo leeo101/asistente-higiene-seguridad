@@ -11,120 +11,120 @@ const PRIORITY = { critical: { label: 'CRÍTICA', color: '#dc2626', days: 3, ico
 const STATUS = { draft: { label: 'BORRADOR', color: '#6b7280', bg: '#f3f4f6' }, open: { label: 'ABIERTA', color: '#dc2626', bg: '#fef2f2' }, in_progress: { label: 'EN PROGRESO', color: '#3b82f6', bg: '#eff6ff' }, completed: { label: 'COMPLETADA', color: '#16a34a', bg: '#f0fdf4' } };
 
 export default function CAPAPage(): React.ReactElement | null {
-    const navigate = useNavigate();
-    const [capas, setCapas] = useState<any[]>([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selected, setSelected] = useState<any>(null);
-    const [showShareModal, setShowShareModal] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
-    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
+  const navigate = useNavigate();
+  const [capas, setCapas] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selected, setSelected] = useState<any>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
-    useEffect(() => { const h = () => setIsMobile(window.innerWidth < 768); h(); window.addEventListener('resize', h); const s = localStorage.getItem('ehs_capa_db'); if (s) setCapas(JSON.parse(s)); return () => window.removeEventListener('resize', h); }, []);
-    const save = (d: any[]) => { localStorage.setItem('ehs_capa_db', JSON.stringify(d)); setCapas(d); };
-    const updateStatus = (id: string, s: string) => save(capas.map((c: any) => c.id === id ? { ...c, status: s } : c));
-    const del = (id: string) => { setConfirmModal({ isOpen: true, payload: id }); };
-    const executeDelete = () => { if (confirmModal.payload) save(capas.filter((c: any) => c.id !== confirmModal.payload)); setConfirmModal({ isOpen: false, payload: null }); };
-    const filtered = capas.filter(c => c.title.toLowerCase().includes(searchTerm.toLowerCase()) || c.responsible?.toLowerCase().includes(searchTerm.toLowerCase()));
-    const stats = { total: capas.length, open: capas.filter(c => c.status === 'open' || c.status === 'in_progress').length, completed: capas.filter(c => c.status === 'completed').length, critical: capas.filter(c => c.priority === 'critical' && c.status !== 'completed').length };
+  useEffect(() => {const h = () => setIsMobile(window.innerWidth < 768);h();window.addEventListener('resize', h);const s = localStorage.getItem('ehs_capa_db');if (s) setCapas(JSON.parse(s));return () => window.removeEventListener('resize', h);}, []);
+  const save = (d: any[]) => {localStorage.setItem('ehs_capa_db', JSON.stringify(d));setCapas(d);};
+  const updateStatus = (id: string, s: string) => save(capas.map((c: any) => c.id === id ? { ...c, status: s } : c));
+  const del = (id: string) => {setConfirmModal({ isOpen: true, payload: id });};
+  const executeDelete = () => {if (confirmModal.payload) save(capas.filter((c: any) => c.id !== confirmModal.payload));setConfirmModal({ isOpen: false, payload: null });};
+  const filtered = capas.filter((c) => c.title.toLowerCase().includes(searchTerm.toLowerCase()) || c.responsible?.toLowerCase().includes(searchTerm.toLowerCase()));
+  const stats = { total: capas.length, open: capas.filter((c) => c.status === 'open' || c.status === 'in_progress').length, completed: capas.filter((c) => c.status === 'completed').length, critical: capas.filter((c) => c.priority === 'critical' && c.status !== 'completed').length };
 
-    return (
-        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: isMobile ? '80px' : '2rem' }}>
-            <div style={{ background: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)', padding: isMobile ? '0.75rem 1rem' : '1.5rem', position: 'sticky', top: 0, zIndex: 100, backdropFilter: 'blur(20px)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.75rem' : '1rem', maxWidth: '1400px', margin: '0 auto' }}>
+  return (
+    <div style={{ paddingBottom: isMobile ? '80px' : '2rem' }} className="min-h-[100vh] bg-[var(--color-background)]">
+            <div style={{ padding: isMobile ? '0.75rem 1rem' : '1.5rem' }} className="bg-[var(--color-surface)] border-bottom-[1px_solid_var(--color-border)] sticky top-[0] z-[100] backdrop-filter-[blur(20px)]">
+                <div style={{ gap: isMobile ? '0.75rem' : '1rem' }} className="flex items-center max-w-[1400px] m-[0_auto]">
                     <></>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                        <h1 style={{ margin: 0, fontSize: isMobile ? '1.15rem' : '1.5rem', fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}><RefreshCw size={isMobile ? 18 : 24} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle', flexShrink: 0 }} />CAPA</h1>
-                        <p style={{ margin: '0.25rem 0 0 0', fontSize: isMobile ? '0.75rem' : '0.85rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Acciones Correctivas/Preventivas • {stats.open} abiertas</p>
+                    <div className="flex-[1] min-width-[0]">
+                        <h1 style={{ fontSize: isMobile ? '1.15rem' : '1.5rem' }} className="m-[0] font-[900] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]"><RefreshCw size={isMobile ? 18 : 24} className="display-[inline] mr-[0.5rem] vertical-align-[middle] flex-shrink-[0]" />CAPA</h1>
+                        <p style={{ fontSize: isMobile ? '0.75rem' : '0.85rem' }} className="m-[0.25rem_0_0_0] text-[var(--color-text-muted)] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">Acciones Correctivas/Preventivas • {stats.open} abiertas</p>
                     </div>
-                    <button onClick={() => navigate('/capa/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0.75rem 1.25rem', display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}><Plus size={20} strokeWidth={2.5} />Nueva CAPA</button>
+                    <button onClick={() => navigate('/capa/new')} className="btn-primary w-[auto] m-[0] p-[0.75rem_1.25rem] items-center gap-[0.5rem] flex-shrink-[0]" style={{ display: isMobile ? 'none' : 'flex' }}><Plus size={20} strokeWidth={2.5} />Nueva CAPA</button>
                 </div>
             </div>
             <div style={{ marginTop: isMobile ? '1rem' : '1.5rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))', gap: isMobile ? '0.75rem' : '1rem', padding: isMobile ? '1rem' : '1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
+            <div style={{ gap: isMobile ? '0.75rem' : '1rem', padding: isMobile ? '1rem' : '1.5rem' }} className="grid grid-template-columns-[repeat(auto-fit,_minmax(min(100%,_140px),_1fr))] max-w-[1400px] m-[0_auto]">
                 <StatCard label="Total" value={stats.total} color="#3B82F6" icon={<RefreshCw size={isMobile ? 18 : 20} />} isMobile={isMobile} />
                 <StatCard label="Abiertas" value={stats.open} color="#f59e0b" icon={<Clock size={isMobile ? 18 : 20} />} isMobile={isMobile} />
                 <StatCard label="Críticas" value={stats.critical} color="#dc2626" icon={<AlertTriangle size={isMobile ? 18 : 20} />} isMobile={isMobile} />
                 <StatCard label="Completadas" value={stats.completed} color="#16a34a" icon={<CheckCircle2 size={isMobile ? 18 : 20} />} isMobile={isMobile} />
             </div>
-            {isMobile && (<div style={{ padding: '0 1rem 1rem', display: 'flex', gap: '0.75rem' }}><div style={{ flex: 1, position: 'relative', minWidth: 0 }}><Search size={16} color="var(--color-text-muted)" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)' }} /><input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', padding: '0.65rem 0.75rem 0.65rem 2.25rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', background: 'var(--color-surface)', fontSize: '0.85rem', boxSizing: 'border-box' }} /></div><button onClick={() => navigate('/capa/new')} className="btn-primary" style={{ width: 'auto', margin: 0, padding: '0 0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Plus size={18} /></button></div>)}
-            <div style={{ padding: isMobile ? '0 1rem' : '0 1.5rem', maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {filtered.length === 0 ? (
-                    <EmptyStateIllustrated 
-                        title="Sin Acciones CAPA"
-                        description="Creá Acciones Correctivas/Preventivas para el proceso de mejora continua y control de riesgos."
-                        onAction={() => navigate('/capa/new')}
-                        icon={<RefreshCw />}
-                    />
-                ) : filtered.map(c => (<CapaCard key={c.id} capa={c} statusConfig={(STATUS as any)[c.status] || STATUS.open} priorityConfig={(PRIORITY as any)[c.priority] || PRIORITY.medium} onStart={() => updateStatus(c.id, 'in_progress')} onComplete={() => updateStatus(c.id, 'completed')} onView={() => setSelected(c)} onDelete={() => del(c.id)} isMobile={isMobile} />))}
+            {isMobile && <div className="p-[0_1rem_1rem] flex gap-[0.75rem]"><div className="flex-[1] relative min-width-[0]"><Search size={16} color="var(--color-text-muted)" className="absolute left-[0.75rem] top-[50%] transform-[translateY(-50%)]" /><input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.65rem_0.75rem_0.65rem_2.25rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.85rem] box-sizing-[border-box]" /></div><button onClick={() => navigate('/capa/new')} className="btn-primary w-[auto] m-[0] p-[0_0.85rem] flex items-center justify-center flex-shrink-[0]"><Plus size={18} /></button></div>}
+            <div style={{ padding: isMobile ? '0 1rem' : '0 1.5rem' }} className="max-w-[1400px] m-[0_auto] flex flex-col gap-[0.75rem]">
+                {filtered.length === 0 ?
+          <EmptyStateIllustrated
+            title="Sin Acciones CAPA"
+            description="Creá Acciones Correctivas/Preventivas para el proceso de mejora continua y control de riesgos."
+            onAction={() => navigate('/capa/new')}
+            icon={<RefreshCw />} /> :
+
+          filtered.map((c) => <CapaCard key={c.id} capa={c} statusConfig={(STATUS as any)[c.status] || STATUS.open} priorityConfig={(PRIORITY as any)[c.priority] || PRIORITY.medium} onStart={() => updateStatus(c.id, 'in_progress')} onComplete={() => updateStatus(c.id, 'completed')} onView={() => setSelected(c)} onDelete={() => del(c.id)} isMobile={isMobile} />)}
             </div>
             </div>
             {selected && <DetailModal capa={selected} onClose={() => setSelected(null)} isMobile={isMobile} onPrint={() => setShowShareModal(true)} />}
 
             {/* @ts-ignore */}
-            <ShareModal 
-                isOpen={showShareModal}
-                onClose={() => setShowShareModal(false)}
-                elementIdToPrint="pdf-content"
-                title="Acción Correctiva/Preventiva"
-                fileName={`CAPA_${selected?.title || 'Sin_Titulo'}.pdf`}
-            />
+            <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        elementIdToPrint="pdf-content"
+        title="Acción Correctiva/Preventiva"
+        fileName={`CAPA_${selected?.title || 'Sin_Titulo'}.pdf`} />
+      
 
-            <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
+            <div className="print-only fixed left-[0] opacity-[0.01] top-[0]">
                 <CAPAPdf data={selected} />
             </div>
             <ConfirmModal
-                isOpen={confirmModal.isOpen}
-                onClose={() => setConfirmModal({ isOpen: false, payload: null })}
-                onConfirm={executeDelete}
-                title="¿Eliminar CAPA?"
-                message="Esta acción no se puede deshacer."
-                iconEmoji="🗑️"
-            />
-        </div>
-    );
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, payload: null })}
+        onConfirm={executeDelete}
+        title="¿Eliminar CAPA?"
+        message="Esta acción no se puede deshacer."
+        iconEmoji="🗑️" />
+      
+        </div>);
+
 }
-function StatCard({ label, value, color, icon, isMobile }: any) { return (<div className="card" style={{ padding: isMobile ? '0.75rem' : '1.25rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border-subtle)', display: 'flex', alignItems: 'center', gap: isMobile ? '0.6rem' : '1rem' }}><div style={{ width: isMobile ? '36px' : '48px', height: isMobile ? '36px' : '48px', background: `linear-gradient(135deg, ${color}, ${color}cc)`, borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0 }}>{icon}</div><div style={{ minWidth: 0 }}><div style={{ fontSize: isMobile ? '0.7rem' : '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div><div style={{ fontSize: isMobile ? '1.25rem' : '2rem', fontWeight: 900, color: 'var(--color-text)', lineHeight: 1, marginTop: isMobile ? '0.15rem' : '0' }}>{value}</div></div></div>); }
-function CapaCard({ capa, statusConfig, priorityConfig, onStart, onComplete, onView, onDelete, isMobile }: any) { return (<div className="card" style={{ padding: isMobile ? '1rem' : '1.25rem', display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isMobile ? '1rem' : '1rem', borderLeft: `4px solid ${statusConfig.color}` }}><div style={{ display: 'flex', gap: '1rem', flex: 1, minWidth: 0 }}><div style={{ width: isMobile ? '44px' : '64px', height: isMobile ? '44px' : '64px', background: `${priorityConfig.color}15`, borderRadius: 'var(--radius-xl)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: `2px solid ${priorityConfig.color}`, flexShrink: 0 }}><span style={{ fontSize: isMobile ? '1.25rem' : '1.5rem' }}>{priorityConfig.icon}</span></div><div style={{ flex: 1, minWidth: 0 }}><div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: isMobile ? '0.5rem' : '0.5rem', flexWrap: 'wrap' }}><h3 style={{ margin: 0, fontSize: isMobile ? '0.95rem' : '1.1rem', fontWeight: 800, color: 'var(--color-text)' }}>{(CAPA_TYPES.find((t: any) => t.id === capa.capaType) as any)?.icon} {capa.title}</h3><span style={{ padding: isMobile ? '0.15rem 0.4rem' : '0.25rem 0.65rem', background: statusConfig.bg, color: statusConfig.color, borderRadius: 'var(--radius-full)', fontSize: isMobile ? '0.65rem' : '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>{statusConfig.label}</span></div><div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? '0.4rem 0.6rem' : '1rem', fontSize: isMobile ? '0.75rem' : '0.85rem', color: 'var(--color-text-muted)' }}><span>👤 {capa.responsible || '-'}</span><span>📅 {capa.dueDate ? new Date(capa.dueDate).toLocaleDateString('es-AR') : '-'}</span><span>⏱️ {(PRIORITY as any)[capa.priority]?.days || '-'} días</span></div></div></div><div style={{ display: 'flex', gap: isMobile ? '0.5rem' : '0.5rem', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'flex-end' : 'flex-start', borderTop: isMobile ? '1px solid var(--color-border)' : 'none', paddingTop: isMobile ? '0.75rem' : '0' }}>{capa.status === 'open' && <button onClick={onStart} style={{ padding: isMobile ? '0.5rem 1rem' : '0.5rem', background: '#3b82f6', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: '#fff', flex: isMobile ? 1 : 'none', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}><Clock size={16} />{isMobile && 'Iniciar'}</button>}{capa.status === 'in_progress' && <button onClick={onComplete} style={{ padding: isMobile ? '0.5rem 1rem' : '0.5rem', background: '#16a34a', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: '#fff', flex: isMobile ? 1 : 'none', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}><CheckCircle2 size={16} />{isMobile && 'Completar'}</button>}<button onClick={onView} style={{ padding: isMobile ? '0.5rem 1rem' : '0.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--color-primary)', flex: isMobile ? 1 : 'none', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}><Eye size={16} />{isMobile && 'Ver'}</button><button onClick={onDelete} style={{ padding: isMobile ? '0.5rem 1rem' : '0.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: '#ef4444', flex: isMobile ? 'none' : 'none', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><Trash2 size={16} /></button></div></div>); }
+function StatCard({ label, value, color, icon, isMobile }: any) {return <div className="card bg-[var(--gradient-card)] border-[1px_solid_var(--glass-border-subtle)] flex items-center" style={{ padding: isMobile ? '0.75rem' : '1.25rem', gap: isMobile ? '0.6rem' : '1rem' }}><div style={{ width: isMobile ? '36px' : '48px', height: isMobile ? '36px' : '48px', background: `linear-gradient(135deg, ${color}, ${color}cc)` }} className="rounded-[var(--radius-lg)] flex items-center justify-center text-[#fff] flex-shrink-[0]">{icon}</div><div className="min-width-[0]"><div style={{ fontSize: isMobile ? '0.7rem' : '0.85rem' }} className="font-[600] text-[var(--color-text-muted)] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">{label}</div><div style={{ fontSize: isMobile ? '1.25rem' : '2rem', marginTop: isMobile ? '0.15rem' : '0' }} className="font-[900] text-[var(--color-text)] line-height-[1]">{value}</div></div></div>;}
+function CapaCard({ capa, statusConfig, priorityConfig, onStart, onComplete, onView, onDelete, isMobile }: any) {return <div className="card flex" style={{ padding: isMobile ? '1rem' : '1.25rem', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isMobile ? '1rem' : '1rem', borderLeft: `4px solid ${statusConfig.color}` }}><div className="flex gap-[1rem] flex-[1] min-width-[0]"><div style={{ width: isMobile ? '44px' : '64px', height: isMobile ? '44px' : '64px', background: `${priorityConfig.color}15`, border: `2px solid ${priorityConfig.color}` }} className="rounded-[var(--radius-xl)] flex flex-col items-center justify-center flex-shrink-[0]"><span style={{ fontSize: isMobile ? '1.25rem' : '1.5rem' }}>{priorityConfig.icon}</span></div><div className="flex-[1] min-width-[0]"><div style={{ marginBottom: isMobile ? '0.5rem' : '0.5rem' }} className="flex items-center gap-[0.5rem] flex-wrap"><h3 style={{ fontSize: isMobile ? '0.95rem' : '1.1rem' }} className="m-[0] font-[800] text-[var(--color-text)]">{(CAPA_TYPES.find((t: any) => t.id === capa.capaType) as any)?.icon} {capa.title}</h3><span style={{ padding: isMobile ? '0.15rem 0.4rem' : '0.25rem 0.65rem', background: statusConfig.bg, color: statusConfig.color, fontSize: isMobile ? '0.65rem' : '0.7rem' }} className="rounded-[var(--radius-full)] font-[800] uppercase">{statusConfig.label}</span></div><div style={{ gap: isMobile ? '0.4rem 0.6rem' : '1rem', fontSize: isMobile ? '0.75rem' : '0.85rem' }} className="flex flex-wrap text-[var(--color-text-muted)]"><span>👤 {capa.responsible || '-'}</span><span>📅 {capa.dueDate ? new Date(capa.dueDate).toLocaleDateString('es-AR') : '-'}</span><span>⏱️ {(PRIORITY as any)[capa.priority]?.days || '-'} días</span></div></div></div><div style={{ gap: isMobile ? '0.5rem' : '0.5rem', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'flex-end' : 'flex-start', borderTop: isMobile ? '1px solid var(--color-border)' : 'none', paddingTop: isMobile ? '0.75rem' : '0' }} className="flex">{capa.status === 'open' && <button onClick={onStart} style={{ padding: isMobile ? '0.5rem 1rem' : '0.5rem', flex: isMobile ? 1 : 'none' }} className="bg-[#3b82f6] border-none rounded-[var(--radius-md)] cursor-pointer text-[#fff] flex justify-center items-center gap-[0.5rem] font-[700]"><Clock size={16} />{isMobile && 'Iniciar'}</button>}{capa.status === 'in_progress' && <button onClick={onComplete} style={{ padding: isMobile ? '0.5rem 1rem' : '0.5rem', flex: isMobile ? 1 : 'none' }} className="bg-[#16a34a] border-none rounded-[var(--radius-md)] cursor-pointer text-[#fff] flex justify-center items-center gap-[0.5rem] font-[700]"><CheckCircle2 size={16} />{isMobile && 'Completar'}</button>}<button onClick={onView} style={{ padding: isMobile ? '0.5rem 1rem' : '0.5rem', flex: isMobile ? 1 : 'none' }} className="bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[var(--radius-md)] cursor-pointer text-[var(--color-primary)] flex justify-center items-center gap-[0.5rem] font-[700]"><Eye size={16} />{isMobile && 'Ver'}</button><button onClick={onDelete} style={{ padding: isMobile ? '0.5rem 1rem' : '0.5rem', flex: isMobile ? 'none' : 'none' }} className="bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[var(--radius-md)] cursor-pointer text-[#ef4444] flex justify-center items-center"><Trash2 size={16} /></button></div></div>;}
 function DetailModal({ capa, onClose, isMobile, onPrint }: any) {
-    return (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center', padding: isMobile ? '1rem' : '1.5rem', boxSizing: 'border-box' }} onClick={onClose}>
-            <div className="card" style={{ width: '100%', maxWidth: '600px', maxHeight: '85vh', overflow: 'auto', margin: 0, borderRadius: isMobile ? '28px' : 'var(--radius-2xl)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
-                    <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900 }}>Detalle CAPA</h2>
-                    <button onClick={onClose} style={{ padding: '0.5rem', background: 'var(--color-background)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--color-text)' }}>
+  return (
+    <div style={{ alignItems: isMobile ? 'flex-end' : 'center', padding: isMobile ? '1rem' : '1.5rem' }} onClick={onClose} className="fixed inset-[0] bg-[rgba(0,0,0,0.7)] backdrop-filter-[blur(8px)] z-[9999] flex justify-center box-sizing-[border-box]">
+            <div className="card w-[100%] max-w-[600px] max-height-[85vh] overflow-[auto] m-[0] box-sizing-[border-box] flex flex-col" style={{ borderRadius: isMobile ? '28px' : 'var(--radius-2xl)' }} onClick={(e) => e.stopPropagation()}>
+                <div className="flex justify-space-between items-center mb-[1.5rem] pb-[1rem] border-bottom-[1px_solid_var(--color-border)]">
+                    <h2 className="m-[0] text-[1.25rem] font-[900]">Detalle CAPA</h2>
+                    <button onClick={onClose} className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition-colors">
                         <XCircle size={24} />
                     </button>
                 </div>
-                <div style={{ textAlign: 'center', padding: '1.5rem', background: 'var(--color-background)', borderRadius: 'var(--radius-xl)', marginBottom: '1.5rem', border: '1px solid var(--color-border)' }}>
-                    <RefreshCw size={40} color="#10b981" style={{ marginBottom: '0.5rem' }} />
-                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>{capa.title}</div>
-                    <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>{capa.responsible}</div>
+                <div className="text-center p-[1.5rem] bg-[var(--color-background)] rounded-[var(--radius-xl)] mb-[1.5rem] border-[1px_solid_var(--color-border)]">
+                    <RefreshCw size={40} color="#10b981" className="mb-[0.5rem]" />
+                    <div className="text-[1.5rem] font-[900] text-[var(--color-text)]">{capa.title}</div>
+                    <div className="text-[0.9rem] text-[var(--color-text-muted)] mt-[0.5rem]">{capa.responsible}</div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '1rem', padding: '1rem 0' }}>
-                    <button 
-                        onClick={onPrint} 
-                        style={{ 
-                            flex: 1, 
-                            padding: '1rem', 
-                            background: 'var(--color-surface)', 
-                            border: '1px solid var(--color-primary)', 
-                            borderRadius: 'var(--radius-lg)', 
-                            fontWeight: 700, 
-                            cursor: 'pointer',
-                            color: 'var(--color-primary)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '0.5rem'
-                        }}
-                    >
+                <div className="flex gap-[1rem] p-[1rem_0]">
+                    <button
+            onClick={onPrint} className="flex-[1] p-[1rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-primary)] rounded-[var(--radius-lg)] font-[700] cursor-pointer text-[var(--color-primary)] flex items-center justify-center gap-[0.5rem]">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
                         <Printer size={18} />
                         Imprimir / PDF
                     </button>
-                    <button onClick={onClose} className="btn-primary" style={{ flex: 1, margin: 0 }}>Cerrar</button>
+                    <button onClick={onClose} className="btn-primary flex-[1] m-[0]">Cerrar</button>
                 </div>
             </div>
-        </div>
-    );
+        </div>);
+
 }

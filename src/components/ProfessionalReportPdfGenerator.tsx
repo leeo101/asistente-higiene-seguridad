@@ -5,30 +5,30 @@ import PdfSignatures from './PdfSignatures';
 import { getCountryNormativa } from '../data/legislationData';
 import PdfBrandingFooter from './PdfBrandingFooter';
 
-export default function ProfessionalReportPdfGenerator({ currentReport }: { currentReport: any }): React.ReactElement | null {
-// logo code removed
+export default function ProfessionalReportPdfGenerator({ currentReport }: {currentReport: any;}): React.ReactElement | null {
+  // logo code removed
 
 
-    if (!currentReport) return null;
+  if (!currentReport) return null;
 
-    const report = currentReport;
+  const report = currentReport;
 
-    const savedData = localStorage.getItem('personalData');
-    const userCountry = savedData ? (JSON.parse(savedData).country || 'argentina') : 'argentina';
-    const countryNorms = getCountryNormativa(userCountry);
+  const savedData = localStorage.getItem('personalData');
+  const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+  const countryNorms = getCountryNormativa(userCountry);
 
-    return (
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+  return (
+    <div className="w-[100%] flex justify-center">
             <div
-                id="pdf-content"
-                className="pdf-container print-area border-none shadow-none"
-                style={{
-                    width: '100%', maxWidth: '210mm', minHeight: '297mm',
-                    padding: '15mm', background: '#ffffff', color: '#000000',
-                    boxSizing: 'border-box', margin: '0 auto', fontSize: '10pt',
-                    fontFamily: 'system-ui, -apple-system, sans-serif'
-                }}
-            >
+        id="pdf-content"
+        className="pdf-container print-area border-none shadow-none w-[100%] max-w-[210mm] min-h-[297mm] p-[15mm] bg-[#ffffff] text-[#000000] box-sizing-[border-box] m-[0_auto] text-[10pt] font-family-[system-ui,_-apple-system,_sans-serif]">
+
+
+
+
+
+
+        
                 <style type="text/css" media="print">
                     {`
                         @page { size: A4 portrait; margin: 10mm; }
@@ -52,100 +52,100 @@ export default function ProfessionalReportPdfGenerator({ currentReport }: { curr
                 </style>
 
                 {/* Header with Professional Info */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #3b82f6', paddingBottom: '2rem', marginBottom: '2.5rem', gap: '1.5rem' }}>
-                    <div style={{ flex: 1 }}>
-                        <h1 style={{ margin: '0 0 0.5rem 0', color: '#3b82f6', fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-1px' }}>INFORME</h1>
-                        <p style={{ margin: 0, fontSize: '0.9rem', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>
+                <div className="flex justify-space-between border-bottom-[2px_solid_#3b82f6] pb-[2rem] mb-[2.5rem] gap-[1.5rem]">
+                    <div className="flex-[1]">
+                        <h1 className="m-[0_0_0.5rem_0] text-[#3b82f6] text-[2.5rem] font-[900] letter-spacing-[-1px]">INFORME</h1>
+                        <p className="m-[0] text-[0.9rem] text-[#475569] uppercase letter-spacing-[1px] font-[700]">
                             {report.title || 'Informe Técnico'}
                         </p>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '60px' }}>
-                        <CompanyLogo
-                            style={{
-                                maxHeight: '100%',
-                                maxWidth: '150px',
-                                objectFit: 'contain'
-                            }}
-                        />
+                    <div className="flex items-center justify-end h-[60px]">
+                        <CompanyLogo className="max-height-[100%] max-w-[150px] object-fit-[contain]" />
+
+
+
+
+
+            
                     </div>
-                    <div style={{ textAlign: 'right', borderLeft: '1px solid #e2e8f0', paddingLeft: '2rem' }}>
-                        <p style={{ margin: 0, fontWeight: 800, fontSize: '1.2rem', color: '#1e293b' }}>PROFESIONAL HYS</p>
+                    <div className="text-right border-left-[1px_solid_#e2e8f0] pl-[2rem]">
+                        <p className="m-[0] font-[800] text-[1.2rem] text-[#1e293b]">PROFESIONAL HYS</p>
                     </div>
                 </div>
 
                 {/* Metadata Grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '3rem', background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0', color: '#1e293b',  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(200px,_1fr))] gap-[1.5rem] mb-[3rem] bg-[#f8fafc] p-[1.5rem] rounded-[8px] border-[1px_solid_#e2e8f0] text-[#1e293b]">
+                    <div className="flex items-center gap-[0.8rem]">
                         <Building2 size={20} color="#3b82f6" />
                         <div>
-                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>Empresa</p>
-                            <p style={{ margin: 0, fontWeight: 700 }}>{report.company || '-'}</p>
+                            <p className="m-[0] text-[0.75rem] text-[#64748b]">Empresa</p>
+                            <p className="m-[0] font-[700]">{report.company || '-'}</p>
                         </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <div className="flex items-center gap-[0.8rem]">
                         <MapPin size={20} color="#3b82f6" />
                         <div>
-                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>Ubicación</p>
-                            <p style={{ margin: 0, fontWeight: 700 }}>{report.location || 'N/A'}</p>
+                            <p className="m-[0] text-[0.75rem] text-[#64748b]">Ubicación</p>
+                            <p className="m-[0] font-[700]">{report.location || 'N/A'}</p>
                         </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <div className="flex items-center gap-[0.8rem]">
                         <Calendar size={20} color="#3b82f6" />
                         <div>
-                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>Fecha</p>
-                            <p style={{ margin: 0, fontWeight: 700 }}>{report.date ? new Date(report.date).toLocaleDateString('es-AR') : new Date().toLocaleDateString('es-AR')}</p>
+                            <p className="m-[0] text-[0.75rem] text-[#64748b]">Fecha</p>
+                            <p className="m-[0] font-[700]">{report.date ? new Date(report.date).toLocaleDateString('es-AR') : new Date().toLocaleDateString('es-AR')}</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Main Content Area / Observations */}
-                <div style={{ marginBottom: '1rem', color: '#3b82f6', fontWeight: 800, fontSize: '0.8rem', letterSpacing: '2px', textTransform: 'uppercase' }}>DETALLE / OBSERVACIONES</div>
-                <div style={{ marginBottom: '4rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere', lineHeight: '1.6', fontSize: '1.05rem', color: '#1e293b', borderTop: '2px solid #f1f5f9', paddingTop: '1rem' }}>
+                <div className="mb-[1rem] text-[#3b82f6] font-[800] text-[0.8rem] letter-spacing-[2px] uppercase">DETALLE / OBSERVACIONES</div>
+                <div className="mb-[4rem] white-space-[pre-wrap] word-break-[break-word] overflow-wrap-[anywhere] line-height-[1.6] text-[1.05rem] text-[#1e293b] border-top-[2px_solid_#f1f5f9] pt-[1rem]">
                     {report.content || 'Sin observaciones registradas.'}
                 </div>
 
                 {/* Personnel List Table if applicable */}
-                {(report.template === 'training' || report.template === 'epp') && report.personnel && report.personnel.length > 0 && (
-                    <div style={{ marginBottom: '4rem', pageBreakInside: 'auto' }}>
-                        <h4 style={{ margin: '0 0 1rem 0', color: '#3b82f6', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem', fontWeight: 800 }}>
+                {(report.template === 'training' || report.template === 'epp') && report.personnel && report.personnel.length > 0 &&
+        <div className="mb-[4rem] page-break-inside-[auto]">
+                        <h4 className="m-[0_0_1rem_0] text-[#3b82f6] border-bottom-[1px_solid_#e2e8f0] pb-[0.5rem] font-[800]">
                             Personal Interviniente / Firmas
                         </h4>
-                        <div style={{ width: '100%' }}>
-                            <table style={{ tableLayout: 'fixed', wordBreak: 'break-word', overflowWrap: 'break-word',  width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                        <div className="w-[100%]">
+                            <table className="table-layout-[fixed] word-break-[break-word] overflow-wrap-[break-word] w-[100%] border-collapse-[collapse] text-[0.85rem]">
                                 <thead>
-                                    <tr className="avoid-break" style={{  breakInside: 'avoid',  background: '#f1f5f9' }}>
-                                        <th style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'left', color: '#475569' }}>Nombre y Apellido</th>
-                                        <th style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'left', color: '#475569' }}>DNI / CUIL</th>
-                                        <th style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'left', width: '35%', color: '#475569' }}>Firma</th>
+                                    <tr className="avoid-break break-inside-[avoid] bg-[#f1f5f9]">
+                                        <th className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-left text-[#475569]">Nombre y Apellido</th>
+                                        <th className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-left text-[#475569]">DNI / CUIL</th>
+                                        <th className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-left w-[35%] text-[#475569]">Firma</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {report.personnel.map((p, idx) => (
-                                        <tr className="avoid-break" key={p.id || idx} style={{  }}>
-                                            <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem', color: '#1e293b', fontWeight: 600 }}>{p.name}</td>
-                                            <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem', color: '#1e293b' }}>{p.dni}</td>
-                                            <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem', height: '65px', verticalAlign: 'bottom', textAlign: 'center' }}>
-                                                <div style={{ borderTop: '1px dotted #000', width: '80%', margin: '0 auto', fontSize: '0.7rem', color: '#64748b' }}>
+                                    {report.personnel.map((p, idx) =>
+                <tr className="avoid-break" key={p.id || idx} style={{}}>
+                                            <td className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-[#1e293b] font-[600]">{p.name}</td>
+                                            <td className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-[#1e293b]">{p.dni}</td>
+                                            <td className="border-[1px_solid_#e2e8f0] p-[0.8rem] h-[65px] vertical-align-[bottom] text-center">
+                                                <div className="border-top-[1px_dotted_#000] w-[80%] m-[0_auto] text-[0.7rem] text-[#64748b]">
                                                     Firma del Trabajador
                                                 </div>
                                             </td>
                                         </tr>
-                                    ))}
+                )}
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                )}
+        }
 
                 {/* Firmas */}
                 <PdfSignatures data={report} />
             <PdfBrandingFooter />
 
                 {/* Footer Legal */}
-                <div style={{ width: '100%', textAlign: 'center', fontSize: '0.7rem', color: '#94a3b8', marginTop: '3rem', fontStyle: 'italic', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
+                <div className="w-[100%] text-center text-[0.7rem] text-[#94a3b8] mt-[3rem] font-style-[italic] border-top-[1px_solid_#e2e8f0] pt-[1rem]">
                     Documento generado por Asistente de Higiene y Seguridad - Conforme a {countryNorms.general}
                 </div>
             </div>
-        </div>
-    );
+        </div>);
+
 }

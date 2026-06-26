@@ -7,56 +7,56 @@ import { WifiOff, Wifi, CloudOff, CheckCircle } from 'lucide-react';
  * Se muestra automáticamente cuando el usuario pierde conexión
  */
 export default function OfflineIndicator() {
-    const isOffline = useOffline();
-    const [wasOffline, setWasOffline] = React.useState(false);
-    const [showRestored, setShowRestored] = React.useState(false);
+  const isOffline = useOffline();
+  const [wasOffline, setWasOffline] = React.useState(false);
+  const [showRestored, setShowRestored] = React.useState(false);
 
-    React.useEffect(() => {
-        if (isOffline) {
-            setWasOffline(true);
-        } else if (wasOffline) {
-            // Solo mostrar si realmente estuvo offline
-            setShowRestored(true);
-            const timer = setTimeout(() => {
-                setShowRestored(false);
-                setWasOffline(false);
-            }, 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [isOffline, wasOffline]);
-
-    // No mostrar nada si está online y no viene de estar offline
-    if (!isOffline && !showRestored) {
-        return null;
+  React.useEffect(() => {
+    if (isOffline) {
+      setWasOffline(true);
+    } else if (wasOffline) {
+      // Solo mostrar si realmente estuvo offline
+      setShowRestored(true);
+      const timer = setTimeout(() => {
+        setShowRestored(false);
+        setWasOffline(false);
+      }, 3000);
+      return () => clearTimeout(timer);
     }
+  }, [isOffline, wasOffline]);
 
-    return (
-        <div
-            role="alert"
-            aria-live="polite"
-            style={{
-                position: 'fixed',
-                top: '16px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                zIndex: 9999,
-                width: '90%',
-                maxWidth: '500px',
-                padding: '1rem 1.2rem',
-                borderRadius: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.8rem',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
-                animation: 'slideDown 0.3s ease-out',
-                background: isOffline
-                    ? 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)'
-                    : 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)',
-                border: isOffline
-                    ? '2px solid #f59e0b'
-                    : '2px solid #10b981'
-            }}
-        >
+  // No mostrar nada si está online y no viene de estar offline
+  if (!isOffline && !showRestored) {
+    return null;
+  }
+
+  return (
+    <div
+      role="alert"
+      aria-live="polite"
+      style={{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        background: isOffline ?
+        'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' :
+        'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)',
+        border: isOffline ?
+        '2px solid #f59e0b' :
+        '2px solid #10b981'
+      }} className="fixed top-[16px] left-[50%] transform-[translateX(-50%)] z-[9999] w-[90%] max-w-[500px] p-[1rem_1.2rem] rounded-[12px] flex items-center gap-[0.8rem] box-shadow-[0_8px_32px_rgba(0,0,0,0.15)] animation-[slideDown_0.3s_ease-out]">
+      
             <style>
                 {`
                     @keyframes slideDown {
@@ -82,75 +82,75 @@ export default function OfflineIndicator() {
                 `}
             </style>
 
-            {isOffline ? (
-                <>
-                    <div style={{
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '50%',
-                        background: '#f59e0b',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0
-                    }}>
+            {isOffline ?
+      <>
+                    <div className="w-[36px] h-[36px] rounded-[50%] bg-[#f59e0b] flex items-center justify-center flex-shrink-[0]">
+
+
+
+
+
+
+
+
+          
                         <WifiOff size={20} color="#ffffff" strokeWidth={2.5} />
                     </div>
-                    <div style={{ flex: 1 }}>
-                        <p style={{
-                            margin: 0,
-                            fontWeight: 800,
-                            fontSize: '0.9rem',
-                            color: '#92400e',
-                            lineHeight: 1.3
-                        }}>
+                    <div className="flex-[1]">
+                        <p className="m-[0] font-[800] text-[0.9rem] text-[#92400e] line-height-[1.3]">
+
+
+
+
+
+            
                             📴 Sin conexión
                         </p>
-                        <p style={{
-                            margin: '0.2rem 0 0 0',
-                            fontSize: '0.8rem',
-                            color: '#78350f',
-                            lineHeight: 1.4
-                        }}>
+                        <p className="m-[0.2rem_0_0_0] text-[0.8rem] text-[#78350f] line-height-[1.4]">
+
+
+
+
+            
                             Tus cambios se guardarán localmente
                         </p>
                     </div>
-                </>
-            ) : (
-                <>
-                    <div style={{
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '50%',
-                        background: '#10b981',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0
-                    }}>
+                </> :
+
+      <>
+                    <div className="w-[36px] h-[36px] rounded-[50%] bg-[#10b981] flex items-center justify-center flex-shrink-[0]">
+
+
+
+
+
+
+
+
+          
                         <CheckCircle size={20} color="#ffffff" strokeWidth={2.5} />
                     </div>
-                    <div style={{ flex: 1 }}>
-                        <p style={{
-                            margin: 0,
-                            fontWeight: 800,
-                            fontSize: '0.9rem',
-                            color: '#065f46',
-                            lineHeight: 1.3
-                        }}>
+                    <div className="flex-[1]">
+                        <p className="m-[0] font-[800] text-[0.9rem] text-[#065f46] line-height-[1.3]">
+
+
+
+
+
+            
                             ✅ Conexión restaurada
                         </p>
-                        <p style={{
-                            margin: '0.2rem 0 0 0',
-                            fontSize: '0.8rem',
-                            color: '#047857',
-                            lineHeight: 1.4
-                        }}>
+                        <p className="m-[0.2rem_0_0_0] text-[0.8rem] text-[#047857] line-height-[1.4]">
+
+
+
+
+            
                             Tus datos se sincronizaron correctamente
                         </p>
                     </div>
                 </>
-            )}
-        </div>
-    );
+      }
+        </div>);
+
 }

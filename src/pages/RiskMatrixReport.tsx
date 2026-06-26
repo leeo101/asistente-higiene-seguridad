@@ -17,180 +17,180 @@ import { getCountryNormativa } from '../data/legislationData';
 // Rows: Probability (top = high), Columns: Impact (left = low)
 // Colors based on ISO 31000 / standard HyS matrix
 const MATRIX_GRID = [
-    // probability label, [impact colors for: Menor, Crítico, Mayor, Catastrófico]
-    { prob: 'Insignif.\nConstante', cells: ['#fef08a', '#fca5a5', '#ef4444', '#dc2626'] },
-    { prob: 'Moderado', cells: ['#fef08a', '#fca5a5', '#ef4444', '#dc2626'] },
-    { prob: 'Ocasional', cells: ['#86efac', '#fef08a', '#fca5a5', '#ef4444'] },
-    { prob: 'Posible', cells: ['#86efac', '#86efac', '#fef08a', '#fca5a5'] },
-    { prob: 'Improbable', cells: ['#4ade80', '#86efac', '#86efac', '#fef08a'] },
-];
+// probability label, [impact colors for: Menor, Crítico, Mayor, Catastrófico]
+{ prob: 'Insignif.\nConstante', cells: ['#fef08a', '#fca5a5', '#ef4444', '#dc2626'] },
+{ prob: 'Moderado', cells: ['#fef08a', '#fca5a5', '#ef4444', '#dc2626'] },
+{ prob: 'Ocasional', cells: ['#86efac', '#fef08a', '#fca5a5', '#ef4444'] },
+{ prob: 'Posible', cells: ['#86efac', '#86efac', '#fef08a', '#fca5a5'] },
+{ prob: 'Improbable', cells: ['#4ade80', '#86efac', '#86efac', '#fef08a'] }];
+
 const IMPACT_LABELS = ['Menor', 'Crítica', 'Mayor', 'Catastrófico'];
 
 function RiskMatrixGrid() {
-    return (
-        <div style={{ marginBottom: '2rem', pageBreakInside: 'avoid' }}>
-            <h3 style={{ fontSize: '0.8rem', fontWeight: 900, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 1rem 0' }}>
+  return (
+    <div className="mb-[2rem] page-break-inside-[avoid]">
+            <h3 className="text-[0.8rem] font-[900] text-[#475569] uppercase letter-spacing-[0.08em] m-[0_0_1rem_0]">
                 Tabla de Valoración de Riesgos (Probabilidad × Impacto)
             </h3>
-            <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
+            <div className="flex items-stretch gap-[0]">
                 {/* Y-axis label */}
-                <div style={{
-                    writingMode: 'vertical-rl', transform: 'rotate(180deg)',
-                    fontSize: '0.7rem', fontWeight: 800, color: '#64748b',
-                    textAlign: 'center', paddingRight: '0.5rem', letterSpacing: '0.1em',
-                    textTransform: 'uppercase'
-                }}>
+                <div className="writing-mode-[vertical-rl] transform-[rotate(180deg)] text-[0.7rem] font-[800] text-[#64748b] text-center pr-[0.5rem] letter-spacing-[0.1em] uppercase">
+
+
+
+
+          
                     Probabilidad ↑
                 </div>
 
-                <div style={{ flex: 1 }}>
+                <div className="flex-[1]">
                     {/* Impact headers */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '100px repeat(4, 1fr)', marginBottom: '2px' }}>
+                    <div className="grid grid-template-columns-[100px_repeat(4,_1fr)] mb-[2px]">
                         <div />
-                        {IMPACT_LABELS.map(l => (
-                            <div key={l} style={{
-                                textAlign: 'center', fontSize: '0.65rem', fontWeight: 800,
-                                color: '#64748b', textTransform: 'uppercase', padding: '0.3rem 0.2rem'
-                            }}>{l}</div>
-                        ))}
+                        {IMPACT_LABELS.map((l) =>
+            <div key={l} className="text-center text-[0.65rem] font-[800] text-[#64748b] uppercase p-[0.3rem_0.2rem]">
+
+
+              {l}</div>
+            )}
                     </div>
 
                     {/* Matrix rows */}
-                    {MATRIX_GRID.map((row, ri) => (
-                        <div key={ri} style={{ display: 'grid', gridTemplateColumns: '100px repeat(4, 1fr)', gap: '2px', marginBottom: '2px' }}>
-                            <div style={{
-                                background: '#f1f5f9', borderRadius: '6px 0 0 6px',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                padding: '0.4rem', fontSize: '0.6rem', fontWeight: 800,
-                                color: '#475569', textAlign: 'center', whiteSpace: 'pre-line', lineHeight: 1.2
-                            }}>
+                    {MATRIX_GRID.map((row, ri) =>
+          <div key={ri} className="grid grid-template-columns-[100px_repeat(4,_1fr)] gap-[2px] mb-[2px]">
+                            <div className="bg-[#f1f5f9] rounded-[6px_0_0_6px] flex items-center justify-center p-[0.4rem] text-[0.6rem] font-[800] text-[#475569] text-center white-space-[pre-line] line-height-[1.2]">
+
+
+
+
+              
                                 {row.prob}
                             </div>
-                            {row.cells.map((color, ci) => (
-                                <div key={ci} style={{
-                                    background: color, borderRadius: ri === 0 && ci === 3 ? '0 6px 0 0' : ri === MATRIX_GRID.length - 1 && ci === 3 ? '0 0 6px 0' : '0',
-                                    height: '36px'
-                                }} />
-                            ))}
+                            {row.cells.map((color, ci) =>
+            <div key={ci} style={{
+              background: color, borderRadius: ri === 0 && ci === 3 ? '0 6px 0 0' : ri === MATRIX_GRID.length - 1 && ci === 3 ? '0 0 6px 0' : '0'
+
+            }} className="h-[36px]" />
+            )}
                         </div>
-                    ))}
+          )}
 
                     {/* X-axis label */}
-                    <div style={{ textAlign: 'center', fontSize: '0.7rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '0.5rem' }}>
+                    <div className="text-center text-[0.7rem] font-[800] text-[#64748b] uppercase letter-spacing-[0.1em] mt-[0.5rem]">
                         Impacto →
                     </div>
                 </div>
             </div>
 
             {/* Legend */}
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.8rem', flexWrap: 'wrap' }}>
+            <div className="flex gap-[1rem] mt-[0.8rem] flex-wrap">
                 {[
-                    { color: '#4ade80', label: 'Bajo – Riesgo tolerable' },
-                    { color: '#86efac', label: 'Bajo-Moderado' },
-                    { color: '#fef08a', label: 'Moderado – Requiere control' },
-                    { color: '#fca5a5', label: 'Alto' },
-                    { color: '#ef4444', label: 'Crítico – Acción inmediata' },
-                    { color: '#dc2626', label: 'Muy Crítico' },
-                ].map(l => (
-                    <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                        <div style={{ width: '14px', height: '14px', background: l.color, borderRadius: '3px', border: '1px solid rgba(0,0,0,0.1)' }} />
-                        <span style={{ fontSize: '0.65rem', color: '#64748b' }}>{l.label}</span>
+        { color: '#4ade80', label: 'Bajo – Riesgo tolerable' },
+        { color: '#86efac', label: 'Bajo-Moderado' },
+        { color: '#fef08a', label: 'Moderado – Requiere control' },
+        { color: '#fca5a5', label: 'Alto' },
+        { color: '#ef4444', label: 'Crítico – Acción inmediata' },
+        { color: '#dc2626', label: 'Muy Crítico' }].
+        map((l) =>
+        <div key={l.label} className="flex items-center gap-[0.4rem]">
+                        <div style={{ background: l.color }} className="w-[14px] h-[14px] rounded-[3px] border-[1px_solid_rgba(0,0,0,0.1)]" />
+                        <span className="text-[0.65rem] text-[#64748b]">{l.label}</span>
                     </div>
-                ))}
+        )}
             </div>
-        </div>
-    );
+        </div>);
+
 }
 
 // ─── Main Report ────────────────────────────────────────────────────
 export default function RiskMatrixReport(): React.ReactElement | null {
   const { requirePro } = usePaywall();
-    const navigate = useNavigate();
-    const { currentUser } = useAuth();
-    const [matrix, setMatrix] = useState(null);
-    const [profile, setProfile] = useState(null);
-    const [signature, setSignature] = useState(null);
-    const [showShare, setShowShare] = useState(false);
-    const [showSignatures, setShowSignatures] = useState({ operator: true, supervisor: true, professional: true });
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const [matrix, setMatrix] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [signature, setSignature] = useState(null);
+  const [showShare, setShowShare] = useState(false);
+  const [showSignatures, setShowSignatures] = useState({ operator: true, supervisor: true, professional: true });
 
-    const savedData = localStorage.getItem('personalData');
-    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
-    const countryNorms = getCountryNormativa(userCountry);
+  const savedData = localStorage.getItem('personalData');
+  const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+  const countryNorms = getCountryNormativa(userCountry);
 
-    useEffect(() => {
-        const current = localStorage.getItem('current_risk_matrix');
-        const prof = localStorage.getItem('personalData');
-        const sig = localStorage.getItem('signatureStampData');
-        if (current) setMatrix(JSON.parse(current));
-        if (prof) setProfile(JSON.parse(prof));
-        if (sig) setSignature(JSON.parse(sig));
-    }, []);
+  useEffect(() => {
+    const current = localStorage.getItem('current_risk_matrix');
+    const prof = localStorage.getItem('personalData');
+    const sig = localStorage.getItem('signatureStampData');
+    if (current) setMatrix(JSON.parse(current));
+    if (prof) setProfile(JSON.parse(prof));
+    if (sig) setSignature(JSON.parse(sig));
+  }, []);
 
-    if (!matrix) return <div className="container">Cargando...</div>;
+  if (!matrix) return <div className="container">Cargando...</div>;
 
-    const getRiskLevel = (p, s) => {
-        const v = p * s;
-        if (v <= 4) return { label: 'BAJO', color: '#16a34a', bg: '#dcfce7' };
-        if (v <= 9) return { label: 'MODERADO', color: '#ca8a04', bg: '#fef9c3' };
-        return { label: 'CRÍTICO', color: '#dc2626', bg: '#fee2e2' };
-    };
+  const getRiskLevel = (p, s) => {
+    const v = p * s;
+    if (v <= 4) return { label: 'BAJO', color: '#16a34a', bg: '#dcfce7' };
+    if (v <= 9) return { label: 'MODERADO', color: '#ca8a04', bg: '#fef9c3' };
+    return { label: 'CRÍTICO', color: '#dc2626', bg: '#fee2e2' };
+  };
 
-    const handlePrint = () => requirePro(() => window.print());
+  const handlePrint = () => requirePro(() => window.print());
 
-    return (
-        <div className="container" style={{ maxWidth: '1100px' }}>
+  return (
+    <div className="container max-w-[1100px]">
             <ShareModal
-                isOpen={showShare}
-                onClose={() => setShowShare(false)}
-                title={`Matriz de Riesgos – ${matrix.name}`}
-                text={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${matrix.name}\n📍 Ubicación: ${matrix.location || '-'}\n📅 Fecha: ${matrix.date}\n👷 Responsable: ${profile?.name || matrix.responsable}\n\n✅ Riesgos evaluados: ${matrix.rows?.length || 0}\n\nGenerado con Asistente H&S`}
-                rawMessage={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${matrix.name}\n📍 Ubicación: ${matrix.location || '-'}\n📅 Fecha: ${matrix.date}\n👷 Responsable: ${profile?.name || matrix.responsable}\n\n✅ Riesgos evaluados: ${matrix.rows?.length || 0}\n\nGenerado con Asistente H&S`}
-                elementIdToPrint="pdf-content"
-                fileName={`Matriz_Riesgos_${matrix.name.replace(/\s+/g, '_')}.pdf`}
-            />
+        isOpen={showShare}
+        onClose={() => setShowShare(false)}
+        title={`Matriz de Riesgos – ${matrix.name}`}
+        text={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${matrix.name}\n📍 Ubicación: ${matrix.location || '-'}\n📅 Fecha: ${matrix.date}\n👷 Responsable: ${profile?.name || matrix.responsable}\n\n✅ Riesgos evaluados: ${matrix.rows?.length || 0}\n\nGenerado con Asistente H&S`}
+        rawMessage={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${matrix.name}\n📍 Ubicación: ${matrix.location || '-'}\n📅 Fecha: ${matrix.date}\n👷 Responsable: ${profile?.name || matrix.responsable}\n\n✅ Riesgos evaluados: ${matrix.rows?.length || 0}\n\nGenerado con Asistente H&S`}
+        elementIdToPrint="pdf-content"
+        fileName={`Matriz_Riesgos_${matrix.name.replace(/\s+/g, '_')}.pdf`} />
+      
 
             {/* ─── Action Bar (no-print) ─── */}
-            <div className="no-print" style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                marginBottom: '2rem', background: 'transparent'
-            }}>
+            <div className="no-print flex justify-space-between items-center mb-[2rem] bg-[transparent]">
+
+
+        
                 <></>
             </div>
 
             {/* ─── Printable Report ─── */}
-            <div id="pdf-content" className="print-area print:mb-0 print:border-none print:shadow-none" style={{ background: '#fff', borderRadius: '20px', padding: '2.5rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
+            <div id="pdf-content" className="print-area print:mb-0 print:border-none print:shadow-none bg-[#fff] rounded-[20px] p-[2.5rem] border-[1px_solid_#e2e8f0] box-shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
 
                 {/* Report Header */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', alignItems: 'center', borderBottom: '4px solid #6366f1', paddingBottom: '1.5rem', marginBottom: '2rem', width: '100%', gap: '1.5rem' }}>
-                    <div style={{ textAlign: 'left' }}>
-                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>Sistema de Gestión</p>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', color: '#1e293b' }}>Control H&S</p>
+                <div className="grid grid-template-columns-[1fr_2fr_1fr] items-center border-bottom-[4px_solid_#6366f1] pb-[1.5rem] mb-[2rem] w-[100%] gap-[1.5rem]">
+                    <div className="text-left">
+                        <p className="m-[0] font-[700] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.05em]">Sistema de Gestión</p>
+                        <p className="m-[0] font-[900] text-[0.75rem] uppercase text-[#1e293b]">Control H&S</p>
                     </div>
 
-                    <div style={{ textAlign: 'center' }}>
-                        <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: 1.2 }}>
+                    <div className="text-center">
+                        <h2 className="m-[0] text-[1.2rem] font-[900] text-[var(--color-primary)] uppercase letter-spacing-[1px] line-height-[1.2]">
                             Matriz de Valoración de Riesgos
                         </h2>
-                        <p style={{ margin: '4px 0 0 0', fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>ISO 31000 / Estándar HyS</p>
+                        <p className="m-[4px_0_0_0] text-[0.65rem] text-[#64748b] font-[600]">ISO 31000 / Estándar HyS</p>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '15px' }}>
-                         <div style={{ textAlign: 'right', fontSize: '0.7rem', color: '#64748b' }}>
-                             <div style={{ fontWeight: 800, color: '#1e293b' }}>ID #{matrix.id?.toString().slice(-6)}</div>
+                    <div className="flex justify-end items-center gap-[15px]">
+                         <div className="text-right text-[0.7rem] text-[#64748b]">
+                             <div className="font-[800] text-[#1e293b]">ID #{matrix.id?.toString().slice(-6)}</div>
                              <div>{new Date(matrix.date).toLocaleDateString('es-AR')}</div>
                          </div>
-                        <CompanyLogo style={{ height: '40px', width: 'auto', maxWidth: '120px', objectFit: 'contain' }} />
+                        <CompanyLogo className="h-[40px] w-[auto] max-w-[120px] object-fit-[contain]" />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 bg-slate-50 p-5 rounded-xl border border-slate-200">
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div><span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>PROYECTO:</span> <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{matrix.name}</span></div>
-                        <div><span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>UBICACIÓN:</span> <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{matrix.location || '-'}</span></div>
+                    <div className="flex flex-col gap-[8px]">
+                        <div><span className="text-[0.7rem] text-[#64748b] font-[700] uppercase">PROYECTO:</span> <span className="font-[800] text-[0.9rem]">{matrix.name}</span></div>
+                        <div><span className="text-[0.7rem] text-[#64748b] font-[700] uppercase">UBICACIÓN:</span> <span className="font-[800] text-[0.9rem]">{matrix.location || '-'}</span></div>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                         <div><span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>RESPONSABLE:</span> <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{profile?.name || matrix.responsable}</span></div>
-                         <div><span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>NORMATIVA:</span> <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{countryNorms.general}</span></div>
+                    <div className="flex flex-col gap-[8px]">
+                         <div><span className="text-[0.7rem] text-[#64748b] font-[700] uppercase">RESPONSABLE:</span> <span className="font-[800] text-[0.9rem]">{profile?.name || matrix.responsable}</span></div>
+                         <div><span className="text-[0.7rem] text-[#64748b] font-[700] uppercase">NORMATIVA:</span> <span className="font-[800] text-[0.9rem]">{countryNorms.general}</span></div>
                     </div>
                 </div>
 
@@ -198,38 +198,38 @@ export default function RiskMatrixReport(): React.ReactElement | null {
                 <RiskMatrixGrid />
 
                 {/* ─── Data Table ─── */}
-                <div style={{ overflowX: 'auto', marginBottom: '2.5rem' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
+                <div className="overflow-x-[auto] mb-[2.5rem]">
+                    <table className="w-[100%] border-collapse-[collapse] text-[0.75rem]">
                         <thead>
-                            <tr style={{ background: '#f8fafc' }}>
-                                {['#', 'Tarea / Proceso', 'Tipo', 'Peligro / Riesgo', 'Efecto Probable', 'Exp.', 'P', 'S', 'P×S', 'Nivel', 'Medidas de Control'].map(h => (
-                                    <th key={h} style={{ border: '1px solid #e2e8f0', padding: '0.6rem 0.8rem', textAlign: h === '#' || h === 'P' || h === 'S' || h === 'P×S' || h === 'Exp.' ? 'center' : 'left', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.05em' }}>
+                            <tr className="bg-[#f8fafc]">
+                                {['#', 'Tarea / Proceso', 'Tipo', 'Peligro / Riesgo', 'Efecto Probable', 'Exp.', 'P', 'S', 'P×S', 'Nivel', 'Medidas de Control'].map((h) =>
+                <th key={h} style={{ textAlign: h === '#' || h === 'P' || h === 'S' || h === 'P×S' || h === 'Exp.' ? 'center' : 'left' }} className="border-[1px_solid_#e2e8f0] p-[0.6rem_0.8rem] font-[800] text-[#475569] uppercase text-[0.65rem] letter-spacing-[0.05em]">
                                         {h}
                                     </th>
-                                ))}
+                )}
                             </tr>
                         </thead>
                         <tbody>
                             {matrix.rows.map((row, i) => {
-                                const lv = getRiskLevel(row.probability, row.severity);
-                                return (
-                                    <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#fafafa' }}>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', textAlign: 'center', fontWeight: 800, color: '#94a3b8' }}>{i + 1}</td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{row.task}</td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{row.hazardType}</td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{row.hazard}</td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{row.probableEffect}</td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', textAlign: 'center' }}>{row.exposedCount}</td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', textAlign: 'center', fontWeight: 800 }}>{row.probability}</td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', textAlign: 'center', fontWeight: 800 }}>{row.severity}</td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', textAlign: 'center', fontWeight: 900, color: lv.color, background: lv.bg }}>{row.probability * row.severity}</td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.4rem', textAlign: 'center' }}>
-                                            <span style={{ background: lv.bg, color: lv.color, border: `1px solid ${lv.color}40`, borderRadius: '12px', padding: '0.25rem 0.6rem', fontWeight: 900, fontSize: '0.65rem', whiteSpace: 'nowrap' }}>{lv.label}</span>
+                const lv = getRiskLevel(row.probability, row.severity);
+                return (
+                  <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#fafafa' }}>
+                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] text-center font-[800] text-[#94a3b8]">{i + 1}</td>
+                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] word-break-[break-word] overflow-wrap-[anywhere]">{row.task}</td>
+                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] word-break-[break-word] overflow-wrap-[anywhere]">{row.hazardType}</td>
+                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] word-break-[break-word] overflow-wrap-[anywhere]">{row.hazard}</td>
+                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] word-break-[break-word] overflow-wrap-[anywhere]">{row.probableEffect}</td>
+                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] text-center">{row.exposedCount}</td>
+                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] text-center font-[800]">{row.probability}</td>
+                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] text-center font-[800]">{row.severity}</td>
+                                        <td style={{ color: lv.color, background: lv.bg }} className="border-[1px_solid_#e2e8f0] p-[0.6rem] text-center font-[900]">{row.probability * row.severity}</td>
+                                        <td className="border-[1px_solid_#e2e8f0] p-[0.4rem] text-center">
+                                            <span style={{ background: lv.bg, color: lv.color, border: `1px solid ${lv.color}40` }} className="rounded-[12px] p-[0.25rem_0.6rem] font-[900] text-[0.65rem] white-space-[nowrap]">{lv.label}</span>
                                         </td>
-                                        <td style={{ border: '1px solid #e2e8f0', padding: '0.6rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{row.controls}</td>
-                                    </tr>
-                                );
-                            })}
+                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] word-break-[break-word] overflow-wrap-[anywhere]">{row.controls}</td>
+                                    </tr>);
+
+              })}
                         </tbody>
                     </table>
                 </div>
@@ -238,52 +238,52 @@ export default function RiskMatrixReport(): React.ReactElement | null {
                 <div className="no-print mt-10 mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-xs font-bold text-slate-700">
                     <div className="text-center">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                     <div className="flex gap-4 flex-wrap justify-center">
-                        {['operator', 'supervisor', 'professional'].map(key => (
-                            <label key={key} className="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" checked={showSignatures[key]} onChange={e => setShowSignatures(s => ({ ...s, [key]: e.target.checked }))} className="w-4 h-4 accent-indigo-600" />
+                        {['operator', 'supervisor', 'professional'].map((key) =>
+            <label key={key} className="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked={showSignatures[key]} onChange={(e) => setShowSignatures((s) => ({ ...s, [key]: e.target.checked }))} className="w-4 h-4 accent-indigo-600" />
                                 {key === 'operator' ? 'Operador' : key === 'supervisor' ? 'Supervisor' : 'Profesional'}
                             </label>
-                        ))}
+            )}
                     </div>
                 </div>
 
                 {/* ─── Signatures ─── */}
                 <PdfSignatures
-                    data={{
-                        ...matrix,
-                        professionalSignature: signature?.signature,
-                        professionalStamp: signature?.stamp,
-                        professionalName: profile?.name || matrix.responsable,
-                        professionalLicense: profile?.license
-                    }}
-                    box1={showSignatures.operator ? {
-                        title: 'OPERADOR',
-                        subtitle: 'Aclaración y Firma',
-                        signatureUrl: null,
-                        isProfessional: false
-                    } : null}
-                    box3={showSignatures.supervisor ? {
-                        title: 'SUPERVISOR',
-                        subtitle: 'Aclaración y Firma',
-                        signatureUrl: null,
-                        isProfessional: false
-                    } : null}
-                    box2={showSignatures.professional ? undefined : null}
-                />
+          data={{
+            ...matrix,
+            professionalSignature: signature?.signature,
+            professionalStamp: signature?.stamp,
+            professionalName: profile?.name || matrix.responsable,
+            professionalLicense: profile?.license
+          }}
+          box1={showSignatures.operator ? {
+            title: 'OPERADOR',
+            subtitle: 'Aclaración y Firma',
+            signatureUrl: null,
+            isProfessional: false
+          } : null}
+          box3={showSignatures.supervisor ? {
+            title: 'SUPERVISOR',
+            subtitle: 'Aclaración y Firma',
+            signatureUrl: null,
+            isProfessional: false
+          } : null}
+          box2={showSignatures.professional ? undefined : null} />
+        
                 <PdfBrandingFooter />
             </div>
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">
-                <button onClick={() => toast.success('Este reporte ya se encuentra guardado en tu historial.')} className="btn-floating-action" style={{ background: '#36B37E', color: 'white' }}>
+                <button onClick={() => toast.success('Este reporte ya se encuentra guardado en tu historial.')} className="btn-floating-action bg-[#36B37E] text-[white]">
                     <CheckCircle2 size={18} /> GUARDADO
                 </button>
-                <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action" style={{ background: '#0052CC', color: 'white' }}>
+                <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action bg-[#0052CC] text-[white]">
                     <Share2 size={18} /> COMPARTIR
                 </button>
-                <button onClick={handlePrint} className="btn-floating-action" style={{ background: '#FF8B00', color: 'white' }}>
+                <button onClick={handlePrint} className="btn-floating-action bg-[#FF8B00] text-[white]">
                     <Printer size={18} /> IMPRIMIR PDF
                 </button>
             </div>
-        </div>
-    );
+        </div>);
+
 }

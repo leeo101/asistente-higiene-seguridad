@@ -10,120 +10,120 @@ const AUDIT_TYPES = [{ id: 'internal', name: 'Interna', icon: '📋' }, { id: 'e
 const STATUS = { draft: { label: 'BORRADOR', color: '#6b7280', bg: '#f3f4f6' }, planned: { label: 'PLANIFICADA', color: '#3b82f6', bg: '#eff6ff' }, in_progress: { label: 'EN CURSO', color: '#f59e0b', bg: '#fffbeb' }, completed: { label: 'COMPLETADA', color: '#16a34a', bg: '#f0fdf4' } };
 
 export default function AuditPage(): React.ReactElement | null {
-    const navigate = useNavigate();
-    const [audits, setAudits] = useState<any[]>([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selected, setSelected] = useState<any>(null);
-    const [showShareModal, setShowShareModal] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
-    const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
+  const navigate = useNavigate();
+  const [audits, setAudits] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selected, setSelected] = useState<any>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
-    useEffect(() => { const h = () => setIsMobile(window.innerWidth < 768); h(); window.addEventListener('resize', h); const s = localStorage.getItem('ehs_audits_db'); if (s) setAudits(JSON.parse(s)); return () => window.removeEventListener('resize', h); }, []);
-    const save = (d: any[]) => { localStorage.setItem('ehs_audits_db', JSON.stringify(d)); setAudits(d); };
-    const updateStatus = (id: string, s: string) => save(audits.map((a: any) => a.id === id ? { ...a, status: s } : a));
-    const del = (id: string) => { setConfirmModal({ isOpen: true, payload: id }); };
-    const executeDelete = () => { if (confirmModal.payload) save(audits.filter((a: any) => a.id !== confirmModal.payload)); setConfirmModal({ isOpen: false, payload: null }); };
-    const filtered = audits.filter(a => a.title.toLowerCase().includes(searchTerm.toLowerCase()));
-    const stats = { total: audits.length, inProgress: audits.filter(a => a.status === 'in_progress').length, completed: audits.filter(a => a.status === 'completed').length, planned: audits.filter(a => a.status === 'planned').length };
+  useEffect(() => {const h = () => setIsMobile(window.innerWidth < 768);h();window.addEventListener('resize', h);const s = localStorage.getItem('ehs_audits_db');if (s) setAudits(JSON.parse(s));return () => window.removeEventListener('resize', h);}, []);
+  const save = (d: any[]) => {localStorage.setItem('ehs_audits_db', JSON.stringify(d));setAudits(d);};
+  const updateStatus = (id: string, s: string) => save(audits.map((a: any) => a.id === id ? { ...a, status: s } : a));
+  const del = (id: string) => {setConfirmModal({ isOpen: true, payload: id });};
+  const executeDelete = () => {if (confirmModal.payload) save(audits.filter((a: any) => a.id !== confirmModal.payload));setConfirmModal({ isOpen: false, payload: null });};
+  const filtered = audits.filter((a) => a.title.toLowerCase().includes(searchTerm.toLowerCase()));
+  const stats = { total: audits.length, inProgress: audits.filter((a) => a.status === 'in_progress').length, completed: audits.filter((a) => a.status === 'completed').length, planned: audits.filter((a) => a.status === 'planned').length };
 
-    return (
-        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: isMobile ? '80px' : '2rem' }}>
-            <div style={{ background: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)', padding: isMobile ? '1rem' : '1.5rem', position: 'sticky', top: 0, zIndex: 100, backdropFilter: 'blur(20px)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', maxWidth: '1400px', margin: '0 auto' }}>
+  return (
+    <div style={{ paddingBottom: isMobile ? '80px' : '2rem' }} className="min-h-[100vh] bg-[var(--color-background)]">
+            <div style={{ padding: isMobile ? '1rem' : '1.5rem' }} className="bg-[var(--color-surface)] border-bottom-[1px_solid_var(--color-border)] sticky top-[0] z-[100] backdrop-filter-[blur(20px)]">
+                <div className="flex items-center gap-[1rem] max-w-[1400px] m-[0_auto]">
                     <></>
-                    <div style={{ flex: 1 }}>
-                        <h1 style={{ margin: 0, fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 900 }}><ClipboardCheck size={isMobile ? 20 : 24} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />Auditorías EHS</h1>
-                        <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>ISO 45001 • {stats.inProgress} en curso</p>
+                    <div className="flex-[1]">
+                        <h1 style={{ fontSize: isMobile ? '1.25rem' : '1.5rem' }} className="m-[0] font-[900]"><ClipboardCheck size={isMobile ? 20 : 24} className="display-[inline] mr-[0.5rem] vertical-align-[middle]" />Auditorías EHS</h1>
+                        <p className="m-[0.25rem_0_0_0] text-[0.85rem] text-[var(--color-text-muted)]">ISO 45001 • {stats.inProgress} en curso</p>
                     </div>
-                    <button onClick={() => navigate('/audit/new')} style={{ width: 'auto', margin: 0, padding: '0.75rem 1.5rem', display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: '0.5rem', borderRadius: '16px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}><Plus size={20} strokeWidth={2.5} />Nueva Auditoría</button>
+                    <button onClick={() => navigate('/audit/new')} style={{ display: isMobile ? 'none' : 'flex' }} className="w-[auto] m-[0] p-[0.75rem_1.5rem] items-center gap-[0.5rem] rounded-[16px] bg-[#36B37E] text-[#fff] border-none font-[800] text-[1rem] cursor-pointer box-shadow-[0_4px_15px_rgba(54,179,126,0.3)] white-space-[nowrap]"><Plus size={20} strokeWidth={2.5} />Nueva Auditoría</button>
                 </div>
             </div>
             <div style={{ marginTop: isMobile ? '1rem' : '1.5rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '1rem', padding: isMobile ? '1rem' : '1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
+            <div style={{ gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', padding: isMobile ? '1rem' : '1.5rem' }} className="grid gap-[1rem] max-w-[1400px] m-[0_auto]">
                 <StatCard label="Total" value={stats.total} color="#3B82F6" icon={<ClipboardCheck size={20} />} />
                 <StatCard label="En Curso" value={stats.inProgress} color="#f59e0b" icon={<Clock size={20} />} />
                 <StatCard label="Planificadas" value={stats.planned} color="#3b82f6" icon={<Calendar size={20} />} />
                 <StatCard label="Completadas" value={stats.completed} color="#16a34a" icon={<CheckCircle2 size={20} />} />
             </div>
-            {isMobile && (<div style={{ padding: '0 1rem 1rem', display: 'flex', gap: '0.75rem' }}><div style={{ flex: 1, position: 'relative' }}><Search size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} /><input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', background: 'var(--color-surface)', fontSize: '0.95rem' }} /></div><button onClick={() => navigate('/audit/new')} style={{ width: 'auto', margin: 0, padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '16px', background: '#22c55e', color: '#fff', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(34,197,94,0.3)' }}><Plus size={20} /></button></div>)}
-            <div style={{ padding: isMobile ? '0 1rem' : '0 1.5rem', maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {filtered.length === 0 ? (
-                    <EmptyStateIllustrated 
-                        title="Sin Auditorías"
-                        description="Planificá y gestioná auditorías ISO o internas para asegurar el cumplimiento normativo."
-                        icon={<FileText />}
-                    />
-                ) : filtered.map(a => (<AuditCard key={a.id} audit={a} statusConfig={(STATUS as any)[a.status] || STATUS.planned} onStart={() => updateStatus(a.id, 'in_progress')} onComplete={() => updateStatus(a.id, 'completed')} onView={() => setSelected(a)} onDelete={() => del(a.id)} isMobile={isMobile} />))}
+            {isMobile && <div className="p-[0_1rem_1rem] flex gap-[0.75rem]"><div className="flex-[1] relative"><Search size={18} color="var(--color-text-muted)" className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)]" /><input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.75rem_1rem_0.75rem_2.5rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.95rem]" /></div><button onClick={() => navigate('/audit/new')} className="w-[auto] m-[0] p-[0_1rem] flex items-center justify-center rounded-[16px] bg-[#22c55e] text-[#fff] border-none cursor-pointer box-shadow-[0_4px_15px_rgba(34,197,94,0.3)]"><Plus size={20} /></button></div>}
+            <div style={{ padding: isMobile ? '0 1rem' : '0 1.5rem' }} className="max-w-[1400px] m-[0_auto] flex flex-col gap-[0.75rem]">
+                {filtered.length === 0 ?
+          <EmptyStateIllustrated
+            title="Sin Auditorías"
+            description="Planificá y gestioná auditorías ISO o internas para asegurar el cumplimiento normativo."
+            icon={<FileText />} /> :
+
+          filtered.map((a) => <AuditCard key={a.id} audit={a} statusConfig={(STATUS as any)[a.status] || STATUS.planned} onStart={() => updateStatus(a.id, 'in_progress')} onComplete={() => updateStatus(a.id, 'completed')} onView={() => setSelected(a)} onDelete={() => del(a.id)} isMobile={isMobile} />)}
             </div>
             </div>
             {selected && <DetailModal audit={selected} onClose={() => setSelected(null)} isMobile={isMobile} onPrint={() => setShowShareModal(true)} />}
 
             {/* @ts-ignore */}
-            <ShareModal 
-                isOpen={showShareModal}
-                onClose={() => setShowShareModal(false)}
-                elementIdToPrint="pdf-content"
-                title="Informe de Auditoría"
-                fileName={`Auditoria_${selected?.title || 'Sin_Titulo'}.pdf`}
-            />
+            <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        elementIdToPrint="pdf-content"
+        title="Informe de Auditoría"
+        fileName={`Auditoria_${selected?.title || 'Sin_Titulo'}.pdf`} />
+      
 
-            <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
+            <div className="print-only fixed left-[0] opacity-[0.01] top-[0]">
                 <AuditPdf data={selected} />
             </div>
             <ConfirmModal
-                isOpen={confirmModal.isOpen}
-                onClose={() => setConfirmModal({ isOpen: false, payload: null })}
-                onConfirm={executeDelete}
-                title="¿Eliminar auditoría?"
-                message="Esta acción no se puede deshacer."
-                iconEmoji="🗑️"
-            />
-        </div>
-    );
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, payload: null })}
+        onConfirm={executeDelete}
+        title="¿Eliminar auditoría?"
+        message="Esta acción no se puede deshacer."
+        iconEmoji="🗑️" />
+      
+        </div>);
+
 }
-function StatCard({ label, value, color, icon }: any) { return (<div className="card" style={{ padding: '1.25rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border-subtle)', display: 'flex', alignItems: 'center', gap: '1rem' }}><div style={{ width: '48px', height: '48px', background: `linear-gradient(135deg, ${color}, ${color}cc)`, borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>{icon}</div><div><div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>{label}</div><div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-text)', lineHeight: 1 }}>{value}</div></div></div>); }
-function AuditCard({ audit, statusConfig, onStart, onComplete, onView, onDelete, isMobile }: any) { return (<div className="card" style={{ padding: isMobile ? '1rem' : '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', borderLeft: `4px solid ${statusConfig.color}` }}><div style={{ width: isMobile ? '56px' : '64px', height: isMobile ? '56px' : '64px', background: `${statusConfig.color}15`, borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `2px solid ${statusConfig.color}`, flexShrink: 0 }}><ClipboardCheck size={isMobile ? 20 : 24} color={statusConfig.color} /></div><div style={{ flex: 1, minWidth: 0 }}><div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}><h3 style={{ margin: 0, fontSize: isMobile ? '1rem' : '1.1rem', fontWeight: 800, color: 'var(--color-text)' }}>{AUDIT_TYPES.find((t: any) => t.id === audit.auditType)?.icon} {audit.title}</h3><span style={{ padding: '0.25rem 0.65rem', background: statusConfig.bg, color: statusConfig.color, borderRadius: 'var(--radius-full)', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>{statusConfig.label}</span></div><div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? '0.5rem' : '1rem', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}><span>👤 {audit.auditor || '-'}</span><span>📍 {audit.location || '-'}</span><span>📅 {audit.date ? new Date(audit.date).toLocaleDateString('es-AR') : '-'}</span></div></div><div style={{ display: 'flex', gap: '0.5rem' }}>{audit.status === 'planned' && <button onClick={onStart} style={{ padding: '0.5rem', background: '#3b82f6', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: '#fff' }}><Clock size={isMobile ? 16 : 18} /></button>}{audit.status === 'in_progress' && <button onClick={onComplete} style={{ padding: '0.5rem', background: '#16a34a', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: '#fff' }}><CheckCircle2 size={isMobile ? 16 : 18} /></button>}<button onClick={onView} style={{ padding: '0.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--color-primary)' }}><Eye size={isMobile ? 16 : 18} /></button><button onClick={onDelete} style={{ padding: '0.5rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: '#ef4444' }}><Trash2 size={isMobile ? 16 : 18} /></button></div></div>); }
+function StatCard({ label, value, color, icon }: any) {return <div className="card p-[1.25rem] bg-[var(--gradient-card)] border-[1px_solid_var(--glass-border-subtle)] flex items-center gap-[1rem]"><div style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }} className="w-[48px] h-[48px] rounded-[var(--radius-lg)] flex items-center justify-center text-[#fff]">{icon}</div><div><div className="text-[0.85rem] font-[600] text-[var(--color-text-muted)]">{label}</div><div className="text-[2rem] font-[900] text-[var(--color-text)] line-height-[1]">{value}</div></div></div>;}
+function AuditCard({ audit, statusConfig, onStart, onComplete, onView, onDelete, isMobile }: any) {return <div className="card flex items-center gap-[1rem]" style={{ padding: isMobile ? '1rem' : '1.25rem', borderLeft: `4px solid ${statusConfig.color}` }}><div style={{ width: isMobile ? '56px' : '64px', height: isMobile ? '56px' : '64px', background: `${statusConfig.color}15`, border: `2px solid ${statusConfig.color}` }} className="rounded-[var(--radius-xl)] flex items-center justify-center flex-shrink-[0]"><ClipboardCheck size={isMobile ? 20 : 24} color={statusConfig.color} /></div><div className="flex-[1] min-width-[0]"><div className="flex items-center gap-[0.5rem] mb-[0.5rem] flex-wrap"><h3 style={{ fontSize: isMobile ? '1rem' : '1.1rem' }} className="m-[0] font-[800] text-[var(--color-text)]">{AUDIT_TYPES.find((t: any) => t.id === audit.auditType)?.icon} {audit.title}</h3><span style={{ background: statusConfig.bg, color: statusConfig.color }} className="p-[0.25rem_0.65rem] rounded-[var(--radius-full)] text-[0.7rem] font-[800] uppercase">{statusConfig.label}</span></div><div style={{ gap: isMobile ? '0.5rem' : '1rem' }} className="flex flex-wrap text-[0.85rem] text-[var(--color-text-muted)]"><span>👤 {audit.auditor || '-'}</span><span>📍 {audit.location || '-'}</span><span>📅 {audit.date ? new Date(audit.date).toLocaleDateString('es-AR') : '-'}</span></div></div><div className="flex gap-[0.5rem]">{audit.status === 'planned' && <button onClick={onStart} className="p-[0.5rem] bg-[#3b82f6] border-none rounded-[var(--radius-md)] cursor-pointer text-[#fff]"><Clock size={isMobile ? 16 : 18} /></button>}{audit.status === 'in_progress' && <button onClick={onComplete} className="p-[0.5rem] bg-[#16a34a] border-none rounded-[var(--radius-md)] cursor-pointer text-[#fff]"><CheckCircle2 size={isMobile ? 16 : 18} /></button>}<button onClick={onView} className="p-[0.5rem] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[var(--radius-md)] cursor-pointer text-[var(--color-primary)]"><Eye size={isMobile ? 16 : 18} /></button><button onClick={onDelete} className="p-[0.5rem] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[var(--radius-md)] cursor-pointer text-[#ef4444]"><Trash2 size={isMobile ? 16 : 18} /></button></div></div>;}
 
 function DetailModal({ audit, onClose, isMobile, onPrint }: any) {
-    return (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center', padding: isMobile ? '1rem' : '1.5rem', boxSizing: 'border-box' }} onClick={onClose}>
-            <div className="card" style={{ width: '100%', maxWidth: '600px', maxHeight: '85vh', overflow: 'auto', margin: 0, borderRadius: isMobile ? '28px' : 'var(--radius-2xl)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
-                    <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900 }}>Detalle de Auditoría</h2>
-                    <button onClick={onClose} style={{ padding: '0.5rem', background: 'var(--color-background)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', color: 'var(--color-text)' }}>
+  return (
+    <div style={{ alignItems: isMobile ? 'flex-end' : 'center', padding: isMobile ? '1rem' : '1.5rem' }} onClick={onClose} className="fixed inset-[0] bg-[rgba(0,0,0,0.7)] backdrop-filter-[blur(8px)] z-[9999] flex justify-center box-sizing-[border-box]">
+            <div className="card w-[100%] max-w-[600px] max-height-[85vh] overflow-[auto] m-[0] box-sizing-[border-box] flex flex-col" style={{ borderRadius: isMobile ? '28px' : 'var(--radius-2xl)' }} onClick={(e) => e.stopPropagation()}>
+                <div className="flex justify-space-between items-center mb-[1.5rem] pb-[1rem] border-bottom-[1px_solid_var(--color-border)]">
+                    <h2 className="m-[0] text-[1.25rem] font-[900]">Detalle de Auditoría</h2>
+                    <button onClick={onClose} className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition-colors">
                         <XCircle size={24} />
                     </button>
                 </div>
-                <div style={{ textAlign: 'center', padding: '1.5rem', background: 'var(--color-background)', borderRadius: 'var(--radius-xl)', marginBottom: '1.5rem', border: '1px solid var(--color-border)' }}>
-                    <ClipboardCheck size={40} color="#8b5cf6" style={{ marginBottom: '0.5rem' }} />
-                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-text)' }}>{audit.title}</div>
-                    <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>{audit.auditor}</div>
+                <div className="text-center p-[1.5rem] bg-[var(--color-background)] rounded-[var(--radius-xl)] mb-[1.5rem] border-[1px_solid_var(--color-border)]">
+                    <ClipboardCheck size={40} color="#8b5cf6" className="mb-[0.5rem]" />
+                    <div className="text-[1.5rem] font-[900] text-[var(--color-text)]">{audit.title}</div>
+                    <div className="text-[0.9rem] text-[var(--color-text-muted)] mt-[0.5rem]">{audit.auditor}</div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '1rem', padding: '1rem 0' }}>
-                    <button 
-                        onClick={onPrint} 
-                        style={{ 
-                            flex: 1, 
-                            padding: '1rem', 
-                            background: 'var(--color-surface)', 
-                            border: '1px solid var(--color-primary)', 
-                            borderRadius: 'var(--radius-lg)', 
-                            fontWeight: 700, 
-                            cursor: 'pointer',
-                            color: 'var(--color-primary)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '0.5rem'
-                        }}
-                    >
+                <div className="flex gap-[1rem] p-[1rem_0]">
+                    <button
+            onClick={onPrint} className="flex-[1] p-[1rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-primary)] rounded-[var(--radius-lg)] font-[700] cursor-pointer text-[var(--color-primary)] flex items-center justify-center gap-[0.5rem]">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
                         <Printer size={18} />
                         Imprimir / PDF
                     </button>
-                    <button onClick={onClose} className="btn-primary" style={{ flex: 1, margin: 0 }}>Cerrar</button>
+                    <button onClick={onClose} className="btn-primary flex-[1] m-[0]">Cerrar</button>
                 </div>
             </div>
-        </div>
-    );
+        </div>);
+
 }

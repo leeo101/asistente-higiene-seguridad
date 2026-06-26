@@ -120,6 +120,7 @@ const WorkingAtHeight = lazyWithRetry(() => import('./pages/WorkingAtHeight'));
 const AuditManager = lazyWithRetry(() => import('./pages/AuditManager'));
 const CAPAManager = lazyWithRetry(() => import('./pages/CAPAManager'));
 const EnvironmentalMonitor = lazyWithRetry(() => import('./pages/EnvironmentalMonitor'));
+const EnvironmentalIncidents = lazyWithRetry(() => import('./pages/EnvironmentalIncidents'));
 const SafetyKPIs = lazyWithRetry(() => import('./pages/SafetyKPIs'));
 const ToolboxTalk = lazyWithRetry(() => import('./pages/ToolboxTalk'));
 const ContractorManagement = lazyWithRetry(() => import('./pages/ContractorManagement'));
@@ -558,6 +559,7 @@ function App() {
                   <Route path="/capa/new" element={<ProtectedRoute><CAPAForm /></ProtectedRoute>} />
                   
                   <Route path="/environmental" element={<ProtectedRoute><EnvironmentalMonitor /></ProtectedRoute>} />
+                  <Route path="/environmental-incidents" element={<ProtectedRoute><EnvironmentalIncidents /></ProtectedRoute>} />
                   <Route path="/environmental/new" element={<ProtectedRoute><EnvironmentalForm /></ProtectedRoute>} />
                   
                   <Route path="/loto" element={<ProtectedRoute><LOTOManager /></ProtectedRoute>} />

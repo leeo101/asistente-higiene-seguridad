@@ -13,239 +13,239 @@ import { getCountryNormativa } from '../data/legislationData';
 
 export default function ReportsReport(): React.ReactElement | null {
   const { requirePro } = usePaywall();
-    const navigate = useNavigate();
-    const { currentUser } = useAuth();
-    const [report, setReport] = useState(null);
-    const [profile, setProfile] = useState(null);
-    const [signature, setSignature] = useState(null);
-    const [showShare, setShowShare] = useState(false);
-    const [showSignatures, setShowSignatures] = useState({
-        operator: true,
-        supervisor: true,
-        professional: true
-    });
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const [report, setReport] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [signature, setSignature] = useState(null);
+  const [showShare, setShowShare] = useState(false);
+  const [showSignatures, setShowSignatures] = useState({
+    operator: true,
+    supervisor: true,
+    professional: true
+  });
 
-    const savedData = localStorage.getItem('personalData');
-    const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
-    const countryNorms = getCountryNormativa(userCountry);
+  const savedData = localStorage.getItem('personalData');
+  const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+  const countryNorms = getCountryNormativa(userCountry);
 
-    useEffect(() => {
-        const current = localStorage.getItem('current_report');
-        const prof = localStorage.getItem('personalData');
-        const sig = localStorage.getItem('signatureStampData');
+  useEffect(() => {
+    const current = localStorage.getItem('current_report');
+    const prof = localStorage.getItem('personalData');
+    const sig = localStorage.getItem('signatureStampData');
 
-        if (current) {
-            const parsed = JSON.parse(current);
-            setReport(parsed);
-            if (parsed.showSignatures) {
-                setShowSignatures(parsed.showSignatures);
-            }
-        }
-        if (prof) setProfile(JSON.parse(prof));
-        if (sig) setSignature(JSON.parse(sig));
-    }, []);
+    if (current) {
+      const parsed = JSON.parse(current);
+      setReport(parsed);
+      if (parsed.showSignatures) {
+        setShowSignatures(parsed.showSignatures);
+      }
+    }
+    if (prof) setProfile(JSON.parse(prof));
+    if (sig) setSignature(JSON.parse(sig));
+  }, []);
 
-    if (!report) return <div className="container">Cargando...</div>;
+  if (!report) return <div className="container">Cargando...</div>;
 
-    const handlePrint = () => requirePro(() => window.print());
+  const handlePrint = () => requirePro(() => window.print());
 
-    return (
-        <div className="container" style={{ maxWidth: '1000px' }}>
+  return (
+    <div className="container max-w-[1000px]">
             <ShareModal
-                isOpen={showShare}
-                open={showShare}
-                onClose={() => setShowShare(false)}
-                title={`Informe – ${report.company || ''}`}
-                text={`📋 Informe de Higiene y Seguridad\n🏗️ Empresa: ${report.company}\n📍 Ubicación: ${report.location || '-'}\n📅 Fecha: ${new Date(report.date).toLocaleDateString('es-AR')}\n\nGenerado con Asistente H&S`}
-                rawMessage={`📋 Informe de Higiene y Seguridad\n🏗️ Empresa: ${report.company}\n📍 Ubicación: ${report.location || '-'}\n📅 Fecha: ${new Date(report.date).toLocaleDateString('es-AR')}\n\nGenerado con Asistente H&S`}
-                elementIdToPrint="pdf-content"
-                fileName={`Informe_${report.company}.pdf`}
-            />
+        isOpen={showShare}
+        open={showShare}
+        onClose={() => setShowShare(false)}
+        title={`Informe – ${report.company || ''}`}
+        text={`📋 Informe de Higiene y Seguridad\n🏗️ Empresa: ${report.company}\n📍 Ubicación: ${report.location || '-'}\n📅 Fecha: ${new Date(report.date).toLocaleDateString('es-AR')}\n\nGenerado con Asistente H&S`}
+        rawMessage={`📋 Informe de Higiene y Seguridad\n🏗️ Empresa: ${report.company}\n📍 Ubicación: ${report.location || '-'}\n📅 Fecha: ${new Date(report.date).toLocaleDateString('es-AR')}\n\nGenerado con Asistente H&S`}
+        elementIdToPrint="pdf-content"
+        fileName={`Informe_${report.company}.pdf`} />
+      
             {/* Control Panel - Absolute Print Hide */}
-            <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <div className="no-print flex justify-space-between items-center mb-[2rem]">
                 <></>
             </div>
 
-            <div id="pdf-content" className="card report-print" style={{
-                padding: '3rem',
-                minHeight: '29.7cm',
-                height: 'auto',
-                paddingBottom: '5rem',
-                background: '#ffffff',
-                color: '#1e293b',
-                boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
-                position: 'relative'
-            }}>
+            <div id="pdf-content" className="card report-print p-[3rem] min-h-[29.7cm] h-[auto] pb-[5rem] bg-[#ffffff] text-[#1e293b] box-shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] relative">
+
+
+
+
+
+
+
+
+        
                 {/* Header with Professional Info */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid var(--color-primary)', paddingBottom: '2rem', marginBottom: '2.5rem', gap: '1.5rem' }} className="flex-col sm:flex-row">
-                    <div style={{ flex: 1, display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
-                        <CompanyLogo style={{ height: '60px', width: 'auto', objectFit: 'contain' }} />
+                <div className="flex-col sm:flex-row flex justify-space-between border-bottom-[2px_solid_var(--color-primary)] pb-[2rem] mb-[2.5rem] gap-[1.5rem]">
+                    <div className="flex-[1] flex gap-[1.5rem] items-start">
+                        <CompanyLogo className="h-[60px] w-[auto] object-fit-[contain]" />
                         <div>
-                            <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-primary)', fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-1px' }}>INFORME</h1>
-                            <p style={{ margin: 0, fontSize: '0.9rem', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            <h1 className="m-[0_0_0.5rem_0] text-[var(--color-primary)] text-[2.5rem] font-[900] letter-spacing-[-1px]">INFORME</h1>
+                            <p className="m-[0] text-[0.9rem] text-[#475569] uppercase letter-spacing-[1px]">
                                 {report.template === 'general' ? 'Informe Técnico' :
-                                    report.template === 'accident' ? 'Registro de Accidente' :
-                                        report.template === 'training' ? 'Capacitación de Personal' :
-                                            report.template === 'rgrl' ? 'RGRL' : 'EPP'}
+                report.template === 'accident' ? 'Registro de Accidente' :
+                report.template === 'training' ? 'Capacitación de Personal' :
+                report.template === 'rgrl' ? 'RGRL' : 'EPP'}
                             </p>
                         </div>
                     </div>
-                    {profile && (
-                        <div style={{ textAlign: 'right', borderLeft: '1px solid #e2e8f0', paddingLeft: '2rem' }} className="md:text-right md:border-t-0 md:border-l border-[#e2e8f0] pt-4 md:pt-0">
-                            <p style={{ margin: 0, fontWeight: 700, fontSize: '1.2rem', color: '#1e293b' }}>{profile.name}</p>
-                            <p style={{ margin: '0.2rem 0', fontSize: '0.9rem', color: '#475569' }}>{profile.profession}</p>
-                            {profile.license && <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>Mat: {profile.license}</p>}
+                    {profile &&
+          <div className="md:text-right md:border-t-0 md:border-l border-[#e2e8f0] pt-4 md:pt-0 text-right border-left-[1px_solid_#e2e8f0] pl-[2rem]">
+                            <p className="m-[0] font-[700] text-[1.2rem] text-[#1e293b]">{profile.name}</p>
+                            <p className="m-[0.2rem_0] text-[0.9rem] text-[#475569]">{profile.profession}</p>
+                            {profile.license && <p className="m-[0] text-[0.85rem] text-[#64748b]">Mat: {profile.license}</p>}
                         </div>
-                    )}
+          }
                 </div>
 
                 {/* Metadata Grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '3rem', background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0', color: '#1e293b' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(200px,_1fr))] gap-[1.5rem] mb-[3rem] bg-[#f8fafc] p-[1.5rem] rounded-[8px] border-[1px_solid_#e2e8f0] text-[#1e293b]">
+                    <div className="flex items-center gap-[0.8rem]">
                         <Building2 size={20} color="var(--color-primary)" />
                         <div>
-                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>Empresa</p>
-                            <p style={{ margin: 0, fontWeight: 600 }}>{report.company}</p>
+                            <p className="m-[0] text-[0.75rem] text-[#64748b]">Empresa</p>
+                            <p className="m-[0] font-[600]">{report.company}</p>
                         </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <div className="flex items-center gap-[0.8rem]">
                         <MapPin size={20} color="var(--color-primary)" />
                         <div>
-                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>Ubicación</p>
-                            <p style={{ margin: 0, fontWeight: 600 }}>{report.location || 'N/A'}</p>
+                            <p className="m-[0] text-[0.75rem] text-[#64748b]">Ubicación</p>
+                            <p className="m-[0] font-[600]">{report.location || 'N/A'}</p>
                         </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <div className="flex items-center gap-[0.8rem]">
                         <Calendar size={20} color="var(--color-primary)" />
                         <div>
-                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>Fecha</p>
-                            <p style={{ margin: 0, fontWeight: 600 }}>{new Date(report.date).toLocaleDateString('es-AR')}</p>
+                            <p className="m-[0] text-[0.75rem] text-[#64748b]">Fecha</p>
+                            <p className="m-[0] font-[600]">{new Date(report.date).toLocaleDateString('es-AR')}</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Main Content Area / Observations */}
-                <div style={{ marginBottom: '1rem', color: 'var(--color-primary)', fontWeight: 800, fontSize: '0.8rem', letterSpacing: '2px', textTransform: 'uppercase' }}>OBSERVACIONES</div>
-                <div style={{ marginBottom: '4rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere', lineHeight: '1.6', fontSize: '1.05rem', color: '#1e293b', borderTop: '2px solid #f1f5f9', paddingTop: '1rem' }}>
+                <div className="mb-[1rem] text-[var(--color-primary)] font-[800] text-[0.8rem] letter-spacing-[2px] uppercase">OBSERVACIONES</div>
+                <div className="mb-[4rem] white-space-[pre-wrap] word-break-[break-word] overflow-wrap-[anywhere] line-height-[1.6] text-[1.05rem] text-[#1e293b] border-top-[2px_solid_#f1f5f9] pt-[1rem]">
                     {report.content || 'Sin observaciones registradas.'}
                 </div>
 
                 {/* Personnel List Table if applicable */}
-                {(report.template === 'training' || report.template === 'epp') && report.personnel && report.personnel.length > 0 && (
-                    <div style={{ marginBottom: '4rem' }}>
-                        <h4 style={{ margin: '0 0 1rem 0', color: 'var(--color-primary)', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
+                {(report.template === 'training' || report.template === 'epp') && report.personnel && report.personnel.length > 0 &&
+        <div className="mb-[4rem]">
+                        <h4 className="m-[0_0_1rem_0] text-[var(--color-primary)] border-bottom-[1px_solid_#e2e8f0] pb-[0.5rem]">
                             Personal Interviniente / Firmas
                         </h4>
                         <div className="overflow-x-auto w-full">
-                            <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                            <table className="w-[100%] min-width-[600px] border-collapse-[collapse] text-[0.85rem]">
                                 <thead>
-                                    <tr style={{ background: '#f1f5f9' }}>
-                                        <th style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'left', color: '#475569' }}>Nombre y Apellido</th>
-                                        <th style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'left', color: '#475569' }}>DNI / CUIL</th>
-                                        <th style={{ border: '1px solid #e2e8f0', padding: '0.8rem', textAlign: 'left', width: '250px', color: '#475569' }}>Firma</th>
+                                    <tr className="bg-[#f1f5f9]">
+                                        <th className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-left text-[#475569]">Nombre y Apellido</th>
+                                        <th className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-left text-[#475569]">DNI / CUIL</th>
+                                        <th className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-left w-[250px] text-[#475569]">Firma</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {report.personnel.map(p => (
-                                        <tr key={p.id}>
-                                            <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem', color: '#1e293b' }}>{p.name}</td>
-                                            <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem', color: '#1e293b' }}>{p.dni}</td>
-                                            <td style={{ border: '1px solid #e2e8f0', padding: '0.8rem', height: '65px', verticalAlign: 'bottom', textAlign: 'center' }}>
-                                                <div style={{ borderTop: '1px dotted #000', width: '80%', margin: '0 auto', fontSize: '0.7rem', color: '#64748b' }}>
+                                    {report.personnel.map((p) =>
+                <tr key={p.id}>
+                                            <td className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-[#1e293b]">{p.name}</td>
+                                            <td className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-[#1e293b]">{p.dni}</td>
+                                            <td className="border-[1px_solid_#e2e8f0] p-[0.8rem] h-[65px] vertical-align-[bottom] text-center">
+                                                <div className="border-top-[1px_dotted_#000] w-[80%] m-[0_auto] text-[0.7rem] text-[#64748b]">
                                                     Firma del Trabajador
                                                 </div>
                                             </td>
                                         </tr>
-                                    ))}
+                )}
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                )}
+        }
 
                 {/* Custom visual switches */}
-                <div className="no-print mb-8 p-6" style={{ background: 'rgba(30, 41, 59, 0.2)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem', justifyContent: 'center', alignItems: 'center', marginTop: '2.5rem' }}>
-                    <div style={{ color: 'var(--color-text)', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center mt-[2.5rem]">
+                    <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                    <div className="flex gap-[1rem] flex-wrap justify-center">
                         {[
-                            { id: 'operator', label: 'Operador / Empleado' },
-                            { id: 'supervisor', label: 'Supervisor / Responsable' },
-                            { id: 'professional', label: 'Profesional HYS' }
-                        ].map(sig => {
-                            const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
-                            return (
-                                <label
-                                    key={sig.id}
-                                    className="flex items-center gap-2 cursor-pointer select-none"
-                                    style={{
-                                        padding: '0.55rem 1.1rem',
-                                        borderRadius: 'var(--radius-full)',
-                                        border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
-                                        background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
-                                        color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
-                                        fontWeight: 750,
-                                        fontSize: '0.8rem',
-                                        transition: 'all 0.2s ease',
-                                        boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
-                                    }}
-                                >
+            { id: 'operator', label: 'Operador / Empleado' },
+            { id: 'supervisor', label: 'Supervisor / Responsable' },
+            { id: 'professional', label: 'Profesional HYS' }].
+            map((sig) => {
+              const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+              return (
+                <label
+                  key={sig.id}
+                  className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease]"
+                  style={{
+
+
+                    border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
+                    background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
+                    color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
+
+
+
+                    boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
+                  }}>
+                  
                                     <input
-                                        type="checkbox"
-                                        checked={isChecked}
-                                        onChange={e => setShowSignatures(s => ({ ...s, [sig.id]: e.target.checked }))}
-                                        style={{ display: 'none' }}
-                                    />
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))} className="none" />
+
+                  
                                     <div style={{
-                                        width: '16px',
-                                        height: '16px',
-                                        borderRadius: '4px',
-                                        border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
-                                        background: isChecked ? 'var(--color-primary)' : 'transparent',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        transition: 'all 0.2s ease'
-                                    }}>
+
+
+
+                    border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
+                    background: isChecked ? 'var(--color-primary)' : 'transparent'
+
+
+
+
+                  }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
                                         {isChecked && <CheckCircle2 size={12} color="white" />}
                                     </div>
                                     {sig.label}
-                                </label>
-                            );
-                        })}
+                                </label>);
+
+            })}
                     </div>
                 </div>
 
                 <PdfSignatures
-                    data={{
-                        ...report,
-                        professionalSignature: report.signature || signature?.signature,
-                        professionalStamp: signature?.stamp,
-                        professionalName: profile?.name || report.responsable,
-                        professionalLicense: profile?.license
-                    }}
-                    box1={showSignatures.operator ? {
-                        title: 'OPERADOR',
-                        subtitle: 'Firma / Aclaración',
-                        signatureUrl: report.operatorSignature || null,
-                        isProfessional: false
-                    } : null}
-                    box2={showSignatures.supervisor ? {
-                        title: 'SUPERVISOR',
-                        subtitle: 'Firma / Aclaración',
-                        signatureUrl: report.supervisorSignature || null,
-                        isProfessional: false
-                    } : null}
-                    box3={showSignatures.professional ? {
-                        title: 'PROFESIONAL ACTUANTE',
-                        subtitle: ((profile?.name || report.responsable) ? 'Firma y Sello' : 'Firma y Sello').toUpperCase(),
-                        signatureUrl: report.signature || signature?.signature || null,
-                        isProfessional: true,
-                        license: profile?.license
-                    } : null}
-                />
+          data={{
+            ...report,
+            professionalSignature: report.signature || signature?.signature,
+            professionalStamp: signature?.stamp,
+            professionalName: profile?.name || report.responsable,
+            professionalLicense: profile?.license
+          }}
+          box1={showSignatures.operator ? {
+            title: 'OPERADOR',
+            subtitle: 'Firma / Aclaración',
+            signatureUrl: report.operatorSignature || null,
+            isProfessional: false
+          } : null}
+          box2={showSignatures.supervisor ? {
+            title: 'SUPERVISOR',
+            subtitle: 'Firma / Aclaración',
+            signatureUrl: report.supervisorSignature || null,
+            isProfessional: false
+          } : null}
+          box3={showSignatures.professional ? {
+            title: 'PROFESIONAL ACTUANTE',
+            subtitle: (profile?.name || report.responsable ? 'Firma y Sello' : 'Firma y Sello').toUpperCase(),
+            signatureUrl: report.signature || signature?.signature || null,
+            isProfessional: true,
+            license: profile?.license
+          } : null} />
+        
 
                 {/* Footer Legal */}
-                <div style={{ width: '100%', textAlign: 'center', fontSize: '0.7rem', color: '#94a3b8', marginTop: '3rem', fontStyle: 'italic' }}>
+                <div className="w-[100%] text-center text-[0.7rem] text-[#94a3b8] mt-[3rem] font-style-[italic]">
                     Documento generado por Asistente de Higiene y Seguridad - Conforme a {countryNorms.general}
                 </div>
                 <PdfBrandingFooter />
@@ -253,16 +253,16 @@ export default function ReportsReport(): React.ReactElement | null {
 
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">
-                <button onClick={() => toast.success('Este reporte ya se encuentra guardado en tu historial.')} className="btn-floating-action" style={{ background: '#36B37E', color: 'white' }}>
+                <button onClick={() => toast.success('Este reporte ya se encuentra guardado en tu historial.')} className="btn-floating-action bg-[#36B37E] text-[white]">
                     <CheckCircle2 size={18} /> GUARDADO
                 </button>
-                <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action" style={{ background: '#0052CC', color: 'white' }}>
+                <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action bg-[#0052CC] text-[white]">
                     <Share2 size={18} /> COMPARTIR
                 </button>
-                <button onClick={handlePrint} className="btn-floating-action" style={{ background: '#FF8B00', color: 'white' }}>
+                <button onClick={handlePrint} className="btn-floating-action bg-[#FF8B00] text-[white]">
                     <Printer size={18} /> IMPRIMIR PDF
                 </button>
             </div>
-        </div>
-    );
+        </div>);
+
 }

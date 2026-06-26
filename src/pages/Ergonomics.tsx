@@ -3,155 +3,146 @@ import ConfirmModal from '../components/ConfirmModal';
 import { useNavigate } from 'react-router-dom';
 
 import {
-    Plus, FileText, ArrowLeft,
-    Accessibility, Clock, Trash2, Search, Calendar, Building2, TriangleAlert
-} from 'lucide-react';
+  Plus, FileText, ArrowLeft,
+  Accessibility, Clock, Trash2, Search, Calendar, Building2, TriangleAlert } from
+'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 
 function DeleteConfirm({ onConfirm, onCancel }: any) {
-    return (
-        <ConfirmModal
-            isOpen={true}
-            onClose={onCancel}
-            onConfirm={onConfirm}
-            title="¿Eliminar registro?"
-            message="Esta acción no se puede deshacer."
-            iconEmoji="🗑️"
-        />
-    );
+  return (
+    <ConfirmModal
+      isOpen={true}
+      onClose={onCancel}
+      onConfirm={onConfirm}
+      title="¿Eliminar registro?"
+      message="Esta acción no se puede deshacer."
+      iconEmoji="🗑️" />);
+
+
 }
 
 export default function Ergonomics(): React.ReactElement | null {
-    const navigate = useNavigate();
-    const { syncCollection, syncPulse } = useSync();
-    const [history, setHistory] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [deleteTarget, setDeleteTarget] = useState(null);
+  const navigate = useNavigate();
+  const { syncCollection, syncPulse } = useSync();
+  const [history, setHistory] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-        const saved = localStorage.getItem('ergonomics_history');
-        if (saved) setHistory(JSON.parse(saved));
-    }, [syncPulse]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const saved = localStorage.getItem('ergonomics_history');
+    if (saved) setHistory(JSON.parse(saved));
+  }, [syncPulse]);
 
-    const confirmDelete = () => {
-        const updated = history.filter(item => item.id !== deleteTarget);
-        setHistory(updated);
-        localStorage.setItem('ergonomics_history', JSON.stringify(updated));
-        syncCollection('ergonomics_history', updated);
-        setDeleteTarget(null);
-    };
+  const confirmDelete = () => {
+    const updated = history.filter((item) => item.id !== deleteTarget);
+    setHistory(updated);
+    localStorage.setItem('ergonomics_history', JSON.stringify(updated));
+    syncCollection('ergonomics_history', updated);
+    setDeleteTarget(null);
+  };
 
-    const filteredHistory = history
-        .sort((a, b) => b.id - a.id)
-        .filter(item =>
-            item.empresa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.puesto?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.sector?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+  const filteredHistory = history.
+  sort((a, b) => b.id - a.id).
+  filter((item) =>
+  item.empresa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  item.puesto?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  item.sector?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-    return (
-        <div className="container" style={{ maxWidth: '1200px', paddingBottom: '8rem' }}>
+  return (
+    <div className="container max-w-[1200px] mx-auto pb-32">
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
 
             <PremiumHeader
-                title="Protocolo de Ergonomía"
-                subtitle="Res. SRT 886/15 • Evaluación disergonómica"
-                icon={<Accessibility size={36} color="#ffffff" />}
-            />
+        title="Protocolo de Ergonomía"
+        subtitle="Res. SRT 886/15 • Evaluación disergonómica"
+        icon={<Accessibility size={36} color="#ffffff" />} />
+      
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
+                <div className="flex gap-[1rem] items-center">
                     <></>
                 </div>
                 <button
-                    onClick={() => navigate('/ergonomics-form')}
-                    style={{ flex: '0 1 auto', padding: '0.8rem 1.5rem', borderRadius: '12px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}
-                >
+          onClick={() => navigate('/ergonomics-form')}
+          className="flex-none px-6 py-3 rounded-xl bg-emerald-500 text-white font-extrabold text-sm flex items-center gap-2 shadow-[0_4px_15px_rgba(16,185,129,0.3)] whitespace-nowrap hover:bg-emerald-600 transition-colors cursor-pointer border-none">
+          
                     <Plus size={20} /> Nuevo Estudio
                 </button>
             </div>
 
             {/* Search */}
-            <div style={{ position: 'relative', marginBottom: '2rem' }}>
-                <Search style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} size={20} />
+            <div className="relative mb-8">
+                <Search size={20} className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)] text-[var(--color-text-muted)]" />
                 <input
-                    type="text"
-                    placeholder="Buscar por empresa, sector o puesto..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{
-                        width: '100%',
-                        padding: '1rem 1rem 1rem 3rem',
-                        borderRadius: '16px',
-                        border: '2px solid var(--color-border)',
-                        background: 'var(--color-surface)',
-                        fontSize: '1rem',
-                        outline: 'none',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
-                    }}
-                />
+          type="text"
+          placeholder="Buscar por empresa, sector o puesto..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full py-4 pr-4 pl-12 rounded-2xl border-2 border-slate-700 bg-slate-900 text-base outline-none shadow-sm focus:border-emerald-500 transition-colors text-white" />
+        
             </div>
 
             {/* History List */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
-                {filteredHistory.length > 0 ? (
-                    filteredHistory.map((item) => (
-                        <div key={item.id} className="card hover:shadow-md transition-all" style={{ padding: '1.5rem', border: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                                    <div style={{ width: '48px', height: '48px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', flexShrink: 0 }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredHistory.length > 0 ?
+        filteredHistory.map((item) =>
+        <div key={item.id} className="card hover:shadow-md transition-all p-6 border border-slate-700 flex flex-col gap-4 rounded-2xl bg-slate-900">
+                            <div className="flex justify-space-between items-start">
+                                <div className="flex gap-[1rem] items-start">
+                                    <div className="w-[48px] h-[48px] bg-[rgba(59,_130,_246,_0.1)] rounded-[12px] flex items-center justify-center text-[var(--color-primary)] flex-shrink-[0]">
                                         <Accessibility size={24} />
                                     </div>
                                     <div>
-                                        <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900 }}>{item.empresa || 'Empresa sin nombre'}</h3>
-                                        <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.85rem', fontWeight: 700, marginTop: '0.2rem' }}>
+                                        <h3 className="m-0 text-xl font-black text-slate-100">{item.empresa || 'Empresa sin nombre'}</h3>
+                                        <p className="m-0 text-slate-400 text-sm font-bold mt-1">
                                             {item.puesto} · {item.sector}
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-muted)', background: 'var(--color-background)', padding: '0.6rem', borderRadius: '8px' }}>
+                            <div className="flex items-center gap-2 text-sm text-slate-400 bg-slate-950 p-2.5 rounded-lg">
                                 <Calendar size={16} /> 
-                                <span style={{ fontWeight: 600 }}>{new Date(parseInt(item.id)).toLocaleDateString('es-AR')}</span>
+                                <span className="font-semibold">{new Date(parseInt(item.id)).toLocaleDateString('es-AR')}</span>
                             </div>
 
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', padding: '0.4rem 0', borderBottom: '1px dashed var(--color-border)' }}>
-                                <span style={{ fontWeight: 800, color: 'var(--color-text-muted)' }}>NIVEL DE RIESGO</span>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '999px', background: item.riesgo === 'Moderado' ? '#fef3c7' : '#d1fae5', color: item.riesgo === 'Moderado' ? '#f59e0b' : '#10b981' }}>
+                            <div className="flex justify-space-between items-center text-[0.8rem] p-[0.4rem_0] border-bottom-[1px_dashed_var(--color-border)]">
+                                <span className="font-[800] text-[var(--color-text-muted)]">NIVEL DE RIESGO</span>
+                                <span style={{ background: item.riesgo === 'Moderado' ? '#fef3c7' : '#d1fae5', color: item.riesgo === 'Moderado' ? '#f59e0b' : '#10b981' }} className="flex items-center gap-[0.4rem] font-[800] p-[0.2rem_0.6rem] rounded-[999px]">
                                     {item.riesgo || 'Tolerable'}
                                 </span>
                             </div>
 
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', paddingTop: '1rem', borderTop: '1px solid var(--color-border)' }}>
+                            <div className="flex justify-space-between mt-[0.5rem] pt-[1rem] border-top-[1px_solid_var(--color-border)]">
                                 <button
-                                    onClick={() => navigate('/ergonomics-form', { state: { editData: item } })}
-                                    style={{ flex: 1, padding: '0.6rem', background: 'rgba(var(--color-primary-rgb), 0.1)', color: 'var(--color-primary)', border: '1px solid rgba(var(--color-primary-rgb), 0.2)', borderRadius: '8px', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
-                                    className="hover:bg-[rgba(var(--color-primary-rgb),0.15)]"
-                                >
+              onClick={() => navigate('/ergonomics-form', { state: { editData: item } })}
+
+              className="hover:bg-[rgba(var(--color-primary-rgb),0.15)] flex-[1] p-[0.6rem] bg-[rgba(var(--color-primary-rgb),_0.1)] text-[var(--color-primary)] border-[1px_solid_rgba(var(--color-primary-rgb),_0.2)] rounded-[8px] font-[800] text-[0.8rem] cursor-pointer flex justify-center items-center gap-[0.5rem]">
+              
                                     <FileText size={16} /> VER / EDITAR
                                 </button>
                                 <button
-                                    onClick={() => setDeleteTarget(item.id)}
-                                    style={{ padding: '0.6rem', marginLeft: '0.5rem', background: 'transparent', color: '#ef4444', border: 'none', cursor: 'pointer' }}
-                                    title="Eliminar"
-                                >
+              onClick={() => setDeleteTarget(item.id)}
+
+              title="Eliminar" className="p-[0.6rem] ml-[0.5rem] bg-[transparent] text-[#ef4444] border-none cursor-pointer">
+              
                                     <Trash2 size={18} />
                                 </button>
                             </div>
                         </div>
-                    ))
-                ) : (
-                    <div style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', background: 'var(--color-surface)', borderRadius: '20px', border: '2px dashed var(--color-border)' }}>
-                        <Accessibility size={48} color="var(--color-text-muted)" style={{ margin: '0 auto', marginBottom: '1rem', opacity: 0.5 }} />
-                        <h3 style={{ margin: 0, color: 'var(--color-text)' }}>No hay estudios registrados</h3>
-                        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Creá tu primer evaluación ergonómica para comenzar.</p>
+        ) :
+
+        <div className="grid-column-[1_/_-1] p-[3rem] text-center bg-[var(--color-surface)] rounded-[20px] border-[2px_dashed_var(--color-border)]">
+                        <Accessibility size={48} color="var(--color-text-muted)" className="m-[0_auto] mb-[1rem] opacity-[0.5]" />
+                        <h3 className="m-[0] text-[var(--color-text)]">No hay estudios registrados</h3>
+                        <p className="text-[var(--color-text-muted)] text-[0.9rem]">Creá tu primer evaluación ergonómica para comenzar.</p>
                     </div>
-                )}
+        }
             </div>
-        </div>
-    );
+        </div>);
+
 }

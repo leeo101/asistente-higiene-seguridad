@@ -16,7 +16,7 @@ export default function DailyAIInsight({ healthScore, alertsCount, criticalRisks
         icon: CheckCircle
       };
     }
-    
+
     if (criticalRisksCount > 0) {
       return {
         message: `Atención: Detectamos ${criticalRisksCount} riesgos en nivel crítico. Te sugerimos revisarlos y mitigarlos urgentemente para prevenir accidentes.`,
@@ -74,62 +74,62 @@ export default function DailyAIInsight({ healthScore, alertsCount, criticalRisks
   return (
     <div style={{
       background: bgColors[insight.type],
-      border: `1px solid ${borderColors[insight.type]}`,
-      borderRadius: '16px',
-      padding: '1.2rem 1.5rem',
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: '1rem',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
+      border: `1px solid ${borderColors[insight.type]}`
+
+
+
+
+
+
+
+    }} className="rounded-[16px] p-[1.2rem_1.5rem] flex items-start gap-[1rem] relative overflow-[hidden]">
       <div style={{
-        position: 'absolute',
-        top: '-10%',
-        right: '-5%',
-        opacity: 0.1,
-        transform: 'rotate(-15deg)',
+
+
+
+
+
         color: textColors[insight.type]
-      }}>
+      }} className="absolute top-[-10%] right-[-5%] opacity-[0.1] transform-[rotate(-15deg)]">
         <Sparkle size={120} weight="fill" />
       </div>
 
       <div style={{
         background: `rgba(255,255,255,0.1)`,
-        padding: '0.6rem',
-        borderRadius: '50%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: textColors[insight.type],
-        backdropFilter: 'blur(10px)',
-        zIndex: 1
-      }}>
+
+
+
+
+
+        color: textColors[insight.type]
+
+
+      }} className="p-[0.6rem] rounded-[50%] flex items-center justify-center backdrop-filter-[blur(10px)] z-[1]">
         <IconComponent size={26} weight="duotone" />
       </div>
 
-      <div style={{ flex: 1, zIndex: 1 }}>
-        <h4 style={{ 
-          margin: '0 0 0.4rem', 
-          fontSize: '0.95rem', 
-          fontWeight: 800, 
-          color: 'var(--color-text)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.4rem'
-        }}>
+      <div className="flex-[1] z-[1]">
+        <h4 className="m-[0_0_0.4rem] text-[0.95rem] font-[800] text-[var(--color-text)] flex items-center gap-[0.4rem]">
+
+
+
+
+
+
+
+          
           Asistente IA <Sparkle size={14} color="#a855f7" weight="fill" />
         </h4>
-        <p style={{ 
-          margin: 0, 
-          fontSize: '0.85rem', 
-          color: 'var(--color-text-muted)', 
-          lineHeight: 1.5,
-          fontWeight: 500
-        }}>
+        <p className="m-[0] text-[0.85rem] text-[var(--color-text-muted)] line-height-[1.5] font-[500]">
+
+
+
+
+
+          
           {insight.message}
         </p>
       </div>
-    </div>
-  );
+    </div>);
+
 }

@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
 export default function DrillDescription() {
-    const navigate = useNavigate();
-    return (
-        <div style={{ padding: '2rem' }}>
+  const navigate = useNavigate();
+  return (
+    <div className="p-[2rem]">
             <></>
             <h1>Descripción del Simulacro</h1>
             <p>Aquí se detallará la descripción del simulacro realizado.</p>
-        </div>
-    );
+        </div>);
+
 }

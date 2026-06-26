@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
-    ArrowLeft, Plus, Trash2, HardHat, TriangleAlert, CheckCircle, Clock, Shield,
-    Download, QrCode, ExternalLink, Info, Footprints, Hand, Glasses, Ear, Shirt,
-    Wind, Eye, Flame, Activity, HelpCircle, User, Calendar, ShieldCheck, Award, X
-} from 'lucide-react';
+  ArrowLeft, Plus, Trash2, HardHat, TriangleAlert, CheckCircle, Clock, Shield,
+  Download, QrCode, ExternalLink, Info, Footprints, Hand, Glasses, Ear, Shirt,
+  Wind, Eye, Flame, Activity, HelpCircle, User, Calendar, ShieldCheck, Award, X } from
+'lucide-react';
 import toast from 'react-hot-toast';
 import { useSync } from '../contexts/SyncContext';
 import { downloadCSV } from '../services/exportCsv';
@@ -15,690 +15,513 @@ import PremiumHeader from '../components/PremiumHeader';
 import Breadcrumbs from '../components/Breadcrumbs';
 
 const EPP_TYPES = [
-    'Casco de seguridad', 'Calzado de seguridad', 'Guantes de trabajo',
-    'Lentes de seguridad', 'Protector auditivo', 'Arnés de seguridad',
-    'Chaleco reflectivo', 'Mascarilla / Respirador', 'Careta facial',
-    'Ropa ignífuga', 'Botas de goma', 'Rodilleras', 'Otro'
-];
+'Casco de seguridad', 'Calzado de seguridad', 'Guantes de trabajo',
+'Lentes de seguridad', 'Protector auditivo', 'Arnés de seguridad',
+'Chaleco reflectivo', 'Mascarilla / Respirador', 'Careta facial',
+'Ropa ignífuga', 'Botas de goma', 'Rodilleras', 'Otro'];
+
 
 // Configuración visual de colores e iconos premium para cada tipo de EPP
 const EPP_CONFIG = {
-    'Casco de seguridad': { icon: HardHat, color: '#F59E0B', bg: 'rgba(245,158,11,0.08)' },
-    'Calzado de seguridad': { icon: Footprints, color: '#10B981', bg: 'rgba(16,185,129,0.08)' },
-    'Guantes de trabajo': { icon: Hand, color: '#3B82F6', bg: 'rgba(59,130,246,0.08)' },
-    'Lentes de seguridad': { icon: Glasses, color: '#06B6D4', bg: 'rgba(6,182,212,0.08)' },
-    'Protector auditivo': { icon: Ear, color: '#14B8A6', bg: 'rgba(20,184,166,0.08)' },
-    'Arnés de seguridad': { icon: Shield, color: '#6366F1', bg: 'rgba(99,102,241,0.08)' },
-    'Chaleco reflectivo': { icon: Shirt, color: '#84CC16', bg: 'rgba(132,204,22,0.08)' },
-    'Mascarilla / Respirador': { icon: Wind, color: '#A855F7', bg: 'rgba(168,85,247,0.08)' },
-    'Careta facial': { icon: Eye, color: '#EC4899', bg: 'rgba(236,72,153,0.08)' },
-    'Ropa ignífuga': { icon: Flame, color: '#EF4444', bg: 'rgba(239,68,68,0.08)' },
-    'Botas de goma': { icon: Footprints, color: '#0EA5E9', bg: 'rgba(14,165,233,0.08)' },
-    'Rodilleras': { icon: Activity, color: '#64748B', bg: 'rgba(100,116,139,0.08)' },
-    'Otro': { icon: HelpCircle, color: '#94A3B8', bg: 'rgba(148,163,184,0.08)' }
+  'Casco de seguridad': { icon: HardHat, color: '#F59E0B', bg: 'rgba(245,158,11,0.08)' },
+  'Calzado de seguridad': { icon: Footprints, color: '#10B981', bg: 'rgba(16,185,129,0.08)' },
+  'Guantes de trabajo': { icon: Hand, color: '#3B82F6', bg: 'rgba(59,130,246,0.08)' },
+  'Lentes de seguridad': { icon: Glasses, color: '#06B6D4', bg: 'rgba(6,182,212,0.08)' },
+  'Protector auditivo': { icon: Ear, color: '#14B8A6', bg: 'rgba(20,184,166,0.08)' },
+  'Arnés de seguridad': { icon: Shield, color: '#6366F1', bg: 'rgba(99,102,241,0.08)' },
+  'Chaleco reflectivo': { icon: Shirt, color: '#84CC16', bg: 'rgba(132,204,22,0.08)' },
+  'Mascarilla / Respirador': { icon: Wind, color: '#A855F7', bg: 'rgba(168,85,247,0.08)' },
+  'Careta facial': { icon: Eye, color: '#EC4899', bg: 'rgba(236,72,153,0.08)' },
+  'Ropa ignífuga': { icon: Flame, color: '#EF4444', bg: 'rgba(239,68,68,0.08)' },
+  'Botas de goma': { icon: Footprints, color: '#0EA5E9', bg: 'rgba(14,165,233,0.08)' },
+  'Rodilleras': { icon: Activity, color: '#64748B', bg: 'rgba(100,116,139,0.08)' },
+  'Otro': { icon: HelpCircle, color: '#94A3B8', bg: 'rgba(148,163,184,0.08)' }
 };
 
 function getPPEConfig(type) {
-    // Buscar coincidencia exacta o por palabra, sino retornar el fallback 'Otro'
-    if (EPP_CONFIG[type]) return EPP_CONFIG[type];
-    const foundKey = Object.keys(EPP_CONFIG).find(key => type.toLowerCase().includes(key.toLowerCase()));
-    return foundKey ? EPP_CONFIG[foundKey] : EPP_CONFIG['Otro'];
+  // Buscar coincidencia exacta o por palabra, sino retornar el fallback 'Otro'
+  if (EPP_CONFIG[type]) return EPP_CONFIG[type];
+  const foundKey = Object.keys(EPP_CONFIG).find((key) => type.toLowerCase().includes(key.toLowerCase()));
+  return foundKey ? EPP_CONFIG[foundKey] : EPP_CONFIG['Otro'];
 }
 
 // Normas de certificación aceptadas por Res. SIyC 18/25
 const CERT_STANDARDS = ['IRAM', 'ISO', 'EN (Europeo)', 'ANSI', 'NIOSH', 'NFPA', 'IEC', 'Otra'];
 
 function getDaysUntilExpiry(purchaseDate, lifeMonths) {
-    if (!purchaseDate || !lifeMonths) return null;
-    const expiry = new Date(purchaseDate);
-    expiry.setMonth(expiry.getMonth() + Number(lifeMonths));
-    return Math.ceil(((expiry as any) - (new Date() as any)) / (1000 * 60 * 60 * 24));
+  if (!purchaseDate || !lifeMonths) return null;
+  const expiry = new Date(purchaseDate);
+  expiry.setMonth(expiry.getMonth() + Number(lifeMonths));
+  return Math.ceil(((expiry as any) - (new Date() as any)) / (1000 * 60 * 60 * 24));
 }
 
 function StatusBadge({ days }) {
-    if (days === null) return null;
-    if (days < 0) return (
-        <span style={{ background: 'rgba(239,68,68,0.12)', color: '#ef4444', padding: '0.25rem 0.7rem', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem', border: '1px solid rgba(239,68,68,0.2)' }}>
+  if (days === null) return null;
+  if (days < 0) return (
+    <span className="bg-[rgba(239,68,68,0.12)] text-[#ef4444] p-[0.25rem_0.7rem] rounded-[20px] text-[0.7rem] font-[800] flex items-center gap-[0.3rem] border-[1px_solid_rgba(239,68,68,0.2)]">
             <TriangleAlert size={11} /> VENCIDO
-        </span>
-    );
-    if (days <= 30) return (
-        <span style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', padding: '0.25rem 0.7rem', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem', border: '1px solid rgba(245,158,11,0.2)' }}>
+        </span>);
+
+  if (days <= 30) return (
+    <span className="bg-[rgba(245,158,11,0.12)] text-[#f59e0b] p-[0.25rem_0.7rem] rounded-[20px] text-[0.7rem] font-[800] flex items-center gap-[0.3rem] border-[1px_solid_rgba(245,158,11,0.2)]">
             <Clock size={11} /> {days}d restantes
-        </span>
-    );
-    return (
-        <span style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981', padding: '0.25rem 0.7rem', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem', border: '1px solid rgba(16,185,129,0.2)' }}>
+        </span>);
+
+  return (
+    <span className="bg-[rgba(16,185,129,0.12)] text-[#10b981] p-[0.25rem_0.7rem] rounded-[20px] text-[0.7rem] font-[800] flex items-center gap-[0.3rem] border-[1px_solid_rgba(16,185,129,0.2)]">
             <CheckCircle size={11} /> Vigente · {days}d
-        </span>
-    );
+        </span>);
+
 }
 
 const EMPTY_FORM = { type: '', custom: '', responsible: '', purchaseDate: '', lifeMonths: '', certStandard: '', certNumber: '' };
 
 export default function PPETracker(): React.ReactElement | null {
   const { requirePro } = usePaywall();
-    const navigate = useNavigate();
-    const { syncCollection } = useSync();
-    const [items, setItems] = useState<any[]>([]);
-    const [isFormVisible, setIsFormVisible] = useState(false);
-    const [form, setForm] = useState(EMPTY_FORM);
-    
-    // Check if device is mobile to adjust padding
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-    useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth <= 768);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+  const navigate = useNavigate();
+  const { syncCollection } = useSync();
+  const [items, setItems] = useState<any[]>([]);
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [form, setForm] = useState(EMPTY_FORM);
 
-    useEffect(() => {
-        const saved = localStorage.getItem('ppe_items');
-        if (saved) setItems(JSON.parse(saved));
-    }, []);
+  // Check if device is mobile to adjust padding
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, [isFormVisible]);
+  useEffect(() => {
+    const saved = localStorage.getItem('ppe_items');
+    if (saved) setItems(JSON.parse(saved));
+  }, []);
 
-    const save = async (updated) => {
-        setItems(updated);
-        localStorage.setItem('ppe_items', JSON.stringify(updated));
-        await syncCollection('ppe_items', updated);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [isFormVisible]);
+
+  const save = async (updated) => {
+    setItems(updated);
+    localStorage.setItem('ppe_items', JSON.stringify(updated));
+    await syncCollection('ppe_items', updated);
+  };
+
+  const handleAdd = async () => {
+    if (!form.type) {toast.error('Seleccioná un tipo de EPP');return;}
+    if (!form.purchaseDate) {toast.error('Ingresá la fecha de compra/entrega');return;}
+
+    const newItem = {
+      id: Date.now(),
+      type: form.type === 'Otro' ? form.custom || 'Otro' : form.type,
+      responsible: form.responsible,
+      purchaseDate: form.purchaseDate,
+      lifeMonths: form.lifeMonths || 12,
+      certStandard: form.certStandard,
+      certNumber: form.certNumber,
+      addedAt: new Date().toISOString()
     };
 
-    const handleAdd = async () => {
-        if (!form.type) { toast.error('Seleccioná un tipo de EPP'); return; }
-        if (!form.purchaseDate) { toast.error('Ingresá la fecha de compra/entrega'); return; }
-        
-        const newItem = {
-            id: Date.now(),
-            type: form.type === 'Otro' ? (form.custom || 'Otro') : form.type,
-            responsible: form.responsible,
-            purchaseDate: form.purchaseDate,
-            lifeMonths: form.lifeMonths || 12,
-            certStandard: form.certStandard,
-            certNumber: form.certNumber,
-            addedAt: new Date().toISOString()
-        };
+    const updated = [newItem, ...items];
+    await save(updated);
 
-        const updated = [newItem, ...items];
-        await save(updated);
-        
-        toast.success('EPP registrado');
-        setForm(EMPTY_FORM);
-        setIsFormVisible(false);
-    };
+    toast.success('EPP registrado');
+    setForm(EMPTY_FORM);
+    setIsFormVisible(false);
+  };
 
-    const handleDelete = (id) => {
-        save(items.filter(i => i.id !== id));
-        toast.success('EPP eliminado');
-    };
+  const handleDelete = (id) => {
+    save(items.filter((i) => i.id !== id));
+    toast.success('EPP eliminado');
+  };
 
-    const handleExport = () => {
-        downloadCSV(items, 'ppe_tracker', {
-            type: 'Tipo de EPP', responsible: 'Responsable',
-            purchaseDate: 'Fecha Compra/Entrega', lifeMonths: 'Vida Útil (meses)',
-            certStandard: 'Certificación', certNumber: 'N° Certificado'
-        });
-    };
+  const handleExport = () => {
+    downloadCSV(items, 'ppe_tracker', {
+      type: 'Tipo de EPP', responsible: 'Responsable',
+      purchaseDate: 'Fecha Compra/Entrega', lifeMonths: 'Vida Útil (meses)',
+      certStandard: 'Certificación', certNumber: 'N° Certificado'
+    });
+  };
 
-    const showARStamp = form.certStandard && form.certNumber;
+  const showARStamp = form.certStandard && form.certNumber;
 
-    // Cálculos estadísticos para el panel de salud superior
-    const total = items.length;
-    const expired = items.filter(i => getDaysUntilExpiry(i.purchaseDate, i.lifeMonths) !== null && getDaysUntilExpiry(i.purchaseDate, i.lifeMonths)! < 0).length;
-    const expiring = items.filter(i => {
-        const d = getDaysUntilExpiry(i.purchaseDate, i.lifeMonths);
-        return d !== null && d >= 0 && d <= 30;
-    }).length;
-    const active = total - expired - expiring;
+  // Cálculos estadísticos para el panel de salud superior
+  const total = items.length;
+  const expired = items.filter((i) => getDaysUntilExpiry(i.purchaseDate, i.lifeMonths) !== null && getDaysUntilExpiry(i.purchaseDate, i.lifeMonths)! < 0).length;
+  const expiring = items.filter((i) => {
+    const d = getDaysUntilExpiry(i.purchaseDate, i.lifeMonths);
+    return d !== null && d >= 0 && d <= 30;
+  }).length;
+  const active = total - expired - expiring;
 
-    // Puntuación de protección general (EPP seguros del equipo)
-    const protectionScore = total > 0 ? Math.round(((active + expiring) / total) * 100) : 100;
+  // Puntuación de protección general (EPP seguros del equipo)
+  const protectionScore = total > 0 ? Math.round((active + expiring) / total * 100) : 100;
 
 
 
-    return (
-        <div className="container" style={{ maxWidth: '750px', paddingBottom: '4rem', paddingTop: '6rem' }}>
-            <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); } : undefined} 
-                title="Control de EPP"
-                subtitle="Res. SIyC 18/25 · Res. SRT 299/11"
-                icon={<HardHat size={32} color="#ffffff"  />}
-            />
+  return (
+    <div className="w-full max-w-3xl mx-auto px-4 pb-16 pt-24 min-h-screen">
+            <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
+      title="Control de EPP"
+      subtitle="Res. SIyC 18/25 · Res. SRT 299/11"
+      icon={<HardHat size={32} color="#ffffff" />} />
+      
 
-            {!isFormVisible && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            {!isFormVisible &&
+      <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
+                    <div className="flex gap-4 items-center">
                         <></>
                     </div>
-                    {items.length > 0 && (
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            <button onClick={() => requirePro(() => window.print())} style={{ background: '#2563eb', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)' }}>
+                    {items.length > 0 &&
+        <div className="flex gap-2">
+                            <button onClick={() => requirePro(() => window.print())} className="bg-blue-600 hover:bg-blue-700 text-white border-none rounded-lg px-3 py-2 text-xs font-extrabold cursor-pointer shadow-lg shadow-blue-500/30 transition-all">
                                 <span className="hidden sm:inline">IMPRIMIR RES. 299/11</span><span className="inline sm:hidden">RES 299/11</span>
                             </button>
-                            <button onClick={handleExport} style={{ background: '#36B37E', border: 'none', borderRadius: '8px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff', boxShadow: '0 4px 12px rgba(54, 179, 126, 0.3)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                            <button onClick={handleExport} className="bg-emerald-500 hover:bg-emerald-600 text-white border-none rounded-lg px-3 py-2 text-xs font-extrabold cursor-pointer shadow-lg shadow-emerald-500/30 flex items-center gap-1 transition-all">
                                 <Download size={14} /> <span className="hidden sm:inline">EXCEL</span>
                             </button>
                         </div>
-                    )}
+        }
                 </div>
-            )}
+      }
 
             {/* Banner normativa actualizada */}
-            <div style={{
-                background: 'linear-gradient(135deg, rgba(37,99,235,0.05), rgba(139,92,246,0.05))',
-                border: '1px solid var(--color-border)',
-                borderRadius: '14px',
-                padding: '0.85rem 1.1rem',
-                marginBottom: '1.2rem',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '0.8rem',
-                boxShadow: 'var(--shadow-sm)'
-            }}>
-                <div style={{ marginTop: '2px', flexShrink: 0 }}>
+            <div className="bg-gradient-to-br from-blue-500/5 to-purple-500/5 border border-slate-200 dark:border-slate-700 rounded-2xl py-3.5 px-4 mb-5 flex items-start gap-3 shadow-sm">
+                <div className="mt-0.5 shrink-0">
                     <QrCode size={22} color="#2563eb" />
                 </div>
-                <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.3rem' }}>
-                        <span style={{ fontSize: '0.72rem', fontWeight: 900, textTransform: 'uppercase', color: '#2563eb', letterSpacing: '0.04em' }}>🆕 Res. SIyC 18/25 — Vigente desde Feb 2025</span>
+                <div className="flex-1">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <span className="text-[0.72rem] font-black uppercase text-blue-600 tracking-wide">🆕 Res. SIyC 18/25 — Vigente desde Feb 2025</span>
                     </div>
-                    <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
-                        Los EPP comercializados en Argentina ahora deben contar con el <strong style={{ color: 'var(--color-text)' }}>Marcado "AR" ✓✓ + Código QR de trazabilidad</strong>.
-                        Se aceptan certificaciones <strong style={{ color: 'var(--color-text)' }}>ISO, EN, ANSI, NIOSH, NFPA, IEC</strong> (ya no solo IRAM).
+                    <p className="m-0 text-[0.78rem] text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Los EPP comercializados en Argentina ahora deben contar con el <strong className="text-slate-800 dark:text-slate-200">Marcado "AR" ✓✓ + Código QR de trazabilidad</strong>.
+                        Se aceptan certificaciones <strong className="text-slate-800 dark:text-slate-200">ISO, EN, ANSI, NIOSH, NFPA, IEC</strong> (ya no solo IRAM).
                         El uso obligatorio en planta sigue rigiendo por Res. SRT 299/11.
                     </p>
                 </div>
             </div>
 
             {/* 📊 Premium Safety Hub Dashboard (Siempre visible si hay EPPs) */}
-            {items.length > 0 && (
-                <div className="card" style={{
-                    background: 'var(--gradient-card)',
-                    padding: '1.2rem 1.5rem',
-                    borderRadius: '20px',
-                    marginBottom: '1.5rem',
-                    border: '1px solid var(--glass-border-subtle)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '1rem',
-                    boxShadow: 'var(--glass-shadow)',
-                    animation: 'scaleIn 0.3s ease-out'
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.8rem' }}>
+            {items.length > 0 &&
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50 rounded-2xl py-5 px-6 mb-6 flex flex-col gap-4 shadow-sm animate-fade-in">
+                    <div className="flex items-center justify-between flex-wrap gap-3">
                         <div>
-                            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-text)', fontFamily: 'var(--font-heading)' }}>
+                            <h3 className="m-0 text-[1.05rem] font-extrabold text-slate-800 dark:text-slate-100">
                                 Estado de Protección del Equipo
                             </h3>
-                            <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>
+                            <p className="m-0 mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">
                                 Monitoreo de cumplimiento de normas y vida útil.
                             </p>
                         </div>
                         
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.4rem',
-                            background: protectionScore >= 80 ? 'rgba(16,185,129,0.08)' : protectionScore >= 50 ? 'rgba(245,158,11,0.08)' : 'rgba(239,68,68,0.08)',
-                            padding: '0.4rem 0.8rem',
-                            borderRadius: '99px',
-                            border: `1px solid ${protectionScore >= 80 ? 'rgba(16,185,129,0.2)' : protectionScore >= 50 ? 'rgba(245,158,11,0.2)' : 'rgba(239,68,68,0.2)'}`,
-                            color: protectionScore >= 80 ? '#10b981' : protectionScore >= 50 ? '#f59e0b' : '#ef4444',
-                            fontWeight: 800,
-                            fontSize: '0.75rem',
-                            letterSpacing: '0.5px'
-                        }}>
+                        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border font-extrabold text-xs tracking-wide ${protectionScore >= 80 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : protectionScore >= 50 ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
                             <ShieldCheck size={13} />
                             <span>{protectionScore}% SEGURO</span>
                         </div>
                     </div>
 
                     {/* Barra de progreso de protección lineal */}
-                    <div style={{ width: '100%', background: 'var(--color-border)', height: '7px', borderRadius: '99px', overflow: 'hidden', position: 'relative' }}>
-                        <div style={{
-                            width: `${protectionScore}%`,
-                            background: 'linear-gradient(90deg, #10b981, #3b82f6)',
-                            height: '100%',
-                            borderRadius: '99px',
-                            transition: 'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-                            boxShadow: '0 0 8px rgba(16, 185, 129, 0.4)'
-                        }} />
+                    <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden relative">
+                        <div className="h-full rounded-full transition-all duration-700 shadow-[0_0_8px_rgba(16,185,129,0.4)] bg-gradient-to-r from-emerald-500 to-blue-500" style={{ width: `${protectionScore}%` }} />
                     </div>
 
                     {/* Stats Grid */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginTop: '0.2rem' }}>
-                        <div style={{
-                            background: 'rgba(16,185,129,0.03)',
-                            border: '1px solid rgba(16,185,129,0.12)',
-                            borderRadius: '12px',
-                            padding: '0.6rem 0.4rem',
-                            textAlign: 'center',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '0.1rem'
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(16,185,129,0.08)', color: '#10b981', marginBottom: '0.15rem' }}>
+                    <div className="grid grid-cols-3 gap-2 mt-1">
+                        <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-2.5 text-center flex flex-col items-center gap-0.5">
+                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-500 mb-0.5">
                                 <ShieldCheck size={14} />
                             </div>
-                            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#10b981', lineHeight: 1 }}>{active}</div>
-                            <div style={{ fontSize: '0.62rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px' }}>Vigentes</div>
+                            <div className="text-xl font-black text-emerald-500 leading-none">{active}</div>
+                            <div className="text-[0.62rem] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">Vigentes</div>
                         </div>
                         
-                        <div style={{
-                            background: 'rgba(245,158,11,0.03)',
-                            border: '1px solid rgba(245,158,11,0.12)',
-                            borderRadius: '12px',
-                            padding: '0.6rem 0.4rem',
-                            textAlign: 'center',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '0.1rem'
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(245,158,11,0.08)', color: '#f59e0b', marginBottom: '0.15rem' }}>
+                        <div className="bg-amber-500/5 border border-amber-500/10 rounded-xl p-2.5 text-center flex flex-col items-center gap-0.5">
+                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/10 text-amber-500 mb-0.5">
                                 <Clock size={14} />
                             </div>
-                            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#f59e0b', lineHeight: 1 }}>{expiring}</div>
-                            <div style={{ fontSize: '0.62rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px' }}>Por Vencer</div>
+                            <div className="text-xl font-black text-amber-500 leading-none">{expiring}</div>
+                            <div className="text-[0.62rem] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">Por Vencer</div>
                         </div>
                         
-                        <div style={{
-                            background: 'rgba(239,68,68,0.03)',
-                            border: '1px solid rgba(239,68,68,0.12)',
-                            borderRadius: '12px',
-                            padding: '0.6rem 0.4rem',
-                            textAlign: 'center',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '0.1rem'
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(239,68,68,0.08)', color: '#ef4444', marginBottom: '0.15rem' }}>
+                        <div className="bg-red-500/5 border border-red-500/10 rounded-xl p-2.5 text-center flex flex-col items-center gap-0.5">
+                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-red-500/10 text-red-500 mb-0.5">
                                 <TriangleAlert size={14} />
                             </div>
-                            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ef4444', lineHeight: 1 }}>{expired}</div>
-                            <div style={{ fontSize: '0.62rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px' }}>Vencidos</div>
+                            <div className="text-xl font-black text-red-500 leading-none">{expired}</div>
+                            <div className="text-[0.62rem] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">Vencidos</div>
                         </div>
                     </div>
                 </div>
-            )}
+      }
 
             {/* Segmented Tabs */}
-            <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1.5rem', background: 'rgba(15,23,42,0.03)', padding: '0.35rem', borderRadius: '16px', border: '1px solid var(--color-border)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }}>
+            <div className="flex gap-1.5 mb-6 bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
                 <button
-                    onClick={() => setIsFormVisible(false)}
-                    style={{ flex: 1, padding: '0.75rem', borderRadius: '12px', border: 'none', background: !isFormVisible ? '#10b981' : 'transparent', color: !isFormVisible ? '#fff' : 'var(--color-text-muted)', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: !isFormVisible ? '0 4px 12px rgba(16,185,129,0.2)' : 'none' }}
-                >
+          onClick={() => setIsFormVisible(false)}
+          className={`flex-1 py-3 px-4 rounded-xl border-none font-extrabold text-sm cursor-pointer transition-all flex items-center justify-center gap-2 ${!isFormVisible ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}>
+          
                     <Shield size={18} /> Inventario
                 </button>
                 <button
-                    onClick={() => setIsFormVisible(true)}
-                    style={{ flex: 1, padding: '0.75rem', borderRadius: '12px', border: 'none', background: isFormVisible ? '#10b981' : 'transparent', color: isFormVisible ? '#fff' : 'var(--color-text-muted)', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: isFormVisible ? '0 4px 12px rgba(16,185,129,0.2)' : 'none' }}
-                >
+          onClick={() => setIsFormVisible(true)}
+          className={`flex-1 py-3 px-4 rounded-xl border-none font-extrabold text-sm cursor-pointer transition-all flex items-center justify-center gap-2 ${isFormVisible ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}>
+          
                     <Plus size={18} /> Nueva Entrega
                 </button>
             </div>
 
-            {!isFormVisible ? (
-                <>
+            {!isFormVisible ?
+      <>
                     {/* List */}
-                    {items.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
-                            <Shield size={48} style={{ opacity: 0.15, marginBottom: '1rem', display: 'block', margin: '0 auto 1rem' }} />
-                            <p style={{ fontWeight: 600 }}>Sin EPPs registrados.</p>
-                            <p style={{ fontSize: '0.82rem' }}>Registrá los elementos de protección del equipo para controlar sus vencimientos.</p>
-                        </div>
-                    ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                    {items.length === 0 ?
+        <div className="text-center py-12 text-slate-500 dark:text-slate-400 bg-white/50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 border-dashed">
+                            <Shield size={48} className="mx-auto block mb-4 opacity-15" />
+                            <p className="font-semibold text-lg text-slate-700 dark:text-slate-300">Sin EPPs registrados.</p>
+                            <p className="text-sm">Registrá los elementos de protección del equipo para controlar sus vencimientos.</p>
+                        </div> :
+
+        <div className="flex flex-col gap-3">
                     {items.map((item, index) => {
-                        const days = getDaysUntilExpiry(item.purchaseDate, item.lifeMonths);
-                        const isExpired = days !== null && days < 0;
-                        const config = getPPEConfig(item.type);
-                        const IconComponent = config.icon;
+            const days = getDaysUntilExpiry(item.purchaseDate, item.lifeMonths);
+            const isExpired = days !== null && days < 0;
+            const config = getPPEConfig(item.type);
+            const IconComponent = config.icon;
 
-                        // Cálculos para la "Barra de Vida Útil"
-                        const maxDays = Number(item.lifeMonths || 12) * 30.4;
-                        const pct = days !== null ? Math.max(0, Math.min(100, (days / maxDays) * 100)) : 100;
-                        
-                        // Color de estado correspondiente
-                        const statusColor = isExpired ? '#ef4444' : (days !== null && days <= 30 ? '#f59e0b' : '#10b981');
-                        const statusColorLight = isExpired ? 'rgba(239,68,68,0.1)' : (days !== null && days <= 30 ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)');
+            // Cálculos para la "Barra de Vida Útil"
+            const maxDays = Number(item.lifeMonths || 12) * 30.4;
+            const pct = days !== null ? Math.max(0, Math.min(100, days / maxDays * 100)) : 100;
 
-                        return (
-                            <div
-                                key={item.id}
-                                className="card stagger-item"
-                                style={{
-                                    padding: '1.1rem 1.3rem',
-                                    borderLeft: `5px solid ${statusColor}`,
-                                    position: 'relative',
-                                    overflow: 'hidden',
-                                    animationDelay: `${index * 0.08}s`
-                                }}
-                            >
+            // Color de estado correspondiente
+            const statusColor = isExpired ? '#ef4444' : days !== null && days <= 30 ? '#f59e0b' : '#10b981';
+            const statusColorLight = isExpired ? 'rgba(239,68,68,0.1)' : days !== null && days <= 30 ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)';
+
+            return (
+              <div
+                key={item.id}
+                className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md border border-slate-200 dark:border-slate-700/50 relative overflow-hidden transition-all stagger-item border-left-width-[5px]" style={{ borderLeftColor: statusColor, animationDelay: `${index * 0.08}s` }}>
+                
                                 {/* Brillo sutil de fondo del estado */}
-                                <div style={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    height: '100%',
-                                    background: `linear-gradient(90deg, ${statusColorLight} 0%, transparent 100%)`,
-                                    opacity: 0.15,
-                                    pointerEvents: 'none'
-                                }} />
+                                <div className="absolute inset-0 opacity-15 pointer-events-none" style={{ background: `linear-gradient(90deg, ${statusColorLight} 0%, transparent 100%)` }} />
 
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
+                                <div className="flex justify-between items-start gap-4 flex-wrap relative z-10">
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2.5 mb-2 flex-wrap">
                                             {/* Icono circular del tipo de EPP */}
                                             <div style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                width: '28px',
-                                                height: '28px',
-                                                borderRadius: '50%',
-                                                background: config.bg,
-                                                color: config.color,
-                                                border: `1px solid rgba(var(--color-primary-rgb), 0.08)`
-                                            }}>
+
+
+
+
+
+
+                        background: config.bg,
+                        color: config.color,
+                        border: `1px solid rgba(var(--color-primary-rgb), 0.08)`
+                      }} className="flex items-center justify-center w-[28px] h-[28px] rounded-[50%]">
                                                 <IconComponent size={15} strokeWidth={2.2} />
                                             </div>
-                                            <strong style={{ fontSize: '0.98rem', fontFamily: 'var(--font-heading)', color: 'var(--color-text)' }}>
+                                            <strong className="text-base font-extrabold text-slate-800 dark:text-slate-100 font-heading">
                                                 {item.type}
                                             </strong>
                                             <StatusBadge days={days} />
                                         </div>
 
-                                        <div style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.5rem 1rem', marginTop: '0.6rem' }}>
-                                            {item.responsible && (
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 600, color: 'var(--color-text)' }}>
-                                                    👤 <span style={{ opacity: 0.75 }}>Responsable:</span> {item.responsible}
+                                        <div className="text-xs text-slate-500 dark:text-slate-400 grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-2 mt-2">
+                                            {item.responsible &&
+                      <span className="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-300">
+                                                    👤 <span className="opacity-75">Responsable:</span> {item.responsible}
                                                 </span>
-                                            )}
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                                📅 <span style={{ opacity: 0.75 }}>Entrega:</span> {new Date(item.purchaseDate).toLocaleDateString('es-AR')}
+                      }
+                                            <span className="flex items-center gap-1.5">
+                                                📅 <span className="opacity-75">Entrega:</span> {new Date(item.purchaseDate).toLocaleDateString('es-AR')}
                                             </span>
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                                ⏳ <span style={{ opacity: 0.75 }}>Vida útil:</span> {item.lifeMonths} meses
+                                            <span className="flex items-center gap-1.5">
+                                                ⏳ <span className="opacity-75">Vida útil:</span> {item.lifeMonths} meses
                                             </span>
-                                            {item.certStandard && (
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#2563eb', fontWeight: 750 }}>
+                                            {item.certStandard &&
+                      <span className="flex items-center gap-1 text-blue-600 font-bold">
                                                     ✓✓ {item.certStandard}{item.certNumber ? ` · ${item.certNumber}` : ''}
                                                 </span>
-                                            )}
+                      }
                                         </div>
 
                                         {/* 📊 Barra de progreso de Vida Útil Restante */}
-                                        {days !== null && days > 0 && (
-                                            <div style={{ marginTop: '0.9rem', maxWidth: '380px' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 700, marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                                        {days !== null && days > 0 &&
+                    <div className="mt-3.5 max-w-[380px]">
+                                                <div className="flex justify-between text-[0.65rem] text-slate-500 font-bold mb-1 uppercase tracking-wider">
                                                     <span>Vida útil restante</span>
                                                     <span>{Math.round(pct)}% ({days} días)</span>
                                                 </div>
-                                                <div style={{ width: '100%', height: '5px', background: 'var(--color-border)', borderRadius: '99px', overflow: 'hidden' }}>
-                                                    <div style={{
-                                                        width: `${pct}%`,
-                                                        background: statusColor,
-                                                        height: '100%',
-                                                        borderRadius: '99px',
-                                                        transition: 'width 0.5s ease-in-out'
-                                                    }} />
+                                                <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: statusColor }} />
                                                 </div>
                                             </div>
-                                        )}
+                    }
                                     </div>
                                     
                                     <button
-                                        onClick={() => handleDelete(item.id)}
-                                        style={{
-                                            padding: '0.5rem',
-                                            background: 'rgba(239,68,68,0.04)',
-                                            border: '1px solid rgba(239,68,68,0.12)',
-                                            borderRadius: '8px',
-                                            color: '#ef4444',
-                                            cursor: 'pointer',
-                                            flexShrink: 0,
-                                            transition: 'all 0.2s ease',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.background = 'rgba(239,68,68,0.1)';
-                                            e.currentTarget.style.borderColor = 'rgba(239,68,68,0.25)';
-                                            e.currentTarget.style.transform = 'scale(1.05)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.background = 'rgba(239,68,68,0.04)';
-                                            e.currentTarget.style.borderColor = 'rgba(239,68,68,0.12)';
-                                            e.currentTarget.style.transform = 'scale(1)';
-                                        }}
-                                    >
+                    onClick={() => handleDelete(item.id)}
+                    className="p-2 bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 hover:border-red-500/25 rounded-lg text-red-500 cursor-pointer shrink-0 transition-all flex items-center justify-center hover:scale-105">
+
+
+                    
                                         <Trash2 size={14} />
                                     </button>
                                 </div>
-                            </div>
-                        );
-                    })}
+                            </div>);
+
+          })}
                 </div>
-            )}
+        }
             
-            <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
+            <div className="print-only fixed left-[0] opacity-[0.01] top-[0]">
                 <PPEReceiptPdfGenerator />
             </div>
-            </>
-            ) : (
-                <div className="animate-fade-in">
-                    <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', zIndex: 10 }} className="no-print">
+            </> :
+
+      <div className="animate-fade-in">
+                    <div className="no-print mt-[1.5rem] mb-[1.5rem] z-[10]">
                         <></>
                     </div>
-                    <div className="card" style={{ padding: '2.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '24px', boxShadow: 'var(--shadow-lg)', marginTop: '1rem' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
+                    <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl mt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* 🪖 EPP Visual Grid Selector */}
-                            <div style={{ gridColumn: '1 / -1', marginBottom: '0.2rem' }}>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-text)' }}>
+                            <div className="col-span-full mb-1">
+                                <label className="block mb-2 font-bold text-sm text-slate-800 dark:text-slate-200">
                                     Tipo de EPP
                                 </label>
-                                <div style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))',
-                                    gap: '0.5rem',
-                                    maxHeight: '200px',
-                                    overflowY: 'auto',
-                                    padding: '0.3rem',
-                                    borderRadius: '12px',
-                                    border: '1px solid var(--color-border)',
-                                    background: 'rgba(15,23,42,0.01)',
-                                }} className="slim-scrollbar">
-                                    {EPP_TYPES.map(t => {
-                                        const config = getPPEConfig(t);
-                                        const IconComponent = config.icon;
-                                        const isSelected = form.type === t;
-                                        return (
-                                            <button
-                                                key={t}
-                                                type="button"
-                                                onClick={() => setForm({ ...form, type: t })}
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    gap: '0.4rem',
-                                                    padding: '0.65rem 0.4rem',
-                                                    borderRadius: '10px',
-                                                    border: isSelected ? `2.5px solid ${config.color}` : '1.5px solid var(--color-border)',
-                                                    background: isSelected ? config.bg : 'var(--color-surface)',
-                                                    cursor: 'pointer',
-                                                    transition: 'all 0.2s ease',
-                                                    boxShadow: isSelected ? `0 4px 10px ${config.bg}` : 'var(--shadow-sm)',
-                                                    transform: isSelected ? 'scale(1.02)' : 'none',
-                                                }}
-                                            >
-                                                <div style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    width: '28px',
-                                                    height: '28px',
-                                                    borderRadius: '50%',
-                                                    background: isSelected ? '#ffffff' : config.bg,
-                                                    color: config.color,
-                                                    boxShadow: isSelected ? '0 2px 4px rgba(0,0,0,0.05)' : 'none',
-                                                    transition: 'all 0.2s ease'
-                                                }}>
+                                <div className="grid grid-cols-[repeat(auto-fill,minmax(110px,1fr))] gap-2 max-h-52 overflow-y-auto p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 slim-scrollbar">
+                                    {EPP_TYPES.map((t) => {
+                  const config = getPPEConfig(t);
+                  const IconComponent = config.icon;
+                  const isSelected = form.type === t;
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setForm({ ...form, type: t })}
+                      className={`flex flex-col items-center justify-center gap-1.5 py-2.5 px-1.5 rounded-xl cursor-pointer transition-all ${isSelected ? 'border-[2.5px] scale-[1.02] shadow-md' : 'border-[1.5px] border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm'}`} style={{ borderColor: isSelected ? config.color : undefined, background: isSelected ? config.bg : undefined, boxShadow: isSelected ? `0 4px 10px ${config.bg}` : undefined }}>
+                      
+                                                <div className={`flex items-center justify-center w-7 h-7 rounded-full transition-all ${isSelected ? 'bg-white shadow-sm' : ''}`} style={{ background: !isSelected ? config.bg : undefined, color: config.color }}>
                                                     <IconComponent size={15} strokeWidth={2.2} />
                                                 </div>
-                                                <span style={{
-                                                    fontSize: '0.68rem',
-                                                    fontWeight: isSelected ? 800 : 600,
-                                                    color: isSelected ? 'var(--color-text)' : 'var(--color-text-muted)',
-                                                    textAlign: 'center',
-                                                    lineHeight: 1.15,
-                                                    wordBreak: 'break-word'
-                                                }}>
+                                                <span className={`text-[0.68rem] text-center leading-tight break-words ${isSelected ? 'font-extrabold text-slate-800 dark:text-slate-100' : 'font-semibold text-slate-500 dark:text-slate-400'}`}>
                                                     {t}
                                                 </span>
-                                            </button>
-                                        );
-                                    })}
+                                            </button>);
+
+                })}
                                 </div>
                             </div>
                             
-                            {form.type === 'Otro' && (
-                                <div style={{ gridColumn: '1 / -1', animation: 'scaleIn 0.25s ease-out' }}>
-                                    <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>Descripción del EPP Especial</label>
+                            {form.type === 'Otro' &&
+            <div className="col-span-full animate-fade-in">
+                                    <label className="font-bold text-sm mb-1 block">Descripción del EPP Especial</label>
                                     <input
-                                        className="input-professional"
-                                        value={form.custom}
-                                        onChange={e => setForm({ ...form, custom: e.target.value })}
-                                        placeholder="Ej: Pantalla de soldadura fotosensible"
-                                    />
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
+                value={form.custom}
+                onChange={(e) => setForm({ ...form, custom: e.target.value })}
+                placeholder="Ej: Pantalla de soldadura fotosensible" />
+              
                                 </div>
-                            )}
+            }
                             
                             <div>
-                                <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>Responsable (Trabajador)</label>
-                                <div style={{ position: 'relative' }}>
+                                <label className="font-bold text-sm mb-1 block">Responsable (Trabajador)</label>
+                                <div className="relative">
                                     <input
-                                        className="input-professional"
-                                        style={{ paddingLeft: '2.3rem' }}
-                                        value={form.responsible}
-                                        onChange={e => setForm({ ...form, responsible: e.target.value })}
-                                        placeholder="Nombre del trabajador"
-                                    />
-                                    <User size={14} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem' }} />
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>Fecha de compra / entrega</label>
-                                <div style={{ position: 'relative' }}>
-                                    <input
-                                        className="input-professional"
-                                        style={{ paddingLeft: '2.3rem' }}
-                                        type="date"
-                                        value={form.purchaseDate}
-                                        onChange={e => setForm({ ...form, purchaseDate: e.target.value })}
-                                    />
-                                    <Calendar size={14} color="var(--color-text-light)" style={{ position: 'absolute', left: '0.9rem', top: '1.05rem', pointerEvents: 'none' }} />
+                  className="w-full px-4 py-3 pl-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
+                  value={form.responsible}
+                  onChange={(e) => setForm({ ...form, responsible: e.target.value })}
+                  placeholder="Nombre del trabajador" />
+                
+                                    <User size={14} color="var(--color-text-light)" className="absolute left-3.5 top-3.5 text-slate-400" />
                                 </div>
                             </div>
                             
                             <div>
-                                <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>Vida útil (meses)</label>
+                                <label className="font-bold text-sm mb-1 block">Fecha de compra / entrega</label>
+                                <div className="relative">
+                                    <input
+                  className="w-full px-4 py-3 pl-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
+                  type="date"
+                  value={form.purchaseDate}
+                  onChange={(e) => setForm({ ...form, purchaseDate: e.target.value })} />
+                
+                                    <Calendar size={14} color="var(--color-text-light)" className="absolute left-3.5 top-3.5 text-slate-400 pointer-events-none" />
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label className="font-bold text-sm mb-1 block">Vida útil (meses)</label>
                                 <input
-                                    className="input-professional"
-                                    type="number"
-                                    min="1"
-                                    max="120"
-                                    value={form.lifeMonths}
-                                    onChange={e => setForm({ ...form, lifeMonths: e.target.value })}
-                                    placeholder="12"
-                                />
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
+                type="number"
+                min="1"
+                max="120"
+                value={form.lifeMonths}
+                onChange={(e) => setForm({ ...form, lifeMonths: e.target.value })}
+                placeholder="12" />
+              
                             </div>
                             
                             <div>
-                                <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>Norma de Certificación</label>
+                                <label className="font-bold text-sm mb-1 block">Norma de Certificación</label>
                                 <select
-                                    className="input-professional"
-                                    value={form.certStandard}
-                                    onChange={e => setForm({ ...form, certStandard: e.target.value })}
-                                >
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
+                value={form.certStandard}
+                onChange={(e) => setForm({ ...form, certStandard: e.target.value })}>
+                
                                     <option value="">— Seleccioná —</option>
-                                    {CERT_STANDARDS.map(s => <option key={s} value={s}>{s}</option>)}
+                                    {CERT_STANDARDS.map((s) => <option key={s} value={s}>{s}</option>)}
                                 </select>
                             </div>
                             
-                            <div style={{ gridColumn: form.certStandard ? 'auto' : '1 / -1' }}>
-                                <label style={{ fontWeight: 700, fontSize: '0.8rem' }}>N° de Certificado / Sello AR</label>
+                            <div className={form.certStandard ? '' : 'col-span-full'}>
+                                <label className="font-bold text-sm mb-1 block">N° de Certificado / Sello AR</label>
                                 <input
-                                    className="input-professional"
-                                    value={form.certNumber}
-                                    onChange={e => setForm({ ...form, certNumber: e.target.value })}
-                                    placeholder="Ej: AR-2025-001234"
-                                />
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
+                value={form.certNumber}
+                onChange={(e) => setForm({ ...form, certNumber: e.target.value })}
+                placeholder="Ej: AR-2025-001234" />
+              
                             </div>
 
-                            {showARStamp && (
-                                <div style={{
-                                    gridColumn: '1 / -1',
-                                    background: 'linear-gradient(135deg, rgba(245,158,11,0.06) 0%, rgba(37,99,235,0.06) 100%)',
-                                    border: '1px dashed rgba(245,158,11,0.35)',
-                                    borderRadius: '14px',
-                                    padding: '0.8rem 1rem',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.8rem',
-                                    animation: 'scaleIn 0.3s ease-out',
-                                    boxShadow: '0 4px 12px rgba(245,158,11,0.04)'
-                                }}>
-                                    <div style={{
-                                        flexShrink: 0, width: '46px', height: '46px', borderRadius: '50%',
-                                        background: 'radial-gradient(circle, #fcd34d 0%, #d97706 100%)',
-                                        border: '2px solid #ffffff', boxShadow: '0 0 12px rgba(217,119,6,0.3), inset 0 0 6px rgba(255,255,255,0.5)',
-                                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                                        color: '#78350f', fontFamily: 'var(--font-heading)', fontSize: '0.5rem', fontWeight: 950, letterSpacing: '0.2px',
-                                        position: 'relative', overflow: 'hidden'
-                                    }}>
-                                        <Award size={14} strokeWidth={2.5} style={{ marginBottom: '-1px' }} />
+                            {showARStamp &&
+            <div className="col-span-full bg-gradient-to-br from-amber-500/5 to-blue-500/5 border border-dashed border-amber-500/30 rounded-2xl p-4 flex items-center gap-3 animate-fade-in shadow-sm">
+                                    <div className="shrink-0 w-12 h-12 rounded-full bg-[radial-gradient(circle,#fcd34d_0%,#d97706_100%)] border-2 border-white shadow-[0_0_12px_rgba(217,119,6,0.3),inset_0_0_6px_rgba(255,255,255,0.5)] flex flex-col items-center justify-center text-amber-900 font-heading text-[0.5rem] font-black tracking-widest relative overflow-hidden">
+                                        <Award size={14} strokeWidth={2.5} className="-mb-[1px]" />
                                         <span>CONFORME</span>
-                                        <span style={{ fontSize: '0.35rem', opacity: 0.85 }}>Sello AR</span>
+                                        <span className="text-[0.35rem] opacity-85">Sello AR</span>
                                     </div>
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                        <h4 style={{ margin: 0, fontSize: '0.78rem', fontWeight: 800, color: '#b45309', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="m-0 text-[0.78rem] font-extrabold text-amber-700 flex items-center gap-1">
                                             <CheckCircle size={12} /> Marcado AR Homologado
                                         </h4>
-                                        <p style={{ margin: '0.15rem 0 0 0', fontSize: '0.7rem', color: 'var(--color-text-muted)', lineHeight: 1.3 }}>
+                                        <p className="m-0 mt-0.5 text-[0.7rem] text-slate-500 dark:text-slate-400 leading-tight">
                                             Este EPP cumple las directivas de trazabilidad y QR exigidas por la **Res. SIyC 18/25**.
                                         </p>
                                     </div>
-                                    <div style={{
-                                        width: '32px', height: '32px', borderRadius: '6px', background: 'var(--color-surface)', border: '1px solid var(--color-border)',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text)', boxShadow: 'var(--shadow-sm)', animation: 'pulse-soft 2.5s infinite'
-                                    }}>
+                                    <div className="w-8 h-8 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-slate-100 shadow-sm animate-pulse">
                                         <QrCode size={18} strokeWidth={2.2} />
                                     </div>
                                 </div>
-                            )}
+            }
                         </div>
                     </div>
                     
-                    <div className="no-print floating-action-bar" style={{ justifyContent: 'center' }}>
+                    <div className="no-print floating-action-bar justify-center">
                         <button
-                            onClick={handleAdd}
-                            className="btn-floating-action"
-                            style={{ background: '#10b981', color: '#ffffff', border: 'none', width: '100%', maxWidth: '300px' }}
-                        >
+            onClick={handleAdd}
+            className="btn-floating-action bg-[#10b981] text-[#ffffff] border-none w-[100%] max-w-[300px]">
+
+            
                             <ShieldCheck size={18} /> GUARDAR EPP
                         </button>
                     </div>
                 </div>
-            )}
-        </div>
-    );
+      }
+        </div>);
+
 }

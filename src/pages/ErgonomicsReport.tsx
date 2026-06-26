@@ -13,66 +13,66 @@ import Breadcrumbs from '../components/Breadcrumbs';
 
 export default function ErgonomicsReport(): React.ReactElement | null {
   const { requirePro } = usePaywall();
-    const navigate = useNavigate();
-    const { currentUser } = useAuth();
-    const [searchParams] = useSearchParams();
-    const [data, setData] = useState(null);
-    const [profile, setProfile] = useState(null);
-    const [signature, setSignature] = useState(null);
-    const [showShare, setShowShare] = useState(false);
-    const [showSignatures, setShowSignatures] = useState({
-        operator: true,
-        supervisor: true,
-        professional: true
-    });
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const [searchParams] = useSearchParams();
+  const [data, setData] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [signature, setSignature] = useState(null);
+  const [showShare, setShowShare] = useState(false);
+  const [showSignatures, setShowSignatures] = useState({
+    operator: true,
+    supervisor: true,
+    professional: true
+  });
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-        const id = searchParams.get('id');
-        const history = JSON.parse(localStorage.getItem('ergonomics_history') || '[]');
-        const found = history.find(item => item.id === id);
-        if (found) setData(found);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const id = searchParams.get('id');
+    const history = JSON.parse(localStorage.getItem('ergonomics_history') || '[]');
+    const found = history.find((item) => item.id === id);
+    if (found) setData(found);
 
-        const savedProfile = localStorage.getItem('personalData');
-        if (savedProfile) setProfile(JSON.parse(savedProfile));
+    const savedProfile = localStorage.getItem('personalData');
+    if (savedProfile) setProfile(JSON.parse(savedProfile));
 
-        const sig = localStorage.getItem('signatureStampData');
-        if (sig) setSignature(JSON.parse(sig));
-    }, [searchParams]);
+    const sig = localStorage.getItem('signatureStampData');
+    if (sig) setSignature(JSON.parse(sig));
+  }, [searchParams]);
 
-    if (!data) return <div className="container">Estudio no encontrado</div>;
+  if (!data) return <div className="container">Estudio no encontrado</div>;
 
-    const handlePrint = () => requirePro(() => window.print());
+  const handlePrint = () => requirePro(() => window.print());
 
-    return (
-        <div className="container" style={{ paddingBottom: '8rem', maxWidth: '1000px' }}>
+  return (
+    <div className="container pb-[8rem] max-w-[1000px]">
             <ShareModal
-                isOpen={showShare}
-                open={showShare}
-                onClose={() => setShowShare(false)}
-                title={`Protocolo Ergonómico – ${data.empresa}`}
-                text={`📋 Protocolo de Ergonomía\n🏗️ Empresa: ${data.empresa}\n🪑 Puesto: ${data.puesto}\n📍 Sector: ${data.sector}\n⚠️ Nivel de Riesgo: ${data.riesgo || 'N/A'}\n\nGenerado con Asistente H&S`}
-                rawMessage={`📋 Protocolo de Ergonomía\n🏗️ Empresa: ${data.empresa}\n🪑 Puesto: ${data.puesto}\n📍 Sector: ${data.sector}\n⚠️ Nivel de Riesgo: ${data.riesgo || 'N/A'}\n\nGenerado con Asistente H&S`}
-                elementIdToPrint="pdf-content"
-                fileName={`Ergonomia_${data.empresa}.pdf`}
-            />
+        isOpen={showShare}
+        open={showShare}
+        onClose={() => setShowShare(false)}
+        title={`Protocolo Ergonómico – ${data.empresa}`}
+        text={`📋 Protocolo de Ergonomía\n🏗️ Empresa: ${data.empresa}\n🪑 Puesto: ${data.puesto}\n📍 Sector: ${data.sector}\n⚠️ Nivel de Riesgo: ${data.riesgo || 'N/A'}\n\nGenerado con Asistente H&S`}
+        rawMessage={`📋 Protocolo de Ergonomía\n🏗️ Empresa: ${data.empresa}\n🪑 Puesto: ${data.puesto}\n📍 Sector: ${data.sector}\n⚠️ Nivel de Riesgo: ${data.riesgo || 'N/A'}\n\nGenerado con Asistente H&S`}
+        elementIdToPrint="pdf-content"
+        fileName={`Ergonomia_${data.empresa}.pdf`} />
+      
 
-            <div className="no-print" style={{ marginTop: '1.5rem', marginBottom: '1.5rem', zIndex: 10 }}>
+            <div className="no-print mt-[1.5rem] mb-[1.5rem] z-[10]">
                 <></>
             </div>
 
-            <div id="pdf-content" className="report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0" style={{
-                background: 'white',
-                color: '#1e293b',
-                padding: '12mm 15mm',
-                borderRadius: '8px',
-                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                minHeight: '29.7cm',
-                height: 'auto',
-                fontFamily: 'Helvetica, Arial, sans-serif',
-                fontSize: '9pt',
-                borderTop: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '12px solid #dc2626' : '12px solid #2563eb'
-            }}>
+            <div id="pdf-content" className="report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0 bg-[white] text-[#1e293b] p-[12mm_15mm] rounded-[8px] box-shadow-[0_4px_6px_rgba(0,0,0,0.1)] min-h-[29.7cm] h-[auto] font-family-[Helvetica,_Arial,_sans-serif] text-[9pt]" style={{
+
+
+
+
+
+
+
+
+
+        borderTop: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '12px solid #dc2626' : '12px solid #2563eb'
+      }}>
                 <style type="text/css" media="print">
                     {`
                         @page { size: A4 portrait; margin: 15mm; }
@@ -89,162 +89,162 @@ export default function ErgonomicsReport(): React.ReactElement | null {
                     `}
                 </style>
                 {/* Header Tripartito HSE */}
-                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #e2e8f0', paddingBottom: '1.2rem', marginBottom: '1.5rem', width: '100%' }}>
-                    <div style={{ flex: 1, textAlign: 'left' }}>
-                        <p style={{ margin: 0, fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.08em' }}>Sistema de Gestión HSE</p>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem', textTransform: 'uppercase', color: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '#dc2626' : '#2563eb' }}>Doc. Ergonomía Laboral</p>
+                <div className="flex flex-row justify-space-between items-start border-bottom-[3px_solid_#e2e8f0] pb-[1.2rem] mb-[1.5rem] w-[100%]">
+                    <div className="flex-[1] text-left">
+                        <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.08em]">Sistema de Gestión HSE</p>
+                        <p style={{ color: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '#dc2626' : '#2563eb' }} className="m-[0] font-[900] text-[0.8rem] uppercase">Doc. Ergonomía Laboral</p>
                     </div>
-                    <div style={{ flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                        <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.2rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, color: '#0f172a' }}>ERGONOMÍA</h1>
-                        <div style={{ marginTop: '0.3rem', background: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '#dc2626' : '#3b82f6', color: 'white', padding: '0.2rem 0.8rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em' }}>
+                    <div className="flex-[2] flex flex-col items-center justify-center text-center">
+                        <h1 className="m-[0] font-[900] text-[2.2rem] letter-spacing-[-0.02em] uppercase line-height-[1] text-[#0f172a]">ERGONOMÍA</h1>
+                        <div style={{ background: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '#dc2626' : '#3b82f6' }} className="mt-[0.3rem] text-[white] p-[0.2rem_0.8rem] rounded-[12px] text-[0.65rem] font-[800] letter-spacing-[0.1em]">
                             PROTOCOLO — RES. SRT N° 886/15
                         </div>
                     </div>
-                    <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                        <CompanyLogo style={{ height: '38px', width: 'auto', objectFit: 'contain', maxWidth: '120px' }} />
+                    <div className="flex-[1] text-right flex flex-col items-end gap-[0.5rem]">
+                        <CompanyLogo className="h-[38px] w-[auto] object-fit-[contain] max-w-[120px]" />
                     </div>
                 </div>
 
                 {/* I – Datos del Establecimiento */}
-                <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', overflow: 'hidden' }}>
-                    <div style={{ background: '#1e293b', padding: '0.6rem 1rem' }}>
-                        <span style={{ fontWeight: 900, fontSize: '0.75rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>I — DATOS DEL ESTABLECIMIENTO</span>
+                <div className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1.5rem] overflow-[hidden]">
+                    <div className="bg-[#1e293b] p-[0.6rem_1rem]">
+                        <span className="font-[900] text-[0.75rem] text-[#ffffff] uppercase letter-spacing-[0.04em]">I — DATOS DEL ESTABLECIMIENTO</span>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                        <div style={{ padding: '0.75rem 1rem', borderRight: '1px solid #e2e8f0' }}>
-                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Building2 size={12}/> EMPRESA / RAZÓN SOCIAL</span>
-                            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', marginTop: '0.2rem' }}>{data.empresa || '-'}</div>
+                    <div className="grid grid-template-columns-[2fr_1fr_1fr] bg-[#f8fafc] border-bottom-[1px_solid_#e2e8f0]">
+                        <div className="p-[0.75rem_1rem] border-right-[1px_solid_#e2e8f0]">
+                            <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Building2 size={12} /> EMPRESA / RAZÓN SOCIAL</span>
+                            <div className="font-[800] text-[0.95rem] text-[#0f172a] mt-[0.2rem]">{data.empresa || '-'}</div>
                         </div>
-                        <div style={{ padding: '0.75rem 1rem', borderRight: '1px solid #e2e8f0' }}>
-                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={12}/> SECTOR</span>
-                            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{data.sector || '-'}</div>
+                        <div className="p-[0.75rem_1rem] border-right-[1px_solid_#e2e8f0]">
+                            <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><MapPin size={12} /> SECTOR</span>
+                            <div className="font-[700] text-[0.9rem] text-[#334155] mt-[0.2rem]">{data.sector || '-'}</div>
                         </div>
-                        <div style={{ padding: '0.75rem 1rem' }}>
-                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Briefcase size={12}/> PUESTO DE TRABAJO</span>
-                            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155', marginTop: '0.2rem' }}>{data.puesto || '-'}</div>
+                        <div className="p-[0.75rem_1rem]">
+                            <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Briefcase size={12} /> PUESTO DE TRABAJO</span>
+                            <div className="font-[700] text-[0.9rem] text-[#334155] mt-[0.2rem]">{data.puesto || '-'}</div>
                         </div>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: '#ffffff' }}>
-                        <div style={{ padding: '0.75rem 1rem', borderRight: '1px solid #e2e8f0' }}>
-                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>FECHA DE EVALUACIÓN</span>
-                            <div style={{ fontWeight: 700, fontSize: '0.9rem', marginTop: '0.2rem' }}>{data.id ? new Date(parseInt(data.id)).toLocaleDateString('es-AR') : '-'}</div>
+                    <div className="grid grid-template-columns-[1fr_1fr] bg-[#ffffff]">
+                        <div className="p-[0.75rem_1rem] border-right-[1px_solid_#e2e8f0]">
+                            <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase">FECHA DE EVALUACIÓN</span>
+                            <div className="font-[700] text-[0.9rem] mt-[0.2rem]">{data.id ? new Date(parseInt(data.id)).toLocaleDateString('es-AR') : '-'}</div>
                         </div>
-                        <div style={{ padding: '0.75rem 1rem' }}>
-                            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><User size={12}/> PROFESIONAL EVALUADOR</span>
-                            <div style={{ fontWeight: 700, fontSize: '0.9rem', marginTop: '0.2rem' }}>{profile?.name || '-'}</div>
+                        <div className="p-[0.75rem_1rem]">
+                            <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><User size={12} /> PROFESIONAL EVALUADOR</span>
+                            <div className="font-[700] text-[0.9rem] mt-[0.2rem]">{profile?.name || '-'}</div>
                         </div>
                     </div>
                 </div>
 
                 {/* II – Factores de Riesgo */}
-                <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', overflow: 'hidden' }}>
-                    <div style={{ background: '#1e293b', padding: '0.6rem 1rem' }}>
-                        <span style={{ fontWeight: 900, fontSize: '0.75rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>II — PLANILLA 1: IDENTIFICACIÓN DE FACTORES DE RIESGO ERGONÓMICO</span>
+                <div className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1.5rem] overflow-[hidden]">
+                    <div className="bg-[#1e293b] p-[0.6rem_1rem]">
+                        <span className="font-[900] text-[0.75rem] text-[#ffffff] uppercase letter-spacing-[0.04em]">II — PLANILLA 1: IDENTIFICACIÓN DE FACTORES DE RIESGO ERGONÓMICO</span>
                     </div>
-                    <div style={{ padding: '1rem', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.4rem', background: '#ffffff' }}>
-                        {Object.entries(data.planilla1).map(([key, val]) => (
-                            <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.4rem 0.6rem', borderRadius: '6px', background: val ? '#eff6ff' : '#f8fafc', border: val ? '1px solid #bfdbfe' : '1px solid #e2e8f0' }}>
-                                <div style={{ width: '20px', height: '20px', border: val ? '2px solid #2563eb' : '2px solid #cbd5e1', borderRadius: '4px', background: val ? '#2563eb' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    {val ? <span style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 900 }}>✓</span> : null}
+                    <div className="p-[1rem] grid grid-template-columns-[repeat(2,_1fr)] gap-[0.4rem] bg-[#ffffff]">
+                        {Object.entries(data.planilla1).map(([key, val]) =>
+            <div key={key} style={{ background: val ? '#eff6ff' : '#f8fafc', border: val ? '1px solid #bfdbfe' : '1px solid #e2e8f0' }} className="flex items-center gap-[0.6rem] p-[0.4rem_0.6rem] rounded-[6px]">
+                                <div style={{ border: val ? '2px solid #2563eb' : '2px solid #cbd5e1', background: val ? '#2563eb' : 'transparent' }} className="w-[20px] h-[20px] rounded-[4px] flex items-center justify-center flex-shrink-[0]">
+                                    {val ? <span className="text-[#fff] text-[0.75rem] font-[900]">✓</span> : null}
                                 </div>
-                                <span style={{ fontSize: '0.78rem', fontWeight: val ? 700 : 600, color: val ? '#1e40af' : '#94a3b8', textTransform: 'capitalize' }}>{key.replace(/([A-Z])/g, ' $1')}</span>
+                                <span style={{ fontWeight: val ? 700 : 600, color: val ? '#1e40af' : '#94a3b8' }} className="text-[0.78rem] capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
                             </div>
-                        ))}
+            )}
                     </div>
                 </div>
 
                 {/* III – Levantamiento de Cargas */}
-                {data.planilla1.levantamientoCarga && (
-                    <div style={{ border: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '1.5px solid #fca5a5' : '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', overflow: 'hidden' }}>
-                        <div style={{ background: '#1e293b', padding: '0.6rem 1rem' }}>
-                            <span style={{ fontWeight: 900, fontSize: '0.75rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>III — PLANILLA 2.A: EVALUACIÓN DE LEVANTAMIENTO DE CARGAS</span>
+                {data.planilla1.levantamientoCarga &&
+        <div style={{ border: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '1.5px solid #fca5a5' : '1px solid #cbd5e1' }} className="rounded-[6px] mb-[1.5rem] overflow-[hidden]">
+                        <div className="bg-[#1e293b] p-[0.6rem_1rem]">
+                            <span className="font-[900] text-[0.75rem] text-[#ffffff] uppercase letter-spacing-[0.04em]">III — PLANILLA 2.A: EVALUACIÓN DE LEVANTAMIENTO DE CARGAS</span>
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: '#ffffff' }}>
-                            <div style={{ padding: '1rem', borderRight: '1px solid #e2e8f0' }}>
-                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Activity size={12}/> PESO EFECTIVO MANIPULADO</span>
-                                <div style={{ fontWeight: 900, fontSize: '1.4rem', color: '#0f172a', marginTop: '0.3rem' }}>{data.calculoLevantamiento?.peso} <span style={{ fontSize: '0.9rem', fontWeight: 700 }}>kg</span></div>
+                        <div className="grid grid-template-columns-[1fr_1fr] bg-[#ffffff]">
+                            <div className="p-[1rem] border-right-[1px_solid_#e2e8f0]">
+                                <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Activity size={12} /> PESO EFECTIVO MANIPULADO</span>
+                                <div className="font-[900] text-[1.4rem] text-[#0f172a] mt-[0.3rem]">{data.calculoLevantamiento?.peso} <span className="text-[0.9rem] font-[700]">kg</span></div>
                             </div>
-                            <div style={{ padding: '1rem', background: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '#fef2f2' : '#f0fdf4' }}>
-                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><AlertTriangle size={12}/> NIVEL DE RIESGO DETERMINADO</span>
-                                <div style={{ marginTop: '0.3rem' }}>
-                                    <span style={{ padding: '0.3rem 1rem', background: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '#dc2626' : '#16a34a', color: '#fff', borderRadius: '8px', fontWeight: 900, fontSize: '1rem' }}>
+                            <div style={{ background: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '#fef2f2' : '#f0fdf4' }} className="p-[1rem]">
+                                <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><AlertTriangle size={12} /> NIVEL DE RIESGO DETERMINADO</span>
+                                <div className="mt-[0.3rem]">
+                                    <span style={{ background: data.riesgo === 'Moderado' || data.riesgo === 'Alto' ? '#dc2626' : '#16a34a' }} className="p-[0.3rem_1rem] text-[#fff] rounded-[8px] font-[900] text-[1rem]">
                                         {data.riesgo}
                                     </span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                )}
+        }
 
                 {/* IV – Recomendaciones */}
-                <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem', overflow: 'hidden' }}>
-                    <div style={{ background: '#1e293b', padding: '0.6rem 1rem' }}>
-                        <span style={{ fontWeight: 900, fontSize: '0.75rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>IV — RECOMENDACIONES DE ACCIÓN</span>
+                <div className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1.5rem] overflow-[hidden]">
+                    <div className="bg-[#1e293b] p-[0.6rem_1rem]">
+                        <span className="font-[900] text-[0.75rem] text-[#ffffff] uppercase letter-spacing-[0.04em]">IV — RECOMENDACIONES DE ACCIÓN</span>
                     </div>
-                    <div style={{ padding: '1rem', minHeight: '80px', fontSize: '0.85rem', color: '#334155', fontWeight: 600, lineHeight: 1.6, background: '#f8fafc', whiteSpace: 'pre-wrap' }}>
+                    <div className="p-[1rem] min-h-[80px] text-[0.85rem] text-[#334155] font-[600] line-height-[1.6] bg-[#f8fafc] white-space-[pre-wrap]">
                         {data.recomendaciones || 'No se registran recomendaciones específicas para este puesto de trabajo en el momento de la evaluación.'}
                     </div>
                 </div>
 
                 {/* Selector de firmas (no imprime) */}
-                <div className="no-print" style={{ marginBottom: '1.5rem', padding: '0.8rem 1rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>INCLUIR FIRMAS:</span>
-                    {[['operator', 'Operador'], ['supervisor', 'Supervisor'], ['professional', 'Profesional']].map(([key, label]) => (
-                        <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}>
-                            <input type="checkbox" checked={showSignatures[key]} onChange={e => setShowSignatures(s => ({ ...s, [key]: e.target.checked }))} style={{ width: 16, height: 16, accentColor: '#2563eb' }} />
+                <div className="no-print mb-[1.5rem] p-[0.8rem_1rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[8px] flex items-center gap-[1.5rem] flex-wrap">
+                    <span className="text-[0.75rem] font-[900] text-[var(--color-text-muted)] uppercase">INCLUIR FIRMAS:</span>
+                    {[['operator', 'Operador'], ['supervisor', 'Supervisor'], ['professional', 'Profesional']].map(([key, label]) =>
+          <label key={key} className="flex items-center gap-[0.4rem] cursor-pointer text-[0.8rem] font-[700]">
+                            <input type="checkbox" checked={showSignatures[key]} onChange={(e) => setShowSignatures((s) => ({ ...s, [key]: e.target.checked }))} className="w-[16] h-[16] accent-color-[#2563eb]" />
                             {label}
                         </label>
-                    ))}
+          )}
                 </div>
 
                 {/* Firmas Enterprise */}
-                <div style={{ paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1', pageBreakInside: 'avoid', display: 'flex', gap: '1rem', paddingBottom: '1rem', justifyContent: 'flex-end' }}>
-                    {showSignatures.operator && (
-                        <div style={{ flex: 1, maxWidth: '280px', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box' }}>
-                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+                <div className="pt-[1.5rem] border-top-[2px_dashed_#cbd5e1] page-break-inside-[avoid] flex gap-[1rem] pb-[1rem] justify-end">
+                    {showSignatures.operator &&
+          <div className="flex-[1] max-w-[280px] border-[1px_solid_#e2e8f0] rounded-[6px] p-[0.8rem] flex flex-col items-center box-sizing-[border-box]">
+                            <div className="h-[60px] w-[100%] flex items-end justify-center border-bottom-[1px_solid_#e2e8f0] pb-[0.25rem] mb-[0.5rem]">
                             </div>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>OPERADOR / TRABAJADOR</p>
-                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Toma de conocimiento</p>
+                            <p className="m-[0] font-[900] text-[0.7rem] text-[#1e293b]">OPERADOR / TRABAJADOR</p>
+                            <p className="m-[2px_0_0] text-[0.6rem] text-[#64748b]">Toma de conocimiento</p>
                         </div>
-                    )}
-                    {showSignatures.supervisor && (
-                        <div style={{ flex: 1, maxWidth: '280px', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box' }}>
-                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
+          }
+                    {showSignatures.supervisor &&
+          <div className="flex-[1] max-w-[280px] border-[1px_solid_#e2e8f0] rounded-[6px] p-[0.8rem] flex flex-col items-center box-sizing-[border-box]">
+                            <div className="h-[60px] w-[100%] flex items-end justify-center border-bottom-[1px_solid_#e2e8f0] pb-[0.25rem] mb-[0.5rem]">
                             </div>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#1e293b' }}>SUPERVISOR / EMPLEADOR</p>
-                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#64748b' }}>Firma Autorizada</p>
+                            <p className="m-[0] font-[900] text-[0.7rem] text-[#1e293b]">SUPERVISOR / EMPLEADOR</p>
+                            <p className="m-[2px_0_0] text-[0.6rem] text-[#64748b]">Firma Autorizada</p>
                         </div>
-                    )}
-                    {showSignatures.professional && (
-                        <div style={{ flex: 1, maxWidth: '280px', border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: '6px', padding: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box' }}>
-                            <div style={{ height: '60px', width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderBottom: '1px solid #86efac', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                                {signature?.signature ? (
-                                    <img src={signature.signature} alt="Firma Profesional" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                                ) : (
-                                    <span style={{ fontSize: '0.6rem', color: '#86efac' }}></span>
-                                )}
+          }
+                    {showSignatures.professional &&
+          <div className="flex-[1] max-w-[280px] border-[1px_solid_#bbf7d0] bg-[#f0fdf4] rounded-[6px] p-[0.8rem] flex flex-col items-center box-sizing-[border-box]">
+                            <div className="h-[60px] w-[100%] flex items-end justify-center border-bottom-[1px_solid_#86efac] pb-[0.25rem] mb-[0.5rem]">
+                                {signature?.signature ?
+              <img src={signature.signature} alt="Firma Profesional" className="max-height-[50px] object-fit-[contain]" /> :
+
+              <span className="text-[0.6rem] text-[#86efac]"></span>
+              }
                             </div>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.7rem', color: '#166534' }}>PROFESIONAL ACTUANTE</p>
-                            <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#15803d', fontWeight: 600 }}>{profile?.name || 'Especialista H&S'}</p>
-                            {profile?.license && <p style={{ margin: '2px 0 0', fontSize: '0.6rem', color: '#16a34a' }}>Mat: {profile.license}</p>}
+                            <p className="m-[0] font-[900] text-[0.7rem] text-[#166534]">PROFESIONAL ACTUANTE</p>
+                            <p className="m-[2px_0_0] text-[0.6rem] text-[#15803d] font-[600]">{profile?.name || 'Especialista H&S'}</p>
+                            {profile?.license && <p className="m-[2px_0_0] text-[0.6rem] text-[#16a34a]">Mat: {profile.license}</p>}
                         </div>
-                    )}
+          }
                 </div>
 
                 <PdfBrandingFooter />
             </div>
             {/* Floating Action Buttons */}
             <div className="no-print floating-action-bar">
-                <button onClick={() => toast.success('Este reporte ya se encuentra guardado en tu historial.')} className="btn-floating-action" style={{ background: '#36B37E', color: 'white' }}>
+                <button onClick={() => toast.success('Este reporte ya se encuentra guardado en tu historial.')} className="btn-floating-action bg-[#36B37E] text-[white]">
                     <CheckCircle2 size={18} /> GUARDADO
                 </button>
-                <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action" style={{ background: '#0052CC', color: 'white' }}>
+                <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action bg-[#0052CC] text-[white]">
                     <Share2 size={18} /> COMPARTIR
                 </button>
-                <button onClick={handlePrint} className="btn-floating-action" style={{ background: '#FF8B00', color: 'white' }}>
+                <button onClick={handlePrint} className="btn-floating-action bg-[#FF8B00] text-[white]">
                     <Printer size={18} /> IMPRIMIR PDF
                 </button>
             </div>
-        </div>
-    );
+        </div>);
+
 }

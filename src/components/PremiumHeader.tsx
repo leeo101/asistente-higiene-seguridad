@@ -27,102 +27,102 @@ export default function PremiumHeader({
 
   return (
     <div style={{
-      background: bg,
-      padding: 'clamp(1rem, 3vw, 2rem)',
-      borderRadius: '20px',
-      marginTop: '0.5rem',
-      marginBottom: '0',
-      position: 'relative',
-      overflow: 'hidden',
-      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
-      width: '100%',
-      boxSizing: 'border-box'
-    }}>
+      background: bg
+
+
+
+
+
+
+
+
+
+    }} className="p-[clamp(1rem,_3vw,_2rem)] rounded-[20px] mt-[0.5rem] mb-[0] relative overflow-[hidden] box-shadow-[0_10px_30px_rgba(0,_0,_0,_0.15)] w-[100%] box-sizing-[border-box]">
       {/* Animated background pattern */}
-      <div style={{
-        position: 'absolute',
-        top: '-50%',
-        right: '-50%',
-        width: '200%',
-        height: '200%',
-        background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
-        animation: 'shimmer 3s infinite linear',
-        pointerEvents: 'none'
-      }} />
+      <div className="absolute top-[-50%] right-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle,_rgba(255,255,255,0.1)_0%,_transparent_70%)] animation-[shimmer_3s_infinite_linear] pointer-events-[none]" />
+
+
+
+
+
+
+
+
+      
 
       {/* Content */}
-      <div style={{
-        position: 'relative',
-        zIndex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 'clamp(0.75rem, 2vw, 1.5rem)',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-        textAlign: 'center'
-      }}>
+      <div className="relative z-[1] flex items-center gap-[clamp(0.75rem,_2vw,_1.5rem)] flex-wrap justify-center text-center">
+
+
+
+
+
+
+
+
+        
         {/* Botones de navegación para desktop (ocultos en móvil mediante CSS) */}
-        <div className="desktop-nav-buttons no-print" style={{ marginRight: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <button 
-                onClick={() => { if(onBack) onBack(); else navigate(-1); }}
-                style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', borderRadius: '8px', padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', backdropFilter: 'blur(10px)', transition: 'background 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-            >
+        <div className="desktop-nav-buttons no-print mr-[auto] flex flex-col gap-[0.5rem]">
+            <button
+            onClick={() => {if (onBack) onBack();else navigate(-1);}}
+
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'} className="bg-[rgba(255,255,255,0.2)] border-[1px_solid_rgba(255,255,255,0.3)] text-[#fff] rounded-[8px] p-[0.4rem_0.8rem] flex items-center gap-[0.4rem] cursor-pointer font-[700] text-[0.8rem] backdrop-filter-[blur(10px)] transition-[background_0.2s]">
+            
                 <ArrowLeft size={16} /> VOLVER
             </button>
-            <button 
-                onClick={() => navigate('/')}
-                style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', borderRadius: '8px', padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', backdropFilter: 'blur(10px)', transition: 'background 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-            >
+            <button
+            onClick={() => navigate('/')}
+
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'} className="bg-[rgba(255,255,255,0.2)] border-[1px_solid_rgba(255,255,255,0.3)] text-[#fff] rounded-[8px] p-[0.4rem_0.8rem] flex items-center gap-[0.4rem] cursor-pointer font-[700] text-[0.8rem] backdrop-filter-[blur(10px)] transition-[background_0.2s]">
+            
                 <Home size={16} /> INICIO
             </button>
         </div>
 
-        {icon && (
-          <div style={{
-            width: 'clamp(50px, 15vw, 70px)',
-            height: 'clamp(50px, 15vw, 70px)',
-            background: 'rgba(255,255,255,0.2)',
-            borderRadius: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backdropFilter: 'blur(10px)',
-            border: '2px solid rgba(255,255,255,0.3)',
-            boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
-            flexShrink: 0
-          }}>
-            {React.cloneElement(icon as React.ReactElement, {
-              size: undefined,
-              width: '60%',
-              height: '60%',
-              color: '#ffffff',
-              strokeWidth: 2.5
-            } as any)}
-          </div>
-        )}
+        {icon &&
+        <div className="w-[clamp(50px,_15vw,_70px)] h-[clamp(50px,_15vw,_70px)] bg-[rgba(255,255,255,0.2)] rounded-[16px] flex items-center justify-center backdrop-filter-[blur(10px)] border-[2px_solid_rgba(255,255,255,0.3)] box-shadow-[0_8px_20px_rgba(0,0,0,0.2)] flex-shrink-[0]">
 
-        <div style={{ flex: 1, minWidth: '200px' }}>
-          <h1 style={{
-            margin: 0,
-            fontSize: 'clamp(1.25rem, 4vw, 2rem)',
-            fontWeight: 900,
+
+
+
+
+
+
+
+
+
+
+          
+            {React.cloneElement(icon as React.ReactElement, {
+            size: undefined,
+            width: '60%',
+            height: '60%',
             color: '#ffffff',
-            textShadow: '0 2px 10px rgba(0,0,0,0.2)',
-            letterSpacing: '-0.5px',
-            lineHeight: 1.2
-          }}>
+            strokeWidth: 2.5
+          } as any)}
+          </div>
+        }
+
+        <div className="flex-[1] min-width-[200px]">
+          <h1 className="m-[0] text-[clamp(1.25rem,_4vw,_2rem)] font-[900] text-[#ffffff] text-shadow-[0_2px_10px_rgba(0,0,0,0.2)] letter-spacing-[-0.5px] line-height-[1.2]">
+
+
+
+
+
+
+
+            
             {title}
           </h1>
-          <p style={{
-            margin: '0.5rem 0 0',
-            fontSize: 'clamp(0.85rem, 2.5vw, 1rem)',
-            color: 'rgba(255,255,255,0.9)',
-            fontWeight: 600
-          }}>
+          <p className="m-[0.5rem_0_0] text-[clamp(0.85rem,_2.5vw,_1rem)] text-[rgba(255,255,255,0.9)] font-[600]">
+
+
+
+
+            
             {subtitle}
           </p>
         </div>
@@ -132,15 +132,15 @@ export default function PremiumHeader({
       {/* Sparkle effect */}
       <Sparkles
         size={24}
-        color="#ffffff"
-        style={{
-          position: 'absolute',
-          top: '1rem',
-          left: '1rem',
-          opacity: 0.6,
-          animation: 'twinkle 2s infinite ease-in-out'
-        }}
-      />
+        color="#ffffff" className="absolute top-[1rem] left-[1rem] opacity-[0.6] animation-[twinkle_2s_infinite_ease-in-out]" />
+
+
+
+
+
+
+
+      
 
       <style>
         {`
@@ -165,6 +165,6 @@ export default function PremiumHeader({
           }
         `}
       </style>
-    </div>
-  );
+    </div>);
+
 }

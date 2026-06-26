@@ -72,83 +72,72 @@ export default function WorkerPortal() {
 
     return (
         <AnimatedPage>
-            <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '2rem 1rem' }}>
-                <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                        <ShieldCheck size={48} color="#3b82f6" style={{ margin: '0 auto 1rem' }} />
-                        <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Portal del Trabajador</h1>
-                        <p style={{ color: '#64748b', marginTop: '0.5rem' }}>Consulta de estado de aptitud y capacitaciones</p>
+            <div className="min-h-screen bg-slate-50 py-8 px-4">
+                <div className="max-w-2xl mx-auto space-y-8">
+                    <div className="text-center space-y-2">
+                        <ShieldCheck size={48} className="mx-auto text-blue-500 mb-4" />
+                        <h1 className="text-3xl font-extrabold text-slate-900 m-0">Portal del Trabajador</h1>
+                        <p className="text-slate-500 mt-2">Consulta de estado de aptitud y capacitaciones</p>
                     </div>
 
-                    <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
-                        <div style={{ position: 'relative', flex: 1 }}>
-                            <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                    <form onSubmit={handleSearch} className="flex gap-2">
+                        <div className="relative flex-1">
+                            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                             <input 
                                 type="text" 
                                 placeholder="Ingrese DNI del trabajador..." 
                                 value={dniInput}
                                 onChange={(e) => setDniInput(e.target.value)}
-                                style={{ width: '100%', padding: '1rem 1rem 1rem 3rem', borderRadius: '12px', border: '1px solid #cbd5e1', fontSize: '1rem' }}
+                                className="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all text-base bg-white"
                             />
                         </div>
-                        <button type="submit" style={{ padding: '0 1.5rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}>
+                        <button type="submit" className="px-6 py-4 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 transition-all hover:-translate-y-1 active:translate-y-0">
                             Buscar
                         </button>
                     </form>
 
                     {searchedDni && !workerData && (
-                        <div style={{ textAlign: 'center', padding: '3rem 1rem', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                            <AlertCircle size={48} color="#94a3b8" style={{ margin: '0 auto 1rem' }} />
-                            <h3 style={{ fontSize: '1.2rem', color: '#475569', margin: 0 }}>No se encontraron registros</h3>
-                            <p style={{ color: '#94a3b8', marginTop: '0.5rem' }}>No hay datos médicos ni de capacitación asociados al DNI {searchedDni}.</p>
+                        <div className="text-center py-12 px-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                            <AlertCircle size={48} className="mx-auto text-slate-400 mb-4" />
+                            <h3 className="text-xl font-bold text-slate-700 m-0">No se encontraron registros</h3>
+                            <p className="text-slate-400 mt-2">No hay datos médicos ni de capacitación asociados al DNI {searchedDni}.</p>
                         </div>
                     )}
 
                     {workerData && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        <div className="flex flex-col gap-6">
                             {/* Profile Card */}
-                            <div style={{ background: 'white', padding: '1.5rem', borderRadius: '16px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '1.5rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
-                                <div style={{ width: '80px', height: '80px', background: '#f1f5f9', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <UserCircle size={48} color="#94a3b8" />
+                            <div className="bg-white p-6 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center gap-6 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center shrink-0">
+                                    <UserCircle size={48} className="text-slate-400" />
                                 </div>
-                                <div>
-                                    <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', margin: '0 0 0.2rem 0' }}>{workerData.name}</h2>
-                                    <p style={{ color: '#64748b', margin: '0 0 0.8rem 0', fontWeight: 500 }}>DNI: {workerData.dni}</p>
-                                    <span style={{ 
-                                        padding: '0.3rem 0.8rem', 
-                                        borderRadius: '20px', 
-                                        fontSize: '0.8rem', 
-                                        fontWeight: 800,
-                                        background: workerData.status === 'HABILITADO' ? '#dcfce7' : '#fef08a',
-                                        color: workerData.status === 'HABILITADO' ? '#166534' : '#854d0e'
-                                    }}>
+                                <div className="text-center sm:text-left">
+                                    <h2 className="text-2xl font-extrabold text-slate-900 mb-1">{workerData.name}</h2>
+                                    <p className="text-slate-500 font-medium mb-3">DNI: {workerData.dni}</p>
+                                    <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide ${workerData.status === 'HABILITADO' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
                                         {workerData.status}
                                     </span>
                                 </div>
                             </div>
 
                             {/* Aptitudes Médicas */}
-                            <div style={{ background: 'white', padding: '1.5rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e293b', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Activity size={20} color="#10b981" /> Aptitud Médica
+                            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                                <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                    <Activity size={20} className="text-green-500" /> Aptitud Médica
                                 </h3>
                                 {workerData.aptitudes.length > 0 ? (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                    <div className="flex flex-col gap-4">
                                         {workerData.aptitudes.map((apt: any, i: number) => {
                                             const isExpired = new Date(apt.expirationDate) < new Date();
                                             return (
-                                                <div key={i} style={{ padding: '1rem', background: '#f8fafc', borderRadius: '8px', borderLeft: `4px solid ${isExpired ? '#ef4444' : '#10b981'}` }}>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                                        <span style={{ fontWeight: 600, color: '#334155' }}>{apt.examType === 'pre' ? 'Preocupacional' : 'Periódico'}</span>
-                                                        <span style={{ fontSize: '0.85rem', color: isExpired ? '#ef4444' : '#64748b', fontWeight: isExpired ? 700 : 500 }}>
+                                                <div key={i} className={`p-4 bg-slate-50 rounded-xl border-l-4 ${isExpired ? 'border-red-500' : 'border-green-500'}`}>
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <span className="font-semibold text-slate-700">{apt.examType === 'pre' ? 'Preocupacional' : 'Periódico'}</span>
+                                                        <span className={`text-sm ${isExpired ? 'text-red-500 font-bold' : 'text-slate-500 font-medium'}`}>
                                                             Vence: {new Date(apt.expirationDate).toLocaleDateString('es-AR')}
                                                         </span>
                                                     </div>
-                                                    <span style={{ 
-                                                        display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700,
-                                                        background: apt.result === 'apto' ? '#dcfce7' : apt.result === 'preexistencias' ? '#fef08a' : '#fee2e2',
-                                                        color: apt.result === 'apto' ? '#166534' : apt.result === 'preexistencias' ? '#854d0e' : '#991b1b'
-                                                    }}>
+                                                    <span className={`inline-block px-2.5 py-1 rounded-md text-xs font-bold ${apt.result === 'apto' ? 'bg-green-100 text-green-800' : apt.result === 'preexistencias' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
                                                         {apt.result === 'apto' ? 'APTO' : apt.result === 'preexistencias' ? 'APTO CON PREEXISTENCIAS' : 'NO APTO'}
                                                     </span>
                                                 </div>
@@ -156,32 +145,33 @@ export default function WorkerPortal() {
                                         })}
                                     </div>
                                 ) : (
-                                    <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Sin registros médicos.</p>
+                                    <p className="text-slate-500 text-sm">Sin registros médicos.</p>
                                 )}
                             </div>
 
                             {/* Capacitaciones */}
-                            <div style={{ background: 'white', padding: '1.5rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e293b', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Award size={20} color="#3b82f6" /> Capacitaciones Realizadas
+                            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                                <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                    <Award size={20} className="text-blue-500" /> Capacitaciones Realizadas
                                 </h3>
                                 {workerData.trainings.length > 0 ? (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                    <div className="flex flex-col gap-4">
                                         {workerData.trainings.map((t: any, i: number) => (
-                                            <div key={i} style={{ padding: '1rem', background: '#f8fafc', borderRadius: '8px', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                                <FileText size={24} color="#94a3b8" />
+                                            <div key={i} className="p-4 bg-slate-50 rounded-xl flex gap-4 items-center transition-all hover:bg-slate-100">
+                                                <div className="bg-white p-2 rounded-lg shadow-sm">
+                                                    <FileText size={24} className="text-slate-400" />
+                                                </div>
                                                 <div>
-                                                    <div style={{ fontWeight: 600, color: '#334155' }}>{t.topic}</div>
-                                                    <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '0.2rem' }}>{new Date(t.date).toLocaleDateString('es-AR')} • {t.duration} hs</div>
+                                                    <div className="font-semibold text-slate-700">{t.topic}</div>
+                                                    <div className="text-sm text-slate-500 mt-1">{new Date(t.date).toLocaleDateString('es-AR')} • {t.duration} hs</div>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
-                                    <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Sin capacitaciones registradas.</p>
+                                    <p className="text-slate-500 text-sm">Sin capacitaciones registradas.</p>
                                 )}
                             </div>
-
                         </div>
                     )}
                 </div>

@@ -6,72 +6,72 @@ export default function Footer(): React.ReactElement {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer style={{
-      marginTop: 'auto',
-      padding: '3rem 1.5rem 2rem',
-      background: 'rgba(15, 23, 42, 0.02)',
-      borderTop: '1px solid var(--color-border)',
-      backdropFilter: 'blur(10px)',
-      WebkitBackdropFilter: 'blur(10px)',
-    }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '2.5rem',
-        marginBottom: '3rem'
-      }}>
+    <footer className="mt-[auto] p-[3rem_1.5rem_2rem] bg-[rgba(15,_23,_42,_0.02)] border-top-[1px_solid_var(--color-border)] backdrop-filter-[blur(10px)] webkit-backdrop-filter-[blur(10px)]">
+
+
+
+
+
+
+      
+      <div className="max-w-[1200px] m-[0_auto] grid grid-template-columns-[repeat(auto-fit,_minmax(250px,_1fr))] gap-[2.5rem] mb-[3rem]">
+
+
+
+
+
+
+        
         {/* Brand & Mission */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-            <img src="/logo.png" alt="Logo" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
-            <span style={{ fontWeight: 900, fontSize: '1.2rem', color: 'var(--color-text)', letterSpacing: '-0.5px' }}>Asistente H&S</span>
+        <div className="flex flex-col gap-[1rem]">
+          <div className="flex items-center gap-[0.8rem]">
+            <img src="/logo.png" alt="Logo" className="w-[30px] h-[30px] object-fit-[contain]" />
+            <span className="font-[900] text-[1.2rem] text-[var(--color-text)] letter-spacing-[-0.5px]">Asistente H&S</span>
           </div>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: '1.6', margin: 0 }}>
+          <p className="text-[0.9rem] text-[var(--color-text-muted)] line-height-[1.6] m-[0]">
             Potenciando la labor de los profesionales de Higiene y Seguridad con herramientas inteligentes y cálculos normativos precisos.
           </p>
         </div>
 
         {/* Quick Links */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-          <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--color-text)' }}>Accesos Rápidos</h4>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-            <Link to="/" style={{ color: 'var(--color-text-muted)', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="flex flex-col gap-[1.2rem]">
+          <h4 className="m-[0] text-[1rem] font-[800] text-[var(--color-text)]">Accesos Rápidos</h4>
+          <div className="flex flex-col gap-[0.8rem]">
+            <Link to="/" className="text-[var(--color-text-muted)] text-decoration-[none] text-[0.9rem] flex items-center gap-[0.5rem]">
               <Home size={14} /> Inicio
             </Link>
-            <Link to="/privacy" style={{ color: 'var(--color-text-muted)', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Link to="/privacy" className="text-[var(--color-text-muted)] text-decoration-[none] text-[0.9rem] flex items-center gap-[0.5rem]">
               <ShieldCheck size={14} /> Privacidad
             </Link>
-            <a href="mailto:asistente.hs.soporte@gmail.com" style={{ color: 'var(--color-text-muted)', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <a href="mailto:asistente.hs.soporte@gmail.com" className="text-[var(--color-text-muted)] text-decoration-[none] text-[0.9rem] flex items-center gap-[0.5rem]">
               <Mail size={14} /> Soporte Técnico
             </a>
           </div>
         </div>
 
         {/* Legal & Standards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-          <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--color-text)' }}>Marco Legal</h4>
-          <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', lineHeight: '1.6', margin: 0 }}>
+        <div className="flex flex-col gap-[1.2rem]">
+          <h4 className="m-[0] text-[1rem] font-[800] text-[var(--color-text)]">Marco Legal</h4>
+          <p className="text-[0.85rem] text-[var(--color-text-muted)] line-height-[1.6] m-[0]">
             Adaptado a la normativa de Higiene y Seguridad del país seleccionado por el profesional.
           </p>
         </div>
       </div>
 
       {/* Bottom Bar */}
-      <div style={{
-        maxWidth: '1200px',
-        margin: '2rem auto 0',
-        paddingTop: '1.5rem',
-        borderTop: '1px solid rgba(0,0,0,0.05)',
-        display: 'flex',
-        justifyContent: 'center',
-        textAlign: 'center'
-      }}>
-        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+      <div className="max-w-[1200px] m-[2rem_auto_0] pt-[1.5rem] border-top-[1px_solid_rgba(0,0,0,0.05)] flex justify-center text-center">
+
+
+
+
+
+
+
+        
+        <p className="m-[0] text-[0.85rem] text-[var(--color-text-muted)] font-[600]">
           © {currentYear} Asistente H&S - Todos los derechos reservados.
         </p>
       </div>
-    </footer>
-  );
+    </footer>);
+
 }

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-    ArrowLeft, Save, UserPlus, ListPlus, Trash2, CheckCircle2, ChevronRight, ChevronLeft,
-    Plus, Share2, Printer, Sparkles, Pencil, Search, AlertTriangle, Calendar, MapPin, QrCode, Download, FileText, Camera, X
-} from 'lucide-react';
+  ArrowLeft, Save, UserPlus, ListPlus, Trash2, CheckCircle2, ChevronRight, ChevronLeft, Link as LinkPlus,
+  Plus, Share2, Printer, Sparkles, Pencil, Search, AlertTriangle, Calendar, MapPin, QrCode, Download, FileText, Camera, X } from
+'lucide-react';
 import { usePaywall } from '../hooks/usePaywall';
 import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
@@ -22,47 +22,28 @@ import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 const SECTIONS = ['Datos Generales', 'Accidentado', 'Descripción y Testigos', 'Análisis Causal', 'Medidas Preventivas'];
 
-const severityConfig: Record<string, { color: string, bg: string }> = {
-    'Leve':     { color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
-    'Moderado': { color: '#fbbf24', bg: 'rgba(251,191,36,0.12)' },
-    'Grave':    { color: '#f97316', bg: 'rgba(249,115,22,0.12)' },
-    'Mortal':   { color: '#dc2626', bg: 'rgba(220,38,38,0.14)' },
+const severityConfig: Record<string, {color: string;bg: string;}> = {
+  'Leve': { color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
+  'Moderado': { color: '#fbbf24', bg: 'rgba(251,191,36,0.12)' },
+  'Grave': { color: '#f97316', bg: 'rgba(249,115,22,0.12)' },
+  'Mortal': { color: '#dc2626', bg: 'rgba(220,38,38,0.14)' }
 };
 
-const inputStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '0.8rem 1rem',
-    borderRadius: '12px',
-    border: '1px solid var(--glass-border)',
-    background: 'rgba(255, 255, 255, 0.05)',
-    color: 'var(--color-text)',
-    fontSize: '0.95rem',
-    outline: 'none',
-    transition: 'all 0.3s ease',
-    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
-};
 
-const labelStyle: React.CSSProperties = {
-    display: 'block',
-    marginBottom: '0.5rem',
-    fontSize: '0.85rem',
-    fontWeight: 800,
-    color: 'var(--color-text-muted)',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px'
-};
+
+
 
 function DeleteConfirm({ onConfirm, onCancel }: any) {
-    return (
-        <ConfirmModal
-            isOpen={true}
-            onClose={onCancel}
-            onConfirm={onConfirm}
-            title="¿Eliminar registro?"
-            message="Esta acción no se puede deshacer."
-            iconEmoji="🗑️"
-        />
-    );
+  return (
+    <ConfirmModal
+      isOpen={true}
+      onClose={onCancel}
+      onConfirm={onConfirm}
+      title="¿Eliminar registro?"
+      message="Esta acción no se puede deshacer."
+      iconEmoji="🗑️" />);
+
+
 }
 
 function AdjuntosSection({
@@ -70,18 +51,18 @@ function AdjuntosSection({
   onAdd,
   onRemove,
   accentColor = '#2563eb'
-}: {
-  adjuntos: string[];
-  onAdd: (base64: string) => void;
-  onRemove: (index: number) => void;
-  accentColor?: string;
-}) {
+
+
+
+
+
+}: {adjuntos: string[];onAdd: (base64: string) => void;onRemove: (index: number) => void;accentColor?: string;}) {
   const fileRef = React.useRef<HTMLInputElement>(null);
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-    Array.from(files).forEach(file => {
+    Array.from(files).forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         if (typeof reader.result === 'string') {
@@ -94,8 +75,8 @@ function AdjuntosSection({
   };
 
   return (
-    <div style={{ marginTop: '1.25rem' }}>
-      <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.5rem' }}>
+    <div className="mt-[1.25rem]">
+      <p className="text-[0.875rem] font-[600] text-[#334155] mb-[0.5rem]">
         Registro Fotográfico / Evidencia
       </p>
       <input
@@ -103,501 +84,487 @@ function AdjuntosSection({
         type="file"
         accept="image/*"
         multiple
-        onChange={handleFiles}
-        style={{ display: 'none' }}
-      />
+        onChange={handleFiles} className="none" />
+
+      
       <button type="button" onClick={() => fileRef.current?.click()}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.5rem 1rem',
-          background: accentColor + '14',
-          color: accentColor,
-          border: `1px solid ${accentColor}44`,
-          borderRadius: '0.75rem',
-          cursor: 'pointer',
-          fontWeight: 600,
-          fontSize: '0.85rem'
-        }}
-      >
+      style={{
+
+
+
+
+        background: accentColor + '14',
+        color: accentColor,
+        border: `1px solid ${accentColor}44`
+
+
+
+
+      }} className="display-[inline-flex] items-center gap-[0.5rem] p-[0.5rem_1rem] rounded-[0.75rem] cursor-pointer font-[600] text-[0.85rem]">
+        
         <Camera size={16} /> Adjuntar Foto
       </button>
-      {adjuntos.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.75rem' }}>
-          {adjuntos.map((src, idx) => (
-            <div key={idx} style={{ position: 'relative', width: 96, height: 96 }}>
+      {adjuntos.length > 0 &&
+      <div className="flex flex-wrap gap-[0.75rem] mt-[0.75rem]">
+          {adjuntos.map((src, idx) =>
+        <div key={idx} className="relative w-[96] h-[96]">
               <img
-                src={src}
-                alt={`adjunto-${idx}`}
-                style={{
-                  width: 96,
-                  height: 96,
-                  objectFit: 'cover',
-                  borderRadius: '0.75rem',
-                  border: '1px solid #e2e8f0'
-                }}
-              />
+            src={src}
+            alt={`adjunto-${idx}`} className="w-[96] h-[96] object-fit-[cover] rounded-[0.75rem] border-[1px_solid_#e2e8f0]" />
+
+
+
+
+
+
+
+          
               <button
-                type="button"
-                onClick={() => onRemove(idx)}
-                style={{
-                  position: 'absolute',
-                  top: -6,
-                  right: -6,
-                  width: 22,
-                  height: 22,
-                  borderRadius: '50%',
-                  background: '#ef4444',
-                  color: '#fff',
-                  border: 'none',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: 0
-                }}
-              >
+            type="button"
+            onClick={() => onRemove(idx)}
+            style={{
+
+              top: -6,
+              right: -6
+
+
+
+
+
+
+
+
+
+
+
+            }} className="absolute w-[22] h-[22] rounded-[50%] bg-[#ef4444] text-[#fff] border-none cursor-pointer flex items-center justify-center p-[0]">
+            
                 <X size={13} />
               </button>
             </div>
-          ))}
+        )}
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }
 
 export default function AccidentInvestigation(): React.ReactElement | null {
   const { requirePro } = usePaywall();
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { currentUser } = useAuth();
-    const { syncCollection } = useSync();
-    
-    useDocumentTitle('Investigación de Accidentes');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { currentUser } = useAuth();
+  const { syncCollection } = useSync();
 
-    const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+  useDocumentTitle('Investigación de Accidentes');
 
-    // List vs Form state
-    const [isFormVisible, setIsFormVisible] = useState(false);
-    const [history, setHistory] = useState<any[]>([]);
-    const [deleteTarget, setDeleteTarget] = useState<any>(null);
-    const [qrTarget, setQrTarget] = useState<any>(null);
-    const [shareItem, setShareItem] = useState<any>(null);
-    const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
 
-    // Form state
-    const [currentStep, setCurrentStep] = useState(0);
-    const [isEdit, setIsEdit] = useState(false);
-    const [formData, setFormData] = useState<any>({
-        fecha: new Date().toISOString().split('T')[0],
-        hora: '', empresa: '', ubicacion: '', gravedad: 'Leve',
-        victimaNombre: '', victimaDni: '', victimaPuesto: '', victimaAntiguedad: '', lesion: '', parteCuerpo: '',
-        descripcionHecho: '', testigos: [{ nombre: '', declaracion: '' }],
-        problemaCentral: '', porques: [''],
-        medidas: [{ accion: '', responsable: '', fechaLimite: '' }],
-        fotos: [],
-        operatorSignature: '', supervisorSignature: '', signature: '',
-        showSignatures: { operator: true, professional: true, supervisor: true }
-    });
+  // List vs Form state
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [history, setHistory] = useState<any[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [qrTarget, setQrTarget] = useState<any>(null);
+  const [shareItem, setShareItem] = useState<any>(null);
+  const [selectedReport, setSelectedReport] = useState<any>(null);
 
-    const [professional, setProfessional] = useState<any>({ name: '', license: '', signature: null, stamp: null });
+  // Form state
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isEdit, setIsEdit] = useState(false);
+  const [formData, setFormData] = useState<any>({
+    fecha: new Date().toISOString().split('T')[0],
+    hora: '', empresa: '', ubicacion: '', gravedad: 'Leve',
+    victimaNombre: '', victimaDni: '', victimaPuesto: '', victimaAntiguedad: '', lesion: '', parteCuerpo: '',
+    descripcionHecho: '', testigos: [{ nombre: '', declaracion: '' }],
+    problemaCentral: '', porques: [''],
+    medidas: [{ accion: '', responsable: '', fechaLimite: '' }],
+    fotos: [],
+    operatorSignature: '', supervisorSignature: '', signature: '',
+    showSignatures: { operator: true, professional: true, supervisor: true }
+  });
 
-    const loadHistory = () => {
-        const h = JSON.parse(localStorage.getItem('accident_history') || '[]');
-        setHistory(h.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-    };
+  const [professional, setProfessional] = useState<any>({ name: '', license: '', signature: null, stamp: null });
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-        loadHistory();
-        
-        const handleResize = () => setIsMobile(window.innerWidth < 768);
-        window.addEventListener('resize', handleResize);
+  const loadHistory = () => {
+    const h = JSON.parse(localStorage.getItem('accident_history') || '[]');
+    setHistory(h.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+  };
 
-        const savedData = localStorage.getItem('personalData');
-        const savedSigData = localStorage.getItem('signatureStampData');
-        const legacySignature = localStorage.getItem('capturedSignature');
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    loadHistory();
 
-        let signature = legacySignature || null;
-        let stamp = null;
-        if (savedSigData) {
-            const parsed = JSON.parse(savedSigData);
-            signature = parsed.signature || signature;
-            stamp = parsed.stamp || null;
-        }
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
 
-        if (savedData) {
-            const data = JSON.parse(savedData);
-            setProfessional({
-                name: data.name || '',
-                license: data.license || '',
-                signature: signature,
-                stamp: stamp
-            });
-        } else {
-            setProfessional((prev: any) => ({ ...prev, signature, stamp }));
-        }
+    const savedData = localStorage.getItem('personalData');
+    const savedSigData = localStorage.getItem('signatureStampData');
+    const legacySignature = localStorage.getItem('capturedSignature');
 
-        if (location.state?.editData) {
-            const editData = location.state.editData;
-            setFormData({
-                ...editData,
-                operatorSignature: editData.operatorSignature || '',
-                supervisorSignature: editData.supervisorSignature || editData.signature || '',
-                signature: editData.signature || editData.supervisorSignature || '',
-                showSignatures: editData.showSignatures || { operator: true, professional: true, supervisor: true }
-            });
-            setIsEdit(true);
-            setIsFormVisible(true);
-        }
-
-        return () => window.removeEventListener('resize', handleResize);
-    }, [location.state]);
-
-    useEffect(() => {
-        if (isFormVisible) window.scrollTo(0, 0);
-    }, [currentStep, isFormVisible]);
-
-    const setShowSignatures = (updater: any) => {
-        setFormData((prev: any) => {
-            const updated = typeof updater === 'function' ? updater(prev.showSignatures) : updater;
-            return { ...prev, showSignatures: updated };
-        });
-    };
-    const showSignatures = formData.showSignatures || { operator: true, professional: true, supervisor: true };
-
-    const handleInputChange = (field: string, value: any) => {
-        setFormData((prev: any) => ({ ...prev, [field]: value }));
-    };
-
-    const handleArrayChange = (arrayName: string, index: number, field: string | null, value: string) => {
-        setFormData((prev: any) => {
-            const newArray = [...prev[arrayName]];
-            if (field === null) {
-                newArray[index] = value;
-            } else {
-                newArray[index] = { ...newArray[index], [field]: value };
-            }
-            return { ...prev, [arrayName]: newArray };
-        });
-    };
-
-    const addArrayItem = (arrayName: string, defaultItem: any) => {
-        setFormData((prev: any) => ({ ...prev, [arrayName]: [...prev[arrayName], defaultItem] }));
-    };
-
-    const removeArrayItem = (arrayName: string, index: number) => {
-        setFormData((prev: any) => ({
-            ...prev,
-            [arrayName]: prev[arrayName].filter((_: any, i: number) => i !== index)
-        }));
-    };
-
-    const handleNext = () => { if (currentStep < SECTIONS.length - 1) setCurrentStep(s => s + 1); };
-    const handlePrev = () => { if (currentStep > 0) setCurrentStep(s => s - 1); };
-
-    const handleSave = () => {
-        if (!formData.empresa || !formData.victimaNombre) {
-            toast.error('La empresa y el nombre del accidentado son obligatorios.');
-            return;
-        }
-
-        const report = {
-            id: isEdit ? formData.id : Date.now(),
-            date: formData.fecha || new Date().toISOString(),
-            ...formData,
-            professionalSignature: formData.professionalSignature || professional.signature,
-            professionalName: formData.professionalName || professional.name,
-            professionalLicense: formData.professionalLicense || professional.license,
-            professionalStamp: formData.professionalStamp || professional.stamp,
-        };
-
-        const currentHistory = JSON.parse(localStorage.getItem('accident_history') || '[]');
-        let updated;
-        if (isEdit) {
-            updated = currentHistory.map((item: any) => item.id === formData.id ? report : item);
-        } else {
-            updated = [report, ...currentHistory];
-        }
-
-        localStorage.setItem('accident_history', JSON.stringify(updated));
-        syncCollection('accident_history', updated);
-
-        // Integración CAPA Automático (Task 2.1)
-        if (!isEdit) {
-            const currentCapas = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
-            const newCapa = {
-                id: `CAPA-${Date.now()}`,
-                title: `Investigación Accidente: ${formData.victimaNombre}`,
-                description: `Accidente ${formData.gravedad} reportado el ${formData.fecha} en ${formData.ubicacion}.`,
-                capaType: 'corrective',
-                source: 'incident',
-                priority: formData.gravedad === 'Mortal' || formData.gravedad === 'Grave' ? 'critical' : 'high',
-                originDate: new Date().toISOString().split('T')[0],
-                dueDate: '',
-                responsible: '',
-                team: [],
-                relatedProcess: 'Seguridad Industrial',
-                problemStatement: formData.descripcionHecho,
-                rootCauseMethod: '5why',
-                rootCauseAnalysis: '',
-                immediateActions: [],
-                correctiveActions: [],
-                controlType: '',
-                effectivenessCriteria: '',
-                status: 'draft',
-                createdAt: new Date().toISOString(),
-                openedAt: '',
-                completedAt: '',
-                closedAt: '',
-                observations: ''
-            };
-            const updatedCapas = [newCapa, ...currentCapas];
-            localStorage.setItem('ehs_capa_db', JSON.stringify(updatedCapas));
-            syncCollection('ehs_capa_db', updatedCapas);
-            toast.success('CAPA Borrador creado automáticamente.');
-        }
-        
-        toast.success(isEdit ? 'Investigación actualizada correctamente.' : 'Investigación guardada correctamente.');
-        
-        // Reset and close form
-        setFormData({
-            fecha: new Date().toISOString().split('T')[0], hora: '', empresa: '', ubicacion: '', gravedad: 'Leve',
-            victimaNombre: '', victimaDni: '', victimaPuesto: '', victimaAntiguedad: '', lesion: '', parteCuerpo: '',
-            descripcionHecho: '', testigos: [{ nombre: '', declaracion: '' }],
-            problemaCentral: '', porques: [''],
-            medidas: [{ accion: '', responsable: '', fechaLimite: '' }],
-            fotos: [],
-            operatorSignature: '', supervisorSignature: '', signature: '',
-            showSignatures: { operator: true, professional: true, supervisor: true }
-        });
-        setIsEdit(false);
-        setIsFormVisible(false);
-        setCurrentStep(0);
-        loadHistory();
-    };
-
-    const confirmDelete = () => {
-        if (!deleteTarget) return;
-        const currentHistory = JSON.parse(localStorage.getItem('accident_history') || '[]');
-        const updated = currentHistory.filter((item: any) => String(item.id) !== String(deleteTarget));
-        localStorage.setItem('accident_history', JSON.stringify(updated));
-        syncCollection('accident_history', updated);
-        setHistory(updated);
-        setDeleteTarget(null);
-        toast.success('Investigación eliminada.');
-    };
-
-    const handleExportCSV = () => {
-        requirePro(() => downloadCSV(history.map(i => ({
-            victima: i.victimaNombre, empresa: i.empresa, fecha: i.date,
-            lesion: i.lesion || '', sector: i.ubicacion || '', gravedad: i.gravedad || ''
-        })), 'historial_accidentes', {
-            victima: 'Víctima', empresa: 'Empresa', fecha: 'Fecha',
-            lesion: 'Tipo de Lesión', sector: 'Sector/Área', gravedad: 'Gravedad'
-        }));
-    };
-
-    if (selectedReport) {
-        return (
-            <div className="print-only-wrapper">
-                <AccidentPdfGenerator report={{...selectedReport, id: selectedReport.id || Date.now()}} onBack={() => setSelectedReport(null)} />
-            </div>
-        );
+    let signature = legacySignature || null;
+    let stamp = null;
+    if (savedSigData) {
+      const parsed = JSON.parse(savedSigData);
+      signature = parsed.signature || signature;
+      stamp = parsed.stamp || null;
     }
 
-    if (!isFormVisible) {
-        const columns = [
-            {
-                header: 'Fecha',
-                accessor: 'date',
-                sortable: true,
-                render: (item: any) => (
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
+    if (savedData) {
+      const data = JSON.parse(savedData);
+      setProfessional({
+        name: data.name || '',
+        license: data.license || '',
+        signature: signature,
+        stamp: stamp
+      });
+    } else {
+      setProfessional((prev: any) => ({ ...prev, signature, stamp }));
+    }
+
+    if (location.state?.editData) {
+      const editData = location.state.editData;
+      setFormData({
+        ...editData,
+        operatorSignature: editData.operatorSignature || '',
+        supervisorSignature: editData.supervisorSignature || editData.signature || '',
+        signature: editData.signature || editData.supervisorSignature || '',
+        showSignatures: editData.showSignatures || { operator: true, professional: true, supervisor: true }
+      });
+      setIsEdit(true);
+      setIsFormVisible(true);
+    }
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, [location.state]);
+
+  useEffect(() => {
+    if (isFormVisible) window.scrollTo(0, 0);
+  }, [currentStep, isFormVisible]);
+
+  const setShowSignatures = (updater: any) => {
+    setFormData((prev: any) => {
+      const updated = typeof updater === 'function' ? updater(prev.showSignatures) : updater;
+      return { ...prev, showSignatures: updated };
+    });
+  };
+  const showSignatures = formData.showSignatures || { operator: true, professional: true, supervisor: true };
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData((prev: any) => ({ ...prev, [field]: value }));
+  };
+
+  const handleArrayChange = (arrayName: string, index: number, field: string | null, value: string) => {
+    setFormData((prev: any) => {
+      const newArray = [...prev[arrayName]];
+      if (field === null) {
+        newArray[index] = value;
+      } else {
+        newArray[index] = { ...newArray[index], [field]: value };
+      }
+      return { ...prev, [arrayName]: newArray };
+    });
+  };
+
+  const addArrayItem = (arrayName: string, defaultItem: any) => {
+    setFormData((prev: any) => ({ ...prev, [arrayName]: [...prev[arrayName], defaultItem] }));
+  };
+
+  const removeArrayItem = (arrayName: string, index: number) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      [arrayName]: prev[arrayName].filter((_: any, i: number) => i !== index)
+    }));
+  };
+
+  const handleNext = () => {if (currentStep < SECTIONS.length - 1) setCurrentStep((s) => s + 1);};
+  const handlePrev = () => {if (currentStep > 0) setCurrentStep((s) => s - 1);};
+
+  const handleSave = () => {
+    if (!formData.empresa || !formData.victimaNombre) {
+      toast.error('La empresa y el nombre del accidentado son obligatorios.');
+      return;
+    }
+
+    const report = {
+      id: isEdit ? formData.id : Date.now(),
+      date: formData.fecha || new Date().toISOString(),
+      ...formData,
+      professionalSignature: formData.professionalSignature || professional.signature,
+      professionalName: formData.professionalName || professional.name,
+      professionalLicense: formData.professionalLicense || professional.license,
+      professionalStamp: formData.professionalStamp || professional.stamp
+    };
+
+    const currentHistory = JSON.parse(localStorage.getItem('accident_history') || '[]');
+    let updated;
+    if (isEdit) {
+      updated = currentHistory.map((item: any) => item.id === formData.id ? report : item);
+    } else {
+      updated = [report, ...currentHistory];
+    }
+
+    localStorage.setItem('accident_history', JSON.stringify(updated));
+    syncCollection('accident_history', updated);
+
+    // Integración CAPA Automático (Task 2.1)
+    if (!isEdit) {
+      const currentCapas = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
+      const newCapa = {
+        id: `CAPA-${Date.now()}`,
+        title: `Investigación Accidente: ${formData.victimaNombre}`,
+        description: `Accidente ${formData.gravedad} reportado el ${formData.fecha} en ${formData.ubicacion}.`,
+        capaType: 'corrective',
+        source: 'incident',
+        priority: formData.gravedad === 'Mortal' || formData.gravedad === 'Grave' ? 'critical' : 'high',
+        originDate: new Date().toISOString().split('T')[0],
+        dueDate: '',
+        responsible: '',
+        team: [],
+        relatedProcess: 'Seguridad Industrial',
+        problemStatement: formData.descripcionHecho,
+        rootCauseMethod: '5why',
+        rootCauseAnalysis: '',
+        immediateActions: [],
+        correctiveActions: [],
+        controlType: '',
+        effectivenessCriteria: '',
+        status: 'draft',
+        createdAt: new Date().toISOString(),
+        openedAt: '',
+        completedAt: '',
+        closedAt: '',
+        observations: ''
+      };
+      const updatedCapas = [newCapa, ...currentCapas];
+      localStorage.setItem('ehs_capa_db', JSON.stringify(updatedCapas));
+      syncCollection('ehs_capa_db', updatedCapas);
+      toast.success('CAPA Borrador creado automáticamente.');
+    }
+
+    toast.success(isEdit ? 'Investigación actualizada correctamente.' : 'Investigación guardada correctamente.');
+
+    // Reset and close form
+    setFormData({
+      fecha: new Date().toISOString().split('T')[0], hora: '', empresa: '', ubicacion: '', gravedad: 'Leve',
+      victimaNombre: '', victimaDni: '', victimaPuesto: '', victimaAntiguedad: '', lesion: '', parteCuerpo: '',
+      descripcionHecho: '', testigos: [{ nombre: '', declaracion: '' }],
+      problemaCentral: '', porques: [''],
+      medidas: [{ accion: '', responsable: '', fechaLimite: '' }],
+      fotos: [],
+      operatorSignature: '', supervisorSignature: '', signature: '',
+      showSignatures: { operator: true, professional: true, supervisor: true }
+    });
+    setIsEdit(false);
+    setIsFormVisible(false);
+    setCurrentStep(0);
+    loadHistory();
+  };
+
+  const confirmDelete = () => {
+    if (!deleteTarget) return;
+    const currentHistory = JSON.parse(localStorage.getItem('accident_history') || '[]');
+    const updated = currentHistory.filter((item: any) => String(item.id) !== String(deleteTarget));
+    localStorage.setItem('accident_history', JSON.stringify(updated));
+    syncCollection('accident_history', updated);
+    setHistory(updated);
+    setDeleteTarget(null);
+    toast.success('Investigación eliminada.');
+  };
+
+  const handleExportCSV = () => {
+    requirePro(() => downloadCSV(history.map((i) => ({
+      victima: i.victimaNombre, empresa: i.empresa, fecha: i.date,
+      lesion: i.lesion || '', sector: i.ubicacion || '', gravedad: i.gravedad || ''
+    })), 'historial_accidentes', {
+      victima: 'Víctima', empresa: 'Empresa', fecha: 'Fecha',
+      lesion: 'Tipo de Lesión', sector: 'Sector/Área', gravedad: 'Gravedad'
+    }));
+  };
+
+  if (selectedReport) {
+    return (
+      <div className="print-only-wrapper">
+                <AccidentPdfGenerator report={{ ...selectedReport, id: selectedReport.id || Date.now() }} onBack={() => setSelectedReport(null)} />
+            </div>);
+
+  }
+
+  if (!isFormVisible) {
+    const columns = [
+    {
+      header: 'Fecha',
+      accessor: 'date',
+      sortable: true,
+      render: (item: any) =>
+      <span className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 whitespace-nowrap">
                         <Calendar size={14} /> {new Date(item.date || item.fecha).toLocaleDateString('es-AR')}
                     </span>
-                )
-            },
-            {
-                header: 'Accidentado',
-                accessor: 'victimaNombre',
-                sortable: true,
-                render: (item: any) => (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                        <div style={{ background: 'rgba(239,68,68,0.1)', padding: '0.5rem', borderRadius: '8px', color: '#ef4444' }}>
+
+    },
+    {
+      header: 'Accidentado',
+      accessor: 'victimaNombre',
+      sortable: true,
+      render: (item: any) =>
+      <div className="flex items-center gap-3">
+                        <div className="bg-red-500/10 p-2 rounded-lg text-red-500">
                             <AlertTriangle size={16} />
                         </div>
-                        <span style={{ fontWeight: 700 }}>{item.victimaNombre}</span>
+                        <span className="font-bold">{item.victimaNombre}</span>
                     </div>
-                )
-            },
-            {
-                header: 'Empresa',
-                accessor: 'empresa',
-                sortable: true,
-                render: (item: any) => (
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+
+    },
+    {
+      header: 'Empresa',
+      accessor: 'empresa',
+      sortable: true,
+      render: (item: any) =>
+      <span className="flex items-center gap-1.5">
                         <MapPin size={14} /> {item.empresa}
                     </span>
-                )
-            },
-            {
-                header: 'Gravedad',
-                accessor: 'gravedad',
-                sortable: true,
-                render: (item: any) => {
-                    const cfg = severityConfig[item.gravedad] || { color: '#64748b', bg: 'rgba(100,116,139,0.1)' };
-                    return (
-                        <span style={{ background: cfg.bg, color: cfg.color, padding: '0.25rem 0.7rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 800 }}>
-                            {item.gravedad || '—'}
-                        </span>
-                    );
-                }
-            },
-            {
-                header: 'Acciones',
-                accessor: 'id',
-                render: (item: any) => (
-                    <div style={{ display: 'flex', gap: '0.4rem' }}>
-                        <button onClick={() => setSelectedReport(item)} style={{ padding: '0.4rem 0.8rem', background: 'var(--color-background)', border: '1px solid var(--color-border)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text)' }}>Ver</button>
-                        <button onClick={() => { setFormData(item); setIsEdit(true); setIsFormVisible(true); }} style={{ padding: '0.4rem', background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: '8px', color: '#3b82f6', cursor: 'pointer' }} title="Editar"><Pencil size={15} /></button>
-                        <button onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/accident/${item.id}?print=true`; setQrTarget({ text: url, title: `Accidente — ${item.victimaNombre}` }); })} style={{ padding: '0.4rem', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer' }} title="QR"><QrCode size={15} /></button>
-                        <button onClick={() => requirePro(() => setShareItem(item))} style={{ padding: '0.4rem', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '8px', color: '#16a34a', cursor: 'pointer' }} title="Compartir"><Share2 size={15} /></button>
-                        <button onClick={() => setDeleteTarget(item.id)} style={{ padding: '0.4rem', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}><Trash2 size={15} /></button>
-                    </div>
-                )
-            }
-        ];
 
+    },
+    {
+      header: 'Gravedad',
+      accessor: 'gravedad',
+      sortable: true,
+      render: (item: any) => {
+        const cfg = severityConfig[item.gravedad] || { color: '#64748b', bg: 'rgba(100,116,139,0.1)' };
         return (
-            <div className="container" style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '7rem', paddingTop: '5.5rem' }}>
-                <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); } : undefined} 
-                    title="Investigaciones de Accidentes"
-                    subtitle="Registros de siniestros"
-                    icon={<AlertTriangle size={32} color="#ffffff"  />}
-                    color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
-                />
+          <span style={{ background: cfg.bg, color: cfg.color }} className="p-[0.25rem_0.7rem] rounded-[999px] text-[0.72rem] font-[800]">
+                            {item.gravedad || '—'}
+                        </span>);
+
+      }
+    },
+    {
+      header: 'Acciones',
+      accessor: 'id',
+      render: (item: any) =>
+      <div className="flex gap-1.5">
+                        <button onClick={() => setSelectedReport(item)} className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer text-xs font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Ver</button>
+                        <button onClick={() => {setFormData(item);setIsEdit(true);setIsFormVisible(true);}} className="p-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-500 cursor-pointer hover:bg-blue-500/20 transition-colors" title="Editar"><Pencil size={15} /></button>
+                        <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/accident/${item.id}?print=true`;setQrTarget({ text: url, title: `Accidente — ${item.victimaNombre}` });})} className="p-1.5 bg-purple-500/10 border border-purple-500/20 rounded-lg text-purple-500 cursor-pointer hover:bg-purple-500/20 transition-colors" title="QR"><QrCode size={15} /></button>
+                        <button onClick={() => requirePro(() => setShareItem(item))} className="p-1.5 bg-green-500/10 border border-green-500/20 rounded-lg text-green-600 cursor-pointer hover:bg-green-500/20 transition-colors" title="Compartir"><Share2 size={15} /></button>
+                        <button onClick={() => setDeleteTarget(item.id)} className="p-1.5 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 cursor-pointer hover:bg-red-500/20 transition-colors"><Trash2 size={15} /></button>
+                    </div>
+
+    }];
+
+
+    return (
+      <div className="container min-h-screen bg-slate-50 dark:bg-slate-900 pb-28 pt-22">
+                <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
+        title="Investigaciones de Accidentes"
+        subtitle="Registros de siniestros"
+        icon={<AlertTriangle size={32} color="#ffffff" />}
+        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
+        
 
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
                 {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
                 <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Investigación de Accidente - ${shareItem?.victimaNombre || ''}`} text={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⚠️ Gravedad: ${shareItem.gravedad}` : ''} rawMessage={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}` : ''} elementIdToPrint="pdf-content" fileName={`Accidente_${shareItem?.victimaNombre || 'Reporte'}.pdf`} />
-                <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
-                    {shareItem && <AccidentPdfGenerator report={{...shareItem, id: shareItem.id || Date.now()}} isHeadless={true} />}
+                <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+                    {shareItem && <AccidentPdfGenerator report={{ ...shareItem, id: shareItem.id || Date.now() }} isHeadless={true} />}
                 </div>
 
-                <main style={{ padding: '0 0 2rem 0', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
+                <main className="w-full max-w-[1000px] mx-auto pb-8">
                     {/* Botones de Navegación */}
-                    <div style={{ display: 'flex', gap: '1rem', padding: '0 1rem', marginBottom: '1rem' }}>
+                    <div className="flex gap-[1rem] p-[0_1rem] mb-[1rem]">
                         <></>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', padding: '0 1rem' }}>
-                        <div style={{ display: 'flex', gap: '0.8rem' }}>
-                            {history.length > 0 && (
-                                <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#36B37E', border: 'none', borderRadius: '10px', padding: '0.6rem 1rem', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#ffffff' }}>
+                    <div className="flex items-center justify-end gap-4 mb-8 flex-wrap px-4">
+                        <div className="flex gap-3">
+                            {history.length > 0 &&
+              <button onClick={handleExportCSV} className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 border-none rounded-xl px-4 py-2.5 text-xs font-extrabold cursor-pointer text-white transition-colors shadow-lg shadow-emerald-500/20">
                                     <Download size={14} /> EXCEL
                                 </button>
-                            )}
-                            <button onClick={() => setIsFormVisible(true)} className="btn-primary hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', width: 'auto', margin: 0, background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }}>
+              }
+                            <button onClick={() => setIsFormVisible(true)} className="flex items-center gap-2 px-5 py-2.5 w-auto m-0 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-none rounded-xl font-extrabold shadow-lg shadow-emerald-500/30 hover:-translate-y-0.5 transition-all cursor-pointer">
                                 <Plus size={18} /> NUEVA INVESTIGACIÓN
                             </button>
                         </div>
                     </div>
 
                 <DataTable
-                    data={history}
-                    columns={columns}
-                    searchPlaceholder="Buscar por empleado, empresa o gravedad..."
-                    searchFields={['victimaNombre', 'empresa', 'gravedad', 'lesion']}
-                    emptyMessage="No hay investigaciones registradas."
-                    emptyIcon={<FileText size={48} />}
-                />
+            data={history}
+            columns={columns}
+            searchPlaceholder="Buscar por empleado, empresa o gravedad..."
+            searchFields={['victimaNombre', 'empresa', 'gravedad', 'lesion']}
+            emptyMessage="No hay investigaciones registradas."
+            emptyIcon={<FileText size={48} />} />
+          
                 </main>
-            </div>
-        );
-    }
+            </div>);
 
-    return (
-        <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '6rem', paddingTop: '5.5rem' }}>
-            <PremiumHeader onBack={isFormVisible ? () => { setIsFormVisible(false); } : undefined} 
-                title={isEdit ? 'Editar Investigación' : 'Investigación de Accidente'}
-                subtitle="Metodología Árbol de Causas"
-                icon={<AlertTriangle  />}
-                color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
-            />
+  }
 
-            <main style={{ padding: '2rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
-                <div style={{ marginBottom: '1.5rem' }}>
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-24 pt-22">
+            <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
+      title={isEdit ? 'Editar Investigación' : 'Investigación de Accidente'}
+      subtitle="Metodología Árbol de Causas"
+      icon={<AlertTriangle />}
+      color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
+      
+
+            <main className="w-full max-w-[1000px] mx-auto px-6 py-8">
+                <div className="mb-6">
                     <></>
                 </div>
                 {/* Actualización Normativa */}
-                <div style={{
-                    marginBottom: '2.5rem', padding: '1.25rem', borderRadius: '16px',
-                    background: 'linear-gradient(135deg, rgba(8,145,178,0.1), rgba(6,182,212,0.05))',
-                    border: '1px solid rgba(8,145,178,0.2)', display: 'flex', gap: '1rem', alignItems: 'flex-start'
-                }}>
-                    <Sparkles size={24} color="#0891b2" style={{ flexShrink: 0, marginTop: '2px' }} />
-                    <div style={{ flex: 1 }}>
-                        <h4 style={{ margin: '0 0 0.4rem', color: 'var(--color-text)', fontSize: '0.95rem', fontWeight: 800 }}>
+                <div className="mb-10 p-5 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-cyan-500/5 border border-cyan-500/20 flex gap-4 items-start">
+                    <Sparkles size={24} color="#0891b2" className="flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                        <h4 className="m-0 mb-1.5 text-slate-800 dark:text-slate-100 text-[0.95rem] font-extrabold">
                             Metodología Avalada: Res. SRT 7/2026 y Dec. 549/2025
                         </h4>
-                        <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.85rem', lineHeight: 1.5 }}>
+                        <p className="m-0 text-slate-500 dark:text-slate-400 text-[0.85rem] leading-relaxed">
                             El presente análisis de causas y recolección testimonial se estructura para conformar prueba sólida frente a Comisiones Médicas, cumpliendo exigencias del Nuevo Protocolo de Valoración del Daño Corporal y nuevo baremo vigente.
                         </p>
                     </div>
                 </div>
 
                 {/* Stepper */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2.5rem', position: 'relative' }}>
-                    <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '2px', background: 'var(--glass-border)', zIndex: 0, transform: 'translateY(-50%)' }} />
-                    {SECTIONS.map((section, index) => (
-                        <div key={index} style={{
-                            display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, gap: '0.5rem',
-                            cursor: 'pointer'
-                        }} onClick={() => setCurrentStep(index)}>
-                            <div style={{
-                                width: '32px', height: '32px', borderRadius: '50%',
-                                background: currentStep >= index ? 'var(--color-primary)' : 'var(--gradient-card)',
-                                border: `2px solid ${currentStep >= index ? 'var(--color-primary)' : 'var(--glass-border)'}`,
-                                color: currentStep >= index ? '#fff' : 'var(--color-text-muted)',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontWeight: 700, fontSize: '0.9rem', transition: 'all 0.3s'
-                            }}>
+                <div className="flex justify-between mb-10 relative">
+                    <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-slate-200 dark:bg-slate-700 z-0 -translate-y-1/2" />
+                    {SECTIONS.map((section, index) =>
+          <div key={index} className="flex flex-col items-center z-10 gap-2 cursor-pointer" onClick={() => setCurrentStep(index)}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2 ${currentStep >= index ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400'}`}>
                                 {currentStep > index ? <CheckCircle2 size={16} /> : index + 1}
                             </div>
-                            <span style={{ fontSize: '0.75rem', fontWeight: currentStep === index ? 700 : 500, color: currentStep === index ? 'var(--color-text)' : 'var(--color-text-muted)', textAlign: 'center', maxWidth: '80px', display: 'none' }} className="sm:inline">{section}</span>
+                            <span className={`text-xs text-center max-w-[80px] hidden sm:inline ${currentStep === index ? 'font-bold text-slate-800 dark:text-slate-200' : 'font-medium text-slate-500 dark:text-slate-400'}`}>{section}</span>
                         </div>
-                    ))}
+          )}
                 </div>
 
-                <div className="card" style={{ flex: 1, padding: '2.5rem', background: 'var(--gradient-card)', border: '1px solid var(--glass-border)', borderRadius: '20px' }}>
-                    <h2 style={{ fontSize: '1.25rem', marginBottom: '2rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '0.8rem', color: 'var(--color-primary)' }}>
+                <div className="flex-1 p-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-xl">
+                    <h2 className="text-xl mb-8 border-b border-slate-200 dark:border-slate-700 pb-3 text-blue-600 dark:text-blue-400 font-extrabold">
                         {SECTIONS[currentStep]}
                     </h2>
 
-                    {currentStep === 0 && (
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                    {currentStep === 0 &&
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label style={labelStyle}>Fecha del Suceso</label>
-                                <input type="date" value={formData.fecha} onChange={e => handleInputChange('fecha', e.target.value)} style={inputStyle} />
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Fecha del Suceso</label>
+                                <input type="date" value={formData.fecha} onChange={(e) => handleInputChange('fecha', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                             </div>
                             <div>
-                                <label style={labelStyle}>Hora Aprox.</label>
-                                <input type="time" value={formData.hora} onChange={e => handleInputChange('hora', e.target.value)} style={inputStyle} />
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Hora Aprox.</label>
+                                <input type="time" value={formData.hora} onChange={(e) => handleInputChange('hora', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                             </div>
-                            <div style={{ gridColumn: 'span 2' }}>
-                                <label style={labelStyle}>Razón Social / Empresa</label>
-                                <input type="text" placeholder="Ej. Constructora SRL" value={formData.empresa} onChange={e => handleInputChange('empresa', e.target.value)} style={inputStyle} />
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Razón Social / Empresa</label>
+                                <input type="text" placeholder="Ej. Constructora SRL" value={formData.empresa} onChange={(e) => handleInputChange('empresa', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                             </div>
-                            <div style={{ gridColumn: 'span 2' }}>
-                                <label style={labelStyle}>Ubicación / Sector</label>
-                                <input type="text" placeholder="Ej. Obra Centro, Sector Hormigonado" value={formData.ubicacion} onChange={e => handleInputChange('ubicacion', e.target.value)} style={inputStyle} />
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ubicación / Sector</label>
+                                <input type="text" placeholder="Ej. Obra Centro, Sector Hormigonado" value={formData.ubicacion} onChange={(e) => handleInputChange('ubicacion', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                             </div>
-                            <div style={{ gridColumn: 'span 2' }}>
-                                <label style={labelStyle}>Gravedad Estimada</label>
-                                <select value={formData.gravedad} onChange={e => handleInputChange('gravedad', e.target.value)} style={inputStyle}>
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Gravedad Estimada</label>
+                                <select value={formData.gravedad} onChange={(e) => handleInputChange('gravedad', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm">
                                     <option value="Leve">Leve (Sin baja)</option>
                                     <option value="Moderado">Moderado (Con baja médica corta)</option>
                                     <option value="Grave">Grave (Internación, amputaciones)</option>
@@ -605,319 +572,319 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                                 </select>
                             </div>
                         </div>
-                    )}
+          }
 
-                    {currentStep === 1 && (
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                            <div style={{ gridColumn: 'span 2' }}>
-                                <label style={labelStyle}>Nombre del Accidentado</label>
-                                <input type="text" placeholder="Nombre completo" value={formData.victimaNombre} onChange={e => handleInputChange('victimaNombre', e.target.value)} style={inputStyle} />
+                    {currentStep === 1 &&
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nombre del Accidentado</label>
+                                <input type="text" placeholder="Nombre completo" value={formData.victimaNombre} onChange={(e) => handleInputChange('victimaNombre', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                             </div>
                             <div>
-                                <label style={labelStyle}>DNI / CUIL</label>
-                                <input type="text" placeholder="Sin guiones" value={formData.victimaDni} onChange={e => handleInputChange('victimaDni', e.target.value)} style={inputStyle} />
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">DNI / CUIL</label>
+                                <input type="text" placeholder="Sin guiones" value={formData.victimaDni} onChange={(e) => handleInputChange('victimaDni', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                             </div>
                             <div>
-                                <label style={labelStyle}>Puesto / Tarea</label>
-                                <input type="text" placeholder="Ej. Oficial Albañil" value={formData.victimaPuesto} onChange={e => handleInputChange('victimaPuesto', e.target.value)} style={inputStyle} />
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Puesto / Tarea</label>
+                                <input type="text" placeholder="Ej. Oficial Albañil" value={formData.victimaPuesto} onChange={(e) => handleInputChange('victimaPuesto', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                             </div>
-                            <div style={{ gridColumn: 'span 2' }}>
-                                <label style={labelStyle}>Antigüedad en el puesto</label>
-                                <input type="text" placeholder="Ej. 2 años" value={formData.victimaAntiguedad} onChange={e => handleInputChange('victimaAntiguedad', e.target.value)} style={inputStyle} />
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Antigüedad en el puesto</label>
+                                <input type="text" placeholder="Ej. 2 años" value={formData.victimaAntiguedad} onChange={(e) => handleInputChange('victimaAntiguedad', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                             </div>
-                            <div style={{ gridColumn: 'span 2' }}>
-                                <label style={labelStyle}>Tipo de Lesión</label>
-                                <input type="text" placeholder="Ej. Corte profundo, contusión, fractura..." value={formData.lesion} onChange={e => handleInputChange('lesion', e.target.value)} style={inputStyle} />
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tipo de Lesión</label>
+                                <input type="text" placeholder="Ej. Corte profundo, contusión, fractura..." value={formData.lesion} onChange={(e) => handleInputChange('lesion', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                             </div>
-                            <div style={{ gridColumn: 'span 2' }}>
-                                <label style={labelStyle}>Parte del Cuerpo Afectada</label>
-                                <input type="text" placeholder="Ej. Mano derecha indíce" value={formData.parteCuerpo} onChange={e => handleInputChange('parteCuerpo', e.target.value)} style={inputStyle} />
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Parte del Cuerpo Afectada</label>
+                                <input type="text" placeholder="Ej. Mano derecha indíce" value={formData.parteCuerpo} onChange={(e) => handleInputChange('parteCuerpo', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                             </div>
                         </div>
-                    )}
+          }
 
-                    {currentStep === 2 && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    {currentStep === 2 &&
+          <div className="flex flex-col gap-6">
                             <div>
-                                <label style={labelStyle}>Descripción detallada del Hecho (¿Qué pasó?)</label>
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Descripción detallada del Hecho (¿Qué pasó?)</label>
                                 <textarea
-                                    style={{ ...inputStyle, minHeight: '120px', resize: 'vertical' }}
-                                    placeholder="Relato detallado de cómo ocurrió el accidente, basado en los testimonios y evidencias iniciales..."
-                                    value={formData.descripcionHecho}
-                                    onChange={e => handleInputChange('descripcionHecho', e.target.value)}
-                                />
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm min-h-[120px] resize-y"
+                placeholder="Relato detallado de cómo ocurrió el accidente, basado en los testimonios y evidencias iniciales..."
+                value={formData.descripcionHecho}
+                onChange={(e) => handleInputChange('descripcionHecho', e.target.value)} />
+              
                             </div>
 
                             <AdjuntosSection
-                              adjuntos={formData.fotos || []}
-                              onAdd={(b64) => setFormData((prev: any) => ({ ...prev, fotos: [...(prev.fotos || []), b64] }))}
-                              onRemove={(idx) => setFormData((prev: any) => ({ ...prev, fotos: (prev.fotos || []).filter((_: any, i: number) => i !== idx) }))}
-                              accentColor="#3b82f6"
-                            />
+              adjuntos={formData.fotos || []}
+              onAdd={(b64) => setFormData((prev: any) => ({ ...prev, fotos: [...(prev.fotos || []), b64] }))}
+              onRemove={(idx) => setFormData((prev: any) => ({ ...prev, fotos: (prev.fotos || []).filter((_: any, i: number) => i !== idx) }))}
+              accentColor="#3b82f6" />
+            
 
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', paddingBottom: '1rem', borderBottom: '1px solid var(--glass-border)' }}>
-                                <h3 style={{ fontSize: '1.1rem', margin: 0, color: 'var(--color-primary)' }}>Testigos del Hecho</h3>
-                                <button className="btn-outline hover-lift" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', borderRadius: '10px' }} onClick={() => addArrayItem('testigos', { nombre: '', declaracion: '' })}>
+                            <div className="flex justify-between items-center mt-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+                                <h3 className="text-lg m-0 text-blue-600 dark:text-blue-400 font-bold">Testigos del Hecho</h3>
+                                <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer" onClick={() => addArrayItem('testigos', { nombre: '', declaracion: '' })}>
                                     <UserPlus size={16} /> Añadir Testigo
                                 </button>
                             </div>
 
-                            {formData.testigos.map((t: any, i: number) => (
-                                <div key={i} style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--glass-border)', position: 'relative' }}>
-                                    {formData.testigos.length > 1 && (
-                                        <button
-                                            onClick={() => removeArrayItem('testigos', i)}
-                                            style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', padding: '0.5rem', borderRadius: '8px', cursor: 'pointer' }}
-                                            title="Eliminar Testigo"
-                                        >
-                                            <Trash2 size={16}  />
+                            {formData.testigos.map((t: any, i: number) =>
+            <div key={i} className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 relative">
+                                    {formData.testigos.length > 1 &&
+              <button
+                onClick={() => removeArrayItem('testigos', i)}
+                className="absolute top-4 right-4 bg-red-500/10 text-red-500 border-none p-2 rounded-lg cursor-pointer hover:bg-red-500/20 transition-colors"
+                title="Eliminar Testigo">
+                
+                                            <Trash2 size={16} />
                         </button>
-                                    )}
-                                    <label style={labelStyle}>Nombre del Testigo {i + 1}</label>
-                                    <input type="text" placeholder="Nombre completo o cargo" value={t.nombre} onChange={e => handleArrayChange('testigos', i, 'nombre', e.target.value)} style={{ ...inputStyle, marginBottom: '1rem' }} />
+              }
+                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nombre del Testigo {i + 1}</label>
+                                    <input type="text" placeholder="Nombre completo o cargo" value={t.nombre} onChange={(e) => handleArrayChange('testigos', i, 'nombre', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm mb-4" />
                                     
-                                    <label style={labelStyle}>Declaración Breve</label>
-                                    <textarea placeholder="Lo que presenció..." value={t.declaracion} onChange={e => handleArrayChange('testigos', i, 'declaracion', e.target.value)} style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }} />
+                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Declaración Breve</label>
+                                    <textarea placeholder="Lo que presenció..." value={t.declaracion} onChange={(e) => handleArrayChange('testigos', i, 'declaracion', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm min-h-[80px] resize-y" />
                                 </div>
-                            ))}
+            )}
                         </div>
-                    )}
+          }
 
-                    {currentStep === 3 && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                            <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(59, 130, 246, 0.2)', fontSize: '0.9rem', color: 'var(--color-text)' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, marginBottom: '0.5rem', color: '#3b82f6' }}>
+                    {currentStep === 3 &&
+          <div className="flex flex-col gap-6">
+                            <div className="bg-blue-500/10 p-6 rounded-2xl border border-blue-500/20 text-sm text-slate-800 dark:text-slate-200">
+                                <div className="flex items-center gap-2 font-extrabold mb-2 text-blue-600 dark:text-blue-400">
                                     <Search size={20} /> Metodología de los "5 Porqués"
                                 </div>
                                 Técnica sistemática para iterar preguntando "¿Por qué ocurrió?" hasta llegar a la causa raíz sistémica o de gestión, evitando culpar únicamente al error humano.
                             </div>
 
                             <div>
-                                <label style={labelStyle}>El Problema (Efecto Final)</label>
-                                <input type="text" placeholder="Ej. El trabajador se cortó la mano con la amoladora" value={formData.problemaCentral} onChange={e => handleInputChange('problemaCentral', e.target.value)} style={{ ...inputStyle, fontWeight: 'bold' }} />
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">El Problema (Efecto Final)</label>
+                                <input type="text" placeholder="Ej. El trabajador se cortó la mano con la amoladora" value={formData.problemaCentral} onChange={(e) => handleInputChange('problemaCentral', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm font-bold" />
                             </div>
 
-                            <div style={{ marginTop: '1rem', borderLeft: '3px solid var(--color-primary)', paddingLeft: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                {formData.porques.map((pq: string, i: number) => (
-                                    <div key={i} style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--glass-border)' }}>
-                                        <label style={{ ...labelStyle, color: 'var(--color-primary)' }}>¿Por qué? (Nivel {i + 1})</label>
-                                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                            <input type="text" placeholder="Respuesta al porqué anterior..." value={pq} onChange={e => handleArrayChange('porques', i, null, e.target.value)} style={{ ...inputStyle, marginBottom: 0 }} />
-                                            {formData.porques.length > 1 && (
-                                                <button
-                                                    onClick={() => removeArrayItem('porques', i)}
-                                                    style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', padding: '0.8rem', borderRadius: '12px', cursor: 'pointer', flexShrink: 0 }}
-                                                    title="Eliminar Porqué"
-                                                >
+                            <div className="mt-4 border-l-4 border-blue-600 pl-6 flex flex-col gap-4">
+                                {formData.porques.map((pq: string, i: number) =>
+              <div key={i} className="bg-[rgba(255,255,255,0.03)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--glass-border)]">
+                                        <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-emerald-600">¿Por qué? (Nivel {i + 1})</label>
+                                        <div className="flex gap-4 items-center">
+                                            <input type="text" placeholder="Respuesta al porqué anterior..." value={pq} onChange={(e) => handleArrayChange('porques', i, null, e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm mb-0" />
+                                            {formData.porques.length > 1 &&
+                  <button
+                    onClick={() => removeArrayItem('porques', i)}
+                    className="bg-red-500/10 text-red-500 border-none p-3 rounded-xl cursor-pointer flex-shrink-0 hover:bg-red-500/20 transition-colors"
+                    title="Eliminar Porqué">
+                    
                                                     <Trash2 size={16} />
                                                 </button>
-                                            )}
+                  }
                                         </div>
                                     </div>
-                                ))}
-                                {formData.porques.length < 5 && (
-                                    <button className="btn-outline hover-lift" style={{ padding: '0.8rem', fontSize: '0.85rem', alignSelf: 'flex-start', borderRadius: '10px' }} onClick={() => addArrayItem('porques', '')}>
+              )}
+                                {formData.porques.length < 5 &&
+              <button className="flex items-center gap-2 px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer self-start mt-2" onClick={() => addArrayItem('porques', '')}>
                                         <ListPlus size={16} /> Preguntar otro "¿Por qué?"
                                     </button>
-                                )}
+              }
                             </div>
                         </div>
-                    )}
+          }
 
-                    {currentStep === 4 && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                            <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>
+                    {currentStep === 4 &&
+          <div className="flex flex-col gap-6">
+                            <p className="m-0 text-slate-500 dark:text-slate-400 text-[0.95rem]">
                                 En base a la causa raíz detectada, defina el Plan de Acción Correctivo/Preventivo para asegurar que no vuelva a ocurrir.
                             </p>
 
-                            {formData.medidas.map((m: any, i: number) => (
-                                <div key={i} style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--glass-border)', position: 'relative' }}>
-                                    {formData.medidas.length > 1 && (
-                                        <button
-                                            onClick={() => removeArrayItem('medidas', i)}
-                                            style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', padding: '0.5rem', borderRadius: '8px', cursor: 'pointer' }}
-                                            title="Eliminar Medida"
-                                        >
+                            {formData.medidas.map((m: any, i: number) =>
+            <div key={i} className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 relative">
+                                    {formData.medidas.length > 1 &&
+              <button
+                onClick={() => removeArrayItem('medidas', i)}
+                className="absolute top-4 right-4 bg-red-500/10 text-red-500 border-none p-2 rounded-lg cursor-pointer hover:bg-red-500/20 transition-colors"
+                title="Eliminar Medida">
+                
                                             <Trash2 size={16} />
                                         </button>
-                                    )}
+              }
                                     
-                                    <div style={{ marginBottom: '1rem' }}>
-                                        <label style={labelStyle}>Acción Correctiva / Preventiva</label>
-                                        <input type="text" placeholder="Ej. Instalar guardas fijas, dar capacitación" value={m.accion} onChange={e => handleArrayChange('medidas', i, 'accion', e.target.value)} style={inputStyle} />
+                                    <div className="mb-[1rem]">
+                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Acción Correctiva / Preventiva</label>
+                                        <input type="text" placeholder="Ej. Instalar guardas fijas, dar capacitación" value={m.accion} onChange={(e) => handleArrayChange('medidas', i, 'accion', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                                     </div>
 
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                    <div className="grid grid-template-columns-[1fr_1fr] gap-[1rem]">
                                         <div>
-                                            <label style={labelStyle}>Responsable</label>
-                                            <input type="text" placeholder="Ej. Jefe de Mantenimiento" value={m.responsable} onChange={e => handleArrayChange('medidas', i, 'responsable', e.target.value)} style={inputStyle} />
+                                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Responsable</label>
+                                            <input type="text" placeholder="Ej. Jefe de Mantenimiento" value={m.responsable} onChange={(e) => handleArrayChange('medidas', i, 'responsable', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                                         </div>
                                         <div>
-                                            <label style={labelStyle}>Fecha Límite</label>
-                                            <input type="date" value={m.fechaLimite} onChange={e => handleArrayChange('medidas', i, 'fechaLimite', e.target.value)} style={inputStyle} />
+                                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Fecha Límite</label>
+                                            <input type="date" value={m.fechaLimite} onChange={(e) => handleArrayChange('medidas', i, 'fechaLimite', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                                         </div>
                                     </div>
                                 </div>
-                            ))}
+            )}
 
-                            <button className="btn-outline hover-lift" style={{ padding: '0.8rem', fontSize: '0.85rem', width: '100%', justifyContent: 'center', borderRadius: '12px' }} onClick={() => addArrayItem('medidas', { accion: '', responsable: '', fechaLimite: '' })}>
+                            <button className="btn-outline hover-lift p-[0.8rem] text-[0.85rem] w-[100%] justify-center rounded-[12px]" onClick={() => addArrayItem('medidas', { accion: '', responsable: '', fechaLimite: '' })}>
                                 <Plus size={16} /> Añadir otra Medida
                             </button>
                         </div>
-                    )}
+          }
                 </div>
 
                 {/* Navegación Inferior Responsive */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem', gap: '1rem', flexWrap: 'wrap' }}>
+                <div className="flex justify-space-between mt-[2rem] gap-[1rem] flex-wrap">
                     <button
-                        className="btn-outline"
-                        onClick={handlePrev}
-                        disabled={currentStep === 0}
-                        style={{ opacity: currentStep === 0 ? 0.4 : 1, flex: 1, minWidth: '120px', background: 'var(--color-surface)', margin: 0, borderRadius: '12px', padding: '0.8rem' }}
-                    >
+            className="btn-outline flex-[1] min-width-[120px] bg-[var(--color-surface)] m-[0] rounded-[12px] p-[0.8rem]"
+            onClick={handlePrev}
+            disabled={currentStep === 0}
+            style={{ opacity: currentStep === 0 ? 0.4 : 1 }}>
+            
                         <ChevronLeft size={20} /> Atrás
                     </button>
 
-                    {currentStep < SECTIONS.length - 1 && (
-                        <button className="btn-primary hover-lift" onClick={handleNext} style={{ margin: 0, flex: 1, minWidth: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', borderRadius: '12px', padding: '0.8rem' }}>
+                    {currentStep < SECTIONS.length - 1 &&
+          <button className="btn-primary hover-lift m-[0] flex-[1] min-width-[120px] flex items-center justify-center gap-[0.5rem] rounded-[12px] p-[0.8rem]" onClick={handleNext}>
                             Siguiente <ChevronRight size={20} />
                         </button>
-                    )}
+          }
                 </div>
 
                 {/* Firmas y Autorizaciones */}
-                <div className="card animate-fade-in" style={{ marginTop: '3rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', padding: '2.5rem', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.08)' }}>
-                    <h3 style={{ marginTop: 0, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.7rem', color: 'var(--color-primary)', fontWeight: 900, fontSize: '1.25rem', textTransform: 'uppercase', letterSpacing: '1.2px' }}>
-                        <Pencil size={22} style={{ color: 'var(--color-primary)' }} /> Firmas y Autorizaciones
+                <div className="card animate-fade-in mt-[3rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2.5rem] box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.08)]">
+                    <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.7rem] text-[var(--color-primary)] font-[900] text-[1.25rem] uppercase letter-spacing-[1.2px]">
+                        <Pencil size={22} className="text-[var(--color-primary)]" /> Firmas y Autorizaciones
                     </h3>
 
-                    <div className="no-print mb-8 p-6" style={{ background: 'rgba(30, 41, 59, 0.2)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)', width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem', justifyContent: 'center', alignItems: 'center' }}>
-                        <div style={{ color: 'var(--color-text)', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
+                        <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                        <div className="flex gap-[1rem] flex-wrap justify-center">
                             {[
-                                { id: 'operator', label: 'Accidentado / Testigo' },
-                                { id: 'professional', label: 'Profesional HYS' },
-                                { id: 'supervisor', label: 'Supervisor / Empleador' }
-                            ].map(sig => {
-                                const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
-                                return (
-                                    <label
-                                        key={sig.id}
-                                        className="flex items-center gap-2 cursor-pointer select-none"
-                                        style={{
-                                            padding: '0.55rem 1.1rem',
-                                            borderRadius: 'var(--radius-full)',
-                                            border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
-                                            background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
-                                            color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
-                                            fontWeight: 750,
-                                            fontSize: '0.8rem',
-                                            transition: 'all 0.2s ease',
-                                            boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
-                                        }}
-                                    >
+              { id: 'operator', label: 'Accidentado / Testigo' },
+              { id: 'professional', label: 'Profesional HYS' },
+              { id: 'supervisor', label: 'Supervisor / Empleador' }].
+              map((sig) => {
+                const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                return (
+                  <label
+                    key={sig.id}
+                    className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease]"
+                    style={{
+
+
+                      border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
+                      background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
+                      color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
+
+
+
+                      boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
+                    }}>
+                    
                                         <input
-                                            type="checkbox"
-                                            checked={isChecked}
-                                            onChange={e => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))}
-                                            style={{ display: 'none' }}
-                                        />
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="none" />
+
+                    
                                         <div style={{
-                                            width: '16px',
-                                            height: '16px',
-                                            borderRadius: '4px',
-                                            border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
-                                            background: isChecked ? 'var(--color-primary)' : 'transparent',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            transition: 'all 0.2s ease'
-                                        }}>
+
+
+
+                      border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
+                      background: isChecked ? 'var(--color-primary)' : 'transparent'
+
+
+
+
+                    }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
                                             {isChecked && <CheckCircle2 size={12} color="white" />}
                                         </div>
                                         {sig.label}
-                                    </label>
-                                );
-                            })}
+                                    </label>);
+
+              })}
                         </div>
                     </div>
 
-                    <div style={{ marginBottom: '2.5rem' }}>
+                    <div className="mb-[2.5rem]">
                         <PdfSignatures
-                            data={{
-                                ...formData,
-                                professionalSignature: professional.signature,
-                                professionalName: professional.name,
-                                professionalLicense: professional.license,
-                                professionalStamp: professional.stamp
-                            }}
-                            box1={showSignatures.operator ? {
-                                title: 'ACCIDENTADO / TESTIGO',
-                                subtitle: 'Declaración y firma',
-                                signatureUrl: formData.operatorSignature || null,
-                                isProfessional: false
-                            } : null}
-                            box2={showSignatures.professional ? {
-                                title: 'PROFESIONAL H&S',
-                                subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
-                                signatureUrl: formData.professionalSignature || professional.signature || null,
-                                stampUrl: formData.professionalStamp || professional.stamp || null,
-                                isProfessional: true,
-                                license: professional.license
-                            } : null}
-                            box3={showSignatures.supervisor ? {
-                                title: 'SUPERVISOR / EMPLEADOR',
-                                subtitle: 'Validación del informe',
-                                signatureUrl: formData.supervisorSignature || formData.signature || null,
-                                isProfessional: false
-                            } : null}
-                        />
+              data={{
+                ...formData,
+                professionalSignature: professional.signature,
+                professionalName: professional.name,
+                professionalLicense: professional.license,
+                professionalStamp: professional.stamp
+              }}
+              box1={showSignatures.operator ? {
+                title: 'ACCIDENTADO / TESTIGO',
+                subtitle: 'Declaración y firma',
+                signatureUrl: formData.operatorSignature || null,
+                isProfessional: false
+              } : null}
+              box2={showSignatures.professional ? {
+                title: 'PROFESIONAL H&S',
+                subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
+                signatureUrl: formData.professionalSignature || professional.signature || null,
+                stampUrl: formData.professionalStamp || professional.stamp || null,
+                isProfessional: true,
+                license: professional.license
+              } : null}
+              box3={showSignatures.supervisor ? {
+                title: 'SUPERVISOR / EMPLEADOR',
+                subtitle: 'Validación del informe',
+                signatureUrl: formData.supervisorSignature || formData.signature || null,
+                isProfessional: false
+              } : null} />
+            
             <PdfBrandingFooter />
                     </div>
 
                     <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {showSignatures.operator && (
-                            <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                <SignatureCanvas 
-                                    onSave={(sig) => setFormData((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
-                                    initialImage={formData.operatorSignature}
-                                    title="Firma del Accidentado / Testigo"
-                                />
+                        {showSignatures.operator &&
+            <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                                <SignatureCanvas
+                onSave={(sig) => setFormData((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                initialImage={formData.operatorSignature}
+                title="Firma del Accidentado / Testigo" />
+              
                             </div>
-                        )}
+            }
                         
-                        {showSignatures.professional && (
-                            <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                <SignatureCanvas 
-                                    onSave={(sig) => setFormData((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
-                                    initialImage={formData.professionalSignature || professional.signature}
-                                    title="Firma de Profesional Actuante"
-                                />
+                        {showSignatures.professional &&
+            <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                                <SignatureCanvas
+                onSave={(sig) => setFormData((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                initialImage={formData.professionalSignature || professional.signature}
+                title="Firma de Profesional Actuante" />
+              
                             </div>
-                        )}
+            }
 
-                        {showSignatures.supervisor && (
-                            <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                <SignatureCanvas 
-                                    onSave={(sig) => setFormData((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
-                                    initialImage={formData.supervisorSignature || formData.signature}
-                                    title="Firma de Supervisor / Empleador"
-                                />
+                        {showSignatures.supervisor &&
+            <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                                <SignatureCanvas
+                onSave={(sig) => setFormData((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
+                initialImage={formData.supervisorSignature || formData.signature}
+                title="Firma de Supervisor / Empleador" />
+              
                             </div>
-                        )}
+            }
                     </div>
                 </div>
             </main>
 
             <div className="no-print floating-action-bar">
                 <button
-                    onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
-                    className="btn-floating-action"
-                    style={{ background: '#36B37E', color: '#ffffff' }}
-                >
+          onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
+          className="btn-floating-action bg-[#36B37E] text-[#ffffff]">
+
+          
                     <Save size={18} /> GUARDAR
                 </button>
             </div>
-        </div>
-    );
+        </div>);
+
 }

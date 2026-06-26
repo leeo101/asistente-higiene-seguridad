@@ -7,29 +7,31 @@ import { doc, setDoc, getDoc, serverTimestamp, collection } from 'firebase/fires
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 import { Printer, Share2, Camera, X } from 'lucide-react';
-import { 
-  Building2, 
-  PenTool, 
-  Flame, 
-  ShieldCheck, 
+import {
+  Building2,
+  PenTool,
+  Flame,
+  ShieldCheck,
   AlertTriangle,
   Wind,
   Save,
   ArrowLeft,
-  CheckCircle2
-} from 'lucide-react';
+  CheckCircle2 } from
+'lucide-react';
 import LegajoPdf from '../components/LegajoPdf';
 import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 const TABS = [
-  { id: 'empresa', label: 'Empresa', icon: Building2, color: '#2563eb' },
-  { id: 'riesgos', label: 'Riesgos', icon: AlertTriangle, color: '#dc2626' },
-  { id: 'incendio', label: 'Incendio', icon: Flame, color: '#ea580c' },
-  { id: 'epp', label: 'EPP', icon: ShieldCheck, color: '#16a34a' },
-  { id: 'ambiente', label: 'Ambiente', icon: Wind, color: '#0d9488' },
-  { id: 'firmas', label: 'Firmas', icon: PenTool, color: '#7c3aed' },
-];
+{ id: 'empresa', label: 'Empresa', icon: Building2, color: '#2563eb' },
+{ id: 'riesgos', label: 'Riesgos', icon: AlertTriangle, color: '#dc2626' },
+{ id: 'incendio', label: 'Incendio', icon: Flame, color: '#ea580c' },
+{ id: 'epp', label: 'EPP', icon: ShieldCheck, color: '#16a34a' },
+{ id: 'ambiente', label: 'Ambiente', icon: Wind, color: '#0d9488' },
+{ id: 'instalaciones', label: 'Instalaciones', icon: AlertTriangle, color: '#0891b2' },
+{ id: 'orden', label: 'Orden y Señal.', icon: ShieldCheck, color: '#4f46e5' },
+{ id: 'firmas', label: 'Firmas', icon: PenTool, color: '#7c3aed' }];
+
 
 const DEFAULT_FORM_DATA = {
   empresa: {
@@ -50,15 +52,15 @@ const DEFAULT_FORM_DATA = {
     representanteLegal: '',
     polizaArt: '',
     horariosTrabajo: '',
-    fechaInicioActividad: ''
+    fechaInicioActividad: '',
+    ciiu: '',
+    srt: '',
+    modalidadTurno: '',
+    cantidadMujeres: '',
+    cantidadMenores: ''
   },
   riesgos: {
-    fisicos: '',
-    quimicos: '',
-    biologicos: '',
-    ergonomicos: '',
-    electricos: '',
-    trabajoAltura: '',
+    matriz: [] as any[],
     medidasPreventivas: '',
     nivelRiesgo: '',
     observaciones: '',
@@ -94,18 +96,43 @@ const DEFAULT_FORM_DATA = {
     adjuntos: [] as string[]
   },
   ambiente: {
-    iluminacionFecha: '',
-    iluminacionApto: true,
-    ruidoFecha: '',
-    ruidoApto: true,
-    puestaTierraFecha: '',
-    puestaTierraApto: true,
-    estresTermicoFecha: '',
-    estresTermicoApto: true,
-    ventilacionFecha: '',
-    ventilacionApto: true,
-    contaminantesFecha: '',
-    contaminantesApto: true,
+    iluminacionFecha: '', iluminacionApto: true, iluminacionValor: '', iluminacionLimite: '', iluminacionEmpresa: '', iluminacionProtocolo: '',
+    ruidoFecha: '', ruidoApto: true, ruidoValor: '', ruidoLimite: '', ruidoEmpresa: '', ruidoProtocolo: '',
+    puestaTierraFecha: '', puestaTierraApto: true, puestaTierraValor: '', puestaTierraLimite: '', puestaTierraEmpresa: '', puestaTierraProtocolo: '',
+    estresTermicoFecha: '', estresTermicoApto: true, estresTermicoValor: '', estresTermicoLimite: '', estresTermicoEmpresa: '', estresTermicoProtocolo: '',
+    ventilacionFecha: '', ventilacionApto: true, ventilacionValor: '', ventilacionLimite: '', ventilacionEmpresa: '', ventilacionProtocolo: '',
+    contaminantesFecha: '', contaminantesApto: true, contaminantesValor: '', contaminantesLimite: '', contaminantesEmpresa: '', contaminantesProtocolo: '',
+    adjuntos: [] as string[]
+  },
+  instalaciones: {
+    tablerosElectricos: false,
+    proteccionDiferencial: false,
+    patVerificada: false,
+    estadoCableado: '',
+    certificadoElectricista: false,
+    guardasProteccion: false,
+    parosEmergencia: false,
+    mantenimientoPreventivo: false,
+    hojasSeguridad: false,
+    gasHabilitacion: false,
+    gasValvulas: false,
+    gasDetector: false,
+    gasEnargas: false,
+    adjuntos: [] as string[]
+  },
+  orden: {
+    pasajesLibres: false,
+    almacenamientoDelimitado: false,
+    gestionResiduos: false,
+    iram10005: false,
+    senalizacionEscape: false,
+    zonasPeligrosas: false,
+    sanitariosCantidad: '',
+    vestuarios: false,
+    comedor: false,
+    botiquinCompleto: false,
+    responsablePrimerosAuxilios: '',
+    distanciaCentroAsistencial: '',
     adjuntos: [] as string[]
   },
   firmas: {
@@ -120,18 +147,18 @@ function AdjuntosSection({
   onAdd,
   onRemove,
   accentColor = '#2563eb'
-}: {
-  adjuntos: string[];
-  onAdd: (base64: string) => void;
-  onRemove: (index: number) => void;
-  accentColor?: string;
-}) {
+
+
+
+
+
+}: {adjuntos: string[];onAdd: (base64: string) => void;onRemove: (index: number) => void;accentColor?: string;}) {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-    Array.from(files).forEach(file => {
+    Array.from(files).forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         if (typeof reader.result === 'string') {
@@ -145,8 +172,8 @@ function AdjuntosSection({
   };
 
   return (
-    <div style={{ marginTop: '1.25rem' }}>
-      <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.5rem' }}>
+    <div className="mt-5">
+      <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
         Archivos Adjuntos
       </p>
       <input
@@ -154,69 +181,36 @@ function AdjuntosSection({
         type="file"
         accept="image/*"
         multiple
-        onChange={handleFiles}
-        style={{ display: 'none' }}
-      />
+        onChange={handleFiles} className="none" />
+
+      
       <button type="button" onClick={() => fileRef.current?.click()}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.5rem 1rem',
-          background: accentColor + '14',
-          color: accentColor,
-          border: `1px solid ${accentColor}44`,
-          borderRadius: '0.75rem',
-          cursor: 'pointer',
-          fontWeight: 600,
-          fontSize: '0.85rem'
-        }}
-      >
+      className="inline-flex items-center gap-2 py-2 px-4 rounded-xl font-semibold text-sm cursor-pointer" style={{ background: accentColor + '14', color: accentColor, border: `1px solid ${accentColor}44` }}>
+        
         <Camera size={16} /> Adjuntar Foto/Documento
       </button>
-      {adjuntos.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.75rem' }}>
-          {adjuntos.map((src, idx) => (
-            <div key={idx} style={{ position: 'relative', width: 96, height: 96 }}>
+      {adjuntos.length > 0 &&
+      <div className="flex flex-wrap gap-3 mt-3">
+          {adjuntos.map((src, idx) =>
+        <div key={idx} className="relative w-24 h-24">
               <img
-                src={src}
-                alt={`adjunto-${idx}`}
-                style={{
-                  width: 96,
-                  height: 96,
-                  objectFit: 'cover',
-                  borderRadius: '0.75rem',
-                  border: '1px solid #e2e8f0'
-                }}
-              />
+            src={src}
+            alt={`adjunto-${idx}`}
+            className="w-24 h-24 object-cover rounded-xl border border-slate-200 dark:border-slate-700" />
+          
               <button
-                type="button"
-                onClick={() => onRemove(idx)}
-                style={{
-                  position: 'absolute',
-                  top: -6,
-                  right: -6,
-                  width: 22,
-                  height: 22,
-                  borderRadius: '50%',
-                  background: '#ef4444',
-                  color: '#fff',
-                  border: 'none',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: 0
-                }}
-              >
+            type="button"
+            onClick={() => onRemove(idx)}
+            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white border-none cursor-pointer flex items-center justify-center p-0">
+            
                 <X size={13} />
               </button>
             </div>
-          ))}
+        )}
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }
 
 /* ── Progress calculation ── */
@@ -236,11 +230,11 @@ function calcTabProgress(section: Record<string, any>): number {
       if (v.trim().length > 0) filled++;
     }
   }
-  return total === 0 ? 0 : Math.round((filled / total) * 100);
+  return total === 0 ? 0 : Math.round(filled / total * 100);
 }
 
 export default function LegajoForm() {
-    const { requirePro } = usePaywall();
+  const { requirePro } = usePaywall();
   const { id } = useParams();
   const { currentUser } = useAuth();
   const { isPro } = usePaywall();
@@ -256,7 +250,7 @@ export default function LegajoForm() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    
+
     // PAYWALL ENFORCEMENT
     if (currentUser && !hasAccess) {
       navigate('/subscribe', { replace: true });
@@ -284,6 +278,8 @@ export default function LegajoForm() {
           epp: { ...DEFAULT_FORM_DATA.epp, ...(data.epp || {}) },
           ambiente: { ...DEFAULT_FORM_DATA.ambiente, ...(data.ambiente || {}) },
           firmas: { ...DEFAULT_FORM_DATA.firmas, ...(data.firmas || {}) },
+          instalaciones: { ...DEFAULT_FORM_DATA.instalaciones, ...(data.instalaciones || {}) },
+          orden: { ...DEFAULT_FORM_DATA.orden, ...(data.orden || {}) }
         });
       }
     } catch (error) {
@@ -297,10 +293,10 @@ export default function LegajoForm() {
     if (!currentUser) return;
     setSaving(true);
     try {
-      const docRef = id 
-        ? doc(db, 'users', currentUser.uid, 'legajos', id)
-        : doc(collection(db, 'users', currentUser.uid, 'legajos'));
-      
+      const docRef = id ?
+      doc(db, 'users', currentUser.uid, 'legajos', id) :
+      doc(collection(db, 'users', currentUser.uid, 'legajos'));
+
       const legajoData = {
         ...formData,
         companyName: formData.empresa.razonSocial,
@@ -309,10 +305,10 @@ export default function LegajoForm() {
       };
 
       await setDoc(docRef, legajoData, { merge: true });
-      
+
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 3000);
-      
+
       if (!id) {
         navigate(`/legajos/editar/${docRef.id}`, { replace: true });
       }
@@ -330,10 +326,10 @@ export default function LegajoForm() {
       navigate('/subscribe');
       return;
     }
-    
+
     try {
       setTimeout(() => {
-          window.print();
+        window.print();
       }, 500);
     } catch (error) {
       console.error("Error generating PDF", error);
@@ -342,7 +338,7 @@ export default function LegajoForm() {
   };
 
   const handleChange = (section: keyof typeof formData, field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [section]: {
         ...prev[section],
@@ -353,7 +349,7 @@ export default function LegajoForm() {
 
   /* helpers for adjuntos */
   const addAdjunto = (section: 'riesgos' | 'incendio' | 'epp' | 'ambiente', base64: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [section]: {
         ...prev[section],
@@ -363,7 +359,7 @@ export default function LegajoForm() {
   };
 
   const removeAdjunto = (section: 'riesgos' | 'incendio' | 'epp' | 'ambiente', index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [section]: {
         ...prev[section],
@@ -374,433 +370,391 @@ export default function LegajoForm() {
 
   if (loading) return <div className="text-center p-12 pt-32">Cargando datos del legajo...</div>;
 
-  
+
 
   return (
-    <div className="pt-24 pb-20" style={{ minHeight: '100vh', background: 'var(--color-background)' }}>
-      <div className="print-only" style={{ position: 'fixed', left: 0, opacity: 0.01, top: 0 }}>
+    <div className="pt-24 pb-20 min-h-screen bg-slate-50 dark:bg-slate-900">
+      <div className="print-only fixed left-0 top-0 opacity-0 pointer-events-none">
           <div id="pdf-content">
               <LegajoPdf data={{ ...formData, professionalName: currentUser?.displayName || 'Profesional H&S' }} />
           </div>
       </div>
-      <main style={{ padding: '2rem 1.5rem', maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        <PremiumHeader 
-            title={id ? 'Editar Legajo Técnico' : 'Nuevo Legajo Técnico'}
-            subtitle="Decreto 351/79"
-            icon={<Building2 size={32} color="#ffffff" />}
-            color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
-        />
+      <main className="px-4 py-8 max-w-[1000px] mx-auto flex flex-col gap-6">
+        <PremiumHeader
+          title={id ? 'Editar Legajo Técnico' : 'Nuevo Legajo Técnico'}
+          subtitle="Decreto 351/79"
+          icon={<Building2 size={32} color="#ffffff" />}
+          color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
+        
 
         <div>
             <></>
         </div>
 
       {/* ═══ Tabs ═══ */}
-      <div style={{
-        display: 'flex',
-        overflowX: 'auto',
-        gap: '0.4rem',
-        background: '#ffffff',
-        padding: '0.5rem',
-        borderRadius: '0.75rem',
-        border: '1px solid #e2e8f0',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
-      }}>
-        {TABS.map(tab => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          const sectionData = (formData as any)[tab.id];
-          const progress = sectionData ? calcTabProgress(sectionData) : 0;
-          const statusIcon = progress === 100 ? '✅' : progress > 0 ? '⚠️' : '';
+      <div className="flex overflow-x-auto gap-2 bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        {TABS.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            const sectionData = (formData as any)[tab.id];
+            const progress = sectionData ? calcTabProgress(sectionData) : 0;
+            const statusIcon = progress === 100 ? '✅' : progress > 0 ? '⚠️' : '';
 
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '0.2rem',
-                padding: '0.6rem 0.75rem',
-                borderRadius: '0.5rem',
-                fontWeight: 600,
-                fontSize: '0.8rem',
-                whiteSpace: 'nowrap',
-                flex: 1,
-                cursor: 'pointer',
-                border: isActive ? `1px solid ${tab.color}33` : '1px solid transparent',
-                background: isActive ? tab.color + '18' : 'transparent',
-                color: isActive ? tab.color : '#64748b',
-                transition: 'all 0.2s ease',
-                position: 'relative'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Icon style={{ width: 18, height: 18, color: isActive ? tab.color : '#94a3b8' }} />
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className="flex flex-col items-center gap-1 py-2.5 px-3 rounded-lg font-semibold text-xs whitespace-nowrap flex-1 cursor-pointer transition-all relative" style={{ border: isActive ? `1px solid ${tab.color}33` : '1px solid transparent', background: isActive ? tab.color + '18' : 'transparent', color: isActive ? tab.color : '#64748b' }}>
+                
+              <div className="flex items-center gap-1.5">
+                <Icon className="w-4 h-4" style={{ color: isActive ? tab.color : '#94a3b8' }} />
                 <span>{tab.label}</span>
-                {statusIcon && <span style={{ fontSize: '0.7rem' }}>{statusIcon}</span>}
+                {statusIcon && <span className="text-[0.7rem]">{statusIcon}</span>}
               </div>
               {/* Progress bar */}
-              <div style={{
-                width: '100%',
-                height: 3,
-                borderRadius: 2,
-                background: '#e2e8f0',
-                overflow: 'hidden',
-                marginTop: 2
-              }}>
-                <div style={{
-                  width: `${progress}%`,
-                  height: '100%',
-                  background: tab.color,
-                  borderRadius: 2,
-                  transition: 'width 0.3s ease'
-                }} />
+              <div className="w-full h-1 rounded-sm bg-slate-200 dark:bg-slate-700 overflow-hidden mt-0.5">
+                <div className="h-full rounded-sm transition-all duration-300" style={{ width: `${progress}%`, background: tab.color }} />
               </div>
-            </button>
-          );
-        })}
+            </button>);
+
+          })}
       </div>
 
       {/* ═══ Forms Area ═══ */}
-      <div className="card" style={{ padding: "2rem", background: "var(--gradient-card)", border: "1px solid var(--glass-border)", borderRadius: "var(--radius-2xl)", boxShadow: "var(--glass-shadow)" }}>
+      <div className="card p-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm">
+        
         
         {/* ═══ EMPRESA TAB ═══ */}
-        {activeTab === 'empresa' && (
+        {activeTab === 'empresa' &&
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
-              <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(37,99,235,0.3)' }}>
+            <div className="flex items-center gap-4 mb-8 pb-4 border-b border-slate-200 dark:border-slate-700">
+              <div className="w-11 h-11 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-[0_4px_15px_rgba(37,99,235,0.3)]">
                   <Building2 size={22} color="#fff" />
               </div>
               <div>
-                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>Datos del Establecimiento</h2>
-                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Información general de la empresa</p>
+                  <h2 className="m-0 text-xl font-extrabold text-slate-800 dark:text-slate-100">Datos del Establecimiento</h2>
+                  <p className="m-0 text-sm text-slate-500 dark:text-slate-400">Información general de la empresa</p>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Razón Social</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={formData.empresa.razonSocial}
-                  onChange={e => handleChange('empresa', 'razonSocial', e.target.value)}
+                  onChange={(e) => handleChange('empresa', 'razonSocial', e.target.value)}
                   className="input-professional"
-                  placeholder="Ej: Metalúrgica San Martín S.A."
-                />
+                  placeholder="Ej: Metalúrgica San Martín S.A." />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">CUIT</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={formData.empresa.cuit}
-                  onChange={e => handleChange('empresa', 'cuit', e.target.value)}
+                  onChange={(e) => handleChange('empresa', 'cuit', e.target.value)}
                   className="input-professional"
-                  placeholder="30-12345678-9"
-                />
+                  placeholder="30-12345678-9" />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-slate-700 mb-1">Domicilio Completo</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={formData.empresa.domicilio}
-                  onChange={e => handleChange('empresa', 'domicilio', e.target.value)}
+                  onChange={(e) => handleChange('empresa', 'domicilio', e.target.value)}
                   className="input-professional"
-                  placeholder="Calle, Número, Piso, Dpto"
-                />
+                  placeholder="Calle, Número, Piso, Dpto" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Localidad</label>
-                <input 
-                  type="text" 
-                  value={formData.empresa.localidad}
-                  onChange={e => handleChange('empresa', 'localidad', e.target.value)}
-                  className="input-professional"
-                />
+                <input type="text" value={formData.empresa.localidad} onChange={(e) => handleChange('empresa', 'localidad', e.target.value)} className="input-professional" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Provincia</label>
-                <input 
-                  type="text" 
-                  value={formData.empresa.provincia}
-                  onChange={e => handleChange('empresa', 'provincia', e.target.value)}
-                  className="input-professional"
-                  placeholder="Ej: Buenos Aires"
-                />
+                <input type="text" value={formData.empresa.provincia} onChange={(e) => handleChange('empresa', 'provincia', e.target.value)} className="input-professional" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Código Postal</label>
-                <input 
-                  type="text" 
-                  value={formData.empresa.codigoPostal}
-                  onChange={e => handleChange('empresa', 'codigoPostal', e.target.value)}
-                  className="input-professional"
-                  placeholder="Ej: B1636"
-                />
+                <input type="text" value={formData.empresa.codigoPostal} onChange={(e) => handleChange('empresa', 'codigoPostal', e.target.value)} className="input-professional" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono</label>
-                <input 
-                  type="tel" 
-                  value={formData.empresa.telefono}
-                  onChange={e => handleChange('empresa', 'telefono', e.target.value)}
-                  className="input-professional"
-                  placeholder="Ej: 011 4555-1234"
-                />
+                <input type="tel" value={formData.empresa.telefono} onChange={(e) => handleChange('empresa', 'telefono', e.target.value)} className="input-professional" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                <input 
-                  type="email" 
-                  value={formData.empresa.email}
-                  onChange={e => handleChange('empresa', 'email', e.target.value)}
-                  className="input-professional"
-                  placeholder="contacto@empresa.com"
-                />
+                <input type="email" value={formData.empresa.email} onChange={(e) => handleChange('empresa', 'email', e.target.value)} className="input-professional" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Actividad Principal</label>
-                <input 
-                  type="text" 
-                  value={formData.empresa.actividad}
-                  onChange={e => handleChange('empresa', 'actividad', e.target.value)}
-                  className="input-professional"
-                />
+                <input type="text" value={formData.empresa.actividad} onChange={(e) => handleChange('empresa', 'actividad', e.target.value)} className="input-professional" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Código CIIU (Actividad ART)</label>
+                <input type="text" value={formData.empresa.ciiu} onChange={(e) => handleChange('empresa', 'ciiu', e.target.value)} className="input-professional" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Nº Establecimiento SRT</label>
+                <input type="text" value={formData.empresa.srt} onChange={(e) => handleChange('empresa', 'srt', e.target.value)} className="input-professional" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Aseguradora (ART)</label>
-                <input 
-                  type="text" 
-                  value={formData.empresa.art}
-                  onChange={e => handleChange('empresa', 'art', e.target.value)}
-                  className="input-professional"
-                />
+                <input type="text" value={formData.empresa.art} onChange={(e) => handleChange('empresa', 'art', e.target.value)} className="input-professional" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Póliza ART</label>
-                <input 
-                  type="text" 
-                  value={formData.empresa.polizaArt}
-                  onChange={e => handleChange('empresa', 'polizaArt', e.target.value)}
-                  className="input-professional"
-                  placeholder="Nro. de póliza"
-                />
+                <input type="text" value={formData.empresa.polizaArt} onChange={(e) => handleChange('empresa', 'polizaArt', e.target.value)} className="input-professional" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Cantidad de Empleados</label>
-                <input 
-                  type="number" 
-                  value={formData.empresa.cantidadEmpleados}
-                  onChange={e => handleChange('empresa', 'cantidadEmpleados', e.target.value)}
-                  className="input-professional"
-                />
+                <input type="number" value={formData.empresa.cantidadEmpleados} onChange={(e) => handleChange('empresa', 'cantidadEmpleados', e.target.value)} className="input-professional" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Cantidad de Mujeres</label>
+                <input type="number" value={formData.empresa.cantidadMujeres} onChange={(e) => handleChange('empresa', 'cantidadMujeres', e.target.value)} className="input-professional" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Cantidad de Menores</label>
+                <input type="number" value={formData.empresa.cantidadMenores} onChange={(e) => handleChange('empresa', 'cantidadMenores', e.target.value)} className="input-professional" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Superficie (m²)</label>
-                <input 
-                  type="number" 
-                  value={formData.empresa.superficie}
-                  onChange={e => handleChange('empresa', 'superficie', e.target.value)}
-                  className="input-professional"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Responsable de Seguridad</label>
-                <input 
-                  type="text" 
-                  value={formData.empresa.responsableSeguridad}
-                  onChange={e => handleChange('empresa', 'responsableSeguridad', e.target.value)}
-                  className="input-professional"
-                  placeholder="Nombre y apellido"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Matrícula del Responsable</label>
-                <input 
-                  type="text" 
-                  value={formData.empresa.matriculaResponsable}
-                  onChange={e => handleChange('empresa', 'matriculaResponsable', e.target.value)}
-                  className="input-professional"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Representante Legal</label>
-                <input 
-                  type="text" 
-                  value={formData.empresa.representanteLegal}
-                  onChange={e => handleChange('empresa', 'representanteLegal', e.target.value)}
-                  className="input-professional"
-                />
+                <input type="number" value={formData.empresa.superficie} onChange={(e) => handleChange('empresa', 'superficie', e.target.value)} className="input-professional" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Horarios de Trabajo</label>
-                <input 
-                  type="text" 
-                  value={formData.empresa.horariosTrabajo}
-                  onChange={e => handleChange('empresa', 'horariosTrabajo', e.target.value)}
-                  className="input-professional"
-                  placeholder="Ej: Lunes a Viernes 8 a 17hs"
-                />
+                <input type="text" value={formData.empresa.horariosTrabajo} onChange={(e) => handleChange('empresa', 'horariosTrabajo', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Fecha Inicio de Actividad</label>
-                <input 
-                  type="date" 
-                  value={formData.empresa.fechaInicioActividad}
-                  onChange={e => handleChange('empresa', 'fechaInicioActividad', e.target.value)}
-                  className="input-professional"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ═══ RIESGOS TAB ═══ */}
-        {activeTab === 'riesgos' && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
-              <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #dc2626, #991b1b)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(220,38,38,0.3)' }}>
-                  <AlertTriangle size={22} color="#fff" />
-              </div>
-              <div>
-                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>Identificación de Riesgos</h2>
-                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Análisis de peligros presentes</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Riesgos Físicos presentes</label>
-                <textarea 
-                  rows={3}
-                  value={formData.riesgos.fisicos}
-                  onChange={e => handleChange('riesgos', 'fisicos', e.target.value)}
-                  className="input-professional"
-                  placeholder="Ej: Ruido continuo en sector producción, carga térmica en hornos..."
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Riesgos Químicos / Riesgo Ambiental</label>
-                <textarea 
-                  rows={3}
-                  value={formData.riesgos.quimicos}
-                  onChange={e => handleChange('riesgos', 'quimicos', e.target.value)}
-                  className="input-professional"
-                  placeholder="Sustancias utilizadas, vapores, material particulado..."
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Riesgos Biológicos</label>
-                <textarea 
-                  rows={3}
-                  value={formData.riesgos.biologicos}
-                  onChange={e => handleChange('riesgos', 'biologicos', e.target.value)}
-                  className="input-professional"
-                  placeholder="Contacto con agentes biológicos, residuos patogénicos..."
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Riesgos Ergonómicos</label>
-                <textarea 
-                  rows={3}
-                  value={formData.riesgos.ergonomicos}
-                  onChange={e => handleChange('riesgos', 'ergonomicos', e.target.value)}
-                  className="input-professional"
-                  placeholder="Posturas forzadas, movimientos repetitivos, levantamiento manual de cargas..."
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Riesgos Eléctricos</label>
-                <textarea 
-                  rows={3}
-                  value={formData.riesgos.electricos}
-                  onChange={e => handleChange('riesgos', 'electricos', e.target.value)}
-                  className="input-professional"
-                  placeholder="Contacto directo/indirecto, tableros sin protección..."
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Trabajo en Altura</label>
-                <textarea 
-                  rows={3}
-                  value={formData.riesgos.trabajoAltura}
-                  onChange={e => handleChange('riesgos', 'trabajoAltura', e.target.value)}
-                  className="input-professional"
-                  placeholder="Escaleras, andamios, techos, niveles superiores..."
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Medidas Preventivas Generales Adoptadas</label>
-                <textarea 
-                  rows={4}
-                  value={formData.riesgos.medidasPreventivas}
-                  onChange={e => handleChange('riesgos', 'medidasPreventivas', e.target.value)}
-                  className="input-professional"
-                  placeholder="Ej: Sistema de extracción localizada instalada. Guardas de seguridad mecánicas..."
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Nivel de Riesgo General</label>
-                <select
-                  value={formData.riesgos.nivelRiesgo}
-                  onChange={e => handleChange('riesgos', 'nivelRiesgo', e.target.value)}
-                  className="input-professional"
-                >
+                <label className="block text-sm font-medium text-slate-700 mb-1">Modalidad de Turno</label>
+                <select value={formData.empresa.modalidadTurno} onChange={(e) => handleChange('empresa', 'modalidadTurno', e.target.value)} className="input-professional">
                   <option value="">Seleccione...</option>
-                  <option value="Bajo">Bajo</option>
-                  <option value="Medio">Medio</option>
-                  <option value="Alto">Alto</option>
-                  <option value="Crítico">Crítico</option>
+                  <option value="Diurno">Diurno</option>
+                  <option value="Nocturno">Nocturno</option>
+                  <option value="Rotativo">Rotativo</option>
+                  <option value="Fraccionado">Fraccionado</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Observaciones</label>
-                <textarea 
-                  rows={4}
-                  value={formData.riesgos.observaciones}
-                  onChange={e => handleChange('riesgos', 'observaciones', e.target.value)}
-                  className="input-professional"
-                  placeholder="Observaciones adicionales sobre los riesgos identificados..."
-                />
+                <label className="block text-sm font-medium text-slate-700 mb-1">Fecha Inicio de Actividad</label>
+                <input type="date" value={formData.empresa.fechaInicioActividad} onChange={(e) => handleChange('empresa', 'fechaInicioActividad', e.target.value)} className="input-professional" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Representante Legal</label>
+                <input type="text" value={formData.empresa.representanteLegal} onChange={(e) => handleChange('empresa', 'representanteLegal', e.target.value)} className="input-professional" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Responsable de Seguridad</label>
+                <input type="text" value={formData.empresa.responsableSeguridad} onChange={(e) => handleChange('empresa', 'responsableSeguridad', e.target.value)} className="input-professional" />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-slate-700 mb-1">Matrícula del Responsable</label>
+                <input type="text" value={formData.empresa.matriculaResponsable} onChange={(e) => handleChange('empresa', 'matriculaResponsable', e.target.value)} className="input-professional" />
               </div>
             </div>
+          </div>
+          }
+
+        
+        {/* ═══ RIESGOS TAB ═══ */}
+        {activeTab === 'riesgos' &&
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <div className="flex items-center gap-4 mb-8 pb-4 border-b border-slate-200 dark:border-slate-700">
+              <div className="w-11 h-11 bg-gradient-to-br from-red-600 to-red-800 rounded-xl flex items-center justify-center shadow-[0_4px_15px_rgba(220,38,38,0.3)]">
+                  <AlertTriangle size={22} color="#fff" />
+              </div>
+              <div>
+                  <h2 className="m-0 text-xl font-extrabold text-slate-800 dark:text-slate-100">Matriz de Riesgos</h2>
+                  <p className="m-0 text-sm text-slate-500 dark:text-slate-400">Identificación, evaluación y control</p>
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              {/* Dynamic Risk Matrix */}
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-bold text-slate-700 dark:text-slate-200">Riesgos Identificados</h3>
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      const newMatriz = [...(formData.riesgos.matriz || []), { id: Date.now().toString(), tipo: '', descripcion: '', probabilidad: '', consecuencia: '', nivel: '', expuestos: '', puesto: '', medida: '', plazo: '' }];
+                      handleChange('riesgos', 'matriz', newMatriz);
+                    }}
+                    className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition-colors"
+                  >
+                    + Agregar Riesgo
+                  </button>
+                </div>
+                
+                {(formData.riesgos.matriz || []).map((riesgo: any, index: number) => {
+                  const calcNivel = (p: string, c: string) => {
+                    if(!p || !c) return '';
+                    const pVal = p === 'Alta' ? 3 : p === 'Media' ? 2 : 1;
+                    const cVal = c === 'Fatal' ? 4 : c === 'Grave' ? 3 : c === 'Moderada' ? 2 : 1;
+                    const res = pVal * cVal;
+                    if(res >= 9) return 'Crítico';
+                    if(res >= 6) return 'Alto';
+                    if(res >= 3) return 'Medio';
+                    return 'Bajo';
+                  };
+                  
+                  const updateRiesgo = (field: string, val: any) => {
+                    const newMatriz = [...formData.riesgos.matriz];
+                    newMatriz[index] = { ...newMatriz[index], [field]: val };
+                    if(field === 'probabilidad' || field === 'consecuencia') {
+                      newMatriz[index].nivel = calcNivel(newMatriz[index].probabilidad, newMatriz[index].consecuencia);
+                    }
+                    handleChange('riesgos', 'matriz', newMatriz);
+                  };
+
+                  return (
+                    <div key={riesgo.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mb-4 shadow-sm relative">
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          const newMatriz = formData.riesgos.matriz.filter((_: any, i: number) => i !== index);
+                          handleChange('riesgos', 'matriz', newMatriz);
+                        }}
+                        className="absolute top-3 right-3 text-red-500 hover:text-red-700 p-1"
+                      >
+                        <X size={18} />
+                      </button>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Tipo</label>
+                          <select value={riesgo.tipo} onChange={e => updateRiesgo('tipo', e.target.value)} className="input-professional py-2">
+                            <option value="">Seleccionar...</option>
+                            <option value="Físico">Físico</option>
+                            <option value="Químico">Químico</option>
+                            <option value="Biológico">Biológico</option>
+                            <option value="Ergonómico">Ergonómico</option>
+                            <option value="Eléctrico">Eléctrico</option>
+                            <option value="Mecánico">Mecánico</option>
+                            <option value="Incendio">Incendio</option>
+                            <option value="Psicosocial">Psicosocial</option>
+                            <option value="Altura">Trabajo en Altura</option>
+                            <option value="Confinados">Espacios Confinados</option>
+                          </select>
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Descripción del Peligro</label>
+                          <input type="text" value={riesgo.descripcion} onChange={e => updateRiesgo('descripcion', e.target.value)} className="input-professional py-2" placeholder="Ej: Contacto con partes móviles de la máquina..." />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Puesto / Sector</label>
+                          <input type="text" value={riesgo.puesto} onChange={e => updateRiesgo('puesto', e.target.value)} className="input-professional py-2" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Expuestos</label>
+                          <input type="number" value={riesgo.expuestos} onChange={e => updateRiesgo('expuestos', e.target.value)} className="input-professional py-2" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Probabilidad</label>
+                          <select value={riesgo.probabilidad} onChange={e => updateRiesgo('probabilidad', e.target.value)} className="input-professional py-2">
+                            <option value="">...</option>
+                            <option value="Baja">Baja (1)</option>
+                            <option value="Media">Media (2)</option>
+                            <option value="Alta">Alta (3)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Consecuencia</label>
+                          <select value={riesgo.consecuencia} onChange={e => updateRiesgo('consecuencia', e.target.value)} className="input-professional py-2">
+                            <option value="">...</option>
+                            <option value="Leve">Leve (1)</option>
+                            <option value="Moderada">Moderada (2)</option>
+                            <option value="Grave">Grave (3)</option>
+                            <option value="Fatal">Fatal (4)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Medida de Control Propuesta</label>
+                          <input type="text" value={riesgo.medida} onChange={e => updateRiesgo('medida', e.target.value)} className="input-professional py-2" placeholder="Ej: Colocación de resguardos físicos" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Plazo Corrección</label>
+                          <input type="date" value={riesgo.plazo} onChange={e => updateRiesgo('plazo', e.target.value)} className="input-professional py-2" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Nivel Riesgo</label>
+                          <div className={`w-full text-center font-bold py-2 px-3 rounded-lg border ${riesgo.nivel === 'Crítico' ? 'bg-red-100 text-red-800 border-red-300' : riesgo.nivel === 'Alto' ? 'bg-orange-100 text-orange-800 border-orange-300' : riesgo.nivel === 'Medio' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' : riesgo.nivel === 'Bajo' ? 'bg-green-100 text-green-800 border-green-300' : 'bg-slate-100 text-slate-500 border-slate-300'}`}>
+                            {riesgo.nivel || '-'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+                {(!formData.riesgos.matriz || formData.riesgos.matriz.length === 0) && (
+                  <p className="text-center text-sm text-slate-500 py-4">No hay riesgos cargados en la matriz. Agregue uno para comenzar.</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Medidas Preventivas Generales (Histórico)</label>
+                <textarea rows={3} value={formData.riesgos.medidasPreventivas} onChange={(e) => handleChange('riesgos', 'medidasPreventivas', e.target.value)} className="input-professional" placeholder="Medidas a nivel planta..." />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Nivel de Riesgo General</label>
+                  <select value={formData.riesgos.nivelRiesgo} onChange={(e) => handleChange('riesgos', 'nivelRiesgo', e.target.value)} className="input-professional">
+                    <option value="">Seleccione...</option>
+                    <option value="Bajo">Bajo</option>
+                    <option value="Medio">Medio</option>
+                    <option value="Alto">Alto</option>
+                    <option value="Crítico">Crítico</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Observaciones</label>
+                <textarea rows={3} value={formData.riesgos.observaciones} onChange={(e) => handleChange('riesgos', 'observaciones', e.target.value)} className="input-professional" />
+              </div>
+            </div>
+            
             <AdjuntosSection
               adjuntos={formData.riesgos.adjuntos || []}
               onAdd={(b64) => addAdjunto('riesgos', b64)}
               onRemove={(i) => removeAdjunto('riesgos', i)}
-              accentColor="#dc2626"
-            />
+              accentColor="#dc2626" />
           </div>
-        )}
+          }
 
         {/* ═══ INCENDIO TAB ═══ */}
-        {activeTab === 'incendio' && (
+        {activeTab === 'incendio' &&
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
-              <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #ea580c, #c2410c)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(234,88,12,0.3)' }}>
+            <div className="flex items-center gap-4 mb-8 pb-4 border-b border-slate-200 dark:border-slate-700">
+              <div className="w-11 h-11 bg-gradient-to-br from-orange-600 to-orange-700 rounded-xl flex items-center justify-center shadow-[0_4px_15px_rgba(234,88,12,0.3)]">
                   <Flame size={22} color="#fff" />
               </div>
               <div>
-                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>Protección Contra Incendios</h2>
-                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Estudio de carga de fuego y sistemas</p>
+                  <h2 className="m-0 text-xl font-extrabold text-slate-800 dark:text-slate-100">Protección Contra Incendios</h2>
+                  <p className="m-0 text-sm text-slate-500 dark:text-slate-400">Estudio de carga de fuego y sistemas</p>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Carga de Fuego Calculada (Mcal/m²)</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={formData.incendio.cargaFuego}
-                  onChange={e => handleChange('incendio', 'cargaFuego', e.target.value)}
-                  className="input-professional"
-                />
+                  onChange={(e) => handleChange('incendio', 'cargaFuego', e.target.value)}
+                  className="input-professional" />
+                
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Riesgo de Incendio (R1 a R7)</label>
-                <select 
+                <select
                   value={formData.incendio.riesgoIncendio}
-                  onChange={e => handleChange('incendio', 'riesgoIncendio', e.target.value)}
-                  className="input-professional"
-                >
+                  onChange={(e) => handleChange('incendio', 'riesgoIncendio', e.target.value)}
+                  className="input-professional">
+                  
                   <option value="">Seleccione...</option>
                   <option value="R1">Riesgo 1 (Explosivo)</option>
                   <option value="R2">Riesgo 2 (Inflamable)</option>
@@ -813,55 +767,55 @@ export default function LegajoForm() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Cantidad Total de Extintores</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   value={formData.incendio.cantidadExtintores}
-                  onChange={e => handleChange('incendio', 'cantidadExtintores', e.target.value)}
-                  className="input-professional"
-                />
+                  onChange={(e) => handleChange('incendio', 'cantidadExtintores', e.target.value)}
+                  className="input-professional" />
+                
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de Extintores</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={formData.incendio.tipoExtintores}
-                  onChange={e => handleChange('incendio', 'tipoExtintores', e.target.value)}
+                  onChange={(e) => handleChange('incendio', 'tipoExtintores', e.target.value)}
                   className="input-professional"
-                  placeholder="Ej: ABC, CO2, Agua"
-                />
+                  placeholder="Ej: ABC, CO2, Agua" />
+                
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Fecha Último Simulacro</label>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   value={formData.incendio.fechaSimulacro}
-                  onChange={e => handleChange('incendio', 'fechaSimulacro', e.target.value)}
-                  className="input-professional"
-                />
+                  onChange={(e) => handleChange('incendio', 'fechaSimulacro', e.target.value)}
+                  className="input-professional" />
+                
               </div>
             </div>
 
-            <div style={{ marginTop: '1rem' }}>
+            <div className="mt-4">
               <p className="block text-sm font-medium text-slate-700 mb-3">Sistemas de Protección</p>
               <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.incendio.planEvacuacion} onChange={e => handleChange('incendio', 'planEvacuacion', e.target.checked)} className="w-4 h-4 text-blue-600" />
+                  <input type="checkbox" checked={formData.incendio.planEvacuacion} onChange={(e) => handleChange('incendio', 'planEvacuacion', e.target.checked)} className="w-4 h-4 text-blue-600" />
                   <span className="text-sm">Plan de Evacuación</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.incendio.sistemaDeteccion} onChange={e => handleChange('incendio', 'sistemaDeteccion', e.target.checked)} className="w-4 h-4 text-blue-600" />
+                  <input type="checkbox" checked={formData.incendio.sistemaDeteccion} onChange={(e) => handleChange('incendio', 'sistemaDeteccion', e.target.checked)} className="w-4 h-4 text-blue-600" />
                   <span className="text-sm">Sistema de Detección</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.incendio.redHidrantes} onChange={e => handleChange('incendio', 'redHidrantes', e.target.checked)} className="w-4 h-4 text-blue-600" />
+                  <input type="checkbox" checked={formData.incendio.redHidrantes} onChange={(e) => handleChange('incendio', 'redHidrantes', e.target.checked)} className="w-4 h-4 text-blue-600" />
                   <span className="text-sm">Red de Hidrantes</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.incendio.brigadaEmergencia} onChange={e => handleChange('incendio', 'brigadaEmergencia', e.target.checked)} className="w-4 h-4 text-blue-600" />
+                  <input type="checkbox" checked={formData.incendio.brigadaEmergencia} onChange={(e) => handleChange('incendio', 'brigadaEmergencia', e.target.checked)} className="w-4 h-4 text-blue-600" />
                   <span className="text-sm">Brigada de Emergencia</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.incendio.planoEvacuacion} onChange={e => handleChange('incendio', 'planoEvacuacion', e.target.checked)} className="w-4 h-4 text-blue-600" />
+                  <input type="checkbox" checked={formData.incendio.planoEvacuacion} onChange={(e) => handleChange('incendio', 'planoEvacuacion', e.target.checked)} className="w-4 h-4 text-blue-600" />
                   <span className="text-sm">Plano de Evacuación</span>
                 </label>
               </div>
@@ -870,21 +824,21 @@ export default function LegajoForm() {
               adjuntos={formData.incendio.adjuntos || []}
               onAdd={(b64) => addAdjunto('incendio', b64)}
               onRemove={(i) => removeAdjunto('incendio', i)}
-              accentColor="#ea580c"
-            />
+              accentColor="#ea580c" />
+            
           </div>
-        )}
+          }
 
         {/* ═══ EPP TAB ═══ */}
-        {activeTab === 'epp' && (
+        {activeTab === 'epp' &&
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
-              <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #16a34a, #15803d)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(22,163,74,0.3)' }}>
+            <div className="flex items-center gap-4 mb-8 pb-4 border-b border-slate-200 dark:border-slate-700">
+              <div className="w-11 h-11 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl flex items-center justify-center shadow-[0_4px_15px_rgba(22,163,74,0.3)]">
                   <ShieldCheck size={22} color="#fff" />
               </div>
               <div>
-                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>EPP y Capacitaciones</h2>
-                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Entrega de elementos e instrucción</p>
+                  <h2 className="m-0 text-xl font-extrabold text-slate-800 dark:text-slate-100">EPP y Capacitaciones</h2>
+                  <p className="m-0 text-sm text-slate-500 dark:text-slate-400">Entrega de elementos e instrucción</p>
               </div>
             </div>
             
@@ -892,43 +846,43 @@ export default function LegajoForm() {
               <p className="block text-sm font-medium text-slate-700 mb-3">Elementos de Protección Personal (Res 299/11)</p>
               <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.ropaTrabajo} onChange={e => handleChange('epp', 'ropaTrabajo', e.target.checked)} className="w-4 h-4 text-blue-600" />
+                  <input type="checkbox" checked={formData.epp.ropaTrabajo} onChange={(e) => handleChange('epp', 'ropaTrabajo', e.target.checked)} className="w-4 h-4 text-blue-600" />
                   <span className="text-sm">Ropa de Trabajo</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.calzadoSeguridad} onChange={e => handleChange('epp', 'calzadoSeguridad', e.target.checked)} className="w-4 h-4 text-blue-600" />
+                  <input type="checkbox" checked={formData.epp.calzadoSeguridad} onChange={(e) => handleChange('epp', 'calzadoSeguridad', e.target.checked)} className="w-4 h-4 text-blue-600" />
                   <span className="text-sm">Calzado de Seguridad</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.proteccionOcular} onChange={e => handleChange('epp', 'proteccionOcular', e.target.checked)} className="w-4 h-4 text-blue-600" />
+                  <input type="checkbox" checked={formData.epp.proteccionOcular} onChange={(e) => handleChange('epp', 'proteccionOcular', e.target.checked)} className="w-4 h-4 text-blue-600" />
                   <span className="text-sm">Protección Ocular</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.proteccionAuditiva} onChange={e => handleChange('epp', 'proteccionAuditiva', e.target.checked)} className="w-4 h-4 text-blue-600" />
+                  <input type="checkbox" checked={formData.epp.proteccionAuditiva} onChange={(e) => handleChange('epp', 'proteccionAuditiva', e.target.checked)} className="w-4 h-4 text-blue-600" />
                   <span className="text-sm">Protección Auditiva</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.proteccionRespiratoria} onChange={e => handleChange('epp', 'proteccionRespiratoria', e.target.checked)} className="w-4 h-4 text-blue-600" />
+                  <input type="checkbox" checked={formData.epp.proteccionRespiratoria} onChange={(e) => handleChange('epp', 'proteccionRespiratoria', e.target.checked)} className="w-4 h-4 text-blue-600" />
                   <span className="text-sm">Protección Respiratoria</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.cascoSeguridad} onChange={e => handleChange('epp', 'cascoSeguridad', e.target.checked)} className="w-4 h-4 text-blue-600" />
+                  <input type="checkbox" checked={formData.epp.cascoSeguridad} onChange={(e) => handleChange('epp', 'cascoSeguridad', e.target.checked)} className="w-4 h-4 text-blue-600" />
                   <span className="text-sm">Casco de Seguridad</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.guantesSeguridad} onChange={e => handleChange('epp', 'guantesSeguridad', e.target.checked)} className="w-4 h-4 text-blue-600" />
+                  <input type="checkbox" checked={formData.epp.guantesSeguridad} onChange={(e) => handleChange('epp', 'guantesSeguridad', e.target.checked)} className="w-4 h-4 text-blue-600" />
                   <span className="text-sm">Guantes de Seguridad</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.arnesSeguridad} onChange={e => handleChange('epp', 'arnesSeguridad', e.target.checked)} className="w-4 h-4 text-blue-600" />
+                  <input type="checkbox" checked={formData.epp.arnesSeguridad} onChange={(e) => handleChange('epp', 'arnesSeguridad', e.target.checked)} className="w-4 h-4 text-blue-600" />
                   <span className="text-sm">Arnés de Seguridad</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.proteccionFacial} onChange={e => handleChange('epp', 'proteccionFacial', e.target.checked)} className="w-4 h-4 text-blue-600" />
+                  <input type="checkbox" checked={formData.epp.proteccionFacial} onChange={(e) => handleChange('epp', 'proteccionFacial', e.target.checked)} className="w-4 h-4 text-blue-600" />
                   <span className="text-sm">Protección Facial</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.chalecoReflectivo} onChange={e => handleChange('epp', 'chalecoReflectivo', e.target.checked)} className="w-4 h-4 text-blue-600" />
+                  <input type="checkbox" checked={formData.epp.chalecoReflectivo} onChange={(e) => handleChange('epp', 'chalecoReflectivo', e.target.checked)} className="w-4 h-4 text-blue-600" />
                   <span className="text-sm">Chaleco Reflectivo</span>
                 </label>
               </div>
@@ -936,137 +890,137 @@ export default function LegajoForm() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                <div className="flex justify-between items-center mb-1">
                     <label className="block text-sm font-medium text-slate-700">Capacitación Realizada (Temas)</label>
                     <button
-                        type="button"
-                        onClick={() => {
-                            const history = JSON.parse(localStorage.getItem('training_history') || '[]');
-                            const match = history.filter((h: any) => h.empresa?.toLowerCase().trim() === formData.empresa.razonSocial?.toLowerCase().trim());
-                            if (match.length > 0) {
-                                const temas = match.map((h: any) => h.tema).join(' | ');
-                                handleChange('epp', 'capacitacionRealizada', temas);
-                                alert(`Sincronizado: ${match.length} capacitaciones encontradas.`);
-                            } else {
-                                alert("No se encontraron capacitaciones para esta empresa.");
-                            }
-                        }}
-                        style={{ fontSize: '0.75rem', color: '#2563eb', background: 'transparent', border: 'none', cursor: 'pointer', fontWeight: 600 }}
-                    >
+                    type="button"
+                    onClick={() => {
+                      const history = JSON.parse(localStorage.getItem('training_history') || '[]');
+                      const match = history.filter((h: any) => h.empresa?.toLowerCase().trim() === formData.empresa.razonSocial?.toLowerCase().trim());
+                      if (match.length > 0) {
+                        const temas = match.map((h: any) => h.tema).join(' | ');
+                        handleChange('epp', 'capacitacionRealizada', temas);
+                        alert(`Sincronizado: ${match.length} capacitaciones encontradas.`);
+                      } else {
+                        alert("No se encontraron capacitaciones para esta empresa.");
+                      }
+                    }}
+                    className="text-xs text-blue-600 dark:text-blue-400 bg-transparent border-none cursor-pointer font-semibold hover:underline">
+                    
                         Sincronizar Módulo Capacitaciones
                     </button>
                 </div>
-                <textarea 
+                <textarea
                   rows={2}
                   value={formData.epp.capacitacionRealizada}
-                  onChange={e => handleChange('epp', 'capacitacionRealizada', e.target.value)}
+                  onChange={(e) => handleChange('epp', 'capacitacionRealizada', e.target.value)}
                   className="input-professional"
-                  placeholder="Uso de extintores - 15/05/2024"
-                />
+                  placeholder="Uso de extintores - 15/05/2024" />
+                
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Próxima Capacitación Programada</label>
-                <textarea 
+                <textarea
                   rows={2}
                   value={formData.epp.proximaCapacitacion}
-                  onChange={e => handleChange('epp', 'proximaCapacitacion', e.target.value)}
+                  onChange={(e) => handleChange('epp', 'proximaCapacitacion', e.target.value)}
                   className="input-professional"
-                  placeholder="Riesgo Eléctrico - Octubre 2024"
-                />
+                  placeholder="Riesgo Eléctrico - Octubre 2024" />
+                
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-slate-700 mb-1">Plan Anual de Capacitación</label>
-                <textarea 
+                <textarea
                   rows={4}
                   value={formData.epp.planAnualCapacitacion}
-                  onChange={e => handleChange('epp', 'planAnualCapacitacion', e.target.value)}
+                  onChange={(e) => handleChange('epp', 'planAnualCapacitacion', e.target.value)}
                   className="input-professional"
-                  placeholder="Detalle del plan anual de capacitación en seguridad e higiene..."
-                />
+                  placeholder="Detalle del plan anual de capacitación en seguridad e higiene..." />
+                
               </div>
             </div>
             <AdjuntosSection
               adjuntos={formData.epp.adjuntos || []}
               onAdd={(b64) => addAdjunto('epp', b64)}
               onRemove={(i) => removeAdjunto('epp', i)}
-              accentColor="#16a34a"
-            />
+              accentColor="#16a34a" />
+            
           </div>
-        )}
+          }
 
 
         {/* ═══ FIRMAS TAB ═══ */}
-        {activeTab === 'firmas' && (
+        {activeTab === 'firmas' &&
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
-              <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(124,58,237,0.3)' }}>
+            <div className="flex items-center gap-4 mb-8 pb-4 border-b border-slate-200 dark:border-slate-700">
+              <div className="w-11 h-11 bg-gradient-to-br from-violet-600 to-violet-700 rounded-xl flex items-center justify-center shadow-[0_4px_15px_rgba(124,58,237,0.3)]">
                   <PenTool size={22} color="#fff" />
               </div>
               <div>
-                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>Firmas del Documento</h2>
-                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Certificación del legajo técnico</p>
+                  <h2 className="m-0 text-xl font-extrabold text-slate-800 dark:text-slate-100">Firmas del Documento</h2>
+                  <p className="m-0 text-sm text-slate-500 dark:text-slate-400">Certificación del legajo técnico</p>
               </div>
             </div>
             
-            <div style={{ marginBottom: '2.5rem' }}>
+            <div className="mb-10">
               <PdfSignatures
-                  data={{
-                      ...formData,
-                      professionalSignature: formData.firmas.profesional,
-                      professionalName: currentUser?.displayName || 'Profesional H&S',
-                      companyName: formData.empresa.razonSocial || 'Empresa'
-                  }}
-                  box1={{
-                      title: 'REPRESENTANTE EMPRESA',
-                      subtitle: (formData.empresa.razonSocial || 'Firma Representante').toUpperCase(),
-                      signatureUrl: formData.firmas.representante || null,
-                      isProfessional: false
-                  }}
-                  box2={{
-                      title: 'PROFESIONAL H&S',
-                      subtitle: (currentUser?.displayName || 'Especialista H&S').toUpperCase(),
-                      signatureUrl: formData.firmas.profesional || null,
-                      stampUrl: null,
-                      isProfessional: true,
-                      license: 'Matrícula en trámite'
-                  }}
-                  box3={null}
-              />
+                data={{
+                  ...formData,
+                  professionalSignature: formData.firmas.profesional,
+                  professionalName: currentUser?.displayName || 'Profesional H&S',
+                  companyName: formData.empresa.razonSocial || 'Empresa'
+                }}
+                box1={{
+                  title: 'REPRESENTANTE EMPRESA',
+                  subtitle: (formData.empresa.razonSocial || 'Firma Representante').toUpperCase(),
+                  signatureUrl: formData.firmas.representante || null,
+                  isProfessional: false
+                }}
+                box2={{
+                  title: 'PROFESIONAL H&S',
+                  subtitle: (currentUser?.displayName || 'Especialista H&S').toUpperCase(),
+                  signatureUrl: formData.firmas.profesional || null,
+                  stampUrl: null,
+                  isProfessional: true,
+                  license: 'Matrícula en trámite'
+                }}
+                box3={null} />
+              
             <PdfBrandingFooter />
             </div>
 
-            <div className="no-print animate-fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
-                    <div className="card" style={{ padding: '1rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)' }}>
-                        <SignatureCanvas 
-                            onSave={(sig) => handleChange('firmas', 'representante', sig)}
-                            initialImage={formData.firmas.representante}
-                            label="Firma Representante Empresa"
-                        />
+            <div className="no-print animate-fade-in grid grid-cols-1 gap-8 mt-8 pt-8 border-t border-slate-200 dark:border-slate-700">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="card p-[1rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)]">
+                        <SignatureCanvas
+                    onSave={(sig) => handleChange('firmas', 'representante', sig)}
+                    initialImage={formData.firmas.representante}
+                    label="Firma Representante Empresa" />
+                  
                     </div>
                     
-                    <div className="card" style={{ padding: '1rem', background: 'rgba(var(--color-surface-rgb), 0.3)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-xl)' }}>
-                        <SignatureCanvas 
-                            onSave={(sig) => handleChange('firmas', 'profesional', sig)}
-                            initialImage={formData.firmas.profesional}
-                            label="Firma Profesional H&S"
-                        />
+                    <div className="card p-[1rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)]">
+                        <SignatureCanvas
+                    onSave={(sig) => handleChange('firmas', 'profesional', sig)}
+                    initialImage={formData.firmas.profesional}
+                    label="Firma Profesional H&S" />
+                  
                     </div>
                 </div>
             </div>
           </div>
-        )}
+          }
 
         {/* ═══ AMBIENTE TAB ═══ */}
-        {activeTab === 'ambiente' && (
+        {activeTab === 'ambiente' &&
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
-              <div style={{ width: 44, height: 44, background: 'linear-gradient(135deg, #0d9488, #0f766e)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(13,148,136,0.3)' }}>
+            <div className="flex items-center gap-4 mb-8 pb-4 border-b border-slate-200 dark:border-slate-700">
+              <div className="w-11 h-11 bg-gradient-to-br from-teal-600 to-teal-700 rounded-xl flex items-center justify-center shadow-[0_4px_15px_rgba(13,148,136,0.3)]">
                   <Wind size={22} color="#fff" />
               </div>
               <div>
-                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)' }}>Estudios de Medio Ambiente</h2>
-                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Resolución 905/15</p>
+                  <h2 className="m-0 text-xl font-extrabold text-slate-800 dark:text-slate-100">Estudios de Medio Ambiente</h2>
+                  <p className="m-0 text-sm text-slate-500 dark:text-slate-400">Resolución 905/15</p>
               </div>
             </div>
             
@@ -1077,11 +1031,11 @@ export default function LegajoForm() {
                   <label className="block text-sm font-bold text-slate-700 mb-1">Medición de Iluminación (Res 84/12)</label>
                   <div className="flex items-center gap-2 mt-2">
                     <span className="text-sm">¿Apto s/Ley?</span>
-                    <select 
+                    <select
                       value={formData.ambiente.iluminacionApto ? "si" : "no"}
-                      onChange={e => handleChange('ambiente', 'iluminacionApto', e.target.value === 'si')}
-                      className="p-1 text-sm border border-slate-300 rounded"
-                    >
+                      onChange={(e) => handleChange('ambiente', 'iluminacionApto', e.target.value === 'si')}
+                      className="p-1 text-sm border border-slate-300 rounded">
+                      
                       <option value="si">SÍ, CUMPLE</option>
                       <option value="no">NO CUMPLE</option>
                     </select>
@@ -1089,12 +1043,12 @@ export default function LegajoForm() {
                 </div>
                 <div>
                   <label className="block text-sm text-slate-500 mb-1">Fecha de Medición</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     value={formData.ambiente.iluminacionFecha}
-                    onChange={e => handleChange('ambiente', 'iluminacionFecha', e.target.value)}
-                    className="p-2 border border-slate-300 rounded-lg"
-                  />
+                    onChange={(e) => handleChange('ambiente', 'iluminacionFecha', e.target.value)}
+                    className="p-2 border border-slate-300 rounded-lg" />
+                  
                 </div>
               </div>
 
@@ -1104,11 +1058,11 @@ export default function LegajoForm() {
                   <label className="block text-sm font-bold text-slate-700 mb-1">Medición de Ruido (Res 85/12)</label>
                   <div className="flex items-center gap-2 mt-2">
                     <span className="text-sm">¿Apto s/Ley?</span>
-                    <select 
+                    <select
                       value={formData.ambiente.ruidoApto ? "si" : "no"}
-                      onChange={e => handleChange('ambiente', 'ruidoApto', e.target.value === 'si')}
-                      className="p-1 text-sm border border-slate-300 rounded"
-                    >
+                      onChange={(e) => handleChange('ambiente', 'ruidoApto', e.target.value === 'si')}
+                      className="p-1 text-sm border border-slate-300 rounded">
+                      
                       <option value="si">SÍ, CUMPLE</option>
                       <option value="no">NO CUMPLE</option>
                     </select>
@@ -1116,12 +1070,12 @@ export default function LegajoForm() {
                 </div>
                 <div>
                   <label className="block text-sm text-slate-500 mb-1">Fecha de Medición</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     value={formData.ambiente.ruidoFecha}
-                    onChange={e => handleChange('ambiente', 'ruidoFecha', e.target.value)}
-                    className="p-2 border border-slate-300 rounded-lg"
-                  />
+                    onChange={(e) => handleChange('ambiente', 'ruidoFecha', e.target.value)}
+                    className="p-2 border border-slate-300 rounded-lg" />
+                  
                 </div>
               </div>
 
@@ -1131,11 +1085,11 @@ export default function LegajoForm() {
                   <label className="block text-sm font-bold text-slate-700 mb-1">Puesta a Tierra (Res 900/15)</label>
                   <div className="flex items-center gap-2 mt-2">
                     <span className="text-sm">¿Apto s/Ley?</span>
-                    <select 
+                    <select
                       value={formData.ambiente.puestaTierraApto ? "si" : "no"}
-                      onChange={e => handleChange('ambiente', 'puestaTierraApto', e.target.value === 'si')}
-                      className="p-1 text-sm border border-slate-300 rounded"
-                    >
+                      onChange={(e) => handleChange('ambiente', 'puestaTierraApto', e.target.value === 'si')}
+                      className="p-1 text-sm border border-slate-300 rounded">
+                      
                       <option value="si">SÍ, CUMPLE</option>
                       <option value="no">NO CUMPLE</option>
                     </select>
@@ -1143,12 +1097,12 @@ export default function LegajoForm() {
                 </div>
                 <div>
                   <label className="block text-sm text-slate-500 mb-1">Fecha de Medición</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     value={formData.ambiente.puestaTierraFecha}
-                    onChange={e => handleChange('ambiente', 'puestaTierraFecha', e.target.value)}
-                    className="p-2 border border-slate-300 rounded-lg"
-                  />
+                    onChange={(e) => handleChange('ambiente', 'puestaTierraFecha', e.target.value)}
+                    className="p-2 border border-slate-300 rounded-lg" />
+                  
                 </div>
               </div>
 
@@ -1158,11 +1112,11 @@ export default function LegajoForm() {
                   <label className="block text-sm font-bold text-slate-700 mb-1">Estrés Térmico (Res 295/03)</label>
                   <div className="flex items-center gap-2 mt-2">
                     <span className="text-sm">¿Apto s/Ley?</span>
-                    <select 
+                    <select
                       value={formData.ambiente.estresTermicoApto ? "si" : "no"}
-                      onChange={e => handleChange('ambiente', 'estresTermicoApto', e.target.value === 'si')}
-                      className="p-1 text-sm border border-slate-300 rounded"
-                    >
+                      onChange={(e) => handleChange('ambiente', 'estresTermicoApto', e.target.value === 'si')}
+                      className="p-1 text-sm border border-slate-300 rounded">
+                      
                       <option value="si">SÍ, CUMPLE</option>
                       <option value="no">NO CUMPLE</option>
                     </select>
@@ -1170,12 +1124,12 @@ export default function LegajoForm() {
                 </div>
                 <div>
                   <label className="block text-sm text-slate-500 mb-1">Fecha de Medición</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     value={formData.ambiente.estresTermicoFecha}
-                    onChange={e => handleChange('ambiente', 'estresTermicoFecha', e.target.value)}
-                    className="p-2 border border-slate-300 rounded-lg"
-                  />
+                    onChange={(e) => handleChange('ambiente', 'estresTermicoFecha', e.target.value)}
+                    className="p-2 border border-slate-300 rounded-lg" />
+                  
                 </div>
               </div>
 
@@ -1185,11 +1139,11 @@ export default function LegajoForm() {
                   <label className="block text-sm font-bold text-slate-700 mb-1">Ventilación (Cap. 11 Dec 351/79)</label>
                   <div className="flex items-center gap-2 mt-2">
                     <span className="text-sm">¿Apto s/Ley?</span>
-                    <select 
+                    <select
                       value={formData.ambiente.ventilacionApto ? "si" : "no"}
-                      onChange={e => handleChange('ambiente', 'ventilacionApto', e.target.value === 'si')}
-                      className="p-1 text-sm border border-slate-300 rounded"
-                    >
+                      onChange={(e) => handleChange('ambiente', 'ventilacionApto', e.target.value === 'si')}
+                      className="p-1 text-sm border border-slate-300 rounded">
+                      
                       <option value="si">SÍ, CUMPLE</option>
                       <option value="no">NO CUMPLE</option>
                     </select>
@@ -1197,12 +1151,12 @@ export default function LegajoForm() {
                 </div>
                 <div>
                   <label className="block text-sm text-slate-500 mb-1">Fecha de Medición</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     value={formData.ambiente.ventilacionFecha}
-                    onChange={e => handleChange('ambiente', 'ventilacionFecha', e.target.value)}
-                    className="p-2 border border-slate-300 rounded-lg"
-                  />
+                    onChange={(e) => handleChange('ambiente', 'ventilacionFecha', e.target.value)}
+                    className="p-2 border border-slate-300 rounded-lg" />
+                  
                 </div>
               </div>
 
@@ -1212,11 +1166,11 @@ export default function LegajoForm() {
                   <label className="block text-sm font-bold text-slate-700 mb-1">Contaminantes Químicos (Res 295/03)</label>
                   <div className="flex items-center gap-2 mt-2">
                     <span className="text-sm">¿Apto s/Ley?</span>
-                    <select 
+                    <select
                       value={formData.ambiente.contaminantesApto ? "si" : "no"}
-                      onChange={e => handleChange('ambiente', 'contaminantesApto', e.target.value === 'si')}
-                      className="p-1 text-sm border border-slate-300 rounded"
-                    >
+                      onChange={(e) => handleChange('ambiente', 'contaminantesApto', e.target.value === 'si')}
+                      className="p-1 text-sm border border-slate-300 rounded">
+                      
                       <option value="si">SÍ, CUMPLE</option>
                       <option value="no">NO CUMPLE</option>
                     </select>
@@ -1224,12 +1178,12 @@ export default function LegajoForm() {
                 </div>
                 <div>
                   <label className="block text-sm text-slate-500 mb-1">Fecha de Medición</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     value={formData.ambiente.contaminantesFecha}
-                    onChange={e => handleChange('ambiente', 'contaminantesFecha', e.target.value)}
-                    className="p-2 border border-slate-300 rounded-lg"
-                  />
+                    onChange={(e) => handleChange('ambiente', 'contaminantesFecha', e.target.value)}
+                    className="p-2 border border-slate-300 rounded-lg" />
+                  
                 </div>
               </div>
 
@@ -1238,31 +1192,29 @@ export default function LegajoForm() {
               adjuntos={formData.ambiente.adjuntos || []}
               onAdd={(b64) => addAdjunto('ambiente', b64)}
               onRemove={(i) => removeAdjunto('ambiente', i)}
-              accentColor="#0d9488"
-            />
+              accentColor="#0d9488" />
+            
           </div>
-        )}
+          }
       </div>
 
       </main>
       <div className="no-print floating-action-bar">
-          {id && (
-            <button
-                onClick={handleGeneratePDF}
-                className="btn-floating-action"
-                style={{ background: '#FF8B00', color: '#ffffff' }}
-            >
+          {id &&
+        <button
+          onClick={handleGeneratePDF}
+          className="btn-floating-action bg-orange-500 hover:bg-orange-600 text-white">
+          
                 <Printer size={18} /> IMPRIMIR PDF
             </button>
-          )}
+        }
           <button
-              onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
-              className="btn-floating-action"
-              style={{ background: '#36B37E', color: '#ffffff' }}
-          >
+          onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
+          className="btn-floating-action bg-emerald-500 hover:bg-emerald-600 text-white">
+          
               <Save size={18} /> GUARDAR LEGAJO
           </button>
       </div>
-    </div>
-  );
+    </div>);
+
 }

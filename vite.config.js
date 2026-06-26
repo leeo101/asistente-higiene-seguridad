@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { visualizer } from 'rollup-plugin-visualizer'
 
@@ -7,6 +8,7 @@ import { visualizer } from 'rollup-plugin-visualizer'
 export default defineConfig({
   plugins: [
     react(),
+    tailwindcss(),
     process.env.ANALYZE ? visualizer({
       open: true,
       filename: 'dist/stats.html',

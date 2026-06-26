@@ -4,41 +4,41 @@ import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
 import PdfBrandingFooter from './PdfBrandingFooter';
 
-export default function RiskAssessmentPdfGenerator({ assessmentData }: { assessmentData: any }): React.ReactElement | null {
-    if (!assessmentData) return null;
+export default function RiskAssessmentPdfGenerator({ assessmentData }: {assessmentData: any;}): React.ReactElement | null {
+  if (!assessmentData) return null;
 
-    const data = assessmentData;
-    const score = data.score || (data.probability * data.severity) || 0;
+  const data = assessmentData;
+  const score = data.score || data.probability * data.severity || 0;
 
-    // Risk Level details for the report
-    let riskInfo = {
-        label: data.riskLabel || 'Bajo',
-        color: '#10b981',
-        bg: '#d1fae5',
-        action: 'Riesgo aceptable. No requiere medidas adicionales.'
-    };
+  // Risk Level details for the report
+  let riskInfo = {
+    label: data.riskLabel || 'Bajo',
+    color: '#10b981',
+    bg: '#d1fae5',
+    action: 'Riesgo aceptable. No requiere medidas adicionales.'
+  };
 
-    if (score > 6) {
-        riskInfo = { label: 'Crítico', color: '#ef4444', action: 'PELIGRO INMINENTE. Detener la tarea hasta mitigar el riesgo.', bg: '#fee2e2' };
-    } else if (score > 4) {
-        riskInfo = { label: 'Alto', color: '#f97316', action: 'Riesgo importante. Requiere medidas de ingeniería inmediatas.', bg: '#ffedd5' };
-    } else if (score > 2) {
-        riskInfo = { label: 'Moderado', color: '#f59e0b', action: 'Requiere seguimiento. Implementar medidas de control administrativas.', bg: '#fef3c7' };
-    }
+  if (score > 6) {
+    riskInfo = { label: 'Crítico', color: '#ef4444', action: 'PELIGRO INMINENTE. Detener la tarea hasta mitigar el riesgo.', bg: '#fee2e2' };
+  } else if (score > 4) {
+    riskInfo = { label: 'Alto', color: '#f97316', action: 'Riesgo importante. Requiere medidas de ingeniería inmediatas.', bg: '#ffedd5' };
+  } else if (score > 2) {
+    riskInfo = { label: 'Moderado', color: '#f59e0b', action: 'Requiere seguimiento. Implementar medidas de control administrativas.', bg: '#fef3c7' };
+  }
 
-    return (
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+  return (
+    <div className="w-[100%] flex justify-center">
             <div
-                id="pdf-content"
-                className="pdf-container print-area"
-                style={{
-                    width: '100%', maxWidth: '210mm', minHeight: '297mm',
-                    padding: '20mm', background: '#ffffff', color: '#000000',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.1)', borderRadius: '8px',
-                    boxSizing: 'border-box', margin: '0 auto', fontSize: '10pt',
-                    fontFamily: 'system-ui, -apple-system, sans-serif'
-                }}
-            >
+        id="pdf-content"
+        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[20mm] bg-[#ffffff] text-[#000000] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[10pt] font-family-[system-ui,_-apple-system,_sans-serif]">
+
+
+
+
+
+
+
+        
                 <style type="text/css" media="print">
                     {`
                         @page { size: A4 portrait; margin: 15mm; }
@@ -62,96 +62,96 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }: { assessm
                 </style>
 
                 {/* Header Section */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid #1e293b', paddingBottom: '1.5rem', marginBottom: '2rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div className="flex justify-space-between items-center border-bottom-[3px_solid_#1e293b] pb-[1.5rem] mb-[2rem]">
+                    <div className="flex items-center gap-[1rem]">
                         <div>
-                            <p style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Sistema de Gestión HYS</p>
-                            <h1 style={{ margin: 0, fontWeight: 900, fontSize: '1.5rem', color: '#1e293b', textTransform: 'uppercase' }}>Evaluación de Riesgo</h1>
+                            <p className="m-[0] font-[900] text-[0.75rem] text-[#64748b] uppercase letter-spacing-[0.05em]">Sistema de Gestión HYS</p>
+                            <h1 className="m-[0] font-[900] text-[1.5rem] text-[#1e293b] uppercase">Evaluación de Riesgo</h1>
                         </div>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                        <CompanyLogo
-                            style={{
-                                height: '45px',
-                                width: 'auto',
-                                objectFit: 'contain',
-                                maxWidth: '140px'
-                            }}
-                        />
-                        <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontWeight: 900, fontSize: '1.2rem', color: '#10b981' }}>IPER</div>
-                            <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>METODOLOGÍA BINARIA</p>
+                    <div className="flex flex-col items-end gap-[0.5rem]">
+                        <CompanyLogo className="h-[45px] w-[auto] object-fit-[contain] max-w-[140px]" />
+
+
+
+
+
+
+            
+                        <div className="text-right">
+                            <div className="font-[900] text-[1.2rem] text-[#10b981]">IPER</div>
+                            <p className="m-[0] text-[0.7rem] text-[#64748b] font-[600]">METODOLOGÍA BINARIA</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Project Context */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2.5rem',  }}>
-                    <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#64748b' }}>
+                <div className="grid grid-template-columns-[1fr_1fr] gap-[1.5rem] mb-[2.5rem]">
+                    <div className="p-[1rem] bg-[#f8fafc] rounded-[12px] border-[1px_solid_#e2e8f0]">
+                        <div className="flex items-center gap-[0.5rem] mb-[0.5rem] text-[#64748b]">
                             <Briefcase size={14} />
-                            <span style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase' }}>Tarea / Actividad</span>
+                            <span className="text-[0.65rem] font-[900] uppercase">Tarea / Actividad</span>
                         </div>
-                        <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#1e293b' }}>{data.name || 'Sin nombre'}</div>
+                        <div className="font-[800] text-[1.1rem] text-[#1e293b]">{data.name || 'Sin nombre'}</div>
                     </div>
 
-                    <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#64748b' }}>
+                    <div className="p-[1rem] bg-[#f8fafc] rounded-[12px] border-[1px_solid_#e2e8f0]">
+                        <div className="flex items-center gap-[0.5rem] mb-[0.5rem] text-[#64748b]">
                             <MapPin size={14} />
-                            <span style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase' }}>Ubicación / Área</span>
+                            <span className="text-[0.65rem] font-[900] uppercase">Ubicación / Área</span>
                         </div>
-                        <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#1e293b' }}>{data.location || 'No especificada'}</div>
+                        <div className="font-[800] text-[1.1rem] text-[#1e293b]">{data.location || 'No especificada'}</div>
                     </div>
 
-                    <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#64748b' }}>
+                    <div className="p-[1rem] bg-[#f8fafc] rounded-[12px] border-[1px_solid_#e2e8f0]">
+                        <div className="flex items-center gap-[0.5rem] mb-[0.5rem] text-[#64748b]">
                             <Calendar size={14} />
-                            <span style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase' }}>Fecha de Evaluación</span>
+                            <span className="text-[0.65rem] font-[900] uppercase">Fecha de Evaluación</span>
                         </div>
-                        <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#1e293b' }}>{data.date ? new Date(data.date).toLocaleDateString('es-AR') : 'N/A'}</div>
+                        <div className="font-[800] text-[1.1rem] text-[#1e293b]">{data.date ? new Date(data.date).toLocaleDateString('es-AR') : 'N/A'}</div>
                     </div>
                 </div>
 
                 {/* Risk Analysis Section */}
-                <div style={{ marginBottom: '2.5rem' }}>
-                    <h3 style={{ margin: '0 0 1.5rem 0', display: 'flex', alignItems: 'center', gap: '0.8rem', color: '#1e293b', fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase' }}>
+                <div className="mb-[2.5rem]">
+                    <h3 className="m-[0_0_1.5rem_0] flex items-center gap-[0.8rem] text-[#1e293b] font-[900] text-[1.1rem] uppercase">
                         <Activity size={20} color="#2563eb" /> Análisis de Matriz
                     </h3>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                        <div style={{ textAlign: 'center', padding: '1.5rem', border: '2px solid #e2e8f0', borderRadius: '16px' }}>
-                            <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Probabilidad</div>
-                            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#2563eb' }}>{data.probability || 0}</div>
+                    <div className="grid grid-template-columns-[1fr_1fr_1fr] gap-[1rem]">
+                        <div className="text-center p-[1.5rem] border-[2px_solid_#e2e8f0] rounded-[16px]">
+                            <div className="text-[0.7rem] font-[900] text-[#64748b] uppercase mb-[0.5rem]">Probabilidad</div>
+                            <div className="text-[2.5rem] font-[900] text-[#2563eb]">{data.probability || 0}</div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: 300, color: '#64748b' }}>x</div>
-                        <div style={{ textAlign: 'center', padding: '1.5rem', border: '2px solid #e2e8f0', borderRadius: '16px' }}>
-                            <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Severidad</div>
-                            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#ef4444' }}>{data.severity || 0}</div>
+                        <div className="flex items-center justify-center text-[2rem] font-[300] text-[#64748b]">x</div>
+                        <div className="text-center p-[1.5rem] border-[2px_solid_#e2e8f0] rounded-[16px]">
+                            <div className="text-[0.7rem] font-[900] text-[#64748b] uppercase mb-[0.5rem]">Severidad</div>
+                            <div className="text-[2.5rem] font-[900] text-[#ef4444]">{data.severity || 0}</div>
                         </div>
                     </div>
                 </div>
 
                 {/* Result Card */}
                 <div style={{
-                    padding: '2.5rem',
-                    borderRadius: '24px',
-                    background: riskInfo.bg,
-                    border: `2px solid ${riskInfo.color}30`,
-                    textAlign: 'center',
-                    marginBottom: '2.5rem'
-                }}>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 900, color: riskInfo.color, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '1rem' }}>Resultado del Nivel de Riesgo</div>
-                    <div style={{ fontSize: '3.5rem', fontWeight: 900, color: riskInfo.color, lineHeight: 1, marginBottom: '0.5rem' }}>{score}</div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: riskInfo.color, textTransform: 'uppercase' }}>{riskInfo.label}</div>
+
+
+          background: riskInfo.bg,
+          border: `2px solid ${riskInfo.color}30`
+
+
+        }} className="p-[2.5rem] rounded-[24px] text-center mb-[2.5rem]">
+                    <div style={{ color: riskInfo.color }} className="text-[0.8rem] font-[900] uppercase letter-spacing-[0.2em] mb-[1rem]">Resultado del Nivel de Riesgo</div>
+                    <div style={{ color: riskInfo.color }} className="text-[3.5rem] font-[900] line-height-[1] mb-[0.5rem]">{score}</div>
+                    <div style={{ color: riskInfo.color }} className="text-[1.5rem] font-[900] uppercase">{riskInfo.label}</div>
                 </div>
 
                 {/* Recommendation */}
-                <div style={{ borderLeft: `8px solid ${riskInfo.color}`, background: '#f8fafc', padding: '1.5rem', borderRadius: '0 16px 16px 0', marginBottom: '4rem' }}>
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                <div style={{ borderLeft: `8px solid ${riskInfo.color}` }} className="bg-[#f8fafc] p-[1.5rem] rounded-[0_16px_16px_0] mb-[4rem]">
+                    <div className="flex gap-[1rem] items-start">
                         <AlertCircle size={24} color={riskInfo.color} />
                         <div>
-                            <h4 style={{ margin: '0 0 0.5rem 0', color: riskInfo.color, fontSize: '1rem', fontWeight: 900, textTransform: 'uppercase' }}>Acción Recomendada</h4>
-                            <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.6', color: '#334155', fontWeight: 500 }}>{riskInfo.action}</p>
+                            <h4 style={{ color: riskInfo.color }} className="m-[0_0_0.5rem_0] text-[1rem] font-[900] uppercase">Acción Recomendada</h4>
+                            <p className="m-[0] text-[0.95rem] line-height-[1.6] text-[#334155] font-[500]">{riskInfo.action}</p>
                         </div>
                     </div>
                 </div>
@@ -160,6 +160,6 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }: { assessm
                 <PdfSignatures data={data} />
             <PdfBrandingFooter />
                 </div>
-            </div>
-    );
+            </div>);
+
 }

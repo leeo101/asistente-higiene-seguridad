@@ -2,12 +2,12 @@ import React, { useRef } from 'react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
 
-export default function TrainingExamPdfGenerator({ data }: { data: any }): React.ReactElement | null {
-    const componentRef = useRef<HTMLDivElement>(null);
-    const preguntas = data.preguntas || [];
+export default function TrainingExamPdfGenerator({ data }: {data: any;}): React.ReactElement | null {
+  const componentRef = useRef<HTMLDivElement>(null);
+  const preguntas = data.preguntas || [];
 
-    return (
-        <div id="pdf-content" className="pdf-container print-area" ref={componentRef} style={{ width: '210mm', minHeight: '297mm', padding: '15mm', background: '#ffffff', color: '#1e293b', boxSizing: 'border-box', margin: '0 auto', fontSize: '10pt', fontFamily: 'Helvetica, Arial, sans-serif' }}>
+  return (
+    <div id="pdf-content" className="pdf-container print-area w-[210mm] min-h-[297mm] p-[15mm] bg-[#ffffff] text-[#1e293b] box-sizing-[border-box] m-[0_auto] text-[10pt] font-family-[Helvetica,_Arial,_sans-serif]" ref={componentRef}>
             <style type="text/css" media="print">
                 {`
                     @page { size: A4 portrait; margin: 10mm; }
@@ -17,103 +17,103 @@ export default function TrainingExamPdfGenerator({ data }: { data: any }): React
             </style>
 
             {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #e2e8f0', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+            <div className="flex justify-space-between items-start border-bottom-[2px_solid_#e2e8f0] pb-[1rem] mb-[1.5rem]">
                 <div>
-                    <h2 style={{ margin: '0 0 0.2rem 0', color: '#0f172a', fontSize: '1.4rem', fontWeight: 900, textTransform: 'uppercase' }}>Evaluación de Capacitación</h2>
-                    <p style={{ margin: 0, color: '#64748b', fontSize: '0.8rem', fontWeight: 600 }}>Cuestionario de Comprensión</p>
+                    <h2 className="m-[0_0_0.2rem_0] text-[#0f172a] text-[1.4rem] font-[900] uppercase">Evaluación de Capacitación</h2>
+                    <p className="m-[0] text-[#64748b] text-[0.8rem] font-[600]">Cuestionario de Comprensión</p>
                 </div>
-                <CompanyLogo style={{ height: '35px', objectFit: 'contain' }} />
+                <CompanyLogo className="h-[35px] object-fit-[contain]" />
             </div>
 
             {/* Info Box */}
-            <div style={{ border: '1px solid #cbd5e1', borderRadius: '8px', padding: '1rem', marginBottom: '1.5rem', background: '#f8fafc' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+            <div className="border-[1px_solid_#cbd5e1] rounded-[8px] p-[1rem] mb-[1.5rem] bg-[#f8fafc]">
+                <div className="grid grid-template-columns-[1fr_1fr] gap-[0.8rem]">
                     <div>
-                        <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>TEMA EVALUADO</span>
-                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.95rem' }}>{data.tema || '-'}</div>
+                        <span className="text-[0.7rem] text-[#64748b] font-[700] uppercase">TEMA EVALUADO</span>
+                        <div className="font-[800] text-[#0f172a] text-[0.95rem]">{data.tema || '-'}</div>
                     </div>
                     <div>
-                        <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>FECHA</span>
-                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.95rem' }}>
+                        <span className="text-[0.7rem] text-[#64748b] font-[700] uppercase">FECHA</span>
+                        <div className="font-[800] text-[#0f172a] text-[0.95rem]">
                             {data.fecha ? new Date(data.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : 'N/A'}
                         </div>
                     </div>
                     <div>
-                        <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>INSTRUCTOR</span>
-                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.95rem' }}>{data.expositor || '-'}</div>
+                        <span className="text-[0.7rem] text-[#64748b] font-[700] uppercase">INSTRUCTOR</span>
+                        <div className="font-[800] text-[#0f172a] text-[0.95rem]">{data.expositor || '-'}</div>
                     </div>
                     <div>
-                        <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>EMPRESA</span>
-                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.95rem' }}>{data.empresa || 'Aplicable al sitio'}</div>
+                        <span className="text-[0.7rem] text-[#64748b] font-[700] uppercase">EMPRESA</span>
+                        <div className="font-[800] text-[#0f172a] text-[0.95rem]">{data.empresa || 'Aplicable al sitio'}</div>
                     </div>
                 </div>
             </div>
 
             {/* Alumno Box */}
-            <div style={{ border: '1px solid #0f172a', padding: '1rem', marginBottom: '2rem' }}>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
-                    <span style={{ fontWeight: 800, lineHeight: 1 }}>APELLIDO Y NOMBRES:</span>
-                    <div style={{ flex: 1, borderBottom: '1px solid #64748b' }}></div>
+            <div className="border-[1px_solid_#0f172a] p-[1rem] mb-[2rem]">
+                <div className="flex gap-[1rem] items-end">
+                    <span className="font-[800] line-height-[1]">APELLIDO Y NOMBRES:</span>
+                    <div className="flex-[1] border-bottom-[1px_solid_#64748b]"></div>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                    <div style={{ display: 'flex', gap: '0.5rem', flex: 1, alignItems: 'flex-end' }}>
-                        <span style={{ fontWeight: 800, lineHeight: 1 }}>DNI:</span>
-                        <div style={{ flex: 1, borderBottom: '1px solid #64748b' }}></div>
+                <div className="flex gap-[1rem] mt-[1rem]">
+                    <div className="flex gap-[0.5rem] flex-[1] items-end">
+                        <span className="font-[800] line-height-[1]">DNI:</span>
+                        <div className="flex-[1] border-bottom-[1px_solid_#64748b]"></div>
                     </div>
-                    <div style={{ display: 'flex', gap: '0.5rem', flex: 1, alignItems: 'flex-end' }}>
-                        <span style={{ fontWeight: 800, lineHeight: 1 }}>PUESTO:</span>
-                        <div style={{ flex: 1, borderBottom: '1px solid #64748b' }}></div>
+                    <div className="flex gap-[0.5rem] flex-[1] items-end">
+                        <span className="font-[800] line-height-[1]">PUESTO:</span>
+                        <div className="flex-[1] border-bottom-[1px_solid_#64748b]"></div>
                     </div>
                 </div>
             </div>
 
             {/* Preguntas */}
-            <div style={{ marginBottom: '3rem' }}>
-                <h3 style={{ fontSize: '1rem', color: '#0f172a', marginBottom: '1.5rem', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.5rem' }}>Desarrollo del Examen</h3>
-                {preguntas.length > 0 ? (
-                    preguntas.map((p: any, idx: number) => (
-                        <div key={idx} style={{ marginBottom: '2rem' }}>
-                            <p style={{ fontWeight: 700, margin: '0 0 1rem 0', fontSize: '0.95rem' }}>{idx + 1}. {p.texto}</p>
-                            <div style={{ borderBottom: '1px solid #cbd5e1', marginBottom: '1.5rem' }}></div>
-                            <div style={{ borderBottom: '1px solid #cbd5e1', marginBottom: '1.5rem' }}></div>
-                            <div style={{ borderBottom: '1px solid #cbd5e1' }}></div>
+            <div className="mb-[3rem]">
+                <h3 className="text-[1rem] text-[#0f172a] mb-[1.5rem] border-bottom-[1px_solid_#cbd5e1] pb-[0.5rem]">Desarrollo del Examen</h3>
+                {preguntas.length > 0 ?
+        preguntas.map((p: any, idx: number) =>
+        <div key={idx} className="mb-[2rem]">
+                            <p className="font-[700] m-[0_0_1rem_0] text-[0.95rem]">{idx + 1}. {p.texto}</p>
+                            <div className="border-bottom-[1px_solid_#cbd5e1] mb-[1.5rem]"></div>
+                            <div className="border-bottom-[1px_solid_#cbd5e1] mb-[1.5rem]"></div>
+                            <div className="border-bottom-[1px_solid_#cbd5e1]"></div>
                         </div>
-                    ))
-                ) : (
-                    <div style={{ marginBottom: '2rem' }}>
-                        <p style={{ fontWeight: 700, margin: '0 0 1rem 0' }}>1. </p>
-                        <div style={{ borderBottom: '1px solid #cbd5e1', marginBottom: '1.5rem' }}></div>
-                        <div style={{ borderBottom: '1px solid #cbd5e1', marginBottom: '1.5rem' }}></div>
+        ) :
+
+        <div className="mb-[2rem]">
+                        <p className="font-[700] m-[0_0_1rem_0]">1. </p>
+                        <div className="border-bottom-[1px_solid_#cbd5e1] mb-[1.5rem]"></div>
+                        <div className="border-bottom-[1px_solid_#cbd5e1] mb-[1.5rem]"></div>
                     </div>
-                )}
+        }
             </div>
 
             {/* Firma Alumno e Instructor */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4rem' }}>
-                <div style={{ width: '40%', textAlign: 'center' }}>
-                    <div style={{ borderTop: '1px solid #0f172a', paddingTop: '0.5rem' }}>
-                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>Firma del Evaluado</p>
+            <div className="flex justify-space-between mt-[4rem]">
+                <div className="w-[40%] text-center">
+                    <div className="border-top-[1px_solid_#0f172a] pt-[0.5rem]">
+                        <p className="m-[0] font-[700] text-[0.8rem]">Firma del Evaluado</p>
                     </div>
                 </div>
-                <div style={{ width: '40%', textAlign: 'center' }}>
-                    <div style={{ borderTop: '1px solid #0f172a', paddingTop: '0.5rem' }}>
-                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.8rem' }}>Firma del Instructor</p>
+                <div className="w-[40%] text-center">
+                    <div className="border-top-[1px_solid_#0f172a] pt-[0.5rem]">
+                        <p className="m-[0] font-[700] text-[0.8rem]">Firma del Instructor</p>
                     </div>
-                    <div style={{ position: 'absolute', transform: 'translateY(-120%) translateX(20%)', opacity: 0.8 }}>
-                        {data.signature && <img src={data.signature} style={{ maxHeight: '60px' }} alt="Firma" />}
-                        {data.professionalStamp && <img src={data.professionalStamp} style={{ maxHeight: '60px', marginLeft: '10px' }} alt="Sello" />}
+                    <div className="absolute transform-[translateY(-120%)_translateX(20%)] opacity-[0.8]">
+                        {data.signature && <img src={data.signature} alt="Firma" className="max-height-[60px]" />}
+                        {data.professionalStamp && <img src={data.professionalStamp} alt="Sello" className="max-height-[60px] ml-[10px]" />}
                     </div>
                 </div>
             </div>
             
-            <div style={{ marginTop: '3rem' }}>
-                <div style={{ border: '2px solid #0f172a', display: 'inline-flex', alignItems: 'flex-end', padding: '0.5rem 1rem' }}>
-                    <span style={{ fontWeight: 800, fontSize: '1.1rem', lineHeight: 1 }}>NOTA / RESULTADO: </span>
-                    <span style={{ display: 'inline-block', width: '100px', borderBottom: '1px solid #0f172a', marginLeft: '0.5rem' }}></span>
+            <div className="mt-[3rem]">
+                <div className="border-[2px_solid_#0f172a] display-[inline-flex] items-end p-[0.5rem_1rem]">
+                    <span className="font-[800] text-[1.1rem] line-height-[1]">NOTA / RESULTADO: </span>
+                    <span className="inline-block w-[100px] border-bottom-[1px_solid_#0f172a] ml-[0.5rem]"></span>
                 </div>
             </div>
 
             <PdfBrandingFooter />
-        </div>
-    );
+        </div>);
+
 }

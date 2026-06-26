@@ -20,712 +20,712 @@ import { getErrorMessage } from '../utils/errorUtils';
 
 // Tipos de extintores y sus características
 const EXTINTOR_INFO = {
-    'ABC': {
-        name: 'Extintor HCFC',
-        fires: 'Clase A (sólidos), B (líquidos), C (eléctricos)',
-        color: '#ef4444',
-        icon: '🧯',
-        usage: 'Presionar palanca, apuntar a la base del fuego'
-    },
-    'CO2': {
-        name: 'Extintor CO2 (Anhídrido Carbónico)',
-        fires: 'Clase B (líquidos), C (eléctricos)',
-        color: '#3b82f6',
-        icon: '❄️',
-        usage: 'Ideal para equipos eléctricos y electrónicos'
-    },
-    'Agua': {
-        name: 'Extintor de Agua',
-        fires: 'Clase A (sólidos: madera, papel, tela)',
-        color: '#10b981',
-        icon: '💧',
-        usage: 'NO usar en fuegos eléctricos o líquidos'
-    },
-    'Espuma': {
-        name: 'Extintor de Espuma',
-        fires: 'Clase A y B (líquidos inflamables)',
-        color: '#f59e0b',
-        icon: '🫧',
-        usage: 'Forma capa sobre líquidos inflamables'
-    },
-    'K': {
-        name: 'Extintor Clase K',
-        fires: 'Aceites y grasas de cocina',
-        color: '#8b5cf6',
-        icon: '🍳',
-        usage: 'Específico para cocinas industriales'
-    }
+  'ABC': {
+    name: 'Extintor HCFC',
+    fires: 'Clase A (sólidos), B (líquidos), C (eléctricos)',
+    color: '#ef4444',
+    icon: '🧯',
+    usage: 'Presionar palanca, apuntar a la base del fuego'
+  },
+  'CO2': {
+    name: 'Extintor CO2 (Anhídrido Carbónico)',
+    fires: 'Clase B (líquidos), C (eléctricos)',
+    color: '#3b82f6',
+    icon: '❄️',
+    usage: 'Ideal para equipos eléctricos y electrónicos'
+  },
+  'Agua': {
+    name: 'Extintor de Agua',
+    fires: 'Clase A (sólidos: madera, papel, tela)',
+    color: '#10b981',
+    icon: '💧',
+    usage: 'NO usar en fuegos eléctricos o líquidos'
+  },
+  'Espuma': {
+    name: 'Extintor de Espuma',
+    fires: 'Clase A y B (líquidos inflamables)',
+    color: '#f59e0b',
+    icon: '🫧',
+    usage: 'Forma capa sobre líquidos inflamables'
+  },
+  'K': {
+    name: 'Extintor Clase K',
+    fires: 'Aceites y grasas de cocina',
+    color: '#8b5cf6',
+    icon: '🍳',
+    usage: 'Específico para cocinas industriales'
+  }
 };
 
 const formatType = (tipo: string) => {
-    if (!tipo) return 'N/A';
-    const t = String(tipo).toUpperCase();
-    if (t === 'ABC') return 'HCFC';
-    if (t === 'BC') return 'CO2';
-    return tipo;
+  if (!tipo) return 'N/A';
+  const t = String(tipo).toUpperCase();
+  if (t === 'ABC') return 'HCFC';
+  if (t === 'BC') return 'CO2';
+  return tipo;
 };
 
 export default function ExtinguisherAI() {
-    const { isPro } = usePaywall();
-    const navigate = useNavigate();
-    useDocumentTitle('Reconocimiento de Extintores IA');
-    const { syncCollection } = useSync();
+  const { isPro } = usePaywall();
+  const navigate = useNavigate();
+  useDocumentTitle('Reconocimiento de Extintores IA');
+  const { syncCollection } = useSync();
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
-    
-    const videoRef = useRef(null);
-    const canvasRef = useRef(null);
-    const [stream, setStream] = useState(null);
-    const streamRef = useRef(null);
-    const [capturedImage, setCapturedImage] = useState(null);
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [analysisResult, setAnalysisResult] = useState(null);
-    const [facingMode, setFacingMode] = useState('environment');
-    const [torchOn, setTorchOn] = useState(false);
-    const { currentUser } = useAuth();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
-    // History state
-    const [isCameraVisible, setIsCameraVisible] = useState(false);
-    const [history, setHistory] = useState<any[]>([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-    const [qrTarget, setQrTarget] = useState<{ text: string, title: string } | null>(null);
-    const [shareItem, setShareItem] = useState<any>(null);
-    const [signature, setSignature] = useState<string | null>(null);
-    const [inspectorName, setInspectorName] = useState('');
-    const { syncPulse } = useSync();
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [stream, setStream] = useState(null);
+  const streamRef = useRef(null);
+  const [capturedImage, setCapturedImage] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const [facingMode, setFacingMode] = useState('environment');
+  const [torchOn, setTorchOn] = useState(false);
+  const { currentUser } = useAuth();
 
-    useEffect(() => {
-        const raw = localStorage.getItem('extinguisher_checks');
-        if (!raw) return;
-        try {
-            const parsed = JSON.parse(raw);
-            const valid = parsed.filter((item: any) => item && item.id);
-            setHistory(valid);
-        } catch {
-            setHistory([]);
+  // History state
+  const [isCameraVisible, setIsCameraVisible] = useState(false);
+  const [history, setHistory] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [qrTarget, setQrTarget] = useState<{text: string;title: string;} | null>(null);
+  const [shareItem, setShareItem] = useState<any>(null);
+  const [signature, setSignature] = useState<string | null>(null);
+  const [inspectorName, setInspectorName] = useState('');
+  const { syncPulse } = useSync();
+
+  useEffect(() => {
+    const raw = localStorage.getItem('extinguisher_checks');
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw);
+      const valid = parsed.filter((item: any) => item && item.id);
+      setHistory(valid);
+    } catch {
+      setHistory([]);
+    }
+  }, [syncPulse]);
+
+  const confirmDelete = () => {
+    const updated = history.filter((item) => item.id !== deleteTarget);
+    setHistory(updated);
+    localStorage.setItem('extinguisher_checks', JSON.stringify(updated));
+    syncCollection('extinguisher_checks', updated);
+    setDeleteTarget(null);
+  };
+
+  const handleExportCSV = () => {
+    const filtered = history.filter((item) =>
+    item.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.status?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    downloadCSV(filtered.map((i) => ({
+      fecha: i.savedAt ? new Date(i.savedAt).toLocaleDateString('es-AR') : '',
+      tipo: i.type || 'N/A',
+      confianza: i.confidence ? `${Math.round(i.confidence * 100)}%` : 'N/A',
+      estado: i.status === 'vigente' ? 'Vigente' : 'Vencido/Revisión',
+      capacidad: i.capacity || 'N/A'
+    })), 'extintores_ia_historial', {
+      fecha: 'Fecha', tipo: 'Tipo', confianza: 'Confianza IA', estado: 'Estado', capacidad: 'Capacidad'
+    });
+  };
+
+  useEffect(() => {
+    if (isCameraVisible) {
+      startCamera();
+    } else {
+      stopStream();
+    }
+    return () => stopStream();
+  }, [facingMode, isCameraVisible]);
+
+  const stopStream = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    setStream(null);
+  };
+
+  const startCamera = async () => {
+    stopStream();
+    setTorchOn(false);
+    try {
+      const constraints = {
+        video: {
+          facingMode: facingMode,
+          width: { ideal: 800 },
+          height: { ideal: 600 }
         }
-    }, [syncPulse]);
+      };
+      const newStream = await navigator.mediaDevices.getUserMedia(constraints);
+      setStream(newStream);
+      streamRef.current = newStream;
+      if (videoRef.current) videoRef.current.srcObject = newStream;
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+      toast.error("No se pudo acceder a la cámara. Verificá los permisos.");
+    }
+  };
 
-    const confirmDelete = () => {
-        const updated = history.filter(item => item.id !== deleteTarget);
-        setHistory(updated);
-        localStorage.setItem('extinguisher_checks', JSON.stringify(updated));
-        syncCollection('extinguisher_checks', updated);
-        setDeleteTarget(null);
-    };
-
-    const handleExportCSV = () => {
-        const filtered = history.filter(item =>
-            item.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.status?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        downloadCSV(filtered.map(i => ({
-            fecha: i.savedAt ? new Date(i.savedAt).toLocaleDateString('es-AR') : '',
-            tipo: i.type || 'N/A',
-            confianza: i.confidence ? `${Math.round(i.confidence * 100)}%` : 'N/A',
-            estado: i.status === 'vigente' ? 'Vigente' : 'Vencido/Revisión',
-            capacidad: i.capacity || 'N/A'
-        })), 'extintores_ia_historial', {
-            fecha: 'Fecha', tipo: 'Tipo', confianza: 'Confianza IA', estado: 'Estado', capacidad: 'Capacidad'
+  const toggleTorch = async () => {
+    if (!streamRef.current) return;
+    const track = streamRef.current.getVideoTracks()[0];
+    if (track) {
+      try {
+        await track.applyConstraints({
+          advanced: [{ torch: !torchOn } as any]
         });
-    };
+        setTorchOn(!torchOn);
+      } catch (e) {
+        console.error("Error toggle torch:", e);
+        toast.error("Flash no soportado por este navegador o dispositivo");
+      }
+    }
+  };
 
-    useEffect(() => {
-        if (isCameraVisible) {
-            startCamera();
-        } else {
-            stopStream();
-        }
-        return () => stopStream();
-    }, [facingMode, isCameraVisible]);
+  const handleCapture = () => {
+    if (!isPro) {
+      window.dispatchEvent(new CustomEvent('show-paywall'));
+      return;
+    }
+    if (!videoRef.current || !canvasRef.current) return;
 
-    const stopStream = () => {
-        if (streamRef.current) {
-            streamRef.current.getTracks().forEach(track => track.stop());
-            streamRef.current = null;
-        }
-        setStream(null);
-    };
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
 
-    const startCamera = async () => {
-        stopStream();
-        setTorchOn(false);
-        try {
-            const constraints = {
-                video: {
-                    facingMode: facingMode,
-                    width: { ideal: 800 },
-                    height: { ideal: 600 }
-                }
-            };
-            const newStream = await navigator.mediaDevices.getUserMedia(constraints);
-            setStream(newStream);
-            streamRef.current = newStream;
-            if (videoRef.current) videoRef.current.srcObject = newStream;
-        } catch (err) {
-            console.error("Error accessing camera:", err);
-            toast.error("No se pudo acceder a la cámara. Verificá los permisos.");
-        }
-    };
+    const maxWidth = 800;
+    const scale = video.videoWidth > maxWidth ? maxWidth / video.videoWidth : 1;
+    canvas.width = video.videoWidth * scale;
+    canvas.height = video.videoHeight * scale;
 
-    const toggleTorch = async () => {
-        if (!streamRef.current) return;
-        const track = streamRef.current.getVideoTracks()[0];
-        if (track) {
-            try {
-                await track.applyConstraints({
-                    advanced: [{ torch: !torchOn } as any]
-                });
-                setTorchOn(!torchOn);
-            } catch (e) {
-                console.error("Error toggle torch:", e);
-                toast.error("Flash no soportado por este navegador o dispositivo");
-            }
-        }
-    };
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    const handleCapture = () => {
-        if (!isPro) {
-            window.dispatchEvent(new CustomEvent('show-paywall'));
-            return;
-        }
-        if (!videoRef.current || !canvasRef.current) return;
+    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+    setCapturedImage(imageData);
+    stopStream();
+    analyzeExtinguisher(imageData);
+  };
 
-        const video = videoRef.current;
-        const canvas = canvasRef.current;
+  const analyzeExtinguisher = async (imageSrc) => {
+    setIsAnalyzing(true);
+    try {
+      const token = await auth.currentUser?.getIdToken(true);
+      const response = await fetch(`${API_BASE_URL}/api/analyze-extinguisher`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ image: imageSrc })
+      });
 
-        const maxWidth = 800;
-        const scale = video.videoWidth > maxWidth ? maxWidth / video.videoWidth : 1;
-        canvas.width = video.videoWidth * scale;
-        canvas.height = video.videoHeight * scale;
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Error en el análisis');
+      }
 
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const data = await response.json();
 
-        const imageData = canvas.toDataURL('image/jpeg', 0.8);
-        setCapturedImage(imageData);
-        stopStream();
-        analyzeExtinguisher(imageData);
-    };
+      if (!data.extinguisherDetected) {
+        throw new Error('No se detectó ningún extintor en la imagen. Por favor, enfoca claramente el matafuego.');
+      }
 
-    const analyzeExtinguisher = async (imageSrc) => {
-        setIsAnalyzing(true);
-        try {
-            const token = await auth.currentUser?.getIdToken(true);
-            const response = await fetch(`${API_BASE_URL}/api/analyze-extinguisher`, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ image: imageSrc })
-            });
+      setAnalysisResult(data);
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || 'Error en el análisis');
-            }
+      // Guardar en historial
+      const historyItem = {
+        id: Date.now().toString(),
+        date: new Date().toISOString(),
+        image: imageSrc,
+        ...data,
+        type: 'extinguisher_ai'
+      };
 
-            const data = await response.json();
-            
-            if (!data.extinguisherDetected) {
-                throw new Error('No se detectó ningún extintor en la imagen. Por favor, enfoca claramente el matafuego.');
-            }
-            
-            setAnalysisResult(data);
-            
-            // Guardar en historial
-            const historyItem = {
-                id: Date.now().toString(),
-                date: new Date().toISOString(),
-                image: imageSrc,
-                ...data,
-                type: 'extinguisher_ai'
-            };
-            
-            const history = JSON.parse(localStorage.getItem('extinguisher_ai_history') || '[]');
-            history.unshift(historyItem);
-            localStorage.setItem('extinguisher_ai_history', JSON.stringify(history.slice(0, 50)));
-            await syncCollection('extinguisher_ai_history', history.slice(0, 50));
-            
-            toast.success('✅ Extintor analizado correctamente');
-        } catch (error) {
-            console.error('Analysis error:', error);
-            toast.error(getErrorMessage(error) || 'Error analizando la imagen');
-            setCapturedImage(null);
-            startCamera();
-        } finally {
-            setIsAnalyzing(false);
-        }
-    };
-    const simulateAnalysis = () => {
-        const types = Object.keys(EXTINTOR_INFO);
-        const randomType = types[Math.floor(Math.random() * types.length)];
-        
-        setAnalysisResult({
-            type: randomType,
-            confidence: 0.85 + Math.random() * 0.14,
-            capacity: ['2kg', '5kg', '10kg'][Math.floor(Math.random() * 3)],
-            status: Math.random() > 0.3 ? 'vigente' : 'vencido',
-            lastCheck: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            nextCheck: new Date(Date.now() + Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            phDate: new Date(Date.now() + Math.random() * 1000 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            recommendations: [
-                'Verificar presión del manómetro',
-                'Controlar fecha de vencimiento',
-                'Mantener en lugar visible y accesible'
-            ]
-        });
-        
-        toast.success('Extintor analizado (modo demo)');
-    };
+      const history = JSON.parse(localStorage.getItem('extinguisher_ai_history') || '[]');
+      history.unshift(historyItem);
+      localStorage.setItem('extinguisher_ai_history', JSON.stringify(history.slice(0, 50)));
+      await syncCollection('extinguisher_ai_history', history.slice(0, 50));
 
-    const handleRetry = () => {
-        setCapturedImage(null);
-        setAnalysisResult(null);
-        setSignature(null);
-        setInspectorName('');
-        startCamera();
-    };
+      toast.success('✅ Extintor analizado correctamente');
+    } catch (error) {
+      console.error('Analysis error:', error);
+      toast.error(getErrorMessage(error) || 'Error analizando la imagen');
+      setCapturedImage(null);
+      startCamera();
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+  const simulateAnalysis = () => {
+    const types = Object.keys(EXTINTOR_INFO);
+    const randomType = types[Math.floor(Math.random() * types.length)];
 
-    const handleDownloadPdf = async () => {
-        try {
-            const toastId = toast.loading('Generando PDF...');
-            const blob = await generatePdfBlob('extinguisher-pdf-content');
-            toast.dismiss(toastId);
-            
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `reporte-extintor-${new Date().getTime()}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            toast.success('PDF descargado exitosamente');
-        } catch (error) {
-            console.error('Error generando PDF:', error);
-            toast.error('Hubo un error al generar el PDF');
-        }
-    };
+    setAnalysisResult({
+      type: randomType,
+      confidence: 0.85 + Math.random() * 0.14,
+      capacity: ['2kg', '5kg', '10kg'][Math.floor(Math.random() * 3)],
+      status: Math.random() > 0.3 ? 'vigente' : 'vencido',
+      lastCheck: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      nextCheck: new Date(Date.now() + Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      phDate: new Date(Date.now() + Math.random() * 1000 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      recommendations: [
+      'Verificar presión del manómetro',
+      'Controlar fecha de vencimiento',
+      'Mantener en lugar visible y accesible']
 
-    const total = history.length;
-    const isVigente = history.filter(i => i.status === 'vigente').length;
-    const isVencido = history.filter(i => i.status === 'vencido').length;
-    const compliance = total > 0 ? Math.round((isVigente / total) * 100) : 0;
+    });
 
-    const extintorData = analysisResult?.type ? EXTINTOR_INFO[analysisResult.type] : null;
+    toast.success('Extintor analizado (modo demo)');
+  };
 
-    return (
-        <div className="container" style={{ maxWidth: '800px', paddingBottom: '4rem', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            {deleteTarget && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-                    <div className="card" style={{ maxWidth: '320px', textAlign: 'center', padding: '2rem' }}>
-                        <Trash2 size={48} style={{ color: '#ef4444', marginBottom: '1rem' }} />
+  const handleRetry = () => {
+    setCapturedImage(null);
+    setAnalysisResult(null);
+    setSignature(null);
+    setInspectorName('');
+    startCamera();
+  };
+
+  const handleDownloadPdf = async () => {
+    try {
+      const toastId = toast.loading('Generando PDF...');
+      const blob = await generatePdfBlob('extinguisher-pdf-content');
+      toast.dismiss(toastId);
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `reporte-extintor-${new Date().getTime()}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast.success('PDF descargado exitosamente');
+    } catch (error) {
+      console.error('Error generando PDF:', error);
+      toast.error('Hubo un error al generar el PDF');
+    }
+  };
+
+  const total = history.length;
+  const isVigente = history.filter((i) => i.status === 'vigente').length;
+  const isVencido = history.filter((i) => i.status === 'vencido').length;
+  const compliance = total > 0 ? Math.round(isVigente / total * 100) : 0;
+
+  const extintorData = analysisResult?.type ? EXTINTOR_INFO[analysisResult.type] : null;
+
+  return (
+    <div className="container max-w-[800px] pb-[4rem] min-h-[100vh] flex flex-col">
+            {deleteTarget &&
+      <div className="fixed inset-[0] bg-[rgba(0,0,0,0.5)] z-[1000] flex items-center justify-center backdrop-filter-[blur(4px)]">
+                    <div className="card max-w-[320px] text-center p-[2rem]">
+                        <Trash2 size={48} className="text-[#ef4444] mb-[1rem]" />
                         <h3>¿Eliminar inspección?</h3>
-                        <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>Esta acción no se puede deshacer.</p>
-                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                            <button onClick={() => setDeleteTarget(null)} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: 'var(--color-background)', border: 'none', cursor: 'pointer', fontWeight: 700 }}>Cancelar</button>
-                            <button onClick={confirmDelete} style={{ flex: 1, padding: '0.8rem', borderRadius: '12px', background: '#ef4444', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 700 }}>Eliminar</button>
+                        <p className="text-[0.9rem] text-[var(--color-text-muted)]">Esta acción no se puede deshacer.</p>
+                        <div className="flex gap-[1rem] mt-[1.5rem]">
+                            <button onClick={() => setDeleteTarget(null)} className="flex-[1] p-[0.8rem] rounded-[12px] bg-[var(--color-background)] border-none cursor-pointer font-[700]">Cancelar</button>
+                            <button onClick={confirmDelete} className="flex-[1] p-[0.8rem] rounded-[12px] bg-[#ef4444] text-[white] border-none cursor-pointer font-[700]">Eliminar</button>
                         </div>
                     </div>
                 </div>
-            )}
+      }
 
             <ShareModal
-                isOpen={!!shareItem}
-                open={!!shareItem}
-                onClose={() => setShareItem(null)}
-                title={`Inspección IA - Extintor ${shareItem?.type || ''}`}
-                text={shareItem ? `📸 Inspección de Extintor con IA\n🧯 Tipo: ${shareItem.type || 'N/A'}\n🛡️ Estado: ${shareItem.status === 'vigente' ? '✅ Vigente' : '⚠️ Vencido'}` : ''}
-                rawMessage={shareItem ? `📸 Inspección de Extintor con IA\n🧯 Tipo: ${shareItem.type || 'N/A'}\n🛡️ Estado: ${shareItem.status === 'vigente' ? '✅ Vigente' : '⚠️ Vencido'}` : ''}
-                elementIdToPrint="pdf-content"
-                fileName={`Inspeccion_Extintor_IA_${shareItem?.type || 'Sin_Tipo'}.pdf`}
-            />
+        isOpen={!!shareItem}
+        open={!!shareItem}
+        onClose={() => setShareItem(null)}
+        title={`Inspección IA - Extintor ${shareItem?.type || ''}`}
+        text={shareItem ? `📸 Inspección de Extintor con IA\n🧯 Tipo: ${shareItem.type || 'N/A'}\n🛡️ Estado: ${shareItem.status === 'vigente' ? '✅ Vigente' : '⚠️ Vencido'}` : ''}
+        rawMessage={shareItem ? `📸 Inspección de Extintor con IA\n🧯 Tipo: ${shareItem.type || 'N/A'}\n🛡️ Estado: ${shareItem.status === 'vigente' ? '✅ Vigente' : '⚠️ Vencido'}` : ''}
+        elementIdToPrint="pdf-content"
+        fileName={`Inspeccion_Extintor_IA_${shareItem?.type || 'Sin_Tipo'}.pdf`} />
+      
 
-            <div style={{ position: 'absolute', left: 0, opacity: 0.01, top: '-9999px', pointerEvents: 'none' }}>
+            <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
                 {shareItem && <ExtinguisherAIPdfGenerator item={shareItem} />}
             </div>
 
             {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
 
-            {!isCameraVisible ? (
-                <div className="animate-fade-in" style={{ padding: '0 1rem', width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
+            {!isCameraVisible ?
+      <div className="animate-fade-in p-[0_1rem] w-[100%] max-w-[1200px] m-[0_auto]">
                     <PremiumHeader
-                        title="Reconocimiento Extintores IA"
-                        subtitle={`Inspecciones de extintores • ${history.length} registros`}
-                        icon={<Flame size={36} color="#ffffff" />}
-                    />
+          title="Reconocimiento Extintores IA"
+          subtitle={`Inspecciones de extintores • ${history.length} registros`}
+          icon={<Flame size={36} color="#ffffff" />} />
+        
                     
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <div className="flex items-center justify-space-between gap-[1rem] mb-[1.5rem] flex-wrap">
+                        <div className="flex gap-[1rem] items-center">
                             <></>
                         </div>
                         <button
-                            onClick={() => setIsCameraVisible(true)}
-                            style={{ flex: '0 1 auto', padding: '0.8rem 1.5rem', borderRadius: '12px', background: '#36B37E', color: '#fff', border: 'none', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(54,179,126,0.3)', whiteSpace: 'nowrap' }}
-                        >
+            onClick={() => setIsCameraVisible(true)} className="flex-[0_1_auto] p-[0.8rem_1.5rem] rounded-[12px] bg-[#36B37E] text-[#fff] border-none font-[800] text-[0.95rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(54,179,126,0.3)] white-space-[nowrap]">
+
+            
                             <Plus size={20} /> Nueva Inspección
                         </button>
                     </div>
 
                     {/* Stats panel */}
-                    {total > 0 && (
-                        <div style={{ marginBottom: '2rem' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.7rem', marginBottom: '1rem' }}>
-                                <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '12px', padding: '0.75rem 1rem', textAlign: 'center' }}>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#ef4444' }}>{total}</div>
-                                    <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>INSPECCIONES</div>
+                    {total > 0 &&
+        <div className="mb-8">
+                            <div className="grid grid-template-columns-[repeat(3,_1fr)] gap-[0.7rem] mb-[1rem]">
+                                <div className="bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[12px] p-[0.75rem_1rem] text-center">
+                                    <div className="text-[1.5rem] font-[900] text-[#ef4444]">{total}</div>
+                                    <div className="text-[0.68rem] text-[var(--color-text-muted)] font-[700]">INSPECCIONES</div>
                                 </div>
-                                <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '12px', padding: '0.75rem 1rem', textAlign: 'center' }}>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#10b981' }}>{compliance}%</div>
-                                    <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>VIGENTES</div>
+                                <div className="bg-[rgba(16,185,129,0.08)] border-[1px_solid_rgba(16,185,129,0.2)] rounded-[12px] p-[0.75rem_1rem] text-center">
+                                    <div className="text-[1.5rem] font-[900] text-[#10b981]">{compliance}%</div>
+                                    <div className="text-[0.68rem] text-[var(--color-text-muted)] font-[700]">VIGENTES</div>
                                 </div>
-                                <div style={{ background: isVencido > 0 ? 'rgba(245,158,11,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${isVencido > 0 ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)'}`, borderRadius: '12px', padding: '0.75rem 1rem', textAlign: 'center' }}>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: isVencido > 0 ? '#f59e0b' : '#10b981' }}>{isVencido}</div>
-                                    <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>VENCIDOS</div>
+                                <div style={{ background: isVencido > 0 ? 'rgba(245,158,11,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${isVencido > 0 ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)'}` }} className="rounded-[12px] p-[0.75rem_1rem] text-center">
+                                    <div style={{ color: isVencido > 0 ? '#f59e0b' : '#10b981' }} className="text-[1.5rem] font-[900]">{isVencido}</div>
+                                    <div className="text-[0.68rem] text-[var(--color-text-muted)] font-[700]">VENCIDOS</div>
                                 </div>
                             </div>
                         </div>
-                    )}
+        }
 
-                    <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
-                        <Search style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} size={18} />
+                    <div className="relative mb-[1.5rem]">
+                        <Search size={18} className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)] text-[var(--color-text-muted)]" />
                         <input
-                            type="text"
-                            placeholder="Buscar por tipo o estado..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{
-                                width: '100%', padding: '0.8rem 1rem 0.8rem 2.8rem',
-                                borderRadius: '12px', border: '1px solid var(--color-border)',
-                                background: 'var(--color-surface)', fontSize: '0.95rem'
-                            }}
-                        />
+            type="text"
+            placeholder="Buscar por tipo o estado..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.8rem_1rem_0.8rem_2.8rem] rounded-[12px] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.95rem]" />
+
+
+
+
+
+          
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        {history.filter(item =>
-                            item.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            item.status?.toLowerCase().includes(searchTerm.toLowerCase())
-                        ).length > 0 ? (
-                            history.filter(item =>
-                                item.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                item.status?.toLowerCase().includes(searchTerm.toLowerCase())
-                            ).map((item) => (
-                                <div key={item.id} className="card" style={{ padding: '1.2rem' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', flex: 1, minWidth: 0 }}>
-                                            <div style={{ width: '45px', height: '45px', background: 'rgba(239,68,68,0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
+                    <div className="flex flex-col gap-4">
+                        {history.filter((item) =>
+          item.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.status?.toLowerCase().includes(searchTerm.toLowerCase())
+          ).length > 0 ?
+          history.filter((item) =>
+          item.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.status?.toLowerCase().includes(searchTerm.toLowerCase())
+          ).map((item) =>
+          <div key={item.id} className="card p-[1.2rem]">
+                                    <div className="flex justify-space-between items-start mb-[1rem] flex-wrap gap-[1rem]">
+                                        <div className="flex items-center gap-[0.8rem] flex-[1] min-width-[0]">
+                                            <div className="w-[45px] h-[45px] bg-[rgba(239,68,68,0.1)] rounded-[10px] flex items-center justify-center text-[#ef4444]">
                                                 <Flame size={22} />
                                             </div>
                                             <div>
-                                                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>Extintor {formatType(item.type) || 'Desconocido'}</h3>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
+                                                <h3 className="m-[0] text-[1.05rem] font-[700]">Extintor {formatType(item.type) || 'Desconocido'}</h3>
+                                                <div className="flex items-center gap-[0.4rem] text-[0.8rem] text-[var(--color-text-muted)] mt-[0.2rem]">
                                                     <Calendar size={14} /> {item.date ? new Date(item.date).toLocaleDateString('es-AR') : new Date(item.savedAt).toLocaleDateString('es-AR')} — <Crosshair size={14} /> {item.confidence ? `${Math.round(item.confidence * 100)}%` : 'N/A'}
                                                 </div>
                                             </div>
                                         </div>
                                         <div style={{
-                                            display: 'flex', alignItems: 'center', gap: '0.4rem',
-                                            fontSize: '0.75rem', fontWeight: 700,
-                                            padding: '0.3rem 0.7rem', borderRadius: '20px',
-                                            background: item.status === 'vigente' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
-                                            color: item.status === 'vigente' ? '#10b981' : '#ef4444',
-                                            flexShrink: 0
-                                        }}>
+
+
+
+                background: item.status === 'vigente' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+                color: item.status === 'vigente' ? '#10b981' : '#ef4444'
+
+              }} className="flex items-center gap-[0.4rem] text-[0.75rem] font-[700] p-[0.3rem_0.7rem] rounded-[20px] flex-shrink-[0]">
                                             {item.status === 'vigente' ? 'VIGENTE' : 'VENCIDO'}
                                         </div>
                                     </div>
 
-                                    <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem', flexWrap: 'wrap' }}>
+                                    <div className="flex gap-[0.8rem] mt-[1rem] border-top-[1px_solid_var(--color-border)] pt-[1rem] flex-wrap">
                                         <button
-                                            onClick={() => setShareItem(item)}
-                                            className="btn-primary"
-                                            style={{ flex: 2, padding: '0.6rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}
-                                        >
+                onClick={() => setShareItem(item)}
+                className="btn-primary flex-[2] p-[0.6rem] text-[0.85rem] flex items-center gap-[0.4rem] justify-center">
+
+                
                                             <Share2 size={16} /> Ver Reporte
                                         </button>
                                         <button
-                                            onClick={() => {
-                                                const url = `${window.location.origin}/v/${currentUser?.uid}/extinguisher/${item.id}?print=true`;
-                                                setQrTarget({ text: url, title: `Inspección — Extintor ${item.type || 'IA'}` });
-                                            }}
-                                            style={{ padding: '0.6rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '8px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                            title="Generar QR"
-                                        >
+                onClick={() => {
+                  const url = `${window.location.origin}/v/${currentUser?.uid}/extinguisher/${item.id}?print=true`;
+                  setQrTarget({ text: url, title: `Inspección — Extintor ${item.type || 'IA'}` });
+                }}
+
+                title="Generar QR" className="p-[0.6rem] bg-[rgba(139,92,246,0.06)] border-[1px_solid_rgba(139,92,246,0.18)] rounded-[8px] text-[#8b5cf6] cursor-pointer flex items-center justify-center">
+                
                                             <QrCode size={16} />
                                         </button>
                                         <button
-                                            onClick={() => setDeleteTarget(item.id)}
-                                            style={{ padding: '0.6rem', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}
-                                        >
+                onClick={() => setDeleteTarget(item.id)} className="p-[0.6rem] bg-[rgba(239,68,68,0.05)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[8px] text-[#ef4444] cursor-pointer">
+
+                
                                             <Trash2 size={18} />
                                         </button>
                                     </div>
                                 </div>
-                            ))
-                        ) : (
-                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
-                                <Camera size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+          ) :
+
+          <div className="text-center p-[3rem] text-[var(--color-text-muted)]">
+                                <Camera size={48} className="opacity-[0.2] mb-[1rem]" />
                                 <p>No hay inspecciones guardadas.</p>
                             </div>
-                        )}
+          }
                     </div>
-                </div>
-            ) : (
-                <>
+                </div> :
+
+      <>
                 {/* Floating action bar for form mode */}
                 <div className="no-print floating-action-bar">
-                    {analysisResult && (
-                        <>
+                    {analysisResult &&
+          <>
                             <button
-                                onClick={handleDownloadPdf}
-                                className="btn-floating-action" style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}
-                            >
+              onClick={handleDownloadPdf}
+              className="btn-floating-action bg-[var(--color-surface)] text-[var(--color-text)] border-[1px_solid_var(--color-border)]">
+              
                                 <Download size={18} /> PDF
                             </button>
                             <button
-                                onClick={() => {
-                                    const data = {
-                                        ...analysisResult,
-                                        extintorInfo: extintorData,
-                                        signature,
-                                        inspectorName,
-                                        savedAt: new Date().toISOString(),
-                                        id: Date.now().toString()
-                                    };
-                                    const current = JSON.parse(localStorage.getItem('extinguisher_checks') || '[]');
-                                    current.unshift(data);
-                                    localStorage.setItem('extinguisher_checks', JSON.stringify(current.slice(0, 100)));
-                                    syncCollection('extinguisher_checks', current.slice(0, 100));
-                                    toast.success('✅ Registro guardado en el historial');
-                                    setIsCameraVisible(false);
-                                    setAnalysisResult(null);
-                                    setCapturedImage(null);
-                                    setSignature(null);
-                                    setInspectorName('');
-                                }}
-                                className="btn-floating-action" style={{ background: '#36B37E', color: '#ffffff' }}
-                            >
+              onClick={() => {
+                const data = {
+                  ...analysisResult,
+                  extintorInfo: extintorData,
+                  signature,
+                  inspectorName,
+                  savedAt: new Date().toISOString(),
+                  id: Date.now().toString()
+                };
+                const current = JSON.parse(localStorage.getItem('extinguisher_checks') || '[]');
+                current.unshift(data);
+                localStorage.setItem('extinguisher_checks', JSON.stringify(current.slice(0, 100)));
+                syncCollection('extinguisher_checks', current.slice(0, 100));
+                toast.success('✅ Registro guardado en el historial');
+                setIsCameraVisible(false);
+                setAnalysisResult(null);
+                setCapturedImage(null);
+                setSignature(null);
+                setInspectorName('');
+              }}
+              className="btn-floating-action bg-[#36B37E] text-[#ffffff]">
+              
                                 <CheckCircle size={18} /> GUARDAR
                             </button>
                         </>
-                    )}
+          }
                 </div>
-                <div className="animate-fade-in" style={{ paddingTop: '1rem' }}>
+                <div className="animate-fade-in pt-[1rem]">
                     <div className="no-print">
                         <PremiumHeader
-                            title="Reconocimiento de Extintores"
-                            subtitle="Captura y analiza el estado del extintor"
-                            icon={<Flame size={36} color="#ffffff" />}
-                        />
+              title="Reconocimiento de Extintores"
+              subtitle="Captura y analiza el estado del extintor"
+              icon={<Flame size={36} color="#ffffff" />} />
+            
                         
-                        <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', zIndex: 10 }}>
+                        <div className="mt-[1.5rem] mb-[1.5rem] z-[10]">
                             <></>
                         </div>
                     </div>
 
             {/* Camera / Image Display */}
-            <div id="extinguisher-pdf-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                <div style={{
-                    position: 'relative',
-                    background: 'var(--color-surface)',
-                    borderRadius: '16px',
-                    overflow: 'hidden',
-                    border: '1px solid var(--color-border)'
-                }}>
-                {!capturedImage ? (
-                    <>
+            <div id="extinguisher-pdf-content" className="flex flex-col gap-[0.8rem]">
+                <div className="relative bg-[var(--color-surface)] rounded-[16px] overflow-[hidden] border-[1px_solid_var(--color-border)]">
+
+
+
+
+
+              
+                {!capturedImage ?
+              <>
                         <video
-                            ref={videoRef}
-                            autoPlay
-                            playsInline
-                            style={{
-                                width: '100%',
-                                height: 'auto',
-                                display: 'block',
-                                maxHeight: '400px',
-                                objectFit: 'cover'
-                            }}
-                        />
-                        <canvas ref={canvasRef} style={{ display: 'none' }} />
+                  ref={videoRef}
+                  autoPlay
+                  playsInline className="w-[100%] h-[auto] block max-height-[400px] object-fit-[cover]" />
+
+
+
+
+
+
+
+                
+                        <canvas ref={canvasRef} className="none" />
                         
                         {/* Camera Controls */}
-                        <div style={{
-                            position: 'absolute',
-                            bottom: '1rem',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            display: 'flex',
-                            gap: '1rem',
-                            alignItems: 'center'
-                        }}>
+                        <div className="absolute bottom-[1rem] left-[50%] transform-[translateX(-50%)] flex gap-[1rem] items-center">
+
+
+
+
+
+
+
+                  
                             <button
-                                onClick={() => setFacingMode(facingMode === 'environment' ? 'user' : 'environment')}
-                                style={{
-                                    padding: '0.8rem',
-                                    background: 'rgba(0,0,0,0.6)',
-                                    border: 'none',
-                                    borderRadius: '50%',
-                                    color: '#ffffff',
-                                    cursor: 'pointer',
-                                    backdropFilter: 'blur(10px)'
-                                }}
-                            >
-                                <FlipHorizontal size={20}  />
+                    onClick={() => setFacingMode(facingMode === 'environment' ? 'user' : 'environment')} className="p-[0.8rem] bg-[rgba(0,0,0,0.6)] border-none rounded-[50%] text-[#ffffff] cursor-pointer backdrop-filter-[blur(10px)]">
+
+
+
+
+
+
+
+
+
+                    
+                                <FlipHorizontal size={20} />
                         </button>
                             
                             <button
-                                onClick={toggleTorch}
-                                style={{
-                                    padding: '0.8rem',
-                                    background: torchOn ? 'rgba(250, 204, 21, 0.7)' : 'rgba(0,0,0,0.6)',
-                                    border: 'none',
-                                    borderRadius: '50%',
-                                    color: torchOn ? '#000' : '#ffffff',
-                                    cursor: 'pointer',
-                                    backdropFilter: 'blur(10px)'
-                                }}
-                            >
+                    onClick={toggleTorch}
+                    style={{
+
+                      background: torchOn ? 'rgba(250, 204, 21, 0.7)' : 'rgba(0,0,0,0.6)',
+
+
+                      color: torchOn ? '#000' : '#ffffff'
+
+
+                    }} className="p-[0.8rem] border-none rounded-[50%] cursor-pointer backdrop-filter-[blur(10px)]">
+                    
                                 {torchOn ? <Zap size={20} /> : <ZapOff size={20} />}
                             </button>
                             
                             <button
-                                onClick={handleCapture}
-                                style={{
-                                    padding: '1.2rem',
-                                    background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                                    border: 'none',
-                                    borderRadius: '50%',
-                                    color: '#ffffff',
-                                    cursor: 'pointer',
-                                    boxShadow: '0 4px 15px rgba(239, 68, 68, 0.4)'
-                                }}
-                            >
+                    onClick={handleCapture} className="p-[1.2rem] bg-[linear-gradient(135deg,_#ef4444,_#dc2626)] border-none rounded-[50%] text-[#ffffff] cursor-pointer box-shadow-[0_4px_15px_rgba(239,_68,_68,_0.4)]">
+
+
+
+
+
+
+
+
+
+                    
                                 <Camera size={28} />
                             </button>
                         </div>
-                    </>
-                ) : (
-                    <div style={{ position: 'relative' }}>
+                    </> :
+
+              <div className="relative">
                         <img
-                            src={capturedImage}
-                            alt="Extintor capturado"
-                            style={{
-                                width: '100%',
-                                maxHeight: '300px',
-                                objectFit: 'contain',
-                                display: 'block',
-                                background: '#f1f5f9'
-                            }}
-                        />
+                  src={capturedImage}
+                  alt="Extintor capturado" className="w-[100%] max-height-[300px] object-fit-[contain] block bg-[#f1f5f9]" />
+
+
+
+
+
+
+
+                
                         
-                        {isAnalyzing && (
-                            <div style={{
-                                position: 'absolute',
-                                inset: 0,
-                                background: 'rgba(0,0,0,0.7)',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: '#ffffff'
-                            }}>
-                                <Loader2 size={48} className="animate-spin" style={{ marginBottom: '1rem' }} />
-                                <p style={{ fontSize: '1.1rem', fontWeight: 700 }}>Analizando extintor...</p>
-                                <p style={{ fontSize: '0.85rem', opacity: 0.8, marginTop: '0.5rem' }}>
+                        {isAnalyzing &&
+                <div className="absolute inset-[0] bg-[rgba(0,0,0,0.7)] flex flex-col items-center justify-center text-[#ffffff]">
+
+
+
+
+
+
+
+
+                  
+                                <Loader2 size={48} className="animate-spin mb-[1rem]" />
+                                <p className="text-[1.1rem] font-[700]">Analizando extintor...</p>
+                                <p className="text-[0.85rem] opacity-[0.8] mt-[0.5rem]">
                                     La IA está identificando el tipo y estado
                                 </p>
                             </div>
-                        )}
+                }
                         
                         {/* Retry Button */}
-                        {!isAnalyzing && (
-                            <button
-                                onClick={handleRetry}
-                                style={{
-                                    position: 'absolute',
-                                    top: '1rem',
-                                    right: '1rem',
-                                    padding: '0.8rem',
-                                    background: 'rgba(0,0,0,0.6)',
-                                    border: 'none',
-                                    borderRadius: '50%',
-                                    color: '#ffffff',
-                                    cursor: 'pointer',
-                                    backdropFilter: 'blur(10px)'
-                                }}
-                            >
+                        {!isAnalyzing &&
+                <button
+                  onClick={handleRetry} className="absolute top-[1rem] right-[1rem] p-[0.8rem] bg-[rgba(0,0,0,0.6)] border-none rounded-[50%] text-[#ffffff] cursor-pointer backdrop-filter-[blur(10px)]">
+
+
+
+
+
+
+
+
+
+
+
+
+                  
                                 <RefreshCw size={20} />
                             </button>
-                        )}
+                }
                     </div>
-                )}
+              }
             </div>
 
             {/* Analysis Results */}
-            {analysisResult && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+            {analysisResult &&
+            <div className="flex flex-col gap-[0.8rem]">
                     {/* Main Result Card */}
                     <div style={{
-                        padding: '1rem',
-                        background: extintorData ? 
-                            `linear-gradient(135deg, ${extintorData.color}20, ${extintorData.color}10)` : 
-                            'var(--color-surface)',
-                        borderRadius: '12px',
-                        border: `2px solid ${extintorData?.color || 'var(--color-border)'}`
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem' }}>
-                            <div style={{
-                                fontSize: '2.5rem',
-                                background: '#ffffff',
-                                padding: '0.8rem',
-                                borderRadius: '12px',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                            }}>
+
+                background: extintorData ?
+                `linear-gradient(135deg, ${extintorData.color}20, ${extintorData.color}10)` :
+                'var(--color-surface)',
+
+                border: `2px solid ${extintorData?.color || 'var(--color-border)'}`
+              }} className="p-[1rem] rounded-[12px]">
+                        <div className="flex items-start gap-[0.8rem]">
+                            <div className="text-[2.5rem] bg-[#ffffff] p-[0.8rem] rounded-[12px] box-shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+
+
+
+
+
+                    
                                 {extintorData?.icon || '🧯'}
                             </div>
-                            <div style={{ flex: 1 }}>
-                                <h2 style={{ 
-                                    margin: '0 0 0.3rem 0', 
-                                    fontSize: '1.1rem', 
-                                    fontWeight: 900,
-                                    color: extintorData?.color || 'var(--color-text)'
-                                }}>
+                            <div className="flex-[1]">
+                                <h2 style={{
+
+
+
+                      color: extintorData?.color || 'var(--color-text)'
+                    }} className="m-[0_0_0.3rem_0] text-[1.1rem] font-[900]">
                                     {extintorData?.name || 'Extintor no identificado'}
                                 </h2>
                                 
-                                <div style={{ 
-                                    display: 'inline-flex', 
-                                    alignItems: 'center', 
-                                    gap: '0.4rem',
-                                    padding: '0.3rem 0.6rem',
-                                    background: analysisResult.status === 'vigente' ? 
-                                        'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                                    borderRadius: '20px',
-                                    fontSize: '0.85rem',
-                                    fontWeight: 700,
-                                    color: analysisResult.status === 'vigente' ? '#10b981' : '#ef4444',
-                                    marginBottom: '1rem'
-                                }}>
-                                    {analysisResult.status === 'vigente' ? 
-                                        <CheckCircle size={16} /> : 
-                                        <AlertTriangle size={16} />
-                                    }
+                                <div style={{
+
+
+
+
+                      background: analysisResult.status === 'vigente' ?
+                      'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+
+
+
+                      color: analysisResult.status === 'vigente' ? '#10b981' : '#ef4444'
+
+                    }} className="display-[inline-flex] items-center gap-[0.4rem] p-[0.3rem_0.6rem] rounded-[20px] text-[0.85rem] font-[700] mb-[1rem]">
+                                    {analysisResult.status === 'vigente' ?
+                      <CheckCircle size={16} /> :
+                      <AlertTriangle size={16} />
+                      }
                                     Estado: {analysisResult.status?.toUpperCase() || 'DESCONOCIDO'}
                                 </div>
                                 
-                                <p style={{ 
-                                    margin: 0, 
-                                    fontSize: '0.9rem', 
-                                    color: 'var(--color-text-muted)',
-                                    lineHeight: 1.5
-                                }}>
+                                <p className="m-[0] text-[0.9rem] text-[var(--color-text-muted)] line-height-[1.5]">
+
+
+
+
+                      
                                     {extintorData?.fires || 'No disponible'}
                                 </p>
                             </div>
@@ -733,199 +733,199 @@ export default function ExtinguisherAI() {
                     </div>
 
                     {/* Details Grid */}
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-                        gap: '0.8rem'
-                    }}>
+                    <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(130px,_1fr))] gap-[0.8rem]">
+
+
+
+                
                         {/* Capacity */}
-                        <div style={{
-                            padding: '0.8rem',
-                            background: 'var(--color-surface)',
-                            borderRadius: '10px',
-                            border: '1px solid var(--color-border)'
-                        }}>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                        <div className="p-[0.8rem] bg-[var(--color-surface)] rounded-[10px] border-[1px_solid_var(--color-border)]">
+
+
+
+
+                  
+                            <div className="text-[0.7rem] text-[var(--color-text-muted)] font-[700] uppercase mb-[0.3rem]">
                                 📊 Capacidad
                             </div>
-                            <div style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--color-text)' }}>
+                            <div className="text-[1.1rem] font-[900] text-[var(--color-text)]">
                                 {analysisResult.capacity || 'N/A'}
                             </div>
                         </div>
 
                         {/* Last Check */}
-                        <div style={{
-                            padding: '0.8rem',
-                            background: 'var(--color-surface)',
-                            borderRadius: '10px',
-                            border: '1px solid var(--color-border)'
-                        }}>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                        <div className="p-[0.8rem] bg-[var(--color-surface)] rounded-[10px] border-[1px_solid_var(--color-border)]">
+
+
+
+
+                  
+                            <div className="text-[0.7rem] text-[var(--color-text-muted)] font-[700] uppercase mb-[0.3rem]">
                                 📅 Último Control
                             </div>
-                            <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--color-text)' }}>
+                            <div className="text-[0.9rem] font-[800] text-[var(--color-text)]">
                                 {analysisResult.lastCheck ? new Date(analysisResult.lastCheck).toLocaleDateString('es-AR') : 'N/A'}
                             </div>
                         </div>
 
                         {/* Next Check */}
-                        <div style={{
-                            padding: '0.8rem',
-                            background: 'var(--color-surface)',
-                            borderRadius: '10px',
-                            border: '1px solid var(--color-border)'
-                        }}>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                        <div className="p-[0.8rem] bg-[var(--color-surface)] rounded-[10px] border-[1px_solid_var(--color-border)]">
+
+
+
+
+                  
+                            <div className="text-[0.7rem] text-[var(--color-text-muted)] font-[700] uppercase mb-[0.3rem]">
                                 ⏰ Próximo Control
                             </div>
-                            <div style={{ fontSize: '0.9rem', fontWeight: 800, color: analysisResult.nextCheck ? '#f59e0b' : 'var(--color-text)' }}>
+                            <div style={{ color: analysisResult.nextCheck ? '#f59e0b' : 'var(--color-text)' }} className="text-[0.9rem] font-[800]">
                                 {analysisResult.nextCheck ? new Date(analysisResult.nextCheck).toLocaleDateString('es-AR') : 'N/A'}
                             </div>
                         </div>
 
                         {/* PH Date */}
-                        <div style={{
-                            padding: '0.8rem',
-                            background: 'var(--color-surface)',
-                            borderRadius: '10px',
-                            border: '1px solid var(--color-border)'
-                        }}>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                        <div className="p-[0.8rem] bg-[var(--color-surface)] rounded-[10px] border-[1px_solid_var(--color-border)]">
+
+
+
+
+                  
+                            <div className="text-[0.7rem] text-[var(--color-text-muted)] font-[700] uppercase mb-[0.3rem]">
                                 💧 Vencimiento P.H.
                             </div>
-                            <div style={{ fontSize: '0.9rem', fontWeight: 800, color: analysisResult.phDate ? '#3b82f6' : 'var(--color-text)' }}>
+                            <div style={{ color: analysisResult.phDate ? '#3b82f6' : 'var(--color-text)' }} className="text-[0.9rem] font-[800]">
                                 {analysisResult.phDate ? new Date(analysisResult.phDate).toLocaleDateString('es-AR') : 'N/A'}
                             </div>
                         </div>
 
                         {/* Confidence */}
-                        <div style={{
-                            padding: '0.8rem',
-                            background: 'var(--color-surface)',
-                            borderRadius: '10px',
-                            border: '1px solid var(--color-border)'
-                        }}>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                        <div className="p-[0.8rem] bg-[var(--color-surface)] rounded-[10px] border-[1px_solid_var(--color-border)]">
+
+
+
+
+                  
+                            <div className="text-[0.7rem] text-[var(--color-text-muted)] font-[700] uppercase mb-[0.3rem]">
                                 🎯 Confianza IA
                             </div>
-                            <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#10b981' }}>
+                            <div className="text-[1.1rem] font-[900] text-[#10b981]">
                                 {Math.round((analysisResult.confidence || 0) * 100)}%
                             </div>
                         </div>
                     </div>
 
                     {/* Usage Instructions */}
-                    {extintorData && (
-                        <div style={{
-                            padding: '0.8rem 1rem',
-                            background: `${extintorData.color}10`,
-                            borderRadius: '10px',
-                            border: `1px solid ${extintorData.color}30`
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+                    {extintorData &&
+              <div style={{
+
+                background: `${extintorData.color}10`,
+
+                border: `1px solid ${extintorData.color}30`
+              }} className="p-[0.8rem_1rem] rounded-[10px]">
+                            <div className="flex items-center gap-[0.5rem] mb-[0.4rem]">
                                 <Info size={18} color={extintorData.color} />
-                                <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: extintorData.color }}>
+                                <h3 style={{ color: extintorData.color }} className="m-[0] text-[0.9rem] font-[800]">
                                     Modo de Uso
                                 </h3>
                             </div>
-                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text)', lineHeight: 1.5 }}>
+                            <p className="m-[0] text-[0.8rem] text-[var(--color-text)] line-height-[1.5]">
                                 {extintorData.usage}
                             </p>
                         </div>
-                    )}
+              }
 
                     {/* Recommendations */}
-                    {analysisResult.recommendations && (
-                        <div style={{
-                            padding: '0.8rem 1rem',
-                            background: 'var(--color-surface)',
-                            borderRadius: '10px',
-                            border: '1px solid var(--color-border)'
-                        }}>
-                            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', fontWeight: 800 }}>
+                    {analysisResult.recommendations &&
+              <div className="p-[0.8rem_1rem] bg-[var(--color-surface)] rounded-[10px] border-[1px_solid_var(--color-border)]">
+
+
+
+
+                
+                            <h3 className="m-[0_0_0.5rem_0] text-[0.9rem] font-[800]">
                                 📋 Recomendaciones
                             </h3>
-                            <ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'var(--color-text)', lineHeight: 1.6 }}>
-                                {analysisResult.recommendations.map((rec, i) => (
-                                    <li key={i} style={{ fontSize: '0.8rem' }}>{rec}</li>
-                                ))}
+                            <ul className="m-[0] pl-[1.5rem] text-[var(--color-text)] line-height-[1.6]">
+                                {analysisResult.recommendations.map((rec, i) =>
+                  <li key={i} className="text-[0.8rem]">{rec}</li>
+                  )}
                             </ul>
                         </div>
-                    )}
+              }
 
                     {/* Signature */}
-                    {analysisResult && (
-                        <div style={{
-                            padding: '1rem',
-                            background: 'var(--color-surface)',
-                            borderRadius: '12px',
-                            border: '1px solid var(--color-border)',
-                            marginTop: '0.5rem',
-                            pageBreakInside: 'avoid',
-                            textAlign: 'center',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center'
-                        }}>
-                            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800 }}>Firma del Inspector</h3>
-                            <input 
-                                type="text"
-                                placeholder="Nombre del Inspector / Técnico"
-                                value={inspectorName}
-                                onChange={(e) => setInspectorName(e.target.value)}
-                                style={{ 
-                                    width: '100%', padding: '0.8rem', borderRadius: '8px', 
-                                    border: '1px solid var(--color-border)', background: 'var(--color-surface)', 
-                                    marginBottom: '1rem', color: 'var(--color-text)', fontSize: '0.95rem' 
-                                }}
-                            />
+                    {analysisResult &&
+              <div className="p-[1rem] bg-[var(--color-surface)] rounded-[12px] border-[1px_solid_var(--color-border)] mt-[0.5rem] page-break-inside-[avoid] text-center flex flex-col items-center">
+
+
+
+
+
+
+
+
+
+
+                
+                            <h3 className="m-[0_0_1rem_0] text-[1rem] font-[800]">Firma del Inspector</h3>
+                            <input
+                  type="text"
+                  placeholder="Nombre del Inspector / Técnico"
+                  value={inspectorName}
+                  onChange={(e) => setInspectorName(e.target.value)} className="w-[100%] p-[0.8rem] rounded-[8px] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] mb-[1rem] text-[var(--color-text)] text-[0.95rem]" />
+
+
+
+
+
+                
                             <div className="no-print">
                                 <SignatureCanvas
-                                    onSave={(sig) => setSignature(sig)}
-                                />
+                    onSave={(sig) => setSignature(sig)} />
+                  
                             </div>
                             
                             {/* PDF View for Signature */}
-                            {signature && (
-                                <div className="print-only" style={{ display: 'none', textAlign: 'center', marginTop: '1rem' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
-                                        <img src={signature} alt="Firma Inspector" style={{ height: '80px', objectFit: 'contain', borderBottom: '1px solid #cbd5e1', marginBottom: '0.5rem', display: 'block' }} />
+                            {signature &&
+                <div className="print-only none text-center mt-[1rem]">
+                                    <div className="flex justify-center">
+                                        <img src={signature} alt="Firma Inspector" className="h-[80px] object-fit-[contain] border-bottom-[1px_solid_#cbd5e1] mb-[0.5rem] block" />
                                     </div>
-                                    <div style={{ fontSize: '9pt', fontWeight: 800, textAlign: 'center' }}>{inspectorName || 'Inspector'}</div>
-                                    <div style={{ fontSize: '8pt', color: '#64748b', textAlign: 'center' }}>Firma del Inspector</div>
+                                    <div className="text-[9pt] font-[800] text-center">{inspectorName || 'Inspector'}</div>
+                                    <div className="text-[8pt] text-[#64748b] text-center">Firma del Inspector</div>
                                 </div>
-                            )}
+                }
                         </div>
-                    )}
+              }
                 </div>
-            )}
+            }
             
             </div> {/* Cierra extinguisher-pdf-content */}
-            {!analysisResult && (
-                <div style={{
-                    padding: '1.2rem',
-                    background: 'rgba(59, 130, 246, 0.1)',
-                    borderRadius: '12px',
-                    border: '1px solid rgba(59, 130, 246, 0.2)',
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '0.8rem'
-                }}>
-                    <Info size={20} color="#3b82f6" style={{ flexShrink: 0, marginTop: '2px' }} />
+            {!analysisResult &&
+          <div className="p-[1.2rem] bg-[rgba(59,_130,_246,_0.1)] rounded-[12px] border-[1px_solid_rgba(59,_130,_246,_0.2)] flex items-start gap-[0.8rem]">
+
+
+
+
+
+
+
+            
+                    <Info size={20} color="#3b82f6" className="flex-shrink-[0] mt-[2px]" />
                     <div>
-                        <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: '#3b82f6' }}>
+                        <p className="m-[0] text-[0.85rem] font-[700] text-[#3b82f6]">
                             💡 Cómo usar
                         </p>
-                        <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: 'var(--color-text-muted)', lineHeight: 1.6 }}>
+                        <p className="m-[4px_0_0_0] text-[0.8rem] text-[var(--color-text-muted)] line-height-[1.6]">
                             Apuntá la cámara al extintor. La IA identificará el tipo (ABC, CO2, Agua, etc.), 
                             capacidad y estado. Funciona mejor con buena iluminación y etiqueta visible.
                         </p>
                     </div>
                 </div>
-            )}
+          }
             </div>
             </>
-            )}
-        </div>
-    );
+      }
+        </div>);
+
 }

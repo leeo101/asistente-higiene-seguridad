@@ -38,34 +38,34 @@ export default function BottomNav({ onMenuClick }: BottomNavProps): React.ReactE
   if (!currentUser) return null;
 
   const navItems = [
-    { to: '/', icon: <House size={24} weight={location.pathname === '/' ? 'fill' : 'regular'} />, label: 'Inicio' },
-    { to: '/dashboard', icon: <ChartPieSlice size={24} weight={location.pathname === '/dashboard' ? 'fill' : 'regular'} />, label: 'Dashboard' },
-    { to: '/management-report', icon: <ChartBar size={24} weight={location.pathname === '/management-report' ? 'fill' : 'regular'} />, label: 'Reportes' },
-  ];
+  { to: '/', icon: <House size={24} weight={location.pathname === '/' ? 'fill' : 'regular'} />, label: 'Inicio' },
+  { to: '/dashboard', icon: <ChartPieSlice size={24} weight={location.pathname === '/dashboard' ? 'fill' : 'regular'} />, label: 'Dashboard' },
+  { to: '/management-report', icon: <ChartBar size={24} weight={location.pathname === '/management-report' ? 'fill' : 'regular'} />, label: 'Reportes' }];
+
 
   return (
     <div
-      className="bottom-nav hide-on-desktop"
+      className="bottom-nav hide-on-desktop fixed bottom-[0] left-[0] right-[0] h-[65px] bg-[var(--color-surface)] border-top-[1px_solid_var(--color-border)] flex items-center justify-space-around pb-[env(safe-area-inset-bottom)] z-[900] transition-[transform_0.3s_cubic-bezier(0.4,_0,_0.2,_1)] backdrop-filter-[blur(20px)] webkit-backdrop-filter-[blur(20px)] box-shadow-[0_-4px_20px_rgba(0,0,0,0.05)]"
       style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: '65px',
-        background: 'var(--color-surface)',
-        borderTop: '1px solid var(--color-border)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        paddingBottom: 'env(safe-area-inset-bottom)', // Soporte para notch/barras de sistema en iOS/Android
-        zIndex: 900,
-        transform: isVisible ? 'translateY(0)' : 'translateY(100%)',
-        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        boxShadow: '0 -4px 20px rgba(0,0,0,0.05)',
-      }}
-    >
+
+
+
+
+
+
+
+
+
+
+
+
+        transform: isVisible ? 'translateY(0)' : 'translateY(100%)'
+
+
+
+
+      }}>
+      
       {navItems.map((item) => {
         const active = location.pathname === item.to;
         return (
@@ -73,54 +73,54 @@ export default function BottomNav({ onMenuClick }: BottomNavProps): React.ReactE
             key={item.to}
             to={item.to}
             style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              textDecoration: 'none',
-              color: active ? 'var(--color-primary)' : 'var(--color-text-muted)',
-              width: '25%',
-              height: '100%',
-              gap: '2px',
-              transition: 'color 0.2s',
-              position: 'relative'
-            }}
-          >
-            {active && (
-              <span style={{ 
-                position: 'absolute', top: 0, width: '40%', height: '3px', 
-                background: 'var(--color-primary)', borderBottomLeftRadius: '3px', borderBottomRightRadius: '3px' 
-              }} />
-            )}
-            <div style={{ transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)', transform: active ? 'scale(1.15) translateY(-2px)' : 'scale(1)' }}>
+
+
+
+
+
+              color: active ? 'var(--color-primary)' : 'var(--color-text-muted)'
+
+
+
+
+
+            }} className="flex flex-col items-center justify-center text-decoration-[none] w-[25%] h-[100%] gap-[2px] transition-[color_0.2s] relative">
+            
+            {active &&
+            <span className="absolute top-[0] w-[40%] h-[3px] bg-[var(--color-primary)] border-bottom-left-radius-[3px] border-bottom-right-radius-[3px]" />
+
+
+
+            }
+            <div style={{ transform: active ? 'scale(1.15) translateY(-2px)' : 'scale(1)' }} className="transition-[transform_0.2s_cubic-bezier(0.34,_1.56,_0.64,_1)]">
                 {item.icon}
             </div>
-            <span style={{ fontSize: '10px', fontWeight: active ? 700 : 500 }}>{item.label}</span>
-          </Link>
-        );
+            <span style={{ fontWeight: active ? 700 : 500 }} className="text-[10px]">{item.label}</span>
+          </Link>);
+
       })}
 
       {/* Botón de Menú (Abre el Sidebar) */}
       <button
-        onClick={onMenuClick}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'transparent',
-          border: 'none',
-          color: 'var(--color-text-muted)',
-          width: '25%',
-          height: '100%',
-          gap: '2px',
-          padding: 0,
-          cursor: 'pointer'
-        }}
-      >
+        onClick={onMenuClick} className="flex flex-col items-center justify-center bg-[transparent] border-none text-[var(--color-text-muted)] w-[25%] h-[100%] gap-[2px] p-[0] cursor-pointer">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
         <List size={24} weight="regular" />
-        <span style={{ fontSize: '10px', fontWeight: 500 }}>Más</span>
+        <span className="text-[10px] font-[500]">Más</span>
       </button>
-    </div>
-  );
+    </div>);
+
 }

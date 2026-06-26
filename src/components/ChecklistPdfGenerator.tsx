@@ -5,104 +5,104 @@ import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
 
 export default function ChecklistPdfGenerator({
-    checklistData,
-    showSignatures = { operator: true, supervisor: true, professional: true },
-    isHeadless = false,
-    pdfElementId = 'pdf-content'
-}: {
-    checklistData: any,
-    showSignatures?: { operator: boolean, supervisor: boolean, professional: boolean },
-    isHeadless?: boolean,
-    pdfElementId?: string
-}): React.ReactElement | null {
-    if (!checklistData) return null;
+  checklistData,
+  showSignatures = { operator: true, supervisor: true, professional: true },
+  isHeadless = false,
+  pdfElementId = 'pdf-content'
 
-    const fullData = checklistData;
-    let sections = fullData.activeSections;
-    if (!sections) {
-        let legacyItems = fullData.items || fullData.checks || [];
-        if (!Array.isArray(legacyItems) && typeof legacyItems === 'object') {
-            legacyItems = Object.values(legacyItems);
-        }
-        if (legacyItems.length > 0) {
-            sections = [{
-                id: 'legacy',
-                title: 'PUNTOS DE INSPECCIÓN',
-                isMandatory: false,
-                items: legacyItems
-            }];
-        } else {
-            sections = [];
-        }
+
+
+
+
+}: {checklistData: any;showSignatures?: {operator: boolean;supervisor: boolean;professional: boolean;};isHeadless?: boolean;pdfElementId?: string;}): React.ReactElement | null {
+  if (!checklistData) return null;
+
+  const fullData = checklistData;
+  let sections = fullData.activeSections;
+  if (!sections) {
+    let legacyItems = fullData.items || fullData.checks || [];
+    if (!Array.isArray(legacyItems) && typeof legacyItems === 'object') {
+      legacyItems = Object.values(legacyItems);
     }
-    // Fallback to root properties if companyInfo/inspectionInfo are missing (e.g. old summary data)
-    const compInfo = fullData.companyInfo || { name: fullData.empresa, responsable: fullData.responsable };
-    const inspInfo = fullData.inspectionInfo || { item: fullData.equipo, serial: fullData.serial, date: fullData.fecha?.split('T')[0] };
-    const obs = fullData.observations || '';
-    const actionPlan = fullData.actionPlan || [];
-    const nextReview = fullData.nextReview || '';
-    const selectedNorms = fullData.selectedNorms || [];
-    const availableNorms = fullData.availableNorms || [];
-
-    // Firmas desde localStorage (fallback pro)
-    let actSignature = fullData.professionalSignature || null;
-    let actName = fullData.professionalName || null;
-    let actLic = fullData.professionalLicense || null;
-    let actStamp = fullData.professionalStamp || null;
-
-    if (!actSignature) {
-        try {
-            const lsPersonal = localStorage.getItem('personalData');
-            const lsStamp = localStorage.getItem('signatureStampData');
-            const legacySig = localStorage.getItem('capturedSignature');
-            if (lsStamp) {
-                const parsed = JSON.parse(lsStamp);
-                actSignature = parsed.signature;
-                actStamp = parsed.stamp;
-            }
-            else if (legacySig) { actSignature = legacySig; }
-            if (lsPersonal) {
-                const pd = JSON.parse(lsPersonal);
-                actName = actName || pd.name;
-                actLic = actLic || pd.license;
-            }
-        } catch (e) { }
+    if (legacyItems.length > 0) {
+      sections = [{
+        id: 'legacy',
+        title: 'PUNTOS DE INSPECCIÓN',
+        isMandatory: false,
+        items: legacyItems
+      }];
+    } else {
+      sections = [];
     }
+  }
+  // Fallback to root properties if companyInfo/inspectionInfo are missing (e.g. old summary data)
+  const compInfo = fullData.companyInfo || { name: fullData.empresa, responsable: fullData.responsable };
+  const inspInfo = fullData.inspectionInfo || { item: fullData.equipo, serial: fullData.serial, date: fullData.fecha?.split('T')[0] };
+  const obs = fullData.observations || '';
+  const actionPlan = fullData.actionPlan || [];
+  const nextReview = fullData.nextReview || '';
+  const selectedNorms = fullData.selectedNorms || [];
+  const availableNorms = fullData.availableNorms || [];
 
-    // Calcular estadísticas
-    let totalItems = 0, okCount = 0, failCount = 0, naCount = 0;
-    sections.forEach(section => {
-        section.items.forEach(item => {
-            totalItems++;
-            if (item.status === 'OK') okCount++;
-            else if (item.status === 'FAIL') failCount++;
-            else if (item.status === 'NA') naCount++;
-        });
+  // Firmas desde localStorage (fallback pro)
+  let actSignature = fullData.professionalSignature || null;
+  let actName = fullData.professionalName || null;
+  let actLic = fullData.professionalLicense || null;
+  let actStamp = fullData.professionalStamp || null;
+
+  if (!actSignature) {
+    try {
+      const lsPersonal = localStorage.getItem('personalData');
+      const lsStamp = localStorage.getItem('signatureStampData');
+      const legacySig = localStorage.getItem('capturedSignature');
+      if (lsStamp) {
+        const parsed = JSON.parse(lsStamp);
+        actSignature = parsed.signature;
+        actStamp = parsed.stamp;
+      } else
+      if (legacySig) {actSignature = legacySig;}
+      if (lsPersonal) {
+        const pd = JSON.parse(lsPersonal);
+        actName = actName || pd.name;
+        actLic = actLic || pd.license;
+      }
+    } catch (e) {}
+  }
+
+  // Calcular estadísticas
+  let totalItems = 0,okCount = 0,failCount = 0,naCount = 0;
+  sections.forEach((section) => {
+    section.items.forEach((item) => {
+      totalItems++;
+      if (item.status === 'OK') okCount++;else
+      if (item.status === 'FAIL') failCount++;else
+      if (item.status === 'NA') naCount++;
     });
-    const okPercent = totalItems > 0 ? Math.round((okCount / totalItems) * 100) : 0;
-    const failPercent = totalItems > 0 ? Math.round((failCount / totalItems) * 100) : 0;
-    const naPercent = totalItems > 0 ? Math.round((naCount / totalItems) * 100) : 0;
-    const hasCritical = failCount > 0;
+  });
+  const okPercent = totalItems > 0 ? Math.round(okCount / totalItems * 100) : 0;
+  const failPercent = totalItems > 0 ? Math.round(failCount / totalItems * 100) : 0;
+  const naPercent = totalItems > 0 ? Math.round(naCount / totalItems * 100) : 0;
+  const hasCritical = failCount > 0;
 
-    const activeIds = sections.map((s: any) => s.id);
-    const hasTools = activeIds.some((id: string) => ['manual_tools', 'electric_tools', 'circular_saw', 'grinder'].includes(id));
-    const hasVehicles = activeIds.includes('autoelevadores');
-    const hasPermits = activeIds.some((id: string) => ['espacios_confinados', 'trabajos_caliente', 'trabajos_altura'].includes(id));
-    const hasHeavy = activeIds.some((id: string) => ['scaffolding', 'izaje_gruas'].includes(id));
-    const hasExtinguishers = activeIds.includes('extintores_checklist');
-    return (
-        <div
-            id={pdfElementId}
-            className="pdf-container print-area"
-            style={{
-                width: '100%', maxWidth: '210mm', minHeight: '297mm',
-                padding: '8mm 12mm', backgroundColor: '#ffffff', color: '#1e293b',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.1)', borderRadius: '8px',
-                boxSizing: 'border-box', margin: '0 auto', fontSize: '8pt',
-                fontFamily: 'Helvetica, Arial, sans-serif',
-                borderTop: hasCritical ? '12px solid #dc2626' : '12px solid #2563eb'
-            }}
-        >
+  const activeIds = sections.map((s: any) => s.id);
+  const hasTools = activeIds.some((id: string) => ['manual_tools', 'electric_tools', 'circular_saw', 'grinder'].includes(id));
+  const hasVehicles = activeIds.includes('autoelevadores');
+  const hasPermits = activeIds.some((id: string) => ['espacios_confinados', 'trabajos_caliente', 'trabajos_altura'].includes(id));
+  const hasHeavy = activeIds.some((id: string) => ['scaffolding', 'izaje_gruas'].includes(id));
+  const hasExtinguishers = activeIds.includes('extintores_checklist');
+  return (
+    <div
+      id={pdfElementId}
+      className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[8mm_12mm] bg-[#ffffff] text-[#1e293b] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[8pt] font-family-[Helvetica,_Arial,_sans-serif]"
+      style={{
+
+
+
+
+
+        borderTop: hasCritical ? '12px solid #dc2626' : '12px solid #2563eb'
+      }}>
+      
             <style type="text/css" media="print">
                 {`
                     @page { size: A4 portrait; margin: 10mm; }
@@ -118,331 +118,331 @@ export default function ChecklistPdfGenerator({
             </style>
 
             {/* Header Tripartito */}
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #e2e8f0', paddingBottom: '0.8rem', marginBottom: '1rem', width: '100%' }}>
-                <div style={{ flex: 1, textAlign: 'left' }}>
-                    <p style={{ margin: 0, fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.08em' }}>Sistema de Gestión HSE</p>
-                    <p style={{ margin: 0, fontWeight: 900, fontSize: '0.8rem', textTransform: 'uppercase', color: hasCritical ? '#dc2626' : '#2563eb' }}>Doc. Inspección de Seguridad</p>
+            <div className="flex flex-row justify-space-between items-start border-bottom-[3px_solid_#e2e8f0] pb-[0.8rem] mb-[1rem] w-[100%]">
+                <div className="flex-[1] text-left">
+                    <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.08em]">Sistema de Gestión HSE</p>
+                    <p style={{ color: hasCritical ? '#dc2626' : '#2563eb' }} className="m-[0] font-[900] text-[0.8rem] uppercase">Doc. Inspección de Seguridad</p>
                 </div>
 
-                <div style={{ flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                    <h1 style={{ margin: 0, fontWeight: 900, fontSize: '2.4rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1, color: '#0f172a' }}>{checklistData.checklistTitle || 'CHECK LIST'}</h1>
-                    <div style={{ marginTop: '0.3rem', backgroundColor: hasCritical ? '#dc2626' : '#3b82f6', color: 'white', padding: '0.2rem 0.8rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em' }}>
+                <div className="flex-[2] flex flex-col items-center justify-center text-center">
+                    <h1 className="m-[0] font-[900] text-[2.4rem] letter-spacing-[-0.02em] uppercase line-height-[1] text-[#0f172a]">{checklistData.checklistTitle || 'CHECK LIST'}</h1>
+                    <div style={{ backgroundColor: hasCritical ? '#dc2626' : '#3b82f6' }} className="mt-[0.3rem] text-[white] p-[0.2rem_0.8rem] rounded-[12px] text-[0.65rem] font-[800] letter-spacing-[0.1em]">
                         {hasCritical ? `⚠ ${failCount} NO CONFORMIDAD${failCount > 1 ? 'ES' : ''} DETECTADA${failCount > 1 ? 'S' : ''}` : 'INSPECCIÓN DE HIGIENE Y SEGURIDAD'}
                     </div>
                 </div>
 
-                <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.4rem' }}>
-                    <CompanyLogo style={{ height: '38px', width: 'auto', objectFit: 'contain', maxWidth: '120px' }} />
-                    {inspInfo.serial && (
-                        <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: '0.55rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>DOC N°</div>
-                            <div style={{ fontWeight: 900, fontSize: '1rem', color: '#1e293b' }}>{inspInfo.serial}</div>
+                <div className="flex-[1] text-right flex flex-col items-end gap-[0.4rem]">
+                    <CompanyLogo className="h-[38px] w-[auto] object-fit-[contain] max-w-[120px]" />
+                    {inspInfo.serial &&
+          <div className="text-right">
+                            <div className="text-[0.55rem] font-[900] text-[#94a3b8] uppercase letter-spacing-[0.1em]">DOC N°</div>
+                            <div className="font-[900] text-[1rem] text-[#1e293b]">{inspInfo.serial}</div>
                         </div>
-                    )}
+          }
                 </div>
             </div>
 
             {/* Datos del Relevamiento */}
-            <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1rem', width: '100%' }}>
-                <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
-                    <div style={{ flex: 2, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
-                        <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Building2 size={12}/> CLIENTE / EMPRESA</span>
-                        <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{compInfo.name || '-'}</div>
+            <div className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1rem] w-[100%]">
+                <div className="flex bg-[#f8fafc] border-bottom-[1px_solid_#cbd5e1]">
+                    <div className="flex-[2] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
+                        <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Building2 size={12} /> CLIENTE / EMPRESA</span>
+                        <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{compInfo.name || '-'}</div>
                     </div>
-                    <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
-                        <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={12}/> ÁREA / UBICACIÓN</span>
-                        <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155', marginTop: '0.2rem' }}>{compInfo.cuit || '-'}</div>
+                    <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
+                        <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><MapPin size={12} /> ÁREA / UBICACIÓN</span>
+                        <div className="font-[700] text-[0.8rem] text-[#334155] mt-[0.2rem]">{compInfo.cuit || '-'}</div>
                     </div>
-                    <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
-                        <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={12}/> UBICACIÓN / OBRA</span>
-                        <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155', marginTop: '0.2rem' }}>{compInfo.location || '-'}</div>
+                    <div className="flex-[1] p-[0.4rem_0.6rem]">
+                        <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><MapPin size={12} /> UBICACIÓN / OBRA</span>
+                        <div className="font-[700] text-[0.8rem] text-[#334155] mt-[0.2rem]">{compInfo.location || '-'}</div>
                     </div>
                 </div>
-                <div style={{ display: 'flex', backgroundColor: '#ffffff', borderBottom: '1px solid #cbd5e1' }}>
-                    {(!hasTools && !hasHeavy && !hasVehicles && !hasPermits && !hasExtinguishers) ? (
-                        <div style={{ flex: 2, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
-                            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12}/> {hasPermits ? "SECTOR / ÁREA" : "EQUIPO / ÁREA REVISADA"}</span>
-                            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.item || checklistData.equipo || '-'}</div>
+                <div className="flex bg-[#ffffff] border-bottom-[1px_solid_#cbd5e1]">
+                    {!hasTools && !hasHeavy && !hasVehicles && !hasPermits && !hasExtinguishers ?
+          <div className="flex-[2] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
+                            <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><ClipboardCheck size={12} /> {hasPermits ? "SECTOR / ÁREA" : "EQUIPO / ÁREA REVISADA"}</span>
+                            <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.item || checklistData.equipo || '-'}</div>
+                        </div> :
+
+          <div className="flex-[2] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
+                            <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><AlertTriangle size={12} /> EQUIPO / LUGAR DE INSP.</span>
+                            <div className="font-[700] text-[0.8rem] text-[#334155] mt-[0.2rem]">{inspInfo.date ? new Date(inspInfo.date + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
                         </div>
-                    ) : (
-                        <div style={{ flex: 2, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
-                            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><AlertTriangle size={12}/> EQUIPO / LUGAR DE INSP.</span>
-                            <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155', marginTop: '0.2rem' }}>{inspInfo.date ? new Date(inspInfo.date + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
-                        </div>
-                    )}
-                    <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
-                        <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={12}/> FECHA DE REVISIÓN</span>
-                        <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155', marginTop: '0.2rem' }}>{inspInfo.date ? new Date(inspInfo.date + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
+          }
+                    <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
+                        <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Calendar size={12} /> FECHA DE REVISIÓN</span>
+                        <div className="font-[700] text-[0.8rem] text-[#334155] mt-[0.2rem]">{inspInfo.date ? new Date(inspInfo.date + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
                     </div>
-                    <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
-                        <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><User size={12}/> INSPECTOR</span>
-                        <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155', marginTop: '0.2rem' }}>{compInfo.inspector || '-'}</div>
+                    <div className="flex-[1] p-[0.4rem_0.6rem]">
+                        <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><User size={12} /> INSPECTOR</span>
+                        <div className="font-[700] text-[0.8rem] text-[#334155] mt-[0.2rem]">{compInfo.inspector || '-'}</div>
                     </div>
                 </div>
                 
-                {hasVehicles && (
-                    <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
-                        <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
-                            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12}/> MARCA / MODELO</span>
-                            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.marca || '-'}</div>
+                {hasVehicles &&
+        <div className="flex bg-[#f8fafc] border-bottom-[1px_solid_#cbd5e1]">
+                        <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
+                            <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><ClipboardCheck size={12} /> MARCA / MODELO</span>
+                            <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.marca || '-'}</div>
                         </div>
-                        <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
-                            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Hash size={12}/> DOMINIO (PATENTE)</span>
-                            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.patente || '-'}</div>
+                        <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
+                            <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Hash size={12} /> DOMINIO (PATENTE)</span>
+                            <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.patente || '-'}</div>
                         </div>
-                        <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
-                            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Activity size={12}/> HORÓMETRO / KM</span>
-                            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.horometro || '-'}</div>
+                        <div className="flex-[1] p-[0.4rem_0.6rem]">
+                            <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Activity size={12} /> HORÓMETRO / KM</span>
+                            <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.horometro || '-'}</div>
                         </div>
                     </div>
-                )}
+        }
 
-                {(hasTools || hasHeavy) && !hasVehicles && (
-                    <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
-                        <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
-                            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12}/> MARCA / MODELO</span>
-                            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.marca || '-'}</div>
+                {(hasTools || hasHeavy) && !hasVehicles &&
+        <div className="flex bg-[#f8fafc] border-bottom-[1px_solid_#cbd5e1]">
+                        <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
+                            <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><ClipboardCheck size={12} /> MARCA / MODELO</span>
+                            <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.marca || '-'}</div>
                         </div>
-                        <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
-                            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Hash size={12}/> {hasExtinguishers ? "CHAPA / NÚMERO" : "Nº IDENTIFICACIÓN (SERIAL)"}</span>
-                            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.serial || '-'}</div>
+                        <div className="flex-[1] p-[0.4rem_0.6rem]">
+                            <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Hash size={12} /> {hasExtinguishers ? "CHAPA / NÚMERO" : "Nº IDENTIFICACIÓN (SERIAL)"}</span>
+                            <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.serial || '-'}</div>
                         </div>
                     </div>
-                )}
+        }
 
-                {(!hasTools && !hasHeavy && !hasVehicles && !hasPermits) && (
-                    <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
-                        <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
-                            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Hash size={12}/> {hasExtinguishers ? "CHAPA / NÚMERO" : "Nº IDENTIFICACIÓN (SERIAL)"}</span>
-                            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.serial || '-'}</div>
+                {!hasTools && !hasHeavy && !hasVehicles && !hasPermits &&
+        <div className="flex bg-[#f8fafc] border-bottom-[1px_solid_#cbd5e1]">
+                        <div className="flex-[1] p-[0.4rem_0.6rem]">
+                            <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Hash size={12} /> {hasExtinguishers ? "CHAPA / NÚMERO" : "Nº IDENTIFICACIÓN (SERIAL)"}</span>
+                            <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.serial || '-'}</div>
                         </div>
                     </div>
-                )}
+        }
 
-                {hasPermits && (
-                    <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
-                        <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
-                            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12}/> Nº PERMISO DE TRABAJO (PT)</span>
-                            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{compInfo.address || '-'}</div>
+                {hasPermits &&
+        <div className="flex bg-[#f8fafc] border-bottom-[1px_solid_#cbd5e1]">
+                        <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
+                            <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><ClipboardCheck size={12} /> Nº PERMISO DE TRABAJO (PT)</span>
+                            <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{compInfo.address || '-'}</div>
                         </div>
-                        <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
-                            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><User size={12}/> RESPONSABLE EMPRESA</span>
-                            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.responsableArea || '-'}</div>
+                        <div className="flex-[1] p-[0.4rem_0.6rem]">
+                            <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><User size={12} /> RESPONSABLE EMPRESA</span>
+                            <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.responsableArea || '-'}</div>
                         </div>
                     </div>
-                )}
+        }
 
-                {hasExtinguishers && (
-                    <div style={{ display: 'flex', backgroundColor: '#fef2f2', borderTop: '1px solid #cbd5e1' }}>
-                        <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
-                            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#991b1b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={12}/> VENCIMIENTO CARGA (EXTINTOR)</span>
-                            <div style={{ fontWeight: 800, fontSize: '0.8rem', color: '#7f1d1d', marginTop: '0.2rem' }}>{inspInfo.expirationDate ? new Date(inspInfo.expirationDate + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
+                {hasExtinguishers &&
+        <div className="flex bg-[#fef2f2] border-top-[1px_solid_#cbd5e1]">
+                        <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
+                            <span className="text-[0.55rem] font-[800] text-[#991b1b] uppercase flex items-center gap-[0.3rem]"><Calendar size={12} /> VENCIMIENTO CARGA (EXTINTOR)</span>
+                            <div className="font-[800] text-[0.8rem] text-[#7f1d1d] mt-[0.2rem]">{inspInfo.expirationDate ? new Date(inspInfo.expirationDate + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
                         </div>
-                        <div style={{ flex: 2, padding: '0.4rem 0.6rem' }}>
-                            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#991b1b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><AlertTriangle size={12}/> OBSERVACIONES EXTINTOR</span>
-                            <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#7f1d1d', marginTop: '0.2rem' }}>{inspInfo.extinguisherObs || '-'}</div>
+                        <div className="flex-[2] p-[0.4rem_0.6rem]">
+                            <span className="text-[0.55rem] font-[800] text-[#991b1b] uppercase flex items-center gap-[0.3rem]"><AlertTriangle size={12} /> OBSERVACIONES EXTINTOR</span>
+                            <div className="font-[700] text-[0.8rem] text-[#7f1d1d] mt-[0.2rem]">{inspInfo.extinguisherObs || '-'}</div>
                         </div>
                     </div>
-                )}
+        }
             </div>
 
             {/* Resumen Estadístico - Cards modernas */}
-            <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '1rem' }}>
-                <div style={{ flex: 1, backgroundColor: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: '8px', padding: '0.6rem', textAlign: 'center' }}>
-                    <div style={{ fontSize: '0.55rem', fontWeight: 800, color: '#16a34a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>✓ CUMPLE</div>
-                    <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#15803d', lineHeight: 1 }}>{okCount}</div>
-                    <div style={{ marginTop: '0.2rem', backgroundColor: '#16a34a', color: '#fff', padding: '0.1rem 0.5rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block' }}>{okPercent}%</div>
+            <div className="flex gap-[0.8rem] mb-[1rem]">
+                <div className="flex-[1] bg-[#f0fdf4] border-[1.5px_solid_#86efac] rounded-[8px] p-[0.6rem] text-center">
+                    <div className="text-[0.55rem] font-[800] text-[#16a34a] uppercase letter-spacing-[0.05em] mb-[0.2rem]">✓ CUMPLE</div>
+                    <div className="text-[1.4rem] font-[900] text-[#15803d] line-height-[1]">{okCount}</div>
+                    <div className="mt-[0.2rem] bg-[#16a34a] text-[#fff] p-[0.1rem_0.5rem] rounded-[12px] text-[0.65rem] font-[900] inline-block">{okPercent}%</div>
                 </div>
-                <div style={{ flex: 1, backgroundColor: '#fef2f2', border: '1.5px solid #fca5a5', borderRadius: '8px', padding: '0.6rem', textAlign: 'center' }}>
-                    <div style={{ fontSize: '0.55rem', fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>✗ NO CUMPLE</div>
-                    <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#b91c1c', lineHeight: 1 }}>{failCount}</div>
-                    <div style={{ marginTop: '0.2rem', backgroundColor: '#dc2626', color: '#fff', padding: '0.1rem 0.5rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block' }}>{failPercent}%</div>
+                <div className="flex-[1] bg-[#fef2f2] border-[1.5px_solid_#fca5a5] rounded-[8px] p-[0.6rem] text-center">
+                    <div className="text-[0.55rem] font-[800] text-[#dc2626] uppercase letter-spacing-[0.05em] mb-[0.2rem]">✗ NO CUMPLE</div>
+                    <div className="text-[1.4rem] font-[900] text-[#b91c1c] line-height-[1]">{failCount}</div>
+                    <div className="mt-[0.2rem] bg-[#dc2626] text-[#fff] p-[0.1rem_0.5rem] rounded-[12px] text-[0.65rem] font-[900] inline-block">{failPercent}%</div>
                 </div>
-                <div style={{ flex: 1, backgroundColor: '#f8fafc', border: '1.5px solid #cbd5e1', borderRadius: '8px', padding: '0.6rem', textAlign: 'center' }}>
-                    <div style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>— N / A</div>
-                    <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#475569', lineHeight: 1 }}>{naCount}</div>
-                    <div style={{ marginTop: '0.2rem', backgroundColor: '#64748b', color: '#fff', padding: '0.1rem 0.5rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block' }}>{naPercent}%</div>
+                <div className="flex-[1] bg-[#f8fafc] border-[1.5px_solid_#cbd5e1] rounded-[8px] p-[0.6rem] text-center">
+                    <div className="text-[0.55rem] font-[800] text-[#64748b] uppercase letter-spacing-[0.05em] mb-[0.2rem]">— N / A</div>
+                    <div className="text-[1.4rem] font-[900] text-[#475569] line-height-[1]">{naCount}</div>
+                    <div className="mt-[0.2rem] bg-[#64748b] text-[#fff] p-[0.1rem_0.5rem] rounded-[12px] text-[0.65rem] font-[900] inline-block">{naPercent}%</div>
                 </div>
             </div>
 
             {/* Secciones del Checklist */}
             {sections.map((section, sectionIdx) => {
-                const sectionFails = section.items.filter(item => item.status === 'FAIL');
-                return (
-                    <div key={section.id} style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '0.8rem' }}>
-                        <div style={{ backgroundColor: '#e2e8f0', padding: '0.4rem 0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #cbd5e1' }}>
-                            <h3 style={{ margin: 0, fontWeight: 900, fontSize: '0.75rem', color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+        const sectionFails = section.items.filter((item) => item.status === 'FAIL');
+        return (
+          <div key={section.id} className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[0.8rem]">
+                        <div className="bg-[#e2e8f0] p-[0.4rem_0.8rem] flex justify-space-between items-center border-bottom-[2px_solid_#cbd5e1]">
+                            <h3 className="m-[0] font-[900] text-[0.75rem] text-[#0f172a] uppercase letter-spacing-[0.04em]">
                                 {section.title}
                             </h3>
-                            {sectionFails.length > 0 ? (
-                                <span style={{ padding: '0.1rem 0.5rem', backgroundColor: '#ef4444', color: '#fff', borderRadius: '12px', fontSize: '0.55rem', fontWeight: 800 }}>
+                            {sectionFails.length > 0 ?
+              <span className="p-[0.1rem_0.5rem] bg-[#ef4444] text-[#fff] rounded-[12px] text-[0.55rem] font-[800]">
                                     ⚠ {sectionFails.length} NO CONFORME{sectionFails.length > 1 ? 'S' : ''}
-                                </span>
-                            ) : (
-                                <span style={{ padding: '0.1rem 0.5rem', backgroundColor: '#166534', color: '#dcfce7', borderRadius: '12px', fontSize: '0.55rem', fontWeight: 800 }}>
+                                </span> :
+
+              <span className="p-[0.1rem_0.5rem] bg-[#166534] text-[#dcfce7] rounded-[12px] text-[0.55rem] font-[800]">
                                     ✓ SIN DESVÍOS
                                 </span>
-                            )}
+              }
                         </div>
 
                         <div>
-                            {section.items.map((item, idx) => (
-                                <div key={idx} className="avoid-break" style={{
-                                    borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid #f1f5f9',
-                                    pageBreakInside: 'avoid',
-                                    backgroundColor: item.status === 'FAIL' ? '#fef2f2' : idx % 2 === 0 ? '#ffffff' : '#f8fafc'
-                                }}>
+                            {section.items.map((item, idx) =>
+              <div key={idx} className="avoid-break page-break-inside-[avoid]" style={{
+                borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid #f1f5f9',
+
+                backgroundColor: item.status === 'FAIL' ? '#fef2f2' : idx % 2 === 0 ? '#ffffff' : '#f8fafc'
+              }}>
                                     {/* Fila principal: número | texto | estado */}
-                                    <div style={{ display: 'flex', alignItems: 'stretch' }}>
-                                        <div style={{ width: '26px', flexShrink: 0, padding: '0.4rem 0.2rem', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRight: '1px solid #e2e8f0' }}>
-                                            <span style={{ backgroundColor: '#e2e8f0', color: '#64748b', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', fontSize: '0.55rem', fontWeight: 900 }}>
+                                    <div className="flex items-stretch">
+                                        <div className="w-[26px] flex-shrink-[0] p-[0.4rem_0.2rem] flex justify-center items-center border-right-[1px_solid_#e2e8f0]">
+                                            <span className="bg-[#e2e8f0] text-[#64748b] w-[16px] h-[16px] flex items-center justify-center rounded-[4px] text-[0.55rem] font-[900]">
                                                 {idx + 1}
                                             </span>
                                         </div>
 
-                                        <div style={{ flex: 1, padding: '0.4rem 0.6rem', display: 'flex', alignItems: 'center', fontWeight: 600, fontSize: '0.75rem', color: item.status === 'FAIL' ? '#7f1d1d' : '#334155' }}>
+                                        <div style={{ color: item.status === 'FAIL' ? '#7f1d1d' : '#334155' }} className="flex-[1] p-[0.4rem_0.6rem] flex items-center font-[600] text-[0.75rem]">
                                             {item.text}
                                         </div>
 
-                                        <div style={{ width: '60px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.4rem', borderLeft: '1px solid #e2e8f0' }}>
-                                            {item.status === 'OK' ? (
-                                                <span style={{ backgroundColor: '#dcfce7', color: '#16a34a', padding: '0.15rem 0.4rem', borderRadius: '4px', fontWeight: 900, fontSize: '0.6rem' }}>C</span>
-                                            ) : item.status === 'FAIL' ? (
-                                                <span style={{ backgroundColor: '#fecaca', color: '#dc2626', padding: '0.15rem 0.4rem', borderRadius: '4px', fontWeight: 900, fontSize: '0.6rem' }}>NC</span>
-                                            ) : (
-                                                <span style={{ backgroundColor: '#f1f5f9', color: '#94a3b8', padding: '0.15rem 0.4rem', borderRadius: '4px', fontWeight: 900, fontSize: '0.6rem' }}>N/A</span>
-                                            )}
+                                        <div className="w-[60px] flex-shrink-[0] flex items-center justify-center p-[0.4rem] border-left-[1px_solid_#e2e8f0]">
+                                            {item.status === 'OK' ?
+                    <span className="bg-[#dcfce7] text-[#16a34a] p-[0.15rem_0.4rem] rounded-[4px] font-[900] text-[0.6rem]">C</span> :
+                    item.status === 'FAIL' ?
+                    <span className="bg-[#fecaca] text-[#dc2626] p-[0.15rem_0.4rem] rounded-[4px] font-[900] text-[0.6rem]">NC</span> :
+
+                    <span className="bg-[#f1f5f9] text-[#94a3b8] p-[0.15rem_0.4rem] rounded-[4px] font-[900] text-[0.6rem]">N/A</span>
+                    }
                                         </div>
                                     </div>
 
                                     {/* Observación e imágenes del ítem */}
-                                    {(item.observation || (item.photos && item.photos.length > 0)) && (
-                                        <div style={{ padding: '0.2rem 0.6rem 0.4rem 2rem', borderTop: '1px dashed #e2e8f0', backgroundColor: item.status === 'FAIL' ? '#fef9f9' : '#f8fafc' }}>
-                                            {item.observation && (
-                                                <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.65rem', color: item.status === 'FAIL' ? '#991b1b' : '#475569', fontStyle: 'italic', fontWeight: 600 }}>
+                                    {(item.observation || item.photos && item.photos.length > 0) &&
+                <div style={{ backgroundColor: item.status === 'FAIL' ? '#fef9f9' : '#f8fafc' }} className="p-[0.2rem_0.6rem_0.4rem_2rem] border-top-[1px_dashed_#e2e8f0]">
+                                            {item.observation &&
+                  <p style={{ color: item.status === 'FAIL' ? '#991b1b' : '#475569' }} className="m-[0_0_0.2rem_0] text-[0.65rem] font-style-[italic] font-[600]">
                                                     📝 {item.observation}
                                                 </p>
-                                            )}
-                                            {item.photos && item.photos.length > 0 && (
-                                                <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
-                                                    {item.photos.map((photo: string, pIdx: number) => (
-                                                        <img
-                                                            key={pIdx}
-                                                            src={photo}
-                                                            alt={`Evidencia ${pIdx + 1}`}
-                                                            style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #cbd5e1' }}
-                                                        />
-                                                    ))}
+                  }
+                                            {item.photos && item.photos.length > 0 &&
+                  <div className="flex gap-[0.3rem] flex-wrap">
+                                                    {item.photos.map((photo: string, pIdx: number) =>
+                    <img
+                      key={pIdx}
+                      src={photo}
+                      alt={`Evidencia ${pIdx + 1}`} className="w-[40px] h-[40px] object-fit-[cover] rounded-[4px] border-[1px_solid_#cbd5e1]" />
+
+
+                    )}
                                                 </div>
-                                            )}
+                  }
                                         </div>
-                                    )}
+                }
                                 </div>
-                            ))}
+              )}
                         </div>
-                    </div>
-                );
-            })}
+                    </div>);
+
+      })}
 
             {/* Observaciones */}
-            {obs && (
-                <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1rem' }}>
-                    <div style={{ backgroundColor: '#334155', color: '#fff', padding: '0.4rem 0.8rem', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            {obs &&
+      <div className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1rem]">
+                    <div className="bg-[#334155] text-[#fff] p-[0.4rem_0.8rem] text-[0.6rem] font-[900] uppercase letter-spacing-[0.05em]">
                         OBSERVACIONES Y COMENTARIOS DEL INSPECTOR
                     </div>
-                    <div style={{ padding: '0.8rem', fontSize: '0.75rem', color: '#334155', fontWeight: 600, whiteSpace: 'pre-wrap', lineHeight: 1.4, backgroundColor: '#f8fafc' }}>
+                    <div className="p-[0.8rem] text-[0.75rem] text-[#334155] font-[600] white-space-[pre-wrap] line-height-[1.4] bg-[#f8fafc]">
                         {obs}
                     </div>
                 </div>
-            )}
+      }
 
             {/* Plan de Acción */}
-            {actionPlan.length > 0 && (
-                <div style={{ border: '1px solid #fcd34d', borderRadius: '6px', marginBottom: '1rem' }}>
-                    <div style={{ backgroundColor: '#f59e0b', padding: '0.4rem 0.8rem', color: '#ffffff', fontWeight: 900, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            {actionPlan.length > 0 &&
+      <div className="border-[1px_solid_#fcd34d] rounded-[6px] mb-[1rem]">
+                    <div className="bg-[#f59e0b] p-[0.4rem_0.8rem] text-[#ffffff] font-[900] text-[0.65rem] uppercase letter-spacing-[0.05em]">
                         🎯 PLAN DE ACCIÓN CORRECTIVA — {actionPlan.length} ACCIÓN{actionPlan.length > 1 ? 'ES' : ''}
                     </div>
-                    <div style={{ padding: '0.8rem', display: 'flex', flexWrap: 'wrap', gap: '0.6rem', backgroundColor: '#fffbeb' }}>
-                        {actionPlan.map((action, idx) => (
-                            <div key={action.id} className="avoid-break" style={{ flex: '1 1 260px', minWidth: '260px', backgroundColor: '#ffffff', border: '1px solid #fcd34d', borderRadius: '6px', padding: '0.6rem', pageBreakInside: 'avoid' }}>
-                                <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'flex-start' }}>
-                                    <span style={{ backgroundColor: '#f59e0b', color: '#fff', minWidth: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 900 }}>{idx + 1}</span>
-                                    <div style={{ flex: 1 }}>
-                                        <p style={{ margin: '0 0 0.2rem 0', fontWeight: 800, fontSize: '0.7rem', color: '#1e293b' }}>{action.action}</p>
-                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', fontSize: '0.6rem', color: '#64748b', fontWeight: 700 }}>
+                    <div className="p-[0.8rem] flex flex-wrap gap-[0.6rem] bg-[#fffbeb]">
+                        {actionPlan.map((action, idx) =>
+          <div key={action.id} className="avoid-break flex-[1_1_260px] min-width-[260px] bg-[#ffffff] border-[1px_solid_#fcd34d] rounded-[6px] p-[0.6rem] page-break-inside-[avoid]">
+                                <div className="flex gap-[0.4rem] items-start">
+                                    <span className="bg-[#f59e0b] text-[#fff] min-width-[16px] h-[16px] rounded-[50%] flex items-center justify-center text-[0.55rem] font-[900]">{idx + 1}</span>
+                                    <div className="flex-[1]">
+                                        <p className="m-[0_0_0.2rem_0] font-[800] text-[0.7rem] text-[#1e293b]">{action.action}</p>
+                                        <div className="flex flex-wrap gap-[0.3rem] text-[0.6rem] text-[#64748b] font-[700]">
                                             {action.responsible && <span>👤 {action.responsible}</span>}
                                             {action.dueDate && <span>📅 {new Date(action.dueDate).toLocaleDateString('es-AR')}</span>}
-                                            <span style={{ color: action.priority === 'critico' ? '#dc2626' : action.priority === 'alto' ? '#ea580c' : '#ca8a04', fontWeight: 900 }}>
+                                            <span style={{ color: action.priority === 'critico' ? '#dc2626' : action.priority === 'alto' ? '#ea580c' : '#ca8a04' }} className="font-[900]">
                                                 🔥 {action.priority?.toUpperCase()}
                                             </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        ))}
+          )}
                     </div>
                 </div>
-            )}
+      }
 
             {/* Próxima Revisión */}
-            {nextReview && (
-                <div className="avoid-break" style={{ border: '1px solid #bfdbfe', borderRadius: '6px', padding: '0.6rem 1rem', marginBottom: '1rem', backgroundColor: '#eff6ff', display: 'flex', alignItems: 'center', gap: '0.8rem', pageBreakInside: 'avoid' }}>
+            {nextReview &&
+      <div className="avoid-break border-[1px_solid_#bfdbfe] rounded-[6px] p-[0.6rem_1rem] mb-[1rem] bg-[#eff6ff] flex items-center gap-[0.8rem] page-break-inside-[avoid]">
                     <Calendar size={18} color="#2563eb" />
                     <div>
-                        <p style={{ margin: 0, fontWeight: 900, fontSize: '0.65rem', color: '#1e3a8a', textTransform: 'uppercase' }}>PRÓXIMA REVISIÓN PROGRAMADA</p>
-                        <p style={{ margin: '0.1rem 0 0', fontSize: '0.85rem', fontWeight: 800, color: '#1e40af' }}>{new Date(nextReview).toLocaleDateString('es-AR')}</p>
+                        <p className="m-[0] font-[900] text-[0.65rem] text-[#1e3a8a] uppercase">PRÓXIMA REVISIÓN PROGRAMADA</p>
+                        <p className="m-[0.1rem_0_0] text-[0.85rem] font-[800] text-[#1e40af]">{new Date(nextReview).toLocaleDateString('es-AR')}</p>
                     </div>
                 </div>
-            )}
+      }
 
             {/* Normativa aplicable */}
-            {selectedNorms.length > 0 && (
-                <>
-                    <div style={{ border: '1px solid #d8b4fe', borderRadius: '6px', marginBottom: '1rem' }}>
-                    <div style={{ backgroundColor: '#7c3aed', padding: '0.6rem 1rem', color: '#fff', fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            {selectedNorms.length > 0 &&
+      <>
+                    <div className="border-[1px_solid_#d8b4fe] rounded-[6px] mb-[1rem]">
+                    <div className="bg-[#7c3aed] p-[0.6rem_1rem] text-[#fff] font-[900] text-[0.75rem] uppercase letter-spacing-[0.05em]">
                         📚 NORMATIVA LEGAL APLICABLE
                     </div>
-                    <div style={{ padding: '0.8rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', backgroundColor: '#faf5ff' }}>
-                        {selectedNorms.map(normId => {
-                            const norm = availableNorms.find(n => n.id === normId);
-                            if (!norm) return null;
-                            return (
-                                <div key={normId} style={{ flex: '1 1 260px', display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: '#fff', padding: '0.5rem 0.7rem', borderRadius: '6px', border: '1px solid #e9d5ff' }}>
-                                    <span style={{ width: '16px', height: '16px', backgroundColor: '#7c3aed', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 900, flexShrink: 0 }}>✓</span>
-                                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1e293b' }}>{norm.name}</span>
-                                </div>
-                            );
-                        })}
+                    <div className="p-[0.8rem] flex flex-wrap gap-[0.5rem] bg-[#faf5ff]">
+                        {selectedNorms.map((normId) => {
+              const norm = availableNorms.find((n) => n.id === normId);
+              if (!norm) return null;
+              return (
+                <div key={normId} className="flex-[1_1_260px] flex items-center gap-[0.5rem] bg-[#fff] p-[0.5rem_0.7rem] rounded-[6px] border-[1px_solid_#e9d5ff]">
+                                    <span className="w-[16px] h-[16px] bg-[#7c3aed] text-[#fff] rounded-[50%] flex items-center justify-center text-[0.55rem] font-[900] flex-shrink-[0]">✓</span>
+                                    <span className="text-[0.75rem] font-[700] text-[#1e293b]">{norm.name}</span>
+                                </div>);
+
+            })}
                     </div>
                 </div>
                 </>
-            )}
+      }
             {/* Firmas */}
             <PdfSignatures
-                data={fullData}
-                box1={fullData.showSignatures?.operator ? {
-                    title: 'RESPONSABLE / OPERADOR',
-                    subtitle: 'Control Operativo',
-                    signatureUrl: fullData.operatorSignature || null,
-                    isProfessional: false
-                } : null}
-                box2={fullData.showSignatures?.professional ? {
-                    title: 'PROFESIONAL / INSTRUCTOR',
-                    subtitle: (actName || 'Firma de Especialista').toUpperCase(),
-                    signatureUrl: fullData.signature || actSignature || null,
-                    stampUrl: fullData.professionalStamp || actStamp || null,
-                    isProfessional: true,
-                    license: fullData.professionalLicense || actLic || null
-                } : null}
-                box3={fullData.showSignatures?.supervisor ? {
-                    title: 'SUPERVISIÓN / VERIFICADOR',
-                    subtitle: 'Cierre de Inspección',
-                    signatureUrl: fullData.supervisorSignature || null,
-                    isProfessional: false
-                } : null}
-            />
+        data={fullData}
+        box1={fullData.showSignatures?.operator ? {
+          title: 'RESPONSABLE / OPERADOR',
+          subtitle: 'Control Operativo',
+          signatureUrl: fullData.operatorSignature || null,
+          isProfessional: false
+        } : null}
+        box2={fullData.showSignatures?.professional ? {
+          title: 'PROFESIONAL / INSTRUCTOR',
+          subtitle: (actName || 'Firma de Especialista').toUpperCase(),
+          signatureUrl: fullData.signature || actSignature || null,
+          stampUrl: fullData.professionalStamp || actStamp || null,
+          isProfessional: true,
+          license: fullData.professionalLicense || actLic || null
+        } : null}
+        box3={fullData.showSignatures?.supervisor ? {
+          title: 'SUPERVISIÓN / VERIFICADOR',
+          subtitle: 'Cierre de Inspección',
+          signatureUrl: fullData.supervisorSignature || null,
+          isProfessional: false
+        } : null} />
+      
 
             <PdfBrandingFooter />
-        </div>
-    );
+        </div>);
+
 }

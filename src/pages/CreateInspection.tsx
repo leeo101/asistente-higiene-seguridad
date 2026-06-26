@@ -5,53 +5,53 @@ import LocationPicker from '../components/LocationPicker';
 import toast from 'react-hot-toast';
 
 export default function CreateInspection(): React.ReactElement | null {
-    const navigate = useNavigate();
-    const [project, setProject] = useState({
-        name: '',
-        location: '',
-        type: 'Seguridad',
-        gpsLocation: null
-    });
+  const navigate = useNavigate();
+  const [project, setProject] = useState({
+    name: '',
+    location: '',
+    type: 'Seguridad',
+    gpsLocation: null
+  });
 
-    const handleStart = () => {
-        if (!project.name) return toast.error('Ingrese el nombre de la obra/cliente');
+  const handleStart = () => {
+    if (!project.name) return toast.error('Ingrese el nombre de la obra/cliente');
 
-        // Guardar sesión actual de inspección
-        const inspectionSession = {
-            ...project,
-            id: Date.now().toString(),
-            date: new Date().toISOString(),
-            status: 'Iniciada',
-            // Geolocalización
-            latitude: project.gpsLocation?.latitude || null,
-            longitude: project.gpsLocation?.longitude || null,
-            locationAccuracy: project.gpsLocation?.accuracy || null,
-            locationAddress: project.gpsLocation?.address || null
-        };
-        localStorage.setItem('current_inspection', JSON.stringify(inspectionSession));
-
-        navigate('/checklist');
+    // Guardar sesión actual de inspección
+    const inspectionSession = {
+      ...project,
+      id: Date.now().toString(),
+      date: new Date().toISOString(),
+      status: 'Iniciada',
+      // Geolocalización
+      latitude: project.gpsLocation?.latitude || null,
+      longitude: project.gpsLocation?.longitude || null,
+      locationAccuracy: project.gpsLocation?.accuracy || null,
+      locationAddress: project.gpsLocation?.address || null
     };
+    localStorage.setItem('current_inspection', JSON.stringify(inspectionSession));
 
-    return (
-        <div className="container" style={{ maxWidth: '600px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+    navigate('/checklist');
+  };
+
+  return (
+    <div className="container max-w-[600px]">
+            <div className="flex items-center gap-[1rem] mb-[2rem]">
                 <></>
-                <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Nueva Inspección</h1>
+                <h1 className="m-[0] text-[1.5rem]">Nueva Inspección</h1>
             </div>
 
             <div className="card">
-                <div style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div className="mb-6">
+                    <label className="flex items-center gap-[0.5rem]">
                         <Building2 size={16} color="var(--color-primary)" /> Obra / Cliente
                     </label>
                     <input
-                        list="obras-sugeridas"
-                        placeholder="Nombre de la empresa u obra"
-                        value={project.name}
-                        onChange={(e) => setProject({ ...project, name: e.target.value })}
-                        required
-                    />
+            list="obras-sugeridas"
+            placeholder="Nombre de la empresa u obra"
+            value={project.name}
+            onChange={(e) => setProject({ ...project, name: e.target.value })}
+            required />
+          
                     <datalist id="obras-sugeridas">
                         <option value="Edificio Alvear" />
                         <option value="Torre Madero" />
@@ -59,26 +59,26 @@ export default function CreateInspection(): React.ReactElement | null {
                     </datalist>
                 </div>
 
-                <div style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div className="mb-6">
+                    <label className="flex items-center gap-[0.5rem]">
                         <MapPin size={16} color="var(--color-primary)" /> Ubicación / Sector
                     </label>
                     <input
-                        placeholder="Ej: Planta 2 - Almacén"
-                        value={project.location}
-                        onChange={(e) => setProject({ ...project, location: e.target.value })}
-                    />
+            placeholder="Ej: Planta 2 - Almacén"
+            value={project.location}
+            onChange={(e) => setProject({ ...project, location: e.target.value })} />
+          
                 </div>
 
-                <div style={{ marginBottom: '2rem' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div className="mb-8">
+                    <label className="flex items-center gap-[0.5rem]">
                         <ClipboardList size={16} color="var(--color-primary)" /> Tipo de Inspección
                     </label>
                     <input
-                        list="tipos-inspeccion"
-                        value={project.type}
-                        onChange={(e) => setProject({ ...project, type: e.target.value })}
-                    />
+            list="tipos-inspeccion"
+            value={project.type}
+            onChange={(e) => setProject({ ...project, type: e.target.value })} />
+          
                     <datalist id="tipos-inspeccion">
                         <option value="Relevamiento General" />
                         <option value="Visita de Obra Semanal" />
@@ -89,36 +89,36 @@ export default function CreateInspection(): React.ReactElement | null {
 
                 {/* Geolocalización */}
                 <LocationPicker
-                    initialLocation={null}
-                    onLocationSelect={(location) => {
-                        setProject({ ...project, gpsLocation: location });
-                    }}
-                />
+          initialLocation={null}
+          onLocationSelect={(location) => {
+            setProject({ ...project, gpsLocation: location });
+          }} />
+        
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="flex flex-col gap-4">
                     <button
-                        className="btn-primary"
-                        onClick={handleStart}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem' }}
-                    >
+            className="btn-primary flex items-center justify-center gap-[0.8rem]"
+            onClick={handleStart}>
+
+            
                         Iniciar Relevamiento <Play size={20} fill="currentColor" />
                     </button>
 
                     <button
-                        className="btn-outline"
-                        onClick={() => navigate('/risk', { state: { fromInspection: true } })}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem', borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}
-                    >
+            className="btn-outline flex items-center justify-center gap-[0.8rem] border-color-[var(--color-primary)] text-[var(--color-primary)]"
+            onClick={() => navigate('/risk', { state: { fromInspection: true } })}>
+
+            
                         Evaluación de Riesgo Previa
                     </button>
                 </div>
             </div>
 
-            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+            <div className="mt-[2rem] text-center">
+                <p className="text-[0.8rem] text-[var(--color-text-muted)]">
                     Al iniciar, se cargará automáticamente la lista de control seleccionada para este tipo de inspección.
                 </p>
             </div>
-        </div>
-    );
+        </div>);
+
 }

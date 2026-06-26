@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { 
-  MagnifyingGlass as Search, 
-  CaretUp, 
-  CaretDown, 
-  CaretLeft, 
-  CaretRight, 
-  Funnel 
-} from '@phosphor-icons/react';
+import {
+  MagnifyingGlass as Search,
+  CaretUp,
+  CaretDown,
+  CaretLeft,
+  CaretRight,
+  Funnel } from
+'@phosphor-icons/react';
 
 export interface Column<T> {
   header: string;
@@ -39,9 +39,9 @@ export function DataTable<T extends Record<string, any>>({
   emptyActionLabel
 }: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortConfig, setSortConfig] = useState<{ key: keyof T | string | null; direction: 'ascending' | 'descending' }>({
+  const [sortConfig, setSortConfig] = useState<{key: keyof T | string | null;direction: 'ascending' | 'descending';}>({
     key: null,
-    direction: 'ascending',
+    direction: 'ascending'
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
@@ -76,8 +76,8 @@ export function DataTable<T extends Record<string, any>>({
           });
         } else {
           // generic search (fallback)
-          return Object.values(item).some(val => 
-            val?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+          return Object.values(item).some((val) =>
+          val?.toString().toLowerCase().includes(searchTerm.toLowerCase())
           );
         }
       });
@@ -106,181 +106,181 @@ export function DataTable<T extends Record<string, any>>({
   }, [processedData, currentPage, itemsPerPage]);
 
   // Reset page when search changes
-  useMemo(() => { setCurrentPage(1); }, [searchTerm]);
+  useMemo(() => {setCurrentPage(1);}, [searchTerm]);
 
   if (data.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: isMobile ? '2rem 1rem' : '4rem 2rem', color: 'var(--color-text-muted)', background: 'var(--color-surface)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
-        {emptyIcon && <div style={{ opacity: 0.2, marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>{emptyIcon}</div>}
-        <p style={{ marginBottom: '1.5rem', fontWeight: 600, fontSize: isMobile ? '0.9rem' : '1rem' }}>{emptyMessage}</p>
-        {onEmptyAction && emptyActionLabel && (
-          <button onClick={onEmptyAction} className="btn-primary" style={{ margin: '0 auto' }}>
+      <div style={{ padding: isMobile ? '2rem 1rem' : '4rem 2rem' }} className="text-center text-[var(--color-text-muted)] bg-[var(--color-surface)] rounded-[var(--radius-xl)] border-[1px_solid_var(--color-border)]">
+        {emptyIcon && <div className="opacity-[0.2] mb-[1rem] flex justify-center">{emptyIcon}</div>}
+        <p style={{ fontSize: isMobile ? '0.9rem' : '1rem' }} className="mb-[1.5rem] font-[600]">{emptyMessage}</p>
+        {onEmptyAction && emptyActionLabel &&
+        <button onClick={onEmptyAction} className="btn-primary m-[0_auto]">
             {emptyActionLabel}
           </button>
-        )}
-      </div>
-    );
+        }
+      </div>);
+
   }
 
   return (
-    <div style={{
-      background: 'var(--color-surface)',
-      borderRadius: 'var(--radius-xl)',
-      border: '1px solid var(--glass-border-subtle)',
-      boxShadow: 'var(--shadow-sm)',
-      overflow: 'hidden',
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
+    <div className="bg-[var(--color-surface)] rounded-[var(--radius-xl)] border-[1px_solid_var(--glass-border-subtle)] box-shadow-[var(--shadow-sm)] overflow-[hidden] flex flex-col">
+
+
+
+
+
+
+
+      
       {/* Table Header Controls */}
       <div style={{
         padding: isMobile ? '1rem' : '1.25rem',
-        display: 'flex',
+
         flexDirection: isMobile ? 'column' : 'row',
-        justifyContent: 'space-between',
-        alignItems: isMobile ? 'stretch' : 'center',
-        borderBottom: '1px solid var(--color-border)',
-        gap: '1rem',
-        background: 'rgba(255, 255, 255, 0.02)'
-      }}>
-        <div style={{ position: 'relative', flex: '1 1 auto', maxWidth: isMobile ? 'none' : '400px' }}>
-          <Search size={18} color="var(--color-text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-          <input 
-            type="text" 
+
+        alignItems: isMobile ? 'stretch' : 'center'
+
+
+
+      }} className="flex justify-space-between border-bottom-[1px_solid_var(--color-border)] gap-[1rem] bg-[rgba(255,_255,_255,_0.02)]">
+        <div style={{ maxWidth: isMobile ? 'none' : '400px' }} className="relative flex-[1_1_auto]">
+          <Search size={18} color="var(--color-text-muted)" className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)]" />
+          <input
+            type="text"
             placeholder={searchPlaceholder}
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '0.7rem 1rem 0.7rem 2.8rem',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--color-border)',
-              background: 'var(--color-background)',
-              color: 'var(--color-text)',
-              fontSize: '0.9rem',
-              transition: 'border-color var(--transition-fast)'
-            }}
-          />
+            onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.7rem_1rem_0.7rem_2.8rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-border)] bg-[var(--color-background)] text-[var(--color-text)] text-[0.9rem] transition-[border-color_var(--transition-fast)]" />
+
+
+
+
+
+
+
+
+
+
+          
         </div>
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: isMobile ? 'flex-end' : 'flex-start',
-          gap: '0.5rem',
-          color: 'var(--color-text-muted)',
-          fontSize: '0.8rem'
-        }}>
+
+
+          justifyContent: isMobile ? 'flex-end' : 'flex-start'
+
+
+
+        }} className="flex items-center gap-[0.5rem] text-[var(--color-text-muted)] text-[0.8rem]">
           <Funnel size={16} />
           <span>{processedData.length} resultados</span>
         </div>
       </div>
 
       {/* Table Content */}
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+      <div className="overflow-x-[auto]">
+        <table className="w-[100%] border-collapse-[collapse] text-left">
           <thead>
-            <tr style={{ background: 'var(--color-background)', borderBottom: '2px solid var(--color-border)' }}>
-              {columns.map((col, i) => (
-                <th key={i} style={{ 
-                  padding: '1rem 1.25rem', 
-                  fontSize: '0.75rem', 
-                  textTransform: 'uppercase', 
-                  fontWeight: 800, 
-                  color: 'var(--color-text-muted)',
-                  cursor: col.sortable ? 'pointer' : 'default',
-                  whiteSpace: 'nowrap'
-                }}
-                onClick={() => col.sortable && requestSort(col.accessor)}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <tr className="bg-[var(--color-background)] border-bottom-[2px_solid_var(--color-border)]">
+              {columns.map((col, i) =>
+              <th key={i} style={{
+
+
+
+
+
+                cursor: col.sortable ? 'pointer' : 'default'
+
+              }}
+              onClick={() => col.sortable && requestSort(col.accessor)} className="p-[1rem_1.25rem] text-[0.75rem] uppercase font-[800] text-[var(--color-text-muted)] white-space-[nowrap]">
+                
+                  <div className="flex items-center gap-[0.4rem]">
                     {col.header}
-                    {col.sortable && (
-                      <div style={{ display: 'flex', flexDirection: 'column', opacity: sortConfig.key === col.accessor ? 1 : 0.3 }}>
+                    {col.sortable &&
+                  <div style={{ opacity: sortConfig.key === col.accessor ? 1 : 0.3 }} className="flex flex-col">
                         <CaretUp size={10} weight={sortConfig.key === col.accessor && sortConfig.direction === 'ascending' ? 'bold' : 'regular'} color={sortConfig.key === col.accessor && sortConfig.direction === 'ascending' ? 'var(--color-primary)' : 'currentColor'} />
-                        <CaretDown size={10} weight={sortConfig.key === col.accessor && sortConfig.direction === 'descending' ? 'bold' : 'regular'} color={sortConfig.key === col.accessor && sortConfig.direction === 'descending' ? 'var(--color-primary)' : 'currentColor'} style={{ marginTop: '-4px' }} />
+                        <CaretDown size={10} weight={sortConfig.key === col.accessor && sortConfig.direction === 'descending' ? 'bold' : 'regular'} color={sortConfig.key === col.accessor && sortConfig.direction === 'descending' ? 'var(--color-primary)' : 'currentColor'} className="mt-[-4px]" />
                       </div>
-                    )}
+                  }
                   </div>
                 </th>
-              ))}
+              )}
             </tr>
           </thead>
           <tbody>
-            {paginatedData.length > 0 ? (
-              paginatedData.map((row, rowIndex) => (
-                <tr key={rowIndex} style={{ borderBottom: '1px solid var(--color-border)', transition: 'background var(--transition-fast)' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.02)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                  {columns.map((col, colIndex) => (
-                    <td key={colIndex} style={{ padding: '1rem 1.25rem', color: 'var(--color-text)', fontSize: '0.9rem', verticalAlign: 'middle' }}>
-                      {col.render ? col.render(row, (currentPage - 1) * itemsPerPage + rowIndex) : (row[col.accessor as keyof T] as unknown as string) || '—'}
+            {paginatedData.length > 0 ?
+            paginatedData.map((row, rowIndex) =>
+            <tr key={rowIndex} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.02)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'} className="border-bottom-[1px_solid_var(--color-border)] transition-[background_var(--transition-fast)]">
+                  {columns.map((col, colIndex) =>
+              <td key={colIndex} className="p-[1rem_1.25rem] text-[var(--color-text)] text-[0.9rem] vertical-align-[middle]">
+                      {col.render ? col.render(row, (currentPage - 1) * itemsPerPage + rowIndex) : row[col.accessor as keyof T] as unknown as string || '—'}
                     </td>
-                  ))}
+              )}
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={columns.length} style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+            ) :
+
+            <tr>
+                <td colSpan={columns.length} className="p-[3rem] text-center text-[var(--color-text-muted)]">
                   No se encontraron coincidencias para "{searchTerm}"
                 </td>
               </tr>
-            )}
+            }
           </tbody>
         </table>
       </div>
 
       {/* Pagination Footer */}
-      {totalPages > 1 && (
-        <div style={{
-          padding: '1rem 1.25rem',
-          borderTop: '1px solid var(--color-border)',
-          display: 'flex',
-          justifyContent: isMobile ? 'center' : 'space-between',
-          alignItems: 'center',
-          background: 'rgba(255, 255, 255, 0.02)',
-          gap: '1rem',
-          flexWrap: 'wrap'
-        }}>
-          {!isMobile && (
-            <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+      {totalPages > 1 &&
+      <div style={{
+
+
+
+        justifyContent: isMobile ? 'center' : 'space-between'
+
+
+
+
+      }} className="p-[1rem_1.25rem] border-top-[1px_solid_var(--color-border)] flex items-center bg-[rgba(255,_255,_255,_0.02)] gap-[1rem] flex-wrap">
+          {!isMobile &&
+        <div className="text-[0.85rem] text-[var(--color-text-muted)]">
               Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, processedData.length)} de {processedData.length}
             </div>
-          )}
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        }
+          <div className="flex gap-[0.5rem] items-center">
             <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              style={{
-                padding: '0.5rem',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--color-border)',
-                background: currentPage === 1 ? 'transparent' : 'var(--color-surface)',
-                color: currentPage === 1 ? 'var(--color-text-muted)' : 'var(--color-text)',
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                display: 'flex', alignItems: 'center'
-              }}
-            >
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            style={{
+
+
+
+              background: currentPage === 1 ? 'transparent' : 'var(--color-surface)',
+              color: currentPage === 1 ? 'var(--color-text-muted)' : 'var(--color-text)',
+              cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+
+            }} className="p-[0.5rem] rounded-[var(--radius-md)] border-[1px_solid_var(--color-border)] flex items-center">
+            
               <CaretLeft size={18} />
             </button>
-            <div style={{ display: 'flex', alignItems: 'center', padding: '0 1rem', fontSize: '0.85rem', fontWeight: 700, color: 'white' }}>
-              {currentPage} <span style={{ color: 'var(--color-text-muted)', margin: '0 0.4rem', fontWeight: 400 }}>de</span> {totalPages}
+            <div className="flex items-center p-[0_1rem] text-[0.85rem] font-[700] text-[white]">
+              {currentPage} <span className="text-[var(--color-text-muted)] m-[0_0.4rem] font-[400]">de</span> {totalPages}
             </div>
             <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              style={{
-                padding: '0.5rem',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--color-border)',
-                background: currentPage === totalPages ? 'transparent' : 'var(--color-surface)',
-                color: currentPage === totalPages ? 'var(--color-text-muted)' : 'var(--color-text)',
-                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                display: 'flex', alignItems: 'center'
-              }}
-            >
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            style={{
+
+
+
+              background: currentPage === totalPages ? 'transparent' : 'var(--color-surface)',
+              color: currentPage === totalPages ? 'var(--color-text-muted)' : 'var(--color-text)',
+              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+
+            }} className="p-[0.5rem] rounded-[var(--radius-md)] border-[1px_solid_var(--color-border)] flex items-center">
+            
               <CaretRight size={18} />
             </button>
           </div>
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }

@@ -13,256 +13,256 @@ import AiReportPdfGenerator from '../components/AiReportPdfGenerator';
 import PremiumHeader from '../components/PremiumHeader';
 
 function DeleteConfirm({ onConfirm, onCancel }: any) {
-    return (
-        <ConfirmModal
-            isOpen={true}
-            onClose={onCancel}
-            onConfirm={onConfirm}
-            title="¿Eliminar registro?"
-            message="Esta acción no se puede deshacer."
-            iconEmoji="🗑️"
-        />
-    );
+  return (
+    <ConfirmModal
+      isOpen={true}
+      onClose={onCancel}
+      onConfirm={onConfirm}
+      title="¿Eliminar registro?"
+      message="Esta acción no se puede deshacer."
+      iconEmoji="🗑️" />);
+
+
 }
 
 export default function AIGeneralCameraManager(): React.ReactElement | null {
-    const navigate = useNavigate();
-    const { syncCollection, syncPulse } = useSync();
-    const { currentUser } = useAuth();
-    const [history, setHistory] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [deleteTarget, setDeleteTarget] = useState(null);
-    const [qrTarget, setQrTarget] = useState(null);
-    const [shareItem, setShareItem] = useState(null);
+  const navigate = useNavigate();
+  const { syncCollection, syncPulse } = useSync();
+  const { currentUser } = useAuth();
+  const [history, setHistory] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [qrTarget, setQrTarget] = useState(null);
+  const [shareItem, setShareItem] = useState(null);
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-        const raw = localStorage.getItem('ai_camera_history');
-        if (!raw) return;
-        try {
-            const parsed = JSON.parse(raw);
-            const valid = parsed.filter(item => {
-                if (!item || !item.id) return false;
-                if (!item.date) return false;
-                if (item.type !== 'general_risks') return false; // Solo Riesgos Generales
-                return true;
-            });
-            setHistory(valid);
-        } catch {
-            setHistory([]);
-        }
-    }, [syncPulse]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const raw = localStorage.getItem('ai_camera_history');
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw);
+      const valid = parsed.filter((item) => {
+        if (!item || !item.id) return false;
+        if (!item.date) return false;
+        if (item.type !== 'general_risks') return false; // Solo Riesgos Generales
+        return true;
+      });
+      setHistory(valid);
+    } catch {
+      setHistory([]);
+    }
+  }, [syncPulse]);
 
-    const confirmDelete = () => {
-        const raw = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
-        const updated = raw.filter(item => item.id !== deleteTarget);
-        
-        localStorage.setItem('ai_camera_history', JSON.stringify(updated));
-        localStorage.removeItem(`ai_report_full_${deleteTarget}`);
-        syncCollection('ai_camera_history', updated);
-        
-        setHistory(history.filter(item => item.id !== deleteTarget));
-        setDeleteTarget(null);
-        toast.success("Análisis eliminado");
-    };
+  const confirmDelete = () => {
+    const raw = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
+    const updated = raw.filter((item) => item.id !== deleteTarget);
 
-    const filtered = history.filter(item =>
-        item.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.location?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    localStorage.setItem('ai_camera_history', JSON.stringify(updated));
+    localStorage.removeItem(`ai_report_full_${deleteTarget}`);
+    syncCollection('ai_camera_history', updated);
 
-    const total = history.length;
-    const conRiesgo = history.filter(i => (i.findingsCount || 0) > 0).length;
-    const seguros = total - conRiesgo;
-    const riesgoRatio = total > 0 ? Math.round((conRiesgo / total) * 100) : 0;
+    setHistory(history.filter((item) => item.id !== deleteTarget));
+    setDeleteTarget(null);
+    toast.success("Análisis eliminado");
+  };
 
-    const handleExportCSV = () => {
-        downloadCSV(filtered.map(i => ({
-            empresa: i.company, ubicacion: i.location,
-            fecha: i.date ? new Date(i.date).toLocaleDateString('es-AR') : '',
-            hallazgos: i.findingsCount || 0
-        })), 'camara_riesgos_historial', {
-            empresa: 'Empresa', ubicacion: 'Ubicación', fecha: 'Fecha', hallazgos: 'Hallazgos IA'
-        });
-    };
+  const filtered = history.filter((item) =>
+  item.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  item.location?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-    return (
-        <div className="container" style={{ maxWidth: '900px', paddingBottom: '5rem' }}>
+  const total = history.length;
+  const conRiesgo = history.filter((i) => (i.findingsCount || 0) > 0).length;
+  const seguros = total - conRiesgo;
+  const riesgoRatio = total > 0 ? Math.round(conRiesgo / total * 100) : 0;
+
+  const handleExportCSV = () => {
+    downloadCSV(filtered.map((i) => ({
+      empresa: i.company, ubicacion: i.location,
+      fecha: i.date ? new Date(i.date).toLocaleDateString('es-AR') : '',
+      hallazgos: i.findingsCount || 0
+    })), 'camara_riesgos_historial', {
+      empresa: 'Empresa', ubicacion: 'Ubicación', fecha: 'Fecha', hallazgos: 'Hallazgos IA'
+    });
+  };
+
+  return (
+    <div className="container max-w-[900px] pb-[5rem]">
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
             {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
 
             <ShareModal
-                isOpen={!!shareItem && !document.body.classList.contains('printing-isolated')}
-                open={!!shareItem && !document.body.classList.contains('printing-isolated')}
-                onClose={() => setShareItem(null)}
-                title={`Análisis de Riesgos IA - ${shareItem?.company || ''}`}
-                text={shareItem ? `📸 Análisis de Entorno con IA\n🏗️ Empresa: ${shareItem.company || 'Local'}\n⚠️ Riesgos detectados: ${shareItem.findingsCount || 0}` : ''}
-                rawMessage={shareItem ? `📸 Análisis de Entorno con IA\n🏗️ Empresa: ${shareItem.company || 'Local'}\n⚠️ Riesgos detectados: ${shareItem.findingsCount || 0}` : ''}
-                elementIdToPrint="pdf-content"
-                fileName={`Riesgos_IA_${shareItem?.company || 'Sin_Nombre'}.pdf`}
-            />
+        isOpen={!!shareItem && !document.body.classList.contains('printing-isolated')}
+        open={!!shareItem && !document.body.classList.contains('printing-isolated')}
+        onClose={() => setShareItem(null)}
+        title={`Análisis de Riesgos IA - ${shareItem?.company || ''}`}
+        text={shareItem ? `📸 Análisis de Entorno con IA\n🏗️ Empresa: ${shareItem.company || 'Local'}\n⚠️ Riesgos detectados: ${shareItem.findingsCount || 0}` : ''}
+        rawMessage={shareItem ? `📸 Análisis de Entorno con IA\n🏗️ Empresa: ${shareItem.company || 'Local'}\n⚠️ Riesgos detectados: ${shareItem.findingsCount || 0}` : ''}
+        elementIdToPrint="pdf-content"
+        fileName={`Riesgos_IA_${shareItem?.company || 'Sin_Nombre'}.pdf`} />
+      
 
             {typeof document !== 'undefined' && createPortal(
-                <div className="ats-pdf-offscreen">
+        <div className="ats-pdf-offscreen">
                     {shareItem && <AiReportPdfGenerator item={shareItem} />}
                 </div>,
-                document.body
-            )}
+        document.body
+      )}
 
             <PremiumHeader
-                title="Riesgos IA"
-                subtitle="Análisis de entorno y hallazgos"
-                icon={<ShieldAlert size={32} color="#ffffff" />}
-                color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
-            />
+        title="Riesgos IA"
+        subtitle="Análisis de entorno y hallazgos"
+        icon={<ShieldAlert size={32} color="#ffffff" />}
+        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
+      
 
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+            <div className="flex gap-[1rem] mb-[1.5rem] mt-[1.5rem] flex-wrap">
                 <></>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+            <div className="flex items-center justify-space-between gap-[1rem] mt-[1.5rem] mb-[2rem] flex-wrap">
                 
 
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <div className="flex gap-[1rem] flex-wrap">
                     <button
-                        onClick={() => navigate('/ai-general-camera')}
-                        style={{
-                            display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
-                            background: '#36B37E', color: 'white', border: 'none', borderRadius: '12px',
-                            fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
-                            boxShadow: '0 4px 15px rgba(54, 179, 126, 0.4)'
-                        }}
-                    >
+            onClick={() => navigate('/ai-general-camera')} className="flex items-center gap-[0.8rem] p-[0.8rem_1.5rem] bg-[#36B37E] text-[white] border-none rounded-[12px] font-[800] text-[0.95rem] cursor-pointer box-shadow-[0_4px_15px_rgba(54,_179,_126,_0.4)]">
+
+
+
+
+
+
+            
                         <ShieldAlert size={20} /> NUEVO ANÁLISIS
                     </button>
-                    {history.length > 0 && (
-                        <button onClick={handleExportCSV} style={{
-                            display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.5rem',
-                            background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)',
-                            borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer'
-                        }}>
+                    {history.length > 0 &&
+          <button onClick={handleExportCSV} className="flex items-center gap-[0.8rem] p-[0.8rem_1.5rem] bg-[var(--color-surface)] text-[var(--color-text)] border-[1px_solid_var(--color-border)] rounded-[12px] font-[800] text-[0.95rem] cursor-pointer">
+
+
+
+            
                             <Download size={20} /> EXPORTAR CSV
                         </button>
-                    )}
+          }
                 </div>
             </div>
 
-            {total > 0 && (
-                <div style={{ marginBottom: '2rem' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.7rem' }}>
-                        <div style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: '12px', padding: '1rem', textAlign: 'center' }}>
-                            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#3b82f6' }}>{total}</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>ESCANEO TOTAL</div>
+            {total > 0 &&
+      <div className="mb-8">
+                    <div className="grid grid-template-columns-[repeat(3,_1fr)] gap-[0.7rem]">
+                        <div className="bg-[rgba(59,130,246,0.08)] border-[1px_solid_rgba(59,130,246,0.2)] rounded-[12px] p-[1rem] text-center">
+                            <div className="text-[1.8rem] font-[900] text-[#3b82f6]">{total}</div>
+                            <div className="text-[0.75rem] text-[var(--color-text-muted)] font-[700]">ESCANEO TOTAL</div>
                         </div>
-                        <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '12px', padding: '1rem', textAlign: 'center' }}>
-                            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ef4444' }}>{conRiesgo}</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>CON HALLAZGOS</div>
+                        <div className="bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[12px] p-[1rem] text-center">
+                            <div className="text-[1.8rem] font-[900] text-[#ef4444]">{conRiesgo}</div>
+                            <div className="text-[0.75rem] text-[var(--color-text-muted)] font-[700]">CON HALLAZGOS</div>
                         </div>
-                        <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '12px', padding: '1rem', textAlign: 'center' }}>
-                            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#f59e0b' }}>{riesgoRatio}%</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>RATIO RIESGO</div>
+                        <div className="bg-[rgba(245,158,11,0.08)] border-[1px_solid_rgba(245,158,11,0.2)] rounded-[12px] p-[1rem] text-center">
+                            <div className="text-[1.8rem] font-[900] text-[#f59e0b]">{riesgoRatio}%</div>
+                            <div className="text-[0.75rem] text-[var(--color-text-muted)] font-[700]">RATIO RIESGO</div>
                         </div>
                     </div>
                 </div>
-            )}
+      }
 
-            <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
-                <Search style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} size={18} />
+            <div className="relative mb-[1.5rem]">
+                <Search size={18} className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)] text-[var(--color-text-muted)]" />
                 <input
-                    type="text"
-                    placeholder="Buscar por empresa o ubicación..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{
-                        width: '100%', padding: '1rem 1rem 1rem 2.8rem',
-                        borderRadius: '16px', border: '1px solid var(--color-border)',
-                        background: 'var(--color-surface)', fontSize: '0.95rem'
-                    }}
-                />
+          type="text"
+          placeholder="Buscar por empresa o ubicación..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[1rem_1rem_1rem_2.8rem] rounded-[16px] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.95rem]" />
+
+
+
+
+
+        
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {filtered.length > 0 ? (
-                    filtered.map((item) => (
-                        <div key={item.id} className="card" style={{ padding: '1.5rem', borderRadius: '16px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, minWidth: 0 }}>
-                                    <div style={{ width: '48px', height: '48px', background: 'rgba(59,130,246,0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6' }}>
+            <div className="flex flex-col gap-4">
+                {filtered.length > 0 ?
+        filtered.map((item) =>
+        <div key={item.id} className="card p-[1.5rem] rounded-[16px]">
+                            <div className="flex justify-space-between items-start mb-[1rem] flex-wrap gap-[1rem]">
+                                <div className="flex items-center gap-[1rem] flex-[1] min-width-[0]">
+                                    <div className="w-[48px] h-[48px] bg-[rgba(59,130,246,0.1)] rounded-[12px] flex items-center justify-center text-[#3b82f6]">
                                         <ShieldAlert size={24} />
                                     </div>
                                     <div>
-                                        <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.company || 'Empresa sin nombre'}</h3>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '0.3rem' }}>
+                                        <h3 className="m-[0] text-[1.1rem] font-[800] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">{item.company || 'Empresa sin nombre'}</h3>
+                                        <div className="flex items-center gap-[0.4rem] text-[0.85rem] text-[var(--color-text-muted)] mt-[0.3rem]">
                                             <Calendar size={14} /> {new Date(item.date).toLocaleDateString('es-AR')} — <Building2 size={14} /> {item.location}
                                         </div>
                                     </div>
                                 </div>
                                 <div style={{
-                                    display: 'flex', alignItems: 'center', gap: '0.4rem',
-                                    fontSize: '0.8rem', fontWeight: 800,
-                                    padding: '0.4rem 0.8rem', borderRadius: '100px',
-                                    background: (item.findingsCount > 0) ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)',
-                                    color: (item.findingsCount > 0) ? '#ef4444' : '#10b981',
-                                    flexShrink: 0
-                                }}>
+
+
+
+              background: item.findingsCount > 0 ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)',
+              color: item.findingsCount > 0 ? '#ef4444' : '#10b981'
+
+            }} className="flex items-center gap-[0.4rem] text-[0.8rem] font-[800] p-[0.4rem_0.8rem] rounded-[100px] flex-shrink-[0]">
                                     <Info size={16} />
                                     {item.findingsCount > 0 ? `${item.findingsCount} Hallazgos` : 'Limpio'}
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem', flexWrap: 'wrap' }}>
+                            <div className="flex gap-[0.8rem] mt-[1.5rem] border-top-[1px_solid_var(--color-border)] pt-[1.5rem] flex-wrap">
                                 <button
-                                    onClick={() => {
-                                        const fullReportKey = `ai_report_full_${item.id}`;
-                                        const savedFull = localStorage.getItem(fullReportKey);
-                                        const reportToLoad = savedFull ? JSON.parse(savedFull) : item;
-                                        localStorage.setItem('current_ai_inspection', JSON.stringify(reportToLoad));
-                                        navigate('/ai-report');
-                                    }}
-                                    className="btn-primary"
-                                    style={{ flex: 2, padding: '0.8rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center', borderRadius: '12px' }}
-                                >
+              onClick={() => {
+                const fullReportKey = `ai_report_full_${item.id}`;
+                const savedFull = localStorage.getItem(fullReportKey);
+                const reportToLoad = savedFull ? JSON.parse(savedFull) : item;
+                localStorage.setItem('current_ai_inspection', JSON.stringify(reportToLoad));
+                navigate('/ai-report');
+              }}
+              className="btn-primary flex-[2] p-[0.8rem] text-[0.9rem] flex items-center gap-[0.4rem] justify-center rounded-[12px]">
+
+              
                                     <FileText size={18} /> Ver Reporte Completo
                                 </button>
                                 <button
-                                    onClick={() => {
-                                        const fullReportKey = `ai_report_full_${item.id}`;
-                                        const savedFull = localStorage.getItem(fullReportKey);
-                                        const reportToLoad = savedFull ? JSON.parse(savedFull) : item;
-                                        setShareItem(reportToLoad);
-                                    }}
-                                    style={{ flex: 1, padding: '0.8rem', background: '#dcfce7', border: '1px solid #86efac', borderRadius: '12px', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', fontWeight: 800 }}
-                                    title="Compartir Reporte"
-                                >
-                                    <Share2 size={18} /> <span style={{ marginLeft: '0.3rem' }}>Compartir</span>
+              onClick={() => {
+                const fullReportKey = `ai_report_full_${item.id}`;
+                const savedFull = localStorage.getItem(fullReportKey);
+                const reportToLoad = savedFull ? JSON.parse(savedFull) : item;
+                setShareItem(reportToLoad);
+              }}
+
+              title="Compartir Reporte" className="flex-[1] p-[0.8rem] bg-[#dcfce7] border-[1px_solid_#86efac] rounded-[12px] text-[#16a34a] flex items-center justify-center text-decoration-[none] font-[800]">
+              
+                                    <Share2 size={18} /> <span className="ml-[0.3rem]">Compartir</span>
                                 </button>
                                 <button
-                                    onClick={() => {
-                                        const url = `${window.location.origin}/v/${currentUser?.uid}/camera/${item.id}?print=true`;
-                                        setQrTarget({ text: url, title: `Análisis de Entorno — ${item.company || 'IA'}` });
-                                    }}
-                                    style={{ padding: '0.8rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: '12px', color: '#8b5cf6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                    title="Generar QR"
-                                >
-                                    <QrCode size={18}  />
+              onClick={() => {
+                const url = `${window.location.origin}/v/${currentUser?.uid}/camera/${item.id}?print=true`;
+                setQrTarget({ text: url, title: `Análisis de Entorno — ${item.company || 'IA'}` });
+              }}
+
+              title="Generar QR" className="p-[0.8rem] bg-[rgba(139,92,246,0.06)] border-[1px_solid_rgba(139,92,246,0.18)] rounded-[12px] text-[#8b5cf6] cursor-pointer flex items-center justify-center">
+              
+                                    <QrCode size={18} />
                         </button>
                                 <button
-                                    onClick={() => setDeleteTarget(item.id)}
-                                    style={{ padding: '0.8rem', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '12px', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                >
+              onClick={() => setDeleteTarget(item.id)} className="p-[0.8rem] bg-[rgba(239,68,68,0.05)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[12px] text-[#ef4444] cursor-pointer flex items-center justify-center">
+
+              
                                     <Trash2 size={18} />
                                 </button>
                             </div>
                         </div>
-                    ))
-                ) : (
-                    <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--color-text-muted)', background: 'var(--color-surface)', borderRadius: '16px', border: '1px dashed var(--color-border)' }}>
-                        <ShieldAlert size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
-                        <h3 style={{ margin: '0 0 0.5rem', fontWeight: 800, color: 'var(--color-text)' }}>No hay análisis de riesgos</h3>
+        ) :
+
+        <div className="text-center p-[4rem_1rem] text-[var(--color-text-muted)] bg-[var(--color-surface)] rounded-[16px] border-[1px_dashed_var(--color-border)]">
+                        <ShieldAlert size={48} className="opacity-[0.2] mb-[1rem]" />
+                        <h3 className="m-[0_0_0.5rem] font-[800] text-[var(--color-text)]">No hay análisis de riesgos</h3>
                         <p>No se registraron análisis de entorno con IA todavía.</p>
                     </div>
-                )}
+        }
             </div>
-        </div>
-    );
+        </div>);
+
 }
