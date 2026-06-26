@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Leaf, Plus, Search, FileText, Eye, Edit3, Trash2,
+  Leaf, Plus, Search, FileText, Eye, Edit3, Trash2, ArrowLeft,
   AlertTriangle, Camera, CheckCircle2, XCircle, Droplets, Wind, Share2,
   Link as LinkIcon } from
 'lucide-react';

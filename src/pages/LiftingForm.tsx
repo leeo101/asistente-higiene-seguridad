@@ -500,8 +500,8 @@ export default function LiftingForm(): React.ReactElement | null {
                         <textarea
               value={plan.observations}
               onChange={(e) => setPlan({ ...plan, observations: e.target.value })}
-              style={{ ...inputStyle }}
-              placeholder="Interferencias, maniobras complejas..." className="min-h-[100px]" />
+              className={`${inputClass} min-h-[100px]`}
+              placeholder="Interferencias, maniobras complejas..." />
             
                     </div>
 

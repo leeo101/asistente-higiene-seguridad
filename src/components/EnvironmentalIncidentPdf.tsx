@@ -102,7 +102,7 @@ export default function EnvironmentalIncidentPdf({ report, onBack, isHeadless = 
                         </div>
 
                         <div className="flex-[1] flex justify-end items-start">
-                            <CompanyLogo maxWidth="110px" maxHeight="45px" />
+                            <CompanyLogo style={{ maxWidth: '110px', maxHeight: '45px' }} />
                         </div>
                     </div>
 
@@ -193,13 +193,15 @@ export default function EnvironmentalIncidentPdf({ report, onBack, isHeadless = 
 
                     <div className="mt-[2rem] page-break-inside-[avoid]">
                         <PdfSignatures
-              professionalSignature={actSignature}
-              professionalStamp={actStamp}
-              professionalName={actName}
-              professionalLicense={actLic}
-              clientSignature={null}
-              clientName={null}
-              clientRole={null} />
+              data={{
+                professionalSignature: actSignature,
+                professionalStamp: actStamp,
+                professionalName: actName,
+                professionalLicense: actLic,
+                showSignatures: { operator: false, supervisor: false }
+              }}
+              box1={null}
+              box3={null} />
             
                     </div>
                     
