@@ -182,7 +182,7 @@ export default function Legajos() {
           <></>
       </div>
 
-      <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'flex-start' }}>
+      <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
         {hasAccess && (
           <>
           <button
@@ -206,8 +206,7 @@ export default function Legajos() {
                 padding: '0.75rem 1.5rem', background: '#3b82f6', color: '#fff',
                 border: 'none', borderRadius: '14px', fontWeight: 800, fontSize: '0.9rem',
                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
-                boxShadow: '0 4px 15px rgba(59,130,246,0.4)', transition: 'all 0.2s',
-                marginLeft: '1rem'
+                boxShadow: '0 4px 15px rgba(59,130,246,0.4)', transition: 'all 0.2s'
             }}
             onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
             onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
