@@ -34,6 +34,8 @@ interface KPIData {
   monthlyStats: MonthlyStat[];
   topRisks: RiskItem[];
   alerts: AlertItem[];
+  indiceFrecuencia: number;
+  indiceGravedad: number;
 }
 
 interface MonthlyStat {
@@ -251,7 +253,9 @@ export default function Dashboard(): React.ReactElement {
     riskMatrixStatus: {},
     monthlyStats: [],
     topRisks: [],
-    alerts: []
+    alerts: [],
+    indiceFrecuencia: 0,
+    indiceGravedad: 0
   });
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -284,6 +288,8 @@ export default function Dashboard(): React.ReactElement {
       const inspections = safeParse('inspections_history');
       const riskMatrices = safeParse('risk_matrix_history');
       const aiCamera = safeParse('ai_camera_history');
+      const ehsKpis = safeParse('ehs_kpi_data');
+      const medicalAptitudes = safeParse('ehs_medical_db');
 
       const now = new Date();
       const currentMonth = now.getMonth();
@@ -323,6 +329,24 @@ export default function Dashboard(): React.ReactElement {
         ? ((accidentsThisPeriod - accidentsLastMonth) / accidentsLastMonth) * 100
         : 0;
 
+      // Official KPIs
+      let indiceFrecuencia = 0;
+      let indiceGravedad = 0;
+      if (ehsKpis && ehsKpis.length > 0) {
+        // Sort by period
+        const sorted = [...ehsKpis].sort((a: any, b: any) => a.period.localeCompare(b.period));
+        const latestKpi = sorted[sorted.length - 1] as any;
+        
+        const horas = latestKpi.horasTrabajadas || 0;
+        const conBaja = latestKpi.accidentesConBaja || 0;
+        const sinBaja = latestKpi.accidentesSinBaja || 0;
+        const dias = latestKpi.diasPerdidos || 0;
+        const total = conBaja + sinBaja;
+
+        indiceFrecuencia = horas > 0 ? parseFloat(((total * 1_000_000) / horas).toFixed(2)) : 0;
+        indiceGravedad = horas > 0 ? parseFloat(((dias * 1_000) / horas).toFixed(2)) : 0;
+      }
+
       // Cumplimiento de capacitaciones
       const totalTrainings = trainings.length;
       const completedTrainings = trainings.filter(t => t.status === 'completed' || t.completed).length;
@@ -352,6 +376,8 @@ export default function Dashboard(): React.ReactElement {
       // Alertas
       const alerts: AlertItem[] = [];
       const threeDaysLater = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+      const thirtyDaysLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
       permits.forEach(p => {
         const endDate = new Date(p.endDate as string || 0);
         if (endDate > now && endDate < threeDaysLater) {
@@ -360,6 +386,14 @@ export default function Dashboard(): React.ReactElement {
       });
       trainings.filter(t => t.status === 'pending' || !t.completed).forEach(t => {
         alerts.push({ id: `training-${t.id}`, type: 'info', message: `Capacitación pendiente: ${t.title || t.name}`, date: new Date(t.date as string || 0).toLocaleDateString('es-AR') });
+      });
+      medicalAptitudes.forEach((m: any) => {
+        const expDate = new Date(m.expirationDate as string || 0);
+        if (expDate > now && expDate < thirtyDaysLater) {
+          alerts.push({ id: `medical-${m.id}`, type: 'warning', message: `Aptitud Médica de ${m.workerName} vence pronto`, date: expDate.toLocaleDateString('es-AR') });
+        } else if (expDate < now) {
+          alerts.push({ id: `medical-${m.id}`, type: 'danger', message: `Aptitud Médica de ${m.workerName} VENCIDA`, date: expDate.toLocaleDateString('es-AR') });
+        }
       });
 
       const complianceRate = Math.round((trainingCompletion + ppeCompliance) / 2);
@@ -396,7 +430,7 @@ export default function Dashboard(): React.ReactElement {
         });
       }
 
-      setKpis({ accidentRate, accidentTrend, complianceRate, trainingCompletion, ppeCompliance, activePermits, daysWithoutAccidents, inspectionsCompleted, riskMatrixStatus, monthlyStats, topRisks, alerts });
+      setKpis({ accidentRate, accidentTrend, complianceRate, trainingCompletion, ppeCompliance, activePermits, daysWithoutAccidents, inspectionsCompleted, riskMatrixStatus, monthlyStats, topRisks, alerts, indiceFrecuencia, indiceGravedad });
       setLoading(false);
     } catch (error) {
       console.error('[DASHBOARD] Error loading data:', error);
@@ -438,7 +472,7 @@ export default function Dashboard(): React.ReactElement {
         }}>
           {/* Export button */}
           <button
-            onClick={() => navigate('/reports')}
+            onClick={() => window.print()}
             style={{
               flex: isMobile ? 1 : 'none',
               height: '44px',
@@ -567,7 +601,8 @@ export default function Dashboard(): React.ReactElement {
           <> {[...Array(7)].map((_, i) => <KPISkeleton key={i} />)} </>
         ) : (
           <>
-            <KPICard icon={Activity} title="Incidentes este Período" value={kpis.accidentRate} trend={kpis.accidentTrend} gradient={CARD_GRADIENTS.red} delay="0.1s" />
+            <KPICard icon={Activity} title="Índice Frecuencia (IF)" value={kpis.indiceFrecuencia} trend={kpis.accidentTrend} gradient={CARD_GRADIENTS.red} delay="0.1s" />
+            <KPICard icon={AlertTriangle} title="Índice Gravedad (IG)" value={kpis.indiceGravedad} gradient={CARD_GRADIENTS.orange} delay="0.1s" />
             <KPICard icon={Target} title="Tasa de Cumplimiento" value={`${kpis.complianceRate}%`} gradient={CARD_GRADIENTS.cyan} delay="0.2s" />
             <KPICard icon={CheckCircle} title="Cumplimiento Capacitaciones" value={`${kpis.trainingCompletion}%`} gradient={CARD_GRADIENTS.green} delay="0.2s" />
             <KPICard icon={HardHat} title="Cumplimiento EPP" value={`${kpis.ppeCompliance}%`} gradient={CARD_GRADIENTS.blue} delay="0.3s" />

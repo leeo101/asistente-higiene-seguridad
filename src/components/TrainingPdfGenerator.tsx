@@ -171,7 +171,9 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                                     <td style={{ border: '1px solid #cbd5e1', padding: '0.6rem 0.8rem', textAlign: 'center', color: '#334155' }}>{asist.dni}</td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '0.6rem 0.8rem', color: '#334155' }}>{asist.puesto}</td>
                                     <td style={{ border: '1px solid #cbd5e1', padding: '0.6rem 0.8rem', textAlign: 'center', fontWeight: 800, color: '#0f172a' }}>{asist.nota || '-'}</td>
-                                    <td style={{ border: '1px solid #cbd5e1', padding: '1rem 0.8rem', textAlign: 'center' }}></td>
+                                    <td style={{ border: '1px solid #cbd5e1', padding: '0.2rem 0.8rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                                        {asist.firma ? <img src={asist.firma} alt="Firma" style={{ maxHeight: '30px', maxWidth: '100%', objectFit: 'contain' }} /> : ''}
+                                    </td>
                                 </tr>
                             ))}
                             {/* Rendimiento de líneas vacías para rellenar */}

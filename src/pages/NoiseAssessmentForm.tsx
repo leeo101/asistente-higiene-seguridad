@@ -62,7 +62,7 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
         location: '',
         task: '',
         duration: '',
-        levels: { lavg: '', lmax: '', lmin: '', lpeak: '', lex8h: '' },
+        levels: { lavg: '', lmax: '', lmin: '', lpeak: '', lex8h: '', dose: '' },
         hearingProtection: '',
         observations: '',
         technician: '',
@@ -141,6 +141,26 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
 
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    useEffect(() => {
+        if (measurement.levels.lavg && measurement.duration) {
+            const lavg = parseFloat(measurement.levels.lavg);
+            const duration = parseFloat(measurement.duration);
+            if (!isNaN(lavg) && !isNaN(duration)) {
+                // Cálculo de tiempo permitido T (Res. 295/03, exchange rate 3dB)
+                const T = 8 / Math.pow(2, (lavg - 85) / 3);
+                // Cálculo de dosis (C/T * 100)
+                const dose = ((duration / T) * 100).toFixed(1);
+                
+                if (measurement.levels.dose !== dose) {
+                    setMeasurement((prev: any) => ({
+                        ...prev,
+                        levels: { ...prev.levels, dose }
+                    }));
+                }
+            }
+        }
+    }, [measurement.levels.lavg, measurement.duration]);
 
     const calculateRiskLevel = (level: number) => {
         if (level >= NOISE_LIMITS.limitValue) return { level: 'critical', color: '#dc2626', label: 'CRÍTICO' };
@@ -236,6 +256,7 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
                         <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800, color: 'var(--color-primary)' }}>Niveles de Ruido (dB)</h3>
                         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, 1fr)', gap: '1rem' }}>
                             <LevelInput label="Lavg (Promedio) *" value={measurement.levels.lavg} onChange={(v) => handleLevelChange('lavg', v)} placeholder="85" />
+                            <LevelInput label="Dosis D% *" value={measurement.levels.dose} onChange={(v) => handleLevelChange('dose', v)} placeholder="100" />
                             <LevelInput label="Lmax" value={measurement.levels.lmax} onChange={(v) => handleLevelChange('lmax', v)} placeholder="95" />
                             <LevelInput label="Lmin" value={measurement.levels.lmin} onChange={(v) => handleLevelChange('lmin', v)} placeholder="70" />
                             <LevelInput label="Lpeak" value={measurement.levels.lpeak} onChange={(v) => handleLevelChange('lpeak', v)} placeholder="130" />

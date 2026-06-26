@@ -5,9 +5,11 @@ const APP_ICON = '/favicon-180.png';
 const APP_BADGE = '/favicon-32.png';
 const APP_NAME = 'Asistente HYS';
 
-import { messaging, db } from '../firebase';
+import { getMessagingInstance, db } from '../firebase';
 import { getToken, onMessage } from 'firebase/messaging';
 import { doc, setDoc } from 'firebase/firestore';
+import { Capacitor } from '@capacitor/core';
+import { PushNotifications } from '@capacitor/push-notifications';
 
 export type NotifPermission = 'granted' | 'denied' | 'default' | 'unsupported';
 
@@ -35,36 +37,71 @@ const VAPID_KEY = 'BP7GtLUGNUkD3SKfdXD2mbou3KXh-9PiRVNIZ1-EEnYz9e62vnC-Hng8vWZxN
 
 export async function requestAndSaveToken(uid: string) {
     try {
-        const msg = messaging();
-        if (!msg) return; // No soportado
+        if (Capacitor.isNativePlatform()) {
+            // Manejo nativo en Android/iOS vía Capacitor
+            let permStatus = await PushNotifications.checkPermissions();
+            if (permStatus.receive === 'prompt') {
+                permStatus = await PushNotifications.requestPermissions();
+            }
+            if (permStatus.receive !== 'granted') {
+                console.log('Permiso denegado para Push Notifications en móvil');
+                return;
+            }
 
-        const permission = await requestNotificationPermission();
-        if (permission !== 'granted') {
-            console.log('Permiso de notificaciones denegado.');
-            return;
-        }
+            await PushNotifications.removeAllListeners();
 
-        const token = await getToken(msg, { vapidKey: VAPID_KEY });
-        if (token) {
-            console.log('FCM Token obtenido. Guardando en Firestore...', token);
-            await setDoc(doc(db, 'users', uid, 'fcmTokens', token), {
-                token,
-                updatedAt: Date.now()
+            await PushNotifications.addListener('registration', async (token) => {
+                console.log('Capacitor Push token:', token.value);
+                await setDoc(doc(db, 'users', uid, 'fcmTokens', token.value), {
+                    token: token.value,
+                    updatedAt: Date.now()
+                });
             });
+
+            await PushNotifications.addListener('registrationError', (error) => {
+                console.error('Error on registration: ', error);
+            });
+
+            await PushNotifications.addListener('pushNotificationReceived', (notification) => {
+                console.log('Push received: ', notification);
+            });
+
+            await PushNotifications.register();
         } else {
-            console.log('No se pudo obtener el FCM token.');
-        }
+            // Manejo Web
+            const msg = await getMessagingInstance();
+            if (!msg) {
+                console.log('Firebase Messaging no soportado en este navegador.');
+                return; // No soportado
+            }
 
-        onMessage(msg, (payload) => {
-            console.log('[Foreground] Notificación recibida:', payload);
-            sendNotification({
-                title: payload.notification?.title || 'Notificación',
-                body: payload.notification?.body || '',
-                tag: payload.data?.tag,
-                url: payload.data?.url
+            const permission = await requestNotificationPermission();
+            if (permission !== 'granted') {
+                console.log('Permiso de notificaciones denegado.');
+                return;
+            }
+
+            const token = await getToken(msg, { vapidKey: VAPID_KEY });
+            if (token) {
+                console.log('FCM Token obtenido. Guardando en Firestore...', token);
+                await setDoc(doc(db, 'users', uid, 'fcmTokens', token), {
+                    token,
+                    updatedAt: Date.now()
+                });
+            } else {
+                console.log('No se pudo obtener el FCM token.');
+            }
+
+            onMessage(msg, (payload) => {
+                console.log('[Foreground] Notificación recibida:', payload);
+                sendNotification({
+                    title: payload.notification?.title || 'Notificación',
+                    body: payload.notification?.body || '',
+                    tag: payload.data?.tag,
+                    url: payload.data?.url
+                });
             });
-        });
-
+        }
     } catch (e) {
         console.error('Error al registrar notificaciones push:', e);
     }

@@ -936,7 +936,26 @@ export default function LegajoForm() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Última Capacitación General (Tema y Fecha)</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                    <label className="block text-sm font-medium text-slate-700">Capacitación Realizada (Temas)</label>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const history = JSON.parse(localStorage.getItem('training_history') || '[]');
+                            const match = history.filter((h: any) => h.empresa?.toLowerCase().trim() === formData.empresa.razonSocial?.toLowerCase().trim());
+                            if (match.length > 0) {
+                                const temas = match.map((h: any) => h.tema).join(' | ');
+                                handleChange('epp', 'capacitacionRealizada', temas);
+                                alert(`Sincronizado: ${match.length} capacitaciones encontradas.`);
+                            } else {
+                                alert("No se encontraron capacitaciones para esta empresa.");
+                            }
+                        }}
+                        style={{ fontSize: '0.75rem', color: '#2563eb', background: 'transparent', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+                    >
+                        Sincronizar Módulo Capacitaciones
+                    </button>
+                </div>
                 <textarea 
                   rows={2}
                   value={formData.epp.capacitacionRealizada}

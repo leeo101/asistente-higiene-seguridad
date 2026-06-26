@@ -62,12 +62,15 @@ export const db: Firestore = getFirestore(app);
 export const storage: FirebaseStorage = getStorage(app);
 
 let messagingInstance: Messaging | null = null;
-isSupported().then((supported) => {
+export const getMessagingInstance = async (): Promise<Messaging | null> => {
+  if (messagingInstance) return messagingInstance;
+  const supported = await isSupported();
   if (supported) {
     messagingInstance = getMessaging(app);
+    return messagingInstance;
   }
-});
-export const messaging = () => messagingInstance;
+  return null;
+};
 
 // Habilitar persistencia offline para que Firestore encole escrituras
 // y permita lecturas al no tener internet

@@ -4,6 +4,7 @@ import { Plus, FileText, Download, Trash2, Edit, AlertCircle, Building2, Search,
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
 import { db } from '../firebase';
+import { QRCodeSVG } from 'qrcode.react';
 import { collection, query, getDocs, deleteDoc, doc, orderBy } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import AnimatedPage from '../components/AnimatedPage';
@@ -77,6 +78,7 @@ export default function Legajos() {
   const navigate = useNavigate();
   const [printingLegajo, setPrintingLegajo] = useState<Legajo | null>(null);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
+  const [showQRModal, setShowQRModal] = useState(false);
 
   const handleGeneratePDF = (e: React.MouseEvent, legajo: Legajo) => {
     e.stopPropagation();
@@ -182,6 +184,7 @@ export default function Legajos() {
 
       <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'flex-start' }}>
         {hasAccess && (
+          <>
           <button
             onClick={() => {
               navigate('/legajos/nuevo');
@@ -197,8 +200,38 @@ export default function Legajos() {
           >
             <Plus size={18} /> Nuevo Legajo
           </button>
+          <button
+            onClick={() => setShowQRModal(true)}
+            style={{
+                padding: '0.75rem 1.5rem', background: '#3b82f6', color: '#fff',
+                border: 'none', borderRadius: '14px', fontWeight: 800, fontSize: '0.9rem',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
+                boxShadow: '0 4px 15px rgba(59,130,246,0.4)', transition: 'all 0.2s',
+                marginLeft: '1rem'
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            Portal Trabajador (QR)
+          </button>
+          </>
         )}
       </div>
+
+      {showQRModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', maxWidth: '400px', width: '90%', textAlign: 'center' }}>
+                <h3 style={{ margin: '0 0 1rem 0', fontWeight: 800, color: '#0f172a' }}>Acceso al Portal</h3>
+                <p style={{ color: '#64748b', marginBottom: '1.5rem', fontSize: '0.9rem' }}>Los trabajadores pueden escanear este código para acceder a su portal de aptitudes médicas y capacitaciones.</p>
+                <div style={{ background: '#f1f5f9', padding: '1.5rem', borderRadius: '12px', display: 'inline-block', marginBottom: '1.5rem' }}>
+                    <QRCodeSVG value={`${window.location.origin}/worker-portal`} size={200} />
+                </div>
+                <button onClick={() => setShowQRModal(false)} style={{ width: '100%', padding: '0.75rem', background: '#e2e8f0', color: '#475569', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>
+                    Cerrar
+                </button>
+            </div>
+        </div>
+      )}
 
       {!hasAccess && (
         <div style={{

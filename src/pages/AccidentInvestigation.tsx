@@ -3,7 +3,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     ArrowLeft, Save, UserPlus, ListPlus, Trash2, CheckCircle2, ChevronRight, ChevronLeft,
-    Plus, Share2, Printer, Sparkles, Pencil, Search, AlertTriangle, Calendar, MapPin, QrCode, Download, FileText
+    Plus, Share2, Printer, Sparkles, Pencil, Search, AlertTriangle, Calendar, MapPin, QrCode, Download, FileText, Camera, X
 } from 'lucide-react';
 import { usePaywall } from '../hooks/usePaywall';
 import ShareModal from '../components/ShareModal';
@@ -65,6 +65,109 @@ function DeleteConfirm({ onConfirm, onCancel }: any) {
     );
 }
 
+function AdjuntosSection({
+  adjuntos,
+  onAdd,
+  onRemove,
+  accentColor = '#2563eb'
+}: {
+  adjuntos: string[];
+  onAdd: (base64: string) => void;
+  onRemove: (index: number) => void;
+  accentColor?: string;
+}) {
+  const fileRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          onAdd(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    if (fileRef.current) fileRef.current.value = '';
+  };
+
+  return (
+    <div style={{ marginTop: '1.25rem' }}>
+      <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.5rem' }}>
+        Registro Fotográfico / Evidencia
+      </p>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleFiles}
+        style={{ display: 'none' }}
+      />
+      <button type="button" onClick={() => fileRef.current?.click()}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '0.5rem 1rem',
+          background: accentColor + '14',
+          color: accentColor,
+          border: `1px solid ${accentColor}44`,
+          borderRadius: '0.75rem',
+          cursor: 'pointer',
+          fontWeight: 600,
+          fontSize: '0.85rem'
+        }}
+      >
+        <Camera size={16} /> Adjuntar Foto
+      </button>
+      {adjuntos.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.75rem' }}>
+          {adjuntos.map((src, idx) => (
+            <div key={idx} style={{ position: 'relative', width: 96, height: 96 }}>
+              <img
+                src={src}
+                alt={`adjunto-${idx}`}
+                style={{
+                  width: 96,
+                  height: 96,
+                  objectFit: 'cover',
+                  borderRadius: '0.75rem',
+                  border: '1px solid #e2e8f0'
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => onRemove(idx)}
+                style={{
+                  position: 'absolute',
+                  top: -6,
+                  right: -6,
+                  width: 22,
+                  height: 22,
+                  borderRadius: '50%',
+                  background: '#ef4444',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0
+                }}
+              >
+                <X size={13} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AccidentInvestigation(): React.ReactElement | null {
   const { requirePro } = usePaywall();
     const navigate = useNavigate();
@@ -94,6 +197,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
         descripcionHecho: '', testigos: [{ nombre: '', declaracion: '' }],
         problemaCentral: '', porques: [''],
         medidas: [{ accion: '', responsable: '', fechaLimite: '' }],
+        fotos: [],
         operatorSignature: '', supervisorSignature: '', signature: '',
         showSignatures: { operator: true, professional: true, supervisor: true }
     });
@@ -220,6 +324,41 @@ export default function AccidentInvestigation(): React.ReactElement | null {
 
         localStorage.setItem('accident_history', JSON.stringify(updated));
         syncCollection('accident_history', updated);
+
+        // Integración CAPA Automático (Task 2.1)
+        if (!isEdit) {
+            const currentCapas = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
+            const newCapa = {
+                id: `CAPA-${Date.now()}`,
+                title: `Investigación Accidente: ${formData.victimaNombre}`,
+                description: `Accidente ${formData.gravedad} reportado el ${formData.fecha} en ${formData.ubicacion}.`,
+                capaType: 'corrective',
+                source: 'incident',
+                priority: formData.gravedad === 'Mortal' || formData.gravedad === 'Grave' ? 'critical' : 'high',
+                originDate: new Date().toISOString().split('T')[0],
+                dueDate: '',
+                responsible: '',
+                team: [],
+                relatedProcess: 'Seguridad Industrial',
+                problemStatement: formData.descripcionHecho,
+                rootCauseMethod: '5why',
+                rootCauseAnalysis: '',
+                immediateActions: [],
+                correctiveActions: [],
+                controlType: '',
+                effectivenessCriteria: '',
+                status: 'draft',
+                createdAt: new Date().toISOString(),
+                openedAt: '',
+                completedAt: '',
+                closedAt: '',
+                observations: ''
+            };
+            const updatedCapas = [newCapa, ...currentCapas];
+            localStorage.setItem('ehs_capa_db', JSON.stringify(updatedCapas));
+            syncCollection('ehs_capa_db', updatedCapas);
+            toast.success('CAPA Borrador creado automáticamente.');
+        }
         
         toast.success(isEdit ? 'Investigación actualizada correctamente.' : 'Investigación guardada correctamente.');
         
@@ -230,6 +369,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
             descripcionHecho: '', testigos: [{ nombre: '', declaracion: '' }],
             problemaCentral: '', porques: [''],
             medidas: [{ accion: '', responsable: '', fechaLimite: '' }],
+            fotos: [],
             operatorSignature: '', supervisorSignature: '', signature: '',
             showSignatures: { operator: true, professional: true, supervisor: true }
         });
@@ -507,6 +647,13 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                                     onChange={e => handleInputChange('descripcionHecho', e.target.value)}
                                 />
                             </div>
+
+                            <AdjuntosSection
+                              adjuntos={formData.fotos || []}
+                              onAdd={(b64) => setFormData((prev: any) => ({ ...prev, fotos: [...(prev.fotos || []), b64] }))}
+                              onRemove={(idx) => setFormData((prev: any) => ({ ...prev, fotos: (prev.fotos || []).filter((_: any, i: number) => i !== idx) }))}
+                              accentColor="#3b82f6"
+                            />
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', paddingBottom: '1rem', borderBottom: '1px solid var(--glass-border)' }}>
                                 <h3 style={{ fontSize: '1.1rem', margin: 0, color: 'var(--color-primary)' }}>Testigos del Hecho</h3>

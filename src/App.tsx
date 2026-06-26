@@ -95,7 +95,9 @@ const AIGeneralCameraManager = lazyWithRetry(() => import('./pages/AIGeneralCame
 const ManagementReport = lazyWithRetry(() => import('./pages/ManagementReport'));
 const AccidentInvestigation = lazyWithRetry(() => import('./pages/AccidentInvestigation'));
 const TrainingManagement = lazyWithRetry(() => import('./pages/TrainingManagement'));
-
+const MedicalAptitudes = lazyWithRetry(() => import('./pages/MedicalAptitudes'));
+const EmergencyPlan = lazyWithRetry(() => import('./pages/EmergencyPlan'));
+const WorkerPortal = lazyWithRetry(() => import('./pages/WorkerPortal'));
 
 const ExtinguisherPdfGenerator = lazyWithRetry(() => import('./components/ExtinguisherPdfGenerator'));
 const ExtintoresManager = lazyWithRetry(() => import('./pages/ExtintoresManager'));
@@ -587,6 +589,12 @@ function App() {
                   <Route path="/risk-matrix-report" element={<RiskMatrixReport />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/reports-report" element={<ReportsReport />} />
+                  <Route path="/entrenamientos" element={<TrainingManagement />} />
+                  <Route path="/medical" element={<MedicalAptitudes />} />
+                  <Route path="/emergency-plan" element={<EmergencyPlan />} />
+                  <Route path="/worker-portal" element={<WorkerPortal />} />
+                  <Route path="/worker-portal/:dni" element={<WorkerPortal />} />
+                  <Route path="/accident-history" element={<AccidentHistory />} />
                   <Route path="/ergonomics" element={<Ergonomics />} />
                   <Route path="/ergonomics-form" element={<ErgonomicsForm />} />
                   <Route path="/ergonomics-report" element={<ErgonomicsReport />} />

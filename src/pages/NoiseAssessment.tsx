@@ -991,6 +991,7 @@ function MeasurementDetailModal({ measurement, riskLevel, onClose, calculateAtte
                     marginBottom: '1.5rem'
                 }}>
                     <LevelDetail label="Lavg (Promedio)" value={`${measurement.levels.lavg || '-'} dB(A)`} />
+                    <LevelDetail label="Dosis D%" value={`${measurement.levels.dose || '-'} %`} />
                     <LevelDetail label="Lmax (Máximo)" value={`${measurement.levels.lmax || '-'} dB(A)`} />
                     <LevelDetail label="Lmin (Mínimo)" value={`${measurement.levels.lmin || '-'} dB(A)`} />
                     <LevelDetail label="Lpeak (Pico)" value={`${measurement.levels.lpeak || '-'} dB`} />

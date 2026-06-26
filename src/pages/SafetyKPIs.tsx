@@ -32,15 +32,16 @@ interface KPIEntry {
 }
 
 interface KPIMetrics {
-    ltifr: number;
-    trifr: number;
-    indiceSeveridad: number;
+    indiceFrecuencia: number; // IF
+    indiceGravedad: number; // IG
+    indiceFrecuenciaAusentismo: number; // IFCA
     tasaIncidencia: number;
     diasSinAccidentes: number;
 }
 
 function calcMetrics(entry: KPIEntry): KPIMetrics {
     const millon = 1_000_000;
+    const mil = 1_000;
     const horas = entry.horasTrabajadas || 0;
     const trabajadores = entry.numeroDeTrabajadores || 1;
     const conBaja = entry.accidentesConBaja || 0;
@@ -48,18 +49,18 @@ function calcMetrics(entry: KPIEntry): KPIMetrics {
     const dias = entry.diasPerdidos || 0;
 
     return {
-        ltifr: horas > 0 ? parseFloat(((conBaja * millon) / horas).toFixed(2)) : 0,
-        trifr: horas > 0 ? parseFloat(((total * millon) / horas).toFixed(2)) : 0,
-        indiceSeveridad: horas > 0 ? parseFloat(((dias * millon) / horas).toFixed(2)) : 0,
+        indiceFrecuencia: horas > 0 ? parseFloat(((total * millon) / horas).toFixed(2)) : 0,
+        indiceGravedad: horas > 0 ? parseFloat(((dias * mil) / horas).toFixed(2)) : 0,
+        indiceFrecuenciaAusentismo: horas > 0 ? parseFloat(((conBaja * millon) / horas).toFixed(2)) : 0,
         tasaIncidencia: parseFloat(((total / trabajadores) * 100).toFixed(2)),
         diasSinAccidentes: 0
     };
 }
 
 const infoTexts: Record<string, string> = {
-    ltifr: 'Lost Time Injury Frequency Rate: accidentes con pérdida de tiempo × 1.000.000 / horas trabajadas. Estándar internacional ISO 45001.',
-    trifr: 'Total Recordable Injury Frequency Rate: total de accidentes registrables × 1.000.000 / horas trabajadas.',
-    indiceSeveridad: 'Días perdidos por accidente × 1.000.000 / horas trabajadas. Mide la gravedad de los accidentes.',
+    indiceFrecuencia: 'Índice de Frecuencia (IF): Total de accidentes × 1.000.000 / horas trabajadas. Oficial SRT.',
+    indiceFrecuenciaAusentismo: 'Índice de Frecuencia con Ausentismo (IFCA): Accidentes con baja × 1.000.000 / horas trabajadas.',
+    indiceGravedad: 'Índice de Gravedad (IG): Días perdidos × 1.000 / horas trabajadas. Mide la gravedad oficial.',
     tasaIncidencia: 'Total de accidentes / Número de trabajadores × 100. Indica cuántos trabajadores de cada 100 se accidentan.',
 };
 
@@ -277,6 +278,57 @@ export default function SafetyKPIs(): React.ReactElement {
         } catch { return 365; }
     };
 
+    const autoImportFromAccidents = () => {
+        try {
+            const raw = localStorage.getItem('accident_history');
+            if (!raw) {
+                toast.error('No hay registro de accidentes.');
+                return;
+            }
+            const accidents = JSON.parse(raw) as any[];
+            const currentYearMonth = form.period; // e.g., "2024-03"
+            const monthAccidents = accidents.filter(a => {
+                const date = new Date(a.date || a.createdAt);
+                const aYearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                return aYearMonth === currentYearMonth;
+            });
+
+            if (monthAccidents.length === 0) {
+                toast.success('No hubo accidentes en este período.');
+                setForm(prev => ({
+                    ...prev,
+                    accidentesConBaja: 0,
+                    accidentesSinBaja: 0,
+                    diasPerdidos: 0,
+                }));
+                return;
+            }
+
+            let conBaja = 0;
+            let sinBaja = 0;
+            let dias = 0;
+
+            monthAccidents.forEach(a => {
+                if (a.diasBaja || a.diasPerdidos) {
+                    conBaja++;
+                    dias += Number(a.diasBaja || a.diasPerdidos || 0);
+                } else {
+                    sinBaja++;
+                }
+            });
+
+            setForm(prev => ({
+                ...prev,
+                accidentesConBaja: conBaja,
+                accidentesSinBaja: sinBaja,
+                diasPerdidos: dias,
+            }));
+            toast.success(`Importados ${monthAccidents.length} accidentes del período.`);
+        } catch {
+            toast.error('Error al importar accidentes.');
+        }
+    };
+
     const diasSinAccidentes = getDaysSinceLastAccident();
 
     // Latest period metrics
@@ -291,7 +343,7 @@ export default function SafetyKPIs(): React.ReactElement {
     // Chart data
     const chartData = entries.map(e => {
         const m = calcMetrics(e);
-        return { label: e.label, LTIFR: m.ltifr, TRIFR: m.trifr, Severidad: m.indiceSeveridad };
+        return { label: e.label, IF: m.indiceFrecuencia, IFCA: m.indiceFrecuenciaAusentismo, IG: m.indiceGravedad };
     });
 
     const inputStyle: React.CSSProperties = {
@@ -306,9 +358,9 @@ export default function SafetyKPIs(): React.ReactElement {
     };
 
     const colorScheme = {
-        ltifr: { gradient: 'linear-gradient(135deg, #ef4444, #dc2626)', color: '#ef4444' },
-        trifr: { gradient: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#f59e0b' },
-        severidad: { gradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#8b5cf6' },
+        indiceFrecuencia: { gradient: 'linear-gradient(135deg, #ef4444, #dc2626)', color: '#ef4444' },
+        indiceFrecuenciaAusentismo: { gradient: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#f59e0b' },
+        indiceGravedad: { gradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#8b5cf6' },
         incidencia: { gradient: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#3b82f6' },
         dias: { gradient: 'linear-gradient(135deg, #10b981, #059669)', color: '#10b981' },
     };
@@ -320,7 +372,7 @@ export default function SafetyKPIs(): React.ReactElement {
                 <>
                     <PremiumHeader onBack={showForm ? () => { setShowForm(false); } : undefined} 
                         title="KPIs de Seguridad"
-                        subtitle="LTIFR • TRIFR • Severidad • Incidencia — Estándar ISO 45001"
+                        subtitle="IF • IG • IFCA • Incidencia — Estadísticas Oficiales"
                         icon={<BarChart3 size={32} color="#ffffff"  />}
                         color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
                     />
@@ -353,21 +405,21 @@ export default function SafetyKPIs(): React.ReactElement {
                     </p>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem', marginBottom: '2rem' }}>
                         <KPICard
-                            title="LTIFR" value={latestMetrics.ltifr} unit="× millón horas"
-                            icon={AlertTriangle} infoKey="ltifr"
-                            gradient={colorScheme.ltifr.gradient} color={colorScheme.ltifr.color}
-                            trend={prevMetrics ? trendOf(latestMetrics.ltifr, prevMetrics.ltifr) : undefined}
+                            title="Índice de Frecuencia (IF)" value={latestMetrics.indiceFrecuencia} unit="× millón horas"
+                            icon={AlertTriangle} infoKey="indiceFrecuencia"
+                            gradient={colorScheme.indiceFrecuencia.gradient} color={colorScheme.indiceFrecuencia.color}
+                            trend={prevMetrics ? trendOf(latestMetrics.indiceFrecuencia, prevMetrics.indiceFrecuencia) : undefined}
                         />
                         <KPICard
-                            title="TRIFR" value={latestMetrics.trifr} unit="× millón horas"
-                            icon={Activity} infoKey="trifr"
-                            gradient={colorScheme.trifr.gradient} color={colorScheme.trifr.color}
-                            trend={prevMetrics ? trendOf(latestMetrics.trifr, prevMetrics.trifr) : undefined}
+                            title="IFCA (Con Ausentismo)" value={latestMetrics.indiceFrecuenciaAusentismo} unit="× millón horas"
+                            icon={Activity} infoKey="indiceFrecuenciaAusentismo"
+                            gradient={colorScheme.indiceFrecuenciaAusentismo.gradient} color={colorScheme.indiceFrecuenciaAusentismo.color}
+                            trend={prevMetrics ? trendOf(latestMetrics.indiceFrecuenciaAusentismo, prevMetrics.indiceFrecuenciaAusentismo) : undefined}
                         />
                         <KPICard
-                            title="Índice de Severidad" value={latestMetrics.indiceSeveridad} unit="días × millón horas"
-                            icon={Target} infoKey="indiceSeveridad"
-                            gradient={colorScheme.severidad.gradient} color={colorScheme.severidad.color}
+                            title="Índice de Gravedad (IG)" value={latestMetrics.indiceGravedad} unit="días × 1.000 horas"
+                            icon={Target} infoKey="indiceGravedad"
+                            gradient={colorScheme.indiceGravedad.gradient} color={colorScheme.indiceGravedad.color}
                         />
                         <KPICard
                             title="Tasa de Incidencia" value={`${latestMetrics.tasaIncidencia}%`} unit="por cada 100 trabajadores"
@@ -397,9 +449,9 @@ export default function SafetyKPIs(): React.ReactElement {
                                         contentStyle={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 10, fontSize: '0.82rem' }}
                                     />
                                     <Legend />
-                                    <Line type="monotone" dataKey="LTIFR" stroke="#ef4444" strokeWidth={2.5} dot={{ r: 5 }} name="LTIFR" />
-                                    <Line type="monotone" dataKey="TRIFR" stroke="#f59e0b" strokeWidth={2.5} dot={{ r: 5 }} name="TRIFR" />
-                                    <Line type="monotone" dataKey="Severidad" stroke="#8b5cf6" strokeWidth={2.5} dot={{ r: 5 }} name="Severidad" />
+                                    <Line type="monotone" dataKey="IF" stroke="#ef4444" strokeWidth={2.5} dot={{ r: 5 }} name="IF" />
+                                    <Line type="monotone" dataKey="IFCA" stroke="#f59e0b" strokeWidth={2.5} dot={{ r: 5 }} name="IFCA" />
+                                    <Line type="monotone" dataKey="IG" stroke="#8b5cf6" strokeWidth={2.5} dot={{ r: 5 }} name="IG" />
                                     <ReferenceLine y={0} stroke="var(--color-border)" />
                                 </LineChart>
                             </ResponsiveContainer>
@@ -457,7 +509,7 @@ export default function SafetyKPIs(): React.ReactElement {
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                             <thead>
                                 <tr style={{ background: 'var(--color-background)' }}>
-                                    {['Período', 'Hrs Trab.', 'Trabaj.', 'A c/baja', 'A s/baja', 'Días perd.', 'LTIFR', 'TRIFR', 'Severidad', ''].map(h => (
+                                    {['Período', 'Hrs Trab.', 'Trabaj.', 'A c/baja', 'A s/baja', 'Días perd.', 'IF', 'IFCA', 'IG', ''].map(h => (
                                         <th key={h} style={{ padding: '0.6rem 0.8rem', textAlign: 'left', fontWeight: 800, color: 'var(--color-text-muted)', fontSize: '0.72rem', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
                                     ))}
                                 </tr>
@@ -473,9 +525,9 @@ export default function SafetyKPIs(): React.ReactElement {
                                             <td style={{ padding: '0.75rem 0.8rem', color: '#ef4444', fontWeight: 700 }}>{e.accidentesConBaja}</td>
                                             <td style={{ padding: '0.75rem 0.8rem' }}>{e.accidentesSinBaja}</td>
                                             <td style={{ padding: '0.75rem 0.8rem' }}>{e.diasPerdidos}</td>
-                                            <td style={{ padding: '0.75rem 0.8rem', fontWeight: 800, color: '#ef4444' }}>{m.ltifr}</td>
-                                            <td style={{ padding: '0.75rem 0.8rem', fontWeight: 800, color: '#f59e0b' }}>{m.trifr}</td>
-                                            <td style={{ padding: '0.75rem 0.8rem', fontWeight: 800, color: '#8b5cf6' }}>{m.indiceSeveridad}</td>
+                                            <td style={{ padding: '0.75rem 0.8rem', fontWeight: 800, color: '#ef4444' }}>{m.indiceFrecuencia}</td>
+                                            <td style={{ padding: '0.75rem 0.8rem', fontWeight: 800, color: '#f59e0b' }}>{m.indiceFrecuenciaAusentismo}</td>
+                                            <td style={{ padding: '0.75rem 0.8rem', fontWeight: 800, color: '#8b5cf6' }}>{m.indiceGravedad}</td>
                                             <td style={{ padding: '0.75rem 0.5rem' }}>
                                                 <div style={{ display: 'flex', gap: '0.4rem' }}>
                                                     <button onClick={() => { setEditing(e); setForm(e); setShowForm(true); }}
@@ -507,8 +559,45 @@ export default function SafetyKPIs(): React.ReactElement {
                     color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
                 />
                 
-                <div style={{ marginBottom: '1.5rem', marginTop: '1.5rem' }}>
-                    <></>
+                <div style={{ marginBottom: '1.5rem', marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    <button
+                        onClick={() => {
+                            try {
+                                const raw = localStorage.getItem('accident_history');
+                                if (raw) {
+                                    const accidents = JSON.parse(raw);
+                                    const [year, month] = form.period.split('-');
+                                    const filtered = accidents.filter((a: any) => {
+                                        const d = new Date(a.date || a.createdAt);
+                                        return d.getFullYear() === parseInt(year) && (d.getMonth() + 1) === parseInt(month);
+                                    });
+                                    const conBaja = filtered.filter((a: any) => a.hasLostDays || a.type === 'con_baja').length;
+                                    const sinBaja = filtered.filter((a: any) => !a.hasLostDays && a.type !== 'con_baja').length;
+                                    const diasPerdidos = filtered.reduce((acc: number, val: any) => acc + (Number(val.lostDays) || 0), 0);
+                                    
+                                    setForm(f => ({
+                                        ...f,
+                                        accidentesConBaja: conBaja,
+                                        accidentesSinBaja: sinBaja,
+                                        diasPerdidos: diasPerdidos
+                                    }));
+                                    toast.success(`Se importaron ${filtered.length} registros del período.`);
+                                } else {
+                                    toast.error('No hay registros de accidentes guardados.');
+                                }
+                            } catch (e) {
+                                toast.error('Error al leer registros de accidentes.');
+                            }
+                        }}
+                        style={{
+                            padding: '0.6rem 1rem', background: '#3b82f6', color: '#fff',
+                            border: 'none', borderRadius: 10, fontWeight: 700, fontSize: '0.85rem',
+                            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
+                            boxShadow: '0 4px 15px rgba(59,130,246,0.3)', transition: 'all 0.2s'
+                        }}
+                    >
+                        <RefreshCw size={16} /> Auto-completar Incidentes
+                    </button>
                 </div>
                 
                 <div className="card" style={{ padding: '2.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '24px', boxShadow: 'var(--shadow-lg)', marginTop: '1rem' }}>
@@ -531,30 +620,35 @@ export default function SafetyKPIs(): React.ReactElement {
                                 onChange={e => setForm(f => ({ ...f, numeroDeTrabajadores: +e.target.value }))}
                                 placeholder="Ej: 150" className="input-professional" />
                         </div>
+                        </div>
+                    
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                         <div>
-                            <label style={labelStyle}>Accidentes con Baja</label>
-                            <input type="number" value={form.accidentesConBaja || ''}
-                                onChange={e => setForm(f => ({ ...f, accidentesConBaja: +e.target.value }))}
-                                placeholder="0" className="input-professional" />
+                            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: 6 }}>Acc. con Baja</label>
+                            <input type="number" min="0" value={form.accidentesConBaja} onChange={e => setForm({ ...form, accidentesConBaja: Number(e.target.value) })} style={inputStyle} />
                         </div>
                         <div>
-                            <label style={labelStyle}>Accidentes sin Baja</label>
-                            <input type="number" value={form.accidentesSinBaja || ''}
-                                onChange={e => setForm(f => ({ ...f, accidentesSinBaja: +e.target.value }))}
-                                placeholder="0" className="input-professional" />
+                            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: 6 }}>Acc. sin Baja</label>
+                            <input type="number" min="0" value={form.accidentesSinBaja} onChange={e => setForm({ ...form, accidentesSinBaja: Number(e.target.value) })} style={inputStyle} />
                         </div>
                         <div>
-                            <label style={labelStyle}>Días Perdidos</label>
-                            <input type="number" value={form.diasPerdidos || ''}
-                                onChange={e => setForm(f => ({ ...f, diasPerdidos: +e.target.value }))}
-                                placeholder="0" className="input-professional" />
+                            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: 6 }}>Días Perdidos</label>
+                            <input type="number" min="0" value={form.diasPerdidos} onChange={e => setForm({ ...form, diasPerdidos: Number(e.target.value) })} style={inputStyle} />
                         </div>
                         <div>
-                            <label style={labelStyle}>Enfermedades Profesionales</label>
-                            <input type="number" value={form.enfermedadesProfesionales || ''}
-                                onChange={e => setForm(f => ({ ...f, enfermedadesProfesionales: +e.target.value }))}
-                                placeholder="0" className="input-professional" />
+                            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: 6 }}>Enf. Profesionales</label>
+                            <input type="number" min="0" value={form.enfermedadesProfesionales} onChange={e => setForm({ ...form, enfermedadesProfesionales: Number(e.target.value) })} style={inputStyle} />
                         </div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', background: 'rgba(59,130,246,0.05)', padding: '1rem', borderRadius: 12, border: '1px solid rgba(59,130,246,0.1)' }}>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--color-text)' }}>
+                            <strong>Tip:</strong> Puedes autocompletar los accidentes desde el módulo de investigación.
+                        </div>
+                        <button type="button" onClick={autoImportFromAccidents} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#3b82f6', color: '#fff', border: 'none', padding: '0.6rem 1rem', borderRadius: 8, fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer' }}>
+                            <RefreshCw size={16} /> Importar Accidentes
+                        </button>
                     </div>
 
                     {/* Preview */}
@@ -567,9 +661,9 @@ export default function SafetyKPIs(): React.ReactElement {
                                 const m = calcMetrics(form);
                                 return (
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem', color: 'var(--color-text-muted)' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column' }}><span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>LTIFR</span> <strong style={{ color: '#ef4444', fontSize: '1.4rem' }}>{m.ltifr}</strong></div>
-                                        <div style={{ display: 'flex', flexDirection: 'column' }}><span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>TRIFR</span> <strong style={{ color: '#f59e0b', fontSize: '1.4rem' }}>{m.trifr}</strong></div>
-                                        <div style={{ display: 'flex', flexDirection: 'column' }}><span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>Severidad</span> <strong style={{ color: '#8b5cf6', fontSize: '1.4rem' }}>{m.indiceSeveridad}</strong></div>
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}><span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>IF</span> <strong style={{ color: '#ef4444', fontSize: '1.4rem' }}>{m.indiceFrecuencia}</strong></div>
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}><span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>IFCA</span> <strong style={{ color: '#f59e0b', fontSize: '1.4rem' }}>{m.indiceFrecuenciaAusentismo}</strong></div>
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}><span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>IG</span> <strong style={{ color: '#8b5cf6', fontSize: '1.4rem' }}>{m.indiceGravedad}</strong></div>
                                         <div style={{ display: 'flex', flexDirection: 'column' }}><span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>Incidencia</span> <strong style={{ color: '#3b82f6', fontSize: '1.4rem' }}>{m.tasaIncidencia}%</strong></div>
                                     </div>
                                 );

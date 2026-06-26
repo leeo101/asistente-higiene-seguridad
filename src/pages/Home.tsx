@@ -144,6 +144,8 @@ const quickLinks: QuickLink[] = [
   { to: '/fleet-form',                icon: <Truck weight="duotone" size={26} />,          label: 'Flota y Vehículos',     sub: 'Inspección Pre-Operacional',                 color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)',   premium: true, category: 'management',                        norm: 'ISO 39001' },
   { to: '/evacuation-history',        icon: <Timer weight="duotone" size={26} />,          label: 'Simulador de Evacuación', sub: 'Cálculo de Tiempos',                       color: '#ec4899', bg: 'rgba(236,72,153,0.1)',   premium: true, category: 'specific',                          norm: 'NFPA 101' },
   { to: '/legajos',                   icon: <FileText weight="duotone" size={26} />,       label: 'Legajos Técnicos',      sub: 'Decreto 351/79',                             color: '#eab308', bg: 'rgba(234,179,8,0.1)',    premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'Dec. 351' },
+  { to: '/medical',                   icon: <Activity weight="duotone" size={26} />,       label: 'Aptitudes Médicas',     sub: 'Exámenes Preocupacionales y Periódicos',     color: '#10b981', bg: 'rgba(16,185,129,0.1)',   premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'Res. 37/10' },
+  { to: '/emergency-plan',            icon: <Siren weight="duotone" size={26} />,          label: 'Plan de Emergencias',   sub: 'Roles, Brigadas y Simulacros',               color: '#ef4444', bg: 'rgba(239,68,68,0.1)',    premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'Ley 19587' },
 ].sort((a, b) => a.label.localeCompare(b.label, 'es-AR'));
 
 // Counter hook

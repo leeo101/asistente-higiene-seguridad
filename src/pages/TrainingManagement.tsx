@@ -83,7 +83,7 @@ export default function TrainingManagement(): React.ReactElement | null {
             { texto: '¿Comprendió los riesgos asociados a la tarea?' },
             { texto: '¿Identificó las medidas preventivas correctas?' }
         ],
-        asistentes: [{ nombre: '', dni: '', puesto: '', nota: '' }],
+        asistentes: [{ nombre: '', dni: '', puesto: '', nota: '', firma: '', showSignatureModal: false }],
         operatorSignature: '',
         signature: '',
         supervisorSignature: '',
@@ -182,7 +182,7 @@ export default function TrainingManagement(): React.ReactElement | null {
         });
     };
 
-    const addAsistente = () => setFormData(prev => ({ ...prev, asistentes: [...prev.asistentes, { nombre: '', dni: '', puesto: '', nota: '' }] }));
+    const addAsistente = () => setFormData(prev => ({ ...prev, asistentes: [...prev.asistentes, { nombre: '', dni: '', puesto: '', nota: '', firma: '', showSignatureModal: false }] }));
     const removeAsistente = (index) => setFormData(prev => ({ ...prev, asistentes: prev.asistentes.filter((_, i) => i !== index) }));
 
     const handlePreguntaChange = (index, value) => {
@@ -535,7 +535,7 @@ export default function TrainingManagement(): React.ReactElement | null {
                                 {formData.asistentes.map((asistente, i) => (
                                     <div key={i} className="training-asistente-card">
                                         <span className="training-asistente-badge">Asistente #{i + 1}</span>
-                                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1.2fr 1.5fr 1fr auto', gap: '1.25rem', alignItems: 'end', marginTop: '0.5rem' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1.2fr 1.5fr 1fr auto auto', gap: '1.25rem', alignItems: 'end', marginTop: '0.5rem' }}>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                                                 <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nombre Completo</label>
                                                 <input type="text" placeholder="Apellido y Nombre" value={asistente.nombre} onChange={e => handleArrayChange(i, 'nombre', e.target.value)} className="input-professional capa-focus-glow" style={{ margin: 0, height: '44px', width: '100%', borderRadius: '10px' }} />
@@ -552,6 +552,18 @@ export default function TrainingManagement(): React.ReactElement | null {
                                                 <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nota / Eval.</label>
                                                 <input type="text" placeholder="Ej. Aprobado, 8" value={asistente.nota || ''} onChange={e => handleArrayChange(i, 'nota', e.target.value)} className="input-professional capa-focus-glow" style={{ margin: 0, height: '44px', width: '100%', borderRadius: '10px' }} />
                                             </div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                                <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Firma</label>
+                                                {asistente.firma ? (
+                                                    <div style={{ height: '44px', border: '1px solid #10b981', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', cursor: 'pointer', padding: '0 0.5rem' }} onClick={() => handleArrayChange(i, 'showSignatureModal', true)}>
+                                                        <CheckCircle2 size={16} style={{ marginRight: '0.4rem' }} /> Firmado
+                                                    </div>
+                                                ) : (
+                                                    <button className="btn-secondary" style={{ height: '44px', margin: 0, borderRadius: '10px', padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }} onClick={() => handleArrayChange(i, 'showSignatureModal', true)}>
+                                                        <Pencil size={15} /> Firmar
+                                                    </button>
+                                                )}
+                                            </div>
 
                                             {formData.asistentes.length > 1 ? (
                                                 <div style={{ display: 'flex', justifyContent: isMobile ? 'flex-end' : 'center', width: isMobile ? '100%' : 'auto' }}>
@@ -563,6 +575,19 @@ export default function TrainingManagement(): React.ReactElement | null {
                                                 <div className="hidden sm:block" style={{ width: '44px' }}></div>
                                             )}
                                         </div>
+                                        {asistente.showSignatureModal && (
+                                            <div className="glass-card" style={{ padding: '1.25rem', marginTop: '1rem', borderRadius: '12px', border: '1px solid var(--color-primary)' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                                    <span style={{ fontWeight: 800, color: 'var(--color-primary)' }}>Firma de {asistente.nombre || `Asistente #${i + 1}`}</span>
+                                                    <button onClick={() => handleArrayChange(i, 'showSignatureModal', false)} style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: 'none', borderRadius: '8px', padding: '0.4rem 0.8rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem' }}>Cerrar</button>
+                                                </div>
+                                                <SignatureCanvas 
+                                                    onSave={(sig) => { handleArrayChange(i, 'firma', sig); handleArrayChange(i, 'showSignatureModal', false); }} 
+                                                    initialImage={asistente.firma} 
+                                                    title={`Firmar asistencia - ${asistente.nombre || 'Asistente'}`} 
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>

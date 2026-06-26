@@ -272,6 +272,23 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                         </table>
                     </div>
 
+                    {/* 6 - Registro Fotográfico */}
+                    {report?.fotos && report.fotos.length > 0 && (
+                        <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1.5rem' }}>
+                            <div style={{ background: '#1e293b', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <FileText size={14} color="#fff" />
+                                <span style={{ fontWeight: 900, fontSize: '0.75rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em' }}>6 — REGISTRO FOTOGRÁFICO / EVIDENCIA</span>
+                            </div>
+                            <div style={{ padding: '1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem', background: '#f8fafc' }}>
+                                {report.fotos.map((foto: string, idx: number) => (
+                                    <div key={idx} className="avoid-break" style={{ breakInside: 'avoid', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', background: '#fff', padding: '0.5rem' }}>
+                                        <img src={foto} alt={`Evidencia ${idx + 1}`} style={{ width: '100%', height: 'auto', maxHeight: '200px', objectFit: 'contain', display: 'block' }} />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Firmas */}
                     <PdfSignatures 
                         data={report} 

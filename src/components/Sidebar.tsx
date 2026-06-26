@@ -44,6 +44,9 @@ const navItems: NavItem[] = [
   { to: '/profile', icon: <User weight="duotone" size={20} />, label: 'Mi Perfil', auth: true },
   { to: '/privacy', icon: <ShieldCheck weight="duotone" size={20} />, label: 'Privacidad', always: true },
   { to: '/management-report', icon: <ChartBar weight="duotone" size={20} color="#8b5cf6" />, label: 'Reporte Mensual', auth: true },
+  { to: '/medical', icon: <User weight="duotone" size={20} color="#10b981" />, label: 'Aptitudes Médicas', auth: true },
+  { to: '/emergency-plan', icon: <ShieldCheck weight="duotone" size={20} color="#ef4444" />, label: 'Plan de Emergencias', auth: true },
+  { to: '/worker-portal', icon: <User weight="duotone" size={20} color="#3b82f6" />, label: 'Portal del Trabajador', auth: true },
 ];
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactElement {

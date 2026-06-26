@@ -252,6 +252,21 @@ export default function CAPAManager(): React.ReactElement | null {
         saveCapas(updated);
     };
 
+    const verifyEffectiveness = (capaId) => {
+        const updated = capas.map(c => {
+            if (c.id === capaId) {
+                const timeline = [...(c.timeline || []), {
+                    date: new Date().toISOString(),
+                    event: `Eficacia de la CAPA verificada`,
+                    user: 'Usuario'
+                }];
+                return { ...c, effectivenessVerified: true, effectivenessVerificationDate: new Date().toISOString(), timeline };
+            }
+            return c;
+        });
+        saveCapas(updated);
+    };
+
     const updateActionStatus = (capaId, actionId, status) => {
         const updated = capas.map(c => {
             if (c.id === capaId) {
@@ -606,6 +621,7 @@ export default function CAPAManager(): React.ReactElement | null {
                     capaType={CAPA_TYPES.find(t => t.id === selectedCapa.capaType)}
                     onClose={() => setSelectedCapa(null)}
                     onUpdateStatus={updateCapaStatus}
+                    onVerifyEffectiveness={verifyEffectiveness}
                     CAPA_TYPES={CAPA_TYPES}
                     CAPA_SOURCES={CAPA_SOURCES}
                     CONTROL_HIERARCHY={CONTROL_HIERARCHY}
@@ -1111,7 +1127,7 @@ function CreateCapaModal({ capa, setCapa, onSave, onClose, CAPA_TYPES, CAPA_SOUR
 }
 
 // Modal de Detalle
-function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose, onUpdateStatus, CAPA_TYPES, CAPA_SOURCES, CONTROL_HIERARCHY }) {
+function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose, onUpdateStatus, CAPA_TYPES, CAPA_SOURCES, CONTROL_HIERARCHY, onVerifyEffectiveness }) {
     const [showTimeline, setShowTimeline] = useState(false);
     const isOverdue = capa.dueDate && new Date(capa.dueDate) < new Date() && capa.status !== 'closed';
 
@@ -1218,6 +1234,29 @@ function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose
                                     ))}
                                 </div>
                             )}
+                        </div>
+                    )}
+
+                    {/* Verificación de Eficacia */}
+                    {capa.status === 'closed' && (
+                        <div style={{ marginBottom: '1.75rem', padding: '1.25rem', background: capa.effectivenessVerified ? 'rgba(16, 185, 129, 0.05)' : 'rgba(245, 158, 11, 0.05)', border: `1px solid ${capa.effectivenessVerified ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)'}`, borderRadius: 'var(--radius-xl)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: capa.effectivenessVerified ? '#10b981' : '#f59e0b', margin: '0 0 0.25rem' }}>
+                                        {capa.effectivenessVerified ? 'Eficacia Verificada' : 'Eficacia Pendiente de Verificación'}
+                                    </h3>
+                                    {capa.effectivenessVerified && (
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+                                            Verificado el {new Date(capa.effectivenessVerificationDate || capa.closedAt).toLocaleDateString('es-AR')}
+                                        </div>
+                                    )}
+                                </div>
+                                {!capa.effectivenessVerified && (
+                                    <button onClick={() => onVerifyEffectiveness(capa.id)} className="btn-primary" style={{ margin: 0, padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #10b981, #059669)', fontSize: '0.8rem' }}>
+                                        Verificar Eficacia
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     )}
 

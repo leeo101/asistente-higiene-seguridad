@@ -200,13 +200,32 @@ export default function ChemicalSafety(): React.ReactElement | null {
     };
 
     const checkCompatibility = (chemical1: any, chemical2: any) => {
-        // Lógica simple de compatibilidad
-        const incompatible = {
-            'inflamables': ['oxidantes'],
-            'acidos': ['bases'],
-            'toxicos': ['alimenticios']
-        };
-        return true; // Simplificado
+        if (!chemical1?.pictograms || !chemical2?.pictograms) return true;
+        const pic1 = chemical1.pictograms;
+        const pic2 = chemical2.pictograms;
+
+        const isExplosive = (p: string[]) => p.includes('explosive');
+        const isFlammable = (p: string[]) => p.includes('flammable');
+        const isOxidizing = (p: string[]) => p.includes('oxidizing');
+        const isCorrosive = (p: string[]) => p.includes('corrosive');
+        const isToxic = (p: string[]) => p.includes('toxic');
+
+        // Explosivos: incompatibles con casi todo
+        if (isExplosive(pic1) && (isFlammable(pic2) || isOxidizing(pic2) || isCorrosive(pic2) || isToxic(pic2))) return false;
+        if (isExplosive(pic2) && (isFlammable(pic1) || isOxidizing(pic1) || isCorrosive(pic1) || isToxic(pic1))) return false;
+
+        // Inflamables: incompatibles con oxidantes
+        if ((isFlammable(pic1) && isOxidizing(pic2)) || (isFlammable(pic2) && isOxidizing(pic1))) return false;
+
+        // Corrosivos: separar de inflamables y oxidantes
+        if ((isCorrosive(pic1) && (isFlammable(pic2) || isOxidizing(pic2))) || 
+            (isCorrosive(pic2) && (isFlammable(pic1) || isOxidizing(pic1)))) return false;
+
+        // Tóxicos: separar de inflamables, oxidantes y corrosivos
+        if ((isToxic(pic1) && (isFlammable(pic2) || isOxidizing(pic2) || isCorrosive(pic2))) ||
+            (isToxic(pic2) && (isFlammable(pic1) || isOxidizing(pic1) || isCorrosive(pic1)))) return false;
+
+        return true;
     };
 
     return (

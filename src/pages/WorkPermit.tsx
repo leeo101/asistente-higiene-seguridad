@@ -40,6 +40,12 @@ export default function WorkPermit(): React.ReactElement | null {
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [qrTarget, setQrTarget] = useState<any>(null);
     const [shareItem, setShareItem] = useState<any>(null);
+    const [activeLOTOs, setActiveLOTOs] = useState<any[]>([]);
+
+    useEffect(() => {
+        const saved = localStorage.getItem('loto_active_db');
+        if (saved) setActiveLOTOs(JSON.parse(saved));
+    }, []);
 
     // Default state
     const [formData, setFormData] = useState<any>(() => ({
@@ -56,6 +62,7 @@ export default function WorkPermit(): React.ReactElement | null {
             { id: 1, nombre: '', dni: '', firma: true }
         ],
         eppRequeridos: ['Casco', 'Calzado de Seguridad', 'Guantes', 'Anteojos'],
+        lotoId: '', // Link a LOTO activo
         observacionesGenerales: '',
         estado: 'Borrador', // 'Borrador' | 'Pendiente Supervisor' | 'Pendiente EHS' | 'Aprobado'
         firmas: {
@@ -144,6 +151,7 @@ export default function WorkPermit(): React.ReactElement | null {
             setFormData({
                 ...formData,
                 tipoPermiso: typeId,
+                lotoId: (typeId === 'electrico' || typeId === 'confinado') ? formData.lotoId : '',
                 checklist: selectedType.questions.map((q, i) => ({ id: Date.now() + i, pregunta: q, estado: 'Cumple', observaciones: '' }))
             });
         }
@@ -550,6 +558,24 @@ export default function WorkPermit(): React.ReactElement | null {
                             <div className="print-only" style={{ fontWeight: 800 }}>{selectedTypeLabel}</div>
                         </DocBox>
                     </div>
+                    {(formData.tipoPermiso === 'electrico' || formData.tipoPermiso === 'confinado' || formData.tipoPermiso === 'elec' || formData.tipoPermiso === 'confined') && (
+                        <div className="grid grid-cols-1">
+                            <DocBox label="PROCEDIMIENTO LOTO VINCULADO (OPCIONAL)" borderTop noInput>
+                                <select
+                                    value={formData.lotoId || ''}
+                                    onChange={e => setFormData({ ...formData, lotoId: e.target.value })}
+                                    className="no-print"
+                                    style={{ border: 'none', background: 'transparent', fontWeight: 800, width: '100%', outline: 'none', color: formData.lotoId ? '#16a34a' : 'inherit' }}
+                                >
+                                    <option value="">-- Sin LOTO vinculado --</option>
+                                    {activeLOTOs.map(l => <option key={l.id} value={l.id}>{l.equipmentName} ({l.location})</option>)}
+                                </select>
+                                <div className="print-only" style={{ fontWeight: 800, color: formData.lotoId ? '#16a34a' : 'inherit' }}>
+                                    {formData.lotoId ? activeLOTOs.find(l => l.id === formData.lotoId)?.equipmentName : 'No especificado'}
+                                </div>
+                            </DocBox>
+                        </div>
+                    )}
                 </div>
 
                 {/* Checklist Section */}

@@ -40,7 +40,7 @@ export default function Report(): React.ReactElement | null {
             const historyRaw = localStorage.getItem('inspections_history');
             const history = historyRaw ? JSON.parse(historyRaw) : [];
 
-            const existingIndex = history.findIndex(item => item.id === inspection.id);
+            const existingIndex = history.findIndex((item: any) => item.id === inspection.id);
             if (existingIndex >= 0) {
                 // Update with latest changes even if already final
                 history[existingIndex] = { ...inspection, status: 'Finalizada' };
@@ -48,6 +48,43 @@ export default function Report(): React.ReactElement | null {
             } else {
                 const updatedHistory = [{ ...inspection, status: 'Finalizada' }, ...history];
                 localStorage.setItem('inspections_history', JSON.stringify(updatedHistory));
+                
+                // Integración CAPA Automático (Task 2.2)
+                if (inspection.observations && inspection.observations.length > 0) {
+                    const currentCapas = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
+                    const newCapas = inspection.observations.map((obs: any, idx: number) => ({
+                        id: `CAPA-${Date.now()}-${idx}`,
+                        title: `Hallazgo Inspección: ${obs.category}`,
+                        description: `Desvío en ${obs.category}: ${obs.description}. Origen: Inspección en ${inspection.name}.`,
+                        capaType: 'corrective',
+                        source: 'inspection',
+                        priority: obs.severity === 'Crítica' ? 'critical' : obs.severity === 'Moderada' ? 'high' : 'medium',
+                        originDate: new Date().toISOString().split('T')[0],
+                        dueDate: obs.deadline || '',
+                        responsible: obs.assignee || '',
+                        team: [],
+                        relatedProcess: inspection.name,
+                        problemStatement: obs.description,
+                        rootCauseMethod: '5why',
+                        rootCauseAnalysis: '',
+                        immediateActions: [],
+                        correctiveActions: [],
+                        controlType: '',
+                        effectivenessCriteria: '',
+                        status: 'open',
+                        createdAt: new Date().toISOString(),
+                        openedAt: new Date().toISOString(),
+                        completedAt: '',
+                        closedAt: '',
+                        observations: ''
+                    }));
+                    
+                    const updatedCapas = [...newCapas, ...currentCapas];
+                    localStorage.setItem('ehs_capa_db', JSON.stringify(updatedCapas));
+                    toast.success(`${newCapas.length} CAPA(s) generada(s) a partir de hallazgos.`);
+                    // Dispatch an event so CAPAManager updates if open in another tab
+                    window.dispatchEvent(new Event('storage'));
+                }
             }
         }
 

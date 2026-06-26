@@ -81,12 +81,21 @@ export default function CAPAForm(): React.ReactElement | null {
         responsible: '',
         dueDate: '',
         description: '',
+        rootCauseMethod: '5why',
         rootCause: {
             why1: '',
             why2: '',
             why3: '',
             why4: '',
             why5: '',
+            ishikawa: {
+                manpower: '',
+                method: '',
+                machine: '',
+                material: '',
+                measurement: '',
+                environment: ''
+            },
             finalCause: ''
         },
         actionPlan: '',
@@ -305,39 +314,75 @@ export default function CAPAForm(): React.ReactElement | null {
                     </div>
 
                     <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid var(--glass-border-subtle)' }}>
-                        <h3 style={{
-                            margin: '0 0 1.5rem 0',
-                            fontSize: '1.25rem',
-                            fontWeight: 900,
-                            color: 'var(--color-primary-light)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            letterSpacing: '0.5px'
-                        }}>
-                            <Clock size={20} /> ANÁLISIS DE CAUSA RAÍZ (5 PORQUÉS)
-                        </h3>
-                        <div className="capa-why-container">
-                            <div className="capa-why-timeline" />
-                            {[1, 2, 3, 4, 5].map(num => (
-                                <div key={num} className="capa-why-node">
-                                    <div className="capa-why-badge">{num}</div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', width: '100%' }}>
-                                        <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
-                                            {num}° Porqué
-                                        </label>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                            <h3 style={{
+                                margin: 0,
+                                fontSize: '1.25rem',
+                                fontWeight: 900,
+                                color: 'var(--color-primary-light)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                letterSpacing: '0.5px'
+                            }}>
+                                <Clock size={20} /> ANÁLISIS DE CAUSA RAÍZ
+                            </h3>
+                            <select
+                                value={capa.rootCauseMethod}
+                                onChange={(e) => setCapa({ ...capa, rootCauseMethod: e.target.value })}
+                                style={{ padding: '0.5rem 1rem', borderRadius: '10px', border: '1px solid var(--color-input-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '0.85rem', fontWeight: 700 }}
+                            >
+                                <option value="5why">5 Porqués</option>
+                                <option value="ishikawa">Diagrama de Ishikawa</option>
+                            </select>
+                        </div>
+                        
+                        {capa.rootCauseMethod === '5why' ? (
+                            <div className="capa-why-container">
+                                <div className="capa-why-timeline" />
+                                {[1, 2, 3, 4, 5].map(num => (
+                                    <div key={num} className="capa-why-node">
+                                        <div className="capa-why-badge">{num}</div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', width: '100%' }}>
+                                            <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
+                                                {num}° Porqué
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                value={capa.rootCause[`why${num}` as keyof typeof capa.rootCause]} 
+                                                onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, [`why${num}`]: e.target.value } })} 
+                                                style={{ ...inputStyle(isMobile), border: 'none', background: 'transparent', padding: '0.4rem 0', borderBottom: '1px solid var(--color-input-border)', borderRadius: 0 }} 
+                                                className="capa-focus-glow"
+                                                placeholder={`¿Por qué ocurrió el paso anterior?`} 
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem', background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--glass-border)' }}>
+                                {[
+                                    { id: 'manpower', label: 'Mano de Obra', placeholder: 'Personal, capacitación, actitud...' },
+                                    { id: 'method', label: 'Método', placeholder: 'Procedimientos, instrucciones...' },
+                                    { id: 'machine', label: 'Máquina', placeholder: 'Equipos, herramientas...' },
+                                    { id: 'material', label: 'Material', placeholder: 'Insumos, repuestos...' },
+                                    { id: 'measurement', label: 'Medición', placeholder: 'Instrumentos, controles...' },
+                                    { id: 'environment', label: 'Medio Ambiente', placeholder: 'Lugar de trabajo, clima...' }
+                                ].map(cat => (
+                                    <div key={cat.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase' }}>{cat.label}</label>
                                         <input 
                                             type="text" 
-                                            value={capa.rootCause[`why${num}` as keyof typeof capa.rootCause]} 
-                                            onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, [`why${num}`]: e.target.value } })} 
-                                            style={{ ...inputStyle(isMobile), border: 'none', background: 'transparent', padding: '0.4rem 0', borderBottom: '1px solid var(--color-input-border)', borderRadius: 0 }} 
+                                            value={(capa.rootCause.ishikawa as any)?.[cat.id] || ''} 
+                                            onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, ishikawa: { ...(capa.rootCause.ishikawa || {}), [cat.id]: e.target.value } } })} 
+                                            style={{ ...inputStyle(isMobile), height: '44px', borderRadius: '10px' }} 
                                             className="capa-focus-glow"
-                                            placeholder={`¿Por qué ocurrió el paso anterior?`} 
+                                            placeholder={cat.placeholder} 
                                         />
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                         
                         <div className="capa-why-node capa-why-final-container" style={{ marginTop: '1.5rem', padding: '1.25rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
