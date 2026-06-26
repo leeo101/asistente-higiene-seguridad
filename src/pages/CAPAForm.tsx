@@ -349,7 +349,7 @@ export default function CAPAForm(): React.ReactElement | null {
                                             </label>
                                             <input 
                                                 type="text" 
-                                                value={capa.rootCause[`why${num}` as keyof typeof capa.rootCause]} 
+                                                value={(capa.rootCause as any)[`why${num}`] || ''} 
                                                 onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, [`why${num}`]: e.target.value } })} 
                                                 style={{ ...inputStyle(isMobile), border: 'none', background: 'transparent', padding: '0.4rem 0', borderBottom: '1px solid var(--color-input-border)', borderRadius: 0 }} 
                                                 className="capa-focus-glow"
@@ -374,7 +374,7 @@ export default function CAPAForm(): React.ReactElement | null {
                                         <input 
                                             type="text" 
                                             value={(capa.rootCause.ishikawa as any)?.[cat.id] || ''} 
-                                            onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, ishikawa: { ...(capa.rootCause.ishikawa || {}), [cat.id]: e.target.value } } })} 
+                                            onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, ishikawa: { ...(capa.rootCause.ishikawa || {}), [cat.id]: e.target.value } as any } })} 
                                             style={{ ...inputStyle(isMobile), height: '44px', borderRadius: '10px' }} 
                                             className="capa-focus-glow"
                                             placeholder={cat.placeholder} 

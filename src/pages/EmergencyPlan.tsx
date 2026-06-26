@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Plus, Search, Calendar, AlertTriangle, FileText, CheckCircle2, Siren, Users, Map, FirstAid } from 'lucide-react';
+import { Shield, Plus, Search, Calendar, AlertTriangle, FileText, CheckCircle2, Siren, Users, Map } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import PremiumHeader from '../components/PremiumHeader';
