@@ -556,12 +556,11 @@ export default function ATS(): React.ReactElement | null {
                   id: '', empresa: '', cuit: '', obra: '', tarea: '', fecha: new Date().toISOString().split('T')[0], capatazNombre: '', operatorSignature: '', capatazSignature: '', checklist: defaultChecklist, tareas: [{ id: 1, paso: 'Preparación de área', riesgo: 'Caídas', control: 'Delimitación', nivelRiesgo: 'Medio', realizado: true }, { id: 2, paso: 'Ejecución de tarea', riesgo: 'Golpes', control: 'Uso de EPP', nivelRiesgo: 'Bajo', realizado: false }], epps: [], fotos: []
                 });
                 navigate('/ats/nuevo');
-              }} className="flex-[0_1_auto] p-[1rem_1.5rem] rounded-[16px] bg-emerald-500 hover:bg-emerald-600 text-[#fff] border-none font-[800] text-[1rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(54,179,126,0.3)] white-space-[nowrap]">
-
+              }} className="flex-none px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-base cursor-pointer flex items-center gap-2 shadow-lg shadow-emerald-500/30 transition-all hover:scale-105 active:scale-95">
               
                                 <Plus size={20} /> Nuevo ATS
                             </button>
-                            <div className="flex-[1_1_300px] relative">
+                            <div className="flex-1 min-w-[300px] relative">
                                 <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                                 <input
                 type="text"
