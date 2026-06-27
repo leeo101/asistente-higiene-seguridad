@@ -396,7 +396,6 @@ export default function SafetyCalendar(): React.ReactElement | null {
                           background: EVENT_TYPES[ev.type]?.bg || '#64748b22',
                           color: EVENT_TYPES[ev.type]?.color || '#64748b',
                           border: `1px solid ${EVENT_TYPES[ev.type]?.color}33`
-
                         }} className="rounded-[4px] p-[1px_4px] flex items-center gap-[3px] min-width-[0]">
                                                             <div className="hidden sm:flex flex-shrink-[0]">{EVENT_TYPES[ev.type]?.icon}</div>
                                                             <span className="hidden sm:block text-[0.55rem] font-[800] overflow-[hidden] text-overflow-[ellipsis] white-space-[nowrap] flex-[1]">{ev.title}</span>
@@ -412,53 +411,25 @@ export default function SafetyCalendar(): React.ReactElement | null {
                             </> : (
 
             /* ── LIST VIEW ───────────────────────────────── */
-            <div className="bg-[var(--color-surface)] rounded-[12px]">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                                 {allEvents.length === 0 &&
-              <div className="p-[4rem_2rem] text-center text-[var(--color-text-muted)] opacity-[0.6]">
-                                        <CalendarIcon size={48} className="block m-[0_auto_1rem] opacity-[0.5]" />
-                                        <p className="font-[700] text-[1.1rem]">No hay eventos agendados.</p>
-                                        <p className="text-[0.85rem]">Generá vencimientos en otros módulos o agregalos manualmente.</p>
+              <div className="p-16 text-center text-slate-500 dark:text-slate-400">
+                                        <CalendarIcon size={48} className="mx-auto mb-4 opacity-50" />
+                                        <p className="font-bold text-lg m-0">No hay eventos agendados.</p>
+                                        <p className="text-sm mt-2">Generá vencimientos en otros módulos o agregalos manualmente.</p>
                                     </div>
               }
                                 {Object.entries(
                 allEvents.reduce((acc: any, ev) => {if (!acc[ev.date]) acc[ev.date] = [];acc[ev.date].push(ev);return acc;}, {})
               ).sort(([a], [b]) => a.localeCompare(b)).map(([date, evs]: any) =>
               <div key={date}>
-                                        <div className="p-[0.7rem_1.2rem] bg-[var(--color-background)] border-bottom-[1px_solid_var(--color-border)] flex items-center justify-space-between border-left-[3px_solid_var(--color-primary)]">
-                                            <span className="text-[0.85rem] font-[800] text-[var(--color-primary)] capitalize">
+                                        <div className="px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between border-l-4 border-l-blue-500">
+                                            <span className="text-sm font-black text-slate-700 dark:text-slate-200 capitalize">
                                                 {new Date(date + 'T12:00:00').toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
                                             </span>
-                                            {(() => {const d = diffDays(date);const u = urgencyBadge(d);return <span style={{ background: u.bg, color: u.color, border: `1px solid ${u.color}33` }} className="p-[0.2rem_0.6rem] rounded-[20px] text-[0.65rem] font-[800]">{u.label}</span>;})()}
+                                            {(() => {const d = diffDays(date);const u = urgencyBadge(d);return <span style={{ background: u.bg, color: u.color, border: `1px solid ${u.color}33` }} className="px-3 py-1 rounded-full text-[0.65rem] font-black uppercase tracking-wider shadow-sm">{u.label}</span>;})()}
                                         </div>
                                         {evs.map((ev: any, i: number) =>
-                <div key={i}
-                onMouseOver={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--color-background)'}
-                onMouseOut={(e) => (e.currentTarget as HTMLElement).style.background = 'transparent'} className="flex items-center gap-[1rem] p-[1rem_1.2rem] border-bottom-[1px_solid_var(--color-border)] transition-[background_0.12s]">
-                  
-                                                <div style={{ background: EVENT_TYPES[ev.type]?.bg, color: EVENT_TYPES[ev.type]?.color, border: `1px solid ${EVENT_TYPES[ev.type]?.color}33` }} className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center flex-shrink-[0]">
-                                                    {EVENT_TYPES[ev.type]?.icon}
-                                                </div>
-                                                <div className="flex-[1] min-width-[0]">
-                                                    <div className="font-[800] text-[0.95rem] flex items-center gap-[0.4rem]">
-                                                        {ev.title}
-                                                        {ev.isAuto && <span title="Generado Automáticamente"><Info size={12} color="#94a3b8" /></span>}
-                                                    </div>
-                                                    <div className="text-[0.78rem] text-[var(--color-text-muted)] flex items-center gap-[0.5rem] mt-[4px]">
-                                                        <Clock size={12} /> {ev.time} hs <span className="opacity-[0.5]">|</span> {EVENT_TYPES[ev.type]?.label}
-                                                        {ev.description && <><span className="opacity-[0.5]">|</span> <span className="overflow-[hidden] text-overflow-[ellipsis] white-space-[nowrap]">{ev.description}</span></>}
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center gap-[0.4rem]">
-                                                    <button onClick={() => exportToGoogleCalendar(ev)} title="Añadir a Google Calendar" className="bg-[none] border-[1px_solid_var(--color-border)] text-[var(--color-text)] cursor-pointer p-[6px] rounded-[8px] flex items-center gap-[0.3rem] text-[0.7rem] font-[700]">
-                                                        <CalendarPlus size={14} /> <span className="hidden sm:inline">Google</span>
-                                                    </button>
-                                                    <button onClick={() => deleteEvent(ev)} title="Eliminar" className="bg-[none] border-[1px_solid_var(--color-border)] text-[#ef4444] cursor-pointer p-[6px] rounded-[8px] flex items-center">
-                                                        <Trash2 size={14} />
-                                                    </button>
-                                                </div>
-                                            </div>
-                )}
-                                    </div>
               )}
                             </div>)
             }
