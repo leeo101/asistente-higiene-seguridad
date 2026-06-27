@@ -1419,7 +1419,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                                                           const reader = new FileReader();
                                                           reader.onloadend = () => {
                                                               const newFotos = [...(fotos || [])];
-                                                              newFotos[index] = reader.result;
+                                                              newFotos[index] = reader.result as string;
                                                               setFotos(newFotos);
                                                           };
                                                           reader.readAsDataURL(file);
