@@ -103,7 +103,7 @@ export default function ChecklistPdfGenerator({
   return (
     <div
       id={pdfElementId}
-      className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[8mm_12mm] bg-[#ffffff] text-[#1e293b] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[8pt] font-family-[Helvetica,_Arial,_sans-serif]"
+      className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[8mm_12mm] bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[8pt] font-family-[Helvetica,_Arial,_sans-serif]"
       style={{ borderTop: `8px solid ${globalRiskColor}` }}
     >
       <style type="text/css" media="print">
@@ -143,7 +143,7 @@ export default function ChecklistPdfGenerator({
           {inspInfo.serial && (
             <div className="text-right">
               <div className="text-[0.55rem] font-[900] text-[#94a3b8] uppercase letter-spacing-[0.1em]">DOC N°</div>
-              <div className="font-[900] text-[1rem] text-[#1e293b]">{inspInfo.serial}</div>
+              <div className="font-[900] text-[1rem] text-slate-800 dark:text-slate-200">{inspInfo.serial}</div>
             </div>
           )}
         </div>
@@ -151,21 +151,21 @@ export default function ChecklistPdfGenerator({
 
       {/* Datos del Relevamiento */}
       <div className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1rem] w-[100%]">
-        <div className="flex bg-[#f8fafc] border-bottom-[1px_solid_#cbd5e1]">
+        <div className="flex bg-slate-50 dark:bg-slate-800/50 border-bottom-[1px_solid_#cbd5e1]">
           <div className="flex-[2] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
             <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Building2 size={12} /> CLIENTE / EMPRESA</span>
             <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{compInfo.name || '-'}</div>
           </div>
           <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
             <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><MapPin size={12} /> ÁREA / UBICACIÓN</span>
-            <div className="font-[700] text-[0.8rem] text-[#334155] mt-[0.2rem]">{compInfo.cuit || '-'}</div>
+            <div className="font-[700] text-[0.8rem] text-slate-700 dark:text-slate-300 mt-[0.2rem]">{compInfo.cuit || '-'}</div>
           </div>
           <div className="flex-[1] p-[0.4rem_0.6rem]">
             <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><MapPin size={12} /> UBICACIÓN / OBRA</span>
-            <div className="font-[700] text-[0.8rem] text-[#334155] mt-[0.2rem]">{compInfo.location || '-'}</div>
+            <div className="font-[700] text-[0.8rem] text-slate-700 dark:text-slate-300 mt-[0.2rem]">{compInfo.location || '-'}</div>
           </div>
         </div>
-        <div className="flex bg-[#ffffff] border-bottom-[1px_solid_#cbd5e1]">
+        <div className="flex bg-white dark:bg-slate-800 border-bottom-[1px_solid_#cbd5e1]">
           {!hasTools && !hasHeavy && !hasVehicles && !hasPermits && !hasExtinguishers ? (
             <div className="flex-[2] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
               <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><ClipboardCheck size={12} /> {hasPermits ? "SECTOR / ÁREA" : "EQUIPO / ÁREA REVISADA"}</span>
@@ -174,21 +174,21 @@ export default function ChecklistPdfGenerator({
           ) : (
             <div className="flex-[2] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
               <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><AlertTriangle size={12} /> EQUIPO / LUGAR DE INSP.</span>
-              <div className="font-[700] text-[0.8rem] text-[#334155] mt-[0.2rem]">{inspInfo.date ? new Date(inspInfo.date + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
+              <div className="font-[700] text-[0.8rem] text-slate-700 dark:text-slate-300 mt-[0.2rem]">{inspInfo.date ? new Date(inspInfo.date + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
             </div>
           )}
           <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
             <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Calendar size={12} /> FECHA DE REVISIÓN</span>
-            <div className="font-[700] text-[0.8rem] text-[#334155] mt-[0.2rem]">{inspInfo.date ? new Date(inspInfo.date + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
+            <div className="font-[700] text-[0.8rem] text-slate-700 dark:text-slate-300 mt-[0.2rem]">{inspInfo.date ? new Date(inspInfo.date + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
           </div>
           <div className="flex-[1] p-[0.4rem_0.6rem]">
             <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><User size={12} /> INSPECTOR</span>
-            <div className="font-[700] text-[0.8rem] text-[#334155] mt-[0.2rem]">{compInfo.inspector || '-'}</div>
+            <div className="font-[700] text-[0.8rem] text-slate-700 dark:text-slate-300 mt-[0.2rem]">{compInfo.inspector || '-'}</div>
           </div>
         </div>
         
         {hasVehicles && (
-          <div className="flex bg-[#f8fafc] border-bottom-[1px_solid_#cbd5e1]">
+          <div className="flex bg-slate-50 dark:bg-slate-800/50 border-bottom-[1px_solid_#cbd5e1]">
             <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
               <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><ClipboardCheck size={12} /> MARCA / MODELO</span>
               <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.marca || '-'}</div>
@@ -205,7 +205,7 @@ export default function ChecklistPdfGenerator({
         )}
 
         {(hasTools || hasHeavy) && !hasVehicles && (
-          <div className="flex bg-[#f8fafc] border-bottom-[1px_solid_#cbd5e1]">
+          <div className="flex bg-slate-50 dark:bg-slate-800/50 border-bottom-[1px_solid_#cbd5e1]">
             <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
               <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><ClipboardCheck size={12} /> MARCA / MODELO</span>
               <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.marca || '-'}</div>
@@ -218,7 +218,7 @@ export default function ChecklistPdfGenerator({
         )}
 
         {!hasTools && !hasHeavy && !hasVehicles && !hasPermits && (
-          <div className="flex bg-[#f8fafc] border-bottom-[1px_solid_#cbd5e1]">
+          <div className="flex bg-slate-50 dark:bg-slate-800/50 border-bottom-[1px_solid_#cbd5e1]">
             <div className="flex-[1] p-[0.4rem_0.6rem]">
               <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Hash size={12} /> {hasExtinguishers ? "CHAPA / NÚMERO" : "Nº IDENTIFICACIÓN (SERIAL)"}</span>
               <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.serial || '-'}</div>
@@ -227,7 +227,7 @@ export default function ChecklistPdfGenerator({
         )}
 
         {hasPermits && (
-          <div className="flex bg-[#f8fafc] border-bottom-[1px_solid_#cbd5e1]">
+          <div className="flex bg-slate-50 dark:bg-slate-800/50 border-bottom-[1px_solid_#cbd5e1]">
             <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
               <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><ClipboardCheck size={12} /> Nº PERMISO DE TRABAJO (PT)</span>
               <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{compInfo.address || '-'}</div>
@@ -242,26 +242,26 @@ export default function ChecklistPdfGenerator({
 
       {/* Resumen Estadístico */}
       <div className="flex gap-[0.8rem] mb-[1rem]">
-        <div className="flex-[1] bg-[#f0fdf4] border-[1.5px_solid_#86efac] rounded-[8px] p-[0.6rem] text-center">
-          <div className="text-[0.55rem] font-[800] text-[#16a34a] uppercase letter-spacing-[0.05em] mb-[0.2rem]">✓ CUMPLE</div>
+        <div className="flex-[1] bg-green-50 dark:bg-green-900/20 border-[1.5px_solid_#86efac] rounded-[8px] p-[0.6rem] text-center">
+          <div className="text-[0.55rem] font-[800] text-green-600 dark:text-green-400 uppercase letter-spacing-[0.05em] mb-[0.2rem]">✓ CUMPLE</div>
           <div className="text-[1.4rem] font-[900] text-[#15803d] line-height-[1]">{okCount}</div>
           <div className="mt-[0.2rem] bg-[#16a34a] text-[#fff] p-[0.1rem_0.5rem] rounded-[12px] text-[0.65rem] font-[900] inline-block">{okPercent}%</div>
         </div>
         <div className="flex-[1] bg-[#fef2f2] border-[1.5px_solid_#fca5a5] rounded-[8px] p-[0.6rem] text-center">
-          <div className="text-[0.55rem] font-[800] text-[#dc2626] uppercase letter-spacing-[0.05em] mb-[0.2rem]">✗ NO CUMPLE</div>
+          <div className="text-[0.55rem] font-[800] text-red-600 dark:text-red-400 uppercase letter-spacing-[0.05em] mb-[0.2rem]">✗ NO CUMPLE</div>
           <div className="text-[1.4rem] font-[900] text-[#b91c1c] line-height-[1]">{failCount}</div>
           <div className="mt-[0.2rem] bg-[#dc2626] text-[#fff] p-[0.1rem_0.5rem] rounded-[12px] text-[0.65rem] font-[900] inline-block">{failPercent}%</div>
         </div>
-        <div className="flex-[1] bg-[#f8fafc] border-[1.5px_solid_#cbd5e1] rounded-[8px] p-[0.6rem] text-center">
+        <div className="flex-[1] bg-slate-50 dark:bg-slate-800/50 border-[1.5px_solid_#cbd5e1] rounded-[8px] p-[0.6rem] text-center">
           <div className="text-[0.55rem] font-[800] text-[#64748b] uppercase letter-spacing-[0.05em] mb-[0.2rem]">— N / A</div>
-          <div className="text-[1.4rem] font-[900] text-[#475569] line-height-[1]">{naCount}</div>
+          <div className="text-[1.4rem] font-[900] text-slate-600 dark:text-slate-400 line-height-[1]">{naCount}</div>
           <div className="mt-[0.2rem] bg-[#64748b] text-[#fff] p-[0.1rem_0.5rem] rounded-[12px] text-[0.65rem] font-[900] inline-block">{naPercent}%</div>
         </div>
       </div>
       
       {/* EPPs Requeridos */}
       {epps.length > 0 && (
-        <div className="avoid-break border-[1px_solid_#cbd5e1] rounded-[6px] mb-[0.8rem] p-[0.6rem_0.8rem] bg-[#f8fafc]">
+        <div className="avoid-break border-[1px_solid_#cbd5e1] rounded-[6px] mb-[0.8rem] p-[0.6rem_0.8rem] bg-slate-50 dark:bg-slate-800/50">
           <div className="text-[0.65rem] font-[900] uppercase text-[#0f172a] mb-[0.4rem]">
             EPPs Obligatorios / Seleccionados
           </div>
@@ -285,7 +285,7 @@ export default function ChecklistPdfGenerator({
                 {section.title}
               </h3>
               {sectionFails.length > 0 ? (
-                <span className="p-[0.1rem_0.5rem] bg-[#ef4444] text-[#fff] rounded-[12px] text-[0.55rem] font-[800]">
+                <span className="p-[0.1rem_0.5rem] bg-red-500 hover:bg-red-600 text-[#fff] rounded-[12px] text-[0.55rem] font-[800]">
                   ⚠ {sectionFails.length} NO CONFORME{sectionFails.length > 1 ? 'S' : ''}
                 </span>
               ) : (
@@ -318,9 +318,9 @@ export default function ChecklistPdfGenerator({
 
                       <div className="w-[60px] flex-shrink-[0] flex items-center justify-center p-[0.4rem] border-left-[1px_solid_#e2e8f0]">
                         {isOk ? (
-                          <span className="bg-[#dcfce7] text-[#16a34a] p-[0.15rem_0.4rem] rounded-[4px] font-[900] text-[0.6rem]">C</span>
+                          <span className="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 p-[0.15rem_0.4rem] rounded-[4px] font-[900] text-[0.6rem]">C</span>
                         ) : isFail ? (
-                          <span className="bg-[#fecaca] text-[#dc2626] p-[0.15rem_0.4rem] rounded-[4px] font-[900] text-[0.6rem]">NC</span>
+                          <span className="bg-[#fecaca] text-red-600 dark:text-red-400 p-[0.15rem_0.4rem] rounded-[4px] font-[900] text-[0.6rem]">NC</span>
                         ) : (
                           <span className="bg-[#f1f5f9] text-[#94a3b8] p-[0.15rem_0.4rem] rounded-[4px] font-[900] text-[0.6rem]">N/A</span>
                         )}
@@ -358,7 +358,7 @@ export default function ChecklistPdfGenerator({
           <div className="bg-[#334155] text-[#fff] p-[0.4rem_0.8rem] text-[0.6rem] font-[900] uppercase letter-spacing-[0.05em]">
             OBSERVACIONES Y COMENTARIOS DEL INSPECTOR
           </div>
-          <div className="p-[0.8rem] text-[0.75rem] text-[#334155] font-[600] white-space-[pre-wrap] line-height-[1.4] bg-[#f8fafc]">
+          <div className="p-[0.8rem] text-[0.75rem] text-slate-700 dark:text-slate-300 font-[600] white-space-[pre-wrap] line-height-[1.4] bg-slate-50 dark:bg-slate-800/50">
             {obs}
           </div>
         </div>
@@ -366,17 +366,17 @@ export default function ChecklistPdfGenerator({
 
       {/* Plan de Acción */}
       {actionPlan.length > 0 && (
-        <div className="border-[1px_solid_#fcd34d] rounded-[6px] mb-[1rem] avoid-break">
-          <div className="bg-[#f59e0b] p-[0.4rem_0.8rem] text-[#ffffff] font-[900] text-[0.65rem] uppercase letter-spacing-[0.05em]">
+        <div className="border border-amber-300 dark:border-amber-700 rounded-[6px] mb-[1rem] avoid-break">
+          <div className="bg-amber-500 hover:bg-amber-600 p-[0.4rem_0.8rem] text-[#ffffff] font-[900] text-[0.65rem] uppercase letter-spacing-[0.05em]">
             🎯 PLAN DE ACCIÓN CORRECTIVA — {actionPlan.length} ACCIÓN{actionPlan.length > 1 ? 'ES' : ''}
           </div>
           <div className="p-[0.8rem] flex flex-wrap gap-[0.6rem] bg-[#fffbeb]">
             {actionPlan.map((action: any, idx: number) => (
-              <div key={action.id} className="avoid-break flex-[1_1_260px] min-width-[260px] bg-[#ffffff] border-[1px_solid_#fcd34d] rounded-[6px] p-[0.6rem] page-break-inside-[avoid]">
+              <div key={action.id} className="avoid-break flex-[1_1_260px] min-width-[260px] bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 rounded-[6px] p-[0.6rem] page-break-inside-[avoid]">
                 <div className="flex gap-[0.4rem] items-start">
-                  <span className="bg-[#f59e0b] text-[#fff] min-width-[16px] h-[16px] rounded-[50%] flex items-center justify-center text-[0.55rem] font-[900]">{idx + 1}</span>
+                  <span className="bg-amber-500 hover:bg-amber-600 text-[#fff] min-width-[16px] h-[16px] rounded-[50%] flex items-center justify-center text-[0.55rem] font-[900]">{idx + 1}</span>
                   <div className="flex-[1]">
-                    <p className="m-[0_0_0.2rem_0] font-[800] text-[0.7rem] text-[#1e293b]">{action.action}</p>
+                    <p className="m-[0_0_0.2rem_0] font-[800] text-[0.7rem] text-slate-800 dark:text-slate-200">{action.action}</p>
                     <div className="flex flex-wrap gap-[0.3rem] text-[0.6rem] text-[#64748b] font-[700]">
                       {action.responsible && <span>👤 {action.responsible}</span>}
                       {action.dueDate && <span>📅 {new Date(action.dueDate).toLocaleDateString('es-AR')}</span>}
@@ -395,10 +395,10 @@ export default function ChecklistPdfGenerator({
       {/* Evidencia Fotográfica (Global) */}
       {fotos.length > 0 && (
         <div className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1rem] avoid-break">
-          <div className="bg-[#3b82f6] text-[#fff] p-[0.4rem_0.8rem] text-[0.6rem] font-[900] uppercase letter-spacing-[0.05em]">
+          <div className="bg-blue-500 hover:bg-blue-600 text-[#fff] p-[0.4rem_0.8rem] text-[0.6rem] font-[900] uppercase letter-spacing-[0.05em]">
             EVIDENCIA FOTOGRÁFICA
           </div>
-          <div className="p-[0.8rem] flex gap-[1rem] justify-center bg-[#f8fafc]">
+          <div className="p-[0.8rem] flex gap-[1rem] justify-center bg-slate-50 dark:bg-slate-800/50">
             {fotos.map((foto: string, index: number) => (
               <div key={index} className="flex-[1] max-w-[200px] aspect-square rounded-[8px] overflow-hidden border-[1px_solid_#cbd5e1] box-shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
                 <img src={foto} alt={`Evidencia ${index + 1}`} className="w-full h-full object-cover" />
@@ -410,7 +410,7 @@ export default function ChecklistPdfGenerator({
 
       {/* Próxima Revisión */}
       {nextReview && (
-        <div className="avoid-break border-[1px_solid_#bfdbfe] rounded-[6px] p-[0.6rem_1rem] mb-[1rem] bg-[#eff6ff] flex items-center gap-[0.8rem] page-break-inside-[avoid]">
+        <div className="avoid-break border border-blue-200 dark:border-blue-800 rounded-[6px] p-[0.6rem_1rem] mb-[1rem] bg-blue-50 dark:bg-blue-900/20 flex items-center gap-[0.8rem] page-break-inside-[avoid]">
           <Calendar size={18} color="#2563eb" />
           <div>
             <p className="m-[0] font-[900] text-[0.65rem] text-[#1e3a8a] uppercase">PRÓXIMA REVISIÓN PROGRAMADA</p>
@@ -430,9 +430,9 @@ export default function ChecklistPdfGenerator({
               const norm = availableNorms.find((n: any) => n.id === normId);
               if (!norm) return null;
               return (
-                <div key={normId} className="flex-[1_1_260px] flex items-center gap-[0.5rem] bg-[#fff] p-[0.5rem_0.7rem] rounded-[6px] border-[1px_solid_#e9d5ff]">
+                <div key={normId} className="flex-[1_1_260px] flex items-center gap-[0.5rem] bg-white dark:bg-slate-800 p-[0.5rem_0.7rem] rounded-[6px] border-[1px_solid_#e9d5ff]">
                   <span className="w-[16px] h-[16px] bg-[#7c3aed] text-[#fff] rounded-[50%] flex items-center justify-center text-[0.55rem] font-[900] flex-shrink-[0]">✓</span>
-                  <span className="text-[0.75rem] font-[700] text-[#1e293b]">{norm.name}</span>
+                  <span className="text-[0.75rem] font-[700] text-slate-800 dark:text-slate-200">{norm.name}</span>
                 </div>
               );
             })}

@@ -488,7 +488,7 @@ export default function ATS(): React.ReactElement | null {
     <div className="flex gap-[0.4rem]">
                     <button onClick={() => {setFormData(item);setShowForm(true);}} className="p-[0.4rem_0.8rem] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[8px] cursor-pointer text-[0.75rem] font-[700] text-[var(--color-text)] flex items-center gap-[4px]"><FileText size={15} /> Ver</button>
                     <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/ats/${item.id}?print=true`;setQrTarget({ text: url, title: `ATS — ${item.empresa}` } as any);})} title="QR" className="p-[0.4rem] bg-[rgba(139,92,246,0.08)] border-[1px_solid_rgba(139,92,246,0.2)] rounded-[8px] text-[#8b5cf6] cursor-pointer"><QrCode size={15} /></button>
-                    <button onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('ats_' + item.id) || 'null') || item))} title="Compartir" className="p-[0.4rem] bg-[rgba(22,163,74,0.08)] border-[1px_solid_rgba(22,163,74,0.2)] rounded-[8px] text-[#16a34a] cursor-pointer"><Share2 size={15} /></button>
+                    <button onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('ats_' + item.id) || 'null') || item))} title="Compartir" className="p-[0.4rem] bg-[rgba(22,163,74,0.08)] border-[1px_solid_rgba(22,163,74,0.2)] rounded-[8px] text-green-600 dark:text-green-400 cursor-pointer"><Share2 size={15} /></button>
                     <button onClick={() => setConfirmModal({ isOpen: true, type: 'delete', payload: item.id })} className="p-[0.4rem] bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[8px] text-[#ef4444] cursor-pointer"><Trash2 size={15} /></button>
                 </div>
 
@@ -556,7 +556,7 @@ export default function ATS(): React.ReactElement | null {
                   id: '', empresa: '', cuit: '', obra: '', tarea: '', fecha: new Date().toISOString().split('T')[0], capatazNombre: '', operatorSignature: '', capatazSignature: '', checklist: defaultChecklist, tareas: [{ id: 1, paso: 'Preparación de área', riesgo: 'Caídas', control: 'Delimitación', nivelRiesgo: 'Medio', realizado: true }, { id: 2, paso: 'Ejecución de tarea', riesgo: 'Golpes', control: 'Uso de EPP', nivelRiesgo: 'Bajo', realizado: false }], epps: [], fotos: []
                 });
                 navigate('/ats/nuevo');
-              }} className="flex-[0_1_auto] p-[1rem_1.5rem] rounded-[16px] bg-[#36B37E] text-[#fff] border-none font-[800] text-[1rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(54,179,126,0.3)] white-space-[nowrap]">
+              }} className="flex-[0_1_auto] p-[1rem_1.5rem] rounded-[16px] bg-emerald-500 hover:bg-emerald-600 text-[#fff] border-none font-[800] text-[1rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(54,179,126,0.3)] white-space-[nowrap]">
 
               
                                 <Plus size={20} /> Nuevo ATS
@@ -803,7 +803,7 @@ export default function ATS(): React.ReactElement | null {
 
 
 
-                      className="hover:scale-[1.03] active:scale-[0.97] hover:shadow-[0_6px_18px_rgba(16,185,129,0.35)] flex-[1] min-width-[120px] p-[0.7rem_1.4rem] bg-[#10b981] text-[#ffffff] border-none rounded-[14px] font-[900] text-[0.8rem] cursor-pointer flex items-center justify-center gap-[0.5rem] box-shadow-[0_4px_14px_rgba(16,185,129,0.25)] transition-[all_0.3s_cubic-bezier(0.34,_1.56,_0.64,_1)]">
+                      className="hover:scale-[1.03] active:scale-[0.97] hover:shadow-[0_6px_18px_rgba(16,185,129,0.35)] flex-[1] min-width-[120px] p-[0.7rem_1.4rem] bg-emerald-500 hover:bg-emerald-600 text-[#ffffff] border-none rounded-[14px] font-[900] text-[0.8rem] cursor-pointer flex items-center justify-center gap-[0.5rem] box-shadow-[0_4px_14px_rgba(16,185,129,0.25)] transition-[all_0.3s_cubic-bezier(0.34,_1.56,_0.64,_1)]">
                       
                                         <Plus size={16} /> AGREGAR PASO
                                     </button>
@@ -1100,7 +1100,7 @@ export default function ATS(): React.ReactElement | null {
                                         </span>
                                     </h4>
                                     <button
-                    className="no-print p-[0.5rem_1rem] bg-[#10b981] text-[#ffffff] border-none rounded-[10px] font-[800] text-[0.7rem] cursor-pointer box-shadow-[0_4px_10px_rgba(16,185,129,_0.2)] transition-[all_0.2s]"
+                    className="no-print p-[0.5rem_1rem] bg-emerald-500 hover:bg-emerald-600 text-[#ffffff] border-none rounded-[10px] font-[800] text-[0.7rem] cursor-pointer box-shadow-[0_4px_10px_rgba(16,185,129,_0.2)] transition-[all_0.2s]"
                     onClick={() => addQuestion(cat)}
 
                     onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
@@ -1348,7 +1348,7 @@ export default function ATS(): React.ReactElement | null {
                                 <button
                   onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
 
-                  className="hover-scale p-[0.8rem_2rem] rounded-[14px] bg-[#10b981] border-none text-[#fff] font-[900] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(16,185,129,0.3)]">
+                  className="hover-scale p-[0.8rem_2rem] rounded-[14px] bg-emerald-500 hover:bg-emerald-600 border-none text-[#fff] font-[900] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(16,185,129,0.3)]">
                   
                                     <Save size={18} /> Guardar ATS
                                 </button>

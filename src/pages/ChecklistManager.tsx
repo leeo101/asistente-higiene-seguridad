@@ -812,7 +812,7 @@ export default function ChecklistManager(): React.ReactElement | null {
     <div className="flex gap-[0.4rem]">
                     <button onClick={() => {setSearchParams({ id: item.id });setShowForm(true);}} className="p-[0.4rem_0.8rem] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[8px] cursor-pointer text-[0.75rem] font-[700] text-[var(--color-text)] flex items-center gap-[4px]"><FileText size={15} /> Ver</button>
                     <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/checklist/${item.id}?print=true`;setQrTarget({ text: url, title: `Checklist — ${item.equipo}`, details: <><p className="m-[0_0_0.3rem]"><strong>Empresa:</strong> {item.empresa}</p><p className="m-[0_0_0.3rem]"><strong>Equipo:</strong> {item.equipo}</p><p className="m-[0]"><strong>Fecha:</strong> {new Date(item.fecha).toLocaleDateString('es-AR')}</p></> } as any);})} title="QR" className="p-[0.4rem] bg-[rgba(139,92,246,0.08)] border-[1px_solid_rgba(139,92,246,0.2)] rounded-[8px] text-[#8b5cf6] cursor-pointer"><QrCode size={15} /></button>
-                    <button onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('checklist_' + item.id) || 'null') || item))} title="Compartir" className="p-[0.4rem] bg-[rgba(22,163,74,0.08)] border-[1px_solid_rgba(22,163,74,0.2)] rounded-[8px] text-[#16a34a] cursor-pointer"><Share2 size={15} /></button>
+                    <button onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('checklist_' + item.id) || 'null') || item))} title="Compartir" className="p-[0.4rem] bg-[rgba(22,163,74,0.08)] border-[1px_solid_rgba(22,163,74,0.2)] rounded-[8px] text-green-600 dark:text-green-400 cursor-pointer"><Share2 size={15} /></button>
                     <button onClick={() => setDeleteTarget(item.id)} className="p-[0.4rem] bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[8px] text-[#ef4444] cursor-pointer"><Trash2 size={15} /></button>
                 </div>
 
@@ -870,7 +870,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                     <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap items-center">
                         <></>
                         <button
-            onClick={() => {setSearchParams({});setShowForm(true);setCurrentStep(1);}} className="flex-[0_1_auto] p-[1rem_1.5rem] rounded-[16px] bg-[#36B37E] text-[#fff] border-none font-[800] text-[1rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(54,179,126,0.3)] white-space-[nowrap]">
+            onClick={() => {setSearchParams({});setShowForm(true);setCurrentStep(1);}} className="flex-[0_1_auto] p-[1rem_1.5rem] rounded-[16px] bg-emerald-500 hover:bg-emerald-600 text-[#fff] border-none font-[800] text-[1rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(54,179,126,0.3)] white-space-[nowrap]">
 
             
                             <Plus size={20} /> Nuevo Checklist
@@ -938,7 +938,7 @@ export default function ChecklistManager(): React.ReactElement | null {
             onClick={() => {
               setShowTutorialBanner(false);
               localStorage.setItem('checklist_tutorial_seen', 'true');
-            }} className="bg-[#ffffff] text-[#2563eb] border-none p-[0.6rem_1.2rem] rounded-[10px] font-[900] cursor-pointer flex-shrink-[0] box-shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+            }} className="bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-none p-[0.6rem_1.2rem] rounded-[10px] font-[900] cursor-pointer flex-shrink-[0] box-shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
 
             
                         Entendido
@@ -1233,7 +1233,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                             <div className="flex items-center gap-[0.8rem]">
                                                             <span className="text-[0.9rem]">¿Eliminar este punto?</span>
                                                             <button
-                                onClick={() => {removeItem(section.id, idx);toast.dismiss(toastId);}} className="bg-[#ef4444] text-[#ffffff] border-none rounded-[8px] p-[0.3rem_0.7rem] cursor-pointer font-[800] text-[0.8rem]">
+                                onClick={() => {removeItem(section.id, idx);toast.dismiss(toastId);}} className="bg-red-500 hover:bg-red-600 text-[#ffffff] border-none rounded-[8px] p-[0.3rem_0.7rem] cursor-pointer font-[800] text-[0.8rem]">
 
                                 Sí</button>
                                                         </div>,
@@ -1321,7 +1321,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                             onClick={() => {
                               const updatedPhotos = item.photos.filter((_, i) => i !== pIdx);
                               updateItem(section.id, idx, 'photos', updatedPhotos);
-                            }} className="absolute top-[0] right-[0] bg-[#ef4444] text-[#fff] border-none w-[14px] h-[14px] flex items-center justify-center cursor-pointer text-[0.55rem] p-[0]">
+                            }} className="absolute top-[0] right-[0] bg-red-500 hover:bg-red-600 text-[#fff] border-none w-[14px] h-[14px] flex items-center justify-center cursor-pointer text-[0.55rem] p-[0]">
 
                             
                                                                 ✕
@@ -1442,36 +1442,36 @@ export default function ChecklistManager(): React.ReactElement | null {
         <div className="no-print mb-8">
                 {/* PLAN DE ACCIÓN - FORMULARIO */}
                 <div className="border-[2px_solid_#f59e0b] rounded-[12px] p-[1.5rem] bg-[linear-gradient(135deg,_#fffbeb_0%,_#fef3c7_100%)] relative">
-                    <div className="absolute top-[-12px] left-[20px] bg-[#f59e0b] text-[#fff] p-[4px_12px] text-[0.65rem] font-[900] uppercase letter-spacing-[0.1em] rounded-[4px]">
+                    <div className="absolute top-[-12px] left-[20px] bg-amber-500 hover:bg-amber-600 text-[#fff] p-[4px_12px] text-[0.65rem] font-[900] uppercase letter-spacing-[0.1em] rounded-[4px]">
                         🎯 Plan de Acción
                     </div>
                     <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(150px,_1fr))] gap-[0.8rem] mb-[1rem] mt-[0.5rem]">
-                        <input type="text" placeholder="Acción correctiva" value={newAction.action} onChange={(e) => setNewAction({ ...newAction, action: e.target.value })} className="p-[0.6rem_0.8rem] border-[1px_solid_#d1d5db] rounded-[8px] text-[0.85rem] font-[600] outline-[none]" />
-                        <input type="text" placeholder="Responsable" value={newAction.responsible} onChange={(e) => setNewAction({ ...newAction, responsible: e.target.value })} className="p-[0.6rem_0.8rem] border-[1px_solid_#d1d5db] rounded-[8px] text-[0.85rem] font-[600] outline-[none]" />
+                        <input type="text" placeholder="Acción correctiva" value={newAction.action} onChange={(e) => setNewAction({ ...newAction, action: e.target.value })} className="p-[0.6rem_0.8rem] border border-slate-300 dark:border-slate-600 rounded-[8px] text-[0.85rem] font-[600] outline-[none]" />
+                        <input type="text" placeholder="Responsable" value={newAction.responsible} onChange={(e) => setNewAction({ ...newAction, responsible: e.target.value })} className="p-[0.6rem_0.8rem] border border-slate-300 dark:border-slate-600 rounded-[8px] text-[0.85rem] font-[600] outline-[none]" />
                         <div className="flex gap-[0.5rem]">
-                            <input type="date" value={newAction.dueDate} onChange={(e) => setNewAction({ ...newAction, dueDate: e.target.value })} className="flex-[1] p-[0.6rem_0.8rem] border-[1px_solid_#d1d5db] rounded-[8px] text-[0.85rem] font-[600] outline-[none]" />
-                            <select value={newAction.priority} onChange={(e) => setNewAction({ ...newAction, priority: e.target.value })} className="p-[0.6rem_0.8rem] border-[1px_solid_#d1d5db] rounded-[8px] text-[0.85rem] font-[600] outline-[none] bg-[#fff]">
+                            <input type="date" value={newAction.dueDate} onChange={(e) => setNewAction({ ...newAction, dueDate: e.target.value })} className="flex-[1] p-[0.6rem_0.8rem] border border-slate-300 dark:border-slate-600 rounded-[8px] text-[0.85rem] font-[600] outline-[none]" />
+                            <select value={newAction.priority} onChange={(e) => setNewAction({ ...newAction, priority: e.target.value })} className="p-[0.6rem_0.8rem] border border-slate-300 dark:border-slate-600 rounded-[8px] text-[0.85rem] font-[600] outline-[none] bg-white dark:bg-slate-800">
                                 <option value="bajo">🟢 Bajo</option>
                                 <option value="medio">🟡 Medio</option>
                                 <option value="alto">🟠 Alto</option>
                                 <option value="critico">🔴 Crítico</option>
                             </select>
                         </div>
-                        <button onClick={() => {if (newAction.action.trim()) {setActionPlan([...actionPlan, { ...newAction, id: Date.now() }]);setNewAction({ action: '', responsible: '', dueDate: '', priority: 'medio' });toast.success('Acción agregada ✅');}}} className="p-[0.6rem_1rem] bg-[#f59e0b] text-[#fff] font-[900] text-[0.85rem] rounded-[8px] border-none cursor-pointer flex items-center justify-center gap-[0.5rem]">
+                        <button onClick={() => {if (newAction.action.trim()) {setActionPlan([...actionPlan, { ...newAction, id: Date.now() }]);setNewAction({ action: '', responsible: '', dueDate: '', priority: 'medio' });toast.success('Acción agregada ✅');}}} className="p-[0.6rem_1rem] bg-amber-500 hover:bg-amber-600 text-[#fff] font-[900] text-[0.85rem] rounded-[8px] border-none cursor-pointer flex items-center justify-center gap-[0.5rem]">
                             <Plus size={16} /> AGREGAR
                         </button>
                     </div>
                     {actionPlan.length > 0 &&
             <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(280px,_1fr))] gap-[0.8rem]">
                             {actionPlan.map((action, idx) =>
-              <div key={action.id} className="bg-[#fff] border-[1px_solid_#fcd34d] rounded-[8px] p-[0.8rem] flex flex-col gap-[0.5rem]">
+              <div key={action.id} className="bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 rounded-[8px] p-[0.8rem] flex flex-col gap-[0.5rem]">
                                     <div className="flex items-start gap-[0.5rem]">
-                                        <div className="min-width-[24px] h-[24px] bg-[#f59e0b] text-[#fff] rounded-[50%] flex items-center justify-center text-[0.75rem] font-[900] flex-shrink-[0]">{idx + 1}</div>
+                                        <div className="min-width-[24px] h-[24px] bg-amber-500 hover:bg-amber-600 text-[#fff] rounded-[50%] flex items-center justify-center text-[0.75rem] font-[900] flex-shrink-[0]">{idx + 1}</div>
                                         <div className="flex-[1]">
-                                            <p className="m-[0] font-[700] text-[0.85rem] text-[#1e293b]">{action.action}</p>
+                                            <p className="m-[0] font-[700] text-[0.85rem] text-slate-800 dark:text-slate-200">{action.action}</p>
                                             <div className="flex flex-wrap gap-[0.5rem] mt-[0.3rem] text-[0.75rem]">
-                                                {action.responsible && <span className="text-[#475569]">👤 {action.responsible}</span>}
-                                                {action.dueDate && <span className="text-[#dc2626]">📅 {new Date(action.dueDate).toLocaleDateString('es-AR')}</span>}
+                                                {action.responsible && <span className="text-slate-600 dark:text-slate-400">👤 {action.responsible}</span>}
+                                                {action.dueDate && <span className="text-red-600 dark:text-red-400">📅 {new Date(action.dueDate).toLocaleDateString('es-AR')}</span>}
                                                 <span style={{ background: action.priority === 'critico' ? '#fef2f2' : action.priority === 'alto' ? '#fff7ed' : action.priority === 'medio' ? '#fefce8' : '#f0fdf4', color: action.priority === 'critico' ? '#dc2626' : action.priority === 'alto' ? '#ea580c' : action.priority === 'medio' ? '#ca8a04' : '#16a34a' }} className="p-[0.2rem_0.5rem] rounded-[4px] font-[700] text-[0.7rem]">
                                                     {action.priority === 'critico' ? '🔴' : action.priority === 'alto' ? '🟠' : action.priority === 'medio' ? '🟡' : '🟢'} {action.priority.toUpperCase()}
                                                 </span>
@@ -1488,7 +1488,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                 </div>
 
                 {/* PRÓXIMA REVISIÓN */}
-                <div className="mt-[1rem] p-[1rem] bg-[#eff6ff] border-[1px_solid_#bfdbfe] rounded-[12px] flex flex-wrap gap-[1rem] items-center justify-space-between">
+                <div className="mt-[1rem] p-[1rem] bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-[12px] flex flex-wrap gap-[1rem] items-center justify-space-between">
                     <div className="flex items-center gap-[0.8rem]">
                         <Calendar size={24} color="#2563eb" />
                         <div>
@@ -1496,7 +1496,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                             <p className="m-[0] text-[0.75rem] text-[#64748b]">Seleccioná la fecha para el próximo control</p>
                         </div>
                     </div>
-                    <input type="date" value={nextReview} onChange={(e) => setNextReview(e.target.value)} className="p-[0.6rem_0.8rem] border-[1px_solid_#93c5fd] rounded-[8px] text-[0.85rem] font-[600] outline-[none] bg-[#fff]" />
+                    <input type="date" value={nextReview} onChange={(e) => setNextReview(e.target.value)} className="p-[0.6rem_0.8rem] border border-blue-300 dark:border-blue-700 rounded-[8px] text-[0.85rem] font-[600] outline-[none] bg-white dark:bg-slate-800" />
                 </div>
 
                 {/* NORMATIVA APLICABLE */}
@@ -1504,7 +1504,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                     <div className="absolute top-[-12px] left-[20px] bg-[#9333ea] text-[#fff] p-[4px_12px] text-[0.65rem] font-[900] uppercase letter-spacing-[0.1em] rounded-[4px]">
                         📚 Normativa Aplicable
                     </div>
-                    <p className="text-[0.8rem] text-[#475569] mb-[1rem] mt-[0.5rem]">Seleccioná las normativas que aplican a esta inspección:</p>
+                    <p className="text-[0.8rem] text-slate-600 dark:text-slate-400 mb-[1rem] mt-[0.5rem]">Seleccioná las normativas que aplican a esta inspección:</p>
                     {Array.from(new Set(availableNorms.map((norm) => norm.category))).map((category) =>
             <div key={category} className="mb-[1rem]">
                             <h4 className="text-[0.75rem] font-[900] text-[#64748b] uppercase mb-[0.5rem]">{category}</h4>
@@ -1512,7 +1512,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                                 {availableNorms.filter((norm) => norm.category === category).map((norm) =>
                 <label key={norm.id} style={{ background: selectedNorms.includes(norm.id) ? '#f3e8ff' : '#fff', border: `1px solid ${selectedNorms.includes(norm.id) ? '#a855f7' : '#e2e8f0'}` }} className="flex items-center gap-[0.5rem] p-[0.6rem_0.8rem] rounded-[8px] cursor-pointer transition-[all_0.2s]">
                                         <input type="checkbox" checked={selectedNorms.includes(norm.id)} onChange={(e) => {if (e.target.checked) {setSelectedNorms([...selectedNorms, norm.id]);} else {setSelectedNorms(selectedNorms.filter((id) => id !== norm.id));}}} className="w-4 h-4" />
-                                        <span className="text-[0.75rem] font-[600] text-[#1e293b]">{norm.name}</span>
+                                        <span className="text-[0.75rem] font-[600] text-slate-800 dark:text-slate-200">{norm.name}</span>
                                     </label>
                 )}
                             </div>
@@ -1717,7 +1717,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                         <button
               onClick={handleSave}
 
-              className="hover-scale p-[0.8rem_2rem] rounded-[14px] bg-[#10b981] border-none text-[#fff] font-[900] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(16,185,129,0.3)]">
+              className="hover-scale p-[0.8rem_2rem] rounded-[14px] bg-emerald-500 hover:bg-emerald-600 border-none text-[#fff] font-[900] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(16,185,129,0.3)]">
               
                             <Save size={18} /> GUARDAR
                         </button>

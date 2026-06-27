@@ -258,7 +258,7 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
     <div className="ats-pdf-offscreen-wrap w-[100%]">
       <div
         id={pdfElementId}
-        className="pdf-container print-area ats-pdf-root w-[100%] max-w-[210mm] p-[6mm_10mm] bg-[#ffffff] text-[#0f172a] m-[0_auto]"
+        className="pdf-container print-area ats-pdf-root w-[100%] max-w-[210mm] p-[6mm_10mm] bg-white dark:bg-slate-800 text-[#0f172a] m-[0_auto]"
         style={{ borderTop: `6px solid \${globalRiskColor}` }}
       >
         <style type="text/css">{PDF_STYLES}</style>
@@ -296,15 +296,15 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
           <table className="ats-pdf-table table-layout-[fixed] word-break-[break-word] overflow-wrap-[break-word] mb-[0]">
             <tbody>
               <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid]">
-                <td className="w-[42%] bg-[#f8fafc]">
+                <td className="w-[42%] bg-slate-50 dark:bg-slate-800/50">
                   <div className="text-[7pt] font-[800] text-[#3b82f6] uppercase mb-[0.2rem]">Cliente / Empresa</div>
                   <div className="font-[800] text-[10.5pt]">{data.empresa || '—'}</div>
                 </td>
-                <td className="w-[22%] bg-[#f8fafc]">
+                <td className="w-[22%] bg-slate-50 dark:bg-slate-800/50">
                   <div className="text-[7pt] font-[800] text-[#64748b] uppercase mb-[0.2rem]">CUIT / CUIL</div>
                   <div className="font-[700] text-[9.5pt]">{data.cuit || '—'}</div>
                 </td>
-                <td className="w-[36%] bg-[#f8fafc]">
+                <td className="w-[36%] bg-slate-50 dark:bg-slate-800/50">
                   <div className="text-[7pt] font-[800] text-[#3b82f6] uppercase mb-[0.2rem]">Ubicación / Obra</div>
                   <div className="font-[800] text-[10.5pt]">{data.obra || '—'}</div>
                 </td>
@@ -326,7 +326,7 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
                 </td>
               </tr>
               <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid]">
-                <td colSpan={3} className="bg-[#eff6ff]">
+                <td colSpan={3} className="bg-blue-50 dark:bg-blue-900/20">
                   <div className="text-[7pt] font-[800] text-[#1d4ed8] uppercase mb-[0.2rem]">Profesional HyS actuante</div>
                   <div className="font-[800]">{actName || '—'}{actLic ? ` · Mat. \${actLic}` : ''}</div>
                 </td>
@@ -374,7 +374,7 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
                     <tr key={tarea.id ?? i} className="avoid-break" style={{ background: i % 2 === 1 ? '#f8fafc' : '#fff' }}>
                       <td className="text-center font-[800] text-[#64748b]">{i + 1}</td>
                       <td className="font-[700] text-[8.5pt]">{tarea.paso || '—'}</td>
-                      <td className="text-[8pt] text-[#475569]">{tarea.riesgo || '—'}</td>
+                      <td className="text-[8pt] text-slate-600 dark:text-slate-400">{tarea.riesgo || '—'}</td>
                       <td className="text-[8pt] font-[700] text-[#047857]">{tarea.control || '—'}</td>
                       <td className="text-center">
                         <span className={`risk-badge \${riskCls}`}>{tarea.nivelRiesgo || 'Bajo'}</span>
@@ -428,7 +428,7 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
                             <StatusCell label="SI" active={isSI} />
                             <StatusCell label="NO" active={isNO} />
                             <StatusCell label="N/A" active={isNA} />
-                            <td className="font-[600] text-[#1e293b]">{item.pregunta}</td>
+                            <td className="font-[600] text-slate-800 dark:text-slate-200">{item.pregunta}</td>
                             <td className="text-[7.5pt] text-[#64748b]">{item.observaciones || '—'}</td>
                           </tr>
                       );
