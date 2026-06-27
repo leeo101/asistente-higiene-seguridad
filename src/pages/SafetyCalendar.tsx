@@ -429,7 +429,34 @@ export default function SafetyCalendar(): React.ReactElement | null {
                                             </span>
                                             {(() => {const d = diffDays(date);const u = urgencyBadge(d);return <span style={{ background: u.bg, color: u.color, border: `1px solid ${u.color}33` }} className="px-3 py-1 rounded-full text-[0.65rem] font-black uppercase tracking-wider shadow-sm">{u.label}</span>;})()}
                                         </div>
-                                        {evs.map((ev: any, i: number) =>
+                                        {evs.map((ev: any, i: number) => (
+                                            <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                                <div style={{ background: EVENT_TYPES[ev.type]?.bg, color: EVENT_TYPES[ev.type]?.color, border: `1px solid ${EVENT_TYPES[ev.type]?.color}33` }} className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                                                    {EVENT_TYPES[ev.type]?.icon}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="font-bold text-slate-800 dark:text-slate-200 text-[0.95rem] flex items-center gap-2 mb-1">
+                                                        {ev.title}
+                                                        {ev.isAuto && <span title="Generado Automáticamente"><Info size={14} className="text-slate-400" /></span>}
+                                                    </div>
+                                                    <div className="text-[0.78rem] text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-2">
+                                                        <span className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md"><Clock size={12} /> {ev.time} hs</span> 
+                                                        <span className="opacity-50">•</span> 
+                                                        <span className="font-semibold">{EVENT_TYPES[ev.type]?.label}</span>
+                                                        {ev.description && <><span className="opacity-50">•</span> <span className="truncate max-w-[200px]">{ev.description}</span></>}
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2 mt-3 sm:mt-0">
+                                                    <button onClick={() => exportToGoogleCalendar(ev)} title="Añadir a Google Calendar" className="px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors flex items-center gap-2 text-xs font-bold shadow-sm">
+                                                        <CalendarPlus size={16} /> <span className="hidden sm:inline">Google</span>
+                                                    </button>
+                                                    <button onClick={() => deleteEvent(ev)} title="Eliminar" className="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/50 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors flex items-center shadow-sm">
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
               )}
                             </div>)
             }
