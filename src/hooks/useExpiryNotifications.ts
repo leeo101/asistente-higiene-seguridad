@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 export interface ExpiryNotification {
   id: string;
-  type: 'ppe' | 'extinguisher' | 'contractor' | 'worker' | 'capa' | 'training';
+  type: 'ppe' | 'extinguisher' | 'contractor' | 'worker' | 'capa' | 'training' | 'audit' | 'medical' | 'drill' | 'permit';
   label: string;
   responsible?: string;
   daysLeft: number;
@@ -177,6 +177,89 @@ export function useExpiryNotifications() {
               daysLeft,
               isExpired: daysLeft < 0,
               itemId: t.id,
+            });
+          }
+        }
+      });
+    } catch { /* ignore */ }
+
+    // ─── Auditorías ──────────────────────────────────────────
+    try {
+      const audits = JSON.parse(localStorage.getItem('ehs_audits_db') || '[]');
+      audits.forEach((a: any) => {
+        if (a.status === 'planned' && a.scheduledDate) {
+          const daysLeft = getDaysLeft(a.scheduledDate);
+          if (daysLeft !== null && daysLeft <= 15) {
+            items.push({
+              id: `aud-${a.id}`,
+              type: 'audit',
+              label: `Auditoría: ${a.title || 'Programada'}`,
+              responsible: a.leadAuditor,
+              daysLeft,
+              isExpired: daysLeft < 0,
+              itemId: a.id,
+            });
+          }
+        }
+      });
+    } catch { /* ignore */ }
+
+    // ─── Aptitudes Médicas ───────────────────────────────────
+    try {
+      const medical = JSON.parse(localStorage.getItem('ehs_medical_db') || '[]');
+      medical.forEach((m: any) => {
+        if (m.expirationDate) {
+          const daysLeft = getDaysLeft(m.expirationDate);
+          if (daysLeft !== null && daysLeft <= 30) {
+            items.push({
+              id: `med-${m.id}`,
+              type: 'medical',
+              label: `Aptitud Médica: ${m.workerName}`,
+              daysLeft,
+              isExpired: daysLeft < 0,
+              itemId: m.id,
+            });
+          }
+        }
+      });
+    } catch { /* ignore */ }
+
+    // ─── Simulacros (Vencimiento Anual) ─────────────────────────
+    try {
+      const drills = JSON.parse(localStorage.getItem('drills_history') || '[]');
+      drills.forEach((d: any) => {
+        if (d.fecha) {
+          // Asume un vencimiento anual (12 meses) desde la fecha del simulacro
+          const daysLeft = getDaysLeft(d.fecha, 12);
+          if (daysLeft !== null && daysLeft <= 30) {
+            items.push({
+              id: `drill-${d.id}`,
+              type: 'drill',
+              label: `Simulacro Anual: ${d.empresa || 'Empresa'}`,
+              daysLeft,
+              isExpired: daysLeft < 0,
+              itemId: d.id,
+            });
+          }
+        }
+      });
+    } catch { /* ignore */ }
+
+    // ─── Permisos de Trabajo ──────────────────────────────
+    try {
+      const permits = JSON.parse(localStorage.getItem('work_permits_history') || '[]');
+      permits.forEach((p: any) => {
+        if (p.endDate) {
+          const daysLeft = getDaysLeft(p.endDate);
+          // Los permisos suelen ser de corta duración, avisamos 3 días antes
+          if (daysLeft !== null && daysLeft <= 3) {
+            items.push({
+              id: `permit-${p.id}`,
+              type: 'permit',
+              label: `Permiso PT-${String(p.id).slice(-4)} ${p.spaceName ? `(${p.spaceName})` : ''}`,
+              daysLeft,
+              isExpired: daysLeft < 0,
+              itemId: p.id,
             });
           }
         }

@@ -158,7 +158,7 @@ export default function HeaderNotifications() {
                   className="flex items-center gap-[0.5rem] p-[0.5rem_0.6rem] rounded-[10px]"
                 >
                   <span style={{ color: n.isExpired ? '#fca5a5' : '#fde68a' }} className="text-[0.75rem] flex-[1] font-[600] leading-[1.3]">
-                    {n.type === 'ppe' ? '🦺' : n.type === 'contractor' ? '🏢' : n.type === 'worker' ? '👷' : n.type === 'checklist' ? '📋' : '🧯'}{' '}
+                    {n.type === 'ppe' ? '🦺' : n.type === 'contractor' ? '🏢' : n.type === 'worker' ? '👷' : n.type === 'checklist' ? '📋' : n.type === 'extinguisher' ? '🧯' : n.type === 'audit' ? '🔍' : n.type === 'medical' ? '⚕️' : n.type === 'drill' ? '🚨' : n.type === 'permit' ? '🚧' : n.type === 'capa' ? '🔧' : n.type === 'training' ? '🎓' : '🔔'}{' '}
                     {n.label}
                     <span className="block text-[0.65rem] opacity-[0.75] mt-[0.1rem]">
                       {n.isExpired
