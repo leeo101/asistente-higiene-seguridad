@@ -1,11 +1,13 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   ArrowLeft, Save, Plus, Trash2, Printer,
   ShieldCheck, Building2, User, Calendar,
   CheckCircle2, AlertCircle, HelpCircle, Pencil, Info, Share2, Sparkles, Loader2,
-  MapPin, FileText, Search, QrCode, Download, ClipboardList } from
-'lucide-react';
+  MapPin, FileText, Search, QrCode, Download, ClipboardList,
+  HardHat, Ear, Search as SearchIcon, Eye as EyeIcon, Edit3 as EditIcon, Trash2 as TrashIcon, Camera as CameraIcon, CheckCircle2 as CheckIcon, ShieldAlert, Zap, Thermometer, Wind as WindIcon, Activity
+} from 'lucide-react';
 import { DataTable } from '../components/DataTable';
 import { downloadCSV } from '../services/exportCsv';
 import QRModal from '../components/QRModal';
@@ -131,8 +133,11 @@ export default function ATS(): React.ReactElement | null {
     capatazSignature: '',
     checklist: defaultChecklist,
     tareas: [
-    { id: 1, paso: 'Preparación de área', riesgo: 'Caídas', control: 'Delimitación', realizado: true },
-    { id: 2, paso: 'Ejecución de tarea', riesgo: 'Golpes', control: 'Uso de EPP', realizado: false }]
+    { id: 1, paso: 'Preparación de área', riesgo: 'Caídas', control: 'Delimitación', nivelRiesgo: 'Medio', realizado: true },
+    { id: 2, paso: 'Ejecución de tarea', riesgo: 'Golpes', control: 'Uso de EPP', nivelRiesgo: 'Bajo', realizado: false }
+  ],
+  epps: [],
+  fotos: []
 
   });
 
@@ -149,7 +154,7 @@ export default function ATS(): React.ReactElement | null {
   const [isAdModalOpen, setIsAdModalOpen] = useState(true);
 
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const nextStep = () => {if (currentStep < totalSteps) {setCurrentStep((c) => c + 1);window.scrollTo(0, 0);}};
   const prevStep = () => {if (currentStep > 1) {setCurrentStep((c) => c - 1);window.scrollTo(0, 0);}};
@@ -194,6 +199,7 @@ export default function ATS(): React.ReactElement | null {
         paso: item.paso || '',
         riesgo: item.riesgo || '',
         control: item.control || '',
+        nivelRiesgo: item.nivelRiesgo || 'Medio',
         realizado: false
       }));
 
@@ -315,7 +321,7 @@ export default function ATS(): React.ReactElement | null {
 
   const addTask = () => {
     const newId = Math.max(0, ...formData.tareas.map((t) => t.id)) + 1;
-    const newTask = { id: newId, paso: '', riesgo: '', control: '', realizado: false };
+    const newTask = { id: newId, paso: '', riesgo: '', control: '', nivelRiesgo: 'Bajo', realizado: false };
     setFormData({ ...formData, tareas: [...formData.tareas, newTask] });
   };
 
@@ -514,6 +520,32 @@ export default function ATS(): React.ReactElement | null {
 
                 {!showForm ?
         <>
+                        
+                        {/* KPIs */}
+                        <div className="no-print grid grid-cols-1 md:grid-cols-3 gap-[1rem] mb-[2rem]">
+                            <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
+                                <div className="bg-blue-100 text-blue-600 p-[1rem] rounded-[12px]"><ShieldCheck size={28} /></div>
+                                <div>
+                                    <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">ATS Generados</div>
+                                    <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{history.length}</div>
+                                </div>
+                            </div>
+                            <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
+                                <div className="bg-amber-100 text-amber-600 p-[1rem] rounded-[12px]"><ShieldAlert size={28} /></div>
+                                <div>
+                                    <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">Riesgo Alto (Total)</div>
+                                    <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{history.filter(h => h.tareas?.some(t => t.nivelRiesgo === 'Alto')).length}</div>
+                                </div>
+                            </div>
+                            <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
+                                <div className="bg-green-100 text-green-600 p-[1rem] rounded-[12px]"><CheckCircle2 size={28} /></div>
+                                <div>
+                                    <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">ATS Última Semana</div>
+                                    <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{history.filter(h => new Date(h.fecha) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}</div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap items-center">
                             <></>
                             <button
@@ -652,7 +684,7 @@ export default function ATS(): React.ReactElement | null {
                 }} className="h-[100%] bg-[var(--gradient-premium)] rounded-[999px] transition-[width_0.5s_cubic-bezier(0.4,_0,_0.2,_1)] box-shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
                         </div>
                         <div className="flex justify-space-between p-[0_4px]">
-                            {['Datos', 'Tareas', 'Checklist', 'Firmas'].map((label, idx) =>
+                            {['Datos', 'Tareas', 'EPPs & Fotos', 'Checklist', 'Firmas'].map((label, idx) =>
                 <span key={label} style={{
 
                   color: currentStep >= idx + 1 ? 'var(--color-primary)' : 'var(--color-text-muted)'
@@ -837,6 +869,7 @@ export default function ATS(): React.ReactElement | null {
                                 <div>1. Paso a seguir</div>
                                 <div>2. Riesgos asociados</div>
                                 <div>3. Medidas de control</div>
+                                <div>4. Nivel Riesgo</div>
                                 <div className="ats-seq-head-action" aria-hidden="true" />
                             </div>
 
@@ -903,6 +936,27 @@ export default function ATS(): React.ReactElement | null {
                                             <div className="print-only text-slate-700 text-[0.8rem] whitespace-pre-wrap break-words">
                                                 {t.control}
                                             </div>
+                                        <div className="ats-seq-cell ats-seq-cell-riesgo-nivel" style={{flex: 0.5}}>
+                                            <span className="ats-seq-mobile-label">Nivel de Riesgo</span>
+                                            <select
+                                                value={t.nivelRiesgo || 'Bajo'}
+                                                onChange={(e) => updateTask(t.id, 'nivelRiesgo', e.target.value)}
+                                                className="no-print ats-input mt-[0.5rem] p-[0.4rem] rounded-[8px] font-[800] text-[0.8rem] w-full"
+                                                style={{
+                                                    backgroundColor: t.nivelRiesgo === 'Alto' ? '#fee2e2' : t.nivelRiesgo === 'Medio' ? '#fef3c7' : '#dcfce7',
+                                                    color: t.nivelRiesgo === 'Alto' ? '#dc2626' : t.nivelRiesgo === 'Medio' ? '#d97706' : '#16a34a',
+                                                    border: 'none',
+                                                    outline: 'none'
+                                                }}
+                                            >
+                                                <option value="Bajo">Bajo</option>
+                                                <option value="Medio">Medio</option>
+                                                <option value="Alto">Alto</option>
+                                            </select>
+                                            <div className="print-only text-[0.8rem] font-[800]" style={{ color: t.nivelRiesgo === 'Alto' ? '#dc2626' : t.nivelRiesgo === 'Medio' ? '#d97706' : '#16a34a' }}>
+                                                {t.nivelRiesgo || 'Bajo'}
+                                            </div>
+                                        </div>
                                         </div>
 
                                         <div className="ats-seq-cell ats-seq-cell-action no-print">
@@ -923,7 +977,104 @@ export default function ATS(): React.ReactElement | null {
             }
 
                     {/* STEP 3 */}
+                    
+                    {/* STEP 3: EPPs y Evidencia Fotográfica */}
                     {currentStep === 3 &&
+            <div className="wizard-step-anim mt-[3rem]">
+                        <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.8rem] text-[var(--color-primary)] font-[900] text-[1.2rem] uppercase letter-spacing-[1px]">
+                            <HardHat size={24} className="text-blue-600" /> EPPs Obligatorios y Evidencia
+                        </h3>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-[2rem]">
+                            {/* EPPs Selector */}
+                            <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)]">
+                                <h4 className="m-[0_0_1rem_0] text-[0.9rem] font-[800] uppercase text-[var(--color-text)]">Selección de EPPs</h4>
+                                <div className="flex flex-wrap gap-[0.8rem]">
+                                    {[
+                                        { id: 'casco', label: 'Casco', icon: HardHat },
+                                        { id: 'guantes', label: 'Guantes', icon: ShieldCheck },
+                                        { id: 'anteojos', label: 'Anteojos', icon: EyeIcon },
+                                        { id: 'auditiva', label: 'Prot. Auditiva', icon: Ear },
+                                        { id: 'arnes', label: 'Arnés', icon: Activity },
+                                        { id: 'calzado', label: 'Calzado Seg.', icon: ShieldCheck }
+                                    ].map(epp => {
+                                        const isSelected = formData.epps?.includes(epp.id);
+                                        const Icon = epp.icon;
+                                        return (
+                                            <button
+                                                key={epp.id}
+                                                onClick={() => {
+                                                    const current = formData.epps || [];
+                                                    const updated = isSelected ? current.filter(e => e !== epp.id) : [...current, epp.id];
+                                                    setFormData({ ...formData, epps: updated });
+                                                }}
+                                                className={`flex items-center gap-[0.5rem] p-[0.6rem_1rem] rounded-[12px] border transition-[all_0.2s] ${isSelected ? 'bg-blue-100 border-blue-500 text-blue-700' : 'bg-[var(--color-background)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-blue-300'}`}
+                                            >
+                                                <Icon size={18} />
+                                                <span className="font-[800] text-[0.8rem]">{epp.label}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Photo Upload */}
+                            <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)]">
+                                <h4 className="m-[0_0_1rem_0] text-[0.9rem] font-[800] uppercase text-[var(--color-text)]">Evidencia Fotográfica</h4>
+                                <p className="text-[0.8rem] text-[var(--color-text-muted)] mb-[1rem]">Adjunte hasta 2 fotografías del área de trabajo o equipos involucrados.</p>
+                                
+                                <div className="flex gap-[1rem]">
+                                    {[0, 1].map(index => {
+                                        const photoUrl = formData.fotos?.[index];
+                                        return (
+                                            <div key={index} className="flex-[1] aspect-square rounded-[12px] border-[2px_dashed_var(--color-border)] flex items-center justify-center relative overflow-hidden bg-[var(--color-background)] hover:border-blue-400 transition-colors">
+                                                {photoUrl ? (
+                                                    <>
+                                                        <img src={photoUrl} alt={`Evidencia ${index + 1}`} className="w-full h-full object-cover" />
+                                                        <button
+                                                            onClick={() => {
+                                                                const newFotos = [...(formData.fotos || [])];
+                                                                newFotos.splice(index, 1);
+                                                                setFormData({ ...formData, fotos: newFotos });
+                                                            }}
+                                                            className="absolute top-[0.5rem] right-[0.5rem] bg-red-500 text-white p-[0.4rem] rounded-full shadow-md hover:bg-red-600"
+                                                        >
+                                                            <TrashIcon size={14} />
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center text-[var(--color-text-muted)]">
+                                                        <CameraIcon size={24} className="mb-[0.5rem]" />
+                                                        <span className="text-[0.7rem] font-[700] uppercase">Subir Foto</span>
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            className="hidden"
+                                                            onChange={(e) => {
+                                                                const file = e.target.files?.[0];
+                                                                if (file) {
+                                                                    const reader = new FileReader();
+                                                                    reader.onloadend = () => {
+                                                                        const newFotos = [...(formData.fotos || [])];
+                                                                        newFotos[index] = reader.result as string;
+                                                                        setFormData({ ...formData, fotos: newFotos });
+                                                                    };
+                                                                    reader.readAsDataURL(file);
+                                                                }
+                                                            }}
+                                                        />
+                                                    </label>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            }
+
+                    {currentStep === 5 &&
             <div className="wizard-step-anim mt-[3rem]">
                         <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.8rem] text-[var(--color-primary)] font-[900] text-[1.2rem] uppercase letter-spacing-[1px]">
                             <ShieldCheck size={24} className="text-blue-600" /> Verificación de Seguridad

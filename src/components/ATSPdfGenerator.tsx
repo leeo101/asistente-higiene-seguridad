@@ -16,6 +16,7 @@ interface TareaItem {
   paso: string;
   riesgo: string;
   control: string;
+  nivelRiesgo?: string;
   realizado?: boolean;
 }
 
@@ -28,6 +29,8 @@ interface ATSData {
   capatazNombre?: string;
   tareas?: TareaItem[];
   checklist?: ChecklistItem[];
+  epps?: string[];
+  fotos?: string[];
   operatorSignature?: string | null;
   capatazSignature?: string | null;
   professionalSignature?: string | null;
@@ -93,7 +96,7 @@ const PDF_STYLES = `
   .ats-pdf-table th,
   .ats-pdf-table td {
     border: 1px solid #cbd5e1;
-    padding: 0.15rem 0.25rem;
+    padding: 0.2rem 0.3rem;
     vertical-align: top;
     word-break: break-word;
     overflow-wrap: break-word;
@@ -140,6 +143,19 @@ const PDF_STYLES = `
     border: 2px solid #64748b !important;
     color: #64748b;
   }
+  
+  .risk-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 6.5pt;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .risk-bajo { background: #dcfce7; color: #16a34a; border: 1px solid #16a34a; }
+  .risk-medio { background: #fef3c7; color: #d97706; border: 1px solid #d97706; }
+  .risk-alto { background: #fee2e2; color: #dc2626; border: 1px solid #dc2626; }
+
   @media print {
     .ats-pdf-root {
       box-shadow: none !important;
@@ -149,6 +165,14 @@ const PDF_STYLES = `
       width: 100% !important;
       padding: 0 !important;
       margin: 0 !important;
+    }
+    .page-break-before {
+      page-break-before: always;
+      break-before: page;
+    }
+    .avoid-break {
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
   }
 `;
@@ -174,8 +198,8 @@ function resolveProfessional(data: ATSData) {
       const legacySig = typeof window !== 'undefined' ? localStorage.getItem('capturedSignature') : null;
 
       if (!actSignature) {
-        if (lsStamp) actSignature = JSON.parse(lsStamp).signature;else
-        if (legacySig) actSignature = legacySig;
+        if (lsStamp) actSignature = JSON.parse(lsStamp).signature;
+        else if (legacySig) actSignature = legacySig;
       }
       if (lsPersonal) {
         const pd = JSON.parse(lsPersonal);
@@ -183,8 +207,8 @@ function resolveProfessional(data: ATSData) {
         actLic = actLic || pd.license;
       }
     } catch {
-
-      /* ignore */}
+      /* ignore */
+    }
   }
 
   return { actSignature, actName, actLic };
@@ -200,14 +224,14 @@ function StatusCell({ label, active }: {label: string;active: boolean;}) {
   const estado = label === 'SI' ? 'Cumple' : label === 'NO' ? 'No Cumple' : 'N/A';
   return (
     <td className="ats-pdf-status">
-      <div className={`ats-pdf-status-box ${active ? statusClass(estado) : ''}`}>
+      <div className={`ats-pdf-status-box \${active ? statusClass(estado) : ''}`}>
         {active && <span className="text-[8.5pt] font-[900] line-height-[1]">✓</span>}
         <div style={{ marginTop: active ? '1px' : '0', color: active ? 'inherit' : '#94a3b8' }} className="text-[5.5pt] font-[800]">
           {label}
         </div>
       </div>
-    </td>);
-
+    </td>
+  );
 }
 
 export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' }: ATSPdfGeneratorProps): React.ReactElement | null {
@@ -218,24 +242,25 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
   const { actSignature, actName, actLic } = resolveProfessional(data);
   const tareas = data.tareas || [];
   const checklist = data.checklist || [];
+  const epps = data.epps || [];
+  const fotos = data.fotos || [];
+  
   const categories = [...new Set(checklist.map((item) => item.categoria))];
   const docId = data.id ? String(data.id).slice(-8).toUpperCase() : 'BORRADOR';
+  
+  // Risk assessment overall based on tasks
+  const hasHighRisk = tareas.some(t => t.nivelRiesgo === 'Alto');
+  const hasMedRisk = tareas.some(t => t.nivelRiesgo === 'Medio');
+  const globalRiskColor = hasHighRisk ? '#dc2626' : (hasMedRisk ? '#d97706' : '#16a34a');
+  const globalRiskLabel = hasHighRisk ? 'ALTO' : (hasMedRisk ? 'MEDIO' : 'BAJO');
 
   return (
     <div className="ats-pdf-offscreen-wrap w-[100%]">
       <div
         id={pdfElementId}
-        className="pdf-container print-area ats-pdf-root w-[100%] max-w-[210mm] p-[6mm_10mm] bg-[#ffffff] text-[#0f172a] m-[0_auto] border-top-[6px_solid_#1d4ed8]">
-
-
-
-
-
-
-
-
-
-        
+        className="pdf-container print-area ats-pdf-root w-[100%] max-w-[210mm] p-[6mm_10mm] bg-[#ffffff] text-[#0f172a] m-[0_auto]"
+        style={{ borderTop: `6px solid \${globalRiskColor}` }}
+      >
         <style type="text/css">{PDF_STYLES}</style>
 
         {/* Encabezado */}
@@ -248,8 +273,13 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
               <h1 className="m-[0.2rem_0_0] text-[18pt] font-[900] letter-spacing-[-0.02em] text-[#0f172a] line-height-[1]">
                 Análisis de Trabajo Seguro
               </h1>
-              <div className="mt-[0.2rem] text-[7.5pt] text-[#3b82f6] font-[800] letter-spacing-[0.08em]">
-                ATS · DOCUMENTO TÉCNICO
+              <div className="mt-[0.2rem] flex items-center gap-[0.5rem]">
+                <div className="text-[7.5pt] text-[#3b82f6] font-[800] letter-spacing-[0.08em]">
+                  ATS · DOCUMENTO TÉCNICO
+                </div>
+                <div style={{ background: globalRiskColor }} className="text-white text-[6pt] px-[4px] py-[2px] rounded-[3px] font-[800] uppercase">
+                  RIESGO {globalRiskLabel}
+                </div>
               </div>
             </div>
             <div className="text-right min-width-[100px]">
@@ -298,37 +328,60 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
               <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid]">
                 <td colSpan={3} className="bg-[#eff6ff]">
                   <div className="text-[7pt] font-[800] text-[#1d4ed8] uppercase mb-[0.2rem]">Profesional HyS actuante</div>
-                  <div className="font-[800]">{actName || '—'}{actLic ? ` · Mat. ${actLic}` : ''}</div>
+                  <div className="font-[800]">{actName || '—'}{actLic ? ` · Mat. \${actLic}` : ''}</div>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
+        
+        {/* EPPs Requeridos */}
+        {epps.length > 0 && (
+          <div className="ats-pdf-section avoid-break">
+            <div className="text-[9pt] font-[900] uppercase text-[#0f172a] border-left-[4px_solid_#2563eb] pl-[0.6rem] mb-[0.4rem]">
+              1. EPPs Requeridos
+            </div>
+            <div className="flex flex-wrap gap-[4px]">
+              {epps.map((epp, idx) => (
+                <div key={idx} className="bg-blue-50 border border-blue-200 text-blue-800 text-[7pt] font-[700] px-[6px] py-[2px] rounded-[4px] uppercase">
+                  {epp}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Secuencia de tareas */}
         {tareas.length > 0 &&
         <div className="ats-pdf-section">
             <div className="text-[9pt] font-[900] uppercase text-[#0f172a] border-left-[4px_solid_#2563eb] pl-[0.6rem] mb-[0.65rem]">
-              1. Secuencia de tareas y análisis de riesgos
+              {epps.length > 0 ? '2' : '1'}. Secuencia de tareas y análisis de riesgos
             </div>
             <table className="ats-pdf-table w-[100%] table-layout-[fixed] word-break-[break-word] overflow-wrap-[break-word] border-collapse-[collapse]">
               <thead>
                 <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid]">
-                  <th className="w-[6%]">#</th>
+                  <th className="w-[5%]">#</th>
                   <th className="w-[30%]">Paso a seguir</th>
-                  <th className="w-[30%]">Riesgos asociados</th>
-                  <th className="w-[34%]">Medidas de control</th>
+                  <th className="w-[25%]">Riesgos asociados</th>
+                  <th className="w-[30%]">Medidas de control</th>
+                  <th className="w-[10%]">Riesgo</th>
                 </tr>
               </thead>
               <tbody>
-                {tareas.map((tarea, i) =>
-              <tr key={tarea.id ?? i} className="avoid-break" style={{ background: i % 2 === 1 ? '#f8fafc' : '#fff' }}>
-                    <td className="text-center font-[800] text-[#64748b]">{i + 1}</td>
-                    <td className="font-[700] text-[9pt]">{tarea.paso || '—'}</td>
-                    <td className="text-[8.5pt] text-[#475569]">{tarea.riesgo || '—'}</td>
-                    <td className="text-[8.5pt] font-[700] text-[#047857]">{tarea.control || '—'}</td>
-                  </tr>
-              )}
+                {tareas.map((tarea, i) => {
+                  const riskCls = tarea.nivelRiesgo === 'Alto' ? 'risk-alto' : (tarea.nivelRiesgo === 'Medio' ? 'risk-medio' : 'risk-bajo');
+                  return (
+                    <tr key={tarea.id ?? i} className="avoid-break" style={{ background: i % 2 === 1 ? '#f8fafc' : '#fff' }}>
+                      <td className="text-center font-[800] text-[#64748b]">{i + 1}</td>
+                      <td className="font-[700] text-[8.5pt]">{tarea.paso || '—'}</td>
+                      <td className="text-[8pt] text-[#475569]">{tarea.riesgo || '—'}</td>
+                      <td className="text-[8pt] font-[700] text-[#047857]">{tarea.control || '—'}</td>
+                      <td className="text-center">
+                        <span className={`risk-badge \${riskCls}`}>{tarea.nivelRiesgo || 'Bajo'}</span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -338,28 +391,13 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
         {categories.length > 0 &&
         <div className="ats-pdf-section">
             <div className="text-[9pt] font-[900] uppercase text-[#0f172a] border-left-[4px_solid_#2563eb] pl-[0.6rem] mb-[0.65rem] break-after-[avoid] page-break-after-[avoid]">
-              2. Verificación de seguridad pre-operativa
+              {epps.length > 0 ? '3' : '2'}. Verificación de seguridad pre-operativa
             </div>
             {categories.map((categoria, catIndex) => {
             const categoryItems = checklist.filter((item) => item.categoria === categoria);
             return (
               <div key={catIndex} className="ats-pdf-category-block">
-                  <div className="bg-[#e2e8f0] text-[#0f172a] border-bottom-[2px_solid_#cbd5e1] p-[0.45rem_0.75rem] text-[8.5pt] font-[900] uppercase letter-spacing-[0.06em] flex items-center gap-[0.4rem] rounded-[6px_6px_0_0]">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                  
+                  <div className="bg-[#e2e8f0] text-[#0f172a] border-bottom-[2px_solid_#cbd5e1] p-[0.35rem_0.75rem] text-[8.5pt] font-[900] uppercase letter-spacing-[0.06em] flex items-center gap-[0.4rem] rounded-[6px_6px_0_0]">
                     <span className="text-[#3b82f6] text-[9pt] line-height-[1]">■</span>
                     {categoria}
                   </div>
@@ -391,9 +429,9 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
                             <StatusCell label="NO" active={isNO} />
                             <StatusCell label="N/A" active={isNA} />
                             <td className="font-[600] text-[#1e293b]">{item.pregunta}</td>
-                            <td className="text-[8pt] text-[#64748b]">{item.observaciones || '—'}</td>
-                          </tr>);
-
+                            <td className="text-[7.5pt] text-[#64748b]">{item.observaciones || '—'}</td>
+                          </tr>
+                      );
                     })}
                     </tbody>
                   </table>
@@ -403,10 +441,26 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
           </div>
         }
 
+        {/* Fotografías */}
+        {fotos.length > 0 && (
+          <div className="ats-pdf-section avoid-break">
+            <div className="text-[9pt] font-[900] uppercase text-[#0f172a] border-left-[4px_solid_#2563eb] pl-[0.6rem] mb-[0.65rem]">
+              {epps.length > 0 ? '4' : '3'}. Evidencia Fotográfica
+            </div>
+            <div className="flex gap-[1rem] justify-center">
+              {fotos.map((foto, index) => (
+                <div key={index} className="flex-[1] max-w-[200px] aspect-square rounded-[8px] overflow-hidden border-[1px_solid_#cbd5e1]">
+                  <img src={foto} alt={`Evidencia \${index + 1}`} className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Firmas */}
         <div className="ats-pdf-section ats-pdf-section-compact avoid-break mt-[0.75rem]">
           <div className="text-[9pt] font-[900] uppercase text-[#0f172a] border-left-[4px_solid_#2563eb] pl-[0.6rem] mb-[0.75rem]">
-            3. Firmas y autorizaciones
+            {epps.length > 0 ? (fotos.length > 0 ? '5' : '4') : (fotos.length > 0 ? '4' : '3')}. Firmas y autorizaciones
           </div>
           <PdfSignatures
             data={data}
@@ -450,6 +504,6 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
 
         <PdfBrandingFooter />
       </div>
-    </div>);
-
+    </div>
+  );
 }
