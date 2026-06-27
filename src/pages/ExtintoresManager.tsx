@@ -758,7 +758,7 @@ export default function ExtintoresManager() {
 
             {showCalendar && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="card w-full max-w-4xl bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-2xl flex flex-col max-h-[90vh] animate-fade-in">
+                    <div className="w-full max-w-4xl bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-2xl flex flex-col max-h-[90vh] animate-fade-in border border-slate-200 dark:border-slate-700">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-black text-slate-800 dark:text-slate-100 flex items-center gap-2"><CalendarDays size={24} className="text-amber-500" /> Vencimientos Próximos</h2>
                             <button onClick={() => setShowCalendar(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors border-none cursor-pointer">✕</button>
@@ -822,7 +822,7 @@ export default function ExtintoresManager() {
             )}
             {showHistoryModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="card w-full max-w-3xl bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-2xl flex flex-col max-h-[90vh] animate-fade-in">
+                    <div className="w-full max-w-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl flex flex-col max-h-[90vh] animate-fade-in">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-black text-slate-800 dark:text-slate-100 flex items-center gap-2"><History size={24} className="text-blue-500" /> Historial de Inspecciones</h2>
                             <button onClick={() => setShowHistoryModal(null)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors border-none cursor-pointer">✕</button>
@@ -931,7 +931,7 @@ export default function ExtintoresManager() {
                                 <div className="flex items-center gap-4">
                                     <label className="p-[0.8rem_1.5rem] bg-[rgba(37,99,235,0.1)] text-blue-600 dark:text-blue-400 border-[1px_dashed_rgba(37,99,235,0.3)] rounded-[12px] cursor-pointer flex items-center gap-[0.5rem] font-[800]">
                                         <Camera size={20} /> Subir Foto
-                                        <input type="file" accept="image/*" onChange={(e) => handlePhotoUpload(e.target.files)} className="none" />
+                                        <input type="file" accept="image/*" onChange={(e) => handlePhotoUpload(e.target.files)} className="hidden" />
                                     </label>
                                     {formData.foto &&
                 <div className="relative w-[60px] h-[60px] rounded-[8px] overflow-[hidden] border-[2px_solid_var(--color-border)]">
@@ -1220,7 +1220,7 @@ export default function ExtintoresManager() {
                         }
                     }
                 `}</style>
-                <div className="card animate-fade-in w-[100%] max-w-[400px] bg-white rounded-2xl p-0 overflow-hidden relative shadow-2xl flex flex-col">
+                <div className="animate-fade-in w-[100%] max-w-[400px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-0 overflow-hidden relative shadow-2xl flex flex-col">
                     
                     {/* The Printable A6 Template Area */}
                     <div id="printable-qr-label" className="p-8 flex flex-col items-center bg-white border-b-2 border-dashed border-slate-200">
