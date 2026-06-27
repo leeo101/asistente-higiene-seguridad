@@ -330,7 +330,7 @@ export default function ExtinguisherAI() {
                         <p className="text-[0.9rem] text-[var(--color-text-muted)]">Esta acción no se puede deshacer.</p>
                         <div className="flex gap-[1rem] mt-[1.5rem]">
                             <button onClick={() => setDeleteTarget(null)} className="flex-[1] p-[0.8rem] rounded-[12px] bg-[var(--color-background)] border-none cursor-pointer font-[700]">Cancelar</button>
-                            <button onClick={confirmDelete} className="flex-[1] p-[0.8rem] rounded-[12px] bg-[#ef4444] text-[white] border-none cursor-pointer font-[700]">Eliminar</button>
+                            <button onClick={confirmDelete} className="flex-[1] p-[0.8rem] rounded-[12px] bg-red-500 hover:bg-red-600 text-[white] border-none cursor-pointer font-[700]">Eliminar</button>
                         </div>
                     </div>
                 </div>
@@ -366,7 +366,7 @@ export default function ExtinguisherAI() {
                             <></>
                         </div>
                         <button
-            onClick={() => setIsCameraVisible(true)} className="flex-[0_1_auto] p-[0.8rem_1.5rem] rounded-[12px] bg-[#36B37E] text-[#fff] border-none font-[800] text-[0.95rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(54,179,126,0.3)] white-space-[nowrap]">
+            onClick={() => setIsCameraVisible(true)} className="flex-[0_1_auto] p-[0.8rem_1.5rem] rounded-[12px] bg-emerald-500 hover:bg-emerald-600 text-[#fff] border-none font-[800] text-[0.95rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(54,179,126,0.3)] white-space-[nowrap]">
 
             
                             <Plus size={20} /> Nueva Inspección
@@ -510,7 +510,7 @@ export default function ExtinguisherAI() {
                 setSignature(null);
                 setInspectorName('');
               }}
-              className="btn-floating-action bg-[#36B37E] text-[#ffffff]">
+              className="btn-floating-action bg-emerald-500 hover:bg-emerald-600 text-[#ffffff]">
               
                                 <CheckCircle size={18} /> GUARDAR
                             </button>
@@ -615,7 +615,7 @@ export default function ExtinguisherAI() {
               <div className="relative">
                         <img
                   src={capturedImage}
-                  alt="Extintor capturado" className="w-[100%] max-height-[300px] object-fit-[contain] block bg-[#f1f5f9]" />
+                  alt="Extintor capturado" className="w-[100%] max-height-[300px] object-fit-[contain] block bg-slate-100 dark:bg-slate-800/50" />
 
 
 
@@ -681,7 +681,7 @@ export default function ExtinguisherAI() {
                 border: `2px solid ${extintorData?.color || 'var(--color-border)'}`
               }} className="p-[1rem] rounded-[12px]">
                         <div className="flex items-start gap-[0.8rem]">
-                            <div className="text-[2.5rem] bg-[#ffffff] p-[0.8rem] rounded-[12px] box-shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+                            <div className="text-[2.5rem] bg-white dark:bg-slate-800 p-[0.8rem] rounded-[12px] box-shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
 
 
 

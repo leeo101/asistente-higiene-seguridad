@@ -66,7 +66,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
             <div className="overflow-x-[visible]">
                 <div
           id="pdf-content"
-          className="pdf-container card print-area p-[15mm] bg-[#ffffff] text-[#000000] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box]"
+          className="pdf-container card print-area p-[15mm] bg-white dark:bg-slate-800 text-[#000000] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box]"
           ref={componentRef}
           style={{
             width: isLandscape ? '297mm' : '210mm'
@@ -117,13 +117,13 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                     {/* Header */}
                     <div className="border-bottom-[3px_solid_#1e293b] pb-[10px] mb-[20px] flex justify-space-between items-end">
                         <div>
-                            <h1 className="m-[0_0_5px_0] text-[18pt] text-[#1e293b] font-[900] uppercase">
+                            <h1 className="m-[0_0_5px_0] text-[18pt] text-slate-800 dark:text-slate-200 font-[900] uppercase">
                                 Planilla de Control de Extintores
                             </h1>
-                            <p className="m-[0] text-[10pt] text-[#475569] flex items-center gap-[1rem]">
+                            <p className="m-[0] text-[10pt] text-slate-600 dark:text-slate-400 flex items-center gap-[1rem]">
                                 <span><Calendar size={14} className="display-[inline] vertical-align-[middle]" /> Fecha: {new Date().toLocaleDateString('es-AR')}</span>
                                 <span><Flame size={14} className="display-[inline] vertical-align-[middle]" /> Equipos: {stats.total}</span>
-                                {stats.vencidos > 0 && <span className="text-[#dc2626] font-[bold]">({stats.vencidos} Vencidos)</span>}
+                                {stats.vencidos > 0 && <span className="text-red-600 dark:text-red-400 font-[bold]">({stats.vencidos} Vencidos)</span>}
                             </p>
                         </div>
                         <CompanyLogo className="h-[45px] w-[auto] object-fit-[contain] max-w-[140px]" />
@@ -173,7 +173,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                         {chunks.map((chunk, chunkIdx) =>
                     <div key={`${empresa}-chunk-${chunkIdx}`} className="mb-[20px] page-break-inside-[auto]">
                                                 {/* Company Header */}
-                                                <div className="bg-[#f8fafc] text-[#0f172a] p-[10px_15px] rounded-[8px] flex items-center gap-[10px] border-[2px_solid_#cbd5e1] mb-[15px]">
+                                                <div className="bg-slate-50 dark:bg-slate-800/50 text-[#0f172a] p-[10px_15px] rounded-[8px] flex items-center gap-[10px] border-[2px_solid_#cbd5e1] mb-[15px]">
 
 
 
@@ -182,7 +182,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                         🏢 {empresa} {chunkIdx > 0 ? '(Continuación)' : ''}
                                                     </span>
                                                     {chunkIdx === 0 &&
-                        <span className="text-[9pt] bg-[#e2e8f0] text-[#334155] p-[2px_8px] rounded-[12px] font-[700]">
+                        <span className="text-[9pt] bg-[#e2e8f0] text-slate-700 dark:text-slate-300 p-[2px_8px] rounded-[12px] font-[700]">
                                                             {group.length} extintores
                                                         </span>
                         }
@@ -191,14 +191,14 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                 {/* Compact Table */}
                                                 <table className="table-layout-[fixed] word-break-[break-word] overflow-wrap-[break-word] w-[100%] border-collapse-[collapse] text-[9pt] mt-[5px]">
                                                     <thead>
-                                                        <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] bg-[#f1f5f9] border-bottom-[2px_solid_#cbd5e1]">
-                                                            <th className="p-[8px] text-center font-[900] text-[#1e293b] w-[10%]">Nº / CHAPA</th>
-                                                            <th className="p-[8px] text-left font-[900] text-[#1e293b]">TIPO / CAP.</th>
-                                                            <th className="p-[8px] text-left font-[900] text-[#1e293b]">F. FABRICACIÓN</th>
-                                                            <th className="p-[8px] text-left font-[900] text-[#1e293b]">UBICACIÓN</th>
-                                                            <th className="p-[8px] text-left font-[900] text-[#1e293b]">VENC. CARGA</th>
-                                                            <th className="p-[8px] text-left font-[900] text-[#1e293b]">VENC. PH</th>
-                                                            <th className="p-[8px] text-left font-[900] text-[#1e293b]">ÚLTIMA INSP.</th>
+                                                        <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] bg-slate-100 dark:bg-slate-800/50 border-bottom-[2px_solid_#cbd5e1]">
+                                                            <th className="p-[8px] text-center font-[900] text-slate-800 dark:text-slate-200 w-[10%]">Nº / CHAPA</th>
+                                                            <th className="p-[8px] text-left font-[900] text-slate-800 dark:text-slate-200">TIPO / CAP.</th>
+                                                            <th className="p-[8px] text-left font-[900] text-slate-800 dark:text-slate-200">F. FABRICACIÓN</th>
+                                                            <th className="p-[8px] text-left font-[900] text-slate-800 dark:text-slate-200">UBICACIÓN</th>
+                                                            <th className="p-[8px] text-left font-[900] text-slate-800 dark:text-slate-200">VENC. CARGA</th>
+                                                            <th className="p-[8px] text-left font-[900] text-slate-800 dark:text-slate-200">VENC. PH</th>
+                                                            <th className="p-[8px] text-left font-[900] text-slate-800 dark:text-slate-200">ÚLTIMA INSP.</th>
                                                         </tr>
                                                     </thead>
                                                     {chunk.map((ext: any, idx: number) => {
@@ -239,21 +239,21 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                                             <div className="text-[7pt] text-[#94a3b8] mb-[2px]">{globalIdx + 1}</div>
                                                                             <div>{ext?.numero || ext?.chapa || '-'}</div>
                                                                         </td>
-                                                                        <td className="p-[8px] text-[#334155] font-[600]">{formatType(ext?.tipo)} {ext?.capacidad ? `- ${ext.capacidad}` : ''}</td>
-                                                                        <td style={{ backgroundColor: fFabBg }} className="p-[8px] text-[#475569] webkit-print-color-adjust-[exact] print-color-adjust-[exact]">
+                                                                        <td className="p-[8px] text-slate-700 dark:text-slate-300 font-[600]">{formatType(ext?.tipo)} {ext?.capacidad ? `- ${ext.capacidad}` : ''}</td>
+                                                                        <td style={{ backgroundColor: fFabBg }} className="p-[8px] text-slate-600 dark:text-slate-400 webkit-print-color-adjust-[exact] print-color-adjust-[exact]">
                                                                             <div className="flex flex-col gap-[2px] text-[8pt]">
                                                                                 <span>Fab: <span className="font-[600]">{fabInfo.base}</span></span>
                                                                                 <span className={fabInfo.expired ? 'text-vencido' : ''} style={{ color: fFabColor, fontWeight: fabInfo.expired ? 800 : 600 }}>Vto: {fabInfo.vto}</span>
                                                                             </div>
                                                                         </td>
-                                                                        <td className="p-[8px] text-[#475569]">{ext?.ubicacion || 'Sin ubicación'}</td>
-                                                                        <td style={{ backgroundColor: cargaBg }} className="p-[8px] text-[#475569] webkit-print-color-adjust-[exact] print-color-adjust-[exact]">
+                                                                        <td className="p-[8px] text-slate-600 dark:text-slate-400">{ext?.ubicacion || 'Sin ubicación'}</td>
+                                                                        <td style={{ backgroundColor: cargaBg }} className="p-[8px] text-slate-600 dark:text-slate-400 webkit-print-color-adjust-[exact] print-color-adjust-[exact]">
                                                                             <div className="flex flex-col gap-[2px] text-[8pt]">
                                                                                 <span>Carga: <span className="font-[600]">{sCarga.base}</span></span>
                                                                                 <span className={sCarga.text === 'Vencido' ? 'text-vencido' : ''} style={{ color: cargaColor, fontWeight: sCarga.text === 'Vencido' ? 800 : 600 }}>Vto: {sCarga.vto}</span>
                                                                             </div>
                                                                         </td>
-                                                                        <td style={{ backgroundColor: phBg }} className="p-[8px] text-[#475569] webkit-print-color-adjust-[exact] print-color-adjust-[exact]">
+                                                                        <td style={{ backgroundColor: phBg }} className="p-[8px] text-slate-600 dark:text-slate-400 webkit-print-color-adjust-[exact] print-color-adjust-[exact]">
                                                                             <div className="flex flex-col gap-[2px] text-[8pt]">
                                                                                 <span>PH: <span className="font-[600]">{sPH.base}</span></span>
                                                                                 <span className={sPH.text === 'Vencido' ? 'text-vencido' : ''} style={{ color: phColor, fontWeight: sPH.text === 'Vencido' ? 800 : 600 }}>Vto: {sPH.vto}</span>
@@ -262,7 +262,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                                         <td className="p-[8px]">
                                                                             {lastInspection ?
                                   <div className="flex flex-col gap-[2px]">
-                                                                                    <span className="font-[800] text-[#1e293b] webkit-print-color-adjust-[exact] print-color-adjust-[exact]">
+                                                                                    <span className="font-[800] text-slate-800 dark:text-slate-200 webkit-print-color-adjust-[exact] print-color-adjust-[exact]">
                                                                                         {new Date(lastInspection.fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')} - Res: <span className="inline-block w-[30px] border-bottom-[1px_solid_#1e293b] vertical-align-[bottom] relative top-[-1px]"></span>
                                                                                     </span>
                                                                                 </div> :
@@ -273,7 +273,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                                     </tr>
                                                                     <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] border-bottom-[2px_solid_#cbd5e1] h-[auto]" style={{ background: rowBg }}>
                                                                         <td colSpan={7} className="p-[0_8px_6px_8px] h-[1px]">
-                                                                            <div style={{ border: hasObs ? '1px dashed #dc2626' : '1px dashed #94a3b8', color: hasObs ? '#dc2626' : '#334155' }} className="rounded-[4px] p-[4px_6px] text-[7.5pt] bg-[#ffffff] webkit-print-color-adjust-[exact] print-color-adjust-[exact] min-h-[20px] h-[100%]">
+                                                                            <div style={{ border: hasObs ? '1px dashed #dc2626' : '1px dashed #94a3b8', color: hasObs ? '#dc2626' : '#334155' }} className="rounded-[4px] p-[4px_6px] text-[7.5pt] bg-white dark:bg-slate-800 webkit-print-color-adjust-[exact] print-color-adjust-[exact] min-h-[20px] h-[100%]">
                                                                                 <strong className="text-[#0f172a]">Observación:</strong> <span style={{ color: hasObs ? '#dc2626' : 'inherit', WebkitTextFillColor: hasObs ? '#dc2626' : 'inherit' }} className="font-[700]">{hasObs ? lastInspection.observacion : ''}</span>
                                                                             </div>
                                                                         </td>

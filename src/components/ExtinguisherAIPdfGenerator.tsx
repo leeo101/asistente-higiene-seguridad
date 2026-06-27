@@ -59,7 +59,7 @@ export default function ExtinguisherAIPdfGenerator({ item }: {item: any;}): Reac
     <div className="w-[100%] flex justify-center">
             <div
         id="pdf-content"
-        className="pdf-container card print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[15mm_20mm] bg-[#ffffff] text-[#000000] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box] m-[0_auto] font-family-[system-ui,_-apple-system,_sans-serif]">
+        className="pdf-container card print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[15mm_20mm] bg-white dark:bg-slate-800 text-[#000000] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box] m-[0_auto] font-family-[system-ui,_-apple-system,_sans-serif]">
 
 
 
@@ -119,14 +119,14 @@ export default function ExtinguisherAIPdfGenerator({ item }: {item: any;}): Reac
                     </div>
                     
                     <div className="ml-[20px] flex-shrink-[0]">
-                        <CompanyLogo className="h-[50px] max-w-[150px] bg-[#ffffff] p-[8px] rounded-[8px]" />
+                        <CompanyLogo className="h-[50px] max-w-[150px] bg-white dark:bg-slate-800 p-[8px] rounded-[8px]" />
                     </div>
                 </div>
 
                 <div className="grid-2-cols gap-[1.5rem] grid grid-template-columns-[1fr_1fr] mb-[1.5rem]">
                     {/* Columna Izquierda: Foto */}
                     <div className="flex flex-col gap-[1rem]">
-                        <div className="bg-[#f8fafc] border-[2px_dashed_#cbd5e1] rounded-[12px] p-[0.5rem] flex items-center justify-center min-h-[300px]">
+                        <div className="bg-slate-50 dark:bg-slate-800/50 border-[2px_dashed_#cbd5e1] rounded-[12px] p-[0.5rem] flex items-center justify-center min-h-[300px]">
 
 
 
@@ -158,11 +158,11 @@ export default function ExtinguisherAIPdfGenerator({ item }: {item: any;}): Reac
                             <div className="text-[8pt] text-[#64748b] font-[800] uppercase mb-[8px]">Tipo Identificado</div>
                             <div className="flex items-center gap-[0.5rem] mb-[4px]">
                                 <span className="text-[18pt]">{info.icon}</span>
-                                <div className="text-[14pt] font-[900] text-[#1e293b]">{info.name}</div>
+                                <div className="text-[14pt] font-[900] text-slate-800 dark:text-slate-200">{info.name}</div>
                             </div>
-                            <div className="text-[9pt] text-[#475569] font-[600]">Clases: {info.fires}</div>
+                            <div className="text-[9pt] text-slate-600 dark:text-slate-400 font-[600]">Clases: {info.fires}</div>
                             {item.capacity &&
-              <div className="flex items-center gap-[0.3rem] text-[9pt] text-[#475569] font-[600] mt-[8px]">
+              <div className="flex items-center gap-[0.3rem] text-[9pt] text-slate-600 dark:text-slate-400 font-[600] mt-[8px]">
                                     <Package size={14} color="#94a3b8" /> Capacidad Estimada: {item.capacity}
                                 </div>
               }
@@ -183,10 +183,10 @@ export default function ExtinguisherAIPdfGenerator({ item }: {item: any;}): Reac
                                 </div>
                             </div>
                             {item.lastCheck &&
-              <div className="text-[8.5pt] text-[#475569] mt-[4px]"><strong>Último control:</strong> {new Date(item.lastCheck).toLocaleDateString('es-AR')}</div>
+              <div className="text-[8.5pt] text-slate-600 dark:text-slate-400 mt-[4px]"><strong>Último control:</strong> {new Date(item.lastCheck).toLocaleDateString('es-AR')}</div>
               }
                             {item.nextCheck &&
-              <div className="text-[8.5pt] text-[#475569] mt-[4px]"><strong>Próximo control:</strong> {new Date(item.nextCheck).toLocaleDateString('es-AR')}</div>
+              <div className="text-[8.5pt] text-slate-600 dark:text-slate-400 mt-[4px]"><strong>Próximo control:</strong> {new Date(item.nextCheck).toLocaleDateString('es-AR')}</div>
               }
                             {item.phDate &&
               <div className="text-[8.5pt] text-[#3b82f6] mt-[4px]"><strong>Vencimiento P.H.:</strong> {new Date(item.phDate).toLocaleDateString('es-AR')}</div>
@@ -195,7 +195,7 @@ export default function ExtinguisherAIPdfGenerator({ item }: {item: any;}): Reac
 
                         {/* Recomendaciones */}
                         {item.recommendations && item.recommendations.length > 0 &&
-            <div className="bg-[#eff6ff] border-[1px_solid_#bfdbfe] rounded-[10px] p-[1rem]">
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-[10px] p-[1rem]">
 
 
 
@@ -232,7 +232,7 @@ export default function ExtinguisherAIPdfGenerator({ item }: {item: any;}): Reac
 
             <div className="h-[80px] border-bottom-[1px_solid_#cbd5e1] mb-[0.5rem]"></div>
             }
-                            <div className="text-[9pt] font-[800] text-[#334155] uppercase">
+                            <div className="text-[9pt] font-[800] text-slate-700 dark:text-slate-300 uppercase">
                                 {item.inspectorName || 'Inspector'}
                             </div>
                             <div className="text-[8pt] text-[#64748b]">Firma del Inspector</div>

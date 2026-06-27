@@ -597,9 +597,9 @@ export default function ExtintoresManager() {
                         <button onClick={() => navigate(`/extintores/inspect/${item.id}`)} style={{ background: inspBg, border: `1px solid ${inspBorder}`, color: inspColor }} title="Inspeccionar" className="p-[0.4rem] rounded-[8px] cursor-pointer flex items-center gap-[0.3rem] font-[800] text-[0.75rem]">
                             <ShieldCheck size={15} /> INSP
                         </button>
-                        <button onClick={() => handleEdit(item)} title="Editar" className="p-[0.4rem] bg-[rgba(37,99,235,0.08)] border-[1px_solid_rgba(37,99,235,0.2)] rounded-[8px] text-[#2563eb] cursor-pointer"><Edit3 size={15} /></button>
+                        <button onClick={() => handleEdit(item)} title="Editar" className="p-[0.4rem] bg-[rgba(37,99,235,0.08)] border-[1px_solid_rgba(37,99,235,0.2)] rounded-[8px] text-blue-600 dark:text-blue-400 cursor-pointer"><Edit3 size={15} /></button>
                         <button onClick={() => requirePro(() => generateQR(item))} title="QR" className="p-[0.4rem] bg-[rgba(139,92,246,0.08)] border-[1px_solid_rgba(139,92,246,0.2)] rounded-[8px] text-[#8b5cf6] cursor-pointer"><QrCode size={15} /></button>
-                        <button onClick={() => requirePro(() => setShareItem(item))} title="Compartir" className="p-[0.4rem] bg-[rgba(22,163,74,0.08)] border-[1px_solid_rgba(22,163,74,0.2)] rounded-[8px] text-[#16a34a] cursor-pointer"><Share2 size={15} /></button>
+                        <button onClick={() => requirePro(() => setShareItem(item))} title="Compartir" className="p-[0.4rem] bg-[rgba(22,163,74,0.08)] border-[1px_solid_rgba(22,163,74,0.2)] rounded-[8px] text-green-600 dark:text-green-400 cursor-pointer"><Share2 size={15} /></button>
                         <button onClick={() => handleDelete(item.id)} title="Eliminar" className="p-[0.4rem] bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[8px] text-[#ef4444] cursor-pointer"><Trash2 size={15} /></button>
                     </div>);
 
@@ -672,11 +672,11 @@ export default function ExtintoresManager() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                             {/* Operador */}
                             <div style={{ background: globalShowSignatures.operator ? '#f8fafc' : '#f1f5f9', border: globalShowSignatures.operator ? '2px solid #cbd5e1' : '1px solid #e2e8f0', opacity: globalShowSignatures.operator ? 1 : 0.6 }} className="flex flex-col gap-[0.5rem] p-[1rem] rounded-[10px] transition-[all_0.2s]">
-                                <label className="flex items-center gap-[0.4rem] cursor-pointer text-[#334155] font-[700] text-[0.9rem] border-bottom-[1px_solid_#e2e8f0] pb-[0.4rem]">
+                                <label className="flex items-center gap-[0.4rem] cursor-pointer text-slate-700 dark:text-slate-300 font-[700] text-[0.9rem] border-bottom-[1px_solid_#e2e8f0] pb-[0.4rem]">
                                     <input type="checkbox" checked={globalShowSignatures.operator} onChange={(e) => setGlobalShowSignatures((prev) => ({ ...prev, operator: e.target.checked }))} className="w-[16px] h-[16px] cursor-pointer" />
                                     Operador / Responsable
                                 </label>
-                                <div style={{ pointerEvents: globalShowSignatures.operator ? 'auto' : 'none' }} className="bg-[#fff] rounded-[8px] border-none flex flex-col">
+                                <div style={{ pointerEvents: globalShowSignatures.operator ? 'auto' : 'none' }} className="bg-white dark:bg-slate-800 rounded-[8px] border-none flex flex-col">
                                     <SignatureCanvas
                   title=""
                   height={100}
@@ -692,24 +692,24 @@ export default function ExtintoresManager() {
                                     <input type="checkbox" checked={globalShowSignatures.professional} onChange={(e) => setGlobalShowSignatures((prev) => ({ ...prev, professional: e.target.checked }))} className="w-[16px] h-[16px] cursor-pointer" />
                                     Profesional Actuante
                                 </label>
-                                <div className="flex flex-col items-center justify-center flex-[1] min-h-[150px] bg-[#fff] border-[2px_dashed_var(--color-border)] rounded-[12px] p-[0.5rem] text-center">
+                                <div className="flex flex-col items-center justify-center flex-[1] min-h-[150px] bg-white dark:bg-slate-800 border-[2px_dashed_var(--color-border)] rounded-[12px] p-[0.5rem] text-center">
                                     {professionalData?.signature ?
                 <img src={professionalData.signature} alt="Firma Profesional" className="max-height-[65px] object-fit-[contain] mb-[0.4rem]" /> :
 
                 <span className="text-[#94a3b8] font-style-[italic] mb-[0.4rem] text-[0.8rem]">Sin firma</span>
                 }
-                                    <p className="m-[0] font-[800] text-[#334155] text-[0.85rem]">{professionalData?.name || 'No configurado'}</p>
+                                    <p className="m-[0] font-[800] text-slate-700 dark:text-slate-300 text-[0.85rem]">{professionalData?.name || 'No configurado'}</p>
                                     <p className="m-[0] font-[600] text-[#64748b] text-[0.75rem]">{professionalData?.license ? `Mat. ${professionalData.license}` : 'Sin matrícula'}</p>
                                 </div>
                             </div>
 
                             {/* Supervisor */}
                             <div style={{ background: globalShowSignatures.supervisor ? '#f8fafc' : '#f1f5f9', border: globalShowSignatures.supervisor ? '2px solid #cbd5e1' : '1px solid #e2e8f0', opacity: globalShowSignatures.supervisor ? 1 : 0.6 }} className="flex flex-col gap-[0.5rem] p-[1rem] rounded-[10px] transition-[all_0.2s]">
-                                <label className="flex items-center gap-[0.4rem] cursor-pointer text-[#334155] font-[700] text-[0.9rem] border-bottom-[1px_solid_#e2e8f0] pb-[0.4rem]">
+                                <label className="flex items-center gap-[0.4rem] cursor-pointer text-slate-700 dark:text-slate-300 font-[700] text-[0.9rem] border-bottom-[1px_solid_#e2e8f0] pb-[0.4rem]">
                                     <input type="checkbox" checked={globalShowSignatures.supervisor} onChange={(e) => setGlobalShowSignatures((prev) => ({ ...prev, supervisor: e.target.checked }))} className="w-[16px] h-[16px] cursor-pointer" />
                                     Supervisión / Cierre
                                 </label>
-                                <div style={{ pointerEvents: globalShowSignatures.supervisor ? 'auto' : 'none' }} className="bg-[#fff] rounded-[8px] border-none flex flex-col">
+                                <div style={{ pointerEvents: globalShowSignatures.supervisor ? 'auto' : 'none' }} className="bg-white dark:bg-slate-800 rounded-[8px] border-none flex flex-col">
                                     <SignatureCanvas
                   title=""
                   height={100}
@@ -929,14 +929,14 @@ export default function ExtintoresManager() {
                             <div className="grid-column-[1_/_-1]">
                                 <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">FOTO DEL EQUIPO (OPCIONAL)</label>
                                 <div className="flex items-center gap-4">
-                                    <label className="p-[0.8rem_1.5rem] bg-[rgba(37,99,235,0.1)] text-[#2563eb] border-[1px_dashed_rgba(37,99,235,0.3)] rounded-[12px] cursor-pointer flex items-center gap-[0.5rem] font-[800]">
+                                    <label className="p-[0.8rem_1.5rem] bg-[rgba(37,99,235,0.1)] text-blue-600 dark:text-blue-400 border-[1px_dashed_rgba(37,99,235,0.3)] rounded-[12px] cursor-pointer flex items-center gap-[0.5rem] font-[800]">
                                         <Camera size={20} /> Subir Foto
                                         <input type="file" accept="image/*" onChange={(e) => handlePhotoUpload(e.target.files)} className="none" />
                                     </label>
                                     {formData.foto &&
                 <div className="relative w-[60px] h-[60px] rounded-[8px] overflow-[hidden] border-[2px_solid_var(--color-border)]">
                                             <img src={formData.foto} alt="Extintor" className="w-[100%] h-[100%] object-fit-[cover]" />
-                                            <button type="button" onClick={() => setFormData({ ...formData, foto: null })} className="absolute top-[0] right-[0] bg-[#ef4444] text-[#fff] border-none w-[20px] h-[20px] text-[10px] flex items-center justify-center cursor-pointer">✕</button>
+                                            <button type="button" onClick={() => setFormData({ ...formData, foto: null })} className="absolute top-[0] right-[0] bg-red-500 hover:bg-red-600 text-[#fff] border-none w-[20px] h-[20px] text-[10px] flex items-center justify-center cursor-pointer">✕</button>
                                         </div>
                 }
                                 </div>
@@ -1071,8 +1071,8 @@ export default function ExtintoresManager() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
 
-              onFocus={(e) => {e.currentTarget.style.border = '2px solid #3b82f6';e.currentTarget.style.backgroundColor = '#fff';e.currentTarget.style.boxShadow = '0 0 0 4px rgba(59,130,246,0.1)';}}
-              onBlur={(e) => {e.currentTarget.style.border = '2px solid transparent';e.currentTarget.style.backgroundColor = '#f8fafc';e.currentTarget.style.boxShadow = 'none';}} className="w-[100%] h-[100%] min-h-[3.5rem] p-[1rem_1rem_1rem_3.5rem] rounded-[16px] border-[2px_solid_transparent] bg-[#f8fafc] text-[1rem] outline-[none] transition-[all_0.3s_cubic-bezier(0.4,_0,_0.2,_1)] font-[500] text-[#334155]" />
+              onFocus={(e) => {e.currentTarget.style.border = '2px solid #3b82f6';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = '0 0 0 4px rgba(59,130,246,0.1)';}}
+              onBlur={(e) => {e.currentTarget.style.border = '2px solid transparent';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = 'none';}} className="w-[100%] h-[100%] min-h-[3.5rem] p-[1rem_1rem_1rem_3.5rem] rounded-[16px] border-[2px_solid_transparent] bg-slate-50 dark:bg-slate-800/50 text-[1rem] outline-[none] transition-[all_0.3s_cubic-bezier(0.4,_0,_0.2,_1)] font-[500] text-slate-700 dark:text-slate-300" />
             
                         </div>
                         <div className="flex-[1_1_250px] relative">
@@ -1080,8 +1080,8 @@ export default function ExtintoresManager() {
               value={filterEmpresa}
               onChange={(e) => setFilterEmpresa(e.target.value)}
               style={{ color: filterEmpresa ? '#334155' : '#94a3b8' }}
-              onFocus={(e) => {e.currentTarget.style.border = '2px solid #3b82f6';e.currentTarget.style.backgroundColor = '#fff';e.currentTarget.style.boxShadow = '0 0 0 4px rgba(59,130,246,0.1)';}}
-              onBlur={(e) => {e.currentTarget.style.border = '2px solid transparent';e.currentTarget.style.backgroundColor = '#f8fafc';e.currentTarget.style.boxShadow = 'none';}} className="w-[100%] h-[100%] min-h-[3.5rem] p-[1rem_2.5rem_1rem_1.2rem] rounded-[16px] border-[2px_solid_transparent] bg-[#f8fafc] text-[1rem] outline-[none] appearance-[none] cursor-pointer transition-[all_0.3s_cubic-bezier(0.4,_0,_0.2,_1)] font-[500]">
+              onFocus={(e) => {e.currentTarget.style.border = '2px solid #3b82f6';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = '0 0 0 4px rgba(59,130,246,0.1)';}}
+              onBlur={(e) => {e.currentTarget.style.border = '2px solid transparent';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = 'none';}} className="w-[100%] h-[100%] min-h-[3.5rem] p-[1rem_2.5rem_1rem_1.2rem] rounded-[16px] border-[2px_solid_transparent] bg-slate-50 dark:bg-slate-800/50 text-[1rem] outline-[none] appearance-[none] cursor-pointer transition-[all_0.3s_cubic-bezier(0.4,_0,_0.2,_1)] font-[500]">
               
                                 <option value="">🏢 Todas las Empresas</option>
                                 {uniqueEmpresas.map((emp) =>

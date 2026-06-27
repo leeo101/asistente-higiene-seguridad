@@ -145,7 +145,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
             <div className="flex-[1] flex justify-center">
                 <div
           id="pdf-content"
-          className="pdf-container card print-area w-[100%] max-w-[210mm] min-h-[297mm] flex flex-col bg-[#ffffff] text-[#000000] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box]"
+          className="pdf-container card print-area w-[100%] max-w-[210mm] min-h-[297mm] flex flex-col bg-white dark:bg-slate-800 text-[#000000] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box]"
           ref={componentRef}>
 
 
@@ -195,10 +195,10 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
 
                     <div className="border-bottom-[3px_solid_#1e293b] pb-[10px] mb-[15px] flex justify-space-between items-center">
                         <div>
-                            <h1 className="m-[0_0_5px_0] text-[18pt] text-[#1e293b] font-[900] uppercase">
+                            <h1 className="m-[0_0_5px_0] text-[18pt] text-slate-800 dark:text-slate-200 font-[900] uppercase">
                                 Ficha Técnica de Extintor
                             </h1>
-                            <p className="m-[0] text-[11pt] text-[#475569] font-[600]">
+                            <p className="m-[0] text-[11pt] text-slate-600 dark:text-slate-400 font-[600]">
                                 Documento de Trazabilidad e Inventario
                             </p>
                         </div>
@@ -217,14 +217,14 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                             {data.foto ?
               <img src={data.foto} alt="Extintor" className="w-[100%] h-[160px] object-fit-[cover] rounded-[8px] border-[2px_solid_#cbd5e1]" /> :
 
-              <div className="w-[100%] h-[160px] bg-[#f1f5f9] rounded-[8px] border-[2px_dashed_#cbd5e1] flex items-center justify-center">
+              <div className="w-[100%] h-[160px] bg-slate-100 dark:bg-slate-800/50 rounded-[8px] border-[2px_dashed_#cbd5e1] flex items-center justify-center">
                                     <Flame size={48} color="#94a3b8" />
                                 </div>
               }
                         </div>
 
                         <div className="flex-[1]">
-                            <div className="bg-[#f8fafc] border-[1px_solid_#e2e8f0] rounded-[8px] p-[10px]">
+                            <div className="bg-slate-50 dark:bg-slate-800/50 border-[1px_solid_#e2e8f0] rounded-[8px] p-[10px]">
                                 <h3 className="m-[0_0_10px_0] text-[12pt] text-[#0f172a] flex items-center gap-[8px] border-bottom-[1px_solid_#cbd5e1] pb-[6px]">
                                     <Hash size={18} color="#3b82f6" /> Identificación del Equipo
                                 </h3>
@@ -272,7 +272,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         
                         <table className="w-[100%] border-collapse-[collapse] text-[10pt] font-family-[sans-serif] table-layout-[fixed] word-break-[break-word] overflow-wrap-[break-word]">
                             <thead>
-                                <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] bg-[#f1f5f9]">
+                                <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] bg-slate-100 dark:bg-slate-800/50">
                                     <th className="border-[1px_solid_#cbd5e1] p-[6px] text-left w-[25%] font-[800]">Vencimiento Recarga</th>
                                     <th className="border-[1px_solid_#cbd5e1] p-[6px] text-left w-[25%] font-[800]">Vencimiento P.H. (5 Años)</th>
                                     <th className="border-[1px_solid_#cbd5e1] p-[6px] text-left w-[25%] font-[800]">Fecha Fabricación</th>
@@ -309,18 +309,18 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         </h3>
                         
                         {!latestInspection && !data.ultimaInspeccion ?
-            <div className="p-[15px] bg-[#f8fafc] border-[1px_solid_#e2e8f0] rounded-[8px] text-center text-[#64748b] font-style-[italic] flex items-center justify-center gap-[8px]">
+            <div className="p-[15px] bg-slate-50 dark:bg-slate-800/50 border-[1px_solid_#e2e8f0] rounded-[8px] text-center text-[#64748b] font-style-[italic] flex items-center justify-center gap-[8px]">
                                 <AlertTriangle size={18} color="#f59e0b" /> No hay registros de inspección para este equipo.
                             </div> :
             null}
 
                         {!latestInspection && data.ultimaInspeccion ?
-            <div className="p-[15px] bg-[#f8fafc] border-[1px_solid_#e2e8f0] rounded-[8px] flex justify-space-between items-center">
+            <div className="p-[15px] bg-slate-50 dark:bg-slate-800/50 border-[1px_solid_#e2e8f0] rounded-[8px] flex justify-space-between items-center">
                                  <div>
                                      <div className="text-[8pt] text-[#64748b] font-[700]">Fecha:</div>
                                      <div className="text-[10pt] font-[900] text-[#0f172a]">{new Date(data.ultimaInspeccion).toLocaleDateString('es-AR')}</div>
                                  </div>
-                                 <div className="bg-[#dcfce7] text-[#166534] p-[4px_8px] rounded-[999px] font-[800] text-[9pt] flex items-center gap-[4px]">
+                                 <div className="bg-green-100 dark:bg-green-900/30 text-[#166534] p-[4px_8px] rounded-[999px] font-[800] text-[9pt] flex items-center gap-[4px]">
                                      <ShieldCheck size={14} /> INSPECCIÓN OK
                                  </div>
                              </div> :
@@ -328,7 +328,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         <div className="mb-[10px]">
                         {latestInspection &&
               <div style={{ marginTop: data.ultimaInspeccion && !latestInspection ? '10px' : '0' }}>
-                            <div className="flex justify-space-between mb-[6px] text-[9pt] bg-[#f8fafc] p-[6px] rounded-[8px] border-[1px_solid_#e2e8f0]">
+                            <div className="flex justify-space-between mb-[6px] text-[9pt] bg-slate-50 dark:bg-slate-800/50 p-[6px] rounded-[8px] border-[1px_solid_#e2e8f0]">
                                 <div><strong className="text-[#64748b]">Fecha:</strong> <span className="font-[800]">{new Date(latestInspection.fecha).toLocaleDateString('es-AR')}</span></div>
                                 <div><strong className="text-[#64748b]">Inspector:</strong> <span className="font-[800]">{latestInspection.inspector || '-'}</span></div>
                                 <div><strong className="text-[#64748b]">Resultado de inspección:</strong> <span className="inline-block w-[100px] border-bottom-[1px_solid_#64748b] ml-[5px]"></span></div>
@@ -336,7 +336,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                             
                             <table className="w-[100%] border-collapse-[collapse] text-[9pt] font-family-[sans-serif] table-layout-[fixed] word-break-[break-word] overflow-wrap-[break-word]">
                                 <thead>
-                                    <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] bg-[#f1f5f9]">
+                                    <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] bg-slate-100 dark:bg-slate-800/50">
                                         <th className="border-[1px_solid_#cbd5e1] p-[4px] text-left w-[60%]">Ítem a Verificar</th>
                                         <th className="border-[1px_solid_#cbd5e1] p-[4px] text-center w-[15%]">Estado</th>
                                         <th className="border-[1px_solid_#cbd5e1] p-[4px] text-left w-[25%]">Observación</th>
@@ -345,7 +345,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                 <tbody>
                                     {latestInspection.items?.map((item, idx) =>
                     <tr key={idx} className="avoid-break page-break-inside-[avoid] break-inside-[avoid]" style={{ background: idx % 2 === 1 ? '#f8fafc' : '#ffffff' }}>
-                                            <td className="border-[1px_solid_#cbd5e1] p-[4px] text-[#334155] font-[600]">{item.text}</td>
+                                            <td className="border-[1px_solid_#cbd5e1] p-[4px] text-slate-700 dark:text-slate-300 font-[600]">{item.text}</td>
                                             <td style={{ color: item.status === 'OK' ? '#10b981' : item.status === 'NC' ? '#ef4444' : '#64748b' }} className="border-[1px_solid_#cbd5e1] p-[4px] text-center font-[900]">
                                                 {item.status || 'N/A'}
                                             </td>
@@ -383,7 +383,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                   <div className="flex gap-[15px] flex-wrap">
                                             {latestInspection.items.filter((i) => i.photos && i.photos.length > 0).map((item, idx) =>
                     <div key={`item-f-${idx}`} className="flex flex-col gap-[6px]">
-                                                    <span className="text-[8pt] font-[700] text-[#475569] max-w-[120px] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">{item.text}</span>
+                                                    <span className="text-[8pt] font-[700] text-slate-600 dark:text-slate-400 max-w-[120px] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">{item.text}</span>
                                                     <div className="flex gap-[5px]">
                                                         {item.photos.map((foto, pIdx) =>
                         <img key={`ip-${idx}-${pIdx}`} src={foto} alt="Evidencia Ítem" className="w-[60px] h-[60px] object-fit-[cover] rounded-[6px] border-[1px_solid_#cbd5e1]" />
