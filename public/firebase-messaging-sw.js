@@ -13,16 +13,24 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function(payload) {
-  console.log('[firebase-messaging-sw.js] Notificación Push recibida en background ', payload);
-  const notificationTitle = payload.notification?.title || 'Notificación H&S';
+  console.log('[firebase-messaging-sw.js] Push en background:', payload);
+
+  const notificationTitle = payload.notification?.title || '🔔 Asistente HYS';
   const notificationOptions = {
     body: payload.notification?.body || '',
     icon: '/favicon-180.png',
-    badge: '/favicon-32.png',
+    badge: '/favicon-180.png',
     tag: payload.data?.tag || 'hys-push',
+    vibrate: [200, 100, 200],
+    requireInteraction: false,
     data: {
-      url: payload.data?.url || '/'
-    }
+      url: payload.data?.url || '/',
+      FCM_MSG: payload
+    },
+    actions: [
+      { action: 'open', title: 'Abrir' },
+      { action: 'dismiss', title: 'Descartar' }
+    ]
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
@@ -30,19 +38,27 @@ messaging.onBackgroundMessage(function(payload) {
 
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
+
+  if (event.action === 'dismiss') return;
+
   const urlToOpen = new URL(event.notification.data?.url || '/', self.location.origin).href;
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      // Focus an existing window if already open
       for (let i = 0; i < windowClients.length; i++) {
         const client = windowClients[i];
-        if (client.url === urlToOpen && 'focus' in client) {
-          return client.focus();
+        if ('focus' in client) {
+          client.focus();
+          if ('navigate' in client) client.navigate(urlToOpen);
+          return;
         }
       }
+      // Otherwise open a new window
       if (clients.openWindow) {
         return clients.openWindow(urlToOpen);
       }
     })
   );
 });
+

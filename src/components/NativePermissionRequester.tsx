@@ -1,35 +1,46 @@
 import { useEffect } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Camera } from '@capacitor/camera';
-import { PushNotifications } from '@capacitor/push-notifications';
+import { requestAndSaveToken } from '../services/notificationService';
+import { useAuth } from '../contexts/AuthContext';
 
+/**
+ * Solicita permisos nativos (cámara + push) en Android/iOS al iniciar la app.
+ * También inicializa el registro FCM de push para el usuario logueado.
+ */
 export default function NativePermissionRequester() {
-    useEffect(() => {
-        const requestPermissions = async () => {
-            if (Capacitor.isNativePlatform()) {
-                try {
-                    // Solo pedir permiso si no fue otorgado previamente
-                    const cameraStatus = await Camera.checkPermissions();
-                    if (cameraStatus.camera === 'prompt' || cameraStatus.camera === 'denied') {
-                        // Capacitor handles showing the native permission prompt
-                        await Camera.requestPermissions();
-                    }
+    const { currentUser } = useAuth();
 
-                    // Request Push Notification permissions
-                    const pushStatus = await PushNotifications.checkPermissions();
-                    if (pushStatus.receive === 'prompt') {
-                        await PushNotifications.requestPermissions();
-                    }
-                } catch (error) {
-                    console.warn('Error requesting native permissions:', error);
+    useEffect(() => {
+        if (!Capacitor.isNativePlatform()) return;
+
+        const requestPermissions = async () => {
+            try {
+                // Camera permission
+                const cameraStatus = await Camera.checkPermissions();
+                if (cameraStatus.camera === 'prompt' || cameraStatus.camera === 'denied') {
+                    await Camera.requestPermissions();
                 }
+            } catch (error) {
+                console.warn('[NativePermissions] Error requesting camera permission:', error);
             }
         };
 
-        // Delay slighty so it doesn't block the very first render immediately
         const timer = setTimeout(requestPermissions, 1500);
         return () => clearTimeout(timer);
     }, []);
+
+    // Register push notifications when user is logged in
+    useEffect(() => {
+        if (!Capacitor.isNativePlatform()) return;
+        if (!currentUser?.uid) return;
+
+        const timer = setTimeout(() => {
+            requestAndSaveToken(currentUser.uid);
+        }, 2500);
+
+        return () => clearTimeout(timer);
+    }, [currentUser]);
 
     return null;
 }

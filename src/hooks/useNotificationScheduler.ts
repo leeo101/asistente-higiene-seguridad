@@ -1,9 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useExpiryNotifications } from './useExpiryNotifications';
 import {
     getPermissionStatus,
+    requestNotificationPermission,
     scheduleExpiryNotifications,
 } from '../services/notificationService';
+import { Capacitor } from '@capacitor/core';
 
 const LAST_CHECK_KEY = 'hys_notifs_last_check_date';
 
@@ -24,32 +26,45 @@ function markCheckedToday(): void {
  * Se conecta con useExpiryNotifications y envía alertas para los
  * items que vencen pronto (extintores, EPP, contratistas, trabajadores).
  *
- * Solo se ejecuta si el permiso está concedido y no se revisó hoy.
+ * En nativo (APK) siempre intenta — no bloquea por permiso en el check inicial
+ * ya que el permiso nativo es verificado de forma async.
  */
 export function useNotificationScheduler() {
     const { all } = useExpiryNotifications();
+    const hasRun = useRef(false);
 
     useEffect(() => {
-        // Solo actuar si hay permiso y no se revisó hoy
-        if (getPermissionStatus() !== 'granted') return;
-        if (alreadyCheckedToday()) return;
+        if (alreadyCheckedToday() && hasRun.current) return;
         if (!all || all.length === 0) return;
 
-        // Pequeña pausa para no disparar notificaciones al instante de cargar
+        // On web, check permission synchronously first
+        if (!Capacitor.isNativePlatform()) {
+            if (getPermissionStatus() !== 'granted') return;
+        }
+
         const timer = setTimeout(async () => {
             try {
+                // On native, permission check is async — request if needed
+                if (Capacitor.isNativePlatform()) {
+                    const perm = await requestNotificationPermission();
+                    if (perm !== 'granted') return;
+                }
+
                 const sent = await scheduleExpiryNotifications(all);
+                hasRun.current = true;
+                markCheckedToday();
+
                 if (sent > 0) {
-                    markCheckedToday();
-                    console.info(`[HYS Notifs] ${sent} notificación(es) enviadas`);
+                    console.info(`[HYS Notifs] ${sent} notificación(es) enviadas.`);
                 } else {
-                    markCheckedToday(); // No había pendientes pero ya revisamos
+                    console.info('[HYS Notifs] Sin vencimientos pendientes hoy.');
                 }
             } catch (e) {
                 console.warn('[HYS Notifs] Error al enviar notificaciones:', e);
             }
-        }, 3000); // 3 segundos después de cargar la app
+        }, 5000); // 5 segundos para que la app cargue completamente
 
         return () => clearTimeout(timer);
-    }, [all]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [all.length]);
 }

@@ -205,11 +205,14 @@ function GlobalPrintGuard() {
 }
 
 import { requestAndSaveToken } from './services/notificationService';
+import { Capacitor } from '@capacitor/core';
 
 function PushNotificationEnabler() {
   const { currentUser } = useAuth();
   
   useEffect(() => {
+    // Native push is handled by NativePermissionRequester with auth context
+    if (Capacitor.isNativePlatform()) return;
     if (currentUser?.uid) {
       requestAndSaveToken(currentUser.uid);
     }
