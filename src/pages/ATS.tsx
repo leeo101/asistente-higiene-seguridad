@@ -572,9 +572,10 @@ export default function ATS(): React.ReactElement | null {
               
                             </div>
                             {history.length > 0 &&
+                                <button onClick={handleExportCSV} className="flex-shrink-0 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white border-none rounded-xl px-5 py-3 text-sm font-bold cursor-pointer transition-colors shadow-sm">
                                     <Download size={20} /> Excel
                                 </button>
-            }
+                            }
                         </div>
 
                         <DataTable
