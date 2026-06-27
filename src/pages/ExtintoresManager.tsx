@@ -440,7 +440,7 @@ export default function ExtintoresManager() {
     accessor: 'index',
     width: '60px',
     render: (_: any, idx: number) =>
-    <div className="font-black text-slate-500 dark:text-slate-400 text-base text-center bg-slate-100 dark:bg-slate-800 py-1 px-2 rounded-lg">
+    <div className="font-black text-slate-700 dark:text-slate-200 text-base text-center bg-slate-100 dark:bg-slate-700 py-1 px-2 rounded-lg">
                     {idx + 1}
                 </div>
 
@@ -487,7 +487,7 @@ export default function ExtintoresManager() {
     sortable: true,
     render: (item: any) =>
     <div className="flex flex-col gap-0.5">
-                    <span className="py-1 px-2.5 bg-slate-100 dark:bg-slate-800 rounded-md text-xs font-bold w-fit">
+                    <span className="py-1 px-2.5 bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-md text-xs font-bold w-fit">
                         {formatType(item.tipo)} — {item.capacidad}
                     </span>
                     {item.fechaFabricacion &&
@@ -1159,7 +1159,7 @@ export default function ExtintoresManager() {
                                         }
                                     `}
                                 </style>
-                                <button onClick={() => requirePro(() => setShowGlobalSignatureModal(true))} className="action-btn-premium bg-[#475569] box-shadow-[0_4px_15px_rgba(71,_85,_105,_0.3)]">
+                                <button onClick={() => requirePro(() => setShowGlobalSignatureModal(true))} className="action-btn-premium bg-slate-600 dark:bg-slate-500 shadow-md">
                                     <Pencil size={16} /> FIRMAS PDF
                                 </button>
                                 <button onClick={() => requirePro(handlePrintPdf)} className="action-btn-premium btn-pdf">
