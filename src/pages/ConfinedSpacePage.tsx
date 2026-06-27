@@ -64,7 +64,7 @@ export default function ConfinedSpacePage(): React.ReactElement | null {
             {isMobile &&
         <div className="p-[0_1rem_1rem] flex gap-[0.75rem]">
                     <div className="flex-[1] relative">
-                        <Search size={18} color="var(--color-text-muted)" className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)]" />
+                        <Search size={18} color="var(--color-text-muted)" className="absolute left-4 top-1/2 -translate-y-1/2" />
                         <input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.75rem_1rem_0.75rem_2.5rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.95rem]" />
                     </div>
                     <button onClick={() => navigate('/confined-space/new')} className="btn-primary w-[auto] m-[0] p-[0_1rem] flex items-center justify-center"><Plus size={20} /></button>

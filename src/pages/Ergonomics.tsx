@@ -76,7 +76,7 @@ export default function Ergonomics(): React.ReactElement | null {
 
             {/* Search */}
             <div className="relative mb-8">
-                <Search size={20} className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)] text-[var(--color-text-muted)]" />
+                <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
           type="text"
           placeholder="Buscar por empresa, sector o puesto..."

@@ -144,12 +144,12 @@ export function DataTable<T extends Record<string, any>>({
 
       }} className="flex justify-space-between border-bottom-[1px_solid_var(--color-border)] gap-[1rem] bg-[rgba(255,_255,_255,_0.02)]">
         <div style={{ maxWidth: isMobile ? 'none' : '400px' }} className="relative flex-[1_1_auto]">
-          <Search size={18} color="var(--color-text-muted)" className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)]" />
+          <Search size={18} color="var(--color-text-muted)" className="absolute left-4 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder={searchPlaceholder}
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.7rem_1rem_0.7rem_2.8rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-border)] bg-[var(--color-background)] text-[var(--color-text)] text-[0.9rem] transition-[border-color_var(--transition-fast)]" />
+            onChange={(e) => setSearchTerm(e.target.value)} className="w-full py-2.5 pr-4 pl-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm" />
 
 
 

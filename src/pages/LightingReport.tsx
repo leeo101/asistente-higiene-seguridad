@@ -329,7 +329,7 @@ export default function LightingReport(): React.ReactElement | null {
 
                     <div className="flex justify-space-between gap-[1rem] mb-[2rem] flex-wrap p-[0_1rem]">
                         <div className="relative flex-[1_1_300px]">
-                            <Search size={20} className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)] text-[var(--color-text-muted)]" />
+                            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                             <input
                 type="text"
                 placeholder="Buscar por empresa o sector..."

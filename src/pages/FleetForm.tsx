@@ -267,7 +267,7 @@ export default function FleetForm(): React.ReactElement | null {
 
                     <div className="flex justify-between gap-4 mb-8 flex-wrap px-4">
                         <div className="relative flex-1 basis-[300px]">
-                            <Search size={20} className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)] text-[var(--color-text-muted)]" />
+                            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                             <input
                 type="text"
                 placeholder="Buscar por patente o conductor..."
