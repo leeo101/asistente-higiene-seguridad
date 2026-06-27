@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Bell, X, ArrowRight } from '@phosphor-icons/react';
 import { useExpiryNotifications } from '../hooks/useExpiryNotifications';
-import {
-  requestNotificationPermission,
-  getPermissionStatus,
-  sendTestNotification,
-} from '../services/notificationService';
+import { requestNotificationPermission, getPermissionStatus, sendTestNotification } from '../services/notificationService';
 import { useAuth } from '../contexts/AuthContext';
 import { Capacitor } from '@capacitor/core';
+import { useLocation } from 'react-router-dom';
 
 export default function HeaderNotifications() {
   const { currentUser } = useAuth();
+  const location = useLocation();
+  const isDashboard = location.pathname === '/';
   const { notifications, dismiss, dismissAll } = useExpiryNotifications();
   const [showAlerts, setShowAlerts] = useState(false);
   const [notifPermission, setNotifPermission] = useState<string>(() =>
@@ -52,9 +51,9 @@ export default function HeaderNotifications() {
       <button
         onClick={() => setShowAlerts((v) => !v)}
         style={{
-          background: hasAlerts ? 'rgba(255, 0, 0, 0.2)' : 'rgba(15, 23, 42, 0.05)',
-          border: hasAlerts ? '1px solid rgba(255, 0, 0, 0.7)' : '1px solid rgba(15, 23, 42, 0.1)',
-          color: hasAlerts ? '#ff4444' : '#64748b',
+          background: hasAlerts ? 'rgba(255, 0, 0, 0.2)' : (isDashboard ? 'rgba(255, 255, 255, 0.05)' : 'rgba(15, 23, 42, 0.05)'),
+          border: hasAlerts ? '1px solid rgba(255, 0, 0, 0.7)' : (isDashboard ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(15, 23, 42, 0.1)'),
+          color: hasAlerts ? '#ff4444' : (isDashboard ? 'rgba(255, 255, 255, 0.7)' : '#64748b'),
           boxShadow: hasAlerts ? '0 0 16px rgba(255, 0, 0, 0.5), inset 0 0 8px rgba(255, 0, 0, 0.2)' : 'none',
           animation: hasAlerts ? 'bell-shake 2s infinite cubic-bezier(.36,.07,.19,.97) both' : 'none'
         }}
