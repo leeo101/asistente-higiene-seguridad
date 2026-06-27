@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ClipboardCheck, Printer, Plus,
   Settings, TriangleAlert, Building2, Calendar,
   Check, ShieldCheck, Trash2, Edit3, X,
   Share2, Save, ArrowLeft, ArrowRight, Info, Pencil, Camera,
   Flame, Zap, Siren, Lightbulb, Activity, CheckCircle2,
-  Search, QrCode, Download, FileText, ClipboardList } from
-'lucide-react';
+  Search, QrCode, Download, FileText, ClipboardList,
+  HardHat, Ear, Eye as EyeIcon
+} from 'lucide-react';
 import { DataTable } from '../components/DataTable';
 import { downloadCSV } from '../services/exportCsv';
 import QRModal from '../components/QRModal';
@@ -446,9 +448,11 @@ export default function ChecklistManager(): React.ReactElement | null {
 
   const [activeSections, setActiveSections] = useState([]);
   const [observations, setObservations] = useState('');
+  const [epps, setEpps] = useState<string[]>([]);
+  const [fotos, setFotos] = useState<string[]>([]);
   const [showShare, setShowShare] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const nextStep = () => {if (currentStep < totalSteps) {setCurrentStep((c) => c + 1);window.scrollTo(0, 0);}};
   const prevStep = () => {if (currentStep > 1) {setCurrentStep((c) => c - 1);window.scrollTo(0, 0);}};
@@ -552,6 +556,8 @@ export default function ChecklistManager(): React.ReactElement | null {
         setObservations(parsed.observations || '');
         setActionPlan(parsed.actionPlan || []);
         setNextReview(parsed.nextReview || '');
+        setEpps(parsed.epps || []);
+        setFotos(parsed.fotos || []);
         setSelectedNorms(parsed.selectedNorms || []);
         if (parsed.showSignatures) setShowSignatures(parsed.showSignatures);
         setOperatorSignature(parsed.operatorSignature || '');
@@ -574,6 +580,8 @@ export default function ChecklistManager(): React.ReactElement | null {
       actionPlan,
       nextReview,
       selectedNorms,
+      epps,
+      fotos,
       showSignatures,
       operatorSignature,
       signature,
@@ -620,6 +628,8 @@ export default function ChecklistManager(): React.ReactElement | null {
     if (!searchParams.get('id')) {
       // Empezar en blanco sin ningún checklist seleccionado por defecto
       setActiveSections([]);
+      setEpps([]);
+      setFotos([]);
     }
   }, [searchParams]);
 
@@ -758,7 +768,7 @@ export default function ChecklistManager(): React.ReactElement | null {
       }
 
       // Limpiar prefijo "Checklist (de)"
-      title = title.replace(/^CHECKLIST\s*(DE\s*)?/i, '').trim();
+      title = title.replace(/^CHECKLISTs*(DEs*)?/i, '').trim();
 
       return (
         <div className="flex items-center gap-[0.8rem]">
@@ -831,6 +841,32 @@ export default function ChecklistManager(): React.ReactElement | null {
 
             {!showForm ?
       <>
+                    
+                    {/* KPIs */}
+                    <div className="no-print grid grid-cols-1 md:grid-cols-3 gap-[1rem] mb-[2rem]">
+                        <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
+                            <div className="bg-blue-100 text-blue-600 p-[1rem] rounded-[12px]"><ClipboardCheck size={28} /></div>
+                            <div>
+                                <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">Total Checklists</div>
+                                <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{history.length}</div>
+                            </div>
+                        </div>
+                        <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
+                            <div className="bg-red-100 text-red-600 p-[1rem] rounded-[12px]"><TriangleAlert size={28} /></div>
+                            <div>
+                                <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">Rechazados / NC</div>
+                                <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{history.filter(h => getChecklistStatus(h.id).label === 'Rechazado').length}</div>
+                            </div>
+                        </div>
+                        <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
+                            <div className="bg-green-100 text-green-600 p-[1rem] rounded-[12px]"><CheckCircle2 size={28} /></div>
+                            <div>
+                                <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">Última Semana</div>
+                                <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{history.filter(h => new Date(h.fecha) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap items-center">
                         <></>
                         <button
@@ -874,7 +910,7 @@ export default function ChecklistManager(): React.ReactElement | null {
 
                     {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} details={(qrTarget as any).details} onClose={() => setQrTarget(null)} />}
                     {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
-                    <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Checklist - ${(shareItem as any)?.equipo || ''}`} text={shareItem ? `📋 Checklist de Seguridad\n🔧 Equipo: ${(shareItem as any).equipo}\n🏗️ Empresa: ${(shareItem as any).empresa}\n📅 Fecha: ${new Date((shareItem as any).fecha).toLocaleDateString('es-AR')}` : ''} rawMessage={``} elementIdToPrint="pdf-content" fileName={`Checklist_${(shareItem as any)?.equipo || 'Reporte'}.pdf`} />
+                    <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Checklist - ${(shareItem as any)?.equipo || ''}`} text={shareItem ? `📋 Checklist de Seguridadn🔧 Equipo: ${(shareItem as any).equipo}n🏗️ Empresa: ${(shareItem as any).empresa}n📅 Fecha: ${new Date((shareItem as any).fecha).toLocaleDateString('es-AR')}` : ''} rawMessage={``} elementIdToPrint="pdf-content" fileName={`Checklist_${(shareItem as any)?.equipo || 'Reporte'}.pdf`} />
                     <div className="ats-pdf-offscreen">
                         {shareItem && <ChecklistPdfGenerator checklistData={{ ...shareItem, availableNorms }} isHeadless={true} />}
                     </div>
@@ -915,8 +951,8 @@ export default function ChecklistManager(): React.ReactElement | null {
           open={showShare}
           onClose={() => setShowShare(false)}
           title={`Checklist – ${companyInfo?.name || ''}`}
-          text={`📋 Checklist de Inspección\n🏗️ Empresa: ${companyInfo?.name || '-'}\n📍 Ubicación: ${companyInfo?.address || '-'}\n👷 Responsable: ${companyInfo?.responsable || '-'}\n\nGenerado con Asistente H&S`}
-          rawMessage={`📋 Checklist de Inspección\n🏗️ Empresa: ${companyInfo?.name || '-'}\n📍 Ubicación: ${companyInfo?.address || '-'}\n👷 Responsable: ${companyInfo?.responsable || '-'}\n\nGenerado con Asistente H&S`}
+          text={`📋 Checklist de Inspecciónn🏗️ Empresa: ${companyInfo?.name || '-'}n📍 Ubicación: ${companyInfo?.address || '-'}n👷 Responsable: ${companyInfo?.responsable || '-'}nnGenerado con Asistente H&S`}
+          rawMessage={`📋 Checklist de Inspecciónn🏗️ Empresa: ${companyInfo?.name || '-'}n📍 Ubicación: ${companyInfo?.address || '-'}n👷 Responsable: ${companyInfo?.responsable || '-'}nnGenerado con Asistente H&S`}
           elementIdToPrint="pdf-content-editor"
           fileName={`Checklist_${companyInfo?.name || 'Reporte'}.pdf`} />
         
@@ -1305,7 +1341,104 @@ export default function ChecklistManager(): React.ReactElement | null {
         }
 
             {/* FORMULARIOS EDITABLES - NO PRINT */}
-            {currentStep === 3 &&
+            
+          {currentStep === 3 && (
+            <div className="wizard-step-anim">
+              <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.8rem] text-[var(--color-primary)] font-[900] text-[1.2rem] uppercase letter-spacing-[1px]">
+                  <HardHat size={24} className="text-blue-600" /> EPPs Obligatorios y Evidencia
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-[2rem]">
+                  {/* EPPs Selector */}
+                  <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)]">
+                      <h4 className="m-[0_0_1rem_0] text-[0.9rem] font-[800] uppercase text-[var(--color-text)]">Selección de EPPs</h4>
+                      <div className="flex flex-wrap gap-[0.8rem]">
+                          {[
+                              { id: 'casco', label: 'Casco', icon: HardHat },
+                              { id: 'guantes', label: 'Guantes', icon: ShieldCheck },
+                              { id: 'anteojos', label: 'Anteojos', icon: EyeIcon },
+                              { id: 'auditiva', label: 'Prot. Auditiva', icon: Ear },
+                              { id: 'arnes', label: 'Arnés', icon: Activity },
+                              { id: 'calzado', label: 'Calzado Seg.', icon: ShieldCheck }
+                          ].map(epp => {
+                              const isSelected = epps?.includes(epp.id);
+                              const Icon = epp.icon;
+                              return (
+                                  <button
+                                      key={epp.id}
+                                      onClick={() => {
+                                          const current = epps || [];
+                                          const updated = isSelected ? current.filter(e => e !== epp.id) : [...current, epp.id];
+                                          setEpps(updated);
+                                      }}
+                                      className={`flex items-center gap-[0.5rem] p-[0.6rem_1rem] rounded-[12px] border transition-[all_0.2s] ${isSelected ? 'bg-blue-100 border-blue-500 text-blue-700' : 'bg-[var(--color-background)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-blue-300'}`}
+                                  >
+                                      <Icon size={18} />
+                                      <span className="font-[800] text-[0.8rem]">{epp.label}</span>
+                                  </button>
+                              );
+                          })}
+                      </div>
+                  </div>
+
+                  {/* Photo Upload */}
+                  <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)]">
+                      <h4 className="m-[0_0_1rem_0] text-[0.9rem] font-[800] uppercase text-[var(--color-text)]">Evidencia Fotográfica</h4>
+                      <p className="text-[0.8rem] text-[var(--color-text-muted)] mb-[1rem]">Adjunte hasta 2 fotografías de los hallazgos de la inspección.</p>
+                      
+                      <div className="flex gap-[1rem]">
+                          {[0, 1].map(index => {
+                              const photoUrl = fotos?.[index];
+                              return (
+                                  <div key={index} className="flex-[1] aspect-square rounded-[12px] border-[2px_dashed_var(--color-border)] flex items-center justify-center relative overflow-hidden bg-[var(--color-background)] hover:border-blue-400 transition-colors">
+                                      {photoUrl ? (
+                                          <>
+                                              <img src={photoUrl} alt={`Evidencia ${index + 1}`} className="w-full h-full object-cover" />
+                                              <button
+                                                  onClick={() => {
+                                                      const newFotos = [...(fotos || [])];
+                                                      newFotos.splice(index, 1);
+                                                      setFotos(newFotos);
+                                                  }}
+                                                  className="absolute top-[0.5rem] right-[0.5rem] bg-red-500 text-white p-[0.4rem] rounded-full shadow-md hover:bg-red-600"
+                                              >
+                                                  <Trash2 size={14} />
+                                              </button>
+                                          </>
+                                      ) : (
+                                          <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center text-[var(--color-text-muted)]">
+                                              <Camera size={24} className="mb-[0.5rem]" />
+                                              <span className="text-[0.7rem] font-[700] uppercase">Subir Foto</span>
+                                              <input
+                                                  type="file"
+                                                  accept="image/*"
+                                                  className="hidden"
+                                                  onChange={(e) => {
+                                                      const file = e.target.files?.[0];
+                                                      if (file) {
+                                                          const reader = new FileReader();
+                                                          reader.onloadend = () => {
+                                                              const newFotos = [...(fotos || [])];
+                                                              newFotos[index] = reader.result;
+                                                              setFotos(newFotos);
+                                                          };
+                                                          reader.readAsDataURL(file);
+                                                      }
+                                                  }}
+                                              />
+                                          </label>
+                                      )}
+                                  </div>
+                              );
+                          })}
+                      </div>
+                  </div>
+              </div>
+            </div>
+          )}
+
+
+          {currentStep === 5 &&
         <div className="no-print mb-8">
                 {/* PLAN DE ACCIÓN - FORMULARIO */}
                 <div className="border-[2px_solid_#f59e0b] rounded-[12px] p-[1.5rem] bg-[linear-gradient(135deg,_#fffbeb_0%,_#fef3c7_100%)] relative">
