@@ -57,8 +57,10 @@ export default function AIReport(): React.ReactElement | null {
         elementIdToPrint="pdf-content"
         fileName={`Informe_IA_${company?.replace(/\s+/g, '_') || 'Sin_Nombre'}.pdf`} />
       
-            <div className="no-print flex justify-space-between items-center mb-[2rem]">
-                <></>
+            <div className="no-print flex justify-between items-center mb-[2.5rem] mt-[1rem]">
+                <button onClick={() => navigate(-1)} className="flex items-center gap-[0.5rem] bg-[linear-gradient(135deg,_#3b82f6_0%,_#2563eb_100%)] text-white border-none p-[0.7rem_1.5rem] rounded-[100px] font-[900] text-[0.85rem] transition-all duration-300 hover:scale-[1.05] hover:box-shadow-[0_6px_20px_rgba(59,130,246,0.5)] box-shadow-[0_4px_15px_rgba(59,130,246,0.3)] cursor-pointer">
+                    <ArrowLeft size={18} className="text-white" /> VOLVER AL HISTORIAL
+                </button>
             </div>
 
             <div id="pdf-content" className="card report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0 p-[3rem] min-h-[29.7cm] h-[auto] bg-[#ffffff] text-[#1e293b] box-shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] relative">
@@ -325,23 +327,36 @@ export default function AIReport(): React.ReactElement | null {
                                 </ul>
                             </div>
           }
+                        <div className="no-print mt-[3rem] p-[1.5rem] bg-[#f8fafc] border-[1px_solid_#e2e8f0] rounded-[16px] w-[100%] flex flex-col items-center gap-[1rem] box-shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+                    <div className="text-center font-[800] text-[#334155] text-[0.85rem] tracking-[1px] uppercase">
+                        Configuración de Firmas para Exportación
                     </div>
-        }
-
-                <div className="no-print mt-10 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center text-xs font-bold text-slate-700">
-                    <div className="text-center">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                    <div className="flex gap-4 flex-wrap justify-center">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.operator} onChange={(e) => setShowSignatures((s) => ({ ...s, operator: e.target.checked }))} className="w-4 h-4 accent-red-600" /> Operador
+                    <div className="flex gap-[1rem] flex-wrap justify-center w-[100%]">
+                        <label className={`flex items-center justify-center gap-[0.5rem] cursor-pointer p-[0.6rem_1.2rem] rounded-[12px] border-[2px_solid] font-[700] text-[0.85rem] transition-all duration-300 flex-[1] min-w-[140px] max-w-[200px] ${showSignatures.operator ? 'bg-[rgba(59,130,246,0.1)] border-[#3b82f6] text-[#2563eb]' : 'bg-white border-[#cbd5e1] text-[#64748b] hover:border-[#94a3b8]'}`}>
+                            <input type="checkbox" checked={showSignatures.operator} onChange={(e) => setShowSignatures((s) => ({ ...s, operator: e.target.checked }))} className="hidden" /> 
+                            <div className={`w-[18px] h-[18px] rounded-[6px] border-[2px_solid] flex items-center justify-center transition-all ${showSignatures.operator ? 'bg-[#3b82f6] border-[#3b82f6]' : 'border-[#cbd5e1]'}`}>
+                                {showSignatures.operator && <CheckCircle2 size={12} color="white" />}
+                            </div>
+                            Operador
                         </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.supervisor} onChange={(e) => setShowSignatures((s) => ({ ...s, supervisor: e.target.checked }))} className="w-4 h-4 accent-red-600" /> Supervisor
+                        <label className={`flex items-center justify-center gap-[0.5rem] cursor-pointer p-[0.6rem_1.2rem] rounded-[12px] border-[2px_solid] font-[700] text-[0.85rem] transition-all duration-300 flex-[1] min-w-[140px] max-w-[200px] ${showSignatures.supervisor ? 'bg-[rgba(16,185,129,0.1)] border-[#10b981] text-[#059669]' : 'bg-white border-[#cbd5e1] text-[#64748b] hover:border-[#94a3b8]'}`}>
+                            <input type="checkbox" checked={showSignatures.supervisor} onChange={(e) => setShowSignatures((s) => ({ ...s, supervisor: e.target.checked }))} className="hidden" /> 
+                            <div className={`w-[18px] h-[18px] rounded-[6px] border-[2px_solid] flex items-center justify-center transition-all ${showSignatures.supervisor ? 'bg-[#10b981] border-[#10b981]' : 'border-[#cbd5e1]'}`}>
+                                {showSignatures.supervisor && <CheckCircle2 size={12} color="white" />}
+                            </div>
+                            Supervisor
                         </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={showSignatures.professional} onChange={(e) => setShowSignatures((s) => ({ ...s, professional: e.target.checked }))} className="w-4 h-4 accent-red-600" /> Profesional
+                        <label className={`flex items-center justify-center gap-[0.5rem] cursor-pointer p-[0.6rem_1.2rem] rounded-[12px] border-[2px_solid] font-[700] text-[0.85rem] transition-all duration-300 flex-[1] min-w-[140px] max-w-[200px] ${showSignatures.professional ? 'bg-[rgba(236,72,153,0.1)] border-[#ec4899] text-[#be185d]' : 'bg-white border-[#cbd5e1] text-[#64748b] hover:border-[#94a3b8]'}`}>
+                            <input type="checkbox" checked={showSignatures.professional} onChange={(e) => setShowSignatures((s) => ({ ...s, professional: e.target.checked }))} className="hidden" /> 
+                            <div className={`w-[18px] h-[18px] rounded-[6px] border-[2px_solid] flex items-center justify-center transition-all ${showSignatures.professional ? 'bg-[#ec4899] border-[#ec4899]' : 'border-[#cbd5e1]'}`}>
+                                {showSignatures.professional && <CheckCircle2 size={12} color="white" />}
+                            </div>
+                            Profesional
                         </label>
                     </div>
                 </div>
+                    </div>
+        }
 
                 <PdfSignatures
           data={{
@@ -373,15 +388,15 @@ export default function AIReport(): React.ReactElement | null {
                 </div>
             </div>
 
-            {/* Floating Action Buttons */}
-            <div className="no-print floating-action-bar">
-                <button onClick={() => toast.success('Los reportes de IA se guardan automáticamente en tu Historial.')} className="btn-floating-action bg-[#36B37E] text-[white]">
+            {/* Floating Action Buttons Modernos */}
+            <div className="no-print floating-action-bar fixed bottom-[2rem] left-[50%] transform-[translateX(-50%)] flex gap-[1rem] z-[100] bg-[rgba(255,255,255,0.8)] backdrop-filter-[blur(15px)] p-[0.8rem_1.5rem] rounded-[100px] box-shadow-[0_10px_40px_rgba(0,0,0,0.1)] border-[1px_solid_rgba(255,255,255,0.5)]">
+                <button onClick={() => toast.success('Los reportes de IA se guardan automáticamente en tu Historial.')} className="h-[46px] p-[0_1.5rem] rounded-[23px] flex items-center gap-[0.5rem] font-[800] text-[0.8rem] text-white bg-[linear-gradient(135deg,_#10b981_0%,_#059669_100%)] border-none cursor-pointer box-shadow-[0_4px_15px_rgba(16,185,129,0.4)] transition-all duration-300 hover:scale-[1.05] hover:box-shadow-[0_6px_20px_rgba(16,185,129,0.6)]">
                     <CheckCircle2 size={18} /> GUARDADO
                 </button>
-                <button onClick={() => requirePro(() => setShowShare(true))} className="btn-floating-action bg-[#0052CC] text-[white]">
+                <button onClick={() => requirePro(() => setShowShare(true))} className="h-[46px] p-[0_1.5rem] rounded-[23px] flex items-center gap-[0.5rem] font-[800] text-[0.8rem] text-white bg-[linear-gradient(135deg,_#3b82f6_0%,_#1d4ed8_100%)] border-none cursor-pointer box-shadow-[0_4px_15px_rgba(59,130,246,0.4)] transition-all duration-300 hover:scale-[1.05] hover:box-shadow-[0_6px_20px_rgba(59,130,246,0.6)]">
                     <Share2 size={18} /> COMPARTIR
                 </button>
-                <button onClick={handlePrint} className="btn-floating-action bg-[#FF8B00] text-[white]">
+                <button onClick={handlePrint} className="h-[46px] p-[0_1.5rem] rounded-[23px] flex items-center gap-[0.5rem] font-[800] text-[0.8rem] text-white bg-[linear-gradient(135deg,_#ec4899_0%,_#be185d_100%)] border-none cursor-pointer box-shadow-[0_4px_15px_rgba(236,72,153,0.4)] transition-all duration-300 hover:scale-[1.05] hover:box-shadow-[0_6px_20px_rgba(236,72,153,0.6)]">
                     <Printer size={18} /> IMPRIMIR PDF
                 </button>
             </div>

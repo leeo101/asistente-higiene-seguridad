@@ -641,23 +641,23 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             {!showForm ?
       <>
                     <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap items-center">
-                        <></>
                         <button
             onClick={() => {
               handleNewQuery();
+              setShowForm(true);
               navigate('/ai-advisor/nueva');
-            }} className="flex-[0_1_auto] p-[1rem_1.5rem] rounded-[16px] bg-[#36B37E] text-[#fff] border-none font-[800] text-[1rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(54,179,126,0.3)] white-space-[nowrap]">
+            }} className="flex-[0_1_auto] px-[1rem] py-[0.6rem] rounded-[10px] text-white border-none font-[700] text-[0.85rem] cursor-pointer flex items-center gap-[0.5rem] whitespace-nowrap transition-transform hover:scale-[1.02]" style={{ backgroundColor: '#10b981', boxShadow: '0 4px 15px rgba(16,185,129,0.3)', zIndex: 10, position: 'relative' }}>
 
             
                             <Plus size={20} /> Nueva Consulta
                         </button>
-                        <div className="flex-[1_1_300px] relative">
-                            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <div className="flex-[1_1_300px] flex items-center border-[2px] border-slate-200 dark:border-slate-700 rounded-[12px] bg-white dark:bg-slate-900 px-[1rem] focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all shadow-sm" style={{ zIndex: 10, position: 'relative' }}>
+                            <Search size={20} className="mr-[0.5rem] flex-shrink-0" style={{ color: '#64748b' }} />
                             <input
               type="text"
               placeholder="Buscar en consultas..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} className="w-full py-3 pr-4 pl-12 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-sm" />
+              onChange={(e) => setSearchTerm(e.target.value)} className="w-full py-3 bg-transparent border-none outline-none text-slate-800 dark:text-slate-200 m-0" />
 
             
                         </div>
@@ -703,62 +703,40 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             <HistoryPanel onLoad={handleLoadHistory} />
 
             {/* Input Section */}
-            <div className="card p-[1.8rem] mb-[2rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-primary-light)] box-shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-                <h3 className="m-[0_0_0.5rem_0] text-[1.2rem] font-[700]">¿Qué tarea vas a analizar hoy?</h3>
-                <p className="m-[0_0_1.2rem_0] text-[var(--color-text-muted)] text-[0.9rem]">
-                    Describe la tarea con el mayor detalle posible para obtener un análisis preciso y personalizado.
+            <div className="p-[2rem] mb-[2rem] rounded-[16px] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] box-shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+                <div className="flex items-center gap-[0.75rem] mb-[0.5rem]">
+                    <div className="w-[40px] h-[40px] rounded-[12px] bg-[rgba(16,185,129,0.15)] flex items-center justify-center text-[#10b981]">
+                        <Sparkles size={20} />
+                    </div>
+                    <h3 className="m-[0] text-[1.25rem] font-[800] text-[var(--color-text)]">¿Qué tarea vas a analizar hoy?</h3>
+                </div>
+                <p className="m-[0_0_1.5rem_0] text-[var(--color-text-muted)] text-[0.95rem] font-[500] pl-[3.25rem]">
+                    Describe la tarea con detalle. La Inteligencia Artificial evaluará riesgos, EPP y normas aplicables.
                 </p>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-[1.2rem]">
-                    <div className="relative">
+                    <div className="relative group">
                         <textarea
-                placeholder="Ej: Pintura de fachada con hidroelevador a 15 metros de altura cerca de tendido eléctrico."
+                placeholder="Ej: Pintura de fachada con hidroelevador a 15 metros de altura cerca de tendido eléctrico..."
                 value={task}
                 onChange={(e) => setTask(e.target.value)}
                 disabled={loading}
-                style={{
-
-
-
-
-
-
-
-
-
-
-
-                  opacity: loading ? 0.7 : 1
-                }}
-                onFocus={(e) => e.target.style.borderColor = 'var(--color-primary)'}
-                onBlur={(e) => e.target.style.borderColor = 'var(--color-border)'} className="w-[100%] min-h-[130px] p-[1.2rem] pr-[4rem] rounded-[16px] border-[2px_solid_var(--color-border)] bg-[var(--color-background)] text-[var(--color-text)] text-[1.05rem] resize-[vertical] transition-[border-color_0.2s]" />
+                style={{ opacity: loading ? 0.7 : 1 }}
+                className="w-[100%] min-h-[140px] p-[1.5rem] pr-[5rem] rounded-[16px] border-[2px] border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-text)] text-[1.05rem] resize-y transition-all focus:border-[#10b981] focus:ring-[4px] focus:ring-[#10b981]/20 outline-none" />
               
                         <button
                 type="button"
                 onClick={toggleListening}
                 disabled={loading}
                 style={{
-
-
-
-                  background: isListening ? '#ef4444' : 'var(--color-surface)',
-
-
-
-
-
-
-
-
-                  color: isListening ? 'white' : 'var(--color-primary)',
+                  background: isListening ? '#ef4444' : 'rgba(16,185,129,0.15)',
+                  color: isListening ? 'white' : '#047857',
                   cursor: loading ? 'not-allowed' : 'pointer',
-
-                  boxShadow: isListening ? '0 0 20px rgba(239, 68, 68, 0.5)' : '0 4px 10px rgba(0,0,0,0.05)',
+                  boxShadow: isListening ? '0 0 20px rgba(239, 68, 68, 0.5)' : '0 2px 8px rgba(0,0,0,0.05)',
                   animation: isListening ? 'pulse 1.5s infinite' : 'none'
-
                 }}
-                title={isListening ? 'Escuchando...' : 'Dictar por voz'} className="absolute right-[1rem] top-[1rem] border-[1px_solid_var(--color-border)] rounded-[50%] w-[48px] h-[48px] flex items-center justify-center p-[0] transition-[all_0.3s_ease] z-[10]">
+                title={isListening ? 'Escuchando...' : 'Dictar por voz'} className="absolute right-[1rem] top-[1rem] border-[1px_solid_rgba(16,185,129,0.3)] rounded-[50%] w-[54px] h-[54px] flex items-center justify-center p-[0] transition-[all_0.3s_ease] z-[10] hover:scale-[1.05] hover:bg-[rgba(16,185,129,0.25)]">
                 
-                            {isListening ? <MicOff size={22} /> : <Mic size={22} />}
+                            {isListening ? <MicOff size={32} /> : <Mic size={32} />}
                         </button>
                     </div>
 
@@ -773,16 +751,6 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                 key={idx}
                 type="button"
                 onClick={() => setTask(prompt)}
-
-
-
-
-
-
-
-
-
-
                 onMouseOver={(e) => {
                   e.currentTarget.style.background = 'var(--color-primary-light)';
                   e.currentTarget.style.borderColor = 'var(--color-primary)';
@@ -800,25 +768,15 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                         </div>
             }
 
-                    <div className="display-[inline-flex] items-center gap-[0.5rem] text-[var(--color-primary)] text-[0.78rem] font-[600] bg-[rgba(59,_130,_246,_0.1)] p-[0.5rem_0.9rem] rounded-[10px] align-self-[flex-start]">
-                        <Database size={15} /> Evaluando contexto reciente de tu dispositivo para un reporte más exacto.
+                    <div className="display-[inline-flex] items-center gap-[0.5rem] text-[#059669] text-[0.8rem] font-[700] bg-[rgba(5,150,105,0.1)] px-[1rem] py-[0.6rem] rounded-[8px] align-self-[center] border-[1px] border-[rgba(5,150,105,0.2)]">
+                        <Database size={15} /> Optimizando con el contexto reciente de tu dispositivo
                     </div>
 
                     <button
               type="submit"
               disabled={loading || !task.trim()}
-              className="btn-primary flex items-center justify-center gap-[0.8rem] mt-[0.5rem] p-[1rem] text-[1.1rem] rounded-[14px]">
-
-
-
-
-
-
-
-
-
-
-              
+              className="flex items-center justify-center gap-[0.6rem] mt-[1rem] mx-[auto] py-[0.85rem] px-[2.5rem] text-[1.1rem] font-[800] rounded-[12px] transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:transform-none w-[fit-content]"
+              style={{ background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)', boxShadow: '0 6px 20px rgba(16,185,129,0.4)', color: '#ffffff' }}>
                         {loading ?
               <>
                                 <Loader2 size={22} className="animate-spin" />

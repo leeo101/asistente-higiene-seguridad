@@ -124,19 +124,28 @@ export default function CAPAForm(): React.ReactElement | null {
     let signature = legacySignature || null;
     let stamp = null;
     if (savedSigData) {
-      const parsed = JSON.parse(savedSigData);
-      signature = parsed.signature || signature;
-      stamp = parsed.stamp || null;
+      try {
+        const parsed = JSON.parse(savedSigData);
+        signature = parsed.signature || signature;
+        stamp = parsed.stamp || null;
+      } catch (e) {
+        console.error("Error parsing signature data", e);
+      }
     }
 
     if (savedData) {
-      const data = JSON.parse(savedData);
-      setProfessional({
-        name: data.name || '',
-        license: data.license || '',
-        signature: signature,
-        stamp: stamp
-      });
+      try {
+        const data = JSON.parse(savedData);
+        setProfessional({
+          name: data.name || '',
+          license: data.license || '',
+          signature: signature,
+          stamp: stamp
+        });
+      } catch (e) {
+        console.error("Error parsing professional data", e);
+        setProfessional((prev) => ({ ...prev, signature, stamp }));
+      }
     } else {
       setProfessional((prev) => ({ ...prev, signature, stamp }));
     }

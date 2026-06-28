@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, Share2, Info, FileText, QrCode, Download, BarChart2, TriangleAlert, ShieldAlert } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -72,9 +72,8 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
   );
 
   const total = history.length;
-  const conRiesgo = history.filter((i) => (i.findingsCount || 0) > 0).length;
-  const seguros = total - conRiesgo;
-  const riesgoRatio = total > 0 ? Math.round(conRiesgo / total * 100) : 0;
+  const hasRisks = history.filter((i) => (i.findingsCount || 0) > 0).length;
+  const compliance = total > 0 ? Math.round(((total - hasRisks) / total) * 100) : 100;
 
   const handleExportCSV = () => {
     downloadCSV(filtered.map((i) => ({
@@ -120,28 +119,21 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
                 <></>
             </div>
 
-            <div className="flex items-center justify-space-between gap-[1rem] mt-[1.5rem] mb-[2rem] flex-wrap">
+            <div className="flex items-center justify-space-between gap-[1rem] mt-[1.5rem] mb-[2rem] flex-wrap relative z-[10]">
                 
 
                 <div className="flex gap-[1rem] flex-wrap">
-                    <button
-            onClick={() => navigate('/ai-general-camera')} className="flex items-center gap-[0.8rem] p-[0.8rem_1.5rem] bg-[#36B37E] text-[white] border-none rounded-[12px] font-[800] text-[0.95rem] cursor-pointer box-shadow-[0_4px_15px_rgba(54,_179,_126,_0.4)]">
-
-
-
-
-
-
-            
-                        <ShieldAlert size={20} /> NUEVO ANÁLISIS
-                    </button>
+                    <Link
+            to="/ai-general-camera" className="flex items-center gap-[0.8rem] p-[0.8rem_1.5rem] bg-[linear-gradient(135deg,_#36B37E_0%,_#2A9365_100%)] text-[#020617] border-none rounded-[12px] font-[800] text-[0.95rem] cursor-pointer box-shadow-[0_4px_15px_rgba(54,_179,_126,_0.4)] text-decoration-[none]">
+                        <Camera size={20} className="pointer-events-none text-[#020617]" /> NUEVA DETECCIÓN
+                    </Link>
                     {history.length > 0 &&
-          <button onClick={handleExportCSV} className="flex items-center gap-[0.8rem] p-[0.8rem_1.5rem] bg-[var(--color-surface)] text-[var(--color-text)] border-[1px_solid_var(--color-border)] rounded-[12px] font-[800] text-[0.95rem] cursor-pointer">
+          <button type="button" onClick={handleExportCSV} className="flex items-center gap-[0.8rem] p-[0.8rem_1.5rem] bg-[linear-gradient(135deg,_#6366f1_0%,_#4f46e5_100%)] text-[white] border-none rounded-[12px] font-[800] text-[0.95rem] cursor-pointer box-shadow-[0_4px_15px_rgba(99,102,241,0.4)]">
 
 
 
             
-                            <Download size={20} /> EXPORTAR CSV
+                            <Download size={20} className="pointer-events-none" /> EXPORTAR CSV
                         </button>
           }
                 </div>
@@ -149,18 +141,18 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
 
             {total > 0 &&
       <div className="mb-8">
-                    <div className="grid grid-template-columns-[repeat(3,_1fr)] gap-[0.7rem]">
-                        <div className="bg-[rgba(59,130,246,0.08)] border-[1px_solid_rgba(59,130,246,0.2)] rounded-[12px] p-[1rem] text-center">
-                            <div className="text-[1.8rem] font-[900] text-[#3b82f6]">{total}</div>
-                            <div className="text-[0.75rem] text-[var(--color-text-muted)] font-[700]">ESCANEO TOTAL</div>
+                    <div className="grid grid-cols-3 gap-[0.7rem] mb-[1rem]">
+                        <div className="bg-[rgba(6,182,212,0.08)] border-[1px_solid_rgba(6,182,212,0.2)] rounded-[12px] p-[0.8rem] text-center">
+                            <div className="text-[1.5rem] font-[900] text-[#06b6d4]">{total}</div>
+                            <div className="text-[0.65rem] text-[var(--color-text-muted)] font-[700]">ESCANEO RIESGOS</div>
                         </div>
-                        <div className="bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[12px] p-[1rem] text-center">
-                            <div className="text-[1.8rem] font-[900] text-[#ef4444]">{conRiesgo}</div>
-                            <div className="text-[0.75rem] text-[var(--color-text-muted)] font-[700]">CON HALLAZGOS</div>
+                        <div className="bg-[rgba(16,185,129,0.08)] border-[1px_solid_rgba(16,185,129,0.2)] rounded-[12px] p-[0.8rem] text-center">
+                            <div className="text-[1.5rem] font-[900] text-[#10b981]">{compliance}%</div>
+                            <div className="text-[0.65rem] text-[var(--color-text-muted)] font-[700]">COMPLIANCE</div>
                         </div>
-                        <div className="bg-[rgba(245,158,11,0.08)] border-[1px_solid_rgba(245,158,11,0.2)] rounded-[12px] p-[1rem] text-center">
-                            <div className="text-[1.8rem] font-[900] text-[#f59e0b]">{riesgoRatio}%</div>
-                            <div className="text-[0.75rem] text-[var(--color-text-muted)] font-[700]">RATIO RIESGO</div>
+                        <div style={{ background: hasRisks > 0 ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${hasRisks > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}` }} className="rounded-[12px] p-[0.8rem] text-center">
+                            <div style={{ color: hasRisks > 0 ? '#ef4444' : '#10b981' }} className="text-[1.5rem] font-[900]">{hasRisks}</div>
+                            <div className="text-[0.65rem] text-[var(--color-text-muted)] font-[700]">RIESGOS</div>
                         </div>
                     </div>
                 </div>

@@ -435,7 +435,7 @@ export default function Home(): React.ReactElement {
         '/reports': 'reports_history',
         '/work-permit': 'work_permits_history',
         '/accident-investigation': 'accident_history',
-        '/extintores': 'extintores_history',
+        '/extintores': 'extinguishers_inventory',
         '/capa': 'capa_history',
         '/audit': 'audit_history',
         '/confined-space': 'confined_space_history',
@@ -783,7 +783,7 @@ export default function Home(): React.ReactElement {
                 {/* Ambient glow */}
                 <div style={{ filter: isMobile ? 'none' : 'blur(25px)' }} className="absolute bottom-[-20%] left-[50%] transform-[translateX(-50%)] w-[180px] h-[180px] bg-[radial-gradient(circle,_rgba(16,185,129,0.2)_0%,_transparent_70%)] pointer-events-[none]" />
 
-                <div className="flex justify-space-between items-center mb-[0.5rem] relative z-[1]">
+                <div className="flex justify-between items-center mb-[0.5rem] relative z-[1]">
                   <h3 className="m-[0] text-[0.95rem] font-[800] text-[white] flex items-center gap-[0.4rem]">
                     <Shield size={16} color="#34d399" weight="duotone" />
                     Score H&amp;S
@@ -805,9 +805,9 @@ export default function Home(): React.ReactElement {
                   const scoreColor = score >= 80 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
                   const scoreLabel = score >= 80 ? 'Excelente' : score >= 50 ? 'En Progreso' : score === 0 ? 'Sin datos' : 'Atención';
                   return (
-                    <div className="flex-[1] flex flex-col items-center justify-center gap-[0.5rem] relative z-[1]">
-                      <div className="relative display-[inline-flex] items-center justify-center">
-                        <svg width="120" height="120" viewBox="0 0 120 120">
+                    <div className="flex-[1] flex flex-row items-center justify-center gap-[1rem] relative z-[1]">
+                      <div className="relative inline-flex items-center justify-center">
+                        <svg width="80" height="80" viewBox="0 0 120 120">
                           <circle className="gauge-track" cx="60" cy="60" r="45" strokeWidth="8" />
                           <circle
                             className="gauge-fill"
@@ -818,25 +818,24 @@ export default function Home(): React.ReactElement {
                             transform="rotate(-90 60 60)" />
                           
                         </svg>
-                        <div className="absolute text-center">
-                          <div style={{ color: scoreColor }} className="text-[1.8rem] font-[900] line-height-[1]">{score}</div>
-                          <div className="text-[0.6rem] text-[rgba(255,255,255,0.5)] font-[700] uppercase letter-spacing-[0.5px]">/ 100</div>
+                        <div className="absolute text-center flex flex-col items-center justify-center">
+                          <div style={{ color: scoreColor }} className="text-[1.4rem] font-[900] line-height-[1]">{score}</div>
+                          <div className="text-[0.55rem] text-[rgba(255,255,255,0.5)] font-[700] uppercase letter-spacing-[0.5px]">/ 100</div>
                         </div>
                       </div>
-                      <div className="text-center">
-                        <div style={{ color: scoreColor }} className="text-[0.95rem] font-[800]">{scoreLabel}</div>
-                        <div className="text-[0.72rem] text-[rgba(255,255,255,0.45)] mt-[0.2rem]">
+                      <div className="text-left flex flex-col justify-center">
+                        <div style={{ color: scoreColor }} className="text-[1.1rem] font-[800]">{scoreLabel}</div>
+                        <div className="text-[0.72rem] text-[rgba(255,255,255,0.55)] mt-[0.1rem]">
                           {totalDocs} doc{totalDocs !== 1 ? 's' : ''} registrados
                         </div>
+                        {accidents > 0 &&
+                        <div className="inline-flex items-center gap-[0.3rem] bg-[rgba(239,68,68,0.15)] border-[1px_solid_rgba(239,68,68,0.25)] rounded-[100px] p-[0.2rem_0.5rem] mt-[0.4rem] w-[fit-content]">
+                            <Warning size={12} color="#ef4444" weight="fill" />
+                            <span className="text-[0.65rem] text-[#ef4444] font-[700]">{accidents} accidente{accidents !== 1 ? 's' : ''}</span>
+                          </div>
+                        }
                       </div>
-                      {accidents > 0 &&
-                      <div className="display-[inline-flex] items-center gap-[0.3rem] bg-[rgba(239,68,68,0.15)] border-[1px_solid_rgba(239,68,68,0.25)] rounded-[100px] p-[0.2rem_0.6rem]">
-                          <Warning size={12} color="#ef4444" weight="fill" />
-                          <span className="text-[0.68rem] text-[#ef4444] font-[700]">{accidents} accidente{accidents !== 1 ? 's' : ''}</span>
-                        </div>
-                      }
                     </div>);
-
                 })()}
               </div>
 
@@ -871,12 +870,12 @@ export default function Home(): React.ReactElement {
                     const areaD = `${pathD} L ${W},${H} L 0,${H} Z`;
 
                     return (
-                      <div key={stat.key} className="flex items-center gap-[0.7rem] bg-[rgba(0,0,0,0.2)] rounded-[12px] border-[1px_solid_rgba(255,255,255,0.06)] p-[0.6rem_0.8rem]">
-                        <div style={{ background: `${stat.color}20` }} className="w-[30px] h-[30px] rounded-[9px] flex items-center justify-center flex-shrink-[0]">
-                          {React.cloneElement(stat.icon as React.ReactElement<any>, { size: 16, color: stat.color })}
+                      <div key={stat.key} className="flex items-center gap-[0.6rem] bg-[rgba(0,0,0,0.2)] rounded-[10px] border-[1px_solid_rgba(255,255,255,0.06)] p-[0.4rem_0.7rem]">
+                        <div style={{ background: `${stat.color}20` }} className="w-[26px] h-[26px] rounded-[8px] flex items-center justify-center flex-shrink-[0]">
+                          {React.cloneElement(stat.icon as React.ReactElement<any>, { size: 14, color: stat.color })}
                         </div>
                         <div className="flex-[1] min-width-[0]">
-                          <div className="text-[0.75rem] text-[rgba(255,255,255,0.6)] font-[600]">{stat.label}</div>
+                          <div className="text-[0.7rem] text-[rgba(255,255,255,0.6)] font-[600]">{stat.label}</div>
                         </div>
                         {/* Sparkline */}
                         <svg width={W} height={H} className="sparkline-svg" style={{ color: stat.color, '--sparkline-len': '300', '--spark-delay': `${0.3 + i * 0.1}s` } as React.CSSProperties}>
@@ -961,7 +960,7 @@ export default function Home(): React.ReactElement {
                   <Star size={16} color="#f59e0b" weight="fill" />
                   Acceso Rápido
                 </h3>
-                <div className="grid grid-template-columns-[repeat(auto-fill,_minmax(100px,_1fr))] gap-[0.6rem] flex-[1]">
+                <div className="grid gap-[0.5rem] flex-[1]" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))' }}>
                   {quickLinks.filter((l) => l.featured).slice(0, 6).map((link, i) => {
                     const hexToRgb = (hex: string) => {
                       const m = hex.replace('#', '').match(/.{2}/g);
@@ -972,13 +971,13 @@ export default function Home(): React.ReactElement {
                       <div
                         key={link.to}
                         className="bento-quick-card"
-                        style={{ '--card-accent-rgb': hexToRgb(link.color) } as React.CSSProperties}
+                        style={{ '--card-accent-rgb': hexToRgb(link.color), padding: '0.6rem 0.4rem' } as React.CSSProperties}
                         onClick={() => navigate(link.to)}>
                         
                         <div style={{ color: link.color }}>
-                          {React.cloneElement(link.icon as React.ReactElement<any>, { size: 26 })}
+                          {React.cloneElement(link.icon as React.ReactElement<any>, { size: 22 })}
                         </div>
-                        <div className="text-[white] font-[700] text-[0.8rem] line-height-[1.2]">{link.label}</div>
+                        <div className="text-[white] font-[700] text-[0.68rem] line-height-[1.15]">{link.label}</div>
                         {link.norm &&
                         <span style={{ color: `${link.color}aa`, background: `${link.color}15` }} className="text-[0.58rem] font-[700] rounded-[4px] p-[1px_5px]">
                             {link.norm}

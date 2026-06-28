@@ -217,8 +217,6 @@ export default function SignatureCanvas({
           type="range" min={1} max={6} step={0.5}
           value={strokeWidth}
           onChange={(e) => setStrokeWidth(parseFloat(e.target.value))} className="flex-[1] accent-color-[var(--color-primary)]" />
-
-        
                 </div>
       }
 
@@ -226,32 +224,13 @@ export default function SignatureCanvas({
                 <button
           type="button"
           onClick={clearCanvas}
-          className="btn-secondary flex-[1] flex items-center justify-center gap-[0.5rem] text-[0.8rem] p-[0.5rem]">
-
-
-
-
-
-
-
-
-
-          
+          style={{ backgroundColor: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '0.5rem', fontWeight: 600 }}
+          className="flex-[1] flex items-center justify-center gap-[0.5rem] text-[0.8rem] p-[0.5rem] cursor-pointer hover:-translate-y-0.5 transition-transform">
                     <Trash2 size={16} /> Limpiar
                 </button>
                 <label
-          className="btn-secondary flex-[1] flex items-center justify-center gap-[0.5rem] cursor-pointer text-[0.8rem] p-[0.5rem]">
-
-
-
-
-
-
-
-
-
-
-          
+          style={{ backgroundColor: '#e0e7ff', color: '#4f46e5', border: 'none', borderRadius: '0.5rem', fontWeight: 600 }}
+          className="flex-[1] flex items-center justify-center gap-[0.5rem] cursor-pointer text-[0.8rem] p-[0.5rem] hover:-translate-y-0.5 transition-transform">
                     <Upload size={16} /> Subir Imagen
                     <input type="file" hidden accept="image/*" onChange={handleFileUpload} />
                 </label>

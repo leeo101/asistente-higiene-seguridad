@@ -23,10 +23,13 @@ export default function MedicalAptitudes() {
     examDate: new Date().toISOString().split('T')[0],
     expirationDate: '',
     result: 'apto',
+    clinic: '',
+    doctor: '',
     notes: ''
   });
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -72,6 +75,8 @@ export default function MedicalAptitudes() {
       examDate: new Date().toISOString().split('T')[0],
       expirationDate: '',
       result: 'apto',
+      clinic: '',
+      doctor: '',
       notes: ''
     });
   };
@@ -139,23 +144,39 @@ export default function MedicalAptitudes() {
         
                 
                 {showForm ?
-        <div className="glass-card p-[2rem] mt-[2rem] rounded-[1rem] bg-[var(--color-surface)]">
-                        <h2 className="m-[0_0_1.5rem_0] flex items-center gap-[0.5rem] text-[1.2rem] font-[800]">
-                            <FileText size={20} /> {formData.id ? 'Editar Examen' : 'Nuevo Registro'}
-                        </h2>
+        <div className="glass-card p-[2rem] mt-[2rem] rounded-[1rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] box-shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
+                        <div className="flex items-center gap-[0.75rem] mb-[2rem] pb-[1rem] border-bottom-[1px_solid_var(--color-border)]">
+                            <div className="w-[40px] h-[40px] rounded-[10px] bg-[rgba(16,185,129,0.1)] flex items-center justify-center text-[#10b981]">
+                                <FileText size={22} />
+                            </div>
+                            <div>
+                                <h2 className="m-[0] text-[1.2rem] font-[900] text-[var(--color-text)]">
+                                    {formData.id ? 'Editar Examen Médico' : 'Nuevo Registro de Examen'}
+                                </h2>
+                                <p className="m-[0] text-[0.8rem] text-[var(--color-text-muted)] font-[600]">Complete los datos clínicos del trabajador</p>
+                            </div>
+                        </div>
                         
-                        <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1rem]">
+                        <div style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))' }} className="grid gap-[1.5rem]">
                             <div>
-                                <label className="block text-[0.85rem] font-[700] mb-[0.5rem] text-[var(--color-text-muted)]">Trabajador</label>
-                                <input type="text" value={formData.workerName} onChange={(e) => setFormData({ ...formData, workerName: e.target.value })} className="w-[100%] p-[0.75rem] rounded-[8px] border-[1px_solid_var(--color-border)]" />
+                                <label className="block text-[0.85rem] font-[800] mb-[0.5rem] text-[var(--color-text)] uppercase letter-spacing-[0.5px]">Trabajador</label>
+                                <input type="text" value={formData.workerName} onChange={(e) => setFormData({ ...formData, workerName: e.target.value })} className="w-[100%] p-[0.85rem] rounded-[10px] bg-[var(--color-background)] border-[2px_solid_var(--color-border)] focus:border-[#10b981] focus:ring-[3px] focus:ring-[rgba(16,185,129,0.2)] outline-none transition-all font-[600] text-[1rem]" placeholder="Ej. Juan Pérez" />
                             </div>
                             <div>
-                                <label className="block text-[0.85rem] font-[700] mb-[0.5rem] text-[var(--color-text-muted)]">DNI / CUIL</label>
-                                <input type="text" value={formData.dni} onChange={(e) => setFormData({ ...formData, dni: e.target.value })} className="w-[100%] p-[0.75rem] rounded-[8px] border-[1px_solid_var(--color-border)]" />
+                                <label className="block text-[0.85rem] font-[800] mb-[0.5rem] text-[var(--color-text)] uppercase letter-spacing-[0.5px]">DNI / CUIL</label>
+                                <input type="text" value={formData.dni} onChange={(e) => setFormData({ ...formData, dni: e.target.value })} className="w-[100%] p-[0.85rem] rounded-[10px] bg-[var(--color-background)] border-[2px_solid_var(--color-border)] focus:border-[#10b981] focus:ring-[3px] focus:ring-[rgba(16,185,129,0.2)] outline-none transition-all font-[600] text-[1rem]" placeholder="Sin puntos ni guiones" />
                             </div>
                             <div>
-                                <label className="block text-[0.85rem] font-[700] mb-[0.5rem] text-[var(--color-text-muted)]">Tipo de Examen</label>
-                                <select value={formData.examType} onChange={(e) => setFormData({ ...formData, examType: e.target.value })} className="w-[100%] p-[0.75rem] rounded-[8px] border-[1px_solid_var(--color-border)]">
+                                <label className="block text-[0.85rem] font-[800] mb-[0.5rem] text-[var(--color-text)] uppercase letter-spacing-[0.5px]">Clínica / Institución</label>
+                                <input type="text" value={formData.clinic} onChange={(e) => setFormData({ ...formData, clinic: e.target.value })} className="w-[100%] p-[0.85rem] rounded-[10px] bg-[var(--color-background)] border-[2px_solid_var(--color-border)] focus:border-[#10b981] focus:ring-[3px] focus:ring-[rgba(16,185,129,0.2)] outline-none transition-all font-[600] text-[1rem]" placeholder="Lugar de realización" />
+                            </div>
+                            <div>
+                                <label className="block text-[0.85rem] font-[800] mb-[0.5rem] text-[var(--color-text)] uppercase letter-spacing-[0.5px]">Médico / Matrícula</label>
+                                <input type="text" value={formData.doctor} onChange={(e) => setFormData({ ...formData, doctor: e.target.value })} className="w-[100%] p-[0.85rem] rounded-[10px] bg-[var(--color-background)] border-[2px_solid_var(--color-border)] focus:border-[#10b981] focus:ring-[3px] focus:ring-[rgba(16,185,129,0.2)] outline-none transition-all font-[600] text-[1rem]" placeholder="Dr. Nombre Apellido (MP 123)" />
+                            </div>
+                            <div>
+                                <label className="block text-[0.85rem] font-[800] mb-[0.5rem] text-[var(--color-text)] uppercase letter-spacing-[0.5px]">Tipo de Examen</label>
+                                <select value={formData.examType} onChange={(e) => setFormData({ ...formData, examType: e.target.value })} className="w-[100%] p-[0.85rem] rounded-[10px] bg-[var(--color-background)] border-[2px_solid_var(--color-border)] focus:border-[#10b981] focus:ring-[3px] focus:ring-[rgba(16,185,129,0.2)] outline-none transition-all font-[600] text-[1rem] cursor-pointer">
                                     <option value="preocupacional">Preocupacional</option>
                                     <option value="periodico">Periódico</option>
                                     <option value="egreso">De Egreso</option>
@@ -163,41 +184,44 @@ export default function MedicalAptitudes() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-[0.85rem] font-[700] mb-[0.5rem] text-[var(--color-text-muted)]">Resultado</label>
-                                <select value={formData.result} onChange={(e) => setFormData({ ...formData, result: e.target.value })} className="w-[100%] p-[0.75rem] rounded-[8px] border-[1px_solid_var(--color-border)]">
+                                <label className="block text-[0.85rem] font-[800] mb-[0.5rem] text-[var(--color-text)] uppercase letter-spacing-[0.5px]">Resultado</label>
+                                <select value={formData.result} onChange={(e) => setFormData({ ...formData, result: e.target.value })} className="w-[100%] p-[0.85rem] rounded-[10px] bg-[var(--color-background)] border-[2px_solid_var(--color-border)] focus:border-[#10b981] focus:ring-[3px] focus:ring-[rgba(16,185,129,0.2)] outline-none transition-all font-[600] text-[1rem] cursor-pointer" style={{ color: formData.result === 'apto' ? '#10b981' : formData.result === 'no_apto' ? '#ef4444' : '#f59e0b' }}>
                                     <option value="apto">Apto</option>
                                     <option value="preexistencias">Apto con Preexistencias</option>
                                     <option value="no_apto">No Apto</option>
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-[0.85rem] font-[700] mb-[0.5rem] text-[var(--color-text-muted)]">Fecha Examen</label>
-                                <input type="date" value={formData.examDate} onChange={(e) => setFormData({ ...formData, examDate: e.target.value })} className="w-[100%] p-[0.75rem] rounded-[8px] border-[1px_solid_var(--color-border)]" />
+                                <label className="block text-[0.85rem] font-[800] mb-[0.5rem] text-[var(--color-text)] uppercase letter-spacing-[0.5px]">Fecha Examen</label>
+                                <input type="date" value={formData.examDate} onChange={(e) => setFormData({ ...formData, examDate: e.target.value })} className="w-[100%] p-[0.85rem] rounded-[10px] bg-[var(--color-background)] border-[2px_solid_var(--color-border)] focus:border-[#10b981] focus:ring-[3px] focus:ring-[rgba(16,185,129,0.2)] outline-none transition-all font-[600] text-[1rem]" />
                             </div>
                             <div>
-                                <label className="block text-[0.85rem] font-[700] mb-[0.5rem] text-[var(--color-text-muted)]">Vencimiento (Opcional)</label>
-                                <input type="date" value={formData.expirationDate} onChange={(e) => setFormData({ ...formData, expirationDate: e.target.value })} className="w-[100%] p-[0.75rem] rounded-[8px] border-[1px_solid_var(--color-border)]" />
+                                <label className="block text-[0.85rem] font-[800] mb-[0.5rem] text-[var(--color-text)] uppercase letter-spacing-[0.5px]">Vencimiento (Opcional)</label>
+                                <input type="date" value={formData.expirationDate} onChange={(e) => setFormData({ ...formData, expirationDate: e.target.value })} className="w-[100%] p-[0.85rem] rounded-[10px] bg-[var(--color-background)] border-[2px_solid_var(--color-border)] focus:border-[#10b981] focus:ring-[3px] focus:ring-[rgba(16,185,129,0.2)] outline-none transition-all font-[600] text-[1rem]" />
                             </div>
-                            <div style={{ gridColumn: isMobile ? '1' : '1 / -1' }}>
-                                <label className="block text-[0.85rem] font-[700] mb-[0.5rem] text-[var(--color-text-muted)]">Observaciones</label>
-                                <textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} rows={3} className="w-[100%] p-[0.75rem] rounded-[8px] border-[1px_solid_var(--color-border)]" />
+                            <div style={{ gridColumn: '1 / -1' }}>
+                                <label className="block text-[0.85rem] font-[800] mb-[0.5rem] text-[var(--color-text)] uppercase letter-spacing-[0.5px]">Observaciones y Recomendaciones</label>
+                                <textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} rows={3} className="w-[100%] p-[0.85rem] rounded-[10px] bg-[var(--color-background)] border-[2px_solid_var(--color-border)] focus:border-[#10b981] focus:ring-[3px] focus:ring-[rgba(16,185,129,0.2)] outline-none transition-all font-[600] text-[1rem]" placeholder="Ingrese cualquier detalle adicional relevante..." />
                             </div>
                         </div>
-                        <div className="flex gap-[1rem] mt-[2rem]">
-                            <button onClick={() => setShowForm(false)} className="btn-secondary flex-[1]">Cancelar</button>
-                            <button onClick={handleSave} className="btn-primary flex-[1] bg-[#10b981]">Guardar</button>
+                        <div className="flex flex-col-reverse md:flex-row justify-end gap-[1rem] mt-[2.5rem] pt-[1.5rem] border-top-[1px_solid_var(--color-border)]">
+                            <button onClick={() => setShowForm(false)} className="px-[1.5rem] py-[0.65rem] rounded-[8px] font-[700] text-[0.85rem] transition-all cursor-pointer" style={{ backgroundColor: 'rgba(100, 116, 139, 0.15)', border: '1px solid rgba(100, 116, 139, 0.3)', color: 'var(--color-text)' }}>Cancelar</button>
+                            <button onClick={handleSave} className="px-[1.5rem] py-[0.65rem] rounded-[8px] font-[700] text-[0.85rem] text-white transition-all cursor-pointer flex items-center justify-center gap-[0.5rem]" style={{ backgroundColor: '#10b981', boxShadow: '0 4px 10px rgba(16,185,129,0.25)' }}>
+                                <CheckCircle2 size={18} />
+                                {formData.id ? 'Actualizar Examen' : 'Guardar Examen'}
+                            </button>
                         </div>
                     </div> :
 
         <div className="mt-8">
-                        <div className="flex justify-space-between mb-[1.5rem]">
-                            <div style={{ width: isMobile ? '100%' : '300px' }} className="relative">
-                                <Search size={18} className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)] text-[#64748b]" />
-                                <input type="text" placeholder="Buscar trabajador..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.75rem_1rem_0.75rem_2.5rem] rounded-[8px] border-[1px_solid_var(--color-border)]" />
+                        <div className="flex justify-space-between items-center mb-[1.5rem] gap-[1rem] flex-wrap">
+                            <div style={{ width: isMobile ? '100%' : '450px' }} className="flex items-center border-[2px_solid_#10b981] rounded-[8px] bg-[rgba(16,185,129,0.02)] px-[1rem] focus-within:ring-[3px] focus-within:ring-[rgba(16,185,129,0.2)] transition-all">
+                                <Search size={20} className="text-[#64748b] mr-[0.5rem] flex-shrink-0" />
+                                <input type="text" placeholder="Buscar trabajador..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] py-[0.85rem] bg-transparent border-none outline-none text-[1rem] font-[500] m-0" />
                             </div>
                             {!isMobile &&
-            <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-[0.5rem]">
-                                    <Plus size={18} /> Nuevo Examen
+            <button onClick={() => setShowForm(true)} className="flex items-center gap-[0.4rem] px-[0.9rem] py-[0.5rem] text-[0.85rem] text-white rounded-[8px] font-[700] transition-colors cursor-pointer" style={{ backgroundColor: '#10b981', boxShadow: '0 4px 10px rgba(16,185,129,0.2)' }}>
+                                    <Plus size={16} /> Nuevo Examen
                                 </button>
             }
                         </div>

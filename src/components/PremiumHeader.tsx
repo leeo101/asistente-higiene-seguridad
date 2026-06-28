@@ -64,7 +64,18 @@ export default function PremiumHeader({
         {/* Botones de navegación para desktop (ocultos en móvil mediante CSS) */}
         <div className="desktop-nav-buttons no-print mr-[auto] flex flex-col gap-[0.5rem]">
             <button
-            onClick={() => {if (onBack) onBack();else navigate(-1);}}
+            onClick={() => {
+              if (onBack) {
+                onBack();
+              } else {
+                const pathParts = window.location.pathname.split('/').filter(Boolean);
+                if (pathParts.length === 1) {
+                  navigate('/', { state: { scrollTo: pathParts[0] } });
+                } else {
+                  navigate(-1);
+                }
+              }
+            }}
 
             onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'} className="bg-[rgba(255,255,255,0.2)] border-[1px_solid_rgba(255,255,255,0.3)] text-[#fff] rounded-[8px] p-[0.4rem_0.8rem] flex items-center gap-[0.4rem] cursor-pointer font-[700] text-[0.8rem] backdrop-filter-[blur(10px)] transition-[background_0.2s]">

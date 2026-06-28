@@ -27,8 +27,13 @@ export function useHardwareBackButton() {
         const parentPath = path.split('/editar/')[0];
         navigate(parentPath, { replace: true });
       } else {
-        // En cualquier otro caso, ir a la pantalla anterior en el historial
-        navigate(-1);
+        const pathParts = path.split('/').filter(Boolean);
+        if (pathParts.length === 1) {
+          navigate('/', { state: { scrollTo: pathParts[0] } });
+        } else {
+          // En cualquier otro caso, ir a la pantalla anterior en el historial
+          navigate(-1);
+        }
       }
     });
 

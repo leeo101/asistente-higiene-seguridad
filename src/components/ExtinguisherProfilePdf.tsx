@@ -145,7 +145,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
             <div className="flex-[1] flex justify-center">
                 <div
           id="pdf-content"
-          className="pdf-container card print-area w-[100%] max-w-[210mm] min-h-[297mm] flex flex-col bg-white dark:bg-slate-800 text-[#000000] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box]"
+          className="pdf-container card print-area w-[100%] max-w-[210mm] min-h-[297mm] flex flex-col bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box]"
           ref={componentRef}>
 
 
@@ -193,7 +193,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         `}
                     </style>
 
-                    <div className="border-bottom-[3px_solid_#1e293b] pb-[10px] mb-[15px] flex justify-space-between items-center">
+                    <div className="border-b-[3px] border-slate-800 pb-[10px] mb-[15px] flex justify-between items-center">
                         <div>
                             <h1 className="m-[0_0_5px_0] text-[18pt] text-slate-800 dark:text-slate-200 font-[900] uppercase">
                                 Ficha Técnica de Extintor
@@ -225,40 +225,40 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
 
                         <div className="flex-[1]">
                             <div className="bg-slate-50 dark:bg-slate-800/50 border-[1px_solid_#e2e8f0] rounded-[8px] p-[10px]">
-                                <h3 className="m-[0_0_10px_0] text-[12pt] text-[#0f172a] flex items-center gap-[8px] border-bottom-[1px_solid_#cbd5e1] pb-[6px]">
+                                <h3 className="m-[0_0_10px_0] text-[12pt] text-slate-800 dark:text-slate-200 flex items-center gap-[8px] border-bottom-[1px_solid_#cbd5e1] pb-[6px]">
                                     <Hash size={18} color="#3b82f6" /> Identificación del Equipo
                                 </h3>
                                 
                                 <div className="grid grid-template-columns-[1fr_1fr] gap-[10px] word-break-[break-word] overflow-wrap-[break-word]">
                                     <div>
                                         <div className="text-[9pt] text-[#64748b] font-[700] uppercase">Nº Chapa / Interno</div>
-                                        <div className="text-[12pt] font-[900] text-[#0f172a]">{data.numero || '-'}</div>
+                                        <div className="text-[12pt] font-[900] text-slate-800 dark:text-slate-200">{data.numero || '-'}</div>
                                     </div>
                                     <div>
                                         <div className="text-[9pt] text-[#64748b] font-[700] uppercase">Tipo y Capacidad</div>
-                                        <div className="text-[11pt] font-[700] text-[#0f172a]">{formatType(data.tipo)} - {data.capacidad}</div>
+                                        <div className="text-[11pt] font-[700] text-slate-800 dark:text-slate-200">{formatType(data.tipo)} - {data.capacidad}</div>
                                     </div>
                                     <div>
                                         <div className="text-[9pt] text-[#64748b] font-[700] uppercase">Ubicación</div>
-                                        <div className="text-[11pt] font-[700] text-[#0f172a] flex items-center gap-[4px]">
+                                        <div className="text-[11pt] font-[700] text-slate-800 dark:text-slate-200 flex items-center gap-[4px]">
                                             <MapPin size={14} color="#dc2626" /> {data.ubicacion || '-'}
                                         </div>
                                     </div>
                                     <div>
                                         <div className="text-[9pt] text-[#64748b] font-[700] uppercase">Empresa / Cliente</div>
-                                        <div className="text-[11pt] font-[700] text-[#0f172a]">{data.empresa || '-'}</div>
+                                        <div className="text-[11pt] font-[700] text-slate-800 dark:text-slate-200">{data.empresa || '-'}</div>
                                     </div>
                                     <div>
                                         <div className="text-[9pt] text-[#64748b] font-[700] uppercase">Marca / Fabricante</div>
-                                        <div className="text-[11pt] font-[700] text-[#0f172a]">{data.marca || 'Sin especificar'}</div>
+                                        <div className="text-[11pt] font-[700] text-slate-800 dark:text-slate-200">{data.marca || 'Sin especificar'}</div>
                                     </div>
                                     <div>
                                         <div className="text-[9pt] text-[#64748b] font-[700] uppercase">Sello IRAM / OPDS</div>
-                                        <div className="text-[11pt] font-[700] text-[#0f172a]">{data.selloIRAM || '-'}</div>
+                                        <div className="text-[11pt] font-[700] text-slate-800 dark:text-slate-200">{data.selloIRAM || '-'}</div>
                                     </div>
                                     <div>
                                         <div className="text-[9pt] text-[#64748b] font-[700] uppercase">Nº Serie (Tubo)</div>
-                                        <div className="text-[11pt] font-[700] text-[#0f172a]">{data.numeroSerie || '-'}</div>
+                                        <div className="text-[11pt] font-[700] text-slate-800 dark:text-slate-200">{data.numeroSerie || '-'}</div>
                                     </div>
                                 </div>
                             </div>
@@ -266,7 +266,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                     </div>
 
                     <div className="mb-[15px]">
-                        <h3 className="m-[0_0_10px_0] text-[12pt] text-[#0f172a] flex items-center gap-[8px] border-bottom-[2px_solid_#1e293b] pb-[6px]">
+                        <h3 className="m-[0_0_10px_0] text-[12pt] text-slate-800 dark:text-slate-200 flex items-center gap-[8px] border-bottom-[2px_solid_#1e293b] pb-[6px]">
                             <Calendar size={18} color="#f59e0b" /> Control de Vencimientos
                         </h3>
                         
@@ -304,7 +304,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                     </div>
 
                     <div className="mb-[15px]">
-                        <h3 className="m-[0_0_10px_0] text-[12pt] text-[#0f172a] flex items-center gap-[8px] border-bottom-[2px_solid_#1e293b] pb-[6px]">
+                        <h3 className="m-[0_0_10px_0] text-[12pt] text-slate-800 dark:text-slate-200 flex items-center gap-[8px] border-bottom-[2px_solid_#1e293b] pb-[6px]">
                             <ShieldCheck size={18} color="#10b981" /> Última Inspección Registrada
                         </h3>
                         
@@ -318,7 +318,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
             <div className="p-[15px] bg-slate-50 dark:bg-slate-800/50 border-[1px_solid_#e2e8f0] rounded-[8px] flex justify-space-between items-center">
                                  <div>
                                      <div className="text-[8pt] text-[#64748b] font-[700]">Fecha:</div>
-                                     <div className="text-[10pt] font-[900] text-[#0f172a]">{new Date(data.ultimaInspeccion).toLocaleDateString('es-AR')}</div>
+                                     <div className="text-[10pt] font-[900] text-slate-800 dark:text-slate-200">{new Date(data.ultimaInspeccion).toLocaleDateString('es-AR')}</div>
                                  </div>
                                  <div className="bg-green-100 dark:bg-green-900/30 text-[#166534] p-[4px_8px] rounded-[999px] font-[800] text-[9pt] flex items-center gap-[4px]">
                                      <ShieldCheck size={14} /> INSPECCIÓN OK
@@ -364,7 +364,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                             {/* FOTOS DE INSPECCIÓN */}
                             {(latestInspection.fotos && latestInspection.fotos.length > 0 || latestInspection.items && latestInspection.items.some((i) => i.photos && i.photos.length > 0)) &&
                 <div className="mt-[10px] border-top-[2px_dashed_#cbd5e1] pt-[10px] page-break-inside-[avoid]">
-                                    <h4 className="m-[0_0_10px_0] text-[10pt] text-[#0f172a] font-[800]">📸 Evidencia Fotográfica</h4>
+                                    <h4 className="m-[0_0_10px_0] text-[10pt] text-slate-800 dark:text-slate-200 font-[800]">📸 Evidencia Fotográfica</h4>
                                     
                                     {/* Fotos Generales */}
                                     {latestInspection.fotos && latestInspection.fotos.length > 0 &&

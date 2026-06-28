@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, ShieldCheck, TriangleAlert, Share2, Info, FileText, QrCode, Download, BarChart2, Plus } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -98,7 +98,7 @@ export default function AICameraManager(): React.ReactElement | null {
       const wFail = weekItems.filter((item) => item.ppeComplete === false).length;
       const wComp = wTotal > 0 ? Math.round(wOk / Math.max(wOk + wFail, 1) * 100) : 0;
 
-      stats.push({ label: i === 0 ? 'Hoy' : `hace ${i}s`, value: wComp, count: wTotal });
+      stats.push({ label: i === 0 ? 'Esta sem.' : `Hace ${i} sem.`, value: wComp, count: wTotal });
     }
     return stats;
   };
@@ -142,29 +142,18 @@ export default function AICameraManager(): React.ReactElement | null {
         subtitle="Detección y cumplimiento de EPP"
         icon={<Camera size={36} color="#ffffff" />} />
       
+      
 
-            <div className="flex items-center justify-space-between gap-[1rem] mt-[1.5rem] mb-[2rem] flex-wrap">
+            <div className="flex items-center justify-space-between gap-[1rem] mt-[1.5rem] mb-[2rem] flex-wrap relative z-[10]">
                 
                 <div className="flex gap-[1rem] flex-wrap">
-                    <></>
-                    <button
-            onClick={() => navigate('/ai-camera')} className="flex items-center gap-[0.8rem] p-[0.8rem_1.5rem] bg-[linear-gradient(135deg,_#36B37E_0%,_#2A9365_100%)] text-[white] border-none rounded-[12px] font-[800] text-[0.95rem] cursor-pointer box-shadow-[0_4px_15px_rgba(54,_179,_126,_0.4)]">
-
-
-
-
-
-
-            
-                        <Camera size={20} /> NUEVA DETECCIÓN
-                    </button>
+                    <Link
+            to="/ai-camera" className="flex items-center gap-[0.8rem] p-[0.8rem_1.5rem] bg-[linear-gradient(135deg,_#36B37E_0%,_#2A9365_100%)] text-[#020617] border-none rounded-[12px] font-[800] text-[0.95rem] cursor-pointer box-shadow-[0_4px_15px_rgba(54,_179,_126,_0.4)] text-decoration-[none]">
+                        <Camera size={20} className="pointer-events-none text-[#020617]" /> NUEVA DETECCIÓN
+                    </Link>
                     {history.length > 0 &&
-          <button onClick={handleExportCSV} className="flex items-center gap-[0.8rem] p-[0.8rem_1.5rem] bg-[var(--color-surface)] text-[var(--color-text)] border-[1px_solid_var(--color-border)] rounded-[12px] font-[800] text-[0.95rem] cursor-pointer">
-
-
-
-            
-                            <Download size={20} /> EXPORTAR CSV
+          <button type="button" onClick={handleExportCSV} className="flex items-center gap-[0.8rem] p-[0.8rem_1.5rem] bg-[linear-gradient(135deg,_#6366f1_0%,_#4f46e5_100%)] text-[white] border-none rounded-[12px] font-[800] text-[0.95rem] cursor-pointer box-shadow-[0_4px_15px_rgba(99,102,241,0.4)]">
+                            <Download size={20} className="pointer-events-none" /> EXPORTAR CSV
                         </button>
           }
                 </div>
@@ -172,18 +161,18 @@ export default function AICameraManager(): React.ReactElement | null {
 
             {total > 0 &&
       <div className="mb-8">
-                    <div className="grid grid-template-columns-[repeat(3,_1fr)] gap-[0.7rem] mb-[1rem]">
-                        <div className="bg-[rgba(6,182,212,0.08)] border-[1px_solid_rgba(6,182,212,0.2)] rounded-[12px] p-[1rem] text-center">
-                            <div className="text-[1.8rem] font-[900] text-[#06b6d4]">{total}</div>
-                            <div className="text-[0.75rem] text-[var(--color-text-muted)] font-[700]">ESCANEO EPP</div>
+                    <div className="grid grid-cols-3 gap-[0.7rem] mb-[1rem]">
+                        <div className="bg-[rgba(6,182,212,0.08)] border-[1px_solid_rgba(6,182,212,0.2)] rounded-[12px] p-[0.8rem] text-center">
+                            <div className="text-[1.5rem] font-[900] text-[#06b6d4]">{total}</div>
+                            <div className="text-[0.65rem] text-[var(--color-text-muted)] font-[700]">ESCANEO EPP</div>
                         </div>
-                        <div className="bg-[rgba(16,185,129,0.08)] border-[1px_solid_rgba(16,185,129,0.2)] rounded-[12px] p-[1rem] text-center">
-                            <div className="text-[1.8rem] font-[900] text-[#10b981]">{compliance}%</div>
-                            <div className="text-[0.75rem] text-[var(--color-text-muted)] font-[700]">COMPLIANCE</div>
+                        <div className="bg-[rgba(16,185,129,0.08)] border-[1px_solid_rgba(16,185,129,0.2)] rounded-[12px] p-[0.8rem] text-center">
+                            <div className="text-[1.5rem] font-[900] text-[#10b981]">{compliance}%</div>
+                            <div className="text-[0.65rem] text-[var(--color-text-muted)] font-[700]">COMPLIANCE</div>
                         </div>
-                        <div style={{ background: eppFail > 0 ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${eppFail > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}` }} className="rounded-[12px] p-[1rem] text-center">
-                            <div style={{ color: eppFail > 0 ? '#ef4444' : '#10b981' }} className="text-[1.8rem] font-[900]">{eppFail}</div>
-                            <div className="text-[0.75rem] text-[var(--color-text-muted)] font-[700]">SIN EPP</div>
+                        <div style={{ background: eppFail > 0 ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${eppFail > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}` }} className="rounded-[12px] p-[0.8rem] text-center">
+                            <div style={{ color: eppFail > 0 ? '#ef4444' : '#10b981' }} className="text-[1.5rem] font-[900]">{eppFail}</div>
+                            <div className="text-[0.65rem] text-[var(--color-text-muted)] font-[700]">SIN EPP</div>
                         </div>
                     </div>
 
@@ -198,13 +187,9 @@ export default function AICameraManager(): React.ReactElement | null {
                                     <div className="relative w-[100%] h-[80px] flex items-end">
                                         <div className="absolute w-[100%] h-[100%] bg-[var(--color-background)] rounded-[4px] opacity-[0.5]" />
                                         <div style={{
-
-                  height: `${s.value}%`,
-                  background: s.value > 80 ? '#10b981' : s.value > 50 ? '#f59e0b' : '#ef4444'
-
-
-
-                }} title={`${s.value}% compliance (${s.count} insp)`} className="w-[100%] rounded-[4px] z-[1] transition-[height_1s_ease-out]" />
+                                          height: `${s.value}%`,
+                                          background: s.value > 80 ? '#10b981' : s.value > 50 ? '#f59e0b' : '#ef4444'
+                                        }} title={`${s.value}% compliance (${s.count} insp)`} className="w-[100%] rounded-[4px] z-[1] transition-[height_1s_ease-out]" />
                                     </div>
                                     <span className="text-[0.6rem] text-[var(--color-text-muted)] font-[700] uppercase">{s.label}</span>
                                 </div>

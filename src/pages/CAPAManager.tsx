@@ -346,13 +346,6 @@ export default function CAPAManager(): React.ReactElement | null {
                     <></>
                     <button
             onClick={() => navigate('/capa/new')} className="flex items-center gap-[0.8rem] p-[0.8rem_1.5rem] bg-[linear-gradient(135deg,_#36B37E_0%,_#2A9365_100%)] text-[white] border-none rounded-[12px] font-[800] text-[0.95rem] cursor-pointer box-shadow-[0_4px_15px_rgba(54,_179,_126,_0.4)]">
-
-
-
-
-
-
-            
                         <Plus size={20} strokeWidth={2.5} /> NUEVA CAPA
                     </button>
                 </div>
@@ -569,7 +562,9 @@ export default function CAPAManager(): React.ReactElement | null {
       <EmptyStateIllustrated
         title="Sin Acciones CAPA"
         description="Registrá y hacé seguimiento de acciones correctivas y preventivas para la mejora continua."
-        icon={<RefreshCw />} /> :
+        icon={<RefreshCw />}
+        onAction={() => navigate('/capa/new')}
+        actionLabel="Crear Nueva CAPA" /> :
 
 
       <div className="flex flex-col gap-3">
@@ -600,7 +595,11 @@ export default function CAPAManager(): React.ReactElement | null {
       <CreateCapaModal
         capa={newCapa}
         setCapa={setNewCapa}
-        onSave={saveCapas}
+        onSave={() => {
+          saveCapas(newCapa);
+          setShowAddModal(false);
+          resetForm();
+        }}
         onClose={() => {
           setShowAddModal(false);
           resetForm();

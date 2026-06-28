@@ -382,24 +382,76 @@ export default function ExtintoresManager() {
   const handleExportExcel = async () => {
     try {
       const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Extintores');
+      const worksheet = workbook.addWorksheet('Extintores', { views: [{ showGridLines: false }] });
+
+      let logoData = '';
+      try {
+        const raw = localStorage.getItem('companyLogo');
+        if (raw && (raw.startsWith('data:') || raw.startsWith('http'))) logoData = raw;
+        else if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed?.value) logoData = parsed.value;
+          else if (parsed?.logo) logoData = parsed.logo;
+        }
+      } catch (e) {}
+
+      if (!logoData) {
+        logoData = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACH0lEQVR4nO3WMWrbQBgH8P+R2o1Qj9AruHQQOoTuwUN48BDWc4TQRUIP4MVD2A6hB3ClQyDqEBrcI1joECpdgr5D2+KqK510Z8l+H/iQEJKQ8/sO2ZLtAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKB1iQj3Gfcb9xQvGM96q9Q2iQhPGT9L2k14t0rdQ8ZdxiuF/I8Zb3qr3AR6Uci/xR/GfM6Vf0h4X8j/hLHEfM4Jjwr53zF+6a1yA2hHIf9Txl/GW0bTW+VqwS81v2P8YpS9Va4arNT8XhifFwzXq2wA/xnjE+Ntb5WrAj8y/ioY7A3jTW+VCwV7hj/B8GvGG8Yy1/w1hT9J2E1421vlQsH8uS/I06N1rOqT1mGf/u/a1Z+PzO11e+1bT6Xms1c2B8xnmZ/9+QkAcJ/Zz5vO95p922X2s7mJ/9QcMZ/T+fl2Pj7LPN+Y7zD7OdtxT822+Zy27/9g1rBv9/Z9t23M51R/PqfzmQv23/58p3H2VqnS4H739+0m/tPYrVKlz3B3v2UcxuHnU++VKinIfdntDq1hN1y/3120XqlSQdbzYtF6pUoFnfM9zS/M4bM2L6rVqxXyZq+98z2V95yL1T8o5H3M+/E91fdcStU/KP7R2uNzqtUvlX/9nWr1S1Vfv2davVLlX79nWr1S+EAAACwJf4Bntp6h83445oAAAAASUVORK5CYII=";
+      }
+
+      try {
+        if (logoData.startsWith('data:image/')) {
+            const extension = logoData.split(';')[0].split('/')[1] || 'png';
+            const base64Part = logoData.split(',')[1] || logoData;
+            const logoId = workbook.addImage({ base64: base64Part, extension: extension as any });
+            worksheet.addImage(logoId, { tl: { col: 6.5, row: 0.2 }, ext: { width: 50, height: 50 }, editAs: 'absolute' });
+        }
+      } catch (e) {}
+
+      const headers = ['Nº / Chapa', 'Tipo', 'Capacidad', 'Ubicación', 'Empresa', 'Venc. Recarga', 'Venc. PH', 'Vida Útil'];
+
+      worksheet.mergeCells(1, 1, 1, 8);
+      const titleCell = worksheet.getCell('A1');
+      titleCell.value = 'Inventario de Extintores';
+      titleCell.font = { name: 'Arial', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
+      titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } };
+      titleCell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+
+      worksheet.mergeCells(2, 1, 2, 8);
+      const subCell = worksheet.getCell('A2');
+      subCell.value = `Generado el: ${new Date().toLocaleDateString('es-AR')} - ${filterEmpresa || 'Todas las empresas'}`;
+      subCell.font = { name: 'Arial', size: 10, italic: true, color: { argb: 'FFFFFFFF' } };
+      subCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } };
+      subCell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+
+      worksheet.getRow(1).height = 30;
+      worksheet.getRow(2).height = 20;
+      worksheet.getRow(3).height = 10;
+
+      const headerRow = worksheet.getRow(4);
+      headers.forEach((h, i) => {
+        const c = headerRow.getCell(i + 1);
+        c.value = h;
+        c.font = { name: 'Arial', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+        c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0284C7' } }; // Azul profesional
+        c.alignment = { vertical: 'middle', horizontal: 'center' };
+        c.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
+      });
+      headerRow.height = 25;
 
       worksheet.columns = [
-      { header: 'Chapa', key: 'chapa', width: 15 },
-      { header: 'Tipo', key: 'tipo', width: 20 },
-      { header: 'Capacidad', key: 'capacidad', width: 15 },
-      { header: 'Ubicación', key: 'ubicacion', width: 30 },
-      { header: 'Empresa', key: 'empresa', width: 25 },
-      { header: 'Venc. Recarga', key: 'recarga', width: 20 },
-      { header: 'Venc. PH', key: 'ph', width: 20 },
-      { header: 'Vida Útil', key: 'vidaUtil', width: 20 }];
-
-
-      worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-      worksheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
+        { key: 'chapa', width: 15 },
+        { key: 'tipo', width: 20 },
+        { key: 'capacidad', width: 15 },
+        { key: 'ubicacion', width: 30 },
+        { key: 'empresa', width: 25 },
+        { key: 'recarga', width: 18 },
+        { key: 'ph', width: 18 },
+        { key: 'vidaUtil', width: 18 }
+      ];
 
       filtered.forEach((ext) => {
-        worksheet.addRow({
+        const row = worksheet.addRow({
           chapa: ext.numero,
           tipo: formatType(ext.tipo),
           capacidad: ext.capacidad,
@@ -409,6 +461,13 @@ export default function ExtintoresManager() {
           ph: ext.vencimientoPH ? new Date(ext.vencimientoPH + 'T12:00:00Z').toLocaleDateString('es-AR') : '',
           vidaUtil: ext.fechaFabricacion ? new Date(ext.fechaFabricacion + 'T12:00:00Z').toLocaleDateString('es-AR') : ''
         });
+        
+        row.eachCell((cell, colIndex) => {
+          cell.font = { name: 'Arial', size: 10, color: { argb: 'FF334155' } };
+          cell.alignment = { vertical: 'middle', horizontal: colIndex === 1 || colIndex === 4 || colIndex === 5 ? 'left' : 'center', wrapText: true };
+          cell.border = { top: { style: 'thin', color: { argb: 'FFCBD5E1'} }, bottom: { style: 'thin', color: { argb: 'FFCBD5E1'} }, left: { style: 'thin', color: { argb: 'FFCBD5E1'} }, right: { style: 'thin', color: { argb: 'FFCBD5E1'} } };
+        });
+        row.height = 20;
       });
 
       const buffer = await workbook.xlsx.writeBuffer();
@@ -440,7 +499,7 @@ export default function ExtintoresManager() {
     accessor: 'index',
     width: '60px',
     render: (_: any, idx: number) =>
-    <div className="font-black text-slate-700 dark:text-slate-200 text-base text-center bg-slate-100 dark:bg-slate-700 py-1 px-2 rounded-lg">
+    <div className="font-black text-white text-sm text-center bg-slate-800 dark:bg-slate-600 py-1.5 px-2 rounded-lg shadow-sm">
                     {idx + 1}
                 </div>
 
@@ -525,8 +584,8 @@ export default function ExtintoresManager() {
     render: (item: any) => {
       const st = getRecargaExpirationStatus(item.vencimientoRecarga);
       return (
-        <span style={{ backgroundColor: st.bg || 'transparent', color: st.color }} className="p-[0.2rem_0.6rem] rounded-[12px] font-[800] text-[0.75rem] display-[inline-flex] items-center gap-[0.3rem]">
-                        {st.icon && st.icon} {st.label} ({st.expirationDate || '-'})
+        <span style={{ color: st.color }} className="font-[800] text-[0.85rem] flex items-center gap-[0.3rem]">
+                        {st.icon && st.icon} {st.label} <br/>({st.expirationDate || '-'})
                     </span>);
 
     }
@@ -538,8 +597,8 @@ export default function ExtintoresManager() {
     render: (item: any) => {
       const st = getPHExpirationStatus(item.vencimientoPH);
       return (
-        <span style={{ backgroundColor: st.bg || 'transparent', color: st.color }} className="p-[0.2rem_0.6rem] rounded-[12px] font-[800] text-[0.75rem] display-[inline-flex] items-center gap-[0.3rem]">
-                        {st.icon && st.icon} {st.label} ({st.expirationDate || '-'})
+        <span style={{ color: st.color }} className="font-[800] text-[0.85rem] flex items-center gap-[0.3rem]">
+                        {st.icon && st.icon} {st.label} <br/>({st.expirationDate || '-'})
                     </span>);
 
     }
@@ -552,7 +611,7 @@ export default function ExtintoresManager() {
       const st = getLifespanStatus(item.fechaFabricacion);
       if (!st) return <span className="text-slate-500 dark:text-slate-400 text-sm font-bold">Sin Dato</span>;
       return (
-        <span style={{ backgroundColor: st.bg || 'transparent', color: st.color }} className="p-[0.2rem_0.6rem] rounded-[12px] font-[800] text-[0.75rem] display-[inline-flex] items-center gap-[0.3rem]">
+        <span style={{ color: st.color }} className="font-[800] text-[0.85rem] flex items-center gap-[0.3rem]">
                         {st.icon && st.icon} {st.label}
                     </span>);
 
@@ -594,13 +653,13 @@ export default function ExtintoresManager() {
 
       return (
         <div className="flex items-center gap-1.5">
-                        <button onClick={() => navigate(`/extintores/inspect/${item.id}`)} style={{ background: inspBg, border: `1px solid ${inspBorder}`, color: inspColor }} title="Inspeccionar" className="p-[0.4rem] rounded-[8px] cursor-pointer flex items-center gap-[0.3rem] font-[800] text-[0.75rem]">
-                            <ShieldCheck size={15} /> INSP
+                        <button onClick={() => navigate(`/extintores/inspect/${item.id}`)} style={{ background: inspBg, border: `1px solid ${inspBorder}`, color: inspColor }} title="Inspeccionar" className="p-[0.5rem] rounded-[8px] cursor-pointer flex items-center gap-[0.3rem] font-[800] text-[0.75rem] shadow-sm hover:-translate-y-0.5 transition-transform">
+                            <ShieldCheck size={16} /> INSP
                         </button>
-                        <button onClick={() => handleEdit(item)} title="Editar" className="p-[0.4rem] bg-[rgba(37,99,235,0.08)] border-[1px_solid_rgba(37,99,235,0.2)] rounded-[8px] text-blue-600 dark:text-blue-400 cursor-pointer"><Edit3 size={15} /></button>
-                        <button onClick={() => requirePro(() => generateQR(item))} title="QR" className="p-[0.4rem] bg-[rgba(139,92,246,0.08)] border-[1px_solid_rgba(139,92,246,0.2)] rounded-[8px] text-[#8b5cf6] cursor-pointer"><QrCode size={15} /></button>
-                        <button onClick={() => requirePro(() => setShareItem(item))} title="Compartir" className="p-[0.4rem] bg-[rgba(22,163,74,0.08)] border-[1px_solid_rgba(22,163,74,0.2)] rounded-[8px] text-green-600 dark:text-green-400 cursor-pointer"><Share2 size={15} /></button>
-                        <button onClick={() => handleDelete(item.id)} title="Eliminar" className="p-[0.4rem] bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[8px] text-[#ef4444] cursor-pointer"><Trash2 size={15} /></button>
+                        <button onClick={() => handleEdit(item)} title="Editar" style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Edit3 size={16} /></button>
+                        <button onClick={() => requirePro(() => generateQR(item))} title="QR" style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><QrCode size={16} /></button>
+                        <button onClick={() => requirePro(() => setShareItem(item))} title="Compartir" style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Share2 size={16} /></button>
+                        <button onClick={() => handleDelete(item.id)} title="Eliminar" style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Trash2 size={16} /></button>
                     </div>);
 
     }
@@ -638,7 +697,7 @@ export default function ExtintoresManager() {
                                 <>
                                     <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
                                         <div className="p-3 bg-blue-100 text-blue-600 rounded-xl"><Flame size={24} /></div>
-                                        <div><p className="text-sm text-slate-500 font-bold mb-1 uppercase">Total Equipos</p><h3 className="text-2xl font-black text-slate-800 dark:text-slate-100 m-0">{stats.total}</h3></div>
+                                        <div><p style={{ color: 'var(--color-text)' }} className="text-sm font-bold mb-1 uppercase opacity-60">Total Equipos</p><h3 style={{ color: 'var(--color-text)' }} className="text-2xl font-black m-0">{stats.total}</h3></div>
                                     </div>
                                     <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
                                         <div className="p-3 bg-red-100 text-red-600 rounded-xl"><AlertTriangle size={24} /></div>
@@ -659,10 +718,10 @@ export default function ExtintoresManager() {
                 </>
       }
 
-            {showGlobalSignatureModal &&
-      <div className="fixed inset-0 bg-black/50 z-[9999] flex items-start justify-center overflow-y-auto px-4 pt-24 pb-8">
-                    <div className="animate-fade-in w-full max-w-[850px] bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-2xl mx-auto">
-                        <h3 className="mt-0 text-slate-800 dark:text-slate-100 font-extrabold border-b border-slate-200 dark:border-slate-700 pb-2 mb-3 flex items-center gap-2 text-lg">
+            {showGlobalSignatureModal && createPortal(
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999999, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
+                    <div style={{ width: '100%', maxWidth: '850px', maxHeight: '90vh', overflowY: 'auto', backgroundColor: '#ffffff', borderRadius: '1.5rem', padding: '1.5rem', margin: '0 1rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }} className="animate-fade-in relative dark:bg-slate-800">
+                        <h3 style={{ color: '#1e293b' }} className="mt-0 font-extrabold border-b border-slate-200 dark:border-slate-700 pb-2 mb-3 flex items-center gap-2 text-lg">
                             <Pencil size={20} color="#3b82f6" /> Firmas del Reporte Global
                         </h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
@@ -691,16 +750,16 @@ export default function ExtintoresManager() {
                                 <label className="flex items-center gap-[0.4rem] cursor-pointer text-[#166534] font-[700] text-[0.9rem] border-bottom-[1px_solid_#bbf7d0] pb-[0.4rem]">
                                     <input type="checkbox" checked={globalShowSignatures.professional} onChange={(e) => setGlobalShowSignatures((prev) => ({ ...prev, professional: e.target.checked }))} className="w-[16px] h-[16px] cursor-pointer" />
                                     Profesional Actuante
-                                </label>
-                                <div className="flex flex-col items-center justify-center flex-[1] min-h-[150px] bg-white dark:bg-slate-800 border-[2px_dashed_var(--color-border)] rounded-[12px] p-[0.5rem] text-center">
-                                    {professionalData?.signature ?
-                <img src={professionalData.signature} alt="Firma Profesional" className="max-height-[65px] object-fit-[contain] mb-[0.4rem]" /> :
+                                    <div className="flex flex-col items-center justify-center flex-1 min-h-[150px] bg-white dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-4 text-center mt-2">
+                                        {professionalData?.signature ?
+                    <img src={professionalData.signature} alt="Firma Profesional" className="max-h-[65px] object-contain mb-3" /> :
 
-                <span className="text-[#94a3b8] font-style-[italic] mb-[0.4rem] text-[0.8rem]">Sin firma</span>
-                }
-                                    <p className="m-[0] font-[800] text-slate-700 dark:text-slate-300 text-[0.85rem]">{professionalData?.name || 'No configurado'}</p>
-                                    <p className="m-[0] font-[600] text-[#64748b] text-[0.75rem]">{professionalData?.license ? `Mat. ${professionalData.license}` : 'Sin matrícula'}</p>
-                                </div>
+                    <span className="text-slate-400 italic mb-3 text-sm">Sin firma</span>
+                    }
+                                        <p className="m-0 font-extrabold text-slate-800 dark:text-slate-200 text-base">{professionalData?.name || 'No configurado'}</p>
+                                        <p className="m-0 font-bold text-slate-500 text-sm mt-1">{professionalData?.license ? `Mat. ${professionalData.license}` : 'Sin matrícula'}</p>
+                                    </div>
+                                </label>
                             </div>
 
                             {/* Supervisor */}
@@ -721,15 +780,15 @@ export default function ExtintoresManager() {
                         </div>
 
                         <div className="flex justify-end gap-3">
-                            <button onClick={() => setShowGlobalSignatureModal(false)} className="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 py-2.5 px-5 rounded-xl font-extrabold cursor-pointer flex items-center gap-2 transition-all text-sm hover-scale">
+                            <button onClick={() => setShowGlobalSignatureModal(false)} style={{ backgroundColor: '#e2e8f0', color: '#475569', border: 'none' }} className="py-2.5 px-5 rounded-xl font-extrabold cursor-pointer flex items-center gap-2 transition-all text-sm hover-scale">
                                 Cancelar
                             </button>
-                            <button onClick={() => setShowGlobalSignatureModal(false)} className="bg-blue-500 hover:bg-blue-600 text-white py-2.5 px-5 rounded-xl font-extrabold cursor-pointer flex items-center gap-2 transition-all text-sm shadow-[0_4px_15px_rgba(59,130,246,0.3)] hover-scale">
+                            <button onClick={() => setShowGlobalSignatureModal(false)} style={{ backgroundColor: '#3b82f6', color: '#ffffff', border: 'none' }} className="py-2.5 px-5 rounded-xl font-extrabold cursor-pointer flex items-center gap-2 transition-all text-sm shadow-[0_4px_15px_rgba(59,130,246,0.3)] hover-scale">
                                 <CheckCircle2 size={18} /> Guardar
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>, document.body)
       }
 
             <ShareModal
@@ -758,12 +817,12 @@ export default function ExtintoresManager() {
 
             {showCalendar && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-4xl bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-2xl flex flex-col max-h-[90vh] animate-fade-in border border-slate-200 dark:border-slate-700">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-black text-slate-800 dark:text-slate-100 flex items-center gap-2"><CalendarDays size={24} className="text-amber-500" /> Vencimientos Próximos</h2>
-                            <button onClick={() => setShowCalendar(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors border-none cursor-pointer">✕</button>
+                    <div className="w-full max-w-4xl bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-2xl flex flex-col max-h-[85vh] min-h-[50vh] overflow-hidden animate-fade-in border border-slate-200 dark:border-slate-700">
+                        <div className="flex justify-between items-center mb-6 shrink-0">
+                            <h2 style={{ color: 'var(--color-text)' }} className="text-2xl font-black flex items-center gap-2"><CalendarDays size={28} className="text-amber-500" /> Vencimientos Próximos</h2>
+                            <button onClick={() => setShowCalendar(false)} style={{ backgroundColor: '#fee2e2', color: '#dc2626', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#fecaca'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#fee2e2'}>✕</button>
                         </div>
-                        <div className="overflow-y-auto flex-1 pr-2">
+                        <div className="overflow-y-auto flex-1 pr-2 min-h-0 custom-scrollbar">
                             {(() => {
                                 const now = new Date();
                                 const grouped = filtered.reduce((acc, ext) => {
@@ -791,23 +850,23 @@ export default function ExtintoresManager() {
                                     return d >= new Date(now.getFullYear(), now.getMonth(), 1);
                                 }).slice(0, 6);
 
-                                if (upcomingKeys.length === 0) return <div className="text-center p-8 text-slate-500 font-bold">No hay vencimientos en los próximos meses.</div>;
+                                if (upcomingKeys.length === 0) return <div className="text-center p-8 text-slate-500 dark:text-slate-400 font-bold">No hay vencimientos en los próximos meses.</div>;
 
                                 return upcomingKeys.map(key => {
                                     const [y, m] = key.split('-');
                                     const monthName = new Date(parseInt(y), parseInt(m) - 1, 1).toLocaleString('es-ES', { month: 'long', year: 'numeric' });
                                     return (
                                         <div key={key} className="mb-6">
-                                            <h3 className="uppercase tracking-wider font-bold text-sm text-slate-500 mb-3 border-b border-slate-200 pb-2">{monthName} <span className="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-xs ml-2">{grouped[key].length}</span></h3>
+                                            <h3 style={{ color: 'var(--color-text)' }} className="uppercase tracking-wider font-bold text-sm mb-3 border-b border-slate-200 dark:border-slate-700 pb-2 opacity-80">{monthName} <span className="bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white px-2 py-0.5 rounded-full text-xs ml-2">{grouped[key].length}</span></h3>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                 {grouped[key].map((item: any, i: number) => (
-                                                    <div key={i} className="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                                                    <div key={i} className="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex justify-between items-center shadow-sm">
                                                         <div>
-                                                            <p className="font-bold text-slate-800 dark:text-slate-200 m-0 text-sm">{item.numero} - {item.tipo}</p>
-                                                            <p className="text-xs text-slate-500 m-0">{item.ubicacion}</p>
+                                                            <p style={{ color: 'var(--color-text)' }} className="font-bold m-0 text-[15px]">{item.numero} - {item.tipo}</p>
+                                                            <p style={{ color: 'var(--color-text)' }} className="text-xs m-0 mt-1 flex items-center gap-1 opacity-70"><MapPin size={12} className="text-red-500" /> {item.ubicacion}</p>
                                                         </div>
                                                         <div className="text-right">
-                                                            <span className="text-[0.65rem] font-black text-amber-600 bg-amber-100 px-2 py-1 rounded-lg uppercase">{item.reason}</span>
+                                                            <span className="text-[0.65rem] font-black text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/50 px-2 py-1 rounded-lg uppercase">{item.reason}</span>
                                                         </div>
                                                     </div>
                                                 ))}
@@ -945,24 +1004,28 @@ export default function ExtintoresManager() {
                         
                         <div className="flex gap-[1rem] justify-end mt-[2rem] flex-wrap">
                             {editingId && (
-                                <button type="button" onClick={() => setShowHistoryModal(formData)} className="p-[0.8rem_1.5rem] rounded-[12px] border border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100 font-[800] cursor-pointer flex items-center gap-[0.5rem] mr-auto transition-colors">
+                                <button type="button" onClick={() => setShowHistoryModal(formData)} style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none' }} className="p-[0.8rem_1.5rem] rounded-[12px] font-[800] cursor-pointer flex items-center gap-[0.5rem] mr-auto transition-transform hover:-translate-y-0.5 shadow-md">
                                     <History size={18} /> Ver Historial
                                 </button>
                             )}
-                            <button type="button" onClick={() => {setShowForm(false);setEditingId(null);}} className="p-[0.8rem_1.5rem] rounded-[12px] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] font-[800] cursor-pointer text-[var(--color-text)]">Cancelar</button>
+                            <button type="button" onClick={() => {setShowForm(false);setEditingId(null);}} style={{ backgroundColor: '#64748b', color: '#ffffff', border: 'none' }} className="p-[0.8rem_1.5rem] rounded-[12px] font-[800] cursor-pointer transition-transform hover:-translate-y-0.5 shadow-md">
+                                Cancelar
+                            </button>
                             <button type="button" onClick={() => {
               setPrintItem(formData);
               setTimeout(() => {
                 window.print();
                 setTimeout(() => setPrintItem(null), 10000);
               }, 600);
-            }} className="p-[0.8rem_1.5rem] rounded-[12px] border-[2px_solid_#10b981] text-[#10b981] bg-[rgba(16,_185,_129,_0.05)] font-[800] cursor-pointer flex items-center gap-[0.5rem]">
+            }} style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }} className="p-[0.8rem_1.5rem] rounded-[12px] font-[800] cursor-pointer flex items-center gap-[0.5rem] transition-transform hover:-translate-y-0.5 shadow-md">
                                 <Printer size={18} /> Generar PDF
                             </button>
-                            <button type="button" onClick={() => {setShareItem(formData);}} className="p-[0.8rem_1.5rem] rounded-[12px] border-[2px_solid_#3b82f6] text-[#3b82f6] bg-[rgba(59,_130,_246,_0.05)] font-[800] cursor-pointer flex items-center gap-[0.5rem]">
+                            <button type="button" onClick={() => {setShareItem(formData);}} style={{ backgroundColor: '#8b5cf6', color: '#ffffff', border: 'none' }} className="p-[0.8rem_1.5rem] rounded-[12px] font-[800] cursor-pointer flex items-center gap-[0.5rem] transition-transform hover:-translate-y-0.5 shadow-md">
                                 <Share2 size={18} /> Compartir
                             </button>
-                            <button type="submit" className="p-[0.8rem_1.5rem] rounded-[12px] border-none bg-[var(--color-primary)] text-[#fff] font-[900] cursor-pointer box-shadow-[0_4px_12px_rgba(var(--color-primary-rgb),_0.3)]">Guardar Equipo</button>
+                            <button type="submit" style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none' }} className="p-[0.8rem_1.5rem] rounded-[12px] font-[900] cursor-pointer transition-transform hover:-translate-y-0.5 shadow-[0_4px_12px_rgba(37,99,235,0.3)]">
+                                Guardar Equipo
+                            </button>
                         </div>
 
                         <div className="card animate-fade-in mt-[2.5rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2.5rem] box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.08)]">
@@ -992,14 +1055,10 @@ export default function ExtintoresManager() {
                                                 <input
                         type="checkbox"
                         checked={isChecked}
-                        onChange={(e) => setFormData({ ...formData, showSignatures: { ...formData.showSignatures, [sig.id]: e.target.checked } as any })} className="none" />
+                        onChange={(e) => setFormData({ ...formData, showSignatures: { ...formData.showSignatures, [sig.id]: e.target.checked } as any })} style={{ display: 'none' }} />
 
-                      
-                                                <div style={{
-                        border: `2px solid ${isChecked ? '#fff' : 'var(--color-text-muted)'}`,
-                        background: isChecked ? '#fff' : 'transparent'
-                      }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center">
-                                                    {isChecked && <div className="w-[8px] h-[8px] bg-[var(--color-primary)] rounded-[2px]" />}
+                                                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    {isChecked ? <CheckCircle2 size={20} color="#ffffff" /> : <div className="w-[20px] h-[20px] rounded-full border-2 border-slate-400" />}
                                                 </div>
                                                 {sig.label}
                                             </label>);
@@ -1064,15 +1123,15 @@ export default function ExtintoresManager() {
       <>
                     <div className="mb-[2rem] flex gap-[1rem] flex-wrap items-stretch bg-[var(--color-surface,_#fff)] p-[1.5rem] rounded-[24px] box-shadow-[0_10px_40px_rgba(0,0,0,0.04)] border-[1px_solid_rgba(0,0,0,0.05)]">
                         <div className="flex-[1_1_250px] relative">
-                            <Search size={22} className="absolute left-[1.2rem] top-[50%] transform-[translateY(-50%)] text-[#94a3b8]" />
+                            <Search size={22} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
                             <input
               type="text"
               placeholder="Buscar por Nº, tipo o ubicación..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-
               onFocus={(e) => {e.currentTarget.style.border = '2px solid #3b82f6';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = '0 0 0 4px rgba(59,130,246,0.1)';}}
-              onBlur={(e) => {e.currentTarget.style.border = '2px solid transparent';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = 'none';}} className="w-[100%] h-[100%] min-h-[3.5rem] p-[1rem_1rem_1rem_3.5rem] rounded-[16px] border-[2px_solid_transparent] bg-slate-50 dark:bg-slate-800/50 text-[1rem] outline-[none] transition-[all_0.3s_cubic-bezier(0.4,_0,_0.2,_1)] font-[500] text-slate-700 dark:text-slate-300" />
+              onBlur={(e) => {e.currentTarget.style.border = '2px solid transparent';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = 'none';}} 
+              style={{ width: '100%', height: '100%', minHeight: '3.5rem', padding: '0.75rem 1rem 0.75rem 3.5rem', borderRadius: '1rem', border: '2px solid transparent', backgroundColor: 'rgba(241, 245, 249, 0.5)', fontSize: '1rem', outline: 'none', transition: 'all 0.3s', fontWeight: 500, color: '#334155' }} />
             
                         </div>
                         <div className="flex-[1_1_250px] relative">
@@ -1081,14 +1140,14 @@ export default function ExtintoresManager() {
               onChange={(e) => setFilterEmpresa(e.target.value)}
               style={{ color: filterEmpresa ? '#334155' : '#94a3b8' }}
               onFocus={(e) => {e.currentTarget.style.border = '2px solid #3b82f6';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = '0 0 0 4px rgba(59,130,246,0.1)';}}
-              onBlur={(e) => {e.currentTarget.style.border = '2px solid transparent';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = 'none';}} className="w-[100%] h-[100%] min-h-[3.5rem] p-[1rem_2.5rem_1rem_1.2rem] rounded-[16px] border-[2px_solid_transparent] bg-slate-50 dark:bg-slate-800/50 text-[1rem] outline-[none] appearance-[none] cursor-pointer transition-[all_0.3s_cubic-bezier(0.4,_0,_0.2,_1)] font-[500]">
+              onBlur={(e) => {e.currentTarget.style.border = '2px solid transparent';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = 'none';}} className="w-full h-full min-h-[3.5rem] py-3 pr-10 pl-4 rounded-2xl border-2 border-transparent bg-slate-50 dark:bg-slate-800/50 text-base outline-none appearance-none cursor-pointer transition-all font-medium">
               
                                 <option value="">🏢 Todas las Empresas</option>
                                 {uniqueEmpresas.map((emp) =>
               <option key={emp} value={emp}>{emp}</option>
               )}
                             </select>
-                            <div className="absolute right-[1.2rem] top-[50%] transform-[translateY(-50%)] pointer-events-[none] text-[#94a3b8]">
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                             </div>
                         </div>
@@ -1101,16 +1160,16 @@ export default function ExtintoresManager() {
                             <Plus size={22} strokeWidth={2.5} /> Registrar Matafuego
                         </button>
                     </div>
-                    <div className="flex flex-wrap gap-3 mb-6">
-                        <button onClick={downloadTemplate} className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors border border-slate-200 cursor-pointer">
-                            <DownloadCloud size={18} /> Descargar Plantilla
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        <button onClick={downloadTemplate} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'none'} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#ffffff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(16,185,129,0.3)', transition: 'all 0.2s', width: '100%' }}>
+                            <DownloadCloud size={20} /> Descargar Plantilla
                         </button>
-                        <label className="flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-xl transition-colors border border-blue-200 cursor-pointer">
-                            <UploadCloud size={18} /> Importar Excel
-                            <input type="file" accept=".xlsx, .xls" className="hidden" ref={fileInputRef} onChange={handleExcelImport} />
+                        <label onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'none'} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#ffffff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(59,130,246,0.3)', transition: 'all 0.2s', width: '100%' }}>
+                            <UploadCloud size={20} /> Importar Excel
+                            <input type="file" accept=".xlsx, .xls" style={{ display: 'none' }} ref={fileInputRef} onChange={handleExcelImport} />
                         </label>
-                        <button onClick={() => setShowCalendar(true)} className="flex items-center gap-2 px-4 py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold rounded-xl transition-colors border border-amber-200 cursor-pointer">
-                            <CalendarDays size={18} /> Calendario de Vencimientos
+                        <button onClick={() => setShowCalendar(true)} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'none'} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem', background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#ffffff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(245,158,11,0.3)', transition: 'all 0.2s', width: '100%' }}>
+                            <CalendarDays size={20} /> Calendario de Vencimientos
                         </button>
                     </div>
 
@@ -1157,9 +1216,17 @@ export default function ExtintoresManager() {
                                             transform: translateY(-2px);
                                             box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
                                         }
+                                        .btn-signatures {
+                                            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+                                            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+                                        }
+                                        .btn-signatures:hover {
+                                            transform: translateY(-2px);
+                                            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+                                        }
                                     `}
                                 </style>
-                                <button onClick={() => requirePro(() => setShowGlobalSignatureModal(true))} className="action-btn-premium bg-slate-600 dark:bg-slate-500 shadow-md">
+                                <button onClick={() => requirePro(() => setShowGlobalSignatureModal(true))} className="action-btn-premium btn-signatures">
                                     <Pencil size={16} /> FIRMAS PDF
                                 </button>
                                 <button onClick={() => requirePro(handlePrintPdf)} className="action-btn-premium btn-pdf">
@@ -1176,11 +1243,12 @@ export default function ExtintoresManager() {
                     </div>
 
                     <DataTable
-          data={filtered}
-          columns={columns}
-          searchPlaceholder=""
-          emptyMessage="No hay extintores registrados."
-          emptyIcon={<Flame size={48} />} />
+                        data={filtered}
+                        columns={columns}
+                        searchPlaceholder=""
+                        emptyMessage="No hay extintores registrados."
+                        emptyIcon={<Flame size={48} />}
+                        hideHeader={true} />
         
 
                 </>
@@ -1197,8 +1265,8 @@ export default function ExtintoresManager() {
       
 
             {/* QR Modal with Printable A6 Label */}
-            {showQrModal && qrData &&
-            <div className="fixed inset-[0] z-[100] flex items-center justify-center bg-[rgba(0,0,0,0.6)] backdrop-filter-[blur(4px)] p-4">
+            {showQrModal && qrData && createPortal(
+            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999999, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', padding: '1rem' }}>
                 <style>{`
                     @media print {
                         body * { visibility: hidden; }
@@ -1220,11 +1288,11 @@ export default function ExtintoresManager() {
                         }
                     }
                 `}</style>
-                <div className="animate-fade-in w-[100%] max-w-[400px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-0 overflow-hidden relative shadow-2xl flex flex-col">
+                <div className="animate-fade-in w-[100%] max-w-[400px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-0 overflow-hidden relative shadow-2xl flex flex-col" style={{ maxHeight: '95vh' }}>
                     
                     {/* The Printable A6 Template Area */}
-                    <div id="printable-qr-label" className="p-8 flex flex-col items-center bg-white border-b-2 border-dashed border-slate-200">
-                        <button onClick={() => setShowQrModal(false)} className="no-print absolute top-[1rem] right-[1rem] bg-slate-100 text-slate-600 border-none w-[32px] h-[32px] rounded-[50%] cursor-pointer flex items-center justify-center hover:bg-slate-200 transition-colors z-10">✕</button>
+                    <div id="printable-qr-label" className="p-6 flex flex-col items-center bg-white border-b-2 border-dashed border-slate-200 overflow-y-auto relative">
+                        <button onClick={() => setShowQrModal(false)} style={{ backgroundColor: '#fee2e2', color: '#ef4444', border: 'none' }} className="no-print absolute top-[0.5rem] right-[0.5rem] w-[32px] h-[32px] rounded-[50%] cursor-pointer flex items-center justify-center transition-colors z-10 shadow-sm font-bold">✕</button>
                         
                         <div className="w-full text-center border-b-2 border-slate-800 pb-4 mb-4">
                             <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-1 m-0">CONTROL DE EXTINTOR</h2>
@@ -1254,7 +1322,7 @@ export default function ExtintoresManager() {
                             )}
                         </div>
 
-                        <div className="p-4 bg-white rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.05)] border border-slate-100 relative group w-48 h-48 flex items-center justify-center">
+                        <div className="p-3 bg-white rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.05)] border border-slate-100 relative group w-40 h-40 flex items-center justify-center mx-auto">
                             <img src={qrData.url} alt="QR Extintor" className="w-[100%] h-[100%] block" />
                         </div>
                         
@@ -1264,8 +1332,8 @@ export default function ExtintoresManager() {
                     </div>
                     
                     {/* Modal Controls (Not Printable) */}
-                    <div className="no-print p-6 bg-slate-50 flex flex-col gap-3">
-                        <button onClick={() => window.print()} className="w-full p-4 bg-blue-600 text-white border-none rounded-xl font-black cursor-pointer flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/30">
+                    <div className="no-print p-4 bg-slate-50 flex flex-col gap-2 shrink-0">
+                        <button onClick={() => window.print()} style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none' }} className="w-full p-3 rounded-xl font-black cursor-pointer flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors shadow-md">
                             <Printer size={18} /> IMPRIMIR ETIQUETA A6
                         </button>
                         <button onClick={() => {
@@ -1273,12 +1341,12 @@ export default function ExtintoresManager() {
                             a.href = qrData.url;
                             a.download = `QR_${qrData.ext.numero}.png`;
                             a.click();
-                        }} className="w-full p-4 bg-white text-slate-700 border border-slate-200 rounded-xl font-black cursor-pointer flex items-center justify-center gap-2 hover:bg-slate-100 transition-colors">
+                        }} style={{ backgroundColor: '#e2e8f0', color: '#334155', border: '1px solid #cbd5e1' }} className="w-full p-3 rounded-xl font-black cursor-pointer flex items-center justify-center gap-2 hover:bg-slate-200 transition-colors shadow-sm">
                             <QrCode size={18} /> DESCARGAR SOLO IMAGEN QR
                         </button>
                     </div>
                 </div>
-            </div>
+            </div>, document.body)
       }
         </div>);
 

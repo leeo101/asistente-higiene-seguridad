@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePaywall } from '../hooks/usePaywall';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShieldCheck, ArrowLeft, Camera, CheckCircle2, Save, X, Flame, Plus } from 'lucide-react';
+import { ShieldCheck, ArrowLeft, Camera, CheckCircle2, Save, X, Flame, Plus, Image as ImageIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -228,14 +228,14 @@ export default function ExtinguisherInspection() {
             <div className="card p-[1.2rem] mb-[1.5rem] bg-[var(--color-surface)] border-[2px_solid_var(--color-border)]">
                 <div className="flex justify-space-between items-center mb-[1rem]">
                     <h3 className="m-[0] text-[0.9rem] font-[900] uppercase text-[var(--color-primary)]">Inspección NFPA 10</h3>
-                    <button onClick={setAllOk} className="p-[0.4rem_0.8rem] bg-[#10b981] text-[#fff] text-[0.7rem] font-[800] border-none rounded-[8px] cursor-pointer">
-                        MARCAR TODO OK
+                    <button onClick={setAllOk} style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }} className="p-[0.5rem_0.8rem] text-[0.75rem] font-[800] rounded-[8px] cursor-pointer shadow-sm transition-transform hover:-translate-y-0.5 flex items-center gap-1">
+                        <CheckCircle2 size={16} /> MARCAR TODO OK
                     </button>
                 </div>
 
                 <div className="flex flex-col gap-4">
                     {checklist.map((item, idx) =>
-          <div key={item.id} className="p-[1rem] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[12px]">
+                        <div key={item.id} className="p-[1rem] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[12px]">
                             <div className="flex items-start gap-[0.5rem] mb-[0.8rem]">
                                 <span className="font-[800] text-[var(--color-primary)] mt-[0.4rem]">{idx + 1}.</span>
                                 <textarea
@@ -245,7 +245,7 @@ export default function ExtinguisherInspection() {
 
                 className="hover:border-slate-300 focus:border-blue-500 focus:bg-white flex-[1] p-[0.4rem] text-[0.85rem] font-[600] border-[1px_solid_transparent] rounded-[8px] bg-[transparent] outline-[none] resize-[none] min-h-[40px] line-height-[1.4]" />
               
-                                <button onClick={() => handleRemoveItem(idx)} className="hover:bg-red-50 bg-[transparent] border-none text-[#ef4444] p-[0.4rem] cursor-pointer rounded-[8px]">
+                                <button onClick={() => handleRemoveItem(idx)} style={{ backgroundColor: '#fee2e2', color: '#ef4444', border: 'none' }} className="p-[0.4rem] cursor-pointer rounded-[8px] transition-colors">
                                     <X size={16} />
                                 </button>
                             </div>
@@ -255,10 +255,16 @@ export default function ExtinguisherInspection() {
                                 <button className={`ats-status-btn ${item.status === 'NC' ? 'active-fail' : ''}`} onClick={() => handleStatus(idx, 'NC')}>NC</button>
                                 <button className={`ats-status-btn ${item.status === 'NA' ? 'active-na' : ''}`} onClick={() => handleStatus(idx, 'NA')}>N/A</button>
                                 
-                                <label title="Agregar Foto" className="p-[0_0.8rem] bg-[rgba(37,99,235,0.05)] text-[#2563eb] border-[1px_solid_rgba(37,99,235,0.2)] rounded-[8px] cursor-pointer flex items-center justify-center transition-[all_0.2s] ml-[auto]">
-                                    <Camera size={18} />
-                                    <input type="file" accept="image/*" onChange={(e) => handlePhoto(idx, e.target.files)} className="none" />
-                                </label>
+                                <div className="flex gap-2 ml-auto">
+                                    <label title="Tomar Foto" style={{ backgroundColor: '#e0e7ff', color: '#4f46e5', border: 'none', borderRadius: '0.5rem', height: '36px' }} className="px-3 cursor-pointer flex items-center justify-center transition-transform hover:-translate-y-0.5">
+                                        <Camera size={18} />
+                                        <input type="file" accept="image/*" capture="environment" onChange={(e) => handlePhoto(idx, e.target.files)} style={{ display: 'none' }} />
+                                    </label>
+                                    <label title="Subir de Galería" style={{ backgroundColor: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '0.5rem', height: '36px' }} className="px-3 cursor-pointer flex items-center justify-center transition-transform hover:-translate-y-0.5">
+                                        <ImageIcon size={18} />
+                                        <input type="file" accept="image/*" onChange={(e) => handlePhoto(idx, e.target.files)} style={{ display: 'none' }} />
+                                    </label>
+                                </div>
                             </div>
 
                             <div className="animate-fade-in flex flex-col gap-[0.5rem] mt-[0.5rem] pt-[0.5rem] border-top-[1px_dashed_var(--color-border)]">
@@ -286,8 +292,8 @@ export default function ExtinguisherInspection() {
                         </div>
           )}
                     
-                    <button onClick={handleAddItem} className="p-[0.8rem] bg-[rgba(37,99,235,0.1)] text-[#2563eb] border-[1px_dashed_rgba(37,99,235,0.3)] rounded-[12px] font-[800] cursor-pointer flex justify-center items-center gap-[0.5rem]">
-                        <Plus size={18} /> AGREGAR PREGUNTA AL CHECKLIST
+                    <button onClick={handleAddItem} style={{ backgroundColor: '#eff6ff', color: '#2563eb', border: '2px dashed #bfdbfe' }} className="p-[0.5rem_1rem] mt-2 rounded-[10px] font-[800] text-[0.8rem] cursor-pointer flex justify-center items-center gap-[0.5rem] transition-colors hover:bg-blue-100 mx-auto">
+                        <Plus size={16} /> AGREGAR PREGUNTA AL CHECKLIST
                     </button>
                 </div>
             </div>
@@ -295,10 +301,16 @@ export default function ExtinguisherInspection() {
             <div className="card p-[1.2rem] mb-[1.5rem] bg-[var(--color-surface)] border-[2px_solid_var(--color-border)]">
                 <div className="flex justify-space-between items-center">
                     <label className="block text-[0.85rem] font-[800] text-[var(--color-text)] uppercase">Evidencia General</label>
-                    <label className="p-[0.5rem_1rem] bg-[rgba(37,99,235,0.1)] text-[#2563eb] border-[1px_solid_rgba(37,99,235,0.2)] rounded-[8px] cursor-pointer flex items-center gap-[0.5rem] text-[0.8rem] font-[700]">
-                        <Camera size={16} /> Agregar Foto
-                        <input type="file" accept="image/*" onChange={(e) => handleGeneralPhoto(e.target.files)} className="none" />
-                    </label>
+                    <div className="flex gap-2">
+                        <label style={{ backgroundColor: '#e0e7ff', color: '#4f46e5', border: 'none', borderRadius: '0.5rem', fontWeight: 700 }} className="p-[0.5rem_1rem] cursor-pointer flex items-center gap-[0.5rem] text-[0.8rem] transition-transform hover:-translate-y-0.5">
+                            <Camera size={16} /> Cámara
+                            <input type="file" accept="image/*" capture="environment" onChange={(e) => handleGeneralPhoto(e.target.files)} style={{ display: 'none' }} />
+                        </label>
+                        <label style={{ backgroundColor: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '0.5rem', fontWeight: 700 }} className="p-[0.5rem_1rem] cursor-pointer flex items-center gap-[0.5rem] text-[0.8rem] transition-transform hover:-translate-y-0.5">
+                            <ImageIcon size={16} /> Galería
+                            <input type="file" accept="image/*" onChange={(e) => handleGeneralPhoto(e.target.files)} style={{ display: 'none' }} />
+                        </label>
+                    </div>
                 </div>
                 {generalPhotos.length > 0 &&
         <div className="flex gap-[0.8rem] flex-wrap mt-[1rem]">
@@ -345,10 +357,10 @@ export default function ExtinguisherInspection() {
             </div>
 
             {/* Mobile Floating Save Button */}
-            <div className="fixed bottom-[1rem] left-[1rem] right-[1rem] z-[10]">
+            <div style={{ position: 'fixed', bottom: '1rem', left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '400px', zIndex: 10, padding: '0 1rem' }}>
                 <button
           onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-          disabled={isSaving} className="w-[100%] p-[1rem] bg-[var(--color-primary)] text-[#fff] border-none rounded-[16px] font-[900] text-[1rem] cursor-pointer flex justify-center items-center gap-[0.5rem] box-shadow-[0_8px_25px_rgba(37,99,235,0.4)]">
+          disabled={isSaving} style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }} className="w-[100%] p-[0.8rem] rounded-[12px] font-[900] text-[0.9rem] cursor-pointer flex justify-center items-center gap-[0.5rem] shadow-[0_8px_25px_rgba(16,185,129,0.4)] transition-transform hover:-translate-y-1">
 
           
                     <Save size={20} /> {isSaving ? 'GUARDANDO...' : 'FINALIZAR INSPECCIÓN'}

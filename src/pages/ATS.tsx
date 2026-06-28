@@ -485,11 +485,11 @@ export default function ATS(): React.ReactElement | null {
     header: 'Acciones',
     accessor: 'id',
     render: (item: any) =>
-    <div className="flex gap-2">
-                    <button onClick={() => {setFormData(item);setShowForm(true);}} className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shadow-sm"><FileText size={15} /> Ver</button>
-                    <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/ats/${item.id}?print=true`;setQrTarget({ text: url, title: `ATS — ${item.empresa}` } as any);})} title="QR" className="p-1.5 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800/50 rounded-lg text-violet-600 dark:text-violet-400 cursor-pointer hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors shadow-sm"><QrCode size={16} /></button>
-                    <button onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('ats_' + item.id) || 'null') || item))} title="Compartir" className="p-1.5 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/50 rounded-lg text-green-600 dark:text-green-400 cursor-pointer hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors shadow-sm"><Share2 size={16} /></button>
-                    <button onClick={() => setConfirmModal({ isOpen: true, type: 'delete', payload: item.id })} className="p-1.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-lg text-red-600 dark:text-red-400 cursor-pointer hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors shadow-sm"><Trash2 size={16} /></button>
+    <div className="flex items-center gap-1.5">
+                    <button onClick={() => {setFormData(item);setShowForm(true);}} title="Ver" style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><FileText size={16} /></button>
+                    <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/ats/${item.id}?print=true`;setQrTarget({ text: url, title: `ATS — ${item.empresa}` } as any);})} title="QR" style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><QrCode size={16} /></button>
+                    <button onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('ats_' + item.id) || 'null') || item))} title="Compartir" style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Share2 size={16} /></button>
+                    <button onClick={() => setConfirmModal({ isOpen: true, type: 'delete', payload: item.id })} title="Eliminar" style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Trash2 size={16} /></button>
                 </div>
 
   }];
@@ -548,39 +548,50 @@ export default function ATS(): React.ReactElement | null {
                             </div>
                         </div>
 
-                        <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap items-center">
-                            <></>
-                            <button
-              onClick={() => {
-                setFormData({
-                  id: '', empresa: '', cuit: '', obra: '', tarea: '', fecha: new Date().toISOString().split('T')[0], capatazNombre: '', operatorSignature: '', capatazSignature: '', checklist: defaultChecklist, tareas: [{ id: 1, paso: 'Preparación de área', riesgo: 'Caídas', control: 'Delimitación', nivelRiesgo: 'Medio', realizado: true }, { id: 2, paso: 'Ejecución de tarea', riesgo: 'Golpes', control: 'Uso de EPP', nivelRiesgo: 'Bajo', realizado: false }], epps: [], fotos: []
-                });
-                navigate('/ats/nuevo');
-              }} className="flex-none px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-base cursor-pointer flex items-center gap-2 shadow-lg shadow-emerald-500/30 transition-all hover:scale-105 active:scale-95">
-              
-                                <Plus size={20} /> Nuevo ATS
-                            </button>
-                            <div className="flex-1 min-w-[300px] relative">
-                                <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap items-stretch bg-[var(--color-surface,_#fff)] p-[1.5rem] rounded-[24px] box-shadow-[0_10px_40px_rgba(0,0,0,0.04)] border-[1px_solid_rgba(0,0,0,0.05)]">
+                            <div className="flex-[1_1_250px] relative">
+                                <Search size={22} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
                                 <input
                 type="text"
                 placeholder="Buscar por empresa, obra o responsable..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)} className="w-full py-3 pr-4 pl-12 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-sm" />
-
-              
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={(e) => {e.currentTarget.style.border = '2px solid #3b82f6';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = '0 0 0 4px rgba(59,130,246,0.1)';}}
+                onBlur={(e) => {e.currentTarget.style.border = '2px solid transparent';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = 'none';}}
+                style={{ width: '100%', height: '100%', minHeight: '3.5rem', padding: '0.75rem 1rem 0.75rem 3.5rem', borderRadius: '1rem', border: '2px solid transparent', backgroundColor: 'rgba(241, 245, 249, 0.5)', fontSize: '1rem', outline: 'none', transition: 'all 0.3s', fontWeight: 500, color: 'var(--color-text)' }} />
                             </div>
-                            {history.length > 0 &&
-                                <button onClick={handleExportCSV} className="flex-shrink-0 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white border-none rounded-xl px-5 py-3 text-sm font-bold cursor-pointer transition-colors shadow-sm">
-                                    <Download size={20} /> Excel
+                            
+                            <div className="flex gap-[0.5rem]">
+                                <button
+                  onClick={() => {
+                    setFormData({
+                      id: '', empresa: '', cuit: '', obra: '', tarea: '', fecha: new Date().toISOString().split('T')[0], capatazNombre: '', operatorSignature: '', capatazSignature: '', checklist: defaultChecklist, tareas: [{ id: 1, paso: 'Preparación de área', riesgo: 'Caídas', control: 'Delimitación', nivelRiesgo: 'Medio', realizado: true }, { id: 2, paso: 'Ejecución de tarea', riesgo: 'Golpes', control: 'Uso de EPP', nivelRiesgo: 'Bajo', realizado: false }], epps: [], fotos: []
+                    });
+                    navigate('/ats/nuevo');
+                  }}
+                  onMouseOver={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 12px 25px rgba(16,185,129,0.4)';}}
+                  onMouseOut={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.3)';}}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '0 1.5rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(16,185,129,0.3)', whiteSpace: 'nowrap', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', height: '100%', minHeight: '3.5rem' }}>
+                                    <Plus size={22} strokeWidth={2.5} /> Nuevo ATS
                                 </button>
-                            }
+                                
+                                {history.length > 0 &&
+                                    <button
+                                        onClick={handleExportCSV}
+                                        onMouseOver={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 12px 25px rgba(59,130,246,0.4)';}}
+                                        onMouseOut={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = '0 8px 20px rgba(59,130,246,0.3)';}}
+                                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0 1.5rem', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#ffffff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(59,130,246,0.3)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', height: '100%', minHeight: '3.5rem' }}>
+                                        <Download size={20} strokeWidth={2.5} /> Excel
+                                    </button>
+                                }
+                            </div>
                         </div>
 
                         <DataTable
             data={filteredHistory}
             columns={columns}
             searchPlaceholder="Buscar..."
+            hideHeader={true}
             emptyMessage="No se encontraron registros de ATS."
             emptyIcon={<ClipboardList size={48} />} />
           
@@ -775,7 +786,6 @@ export default function ATS(): React.ReactElement | null {
 
 
                         opacity: isGeneratingATS ? 0.7 : 1
-
                       }}
                       className="hover:scale-[1.03] active:scale-[0.97] hover:shadow-[0_6px_22px_rgba(139,92,246,0.5)] flex-[1] min-width-[120px] p-[0.7rem_1.4rem] bg-[linear-gradient(135deg,_#8b5cf6,_#ec4899)] text-[#ffffff] border-none rounded-[14px] font-[900] text-[0.8rem] flex items-center justify-center gap-[0.5rem] box-shadow-[0_4px_18px_rgba(139,92,246,0.35)] transition-[all_0.3s_cubic-bezier(0.34,_1.56,_0.64,_1)]">
                       
@@ -784,25 +794,8 @@ export default function ATS(): React.ReactElement | null {
                                     </button>
                                     <button
                       onClick={addTask}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                      className="hover:scale-[1.03] active:scale-[0.97] hover:shadow-[0_6px_18px_rgba(16,185,129,0.35)] flex-[1] min-width-[120px] p-[0.7rem_1.4rem] bg-emerald-500 hover:bg-emerald-600 text-[#ffffff] border-none rounded-[14px] font-[900] text-[0.8rem] cursor-pointer flex items-center justify-center gap-[0.5rem] box-shadow-[0_4px_14px_rgba(16,185,129,0.25)] transition-[all_0.3s_cubic-bezier(0.34,_1.56,_0.64,_1)]">
+                      className="hover:scale-[1.03] active:scale-[0.97] hover:shadow-[0_6px_18px_rgba(16,185,129,0.35)] flex-[1] min-width-[120px] p-[0.7rem_1.4rem] border-none rounded-[14px] font-[900] text-[0.8rem] cursor-pointer flex items-center justify-center gap-[0.5rem] box-shadow-[0_4px_14px_rgba(16,185,129,0.25)] transition-[all_0.3s_cubic-bezier(0.34,_1.56,_0.64,_1)]"
+                      style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff' }}>
                       
                                         <Plus size={16} /> AGREGAR PASO
                                     </button>
@@ -811,53 +804,21 @@ export default function ATS(): React.ReactElement | null {
 
                             {/* Presets List */}
                             <div className="flex gap-[0.6rem] flex-wrap bg-[var(--glass-bg)] backdrop-filter-[blur(12px)] p-[1.25rem] rounded-[18px] border-[1px_solid_var(--glass-border-subtle)] box-shadow-[var(--shadow-sm)]">
-
-
-
-
-
-
-
-
-
                   
                                 <span className="text-[0.75rem] font-[900] text-[var(--color-primary)] uppercase letter-spacing-[1px] w-[100%] mb-[0.5rem] flex items-center gap-[0.4rem]">
-
-
-
-
-
-
-
-
-
-
                     
                                     <Sparkles size={14} className="text-purple-500" /> Plantillas Rápidas para Tareas Críticas:
                                 </span>
-                                {Object.keys(PRESETS).map((name) =>
-                  <button
-                    key={name}
-                    onClick={() => handleApplyPreset(name)}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    className="hover:-translate-y-0.5 hover:bg-blue-50/50 dark:hover:bg-blue-950/20 hover:border-blue-400 hover:text-blue-500 hover:shadow-sm p-[0.5rem_1rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[12px] text-[0.75rem] font-[800] cursor-pointer text-[var(--color-text)] flex items-center gap-[0.5rem] transition-[all_0.2s_cubic-bezier(0.4,_0,_0.2,_1)]">
-                    
+                                {Object.keys(PRESETS).map((name) => (
+                                    <button
+                                        key={name}
+                                        onClick={() => handleApplyPreset(name)}
+                                        className="hover:-translate-y-0.5 hover:shadow-sm p-[0.5rem_1rem] rounded-[12px] text-[0.75rem] font-[800] cursor-pointer flex items-center gap-[0.5rem] transition-all"
+                                        style={{ backgroundColor: '#e0f2fe', color: '#0369a1', border: '1px solid #7dd3fc' }}
+                                    >
                                         <Plus size={14} className="text-blue-500" /> {name}
                                     </button>
-                  )}
+                                ))}
                             </div>
                         </div>
                         <h3 className="print-only m-[0_0_1.5rem_0] flex items-center gap-[0.8rem] text-[var(--color-primary)] font-[900] text-[1.1rem] uppercase letter-spacing-[1px]">
@@ -937,6 +898,8 @@ export default function ATS(): React.ReactElement | null {
                                             <div className="print-only text-slate-700 text-[0.8rem] whitespace-pre-wrap break-words">
                                                 {t.control}
                                             </div>
+                                        </div>
+
                                         <div className="ats-seq-cell ats-seq-cell-riesgo-nivel" style={{flex: 0.5}}>
                                             <span className="ats-seq-mobile-label">Nivel de Riesgo</span>
                                             <select
@@ -958,15 +921,13 @@ export default function ATS(): React.ReactElement | null {
                                                 {t.nivelRiesgo || 'Bajo'}
                                             </div>
                                         </div>
-                                        </div>
 
                                         <div className="ats-seq-cell ats-seq-cell-action no-print">
                                             <button
-                        type="button"
-                        onClick={() => removeTask(t.id)}
-                        className="ats-seq-delete-btn"
-                        title="Eliminar paso">
-                        
+                                                type="button"
+                                                onClick={() => removeTask(t.id)}
+                                                className="ats-seq-delete-btn"
+                                                title="Eliminar paso">
                                                 <Trash2 size={18} />
                                             </button>
                                         </div>
@@ -1009,7 +970,8 @@ export default function ATS(): React.ReactElement | null {
                                                     const updated = isSelected ? current.filter(e => e !== epp.id) : [...current, epp.id];
                                                     setFormData({ ...formData, epps: updated });
                                                 }}
-                                                className={`flex items-center gap-[0.5rem] p-[0.6rem_1rem] rounded-[12px] border transition-[all_0.2s] ${isSelected ? 'bg-blue-100 border-blue-500 text-blue-700' : 'bg-[var(--color-background)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-blue-300'}`}
+                                                className={`flex items-center gap-[0.5rem] p-[0.6rem_1rem] rounded-[12px] transition-[all_0.2s] cursor-pointer`}
+                                                style={isSelected ? { background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#fff', border: 'none', boxShadow: '0 4px 10px rgba(59,130,246,0.3)' } : { backgroundColor: '#f1f5f9', color: '#64748b', border: '1px solid #cbd5e1' }}
                                             >
                                                 <Icon size={18} />
                                                 <span className="font-[800] text-[0.8rem]">{epp.label}</span>
@@ -1046,7 +1008,7 @@ export default function ATS(): React.ReactElement | null {
                                                 ) : (
                                                     <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center text-[var(--color-text-muted)]">
                                                         <CameraIcon size={24} className="mb-[0.5rem]" />
-                                                        <span className="text-[0.7rem] font-[700] uppercase">Subir Foto</span>
+                                                        <span className="text-[0.7rem] font-[700] uppercase text-center">Subir /<br/>Tomar Foto</span>
                                                         <input
                                                             type="file"
                                                             accept="image/*"
@@ -1075,7 +1037,7 @@ export default function ATS(): React.ReactElement | null {
                     </div>
             }
 
-                    {currentStep === 5 &&
+                    {currentStep === 4 &&
             <div className="wizard-step-anim mt-[3rem]">
                         <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.8rem] text-[var(--color-primary)] font-[900] text-[1.2rem] uppercase letter-spacing-[1px]">
                             <ShieldCheck size={24} className="text-blue-600" /> Verificación de Seguridad
@@ -1088,6 +1050,7 @@ export default function ATS(): React.ReactElement | null {
                                         <div className="no-print p-[0.4rem] bg-[rgba(var(--color-primary-rgb),_0.1)] rounded-[8px] text-[var(--color-primary)] flex items-center">
                                             <Info size={16} />
                                         </div>
+
                                         <span
                       contentEditable
                       suppressContentEditableWarning
@@ -1099,9 +1062,9 @@ export default function ATS(): React.ReactElement | null {
                                         </span>
                                     </h4>
                                     <button
-                    className="no-print p-[0.5rem_1rem] bg-emerald-500 hover:bg-emerald-600 text-[#ffffff] border-none rounded-[10px] font-[800] text-[0.7rem] cursor-pointer box-shadow-[0_4px_10px_rgba(16,185,129,_0.2)] transition-[all_0.2s]"
+                    className="no-print p-[0.5rem_1rem] text-[#ffffff] border-none rounded-[10px] font-[800] text-[0.7rem] cursor-pointer box-shadow-[0_4px_10px_rgba(16,185,129,_0.2)] transition-[all_0.2s]"
                     onClick={() => addQuestion(cat)}
-
+                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
                     onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
                     onMouseOut={(e) => e.currentTarget.style.transform = 'none'}>
                     
@@ -1149,8 +1112,9 @@ export default function ATS(): React.ReactElement | null {
                                                 </div>
                                                 <button
                         onClick={() => removeQuestion(item.id)}
-
-                        title="Eliminar" className="bg-[rgba(239,68,68,0.05)] border-[1px_solid_rgba(239,68,68,0.1)] rounded-[8px] cursor-pointer text-[#ef4444] p-[0.4rem] flex items-center">
+                        title="Eliminar" 
+                        style={{ backgroundColor: '#fee2e2', color: '#ef4444' }}
+                        className="border-[1px_solid_rgba(239,68,68,0.1)] rounded-[8px] cursor-pointer p-[0.4rem] flex items-center transition-colors hover:bg-red-200">
                         
                                                     <Trash2 size={16} />
                                                 </button>
@@ -1191,7 +1155,7 @@ export default function ATS(): React.ReactElement | null {
             }
 
                     {/* STEP 4 */}
-                    {currentStep === 4 &&
+                    {currentStep === 5 &&
             <div className="wizard-step-anim card animate-fade-in mt-[2.5rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2.5rem] box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.08)]">
                         <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.7rem] text-[var(--color-primary)] font-[900] text-[1.25rem] uppercase letter-spacing-[1.2px]">
                             <Pencil size={22} className="text-[var(--color-primary)]" /> Firmas y Autorizaciones
@@ -1210,7 +1174,7 @@ export default function ATS(): React.ReactElement | null {
                     return (
                       <label
                         key={sig.id}
-                        className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease]"
+                        className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease] whitespace-nowrap"
                         style={{
 
 
@@ -1226,7 +1190,7 @@ export default function ATS(): React.ReactElement | null {
                                             <input
                           type="checkbox"
                           checked={isChecked}
-                          onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))} className="none" />
+                          onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))} className="hidden" />
 
                         
                                             <div style={{
@@ -1308,7 +1272,8 @@ export default function ATS(): React.ReactElement | null {
                         <button
                 onClick={prevStep}
                 disabled={currentStep === 1}
-                style={{ background: currentStep === 1 ? 'transparent' : 'var(--color-surface)', border: currentStep === 1 ? '2px solid transparent' : '2px solid var(--color-border)', color: currentStep === 1 ? 'transparent' : 'var(--color-text)', cursor: currentStep === 1 ? 'default' : 'pointer' }} className="p-[0.8rem_1.5rem] rounded-[14px] font-[800] transition-[all_0.2s] flex items-center gap-[0.5rem]">
+                style={{ background: currentStep === 1 ? 'transparent' : '#64748b', border: 'none', color: currentStep === 1 ? 'transparent' : '#fff', cursor: currentStep === 1 ? 'default' : 'pointer' }} 
+                className="p-[0.8rem_1.5rem] rounded-[14px] font-[800] transition-[all_0.2s] flex items-center gap-[0.5rem] hover:opacity-90 shadow-sm">
                 
                             <ArrowLeft size={18} /> Atrás
                         </button>
@@ -1316,8 +1281,8 @@ export default function ATS(): React.ReactElement | null {
                         {currentStep < totalSteps ?
               <button
                 onClick={nextStep}
-
-                className="hover-scale p-[0.8rem_2rem] rounded-[14px] bg-[var(--gradient-premium)] border-none text-[#fff] font-[900] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(59,130,246,0.3)]">
+                style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)' }}
+                className="hover-scale p-[0.8rem_2rem] rounded-[14px] border-none text-[#fff] font-[900] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(59,130,246,0.3)]">
                 
                                 Siguiente Paso
                             </button> :
@@ -1325,34 +1290,34 @@ export default function ATS(): React.ReactElement | null {
               <div className="flex gap-[0.8rem] items-center flex-wrap">
                                 <button
                   onClick={handleClearForm}
-
-                  className="hover:bg-red-50 dark:hover:bg-red-900/10 p-[0.8rem_1.2rem] rounded-[14px] bg-[transparent] border-[2px_solid_rgba(239,_68,_68,_0.3)] text-[#ef4444] font-[800] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem]">
+                  style={{ backgroundColor: '#fee2e2', color: '#ef4444', border: 'none' }}
+                  className="hover:opacity-80 p-[0.8rem_1.2rem] rounded-[14px] font-[800] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem]">
                   
                                     <Trash2 size={18} /> Limpiar
                                 </button>
                                 <button
                   onClick={handlePrint}
-
-                  className="hover:bg-amber-50 dark:hover:bg-amber-900/10 p-[0.8rem_1.2rem] rounded-[14px] bg-[var(--color-surface)] border-[2px_solid_rgba(245,_158,_11,_0.3)] text-[#f59e0b] font-[800] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem]">
+                  style={{ backgroundColor: '#fef3c7', color: '#d97706', border: 'none' }}
+                  className="hover:opacity-80 p-[0.8rem_1.2rem] rounded-[14px] font-[800] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem]">
                   
                                     <Printer size={18} /> Imprimir
                                 </button>
                                 <button
                   onClick={handleShare}
-
-                  className="hover:bg-blue-50 dark:hover:bg-blue-900/10 p-[0.8rem_1.2rem] rounded-[14px] bg-[var(--color-surface)] border-[2px_solid_rgba(59,_130,_246,_0.3)] text-[#3b82f6] font-[800] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem]">
+                  style={{ backgroundColor: '#e0f2fe', color: '#0369a1', border: 'none' }}
+                  className="hover:opacity-80 p-[0.8rem_1.2rem] rounded-[14px] font-[800] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem]">
                   
                                     <Share2 size={18} /> Compartir
                                 </button>
                                 <button
-                  onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-
-                  className="hover-scale p-[0.8rem_2rem] rounded-[14px] bg-emerald-500 hover:bg-emerald-600 border-none text-[#fff] font-[900] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(16,185,129,0.3)]">
-                  
+                                    onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
+                                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+                                    className="hover-scale p-[0.8rem_2rem] rounded-[14px] border-none text-[#fff] font-[900] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(16,185,129,0.3)]"
+                                >
                                     <Save size={18} /> Guardar ATS
                                 </button>
                             </div>
-              }
+                        }
                     </div>
 
                     <PdfBrandingFooter />
@@ -1442,30 +1407,14 @@ function DocBox({ label, value, onChange, type = "text", large = false, borderLe
 
   return (
     <div style={{
-
-
-
-
-
       borderLeft: borderLeft ? '2px solid var(--color-border)' : 'none',
-
-      background: focused ? 'rgba(var(--color-primary-rgb), 0.04)' : 'transparent'
-
-
-    }} className={`p-[1rem_1.2rem] flex flex-col gap-[0.4rem] justify-center border-top-[0] min-h-[75px] transition-[all_0.3s_ease] ${focused ? 'shadow-inner' : ''}`}>
+      background: focused ? 'rgba(59,130,246,0.05)' : 'transparent',
+      padding: '1rem 1.2rem'
+    }} className={`flex flex-col gap-[0.6rem] justify-center border-top-[0] min-h-[85px] transition-[all_0.3s_ease] ${focused ? 'shadow-inner' : ''}`}>
             <span style={{
-
-
-        color: focused ? 'var(--color-primary)' : 'var(--color-text-muted)'
-
-
-
-
-
-
-
-      }} className="text-[0.65rem] font-[900] uppercase letter-spacing-[0.12em] opacity-[0.9] transition-[color_0.3s_ease] flex items-center gap-[0.4rem]">
-                {icon && <span className="no-print transition-[all_0.3s] flex items-center" style={{ color: focused ? 'var(--color-primary)' : 'var(--color-text-muted)', opacity: focused ? 1 : 0.7 }}>{icon}</span>}
+        color: focused ? '#3b82f6' : 'var(--color-text-muted)'
+      }} className="text-[0.7rem] font-[900] uppercase letter-spacing-[0.12em] opacity-[0.9] transition-[color_0.3s_ease] flex items-center gap-[0.4rem]">
+                {icon && <span className="no-print transition-[all_0.3s] flex items-center" style={{ color: focused ? '#3b82f6' : 'var(--color-text-muted)', opacity: focused ? 1 : 0.7 }}>{icon}</span>}
                 {label}
             </span>
             <input
@@ -1473,11 +1422,10 @@ function DocBox({ label, value, onChange, type = "text", large = false, borderLe
         value={value}
         onChange={(e) => onChange(e.target.value)}
         style={{
-
-
-
-          borderBottom: focused ? '2px solid var(--color-primary)' : '2px solid transparent',
-
+          border: focused ? '2px solid #3b82f6' : '2px solid var(--color-border)',
+          borderRadius: '8px',
+          padding: '0.6rem 0.8rem',
+          backgroundColor: focused ? 'white' : 'rgba(0,0,0,0.02)',
           fontSize: large ? '1.1rem' : '0.95rem'
 
 

@@ -112,6 +112,7 @@ export default function AuditForm(): React.ReactElement | null {
   const [isMobile, setIsMobile] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
 
   const [showSignatures, setShowSignatures] = useState({
     operator: true,
@@ -232,7 +233,12 @@ export default function AuditForm(): React.ReactElement | null {
   }, []);
 
   const handleSave = () => {
-    if (!audit.title || !audit.auditor) {
+    const newErrors = [];
+    if (!audit.title) newErrors.push('title');
+    if (!audit.date) newErrors.push('date');
+    if (!audit.auditor) newErrors.push('auditor');
+    setErrors(newErrors);
+    if (newErrors.length > 0) {
       toast.error('Por favor complete los campos obligatorios (*)');
       return;
     }
@@ -289,13 +295,16 @@ export default function AuditForm(): React.ReactElement | null {
                             <div className="relative">
                                 <input
                   type="text"
-                  className="input-professional pl-[2.8rem] mb-[0] h-[48px] text-[1rem]"
+                  style={{ paddingLeft: '2.8rem', marginBottom: 0 }} className={`input-professional h-[48px] text-[1rem] ${errors.includes('title') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
 
                   value={audit.title}
-                  onChange={(e) => setAudit({ ...audit, title: e.target.value })}
+                  onChange={(e) => {
+                    setAudit({ ...audit, title: e.target.value });
+                    if (errors.includes('title')) setErrors(errors.filter(err => err !== 'title'));
+                  }}
                   placeholder="Ej: Auditoría Interna Trimestral - Planta Norte" />
                 
-                                <div className="absolute left-[0.8rem] top-[50%] transform-[translateY(-50%)] bg-[var(--color-primary-light)] p-[0.4rem] rounded-[8px] text-[white] flex">
+                                <div style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.8rem] bg-[var(--color-primary-light)] p-[0.4rem] rounded-[8px] text-[white] flex">
                                     <FileText size={16} />
                                 </div>
                             </div>
@@ -306,12 +315,12 @@ export default function AuditForm(): React.ReactElement | null {
                                 <select
                   value={audit.auditType}
                   onChange={(e) => setAudit({ ...audit, auditType: e.target.value })}
-                  className="input-professional pl-[2.8rem] mb-[0] h-[48px] text-[0.95rem]">
+                  style={{ paddingLeft: '2.8rem', marginBottom: 0 }} className="input-professional h-[48px] text-[0.95rem]">
 
                   
                                     {AUDIT_TYPES.map((t) => <option key={t.id} value={t.id}>{t.icon} {t.name}</option>)}
                                 </select>
-                                <div className="absolute left-[0.8rem] top-[50%] transform-[translateY(-50%)] bg-[var(--color-secondary)] p-[0.4rem] rounded-[8px] text-[white] flex pointer-events-[none]">
+                                <div style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.8rem] bg-[var(--color-secondary)] p-[0.4rem] rounded-[8px] text-[white] flex pointer-events-[none]">
                                     <Shield size={16} />
                                 </div>
                             </div>
@@ -322,11 +331,14 @@ export default function AuditForm(): React.ReactElement | null {
                                 <input
                   type="date"
                   value={audit.date}
-                  onChange={(e) => setAudit({ ...audit, date: e.target.value })}
-                  className="input-professional pl-[2.8rem] mb-[0] h-[48px] text-[0.95rem]" />
+                  onChange={(e) => {
+                    setAudit({ ...audit, date: e.target.value });
+                    if (errors.includes('date')) setErrors(errors.filter(err => err !== 'date'));
+                  }}
+                  style={{ paddingLeft: '2.8rem', marginBottom: 0 }} className={`input-professional h-[48px] text-[0.95rem] ${errors.includes('date') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`} />
 
                 
-                                <div className="absolute left-[0.8rem] top-[50%] transform-[translateY(-50%)] bg-[var(--color-accent)] p-[0.4rem] rounded-[8px] text-[white] flex pointer-events-[none]">
+                                <div style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.8rem] bg-[var(--color-accent)] p-[0.4rem] rounded-[8px] text-[white] flex pointer-events-[none]">
                                     <Calendar size={16} />
                                 </div>
                             </div>
@@ -337,12 +349,14 @@ export default function AuditForm(): React.ReactElement | null {
                                 <input
                   type="text"
                   value={audit.auditor}
-                  onChange={(e) => setAudit({ ...audit, auditor: e.target.value })}
-                  className="input-professional pl-[2.8rem] mb-[0] h-[48px] text-[0.95rem]"
-
+                  onChange={(e) => {
+                    setAudit({ ...audit, auditor: e.target.value });
+                    if (errors.includes('auditor')) setErrors(errors.filter(err => err !== 'auditor'));
+                  }}
+                  style={{ paddingLeft: "2.8rem", marginBottom: 0 }} className={`input-professional h-[48px] text-[0.95rem] ${errors.includes('auditor') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
                   placeholder="Nombre del auditor" />
                 
-                                <div className="absolute left-[0.8rem] top-[50%] transform-[translateY(-50%)] bg-[var(--color-warning)] p-[0.4rem] rounded-[8px] text-[white] flex pointer-events-[none]">
+                                <div style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.8rem] bg-[var(--color-warning)] p-[0.4rem] rounded-[8px] text-[white] flex pointer-events-[none]">
                                     <User size={16} />
                                 </div>
                             </div>
@@ -354,11 +368,11 @@ export default function AuditForm(): React.ReactElement | null {
                   type="text"
                   value={audit.location}
                   onChange={(e) => setAudit({ ...audit, location: e.target.value })}
-                  className="input-professional pl-[2.8rem] mb-[0] h-[48px] text-[0.95rem]"
+                  style={{ paddingLeft: "2.8rem", marginBottom: 0 }} className="input-professional h-[48px] text-[0.95rem]"
 
                   placeholder="Ej: Nave de Producción" />
                 
-                                <div className="absolute left-[0.8rem] top-[50%] transform-[translateY(-50%)] bg-[var(--color-danger)] p-[0.4rem] rounded-[8px] text-[white] flex pointer-events-[none]">
+                                <div style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.8rem] bg-[var(--color-danger)] p-[0.4rem] rounded-[8px] text-[white] flex pointer-events-[none]">
                                     <MapPin size={16} />
                                 </div>
                             </div>
@@ -368,7 +382,7 @@ export default function AuditForm(): React.ReactElement | null {
                     <div className="mt-[2.5rem]">
                         <label className="block mb-2 text-sm font-semibold text-slate-400">Objetivo de la Auditoría</label>
                         <textarea
-              className="input-professional min-h-[80px] pt-[0.75rem] mb-[0]"
+              className="input-professional min-h-[80px] pt-[0.75rem] mb-0"
               value={audit.objective}
               onChange={(e) => setAudit({ ...audit, objective: e.target.value })}
 
@@ -409,7 +423,7 @@ export default function AuditForm(): React.ReactElement | null {
                 }} className="absolute left-[0] top-[0] bottom-[0] w-[4px] transition-[background_0.3s_ease]" />
 
                                     <div style={{ flexWrap: isMobile ? 'wrap' : 'nowrap' }} className="flex justify-space-between gap-[1rem] mb-[1.25rem] items-start">
-                                        <div className="flex-[1] pl-[0.5rem]">
+                                        <div style={{ paddingLeft: '0.5rem' }} className="flex-[1] ">
                                             <div className="flex gap-[0.5rem] flex-wrap items-center mb-[0.5rem]">
                                                 <span className="display-[inline-flex] items-center p-[0.2rem_0.6rem] rounded-[var(--radius-full)] text-[0.65rem] font-[850] bg-[rgba(var(--color-primary-rgb),_0.1)] text-[var(--color-primary)] border-[1px_solid_rgba(var(--color-primary-rgb),_0.2)] uppercase letter-spacing-[0.5px]">
 
@@ -515,10 +529,10 @@ export default function AuditForm(): React.ReactElement | null {
                                     </div>
 
                                     {/* Observación / Hallazgo */}
-                                    <div className="relative mt-[0.5rem] pl-[0.5rem]">
+                                    <div style={{ paddingLeft: '0.5rem' }} className="relative mt-[0.5rem] ">
                                         <input
                     type="text"
-                    className="input-professional p-[0.65rem_0.75rem_0.65rem_2.2rem] text-[0.85rem] mb-[0]"
+                    className="input-professional  text-[0.85rem] mb-0"
                     value={item.observation}
                     onChange={(e) => {
                       const newChecklist = [...audit.checklist];
@@ -526,15 +540,13 @@ export default function AuditForm(): React.ReactElement | null {
                       setAudit({ ...audit, checklist: newChecklist });
                     }}
                     style={{
-
-
-
+                      paddingLeft: '2.2rem',
                       borderColor: item.status === 'no' && !item.observation ? 'rgba(239, 68, 68, 0.4)' : 'var(--color-border)',
                       background: item.status === 'no' && !item.observation ? 'rgba(239, 68, 68, 0.02)' : 'var(--color-surface)'
                     }}
                     placeholder={item.status === 'no' ? "Describa detalladamente el hallazgo o desvío crítico..." : "Observaciones opcionales..."} />
                   
-                                        <FileText size={14} color="var(--color-text-light)" className="absolute left-[1.2rem] top-[0.85rem]" />
+                                        <FileText size={14} color="var(--color-text-light)" className="absolute left-[1.2rem] top-[1rem]" />
                                     </div>
                                 </div>
               )}
@@ -554,11 +566,11 @@ export default function AuditForm(): React.ReactElement | null {
                     type="text"
                     value={audit.closingMeeting.participants}
                     onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, participants: e.target.value } })}
-                    className="input-professional pl-[2.5rem] mb-[0]"
+                    style={{ paddingLeft: "2.5rem", marginBottom: 0 }} className="input-professional"
 
                     placeholder="Nombres de los presentes" />
                   
-                                    <User size={16} color="var(--color-text-light)" className="absolute left-[0.9rem] top-[1.05rem]" />
+                                    <User size={16} color="var(--color-text-light)" style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.9rem]" />
                                 </div>
                             </div>
                             <div>
@@ -568,10 +580,10 @@ export default function AuditForm(): React.ReactElement | null {
                     type="date"
                     value={audit.closingMeeting.date}
                     onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, date: e.target.value } })}
-                    className="input-professional pl-[2.5rem] mb-[0]" />
+                    style={{ paddingLeft: '2.5rem', marginBottom: 0 }} className="input-professional" />
 
                   
-                                    <Calendar size={16} color="var(--color-text-light)" className="absolute left-[0.9rem] top-[1.05rem] pointer-events-[none]" />
+                                    <Calendar size={16} color="var(--color-text-light)" style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.9rem] pointer-events-[none]" />
                                 </div>
                             </div>
                             <div className="grid-column-[span_2]">
@@ -580,11 +592,11 @@ export default function AuditForm(): React.ReactElement | null {
                                     <textarea
                     value={audit.closingMeeting.conclusions}
                     onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, conclusions: e.target.value } })}
-                    className="input-professional min-h-[100px] pl-[2.5rem] pt-[0.75rem] mb-[0]"
+                    style={{ paddingLeft: '2.5rem', marginBottom: 0 }} className="input-professional min-h-[100px] pt-[0.75rem] mb-0"
 
                     placeholder="Resumen de hallazgos críticos, fortalezas detectadas y cumplimiento general de la norma..." />
                   
-                                    <Award size={16} color="var(--color-text-light)" className="absolute left-[0.9rem] top-[1.05rem]" />
+                                    <Award size={16} color="var(--color-text-light)" style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.9rem]" />
                                 </div>
                             </div>
                         </div>
@@ -609,7 +621,7 @@ export default function AuditForm(): React.ReactElement | null {
                   return (
                     <label
                       key={sig.id}
-                      className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease]"
+                      className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease] whitespace-nowrap"
                       style={{
 
 
@@ -625,7 +637,7 @@ export default function AuditForm(): React.ReactElement | null {
                                             <input
                         type="checkbox"
                         checked={isChecked}
-                        onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))} className="none" />
+                        onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))} className="hidden" />
 
                       
                                             <div style={{
@@ -739,21 +751,21 @@ export default function AuditForm(): React.ReactElement | null {
             <div className="no-print floating-action-bar">
                 <button
           onClick={() => requirePro(() => setShowShareModal(true))}
-          className="btn-floating-action bg-[#0052CC] text-[#ffffff]">
+          style={{ backgroundColor: "#0052CC", color: "#ffffff" }} className="btn-floating-action">
 
           
                     <Share2 size={18} /> COMPARTIR
                 </button>
                 <button
           onClick={() => requirePro(() => window.print())}
-          className="btn-floating-action bg-[#FF8B00] text-[#ffffff]">
+          style={{ backgroundColor: "#FF8B00", color: "#ffffff" }} className="btn-floating-action">
 
           
                     <Printer size={18} /> IMPRIMIR PDF
                 </button>
                 <button
           onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-          className="btn-floating-action bg-[#36B37E] text-[#ffffff]">
+          style={{ backgroundColor: "#36B37E", color: "#ffffff" }} className="btn-floating-action">
 
           
                     <Save size={18} /> GUARDAR AUDITORÍA

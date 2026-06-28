@@ -321,20 +321,33 @@ export default function AICamera(): React.ReactElement | null {
           currentSession.image = uploadedUrl;
           localStorage.setItem('current_ai_inspection', JSON.stringify(currentSession));
         }
+
+        // Novedad: Actualizamos permanentemente el historial con la URL de la imagen en la nube para que no se borre nunca.
+        const history = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
+        const updatedHistory = history.map((h: any) => {
+          if (h.id === report.id) {
+            return { ...h, image: uploadedUrl };
+          }
+          return h;
+        });
+        localStorage.setItem('ai_camera_history', JSON.stringify(updatedHistory));
+        syncCollection('ai_camera_history', updatedHistory);
+
       }).catch((err) => {
         console.warn("Subida en background falló, se conserva la imagen local", err);
       });
 
       const history = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
       // Only add if not a duplicate (same id)
-      if (!history.find((h) => h.id === report.id)) {
+      if (!history.find((h: any) => h.id === report.id)) {
         history.unshift({
           id: report.id,
           date: report.date,
           company: report.company,
           location: report.location,
           type: report.type,
-          ppeComplete: report.analysis?.ppeComplete
+          ppeComplete: report.analysis?.ppeComplete,
+          analysis: report.analysis
         });
         localStorage.setItem('ai_camera_history', JSON.stringify(history));
         syncCollection('ai_camera_history', history);
@@ -359,13 +372,21 @@ export default function AICamera(): React.ReactElement | null {
   };
 
   return (
-    <div className="container pb-[3rem] relative min-h-[100vh] flex flex-col">
-            <div className="flex items-center gap-[1rem] mb-[1.5rem] z-[10] mt-[1rem]">
-                <></>
-                <h1 className="m-[0] text-[1.5rem] text-[var(--color-text)]">Escaneo con IA</h1>
+    <div className="container pb-[2rem] pt-[1rem] relative min-h-[100vh] flex flex-col gap-[1rem] bg-[var(--color-bg)]">
+            {/* Header Moderno con Botón Volver */}
+            <div className="flex items-center justify-between p-[0.8rem_1rem] z-[10] bg-[var(--color-surface)] rounded-[20px] box-shadow-[0_8px_30px_rgba(0,0,0,0.06)] border-[1px_solid_var(--color-border)]">
+                <button onClick={() => navigate(-1)} className="flex items-center justify-center w-[44px] h-[44px] rounded-[14px] bg-[linear-gradient(135deg,_#3b82f6_0%,_#1d4ed8_100%)] text-white border-[2px_solid_white] cursor-pointer transition-all duration-300 hover:scale-[1.1] box-shadow-[0_4px_15px_rgba(59,130,246,0.6)] z-[100]">
+                    <ArrowLeft size={22} className="text-white" />
+                </button>
+                <div className="flex flex-col items-center">
+                    <h1 className="m-[0] text-[1.1rem] font-[800] text-[var(--color-text)]">Escaneo EPP</h1>
+                    <span className="text-[0.7rem] font-[700] text-[#10b981] uppercase tracking-[1px]">Inteligencia Artificial</span>
+                </div>
+                <div className="w-[40px] h-[40px]" /> {/* Spacer for centering */}
             </div>
 
-            <div className="flex-[1] relative rounded-[24px] overflow-[hidden] bg-[var(--color-text)] border-[4px_solid_var(--color-border)] box-shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+            {/* Contenedor de Cámara Moderno */}
+            <div className="flex-[1] relative min-h-[72vh] rounded-[32px] overflow-[hidden] bg-[#000000] border-[1px_solid_rgba(255,255,255,0.1)] box-shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
                 {!capturedImage ?
         <>
                         <video
@@ -374,24 +395,32 @@ export default function AICamera(): React.ReactElement | null {
             playsInline className="absolute top-[0] left-[0] w-[100%] h-[100%] object-fit-[cover]" />
 
           
-                        <div className="absolute top-[50%] left-[50%] transform-[translate(-50%,_-50%)] border-[2px_dashed_rgba(255,255,255,0.3)] w-[70%] h-[60%] rounded-[20px] pointer-events-[none]"></div>
+                        <div className="absolute top-[50%] left-[50%] transform-[translate(-50%,_-50%)] border-[2px_dashed_rgba(255,255,255,0.3)] w-[70%] h-[60%] rounded-[24px] pointer-events-[none]">
+                            {/* Esquinas de enfoque */}
+                            <div className="absolute top-[-2px] left-[-2px] w-[20px] h-[20px] border-t-[3px] border-l-[3px] border-white rounded-tl-[12px]" />
+                            <div className="absolute top-[-2px] right-[-2px] w-[20px] h-[20px] border-t-[3px] border-r-[3px] border-white rounded-tr-[12px]" />
+                            <div className="absolute bottom-[-2px] left-[-2px] w-[20px] h-[20px] border-b-[3px] border-l-[3px] border-white rounded-bl-[12px]" />
+                            <div className="absolute bottom-[-2px] right-[-2px] w-[20px] h-[20px] border-b-[3px] border-r-[3px] border-white rounded-br-[12px]" />
+                        </div>
 
-                        {/* Controles de cámara superior */}
-                        <div className="absolute top-[1rem] right-[1rem] flex flex-col gap-[1rem]">
-                            <button onClick={toggleTorch} style={{ background: torchOn ? 'var(--color-primary)' : 'rgba(0,0,0,0.5)' }} className="w-[44px] h-[44px] rounded-[50%] border-none text-[var(--color-surface)] flex items-center justify-center cursor-pointer">
-                                {torchOn ? <Zap size={20} /> : <ZapOff size={20} />}
+                        {/* Controles de cámara superior con Glassmorphism */}
+                        <div className="absolute top-[1.5rem] right-[1.5rem] flex flex-col gap-[1rem] z-[20]">
+                            <button onClick={toggleTorch} className={`w-[48px] h-[48px] rounded-[16px] backdrop-filter-[blur(12px)] flex items-center justify-center cursor-pointer transition-all duration-300 ${torchOn ? 'bg-[rgba(250,204,21,0.2)] border-[1px_solid_rgba(250,204,21,0.5)] text-[#facc15] box-shadow-[0_0_20px_rgba(250,204,21,0.3)]' : 'bg-[rgba(255,255,255,0.15)] border-[1px_solid_rgba(255,255,255,0.2)] text-white hover:bg-[rgba(255,255,255,0.25)]'}`}>
+                                {torchOn ? <Zap size={22} fill="currentColor" /> : <ZapOff size={22} />}
                             </button>
-                            <button onClick={switchCamera} className="w-[44px] h-[44px] rounded-[50%] bg-[rgba(0,0,0,0.5)] border-none text-[var(--color-surface)] flex items-center justify-center cursor-pointer">
-                                <FlipHorizontal size={20} />
+                            <button onClick={switchCamera} className="w-[48px] h-[48px] rounded-[16px] bg-[rgba(255,255,255,0.15)] backdrop-filter-[blur(12px)] border-[1px_solid_rgba(255,255,255,0.2)] text-white flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-[rgba(255,255,255,0.25)] hover:rotate-[180deg]">
+                                <FlipHorizontal size={22} />
                             </button>
                         </div>
 
-                        <div className="absolute bottom-[2rem] left-[0] w-[100%] flex justify-center">
+                        {/* Botón de Captura Elegante */}
+                        <div className="absolute bottom-[2.5rem] left-[0] w-[100%] flex justify-center z-[20]">
                             <button
-              onClick={handleCapture} className="w-[80px] h-[80px] rounded-[50%] border-[6px_solid_#fff] bg-[rgba(59,_130,_246,_0.8)] cursor-pointer flex items-center justify-center text-[var(--color-surface)] box-shadow-[0_0_20px_rgba(59,_130,_246,_0.5)]">
-
-              
-                                <Camera size={32} />
+              onClick={handleCapture} className="group relative w-[80px] h-[80px] rounded-[50%] bg-[rgba(255,255,255,0.2)] backdrop-filter-[blur(10px)] cursor-pointer flex items-center justify-center border-none outline-none transition-all duration-300 hover:scale-[1.05]">
+                                <div className="absolute inset-[0] rounded-[50%] border-[2px_solid_rgba(255,255,255,0.6)] box-sizing-[border-box]" />
+                                <div className="w-[64px] h-[64px] rounded-[50%] bg-white flex items-center justify-center box-shadow-[0_0_20px_rgba(255,255,255,0.8)] transition-all duration-300 group-active:scale-[0.9] group-active:bg-[#e2e8f0]">
+                                   <Camera size={28} className="text-[#0f172a]" />
+                                </div>
                             </button>
                         </div>
                     </> :
@@ -440,8 +469,7 @@ export default function AICamera(): React.ReactElement | null {
                                             </p>
                                         </div>
               }
-
-                                    {analysisResult.applicableLegislation && analysisResult.applicableLegislation.length > 0 &&
+                                                                       {analysisResult.applicableLegislation && analysisResult.applicableLegislation.length > 0 &&
               <div className="bg-[rgba(16,_185,_129,_0.1)] border-[1px_solid_rgba(16,_185,_129,_0.3)] p-[0.8rem] rounded-[8px]">
                                             <p className="m-[0] text-[0.8rem] text-[#6ee7b7] font-[700]">
                                                 ⚖️ Ley/Norma: {analysisResult.applicableLegislation.join(', ')}
@@ -449,20 +477,19 @@ export default function AICamera(): React.ReactElement | null {
                                         </div>
               }
                                 </div>
-                                <div className="flex gap-[0.6rem] w-[100%] justify-center flex-wrap">
-                                    <button onClick={handleRetry} className="btn-outline flex-[1] min-width-[130px] border-color-[var(--color-surface)] text-[var(--color-surface)] flex items-center justify-center gap-[0.4rem] h-[46px] m-[0] p-[0_0.5rem] text-[0.85rem]">
+                                <div className="flex gap-[0.8rem] w-[100%] justify-center mt-[1rem]">
+                                    <button onClick={handleRetry} className="flex-[1] h-[40px] rounded-[10px] bg-[rgba(255,255,255,0.15)] backdrop-filter-[blur(8px)] border-[1px_solid_rgba(255,255,255,0.3)] text-white flex items-center justify-center gap-[0.5rem] text-[0.8rem] font-[700] cursor-pointer transition-all hover:bg-[rgba(255,255,255,0.25)]">
                                         <RefreshCw size={16} /> Reintentar
                                     </button>
-                                    <button onClick={handleSaveReport} disabled={isSaving} className="btn-primary flex-[1] min-width-[130px] h-[46px] m-[0] flex items-center justify-center p-[0_0.5rem] text-[0.85rem]" style={{ opacity: isSaving ? 0.7 : 1 }}>
+                                    <button onClick={handleSaveReport} disabled={isSaving} className="flex-[2] h-[40px] rounded-[10px] bg-[linear-gradient(135deg,_#3b82f6_0%,_#2563eb_100%)] border-none text-white flex items-center justify-center gap-[0.5rem] text-[0.85rem] font-[800] cursor-pointer box-shadow-[0_4px_15px_rgba(59,130,246,0.4)] transition-all hover:scale-[1.02]" style={{ opacity: isSaving ? 0.7 : 1 }}>
                                         {isSaving ? <RefreshCw size={16} className="spin" /> : 'Generar Informe'}
                                     </button>
                                 </div>
                             </div>
+          }                 </div>
           }
-                    </div>
-        }
             </div>
-            <canvas ref={canvasRef} className="none" />
+            <canvas ref={canvasRef} className="hidden" />
         </div>);
 
 }

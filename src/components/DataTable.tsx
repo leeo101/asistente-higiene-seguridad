@@ -25,6 +25,7 @@ interface DataTableProps<T> {
   emptyIcon?: React.ReactNode;
   onEmptyAction?: () => void;
   emptyActionLabel?: string;
+  hideHeader?: boolean;
 }
 
 export function DataTable<T extends Record<string, any>>({
@@ -36,7 +37,8 @@ export function DataTable<T extends Record<string, any>>({
   emptyMessage = "No hay datos disponibles.",
   emptyIcon,
   onEmptyAction,
-  emptyActionLabel
+  emptyActionLabel,
+  hideHeader = false
 }: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState<{key: keyof T | string | null;direction: 'ascending' | 'descending';}>({
@@ -133,50 +135,31 @@ export function DataTable<T extends Record<string, any>>({
 
       
       {/* Table Header Controls */}
-      <div style={{
-        padding: isMobile ? '1rem' : '1.25rem',
-
-        flexDirection: isMobile ? 'column' : 'row',
-
-        alignItems: isMobile ? 'stretch' : 'center'
-
-
-
-      }} className="flex justify-space-between border-bottom-[1px_solid_var(--color-border)] gap-[1rem] bg-[rgba(255,_255,_255,_0.02)]">
-        <div style={{ maxWidth: isMobile ? 'none' : '400px' }} className="relative flex-[1_1_auto]">
-          <Search size={18} color="var(--color-text-muted)" className="absolute left-4 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder={searchPlaceholder}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} className="w-full py-2.5 pr-4 pl-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm" />
-
-
-
-
-
-
-
-
-
-
-          
-        </div>
+      {!hideHeader && (
         <div style={{
-
-
-          justifyContent: isMobile ? 'flex-end' : 'flex-start'
-
-
-
-        }} className="flex items-center gap-[0.5rem] text-[var(--color-text-muted)] text-[0.8rem]">
-          <Funnel size={16} />
-          <span>{processedData.length} resultados</span>
+          padding: isMobile ? '1rem' : '1.25rem',
+          flexDirection: isMobile ? 'column' : 'row',
+          alignItems: isMobile ? 'stretch' : 'center'
+        }} className="flex justify-space-between border-bottom-[1px_solid_var(--color-border)] gap-[1rem] bg-[rgba(255,_255,_255,_0.02)]">
+          <div style={{ maxWidth: isMobile ? 'none' : '400px' }} className="relative flex-[1_1_auto]">
+            <Search size={18} color="var(--color-text-muted)" className="absolute left-4 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder={searchPlaceholder}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)} className="w-full py-2.5 pr-4 pl-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm" />
+          </div>
+          <div style={{
+            justifyContent: isMobile ? 'flex-end' : 'flex-start'
+          }} className="flex items-center gap-[0.5rem] text-[var(--color-text-muted)] text-[0.8rem]">
+            <Funnel size={16} />
+            <span>{processedData.length} resultados</span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Table Content */}
-      <div className="overflow-x-[auto]">
+      <div style={{ overflowX: 'auto', width: '100%' }}>
         <table className="w-[100%] border-collapse-[collapse] text-left">
           <thead>
             <tr className="bg-[var(--color-background)] border-bottom-[2px_solid_var(--color-border)]">

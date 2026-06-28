@@ -66,7 +66,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
             <div className="overflow-x-[visible]">
                 <div
           id="pdf-content"
-          className="pdf-container card print-area p-[15mm] bg-white dark:bg-slate-800 text-[#000000] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box]"
+          className="pdf-container card print-area p-[15mm] bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box]"
           ref={componentRef}
           style={{
             width: isLandscape ? '297mm' : '210mm'
@@ -115,7 +115,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                     </style>
 
                     {/* Header */}
-                    <div className="border-bottom-[3px_solid_#1e293b] pb-[10px] mb-[20px] flex justify-space-between items-end">
+                    <div className="border-b-[3px] border-slate-800 pb-[10px] mb-[20px] flex justify-between items-start">
                         <div>
                             <h1 className="m-[0_0_5px_0] text-[18pt] text-slate-800 dark:text-slate-200 font-[900] uppercase">
                                 Planilla de Control de Extintores
@@ -127,10 +127,6 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                             </p>
                         </div>
                         <CompanyLogo className="h-[45px] w-[auto] object-fit-[contain] max-w-[140px]" />
-
-
-
-
 
 
             
@@ -173,7 +169,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                         {chunks.map((chunk, chunkIdx) =>
                     <div key={`${empresa}-chunk-${chunkIdx}`} className="mb-[20px] page-break-inside-[auto]">
                                                 {/* Company Header */}
-                                                <div className="bg-slate-50 dark:bg-slate-800/50 text-[#0f172a] p-[10px_15px] rounded-[8px] flex items-center gap-[10px] border-[2px_solid_#cbd5e1] mb-[15px]">
+                                                <div className="bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-slate-200 p-[10px_15px] rounded-[8px] flex items-center gap-[10px] border-[2px_solid_#cbd5e1] mb-[15px]">
 
 
 
@@ -235,7 +231,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                           return (
                             <tbody key={`${empresa}-${globalIdx}`} className="avoid-break page-break-inside-[avoid]">
                                                                     <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] border-top-[1px_solid_#e2e8f0]" style={{ background: rowBg }}>
-                                                                        <td className="p-[8px] text-center font-[900] text-[#0f172a] text-[10pt]">
+                                                                        <td className="p-[8px] text-center font-[900] text-slate-800 dark:text-slate-200 text-[10pt]">
                                                                             <div className="text-[7pt] text-[#94a3b8] mb-[2px]">{globalIdx + 1}</div>
                                                                             <div>{ext?.numero || ext?.chapa || '-'}</div>
                                                                         </td>
@@ -274,7 +270,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                                     <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] border-bottom-[2px_solid_#cbd5e1] h-[auto]" style={{ background: rowBg }}>
                                                                         <td colSpan={7} className="p-[0_8px_6px_8px] h-[1px]">
                                                                             <div style={{ border: hasObs ? '1px dashed #dc2626' : '1px dashed #94a3b8', color: hasObs ? '#dc2626' : '#334155' }} className="rounded-[4px] p-[4px_6px] text-[7.5pt] bg-white dark:bg-slate-800 webkit-print-color-adjust-[exact] print-color-adjust-[exact] min-h-[20px] h-[100%]">
-                                                                                <strong className="text-[#0f172a]">Observación:</strong> <span style={{ color: hasObs ? '#dc2626' : 'inherit', WebkitTextFillColor: hasObs ? '#dc2626' : 'inherit' }} className="font-[700]">{hasObs ? lastInspection.observacion : ''}</span>
+                                                                                <strong className="text-slate-800 dark:text-slate-200">Observación:</strong> <span style={{ color: hasObs ? '#dc2626' : 'inherit', WebkitTextFillColor: hasObs ? '#dc2626' : 'inherit' }} className="font-[700]">{hasObs ? lastInspection.observacion : ''}</span>
                                                                             </div>
                                                                         </td>
                                                                     </tr>

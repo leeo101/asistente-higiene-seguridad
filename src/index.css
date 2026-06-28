@@ -2884,7 +2884,8 @@ body.printing-isolated #pdf-content.ats-pdf-root,
     backdrop-filter: blur(12px);
     border: 1px solid var(--glass-border-subtle);
     border-radius: var(--radius-xl);
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
     box-shadow: var(--shadow-lg);
 }
 
@@ -2980,7 +2981,8 @@ body.printing-isolated #pdf-content.ats-pdf-root,
 @media (min-width: 768px) {
     .ats-seq-header {
         display: grid;
-        grid-template-columns: 44px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr) 52px;
+        grid-template-columns: 44px minmax(200px, 1fr) minmax(200px, 1fr) minmax(150px, 1.15fr) 52px;
+        min-width: 800px;
         align-items: stretch;
         background: rgba(var(--color-primary-rgb), 0.06);
         border-bottom: 2px solid var(--color-border);
@@ -3010,7 +3012,8 @@ body.printing-isolated #pdf-content.ats-pdf-root,
 
     .ats-seq-row {
         display: grid;
-        grid-template-columns: 44px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr) 52px;
+        grid-template-columns: 44px minmax(200px, 1fr) minmax(200px, 1fr) minmax(150px, 1.15fr) 52px;
+        min-width: 800px;
         gap: 0;
         padding: 0;
         align-items: stretch;
@@ -4134,7 +4137,7 @@ html.pdf-export-mode, body.pdf-export-mode {
     border-color: rgba(139,92,246,0.25);
 }
 /* Safety Score Gauge */
-.bento-score { grid-column: span 3; grid-row: span 2;
+.bento-score { grid-column: span 3; grid-row: span 1;
     --bento-accent: 16 185 129;
     background: linear-gradient(145deg, rgba(16,185,129,0.1) 0%, rgba(5,150,105,0.05) 100%);
     border-color: rgba(16,185,129,0.2);
@@ -4146,13 +4149,13 @@ html.pdf-export-mode, body.pdf-export-mode {
     border-color: rgba(245,158,11,0.2);
 }
 /* Activity Timeline */
-.bento-timeline { grid-column: span 4; grid-row: span 1;
+.bento-timeline { grid-column: span 7; grid-row: span 1;
     --bento-accent: 59 130 246;
     background: linear-gradient(145deg, rgba(59,130,246,0.08) 0%, rgba(14,165,233,0.04) 100%);
     border-color: rgba(59,130,246,0.2);
 }
 /* Quick Access */
-.bento-quick { grid-column: span 8; grid-row: span 1;
+.bento-quick { grid-column: span 6; grid-row: span 1;
     --bento-accent: 99 102 241;
     background: rgba(255,255,255,0.02);
     border-color: rgba(255,255,255,0.07);

@@ -11,6 +11,8 @@ import ShareModal from '../components/ShareModal';
 import AuditPdf from '../components/AuditPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import ConfirmModal from '../components/ConfirmModal';
+import PremiumHeader from '../components/PremiumHeader';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 // Tipos de auditoría según ISO 45001
 const AUDIT_TYPES = [
@@ -281,7 +283,7 @@ export default function AuditManager(): React.ReactElement | null {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8 pb-24">
+    <div className="w-full max-w-7xl mx-auto px-4 pt-28 pb-24">
             <ShareModal
         isOpen={!!shareItem}
         open={!!shareItem}
@@ -297,34 +299,23 @@ export default function AuditManager(): React.ReactElement | null {
                 {shareItem && <AuditPdf data={shareItem} />}
             </div>
 
-            {/* Header Premium */}
-            <div className="mb-8 p-4 md:p-6 bg-white/90 dark:bg-slate-800/90 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl backdrop-blur-xl flex justify-between items-center flex-wrap gap-4">
-                <div className="flex items-center gap-4">
-
-                    <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30">
-                        <ClipboardCheck size={32} color="#ffffff" strokeWidth={2} />
-                    </div>
-                    <div>
-                        <h1 className="m-0 text-2xl font-black text-slate-800 dark:text-slate-100">
-                            Auditorías EHS
-                        </h1>
-                        <p className="m-0 mt-1 text-slate-500 dark:text-slate-400 text-sm font-semibold">
-                            ISO 45001 • {stats.inProgress} en curso
-                        </p>
-                    </div>
-                </div>
-
+            <Breadcrumbs />
+            <PremiumHeader 
+                title="Auditorías EHS" 
+                subtitle={`ISO 45001 • ${stats.inProgress} en curso`}
+                icon={<ClipboardCheck />}
+            >
                 <div className="flex gap-3 flex-wrap">
-                    <></>
                     <button
             onClick={() => navigate('/audit/new')}
-            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-base transition-colors shadow-lg shadow-emerald-500/30 whitespace-nowrap cursor-pointer border-none m-0">
+            style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 8px 20px rgba(16,185,129,0.3)' }}
+            className="flex items-center gap-2 px-6 py-3 rounded-2xl text-white font-extrabold text-base transition-colors whitespace-nowrap cursor-pointer border-none m-0">
             
                         <Plus size={20} strokeWidth={2.5} />
                         Nueva Auditoría
                     </button>
                 </div>
-            </div>
+            </PremiumHeader>
 
             {/* Stats Cards */}
             <div style={{
@@ -377,13 +368,13 @@ export default function AuditManager(): React.ReactElement | null {
                 <div className={`bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl ${isMobile ? 'p-4' : 'p-5'}`}>
                     <div className="flex justify-between items-center mb-3">
                         <span className={`font-semibold text-slate-500 dark:text-slate-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>Tasa de Cumplimiento</span>
-                        <Target size={isMobile ? 18 : 20} color="#8b5cf6" />
+                        <Target size={isMobile ? 18 : 20} color="#f59e0b" />
                     </div>
-                    <div className={`font-black text-purple-500 ${isMobile ? 'text-3xl' : 'text-4xl'}`}>
+                    <div className={`font-black text-amber-500 ${isMobile ? 'text-3xl' : 'text-4xl'}`}>
                         {stats.complianceRate}%
                     </div>
                     <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full mt-3 overflow-hidden">
-                        <div style={{ width: `${stats.complianceRate}%` }} className="h-[100%] bg-[linear-gradient(90deg,_#8b5cf6,_#7c3aed)] rounded-[4px]" />
+                        <div style={{ width: `${stats.complianceRate}%` }} className="h-[100%] bg-[linear-gradient(90deg,_#f59e0b,_#d97706)] rounded-[4px]" />
                     </div>
                 </div>
 
@@ -403,13 +394,6 @@ export default function AuditManager(): React.ReactElement | null {
 
             {/* Tabs */}
             <div className="hide-scrollbar flex gap-[0.5rem] mb-[1.5rem] border-bottom-[2px_solid_var(--color-border)] pb-[0.5rem] overflow-x-[auto] webkit-overflow-scrolling-[touch]">
-
-
-
-
-
-
-
         
                 <TabButton
           active={activeTab === 'audits'}
@@ -442,40 +426,20 @@ export default function AuditManager(): React.ReactElement | null {
       <>
                     {/* Search & Filters */}
                     <div className="flex gap-[1rem] mb-[1.5rem] flex-wrap">
-
-
-
-
           
                         <div className="flex-[1] min-width-[280px] relative">
                             <Search
               size={20}
-              color="var(--color-text-muted)" className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)] pointer-events-[none]" />
-
-
-
-
-
-
-
+              style={{ position: 'absolute', left: '1rem', top: 0, bottom: 0, margin: 'auto', height: '20px', pointerEvents: 'none' }}
+              color="var(--color-text-muted)" />
             
                             <input
               type="text"
               placeholder="Buscar por título, auditor, ubicación..."
               value={searchTerm}
               onChange={(e: any) => setSearchTerm(e.target.value)}
-              className="input-professional w-[100%] p-[0.85rem_1rem_0.85rem_3rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.95rem] font-[500] outline-[none]" />
-
-
-
-
-
-
-
-
-
-
-
+              style={{ paddingLeft: '2.75rem' }}
+              className="input-professional w-[100%] py-[0.85rem] pr-[1rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.95rem] font-[500] outline-[none]" />
             
                         </div>
 
@@ -483,17 +447,6 @@ export default function AuditManager(): React.ReactElement | null {
             value={filterStatus}
             onChange={(e: any) => setFilterStatus(e.target.value)}
             className="input-professional p-[0.85rem_1.25rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.9rem] font-[600] outline-[none] cursor-pointer">
-
-
-
-
-
-
-
-
-
-
-
             
                             <option value="all">Todos los Estados</option>
                             {Object.entries(AUDIT_STATUS).map(([key, value]: any) =>
@@ -571,7 +524,7 @@ function StatCard({ icon, label, value, color, gradient, isMobile }: any) {
   const [isHovered, setIsHovered] = useState(false);
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 backdrop-blur-xl ${isMobile ? 'flex items-center gap-3 p-3' : 'block p-5'}`}>
+      className={`group relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 backdrop-blur-xl ${isMobile ? 'flex items-center gap-3 p-3' : 'block p-5'}`}>
       
             <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-xl opacity-10 group-hover:opacity-25 transition-opacity duration-500" style={{ background: gradient }} />
             <div style={{ marginBottom: isMobile ? '0' : '0.75rem' }} className="flex items-center gap-[0.75rem] flex-shrink-[0]">
@@ -583,7 +536,7 @@ function StatCard({ icon, label, value, color, gradient, isMobile }: any) {
                 <div className={`font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide truncate ${isMobile ? 'text-xs' : 'text-[0.82rem]'}`}>
                     {label}
                 </div>
-                <div className={`font-black text-slate-800 dark:text-slate-100 leading-none tracking-tight ${isMobile ? 'text-2xl mt-1' : 'text-4xl'}`}>
+                <div className={`font-black text-black dark:text-white leading-none tracking-tight ${isMobile ? 'text-2xl mt-1' : 'text-4xl'}`}>
                     {value}
                 </div>
             </div>
@@ -596,14 +549,14 @@ function TabButton({ active, onClick, icon, label, count, badge, isMobile }: any
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 whitespace-nowrap cursor-pointer font-extrabold text-sm transition-all duration-300 relative border-none ${isMobile ? 'px-4 py-3' : 'px-6 py-3.5'} ${active ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-b-2 border-b-purple-500 shadow-[inset_0_-4px_10px_rgba(139,92,246,0.05)]' : 'bg-transparent text-slate-500 dark:text-slate-400 border-b-2 border-b-transparent hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+      className={`flex items-center gap-2 whitespace-nowrap cursor-pointer font-extrabold text-sm transition-all duration-300 relative border-none ${isMobile ? 'px-4 py-3' : 'px-6 py-3.5'} ${active ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-b-2 border-b-amber-500 shadow-[inset_0_-4px_10px_rgba(245,158,11,0.05)]' : 'bg-transparent text-slate-500 dark:text-slate-400 border-b-2 border-b-transparent hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
       
             <span className={`flex items-center transition-transform duration-300 ${active ? 'scale-110' : 'scale-100'}`}>
                 {icon}
             </span>
             <span>{label}</span>
             {count !== undefined &&
-      <span className={`px-2 py-0.5 rounded-full text-xs font-extrabold transition-colors ${active ? 'bg-purple-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}`}>
+      <span className={`px-2 py-0.5 rounded-full text-xs font-extrabold transition-colors ${active ? 'bg-amber-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}`}>
                     {count}
                 </span>
       }
@@ -1074,8 +1027,8 @@ function ISOChecklistPanel({ checklist, areas }: any) {
   return (
     <div className="flex flex-col gap-[1.5rem]">
             {AUDIT_AREAS.map((area: any) =>
-      <div key={area.id} className="bg-slate-900 border border-slate-700 rounded-2xl p-6">
-                    <h3 className="m-[0_0_1rem_0] text-[1rem] font-[800] flex items-center gap-[0.5rem]"><Shield size={18} color="#8b5cf6" />Cláusula {area.clause}: {area.name}</h3>
+      <div key={area.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6">
+                    <h3 className="m-[0_0_1rem_0] text-[1rem] font-[800] flex items-center gap-[0.5rem]"><Shield size={18} color="#f59e0b" />Cláusula {area.clause}: {area.name}</h3>
                     <div className="flex flex-col gap-[0.5rem]">
                         {checklist[area.id]?.map((item: any) =>
           <div key={item.id} style={{ background: item.required ? '#f8fafc' : 'var(--color-background)', border: `1px solid ${item.required ? '#e2e8f0' : 'var(--color-border)'}` }} className="p-[0.75rem] rounded-[var(--radius-lg)] flex items-center gap-[0.75rem]">

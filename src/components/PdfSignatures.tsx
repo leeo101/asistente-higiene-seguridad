@@ -160,33 +160,20 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                   src={box.signatureUrl}
                   alt="Firma"
                   style={{
-
-
-                    maxWidth: box.stampUrl && box.stampUrl.length > 20 ? '48%' : '100%'
-
-
-
-
-
-                  }} className="h-[45px] w-[auto] object-fit-[contain] bg-[transparent] box-sizing-[border-box] inline-block vertical-align-[middle]" />
-
+                    maxWidth: box.stampUrl && box.stampUrl.length > 20 ? '48%' : '100%',
+                    objectPosition: 'center',
+                    objectFit: 'contain'
+                  }} className="h-[45px] w-[auto]" />
                 }
                                         {box.stampUrl && box.stampUrl.length > 20 &&
                 <img
                   src={box.stampUrl}
                   alt="Sello"
                   style={{
-
-
                     maxWidth: box.signatureUrl && box.signatureUrl.length > 20 ? '48%' : '100%',
-
-
-
-
-
-                    marginLeft: box.signatureUrl && box.signatureUrl.length > 20 ? '8px' : '0'
-                  }} className="h-[45px] w-[auto] object-fit-[contain] bg-[transparent] box-sizing-[border-box] inline-block vertical-align-[middle]" />
-
+                    objectPosition: 'center',
+                    objectFit: 'contain'
+                  }} className="h-[45px] w-[auto]" />
                 }
                                         {(!box.signatureUrl || box.signatureUrl.length <= 20) && (!box.stampUrl || box.stampUrl.length <= 20) &&
                 <div className="h-[60px] w-[100%]"></div>
