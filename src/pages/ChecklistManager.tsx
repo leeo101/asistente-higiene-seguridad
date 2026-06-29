@@ -27,6 +27,7 @@ import PdfSignatures from '../components/PdfSignatures';
 import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
 
 const DEFAULT_TEMPLATES = {
   'manual_tools': {
@@ -911,16 +912,18 @@ export default function ChecklistManager(): React.ReactElement | null {
                     {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} details={(qrTarget as any).details} onClose={() => setQrTarget(null)} />}
                     {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
                     <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Checklist - ${(shareItem as any)?.equipo || ''}`} text={shareItem ? `📋 Checklist de Seguridadn🔧 Equipo: ${(shareItem as any).equipo}n🏗️ Empresa: ${(shareItem as any).empresa}n📅 Fecha: ${new Date((shareItem as any).fecha).toLocaleDateString('es-AR')}` : ''} rawMessage={``} elementIdToPrint="pdf-content" fileName={`Checklist_${(shareItem as any)?.equipo || 'Reporte'}.pdf`} />
+        
+
+                    {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} details={(qrTarget as any).details} onClose={() => setQrTarget(null)} />}
+                    {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+                    <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Checklist - ${(shareItem as any)?.equipo || ''}`} text={shareItem ? `📋 Checklist de Seguridadn🔧 Equipo: ${(shareItem as any).equipo}n🏗️ Empresa: ${(shareItem as any).empresa}n📅 Fecha: ${new Date((shareItem as any).fecha).toLocaleDateString('es-AR')}` : ''} rawMessage={``} elementIdToPrint="pdf-content" fileName={`Checklist_${(shareItem as any)?.equipo || 'Reporte'}.pdf`} />
                     <div className="ats-pdf-offscreen">
-                        {shareItem && <ChecklistPdfGenerator checklistData={{ ...shareItem, availableNorms }} isHeadless={true} />}
+                        {shareItem && <ChecklistPdfGenerator checklistData={{ ...shareItem, availableNorms }} isHeadless={true} pdfElementId="pdf-content" />}
                     </div>
                 </> :
 
       <>
-                    <div className="my-6 z-10 no-print">
-                        <></>
-                    </div>
-
+            <div className="animate-fade-in ats-editor-panel">
             {showTutorialBanner &&
         <div className="no-print bg-[linear-gradient(135deg,_#3b82f6_0%,_#2563eb_100%)] text-[#fff] p-[1rem_1.5rem] rounded-[16px] mb-[1.5rem] mt-[1.5rem] flex justify-space-between items-center box-shadow-[0_8px_30px_rgba(37,99,235,0.2)] relative flex-wrap gap-[1rem]">
                     <div className="flex items-start gap-[1rem] flex-[1]">
@@ -978,22 +981,11 @@ export default function ChecklistManager(): React.ReactElement | null {
             isHeadless={true} />
           
             </div>
+            </div>
 
-
-
+            <ModuleFormLayout>
             {/* Progress Section */}
             <div className="no-print mb-[2rem] mt-[1.5rem] p-[2.5rem_2rem] bg-[var(--color-surface)] rounded-[24px] border-[1px_solid_var(--color-border)] flex flex-col gap-[1.2rem] box-shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
-
-
-
-
-
-
-
-
-
-
-          
                 <div className="flex items-center justify-space-between gap-[1.5rem] flex-wrap">
                     <div className="flex items-center gap-4">
                         <div>
@@ -1039,7 +1031,7 @@ export default function ChecklistManager(): React.ReactElement | null {
             </div>
 
             {currentStep === 1 &&
-        <>
+        <ModuleFormDocument>
             <div id="checklist-editor-content" className="card ats-editor-panel w-[100%] box-sizing-[border-box] p-[1rem] m-[0_auto] mb-[2rem]">
                 <div className="flex flex-col sm:flex-row justify-between items-center w-full gap-4 sm:gap-6 border-b-4 pb-6 mb-8 border-color-[var(--color-border)]">
                     {/* Top Left Text */}
@@ -1133,7 +1125,9 @@ export default function ChecklistManager(): React.ReactElement | null {
                         </div>);
 
             })()}
-            </div> {/* End of checklist-editor-content */}
+            </div>
+        </ModuleFormDocument>
+        }
 
             {/* TEMPLATE SELECTOR - Responsive Grid */}
             <div className="no-print grid grid-template-columns-[repeat(auto-fit,_minmax(100px,_1fr))] gap-[0.8rem] mb-[1.5rem]">
@@ -1171,9 +1165,7 @@ export default function ChecklistManager(): React.ReactElement | null {
 
             })}
             </div>
-                </>
-        }
-
+            
             {/* EDITABLE SECTIONS - Responsive */}
             {currentStep === 2 &&
         <div className="no-print mb-8">
@@ -1641,101 +1633,22 @@ export default function ChecklistManager(): React.ReactElement | null {
               onSave={(sig) => setSupervisorSignature(sig || '')}
               initialImage={supervisorSignature}
               label="Firma de Supervisión / Verificador" />
-
             }
-                </div>
-            </div>
-        }
 
-            {/* Botones de Navegación del Wizard */}
-            <div className="flex justify-between items-center mt-8 pt-6 border-t border-[var(--color-border)] no-print">
-                <button
-            onClick={prevStep}
-            className="btn-wizard prev-btn p-[0.8rem_1.5rem] rounded-[var(--radius-xl)] bg-[var(--color-surface)] text-[var(--color-text)] font-[800] text-[0.9rem] border-[1px_solid_var(--color-border)] flex items-center gap-[0.5rem]"
-            disabled={currentStep === 1}
-            style={{
-
-
-
-
-
-
-
-              opacity: currentStep === 1 ? 0.5 : 1,
-              cursor: currentStep === 1 ? 'not-allowed' : 'pointer'
-
-
-
-            }}>
-            
-                    <ArrowLeft size={18} /> ANTERIOR
-                </button>
-
-                {currentStep < totalSteps ?
-          <button
-            onClick={nextStep}
-
-            className="hover-scale p-[0.8rem_2rem] rounded-[14px] bg-[var(--gradient-premium)] border-none text-[#fff] font-[900] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(59,130,246,0.3)]">
-            
-                        SIGUIENTE <ArrowRight size={18} />
-                    </button> :
-
-          <div className="flex gap-[0.8rem] items-center flex-wrap">
-                        <button
-              onClick={() => {
-                setCompanyInfo({ name: '', inspector: '', address: '', responsable: '' });
-                setInspectionInfo({ item: '', serial: '', date: new Date().toISOString().split('T')[0], expirationDate: '', extinguisherObs: '', marca: '', patente: '', horometro: '', pt: '', responsableArea: '' });
-                setActiveSections([]);
-                setObservations('');
-                setActionPlan([]);
-                setOperatorSignature('');
-                setSignature('');
-                setSupervisorSignature('');
-                setCurrentStep(1);
-              }}
-
-              className="hover:bg-red-50 dark:hover:bg-red-900/10 p-[0.8rem_1.2rem] rounded-[14px] bg-[transparent] border-[2px_solid_rgba(239,_68,_68,_0.3)] text-[#ef4444] font-[800] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem]">
-              
-                            <Trash2 size={18} /> Limpiar
-                        </button>
-                        <button
-              onClick={() => window.print()}
-
-              className="hover:bg-amber-50 dark:hover:bg-amber-900/10 p-[0.8rem_1.2rem] rounded-[14px] bg-[var(--color-surface)] border-[2px_solid_rgba(245,_158,_11,_0.3)] text-[#f59e0b] font-[800] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem]">
-              
-                            <Printer size={18} /> Imprimir
-                        </button>
-                        <button
-              onClick={() => {
-                requirePro(() => setShowShare(true));
-              }}
-
-              className="hover:bg-blue-50 dark:hover:bg-blue-900/10 p-[0.8rem_1.2rem] rounded-[14px] bg-[var(--color-surface)] border-[2px_solid_rgba(59,_130,_246,_0.3)] text-[#3b82f6] font-[800] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem]">
-              
-                            <Share2 size={18} /> Compartir
-                        </button>
-                        <button
-              onClick={handleSave}
-
-              className="hover-scale p-[0.8rem_2rem] rounded-[14px] bg-emerald-500 hover:bg-emerald-600 border-none text-[#fff] font-[900] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(16,185,129,0.3)]">
-              
-                            <Save size={18} /> GUARDAR
-                        </button>
-                    </div>
-          }
-            </div>
-
-            {/* El PDF del editor se genera desde el ats-pdf-offscreen con pdfElementId="pdf-content-editor" (línea ~877) */}
-            {/* Se eliminó el tercer generador redundante que causaba duplicación al imprimir */}
-                </>
+        </div>
+        </div>
       }
-        </div>);
+      </ModuleFormLayout>
+      </>
+      }
+    </div>
+  );
 
 }
 
 function DocBox({ label, value, onChange, type = "text", large = false, highlight = false, flex = 1, list = null }) {
-  return (
-    <div className={`p-3 min-w-0 flex flex-col justify-center sm:border-r-2 last:border-r-0 sm:print:border-r-2 border-slate-200 ${highlight ? 'bg-slate-50/50' : ''}`}>
+    return (
+        <div className={`p-3 min-w-0 flex flex-col justify-center sm:border-r-2 last:border-r-0 sm:print:border-r-2 border-slate-200 ${highlight ? 'bg-slate-50/50' : ''}`}>
             <label className="text-[0.55rem] font-black text-slate-400 uppercase tracking-widest block mb-1 whitespace-nowrap leading-none text-left">{label}</label>
             <input
         type={type}

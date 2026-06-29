@@ -8,7 +8,13 @@ import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { getCountryNormativa } from '../data/legislationData';
-
+import {
+  ModuleFormLayout,
+  ModuleFormToolbar,
+  ModuleFormDocument,
+  ModuleFormSection,
+  ModuleActionBar
+} from '../components/module';
 const HAZARD_TYPES = [
 { value: '', label: 'Seleccionar...', icon: null, color: 'var(--color-text-muted)' },
 { value: 'Físico', label: 'Físico', icon: <Zap size={12} />, color: '#3b82f6' },
@@ -119,7 +125,7 @@ export default function RiskMatrix(): React.ReactElement | null {
   };
 
   return (
-    <div className="w-full max-w-[1300px] mx-auto pt-20 pb-32 px-4">
+    <ModuleFormLayout>
             <ShareModal
         isOpen={showShare}
         open={showShare}
@@ -131,45 +137,14 @@ export default function RiskMatrix(): React.ReactElement | null {
         fileName={`Matriz_${projectData.name || 'Riesgos'}.pdf`} />
       
 
-            {/* Floating Action Buttons */}
-            <div className="no-print floating-action-bar">
-                <button onClick={(e) => {e.preventDefault();requirePro(() => handleSave());}}
-        className="btn-floating-action bg-[#36B37E] text-[#ffffff]">
+        <ModuleFormToolbar
+            title="Matriz de Riesgos"
+            subtitle={`${countryNorms.general} - HYS`}
+            icon={<TriangleAlert size={32} color="#ffffff" />}
+        />
 
-          
-                    <Save size={18} /> GUARDAR
-                </button>
-                <button
-          onClick={() => requirePro(() => setShowShare(true))}
-          className="btn-floating-action bg-[#0052CC] text-[#ffffff]">
-
-          
-                    <Share2 size={18} /> COMPARTIR
-                </button>
-                <button
-          onClick={() => requirePro(() => window.print())}
-          className="btn-floating-action bg-[#FF8B00] text-[#ffffff]">
-
-          
-                    <Printer size={18} /> IMPRIMIR PDF
-                </button>
-            </div>
-
-            {/* ─── HEADER ─── */}
-            <div className="flex items-center justify-between mb-8 bg-white dark:bg-slate-800 rounded-[20px] p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
-                <div className="flex items-center gap-[1.2rem]">
-                    <></>
-                    <div>
-                        <h1 className="m-[0] text-[1.6rem] font-[900] text-[var(--color-text)] letter-spacing-[-0.5px] flex items-center gap-[0.7rem]">
-                            <TriangleAlert size={28} color="#f59e0b" /> Matriz de Riesgos
-                        </h1>
-                        <p className="m-[0] text-[var(--color-text-muted)] text-[0.8rem] font-[600] uppercase letter-spacing-[1px]">
-                            {countryNorms.general} - HYS
-                        </p>
-                    </div>
-                </div>
-            </div>
-
+        <ModuleFormDocument>
+            <ModuleFormSection title="Datos del Proyecto" icon={<ShieldCheck size={20} />}>
             {/* ─── PROJECT DATA ─── */}
             <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 mb-8">
                 {[
@@ -196,8 +171,9 @@ export default function RiskMatrix(): React.ReactElement | null {
           className="m-0 border-none bg-transparent font-bold text-[0.95rem] text-slate-900 dark:text-slate-100 outline-none w-full" />
                 </div>
             </div>
+            </ModuleFormSection>
 
-            {/* ─── DASHBOARD (Summary + Heatmap) ─── */}
+            <ModuleFormSection title="Resumen y Mapa de Calor" icon={<Activity size={20} />}>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-6 mb-8">
                 <div className="grid grid-template-columns-[1fr_1fr] gap-[1rem] align-content-[start]">
                     {[
@@ -255,8 +231,9 @@ export default function RiskMatrix(): React.ReactElement | null {
                     </div>
                 </div>
             </div>
+            </ModuleFormSection>
 
-            {/* ─── RISK ROWS ─── */}
+            <ModuleFormSection title="Evaluaciones de Riesgo" icon={<Brain size={20} />}>
             <div className="flex flex-col gap-4 mb-6">
                 {rows.map((row, idx) => {
           const level = getRiskLevel(row.probability, row.severity);
@@ -400,8 +377,9 @@ export default function RiskMatrix(): React.ReactElement | null {
         
                 <Plus size={18} /> AGREGAR NUEVA EVALUACIÓN DE RIESGO
             </button>
+            </ModuleFormSection>
 
-            {/* ─── LEGEND ─── */}
+            <ModuleFormSection title="Leyenda" icon={<Leaf size={20} />}>
             <div className="bg-[var(--color-background)] rounded-[14px] p-[1.2rem] border-[1px_solid_var(--color-border)]">
                 <p className="m-[0_0_0.8rem_0] text-[0.75rem] font-[800] text-[var(--color-text-muted)] uppercase letter-spacing-[0.05em]">
                     Guía de Valoración (P × S)
@@ -421,7 +399,14 @@ export default function RiskMatrix(): React.ReactElement | null {
           )}
                 </div>
             </div>
-        </div>);
+            </ModuleFormSection>
+        </ModuleFormDocument>
+        <ModuleActionBar actions={[
+            { id: 'save', label: 'GUARDAR', icon: <Save size={18} />, variant: 'primary', onClick: (e) => { e.preventDefault(); requirePro(handleSave); } },
+            { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'secondary', onClick: () => requirePro(() => setShowShare(true)) },
+            { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'secondary', onClick: () => requirePro(() => window.print()) }
+        ]} />
+    </ModuleFormLayout>);
 
 }
 

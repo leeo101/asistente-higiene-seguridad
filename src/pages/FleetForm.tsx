@@ -11,6 +11,7 @@ import PdfSignatures from '../components/PdfSignatures';
 import FleetPdfGenerator from '../components/FleetPdfGenerator';
 import ConfirmModal from '../components/ConfirmModal';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar } from '../components/module';
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
@@ -378,11 +379,8 @@ export default function FleetForm(): React.ReactElement | null {
       
 
             <main className="px-4 py-8 max-w-[1000px] mx-auto">
-                <div className="mb-6">
-                    <></>
-                </div>
-
-                <div className="card animate-fade-in p-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm">
+                <ModuleFormLayout maxWidth={1000}>
+                <ModuleFormDocument>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">Dominio / Patente *</label>
@@ -427,11 +425,7 @@ export default function FleetForm(): React.ReactElement | null {
                         </div>
                     </div>
 
-                    <div className="mt-[2.5rem]">
-                        <h3 className="flex items-center gap-2 mb-4 text-xl font-extrabold text-blue-600 dark:text-blue-400">
-                            <ClipboardList size={22} /> Checklist Pre-Operacional
-                        </h3>
-                        
+                    <ModuleFormSection title="Checklist Pre-Operacional" icon={<ClipboardList size={22} />}>
                         <div className="flex flex-col gap-4">
                             {CHECKLIST_ITEMS.map((item, index) =>
               <div key={item.id} className="hover-lift flex justify-between items-center p-5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl flex-wrap gap-4 transition-all hover:bg-slate-100 dark:hover:bg-slate-800">
@@ -491,7 +485,7 @@ export default function FleetForm(): React.ReactElement | null {
                 placeholder="Describa cualquier novedad, daño o elemento faltante..." />
               
                     </div>
-                    </div>
+                    </ModuleFormSection>
 
                     {/* Firmas y Autorizaciones */}
                     <div className="mt-[3rem]">
@@ -657,29 +651,35 @@ export default function FleetForm(): React.ReactElement | null {
               }
                         </div>
                     </div>
-                </div>
+                </ModuleFormDocument>
+                </ModuleFormLayout>
             </main>
 
-            <div className="no-print floating-action-bar">
-                <button
-          onClick={() => requirePro(() => setShowShareModal(true))}
-          className="btn-floating-action bg-blue-600 hover:bg-blue-700 text-white">
-          
-                    <Share2 size={18} /> COMPARTIR
-                </button>
-                <button
-          onClick={() => requirePro(() => window.print())}
-          className="btn-floating-action bg-orange-500 hover:bg-orange-600 text-white">
-          
-                    <Printer size={18} /> IMPRIMIR PDF
-                </button>
-                <button
-          onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-          className="btn-floating-action bg-emerald-500 hover:bg-emerald-600 text-white">
-          
-                    <Save size={18} /> GUARDAR
-                </button>
-            </div>
+            <ModuleActionBar
+              actions={[
+                {
+                  id: 'share',
+                  label: 'COMPARTIR',
+                  icon: <Share2 size={18} />,
+                  variant: 'info',
+                  onClick: () => requirePro(() => setShowShareModal(true)),
+                },
+                {
+                  id: 'print',
+                  label: 'IMPRIMIR PDF',
+                  icon: <Printer size={18} />,
+                  variant: 'warning',
+                  onClick: () => requirePro(() => window.print()),
+                },
+                {
+                  id: 'save',
+                  label: 'GUARDAR',
+                  icon: <Save size={18} />,
+                  variant: 'primary',
+                  onClick: (e) => { e.preventDefault(); requirePro(handleSave); },
+                },
+              ]}
+            />
 
             <ShareModal
         isOpen={showShareModal}

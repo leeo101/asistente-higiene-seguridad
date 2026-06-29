@@ -5,8 +5,13 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import AuditPdf from '../components/AuditPdf';
-import Breadcrumbs from '../components/Breadcrumbs';
-import PremiumHeader from '../components/PremiumHeader';
+import {
+  ModuleFormLayout,
+  ModuleFormToolbar,
+  ModuleFormDocument,
+  ModuleFormSection,
+  ModuleActionBar,
+} from '../components/module';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
@@ -266,20 +271,15 @@ export default function AuditForm(): React.ReactElement | null {
   };
 
   return (
-    <div className="container min-h-[100vh] bg-[var(--color-background)] pb-[7rem]" style={{ paddingTop: isMobile ? '4.5rem' : '5.5rem' }}>
-            <Breadcrumbs />
-            <PremiumHeader
+        <ModuleFormLayout>
+            <ModuleFormToolbar
         title={isEdit ? 'Editar Auditoría' : 'Nueva Auditoría EHS'}
         subtitle={isEdit ? 'Actualice la información de la auditoría en curso.' : 'Registre una nueva inspección o auditoría para evaluar el cumplimiento de EHS.'}
-        icon={<Shield size={32} color="#ffffff" />} />
+        icon={<Shield />} />
       
-
-            <div className="max-w-[1000px] m-[1rem_auto_0] p-[0_1rem] flex">
-                <></>
-            </div>
-
-            <main className="p-[0_0_2rem_0] max-w-[1000px] m-[0_auto] w-[100%]">
-                <div className="card animate-fade-in p-[2.5rem] bg-[linear-gradient(145deg,_var(--color-surface)_0%,_rgba(16,_185,_129,_0.05)_100%)] border-[1px_solid_rgba(16,_185,_129,_0.2)] rounded-[24px] box-shadow-[0_10px_40px_-10px_rgba(16,_185,_129,_0.1)]">
+        <ModuleFormDocument>
+            <ModuleFormSection title="Datos de la Auditoría" icon={<FileText />}>
+                <div className="flex flex-col gap-6 w-full">
                     {/* Metadatos Principales */}
                     <div style={{
 
@@ -295,8 +295,7 @@ export default function AuditForm(): React.ReactElement | null {
                             <div className="relative">
                                 <input
                   type="text"
-                  style={{ paddingLeft: '2.8rem', marginBottom: 0 }} className={`input-professional h-[48px] text-[1rem] ${errors.includes('title') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
-
+                  className={`module-form-input ${errors.includes('title') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
                   value={audit.title}
                   onChange={(e) => {
                     setAudit({ ...audit, title: e.target.value });
@@ -315,9 +314,7 @@ export default function AuditForm(): React.ReactElement | null {
                                 <select
                   value={audit.auditType}
                   onChange={(e) => setAudit({ ...audit, auditType: e.target.value })}
-                  style={{ paddingLeft: '2.8rem', marginBottom: 0 }} className="input-professional h-[48px] text-[0.95rem]">
-
-                  
+                  className="module-form-input">
                                     {AUDIT_TYPES.map((t) => <option key={t.id} value={t.id}>{t.icon} {t.name}</option>)}
                                 </select>
                                 <div style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.8rem] bg-[var(--color-secondary)] p-[0.4rem] rounded-[8px] text-[white] flex pointer-events-[none]">
@@ -335,9 +332,7 @@ export default function AuditForm(): React.ReactElement | null {
                     setAudit({ ...audit, date: e.target.value });
                     if (errors.includes('date')) setErrors(errors.filter(err => err !== 'date'));
                   }}
-                  style={{ paddingLeft: '2.8rem', marginBottom: 0 }} className={`input-professional h-[48px] text-[0.95rem] ${errors.includes('date') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`} />
-
-                
+                  className={`module-form-input ${errors.includes('date') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`} />
                                 <div style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.8rem] bg-[var(--color-accent)] p-[0.4rem] rounded-[8px] text-[white] flex pointer-events-[none]">
                                     <Calendar size={16} />
                                 </div>
@@ -353,7 +348,7 @@ export default function AuditForm(): React.ReactElement | null {
                     setAudit({ ...audit, auditor: e.target.value });
                     if (errors.includes('auditor')) setErrors(errors.filter(err => err !== 'auditor'));
                   }}
-                  style={{ paddingLeft: "2.8rem", marginBottom: 0 }} className={`input-professional h-[48px] text-[0.95rem] ${errors.includes('auditor') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
+                  className={`module-form-input ${errors.includes('auditor') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
                   placeholder="Nombre del auditor" />
                 
                                 <div style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.8rem] bg-[var(--color-warning)] p-[0.4rem] rounded-[8px] text-[white] flex pointer-events-[none]">
@@ -368,8 +363,7 @@ export default function AuditForm(): React.ReactElement | null {
                   type="text"
                   value={audit.location}
                   onChange={(e) => setAudit({ ...audit, location: e.target.value })}
-                  style={{ paddingLeft: "2.8rem", marginBottom: 0 }} className="input-professional h-[48px] text-[0.95rem]"
-
+                  className="module-form-input"
                   placeholder="Ej: Nave de Producción" />
                 
                                 <div style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.8rem] bg-[var(--color-danger)] p-[0.4rem] rounded-[8px] text-[white] flex pointer-events-[none]">
@@ -382,35 +376,24 @@ export default function AuditForm(): React.ReactElement | null {
                     <div className="mt-[2.5rem]">
                         <label className="block mb-2 text-sm font-semibold text-slate-400">Objetivo de la Auditoría</label>
                         <textarea
-              className="input-professional min-h-[80px] pt-[0.75rem] mb-0"
+              className="module-form-input"
+              rows={4}
               value={audit.objective}
               onChange={(e) => setAudit({ ...audit, objective: e.target.value })}
-
               placeholder="Describa el propósito de esta auditoría..." />
             
                     </div>
+                </div>
+            </ModuleFormSection>
 
                     {/* Checklist ISO */}
-                    <div className="mt-[3rem]">
-                        <h3 className="m-[0_0_1.5rem_0] text-[1.25rem] font-[900] text-[var(--color-primary)] flex items-center gap-[0.5rem] letter-spacing-[0.5px]">
-                            <ClipboardCheck size={22} /> Checklist de Cumplimiento Legal e ISO
-                        </h3>
+            <ModuleFormSection title="Checklist de Cumplimiento Legal e ISO" icon={<ClipboardCheck />}>
+                    <div className="mt-[1rem]">
                         <div className="flex flex-col gap-[1.25rem]">
                             {audit.checklist.map((item, idx) =>
               <div
                 key={item.id}
                 className="stagger-item card bg-[rgba(var(--color-surface-rgb),_0.4)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[1.5rem] box-shadow-[var(--shadow-sm)] relative overflow-[hidden] transition-[all_0.25s_ease]">
-
-
-
-
-
-
-
-
-
-
-                
                                     {/* Left Accent indicator based on compliance status */}
                                     <div style={{
 
@@ -426,55 +409,17 @@ export default function AuditForm(): React.ReactElement | null {
                                         <div style={{ paddingLeft: '0.5rem' }} className="flex-[1] ">
                                             <div className="flex gap-[0.5rem] flex-wrap items-center mb-[0.5rem]">
                                                 <span className="display-[inline-flex] items-center p-[0.2rem_0.6rem] rounded-[var(--radius-full)] text-[0.65rem] font-[850] bg-[rgba(var(--color-primary-rgb),_0.1)] text-[var(--color-primary)] border-[1px_solid_rgba(var(--color-primary-rgb),_0.2)] uppercase letter-spacing-[0.5px]">
-
-
-
-
-
-
-
-
-
-
-
-                        
                                                     {item.legal}
                                                 </span>
 
                                                 {item.status === 'si' &&
                       <span className="display-[inline-flex] items-center gap-[0.25rem] p-[0.2rem_0.6rem] rounded-[var(--radius-full)] text-[0.65rem] font-[800] bg-[rgba(16,_185,_129,_0.1)] text-[#10b981] border-[1px_solid_rgba(16,_185,_129,_0.2)] uppercase letter-spacing-[0.5px]">
-
-
-
-
-
-
-
-
-
-
-
-
-                        
                                                         <CheckCircle2 size={12} /> Conforme
                                                     </span>
                       }
 
                                                 {item.status === 'no' &&
                       <span className="display-[inline-flex] items-center gap-[0.25rem] p-[0.2rem_0.6rem] rounded-[var(--radius-full)] text-[0.65rem] font-[800] bg-[rgba(239,_68,_68,_0.1)] text-[#ef4444] border-[1px_solid_rgba(239,_68,_68,_0.2)] uppercase letter-spacing-[0.5px]">
-
-
-
-
-
-
-
-
-
-
-
-
-                        
                                                         <AlertTriangle size={12} /> Desvío Detectado
                                                     </span>
                       }
@@ -484,14 +429,6 @@ export default function AuditForm(): React.ReactElement | null {
 
                                         {/* Segmented glows selector */}
                                         <div className="flex bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[var(--radius-lg)] p-[0.25rem] gap-[0.25rem] h-[fit-content]">
-
-
-
-
-
-
-
-                    
                                             {['si', 'no', 'na'].map((status) => {
                       const isSelected = item.status === status;
                       const styles = getStatusStyles(status, isSelected);
@@ -504,19 +441,11 @@ export default function AuditForm(): React.ReactElement | null {
                             setAudit({ ...audit, checklist: newChecklist });
                           }}
                           style={{
-
-
-
-
-
                             borderColor: styles.borderColor,
                             background: styles.background,
                             color: styles.color,
                             boxShadow: styles.boxShadow,
                             opacity: styles.opacity
-
-
-
                           }} className="p-[0.45rem_1rem] text-[0.75rem] font-[800] rounded-[var(--radius-md)] border-[1px_solid] cursor-pointer uppercase transition-[all_0.2s_cubic-bezier(0.4,_0,_0.2,_1)]">
                           
                                                         {status === 'si' && '✓ si'}
@@ -532,17 +461,12 @@ export default function AuditForm(): React.ReactElement | null {
                                     <div style={{ paddingLeft: '0.5rem' }} className="relative mt-[0.5rem] ">
                                         <input
                     type="text"
-                    className="input-professional  text-[0.85rem] mb-0"
+                    className="module-form-input"
                     value={item.observation}
                     onChange={(e) => {
                       const newChecklist = [...audit.checklist];
                       newChecklist[idx].observation = e.target.value;
                       setAudit({ ...audit, checklist: newChecklist });
-                    }}
-                    style={{
-                      paddingLeft: '2.2rem',
-                      borderColor: item.status === 'no' && !item.observation ? 'rgba(239, 68, 68, 0.4)' : 'var(--color-border)',
-                      background: item.status === 'no' && !item.observation ? 'rgba(239, 68, 68, 0.02)' : 'var(--color-surface)'
                     }}
                     placeholder={item.status === 'no' ? "Describa detalladamente el hallazgo o desvío crítico..." : "Observaciones opcionales..."} />
                   
@@ -552,12 +476,11 @@ export default function AuditForm(): React.ReactElement | null {
               )}
                         </div>
                     </div>
+            </ModuleFormSection>
 
                     {/* Reunión de Cierre */}
-                    <div className="card mt-[3.5rem] bg-[rgba(var(--color-primary-rgb),_0.02)] p-[2rem] rounded-[var(--radius-xl)] border-[1px_solid_var(--glass-border)] box-shadow-[inset_0_0_20px_rgba(var(--color-primary-rgb),_0.01)]">
-                        <h3 className="m-[0_0_1.5rem_0] text-[1.25rem] font-[900] text-[var(--color-primary)] flex items-center gap-[0.5rem] letter-spacing-[0.5px]">
-                            <Clock size={22} /> Minuta y Reunión de Cierre
-                        </h3>
+            <ModuleFormSection title="Minuta y Reunión de Cierre" icon={<Clock />}>
+                    <div className="card bg-[rgba(var(--color-primary-rgb),_0.02)] p-[2rem] rounded-[var(--radius-xl)] border-[1px_solid_var(--glass-border)] box-shadow-[inset_0_0_20px_rgba(var(--color-primary-rgb),_0.01)]">
                         <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem]">
                             <div>
                                 <label className="block mb-2 text-sm font-semibold text-slate-400">Participantes en el Cierre</label>
@@ -566,8 +489,7 @@ export default function AuditForm(): React.ReactElement | null {
                     type="text"
                     value={audit.closingMeeting.participants}
                     onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, participants: e.target.value } })}
-                    style={{ paddingLeft: "2.5rem", marginBottom: 0 }} className="input-professional"
-
+                    className="module-form-input pl-10"
                     placeholder="Nombres de los presentes" />
                   
                                     <User size={16} color="var(--color-text-light)" style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.9rem]" />
@@ -580,9 +502,7 @@ export default function AuditForm(): React.ReactElement | null {
                     type="date"
                     value={audit.closingMeeting.date}
                     onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, date: e.target.value } })}
-                    style={{ paddingLeft: '2.5rem', marginBottom: 0 }} className="input-professional" />
-
-                  
+                    className="module-form-input pl-10" />
                                     <Calendar size={16} color="var(--color-text-light)" style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.9rem] pointer-events-[none]" />
                                 </div>
                             </div>
@@ -592,22 +512,20 @@ export default function AuditForm(): React.ReactElement | null {
                                     <textarea
                     value={audit.closingMeeting.conclusions}
                     onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, conclusions: e.target.value } })}
-                    style={{ paddingLeft: '2.5rem', marginBottom: 0 }} className="input-professional min-h-[100px] pt-[0.75rem] mb-0"
-
+                    className="module-form-input pl-10"
+                    rows={4}
                     placeholder="Resumen de hallazgos críticos, fortalezas detectadas y cumplimiento general de la norma..." />
                   
                                     <Award size={16} color="var(--color-text-light)" style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.9rem]" />
                                 </div>
-                            </div>
-                        </div>
+                              </div>
                     </div>
+                    </div>
+            </ModuleFormSection>
 
                     {/* Firmas y Autorizaciones */}
-                    <div className="card mt-[3.5rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2rem]">
-                        <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.7rem] text-[var(--color-primary)] font-[900] text-[1.25rem] uppercase letter-spacing-[1px]">
-                            <Pencil size={22} className="text-[var(--color-primary)]" /> Firmas y Autorizaciones EHS
-                        </h3>
-
+            <ModuleFormSection title="Firmas y Autorizaciones EHS" icon={<Pencil />}>
+                    <div className="card bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2rem]">
                         {/* Custom visual switches */}
                         <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
                             <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
@@ -698,12 +616,6 @@ export default function AuditForm(): React.ReactElement | null {
                         <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid gap-[1.5rem]" style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))' }}>
                             {showSignatures.operator &&
               <div className="bg-[rgba(30,_41,_59,_0.1)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[1.25rem] box-shadow-[var(--shadow-sm)]">
-
-
-
-
-
-                
                                     <SignatureCanvas
                   onSave={(sig) => setAudit((prev) => ({ ...prev, operatorSignature: sig || '' }))}
                   initialImage={audit.operatorSignature}
@@ -714,12 +626,6 @@ export default function AuditForm(): React.ReactElement | null {
 
                             {showSignatures.professional &&
               <div className="bg-[rgba(30,_41,_59,_0.1)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[1.25rem] box-shadow-[var(--shadow-sm)]">
-
-
-
-
-
-                
                                     <SignatureCanvas
                   onSave={(sig) => setAudit((prev) => ({ ...prev, signature: sig || '' }))}
                   initialImage={audit.signature}
@@ -730,12 +636,6 @@ export default function AuditForm(): React.ReactElement | null {
 
                             {showSignatures.supervisor &&
               <div className="bg-[rgba(30,_41,_59,_0.1)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[1.25rem] box-shadow-[var(--shadow-sm)]">
-
-
-
-
-
-                
                                     <SignatureCanvas
                   onSave={(sig) => setAudit((prev) => ({ ...prev, supervisorSignature: sig || '' }))}
                   initialImage={audit.supervisorSignature}
@@ -745,32 +645,16 @@ export default function AuditForm(): React.ReactElement | null {
               }
                         </div>
                     </div>
-                </div>
-            </main>
+            </ModuleFormSection>
+        </ModuleFormDocument>
 
-            <div className="no-print floating-action-bar">
-                <button
-          onClick={() => requirePro(() => setShowShareModal(true))}
-          style={{ backgroundColor: "#0052CC", color: "#ffffff" }} className="btn-floating-action">
-
-          
-                    <Share2 size={18} /> COMPARTIR
-                </button>
-                <button
-          onClick={() => requirePro(() => window.print())}
-          style={{ backgroundColor: "#FF8B00", color: "#ffffff" }} className="btn-floating-action">
-
-          
-                    <Printer size={18} /> IMPRIMIR PDF
-                </button>
-                <button
-          onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-          style={{ backgroundColor: "#36B37E", color: "#ffffff" }} className="btn-floating-action">
-
-          
-                    <Save size={18} /> GUARDAR AUDITORÍA
-                </button>
-            </div>
+            <ModuleActionBar
+              actions={[
+                { id: 'save', label: 'GUARDAR AUDITORÍA', icon: <Save />, variant: 'primary', onClick: () => requirePro(handleSave) },
+                { id: 'share', label: 'COMPARTIR', icon: <Share2 />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) },
+                { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer />, variant: 'secondary', onClick: () => requirePro(() => window.print()) }
+              ]}
+            />
 
             <ShareModal
         isOpen={showShareModal}
@@ -786,6 +670,6 @@ export default function AuditForm(): React.ReactElement | null {
             <div className="print-only fixed left-[-9999px] top-[0] opacity-[0] pointer-events-[none]" id="pdf-content">
                 <AuditPdf data={{ ...audit, showSignatures, createdAt: audit.createdAt || new Date().toISOString() }} />
             </div>
-        </div>);
+        </ModuleFormLayout>);
 
 }

@@ -3,8 +3,9 @@ import { createPortal } from 'react-dom';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import {
   Flame, Plus, Search, MapPin, QrCode, ArrowLeft, ShieldCheck, Activity, CheckCircle,
-  Calendar, Edit3, Trash2, Printer, AlertTriangle, CheckCircle2, Camera, Share2, Pencil, Download, FileSpreadsheet, CalendarDays, History, UploadCloud, DownloadCloud } from
+  Calendar, Edit3, Trash2, Printer, AlertTriangle, CheckCircle2, Camera, Share2, Pencil, Download, FileSpreadsheet, CalendarDays, History, UploadCloud, DownloadCloud, Info, Save } from
 'lucide-react';
+import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -262,7 +263,7 @@ export default function ExtintoresManager() {
   };
 
   const handleSave = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     const newEntry = { ...formData, id: editingId || Date.now().toString(), updatedAt: new Date().toISOString() };
     let updated;
     if (editingId) {
@@ -365,14 +366,7 @@ export default function ExtintoresManager() {
     setPrintItem(filtered);
 
     setTimeout(() => {
-      // Ya no ocultamos el root, porque si el body queda vacío (sin altura), 
-      // Android Chrome centra verticalmente los elementos con position: absolute.
-      // Al dejar el root invisible (por CSS) pero ocupando espacio, y el PDF en position: absolute top 0,
-      // garantizamos que quede pegado arriba.
-
       window.print();
-
-      // Wait 10 seconds before clearing to allow Android's print spooler to capture the DOM
       setTimeout(() => {
         setPrintItem(null);
       }, 10000);
@@ -522,13 +516,6 @@ export default function ExtintoresManager() {
                         </div>
                         {lastInspection &&
           <div style={{
-
-
-
-
-
-
-
             background: lastInspection.resultado === 'C' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
             color: lastInspection.resultado === 'C' ? '#10b981' : '#ef4444'
 
@@ -803,6 +790,7 @@ export default function ExtintoresManager() {
       
             {(printItem || shareItem) && createPortal(
         <div
+          id="pdf-content"
           className="ats-pdf-offscreen active-portal-print"
           aria-hidden="true">
           
@@ -925,19 +913,15 @@ export default function ExtintoresManager() {
 
             {showForm ?
       <div className="animate-fade-in ats-editor-panel">
-                    <div className="no-print flex flex-col gap-6 mb-8">
-                        <PremiumHeader onBack={showForm ? () => {setShowForm(false);} : undefined}
-          title={editingId ? 'Editar Extintor' : 'Registrar Nuevo Extintor'}
-          subtitle="Ficha Técnica del Extintor"
-          icon={<Flame size={32} color="#ffffff" />}
-          color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
-          
-
-                        <div className="flex justify-between items-center flex-wrap gap-4">
-                            <></>
-                        </div>
-                    </div>
-                    <form onSubmit={(e) => {e.preventDefault();requirePro(() => handleSave(e));}} className="flex flex-col gap-6 bg-slate-50 dark:bg-slate-900/50 p-8 rounded-2xl border-2 border-blue-500">
+                    <ModuleFormLayout>
+                        <ModuleFormToolbar
+                            title={editingId ? 'Editar Extintor' : 'Registrar Nuevo Extintor'}
+                            subtitle="Ficha Técnica del Extintor"
+                            icon={<Flame size={28} className="text-amber-500" />}
+                        />
+                    
+                    <ModuleFormDocument id="extinguisher-form">
+                        <ModuleFormSection title="Datos Generales" icon={<Info size={20} />}>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                             <div>
                                 <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">Nº CHAPA / ID</label>
@@ -969,22 +953,6 @@ export default function ExtintoresManager() {
                                 <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">UBICACIÓN FÍSICA</label>
                                 <input required type="text" value={formData.ubicacion} onChange={(e) => setFormData({ ...formData, ubicacion: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: Pasillo principal 1er piso" />
                             </div>
-                            <div>
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">FECHA DE FABRICACIÓN</label>
-                                <input type="date" value={formData.fechaFabricacion} onChange={(e) => setFormData({ ...formData, fechaFabricacion: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">ÚLTIMA CARGA</label>
-                                <input required type="date" value={formData.vencimientoRecarga} onChange={(e) => setFormData({ ...formData, vencimientoRecarga: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">ÚLTIMA PRUEBA HIDRÁULICA</label>
-                                <input type="date" value={formData.vencimientoPH} onChange={(e) => setFormData({ ...formData, vencimientoPH: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">SELLO IRAM / OPDS</label>
-                                <input type="text" value={formData.selloIRAM} onChange={(e) => setFormData({ ...formData, selloIRAM: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 12345" />
-                            </div>
                             <div className="grid-column-[1_/_-1]">
                                 <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">FOTO DEL EQUIPO (OPCIONAL)</label>
                                 <div className="flex items-center gap-4">
@@ -1001,16 +969,35 @@ export default function ExtintoresManager() {
                                 </div>
                             </div>
                         </div>
-                        
+                        </ModuleFormSection>
+
+                        <ModuleFormSection title="Control y Mantenimiento" icon={<Calendar size={20} />}>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">FECHA DE FABRICACIÓN</label>
+                                <input type="date" value={formData.fechaFabricacion} onChange={(e) => setFormData({ ...formData, fechaFabricacion: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">ÚLTIMA CARGA</label>
+                                <input required type="date" value={formData.vencimientoRecarga} onChange={(e) => setFormData({ ...formData, vencimientoRecarga: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">ÚLTIMA PRUEBA HIDRÁULICA</label>
+                                <input type="date" value={formData.vencimientoPH} onChange={(e) => setFormData({ ...formData, vencimientoPH: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">SELLO IRAM / OPDS</label>
+                                <input type="text" value={formData.selloIRAM} onChange={(e) => setFormData({ ...formData, selloIRAM: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 12345" />
+                            </div>
+                        </div>
+                        </ModuleFormSection>
+
                         <div className="flex gap-[1rem] justify-end mt-[2rem] flex-wrap">
                             {editingId && (
                                 <button type="button" onClick={() => setShowHistoryModal(formData)} style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none' }} className="p-[0.8rem_1.5rem] rounded-[12px] font-[800] cursor-pointer flex items-center gap-[0.5rem] mr-auto transition-transform hover:-translate-y-0.5 shadow-md">
                                     <History size={18} /> Ver Historial
                                 </button>
                             )}
-                            <button type="button" onClick={() => {setShowForm(false);setEditingId(null);}} style={{ backgroundColor: '#64748b', color: '#ffffff', border: 'none' }} className="p-[0.8rem_1.5rem] rounded-[12px] font-[800] cursor-pointer transition-transform hover:-translate-y-0.5 shadow-md">
-                                Cancelar
-                            </button>
                             <button type="button" onClick={() => {
               setPrintItem(formData);
               setTimeout(() => {
@@ -1023,101 +1010,14 @@ export default function ExtintoresManager() {
                             <button type="button" onClick={() => {setShareItem(formData);}} style={{ backgroundColor: '#8b5cf6', color: '#ffffff', border: 'none' }} className="p-[0.8rem_1.5rem] rounded-[12px] font-[800] cursor-pointer flex items-center gap-[0.5rem] transition-transform hover:-translate-y-0.5 shadow-md">
                                 <Share2 size={18} /> Compartir
                             </button>
-                            <button type="submit" style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none' }} className="p-[0.8rem_1.5rem] rounded-[12px] font-[900] cursor-pointer transition-transform hover:-translate-y-0.5 shadow-[0_4px_12px_rgba(37,99,235,0.3)]">
-                                Guardar Equipo
-                            </button>
                         </div>
+                    </ModuleFormDocument>
+                    </ModuleFormLayout>
 
-                        <div className="card animate-fade-in mt-[2.5rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2.5rem] box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.08)]">
-                            <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.7rem] text-[var(--color-primary)] font-[900] text-[1.25rem] uppercase letter-spacing-[1.2px]">
-                                <Pencil size={22} className="text-[var(--color-primary)]" /> Firmas en Ficha Técnica
-                            </h3>
-
-                            <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
-                                <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                                <div className="flex gap-[1rem] flex-wrap justify-center">
-                                    {[
-                { id: 'professional', label: 'Profesional (Tú)' },
-                { id: 'supervisor', label: 'Supervisor / Responsable' },
-                { id: 'operator', label: 'Operador / Sector' }].
-                map((sig) => {
-                  const isChecked = formData.showSignatures?.[sig.id];
-                  return (
-                    <label
-                      key={sig.id}
-                      style={{
-                        background: isChecked ? 'var(--color-primary)' : 'rgba(var(--color-text-rgb), 0.05)',
-                        color: isChecked ? '#fff' : 'var(--color-text-muted)',
-                        border: `1px solid ${isChecked ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                        boxShadow: isChecked ? '0 4px 12px rgba(var(--color-primary-rgb), 0.3)' : 'none'
-                      }} className="flex items-center gap-[0.5rem] p-[0.6rem_1.25rem] rounded-[2rem] cursor-pointer font-[700] text-[0.85rem] transition-[all_0.2s_ease]">
-                      
-                                                <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={(e) => setFormData({ ...formData, showSignatures: { ...formData.showSignatures, [sig.id]: e.target.checked } as any })} style={{ display: 'none' }} />
-
-                                                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                    {isChecked ? <CheckCircle2 size={20} color="#ffffff" /> : <div className="w-[20px] h-[20px] rounded-full border-2 border-slate-400" />}
-                                                </div>
-                                                {sig.label}
-                                            </label>);
-
-                })}
-                                </div>
-                            </div>
-
-                            {/* On-Sheet Visual Preview */}
-                            <div className="no-print transform-[scale(0.9)] transform-origin-[top_center] opacity-[0.8] pointer-events-[none]">
-                                <PdfSignatures
-                data={formData}
-                box1={formData.showSignatures?.operator ? {
-                  title: 'OPERADOR',
-                  subtitle: 'Responsable de sector',
-                  signatureUrl: formData.operatorSignature || null,
-                  isProfessional: false
-                } : null}
-                box2={formData.showSignatures?.professional !== false ? {
-                  title: 'INSPECTOR / PROFESIONAL',
-                  subtitle: (professionalData.name || 'Profesional HSE').toUpperCase(),
-                  signatureUrl: professionalData.signature || formData.professionalSignature || null,
-                  stampUrl: professionalData.stamp || null,
-                  isProfessional: true,
-                  license: professionalData.license || formData.professionalLicense || null
-                } : null}
-                box3={formData.showSignatures?.supervisor ? {
-                  title: 'SUPERVISOR',
-                  subtitle: 'Aprobación HSE',
-                  signatureUrl: formData.supervisorSignature || null,
-                  isProfessional: false
-                } : null} />
-              
-            <PdfBrandingFooter />
-                            </div>
-
-                            <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8">
-                                {formData.showSignatures?.operator &&
-              <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                        <SignatureCanvas
-                  onSave={(sig) => setFormData((prev) => ({ ...prev, operatorSignature: sig || '' }))}
-                  initialImage={formData.operatorSignature}
-                  label="Firma del Operador / Sector" />
-                
-                                    </div>
-              }
-                                
-                                {formData.showSignatures?.supervisor &&
-              <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                        <SignatureCanvas
-                  onSave={(sig) => setFormData((prev) => ({ ...prev, supervisorSignature: sig || '' }))}
-                  initialImage={formData.supervisorSignature}
-                  label="Firma del Supervisor" />
-                
-                                    </div>
-              }
-                            </div>
-                        </div>
-                    </form>
+                    <ModuleActionBar actions={[
+                        { id: 'cancel', label: 'CANCELAR', icon: <ArrowLeft size={18} />, variant: 'secondary', onClick: () => { setShowForm(false); setEditingId(null); } },
+                        { id: 'save', label: 'GUARDAR FICHA', icon: <Save size={18} />, variant: 'primary', onClick: (e) => requirePro(() => handleSave(e)) }
+                    ]} />
                 </div> :
 
       <>

@@ -4,9 +4,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Save, Play, Square, TimerReset,
   Building2, Flame, Users, FileText, CheckCircle2,
-  Clock, Search, Share2, Printer, Plus, Pencil, Siren } from
-'lucide-react';
-import PremiumHeader from '../components/PremiumHeader';
+  Clock, Search, Share2, Printer, Plus, Pencil, Siren } from 'lucide-react';
+import {
+  ModuleFormLayout,
+  ModuleFormToolbar,
+  ModuleFormSection,
+  ModuleActionBar,
+} from '../components/module';
 import ShareModal from '../components/ShareModal';
 import DrillPdfGenerator from '../components/DrillPdfGenerator';
 import { useAuth } from '../contexts/AuthContext';
@@ -211,7 +215,7 @@ export default function Drills(): React.ReactElement | null {
   };
 
   return (
-    <div className="container pb-24 min-h-screen flex flex-col w-full">
+      <ModuleFormLayout>
             <div className="no-print">
                 <ShareModal
           isOpen={showShareModal}
@@ -222,25 +226,11 @@ export default function Drills(): React.ReactElement | null {
           elementIdToPrint="pdf-content"
           fileName={`Simulacro_${formData.empresa || 'Registro'}.pdf`} />
         
-
-                <div className="floating-action-bar">
-                    <button onClick={(e) => {e.preventDefault();requirePro(handleSave);}} className="btn-floating-action bg-[#36B37E] text-[#ffffff]">
-                        <Save size={18} /> GUARDAR
-                    </button>
-                    <button onClick={() => requirePro(() => setShowShareModal(true))} className="btn-floating-action bg-[#0052CC] text-[#ffffff]">
-                        <Share2 size={18} /> COMPARTIR
-                    </button>
-                    <button onClick={handlePrint} className="btn-floating-action bg-[#FF8B00] text-[#ffffff]">
-                        <Printer size={18} /> IMPRIMIR PDF
-                    </button>
-                </div>
-
                 <div className="no-print mb-8">
-                    <PremiumHeader
+                    <ModuleFormToolbar
             title={editData ? 'Editar Acta de Simulacro' : 'Registro de Simulacro'}
             subtitle="Gestión de Simulacros y Evacuación"
-            icon={<Siren size={32} color="#ffffff" />}
-            color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
+            icon={<Siren />} />
           
                     <div className="flex justify-between items-center flex-wrap gap-4 mt-4">
                         <></>
@@ -273,10 +263,7 @@ export default function Drills(): React.ReactElement | null {
                 </div>
 
                 <div className="grid-2-cols gap-[1.5rem]">
-                    <div className="card p-8 border-t-4 border-blue-500 bg-gradient-to-b from-blue-500/5 to-transparent bg-white dark:bg-slate-800 rounded-3xl shadow-sm">
-                        <h2 className="flex items-center gap-2 mb-6 text-xl font-extrabold text-blue-500">
-                            <Building2 size={24} /> Datos del Establecimiento
-                        </h2>
+                    <ModuleFormSection title="Datos del Establecimiento" icon={<Building2 />}>
                         <div className="flex flex-col gap-4">
                             <div>
                                 <label className="block mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">Empresa / Institución</label>
@@ -293,10 +280,9 @@ export default function Drills(): React.ReactElement | null {
                                 </div>
                             </div>
                         </div>
+                    </ModuleFormSection>
 
-                        <h2 className="flex items-center gap-2 mt-8 mb-6 text-xl font-extrabold text-orange-500">
-                            <Flame size={24} /> Hipótesis de Emergencia
-                        </h2>
+                    <ModuleFormSection title="Hipótesis de Emergencia" icon={<Flame />}>
                         <div className="grid-2-cols gap-[1rem]">
                             <div>
                                 <label className="block mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">Tipo de Emergencia</label>
@@ -313,12 +299,10 @@ export default function Drills(): React.ReactElement | null {
                                 <input type="text" value={formData.origen} onChange={(e) => handleInput('origen', e.target.value)} placeholder="Ej. Archivo, Tablero Ppal." />
                             </div>
                         </div>
-                    </div>
+                    </ModuleFormSection>
+                </div>
 
-                    <div className="card p-8 border-t-4 border-purple-500 bg-gradient-to-b from-purple-500/5 to-transparent bg-white dark:bg-slate-800 rounded-3xl shadow-sm">
-                        <h2 className="flex items-center gap-2 mb-6 text-xl font-extrabold text-purple-500">
-                            <Users size={24} /> Evaluación de la Evacuación
-                        </h2>
+                    <ModuleFormSection title="Evaluación de la Evacuación" icon={<Users />}>
 
                         <div className="bg-[var(--color-background)] p-[1rem] rounded-[12px] border-[1px_solid_var(--color-border)] mb-[1rem]">
                             <label className="text-[var(--color-primary)] font-[800] mb-[0.5rem] block">Tiempo Final a Registrar</label>
@@ -377,15 +361,10 @@ export default function Drills(): React.ReactElement | null {
                                 <textarea value={formData.observaciones} onChange={(e) => handleInput('observaciones', e.target.value)} rows={3} placeholder="Ej. Se detectó puerta de emergencia trabada en sector Archivo..."></textarea>
                             </div>
                     </div>
-                </div>
-            </div>
+                </ModuleFormSection>
 
                 {/* Firmas y Autorizaciones */}
-                <div className="card animate-fade-in mt-[2.5rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2.5rem] box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.08)]">
-                    <h3 className="m-[0_0_2rem_0] flex items-center gap-[0.7rem] text-[var(--color-primary)] font-[900] text-[1.25rem] uppercase letter-spacing-[1.2px]">
-                        <Pencil size={22} className="text-[var(--color-primary)]" /> Firmas y Autorizaciones de Simulacro
-                    </h3>
-
+                <ModuleFormSection title="Firmas y Autorizaciones de Simulacro" icon={<Pencil />}>
                     <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
                         <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                         <div className="flex gap-[1rem] flex-wrap justify-center">
@@ -400,14 +379,9 @@ export default function Drills(): React.ReactElement | null {
                     key={sig.id}
                     className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease]"
                     style={{
-
-
                       border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
                       background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
                       color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
-
-
-
                       boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
                     }}>
                     
@@ -418,15 +392,8 @@ export default function Drills(): React.ReactElement | null {
 
                     
                                         <div style={{
-
-
-
                       border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
                       background: isChecked ? 'var(--color-primary)' : 'transparent'
-
-
-
-
                     }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
                                             {isChecked && <CheckCircle2 size={12} color="white" />}
                                         </div>
@@ -503,8 +470,16 @@ export default function Drills(): React.ReactElement | null {
                             </div>
             }
                     </div>
-                </div>
+                </ModuleFormSection>
             </div>
+
+            <ModuleActionBar
+              actions={[
+                { id: 'save', label: 'GUARDAR', icon: <Save />, variant: 'primary', onClick: () => requirePro(handleSave) },
+                { id: 'share', label: 'COMPARTIR', icon: <Share2 />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) },
+                { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer />, variant: 'secondary', onClick: handlePrint }
+              ]}
+            />
 
             {/* PRO upgrade banner for free users */}
             <AdBanner />
@@ -527,6 +502,6 @@ export default function Drills(): React.ReactElement | null {
           onBack={() => {}} />
         
             </div>
-        </div>);
+        </ModuleFormLayout>);
 
 }

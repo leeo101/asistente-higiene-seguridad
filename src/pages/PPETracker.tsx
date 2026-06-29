@@ -11,7 +11,7 @@ import { useSync } from '../contexts/SyncContext';
 import { downloadCSV } from '../services/exportCsv';
 import { usePaywall } from '../hooks/usePaywall';
 import PPEReceiptPdfGenerator from '../components/PPEReceiptPdfGenerator';
-import PremiumHeader from '../components/PremiumHeader';
+import { ModuleFormLayout, ModuleFormToolbar, ModuleFormSection, ModuleActionBar } from '../components/module';
 import Breadcrumbs from '../components/Breadcrumbs';
 
 const EPP_TYPES = [
@@ -160,11 +160,15 @@ export default function PPETracker(): React.ReactElement | null {
 
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 pb-16 pt-24 min-h-screen">
-            <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
-      title="Control de EPP"
-      subtitle="Res. SIyC 18/25 · Res. SRT 299/11"
-      icon={<HardHat size={32} color="#ffffff" />} />
+    <div className="min-h-screen bg-[var(--color-background)] pb-[8rem]">
+        <ModuleFormLayout>
+            <ModuleFormToolbar
+                title="Control de EPP"
+                subtitle="Res. SIyC 18/25 · Res. SRT 299/11"
+                icon={<HardHat size={36} color="#ffffff" />}
+                onBack={isFormVisible ? () => setIsFormVisible(false) : undefined}
+            />
+            <div className="p-[2rem] max-w-[1000px] m-[0_auto]">
       
 
             {!isFormVisible &&
@@ -309,12 +313,6 @@ export default function PPETracker(): React.ReactElement | null {
                                         <div className="flex items-center gap-2.5 mb-2 flex-wrap">
                                             {/* Icono circular del tipo de EPP */}
                                             <div style={{
-
-
-
-
-
-
                         background: config.bg,
                         color: config.color,
                         border: `1px solid rgba(var(--color-primary-rgb), 0.08)`
@@ -381,10 +379,7 @@ export default function PPETracker(): React.ReactElement | null {
             </> :
 
       <div className="animate-fade-in">
-                    <div className="no-print mt-[1.5rem] mb-[1.5rem] z-[10]">
-                        <></>
-                    </div>
-                    <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl mt-4">
+                    <ModuleFormSection title="Registro de Nuevo EPP" icon={<Plus size={20} />}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* 🪖 EPP Visual Grid Selector */}
                             <div className="col-span-full mb-1">
@@ -509,19 +504,15 @@ export default function PPETracker(): React.ReactElement | null {
                                 </div>
             }
                         </div>
-                    </div>
+                    </ModuleFormSection>
                     
-                    <div className="no-print floating-action-bar justify-center">
-                        <button
-            onClick={handleAdd}
-            className="btn-floating-action bg-[#10b981] text-[#ffffff] border-none w-[100%] max-w-[300px]">
-
-            
-                            <ShieldCheck size={18} /> GUARDAR EPP
-                        </button>
-                    </div>
+                    <ModuleActionBar actions={[
+                        { id: 'save', label: 'GUARDAR EPP', icon: <ShieldCheck size={18} />, variant: 'primary', onClick: handleAdd }
+                    ]} />
                 </div>
       }
-        </div>);
+            </div>
+        </ModuleFormLayout>
+    </div>);
 
 }

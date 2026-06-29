@@ -29,6 +29,15 @@ import SignatureCanvas from '../components/SignatureCanvas';
 import { API_BASE_URL } from '../config';
 import AdModal from '../components/ads/AdModal';
 import { getErrorMessage } from '../utils/errorUtils';
+import {
+  ModuleFormLayout,
+  ModuleFormToolbar,
+  ModuleFormDocument,
+  ModuleFormSection,
+  ModuleWizardFooter,
+} from '../components/module';
+
+const ATS_WIZARD_STEPS = ['Datos', 'Tareas', 'EPPs & Fotos', 'Checklist', 'Firmas'];
 
 const printStyles = `
 @media print {
@@ -655,63 +664,17 @@ export default function ATS(): React.ReactElement | null {
 
 
 
-                <div className="no-print mb-[2rem] p-[2rem] bg-[var(--color-surface)] rounded-[24px] border-[1px_solid_var(--color-border)] flex flex-col gap-[1.2rem] box-shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
+                <ModuleFormLayout>
+                <ModuleFormToolbar
+                  title={editData ? 'Editar ATS' : 'Análisis de Trabajo Seguro'}
+                  subtitle="Control HYS"
+                  icon={<ShieldCheck className="text-blue-600" size={28} />}
+                  progress={{ percent: progressPct, label: progressLabel, color: progressColor }}
+                  steps={ATS_WIZARD_STEPS}
+                  currentStep={currentStep}
+                />
 
-
-
-
-
-
-
-
-
-            
-                    <div className="flex items-center justify-space-between gap-[1.5rem] flex-wrap">
-                        <div className="flex items-center gap-4">
-                            <></>
-                            <div>
-                                <h1 className="m-[0] text-[clamp(1.2rem,_4vw,_1.8rem)] font-[900] text-[var(--color-text)] letter-spacing-[-0.5px] flex items-center gap-[0.8rem]">
-                                    <ShieldCheck className="text-blue-600" size={28} />
-                                    {editData ? 'Editar ATS' : 'Análisis de Trabajo Seguro'}
-                                </h1>
-                                <p className="m-[0] text-[var(--color-text-muted)] font-[600] text-[0.8rem] uppercase letter-spacing-[1px]">Control HYS</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-[0.6rem] flex-shrink-[0]">
-                            <span style={{ color: progressColor }} className="text-[1.4rem] font-[900]">{progressPct}%</span>
-                            <span className="text-[0.75rem] font-[700] text-[var(--color-text-muted)]">{progressLabel}</span>
-                        </div>
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div className="flex flex-col gap-[0.6rem] mt-[1rem]">
-                        <div className="h-[8px] bg-[var(--color-background)] rounded-[999px] overflow-[hidden]">
-                            <div style={{
-
-                  width: `${currentStep / totalSteps * 100}%`
-
-
-
-
-                }} className="h-[100%] bg-[var(--gradient-premium)] rounded-[999px] transition-[width_0.5s_cubic-bezier(0.4,_0,_0.2,_1)] box-shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-                        </div>
-                        <div className="flex justify-space-between p-[0_4px]">
-                            {['Datos', 'Tareas', 'EPPs & Fotos', 'Checklist', 'Firmas'].map((label, idx) =>
-                <span key={label} style={{
-
-                  color: currentStep >= idx + 1 ? 'var(--color-primary)' : 'var(--color-text-muted)'
-
-
-
-                }} className="text-[0.75rem] font-[900] transition-[color_0.3s] uppercase letter-spacing-[0.5px]">
-                                    {label}
-                                </span>
-                )}
-                        </div>
-                    </div>
-                </div>
-
-                <div id="ats-editor-content" className="card ats-editor-panel w-[100%] max-w-[950px] box-sizing-[border-box] p-[1rem] m-[0_auto]">
+                <ModuleFormDocument id="ats-editor-content" className="ats-editor-panel">
 
                     <div className="flex flex-row justify-space-between items-center border-bottom-[4px_solid_var(--color-border)] pb-[1.5rem] mb-[2rem] w-[100%] gap-[1.5rem]">
                         {/* Top Left Text */}
@@ -737,25 +700,91 @@ export default function ATS(): React.ReactElement | null {
                     </div>
 
                     {/* STEP 1 */}
-                    {currentStep === 1 &&
-            <div className="wizard-step-anim">
-                            <div className="hover:border-blue-400/50 hover:shadow-md border-[2px_solid_var(--color-border)] rounded-[16px] mb-[2.5rem] w-[100%] overflow-[hidden] bg-[var(--color-surface)] box-shadow-[var(--shadow-sm)] transition-[all_0.3s]">
-                        <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 border-bottom-[2px_solid_var(--color-border)] w-[100%]">
-                            <div className="sm:col-span-2 print:col-span-2"><DocBox label="CLIENTE / EMPRESA" value={formData.empresa} onChange={(v) => setFormData({ ...formData, empresa: v })} large icon={<Building2 size={14} />} /></div>
-                            <div className="sm:col-span-1 print:col-span-1"><DocBox label="CUIT / CUIL" value={formData.cuit} onChange={(v) => setFormData({ ...formData, cuit: v })} borderLeft icon={<ShieldCheck size={14} />} /></div>
-                            <div className="sm:col-span-1 print:col-span-1"><DocBox label="UBICACIÓN / OBRA" value={formData.obra} onChange={(v) => setFormData({ ...formData, obra: v })} borderLeft icon={<MapPin size={14} />} /></div>
+                    {currentStep === 1 && (
+                        <div className="wizard-step-anim">
+                            <ModuleFormSection title="Datos del Proyecto" icon={<Building2 size={20} />}>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <div className="flex flex-col gap-2 lg:col-span-2">
+                                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2">
+                                            <Building2 size={14} /> CLIENTE / EMPRESA
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.empresa}
+                                            onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
+                                            className="module-form-input text-lg font-bold"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2">
+                                            <ShieldCheck size={14} /> CUIT / CUIL
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.cuit}
+                                            onChange={(e) => setFormData({ ...formData, cuit: e.target.value })}
+                                            className="module-form-input"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2">
+                                            <MapPin size={14} /> UBICACIÓN / OBRA
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.obra}
+                                            onChange={(e) => setFormData({ ...formData, obra: e.target.value })}
+                                            className="module-form-input"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2">
+                                            <Calendar size={14} /> FECHA
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={formData.fecha}
+                                            onChange={(e) => setFormData({ ...formData, fecha: e.target.value })}
+                                            className="module-form-input"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2 lg:col-span-3">
+                                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2">
+                                            <FileText size={14} /> DESCRIPCIÓN DE LA TAREA
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.tarea}
+                                            onChange={(e) => setFormData({ ...formData, tarea: e.target.value })}
+                                            className="module-form-input"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2 lg:col-span-2">
+                                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2">
+                                            <User size={14} /> RESPONSABLE
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.capatazNombre}
+                                            onChange={(e) => setFormData({ ...formData, capatazNombre: e.target.value })}
+                                            className="module-form-input"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2">
+                                            <ShieldCheck size={14} /> PROFESIONAL HYS
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={professional.name}
+                                            readOnly
+                                            className="module-form-input bg-slate-50 cursor-not-allowed"
+                                        />
+                                    </div>
+                                </div>
+                            </ModuleFormSection>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 w-[100%] border-bottom-[2px_solid_var(--color-border)]">
-                            <div className="sm:col-span-1 print:col-span-1"><DocBox label="FECHA" value={formData.fecha} onChange={(v) => setFormData({ ...formData, fecha: v })} type="date" icon={<Calendar size={14} />} /></div>
-                            <div className="sm:col-span-3 print:col-span-3"><DocBox label="DESCRIPCIÓN DE LA TAREA" value={formData.tarea} onChange={(v) => setFormData({ ...formData, tarea: v })} borderLeft icon={<FileText size={14} />} /></div>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 w-[100%]">
-                            <div className="sm:col-span-2 print:col-span-2"><DocBox label="RESPONSABLE" value={formData.capatazNombre} onChange={(v) => setFormData({ ...formData, capatazNombre: v })} icon={<User size={14} />} /></div>
-                            <div className="sm:col-span-2 print:col-span-2"><DocBox label="PROFESIONAL HYS" value={professional.name} onChange={() => {}} borderLeft icon={<ShieldCheck size={14} />} /></div>
-                        </div>
-                        </div>
-                        </div>
-            }
+                    )}
 
                     {/* STEP 2: Sección de Secuencia de Tareas */}
                     {currentStep === 2 &&
@@ -939,15 +968,11 @@ export default function ATS(): React.ReactElement | null {
             }
 
                     {/* STEP 3 */}
-                    
                     {/* STEP 3: EPPs y Evidencia Fotográfica */}
-                    {currentStep === 3 &&
-            <div className="wizard-step-anim mt-[3rem]">
-                        <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.8rem] text-[var(--color-primary)] font-[900] text-[1.2rem] uppercase letter-spacing-[1px]">
-                            <HardHat size={24} className="text-blue-600" /> EPPs Obligatorios y Evidencia
-                        </h3>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-[2rem]">
+                    {currentStep === 3 && (
+                        <div className="wizard-step-anim mt-[3rem]">
+                            <ModuleFormSection title="EPPs Obligatorios y Evidencia" icon={<HardHat size={20} />}>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-[2rem]">
                             {/* EPPs Selector */}
                             <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)]">
                                 <h4 className="m-[0_0_1rem_0] text-[0.9rem] font-[800] uppercase text-[var(--color-text)]">Selección de EPPs</h4>
@@ -1033,17 +1058,15 @@ export default function ATS(): React.ReactElement | null {
                                     })}
                                 </div>
                             </div>
+                                </div>
+                            </ModuleFormSection>
                         </div>
-                    </div>
-            }
+                    )}
 
-                    {currentStep === 4 &&
-            <div className="wizard-step-anim mt-[3rem]">
-                        <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.8rem] text-[var(--color-primary)] font-[900] text-[1.2rem] uppercase letter-spacing-[1px]">
-                            <ShieldCheck size={24} className="text-blue-600" /> Verificación de Seguridad
-                        </h3>
-
-                        {categories.map((cat) =>
+                    {currentStep === 4 && (
+                        <div className="wizard-step-anim mt-[3rem]">
+                            <ModuleFormSection title="Verificación de Seguridad" icon={<ShieldCheck size={20} />}>
+                                {categories.map((cat) =>
               <div key={cat} className="ats-checklist-card">
                                 <div className="flex justify-space-between items-center mb-[1.2rem] border-bottom-[1px_solid_var(--color-border)] pb-[0.8rem]">
                                     <h4 className="m-[0] text-[var(--color-primary)] font-[900] text-[0.85rem] uppercase letter-spacing-[1px] flex items-center gap-[0.6rem]">
@@ -1106,9 +1129,9 @@ export default function ATS(): React.ReactElement | null {
                                             {/* Bottom row: status buttons + delete */}
                                             <div className="no-print flex items-center justify-space-between gap-[0.5rem] mt-[0.8rem]">
                                                 <div className="ats-status-group">
-                                                    <StatusBtn active={item.estado === 'Cumple'} type="OK" onClick={() => updateChecklist(item.id, 'estado', 'Cumple')} label="SI" />
-                                                    <StatusBtn active={item.estado === 'No Cumple'} type="FAIL" onClick={() => updateChecklist(item.id, 'estado', 'No Cumple')} label="NO" />
-                                                    <StatusBtn active={item.estado === 'N/A'} type="NA" onClick={() => updateChecklist(item.id, 'estado', 'N/A')} label="N/A" />
+                                                    <button onClick={() => updateChecklist(item.id, 'estado', 'Cumple')} className={`flex-1 p-2 rounded-lg font-bold text-xs ${item.estado === 'Cumple' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-500'}`}>SI</button>
+                                                    <button onClick={() => updateChecklist(item.id, 'estado', 'No Cumple')} className={`flex-1 p-2 rounded-lg font-bold text-xs ${item.estado === 'No Cumple' ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-500'}`}>NO</button>
+                                                    <button onClick={() => updateChecklist(item.id, 'estado', 'N/A')} className={`flex-1 p-2 rounded-lg font-bold text-xs ${item.estado === 'N/A' ? 'bg-slate-500 text-white' : 'bg-slate-100 text-slate-500'}`}>N/A</button>
                                                 </div>
                                                 <button
                         onClick={() => removeQuestion(item.id)}
@@ -1151,15 +1174,14 @@ export default function ATS(): React.ReactElement | null {
                                 </div>
                             </div>
               )}
+                            </ModuleFormSection>
                         </div>
-            }
+            )}
 
-                    {/* STEP 4 */}
-                    {currentStep === 5 &&
-            <div className="wizard-step-anim card animate-fade-in mt-[2.5rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2.5rem] box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.08)]">
-                        <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.7rem] text-[var(--color-primary)] font-[900] text-[1.25rem] uppercase letter-spacing-[1.2px]">
-                            <Pencil size={22} className="text-[var(--color-primary)]" /> Firmas y Autorizaciones
-                        </h3>
+                    {/* STEP 5 */}
+                    {currentStep === 5 && (
+                        <div className="wizard-step-anim mt-[2.5rem]">
+                            <ModuleFormSection title="Firmas y Autorizaciones" icon={<Pencil size={20} />}>
 
                         {/* Custom visual switches */}
                         <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
@@ -1255,73 +1277,40 @@ export default function ATS(): React.ReactElement | null {
                 }
                             
                             {showSignatures.supervisor &&
-                <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                                <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
                                     <SignatureCanvas
-                    onSave={(sig) => setFormData((prev) => ({ ...prev, capatazSignature: sig || '' }))}
-                    initialImage={formData.capatazSignature}
-                    label="Firma del Supervisor" />
-                  
+                                        onSave={(sig) => setFormData((prev) => ({ ...prev, capatazSignature: sig || '' }))}
+                                        initialImage={formData.capatazSignature}
+                                        label="Firma del Supervisor" />
                                 </div>
-                }
+                            }
                         </div>
+                            </ModuleFormSection>
                         </div>
-            }
+                    )}
 
-                    {/* Wizard Footer Controls */}
-                    <div className="no-print flex justify-space-between items-center mt-[3rem] pt-[1.5rem] border-top-[2px_solid_var(--color-border)]">
-                        <button
-                onClick={prevStep}
-                disabled={currentStep === 1}
-                style={{ background: currentStep === 1 ? 'transparent' : '#64748b', border: 'none', color: currentStep === 1 ? 'transparent' : '#fff', cursor: currentStep === 1 ? 'default' : 'pointer' }} 
-                className="p-[0.8rem_1.5rem] rounded-[14px] font-[800] transition-[all_0.2s] flex items-center gap-[0.5rem] hover:opacity-90 shadow-sm">
-                
-                            <ArrowLeft size={18} /> Atrás
-                        </button>
-                        
-                        {currentStep < totalSteps ?
-              <button
-                onClick={nextStep}
-                style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)' }}
-                className="hover-scale p-[0.8rem_2rem] rounded-[14px] border-none text-[#fff] font-[900] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(59,130,246,0.3)]">
-                
-                                Siguiente Paso
-                            </button> :
-
-              <div className="flex gap-[0.8rem] items-center flex-wrap">
-                                <button
-                  onClick={handleClearForm}
-                  style={{ backgroundColor: '#fee2e2', color: '#ef4444', border: 'none' }}
-                  className="hover:opacity-80 p-[0.8rem_1.2rem] rounded-[14px] font-[800] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem]">
-                  
-                                    <Trash2 size={18} /> Limpiar
-                                </button>
-                                <button
-                  onClick={handlePrint}
-                  style={{ backgroundColor: '#fef3c7', color: '#d97706', border: 'none' }}
-                  className="hover:opacity-80 p-[0.8rem_1.2rem] rounded-[14px] font-[800] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem]">
-                  
-                                    <Printer size={18} /> Imprimir
-                                </button>
-                                <button
-                  onClick={handleShare}
-                  style={{ backgroundColor: '#e0f2fe', color: '#0369a1', border: 'none' }}
-                  className="hover:opacity-80 p-[0.8rem_1.2rem] rounded-[14px] font-[800] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem]">
-                  
-                                    <Share2 size={18} /> Compartir
-                                </button>
-                                <button
-                                    onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
-                                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
-                                    className="hover-scale p-[0.8rem_2rem] rounded-[14px] border-none text-[#fff] font-[900] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(16,185,129,0.3)]"
-                                >
-                                    <Save size={18} /> Guardar ATS
-                                </button>
-                            </div>
-                        }
-                    </div>
+                    <ModuleWizardFooter
+                      currentStep={currentStep}
+                      totalSteps={totalSteps}
+                      onPrev={prevStep}
+                      onNext={nextStep}
+                      finalActions={[
+                        { id: 'clear', label: 'Limpiar', icon: <Trash2 size={18} />, variant: 'danger', onClick: handleClearForm },
+                        { id: 'print', label: 'Imprimir', icon: <Printer size={18} />, variant: 'warning', onClick: handlePrint },
+                        { id: 'share', label: 'Compartir', icon: <Share2 size={18} />, variant: 'info', onClick: handleShare },
+                        {
+                          id: 'save',
+                          label: 'Guardar ATS',
+                          icon: <Save size={18} />,
+                          variant: 'primary',
+                          onClick: (e) => { e.preventDefault(); requirePro(handleSave); },
+                        },
+                      ]}
+                    />
 
                     <PdfBrandingFooter />
-                </div>
+                </ModuleFormDocument>
+                </ModuleFormLayout>
                 </>
         }
             </div>
@@ -1390,53 +1379,5 @@ export default function ATS(): React.ReactElement | null {
       }
         </>);
 
-}
-
-// Internal Sub-components
-function StatusBtn({ active, type, onClick, label }) {
-  const classes = `ats-status-btn ${active ? type === 'OK' ? 'active-ok' : type === 'FAIL' ? 'active-fail' : 'active-na' : ''}`;
-  return (
-    <button className={classes} onClick={onClick}>
-            {label}
-        </button>);
-
-}
-
-function DocBox({ label, value, onChange, type = "text", large = false, borderLeft = false, icon }) {
-  const [focused, setFocused] = useState(false);
-
-  return (
-    <div style={{
-      borderLeft: borderLeft ? '2px solid var(--color-border)' : 'none',
-      background: focused ? 'rgba(59,130,246,0.05)' : 'transparent',
-      padding: '1rem 1.2rem'
-    }} className={`flex flex-col gap-[0.6rem] justify-center border-top-[0] min-h-[85px] transition-[all_0.3s_ease] ${focused ? 'shadow-inner' : ''}`}>
-            <span style={{
-        color: focused ? '#3b82f6' : 'var(--color-text-muted)'
-      }} className="text-[0.7rem] font-[900] uppercase letter-spacing-[0.12em] opacity-[0.9] transition-[color_0.3s_ease] flex items-center gap-[0.4rem]">
-                {icon && <span className="no-print transition-[all_0.3s] flex items-center" style={{ color: focused ? '#3b82f6' : 'var(--color-text-muted)', opacity: focused ? 1 : 0.7 }}>{icon}</span>}
-                {label}
-            </span>
-            <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        style={{
-          border: focused ? '2px solid #3b82f6' : '2px solid var(--color-border)',
-          borderRadius: '8px',
-          padding: '0.6rem 0.8rem',
-          backgroundColor: focused ? 'white' : 'rgba(0,0,0,0.02)',
-          fontSize: large ? '1.1rem' : '0.95rem'
-
-
-
-
-
-
-        }}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)} className="m-[0] p-[0.3rem_0] border-none bg-[transparent] font-[800] text-[var(--color-text)] outline-[none] w-[100%] transition-[border-bottom-color_0.2s] box-shadow-[none]" />
-      
-        </div>);
 
 }

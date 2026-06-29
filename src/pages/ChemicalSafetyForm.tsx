@@ -8,8 +8,14 @@ import ChemicalSafetyPdf from '../components/ChemicalSafetyPdf';
 import PdfSignatures from '../components/PdfSignatures';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
-import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import {
+  ModuleFormLayout,
+  ModuleFormToolbar,
+  ModuleFormDocument,
+  ModuleFormSection,
+  ModuleActionBar,
+} from '../components/module';
 
 const GHS_PICTOGRAMS = {
   explosive: { icon: '🧨', name: 'Explosivo', color: '#dc2626' },
@@ -31,26 +37,7 @@ const HAZARD_CATEGORIES = [
 { id: 'ambiental', name: 'Peligro Ambiental', icon: '🌍' }];
 
 
-const labelStyle: React.CSSProperties = {
-  display: 'block',
-  marginBottom: '0.5rem',
-  fontSize: '0.9rem',
-  fontWeight: 700,
-  color: 'var(--color-text)'
-};
 
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '0.75rem 1rem',
-  borderRadius: '12px',
-  border: '1px solid var(--color-border)',
-  background: 'var(--color-background)',
-  color: 'var(--color-text)',
-  fontSize: '1rem',
-  outline: 'none',
-  boxSizing: 'border-box' as any,
-  transition: 'all 0.2s'
-};
 
 export default function ChemicalSafetyForm(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -209,49 +196,43 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-26 px-4 pb-8">
-            <div className="no-print mb-8">
-                <PremiumHeader
+    <ModuleFormLayout>
+        <ModuleFormToolbar
           title={isEdit ? 'Editar Producto Químico' : 'Nuevo Producto Químico'}
           subtitle="Ficha Técnica de Seguridad (SGA)"
           icon={<FlaskConical size={32} color="#ffffff" />}
-          color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
+        />
         
-                <div className="flex justify-space-between items-center flex-wrap gap-[1rem] mt-[1rem]">
-                    <></>
-                </div>
-            </div>
-            <main className="px-4 pb-6 max-w-[1000px] mx-auto">
-
-                <div className="p-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-xl">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="md:col-span-2">
-                            <label className="block mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">Nombre del Producto *</label>
-                            <input type="text" value={chemical.name} onChange={(e) => setChemical({ ...chemical, name: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 text-base outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Ej: Acetona, Ácido Sulfúrico..." />
+        <ModuleFormDocument id="pdf-content">
+            <ModuleFormSection title="Datos del Producto" icon={<FlaskConical />}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2">
+                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Nombre del Producto *</label>
+                            <input type="text" value={chemical.name} onChange={(e) => setChemical({ ...chemical, name: e.target.value })} className="module-form-input" placeholder="Ej: Acetona, Ácido Sulfúrico..." />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">Número CAS</label>
-                            <input type="text" value={chemical.casNumber} onChange={(e) => setChemical({ ...chemical, casNumber: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 text-base outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Ej: 67-64-1" />
+                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Número CAS</label>
+                            <input type="text" value={chemical.casNumber} onChange={(e) => setChemical({ ...chemical, casNumber: e.target.value })} className="module-form-input" placeholder="Ej: 67-64-1" />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">Número UN</label>
-                            <input type="text" value={chemical.unNumber} onChange={(e) => setChemical({ ...chemical, unNumber: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 text-base outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Ej: UN1090" />
+                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Número UN</label>
+                            <input type="text" value={chemical.unNumber} onChange={(e) => setChemical({ ...chemical, unNumber: e.target.value })} className="module-form-input" placeholder="Ej: UN1090" />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">Categoría de Peligro</label>
-                            <select value={chemical.category} onChange={(e) => setChemical({ ...chemical, category: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 text-base outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Categoría de Peligro</label>
+                            <select value={chemical.category} onChange={(e) => setChemical({ ...chemical, category: e.target.value })} className="module-form-input">
                                 {HAZARD_CATEGORIES.map((cat) => <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>)}
                             </select>
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">Ubicación / Depósito</label>
-                            <input type="text" value={chemical.location} onChange={(e) => setChemical({ ...chemical, location: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 text-base outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Ej: Almacén Inflamables" />
+                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Ubicación / Depósito</label>
+                            <input type="text" value={chemical.location} onChange={(e) => setChemical({ ...chemical, location: e.target.value })} className="module-form-input" placeholder="Ej: Almacén Inflamables" />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">Cantidad en Stock</label>
+                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Cantidad en Stock</label>
                             <div className="flex gap-2">
-                                <input type="text" value={chemical.quantity} onChange={(e) => setChemical({ ...chemical, quantity: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 text-base outline-none focus:ring-2 focus:ring-blue-500 transition-all flex-[2]" placeholder="Ej: 100" />
-                                <select value={chemical.unit} onChange={(e) => setChemical({ ...chemical, unit: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 text-base outline-none focus:ring-2 focus:ring-blue-500 transition-all flex-1">
+                                <input type="text" value={chemical.quantity} onChange={(e) => setChemical({ ...chemical, quantity: e.target.value })} className="module-form-input flex-[2]" placeholder="Ej: 100" />
+                                <select value={chemical.unit} onChange={(e) => setChemical({ ...chemical, unit: e.target.value })} className="module-form-input flex-1">
                                     <option value="L">Litros</option>
                                     <option value="kg">Kilogramos</option>
                                     <option value="und">Unidades</option>
@@ -259,57 +240,50 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
                             </div>
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">Proveedor</label>
-                            <input type="text" value={chemical.supplier} onChange={(e) => setChemical({ ...chemical, supplier: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 text-base outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Nombre del proveedor" />
+                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Proveedor</label>
+                            <input type="text" value={chemical.supplier} onChange={(e) => setChemical({ ...chemical, supplier: e.target.value })} className="module-form-input" placeholder="Nombre del proveedor" />
                         </div>
                     </div>
+            </ModuleFormSection>
 
-                    <div className="mt-[2.5rem]">
-                        <h3 className="m-0 mb-4 text-base font-extrabold text-blue-600 dark:text-blue-400">Pictogramas SGA (Sistema Globalmente Armonizado)</h3>
+            <ModuleFormSection title="Pictogramas y Riesgos" icon={<AlertTriangle />}>
+                    <div className="mt-[1rem]">
+                        <h3 className="m-0 mb-4 text-base font-extrabold text-[var(--color-primary)]">Pictogramas SGA (Sistema Globalmente Armonizado)</h3>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             {Object.entries(GHS_PICTOGRAMS).map(([key, config]) =>
               <button
                 key={key}
                 onClick={() => togglePictogram(key)}
                 style={{
-
-                  background: chemical.pictograms?.includes(key) ? `${config.color}15` : 'var(--color-background)',
+                  background: chemical.pictograms?.includes(key) ? `${config.color}15` : 'var(--color-surface)',
                   border: `2px solid ${chemical.pictograms?.includes(key) ? config.color : 'var(--color-border)'}`
-
-
-
-
-
-
-
                 }} className="p-[1rem] rounded-[var(--radius-xl)] cursor-pointer flex flex-col items-center gap-[0.5rem] transition-[all_0.2s]">
                 
                                     <span className="text-[2.5rem]">{config.icon}</span>
                                     <span style={{ color: chemical.pictograms?.includes(key) ? config.color : 'var(--color-text-muted)' }} className="text-[0.7rem] font-[800] text-center">{config.name}</span>
                                 </button>
               )}
-                        </div>
-                    </div>
-
-                    <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+                      </div>
+                     </div>
+                     <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
-                            <h3 className="m-0 mb-4 text-lg font-extrabold text-blue-600 dark:text-blue-400">Frases H y P (Res. 801/15)</h3>
+                            <h3 className="m-0 mb-4 text-lg font-extrabold text-[var(--color-primary)]">Frases H y P (Res. 801/15)</h3>
                             <div className="flex flex-col gap-4">
                                 <div>
-                                    <label className="block mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">Indicaciones de Peligro (H)</label>
+                                    <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Indicaciones de Peligro (H)</label>
                                     <textarea
                     value={chemical.hazardStatements.join('\n')}
                     onChange={(e) => setChemical({ ...chemical, hazardStatements: e.target.value.split('\n') })}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 text-base outline-none focus:ring-2 focus:ring-blue-500 transition-all min-h-[80px]"
+                    className="module-form-input min-h-[80px]"
                     placeholder="Ej: H225 Líquido y vapores muy inflamables" />
                   
-                                </div>
+                                                </div>
                                 <div>
-                                    <label className="block mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">Consejos de Prudencia (P)</label>
+                                    <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Consejos de Prudencia (P)</label>
                                     <textarea
                     value={chemical.precautionaryStatements.join('\n')}
                     onChange={(e) => setChemical({ ...chemical, precautionaryStatements: e.target.value.split('\n') })}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 text-base outline-none focus:ring-2 focus:ring-blue-500 transition-all min-h-[80px]"
+                    className="module-form-input min-h-[80px]"
                     placeholder="Ej: P210 Mantener alejado del calor..." />
                   
                                 </div>
@@ -317,21 +291,15 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
                         </div>
 
                         <div>
-                            <h3 className="m-0 mb-4 text-lg font-extrabold text-blue-600 dark:text-blue-400">EPP Requerido</h3>
+                            <h3 className="m-0 mb-4 text-lg font-extrabold text-[var(--color-primary)]">EPP Requerido</h3>
                             <div className="grid grid-cols-2 gap-3">
                                 {Object.entries(chemical.ppe).map(([key, value]) =>
                 <button
                   key={key}
                   onClick={() => setChemical({ ...chemical, ppe: { ...chemical.ppe, [key]: !value } })}
                   style={{
-
                     background: value ? 'rgba(59, 130, 246, 0.1)' : 'var(--color-surface)',
                     border: `2px solid ${value ? 'var(--color-primary)' : 'var(--color-border)'}`
-
-
-
-
-
                   }} className="p-[0.75rem] rounded-[var(--radius-lg)] cursor-pointer flex items-center gap-[0.50rem]">
                   
                                         <div style={{ background: value ? 'var(--color-primary)' : 'transparent' }} className="w-[16px] h-[16px] rounded-[4px] border-[2px_solid_var(--color-primary)] flex items-center justify-center">
@@ -348,23 +316,18 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
                             </div>
                         </div>
                     </div>
-
                     <div className="mt-[2.5rem]">
-                        <label className="block mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">Almacenamiento, Compatibilidad y Primeros Auxilios</label>
+                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Almacenamiento, Compatibilidad y Primeros Auxilios</label>
                         <textarea
               value={chemical.storage}
               onChange={(e) => setChemical({ ...chemical, storage: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 text-base outline-none focus:ring-2 focus:ring-blue-500 transition-all min-h-[100px] pt-3"
+              className="module-form-input min-h-[100px] pt-3"
               placeholder="Describa condiciones especiales, incompatibilidades y medidas urgentes de primeros auxilios..." />
             
                     </div>
+            </ModuleFormSection>
 
-                    {/* Firmas y Autorizaciones */}
-                    <div className="card animate-fade-in mt-[2.5rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2.5rem] box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.08)]">
-                        <h3 className="m-[0_0_2rem_0] flex items-center gap-[0.7rem] text-[var(--color-primary)] font-[900] text-[1.25rem] uppercase letter-spacing-[1.2px]">
-                            <Pencil size={22} className="text-[var(--color-primary)]" /> Firmas y Autorizaciones de Seguridad Química
-                        </h3>
-
+            <ModuleFormSection title="Firmas y Autorizaciones" icon={<Pencil />}>
                         <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
                             <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                             <div className="flex gap-[1rem] flex-wrap justify-center">
@@ -379,33 +342,18 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
                       key={sig.id}
                       className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease]"
                       style={{
-
-
                         border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
                         background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
                         color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
-
-
-
                         boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
                       }}>
-                      
                                             <input
                         type="checkbox"
                         checked={isChecked}
-                        onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="none" />
-
-                      
+                        onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="hidden" />
                                             <div style={{
-
-
-
                         border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
                         background: isChecked ? 'var(--color-primary)' : 'transparent'
-
-
-
-
                       }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
                                                 {isChecked && <CheckCircle2 size={12} color="white" />}
                                             </div>
@@ -416,7 +364,6 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
                             </div>
                         </div>
 
-                        {/* On-Sheet Visual Preview of PDF signature blocks */}
                         <div className="mb-[2.5rem]">
                             <PdfSignatures
                 data={{
@@ -450,7 +397,6 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
             <PdfBrandingFooter />
                         </div>
 
-                        {/* Interactive Signature Drawing Pads */}
                         <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {showSignatures.operator &&
               <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
@@ -482,35 +428,16 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
                                 </div>
               }
                         </div>
-                    </div>
-                </div>
+            </ModuleFormSection>
+        </ModuleFormDocument>
 
-                {/* Botones de acción flotantes */}
-            </main>
-
-            <div className="no-print floating-action-bar">
-                <button
-          onClick={() => requirePro(() => setShowShareModal(true))}
-          className="btn-floating-action bg-[#0052CC] text-[#ffffff]">
-
-          
-                    <Share2 size={18} /> COMPARTIR
-                </button>
-                <button
-          onClick={() => requirePro(() => window.print())}
-          className="btn-floating-action bg-[#FF8B00] text-[#ffffff]">
-
-          
-                    <Printer size={18} /> IMPRIMIR PDF
-                </button>
-                <button
-          onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-          className="btn-floating-action bg-[#36B37E] text-[#ffffff]">
-
-          
-                    <Save size={18} /> GUARDAR FICHA
-                </button>
-            </div>
+        <ModuleActionBar
+            actions={[
+                { id: 'save', label: 'GUARDAR FICHA', icon: <Save />, variant: 'primary', onClick: () => requirePro(handleSave) },
+                { id: 'share', label: 'COMPARTIR', icon: <Share2 />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) },
+                { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer />, variant: 'secondary', onClick: () => requirePro(() => window.print()) }
+            ]}
+        />
 
             <ShareModal
         isOpen={showShareModal}
@@ -523,9 +450,8 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
         fileName={`Quimico_${chemical.name || 'Sin_Nombre'}.pdf`} />
       
 
-            <div className="print-only fixed left-[0] opacity-[0.01] top-[0]">
+            <div className="print-only fixed left-[-9999px] top-[0] opacity-[0.01] pointer-events-none" id="pdf-content">
                 <ChemicalSafetyPdf data={{ ...chemical, id: (chemical as any).id || Date.now().toString(), createdAt: (chemical as any).createdAt || new Date().toISOString() }} />
             </div>
-        </div>);
-
+    </ModuleFormLayout>);
 }

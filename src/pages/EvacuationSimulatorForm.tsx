@@ -2,7 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Save, Users, Target, ShieldCheck, Printer, Share2, Timer, Pencil, Building2, Search } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
-import PremiumHeader from '../components/PremiumHeader';
+import {
+  ModuleFormLayout,
+  ModuleFormToolbar,
+  ModuleFormSection,
+  ModuleActionBar,
+} from '../components/module';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
@@ -191,24 +196,31 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
   };
 
   return (
-    <div style={{ paddingTop: isMobile ? '7.5rem' : '6.5rem' }} className="min-h-[100vh] bg-[var(--color-background)] pb-[2rem]">
-            <main className="p-[0rem_1.5rem] max-w-[1000px] m-[0_auto]">
+      <ModuleFormLayout>
+        <div className="no-print">
+            <ShareModal
+        isOpen={showShareModal}
+        open={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        elementIdToPrint="pdf-content"
+        title="Simulación de Evacuación"
+        text={`Simulación Sector ${form.sector} - Tiempo Total Estimado: ${results.total} segundos`}
+        rawMessage={`Simulación Sector ${form.sector} - Tiempo Total Estimado: ${results.total} segundos`}
+        fileName={`Evacuacion_${form.sector || 'Nuevo'}.pdf`} />
+      
                 <div className="no-print mb-8">
-                    <PremiumHeader
+                    <ModuleFormToolbar
             title={isEdit ? 'Editar Simulación de Evacuación' : 'Simulador de Evacuación (Teórico)'}
             subtitle="Cálculo de tiempos teóricos de escape"
-            icon={<Timer size={32} color="#ffffff" />}
-            color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
+            icon={<Timer />} />
           
                     <div className="flex justify-space-between items-center flex-wrap gap-[1rem] mt-[1rem]">
                         <></>
                     </div>
                 </div>
 
-                <div className="card p-[2rem] border-top-[4px_solid_#3b82f6] bg-[linear-gradient(180deg,_rgba(59,130,246,0.03)_0%,_rgba(0,0,0,0)_100%)] mb-[2rem]">
-                    <h2 className="text-[1.25rem] m-[0_0_1.5rem] flex items-center gap-[0.5rem] text-[#3b82f6] font-[800]">
-                        <Building2 size={24} /> Datos del Establecimiento
-                    </h2>
+                <div className="grid-2-cols gap-[1.5rem] mb-[2rem]">
+                    <ModuleFormSection title="Datos del Establecimiento" icon={<Building2 />}>
                     
                     <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem] mb-[2rem]">
                         <div>
@@ -223,13 +235,10 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
                             <label className="block mb-2 text-sm font-semibold text-slate-400">Evaluador a Cargo *</label>
                             <input type="text" value={form.evaluator} onChange={(e) => setForm({ ...form, evaluator: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" />
                         </div>
-                    </div>
-                </div>
+                        </div>
+                    </ModuleFormSection>
 
-                <div className="card p-[2rem] border-top-[4px_solid_#f97316] bg-[linear-gradient(180deg,_rgba(249,115,22,0.03)_0%,_rgba(0,0,0,0)_100%)] mb-[2rem]">
-                    <h2 className="text-[1.25rem] m-[0_0_1.5rem] flex items-center gap-[0.5rem] text-[#f97316] font-[800]">
-                        <Users size={24} /> Parámetros de Cálculo
-                    </h2>
+                    <ModuleFormSection title="Parámetros de Cálculo" icon={<Users />}>
 
                     <div style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)' }} className="grid gap-[1.5rem]">
                         <div>
@@ -297,25 +306,12 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
               placeholder="El tiempo de evacuación teórico es aceptable. Se recomienda realizar simulacro práctico para validar tiempos reales." className="min-h-[100px]" />
             
                     </div>
+                </ModuleFormSection>
                 </div>
 
                     {/* Firmas y Autorizaciones */}
-                    <div className="card animate-fade-in mt-[2.5rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2.5rem] box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.08)]">
-                        <h3 className="m-[0_0_2rem_0] flex items-center gap-[0.7rem] text-[var(--color-primary)] font-[900] text-[1.25rem] uppercase letter-spacing-[1.2px]">
-                            <Pencil size={22} className="text-[var(--color-primary)]" /> Firmas y Autorizaciones del Reporte
-                        </h3>
-
+                    <ModuleFormSection title="Firmas y Autorizaciones del Reporte" icon={<Pencil />}>
                         <div className="no-print mb-[2rem] p-[1.2rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[16px] flex flex-col gap-[1rem] box-shadow-[0_4px_6px_rgba(0,0,0,0.02)]">
-
-
-
-
-
-
-
-
-
-            
                             <div className="text-[var(--color-text)] text-[0.85rem] font-[800] uppercase letter-spacing-[0.5px]">
                                 INCLUIR FIRMAS EN EL DOCUMENTO:
                             </div>
@@ -328,21 +324,12 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
                 const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
                 return (
                   <label key={sig.id} style={{
-
-
-
-
-
                     background: isChecked ? 'rgba(56, 189, 248, 0.1)' : 'var(--color-background)',
                     border: `1px solid ${isChecked ? '#38bdf8' : 'var(--color-border)'}`
-
-
                   }} className="flex items-center gap-[0.5rem] cursor-pointer p-[0.5rem_1rem] rounded-[20px] transition-[all_0.2s_ease]">
                                             <div style={{
-
                       border: `2px solid ${isChecked ? '#38bdf8' : 'var(--color-text-secondary)'}`,
                       background: isChecked ? '#38bdf8' : 'transparent'
-
                     }} className="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center">
                                                 {isChecked && <span className="text-[#fff] text-[12px] font-[bold]">✓</span>}
                                             </div>
@@ -399,12 +386,6 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
                         <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {showSignatures.operator &&
             <div className="animate-fade-in bg-[rgba(var(--color-surface-rgb),_0.3)] backdrop-filter-[blur(10px)] rounded-[16px] p-[1.5rem] border-[1px_solid_var(--glass-border)]">
-
-
-
-
-
-              
                                     <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase letter-spacing-[0.5px]">
                                         Firma de Evaluador Técnico
                                     </div>
@@ -418,12 +399,6 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
                             
                             {showSignatures.professional &&
             <div className="animate-fade-in bg-[rgba(var(--color-surface-rgb),_0.3)] backdrop-filter-[blur(10px)] rounded-[16px] p-[1.5rem] border-[1px_solid_var(--glass-border)]">
-
-
-
-
-
-              
                                     <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase letter-spacing-[0.5px]">
                                         Firma de Especialista H&S
                                     </div>
@@ -437,12 +412,6 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
 
                             {showSignatures.supervisor &&
             <div className="animate-fade-in bg-[rgba(var(--color-surface-rgb),_0.3)] backdrop-filter-[blur(10px)] rounded-[16px] p-[1.5rem] border-[1px_solid_var(--glass-border)]">
-
-
-
-
-
-              
                                     <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase letter-spacing-[0.5px]">
                                         Firma del Responsable del Sector
                                     </div>
@@ -454,42 +423,16 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
                                 </div>
             }
                         </div>
-                    </div>
-            </main>
-
-            <div className="no-print floating-action-bar">
-                <button
-          onClick={() => requirePro(() => setShowShareModal(true))}
-          className="btn-floating-action bg-[#0052CC] text-[#ffffff]">
-
-          
-                    <Share2 size={18} /> COMPARTIR
-                </button>
-                <button
-          onClick={() => requirePro(() => window.print())}
-          className="btn-floating-action bg-[#FF8B00] text-[#ffffff]">
-
-          
-                    <Printer size={18} /> IMPRIMIR PDF
-                </button>
-                <button
-          onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-          className="btn-floating-action bg-[#36B37E] text-[#ffffff]">
-
-          
-                    <Save size={18} /> GUARDAR
-                </button>
+                    </ModuleFormSection>
             </div>
 
-            <ShareModal
-        isOpen={showShareModal}
-        open={showShareModal}
-        onClose={() => setShowShareModal(false)}
-        elementIdToPrint="pdf-content"
-        title="Simulación de Evacuación"
-        text={`Simulación Sector ${form.sector} - Tiempo Total Estimado: ${results.total} segundos`}
-        rawMessage={`Simulación Sector ${form.sector} - Tiempo Total Estimado: ${results.total} segundos`}
-        fileName={`Evacuacion_${form.sector || 'Nuevo'}.pdf`} />
+            <ModuleActionBar
+              actions={[
+                { id: 'save', label: 'GUARDAR', icon: <Save />, variant: 'primary', onClick: () => requirePro(handleSave) },
+                { id: 'share', label: 'COMPARTIR', icon: <Share2 />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) },
+                { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer />, variant: 'secondary', onClick: () => requirePro(() => window.print()) }
+              ]}
+            />
       
 
             <div className="print-only fixed left-[0] opacity-[0.01] top-[0]">
@@ -508,6 +451,6 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
           }
         }} />
             </div>
-        </div>);
+        </ModuleFormLayout>);
 
 }

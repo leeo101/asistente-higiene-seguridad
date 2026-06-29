@@ -11,7 +11,13 @@ import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../config';
 import { auth } from '../firebase';
 import Breadcrumbs from '../components/Breadcrumbs';
-import PremiumHeader from '../components/PremiumHeader';
+import {
+  ModuleFormLayout,
+  ModuleFormToolbar,
+  ModuleFormDocument,
+  ModuleFormSection,
+  ModuleActionBar,
+} from '../components/module';
 import { getErrorMessage } from '../utils/errorUtils';
 
 export default function ErgonomicsForm(): React.ReactElement | null {
@@ -126,37 +132,35 @@ export default function ErgonomicsForm(): React.ReactElement | null {
   };
 
   return (
-    <div className="container print:pt-0 print:pb-0 max-w-[1000px] mx-auto pb-32">
-            <PremiumHeader
-        title={editData ? 'Editar Estudio Ergonómico' : 'Nuevo Estudio Ergonómico'}
-        subtitle="Protocolo Res. SRT 886/15"
-        icon={<Accessibility size={36} color="#ffffff" />} />
-      
+    <ModuleFormLayout>
+        <ModuleFormToolbar
+            title={editData ? 'Editar Estudio Ergonómico' : 'Nuevo Estudio Ergonómico'}
+            subtitle="Protocolo Res. SRT 886/15"
+            icon={<Accessibility size={36} color="#ffffff" />}
+        />
 
             <div className="my-6 z-10 no-print">
                 <></>
             </div>
 
+        <ModuleFormDocument>
             {/* Stepper Header */}
             <div className="flex justify-between mb-8 relative">
-                <div className="absolute top-[15px] left-0 w-full h-[2px] bg-slate-700 z-0"></div>
+                <div className="absolute top-[15px] left-0 w-full h-[2px] bg-slate-200 dark:bg-slate-700 z-0"></div>
                 {[1, 2, 3].map((s) =>
-        <div key={s} className={`w-8 h-8 rounded-full border-2 border-emerald-500 flex items-center justify-center font-bold text-sm z-10 ${step >= s ? "bg-emerald-500 text-white" : "bg-slate-900 text-emerald-500"}`}>
+        <div key={s} className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold text-sm z-10 transition-colors ${step >= s ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500"}`}>
                         {s}
                     </div>
         )}
             </div>
 
             {step === 1 &&
-      <div className="card animate-fade-in p-10 bg-slate-900 border border-slate-700 rounded-3xl shadow-lg">
-                    <h3 className="text-[1.25rem] font-[800] mb-[2rem] flex items-center gap-[0.6rem] text-[var(--color-text)] border-bottom-[2px_dashed_var(--color-border)] pb-[1rem]">
-                        <Building2 size={24} color="var(--color-primary)" /> Datos Generales
-                    </h3>
+      <ModuleFormSection title="Datos Generales" icon={<Building2 />}>
 
                     <div className="mb-6">
-                        <label className="block mb-2 font-bold text-sm text-slate-400">Empresa / Establecimiento</label>
+                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Empresa / Establecimiento</label>
                         <input
-            className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-white outline-none focus:border-emerald-500 transition-colors"
+            className="module-form-input"
             value={formData.empresa}
             onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
             placeholder="Nombre de la empresa" />
@@ -165,18 +169,18 @@ export default function ErgonomicsForm(): React.ReactElement | null {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                         <div>
-                            <label className="block mb-2 font-bold text-sm text-slate-400">Sector</label>
+                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Sector</label>
                             <input
-              className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-white outline-none focus:border-emerald-500 transition-colors"
+              className="module-form-input"
               value={formData.sector}
               onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
               placeholder="Logística, Planta, etc." />
             
                         </div>
                         <div>
-                            <label className="block mb-2 font-bold text-sm text-slate-400">Puesto de Trabajo</label>
+                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Puesto de Trabajo</label>
                             <input
-              className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-white outline-none focus:border-emerald-500 transition-colors"
+              className="module-form-input"
               value={formData.puesto}
               onChange={(e) => setFormData({ ...formData, puesto: e.target.value })}
               placeholder="Operario, Administrativo..." />
@@ -185,9 +189,9 @@ export default function ErgonomicsForm(): React.ReactElement | null {
                     </div>
 
                     <div className="mb-[2.5rem]">
-                        <label className="block mb-2 font-bold text-sm text-slate-400">Descripción de la Tarea</label>
+                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Descripción de la Tarea</label>
                         <textarea
-            className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-white outline-none focus:border-emerald-500 transition-colors"
+            className="module-form-input"
             rows={3}
             value={formData.descripcionTarea}
             onChange={(e) => setFormData({ ...formData, descripcionTarea: e.target.value })}
@@ -195,18 +199,14 @@ export default function ErgonomicsForm(): React.ReactElement | null {
           
                     </div>
 
-                    <button onClick={handleNext} className="btn-primary w-full p-4 rounded-xl flex items-center justify-center gap-2 text-base bg-emerald-500 border border-emerald-500 text-white font-bold hover:bg-emerald-600 transition-colors">
+                    <button onClick={handleNext} className="btn-primary w-full p-4 rounded-xl flex items-center justify-center gap-2 text-base font-bold transition-colors">
                         Siguiente Paso <ChevronRight size={20} />
                     </button>
-                </div>
+      </ModuleFormSection>
       }
 
             {step === 2 &&
-      <div className="card animate-fade-in p-10 bg-slate-900 border border-slate-700 rounded-3xl shadow-lg">
-                    <div className="mb-[1.5rem] flex items-center gap-[0.6rem] border-bottom-[2px_dashed_var(--color-border)] pb-[1rem]">
-                        <AlertCircle size={24} color="#f97316" />
-                        <h3 className="text-[1.25rem] font-[800] m-[0] text-[var(--color-text)]">Planilla 1: Identificación</h3>
-                    </div>
+      <ModuleFormSection title="Planilla 1: Identificación" icon={<AlertCircle />}>
                     <p className="text-[0.95rem] text-[var(--color-text-muted)] mb-[2rem] font-[600]">
                         Indique la presencia de factores de riesgo en el puesto:
                     </p>
@@ -238,32 +238,27 @@ export default function ErgonomicsForm(): React.ReactElement | null {
                     </div>
 
                     <div className="flex gap-[1rem] flex-wrap">
-                        <button onClick={handleBack} className="btn-secondary flex-1 min-w-[120px] p-4 rounded-xl flex items-center justify-center gap-2 font-extrabold bg-slate-800 text-white hover:bg-slate-700 transition-colors">
+                        <button onClick={handleBack} className="btn-secondary flex-1 min-w-[120px] p-4 rounded-xl flex items-center justify-center gap-2 font-extrabold transition-colors">
                             <ChevronLeft size={20} /> Atrás
                         </button>
-                        <button onClick={handleNext} className="btn-primary flex-[2] min-w-[180px] p-4 rounded-xl flex items-center justify-center gap-2 bg-emerald-500 border border-emerald-500 text-white font-extrabold hover:bg-emerald-600 transition-colors">
+                        <button onClick={handleNext} className="btn-primary flex-[2] min-w-[180px] p-4 rounded-xl flex items-center justify-center gap-2 font-extrabold transition-colors">
                             Siguiente Paso <ChevronRight size={20} />
                         </button>
                     </div>
-                </div>
+      </ModuleFormSection>
       }
 
             {step === 3 &&
-      <div className="card animate-fade-in p-10 bg-slate-900 border border-slate-700 rounded-3xl shadow-lg">
-                    <div className="mb-[2rem] flex items-center gap-[0.6rem] border-bottom-[2px_dashed_var(--color-border)] pb-[1rem]">
-                        <Accessibility size={24} color="var(--color-primary)" />
-                        <h3 className="text-[1.25rem] font-[800] m-[0] text-[var(--color-text)]">Planilla 2.A: Evaluación</h3>
-                    </div>
-
+      <ModuleFormSection title="Planilla 2.A: Evaluación" icon={<Accessibility />}>
                     {formData.planilla1.levantamientoCarga ?
         <div className="bg-[rgba(59,_130,_246,_0.05)] border-[1px_solid_rgba(59,_130,_246,_0.15)] p-[1.8rem] rounded-[16px] mb-[2.5rem]">
                             <h4 className="m-[0_0_1.5rem_0] text-[1.1rem] font-[800] text-[var(--color-text)]">Levantamiento de Cargas</h4>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                                 <div>
-                                    <label className="block mb-2 font-bold text-sm text-slate-400">Peso Efectivo (kg)</label>
+                                    <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Peso Efectivo (kg)</label>
                                     <input
-                className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-white outline-none focus:border-emerald-500 transition-colors"
+                className="module-form-input"
                 type="number"
                 value={formData.calculoLevantamiento.peso}
                 onChange={(e) => setFormData({
@@ -280,9 +275,9 @@ export default function ErgonomicsForm(): React.ReactElement | null {
                                 </div>
 
                                 <div>
-                                    <label className="block mb-2 font-bold text-sm text-slate-400">Distancia Horizontal (Cuerpo-Carga)</label>
+                                    <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Distancia Horizontal (Cuerpo-Carga)</label>
                                     <select
-                className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-white outline-none focus:border-emerald-500 transition-colors"
+                className="module-form-input"
                 value={formData.calculoLevantamiento.distanciaH}
                 onChange={(e) => setFormData({
                   ...formData,
@@ -297,7 +292,7 @@ export default function ErgonomicsForm(): React.ReactElement | null {
                             </div>
 
                             <div className="mb-[0.5rem]">
-                                <label className="block mb-2 font-bold text-sm text-slate-400">Altura de Agarre</label>
+                                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Altura de Agarre</label>
                                 <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(120px,_1fr))] gap-[0.8rem]">
                                     {['Suelo', 'Rodilla', 'Cintura', 'Hombro'].map((h) =>
               <button
@@ -349,7 +344,7 @@ export default function ErgonomicsForm(): React.ReactElement | null {
                         </div>
                         <textarea
             rows={4}
-            className="input-professional block w-full no-print"
+            className="module-form-input no-print"
             value={formData.recomendaciones}
             onInput={(e: any) => {
               e.target.style.height = 'auto';
@@ -370,15 +365,18 @@ export default function ErgonomicsForm(): React.ReactElement | null {
             
                             <ChevronLeft size={20} /> ATRÁS
                         </button>
-                        <button
-            onClick={(e) => {e.preventDefault();requirePro(handleSave);}} className="flex-[2] min-width-[200px] p-[1rem] bg-[#36B37E] text-[#ffffff] border-none rounded-[12px] font-[800] flex items-center justify-center gap-[0.6rem] cursor-pointer box-shadow-[0_4px_15px_rgba(54,179,126,0.3)]">
-
-            
-                            <Save size={20} /> GUARDAR ESTUDIO
-                        </button>
                     </div>
-                </div>
+      </ModuleFormSection>
       }
-        </div>);
+        </ModuleFormDocument>
+
+        {step === 3 && (
+            <ModuleActionBar
+                actions={[
+                    { id: 'save', label: 'GUARDAR ESTUDIO', icon: <Save />, variant: 'primary', onClick: () => requirePro(handleSave) }
+                ]}
+            />
+        )}
+    </ModuleFormLayout>);
 
 }

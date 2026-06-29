@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
 import { useNavigate, useLocation } from 'react-router-dom';
-import {
-  ArrowLeft, Save, UserPlus, ListPlus, Trash2, CheckCircle2, ChevronRight, ChevronLeft, Link as LinkPlus,
-  Plus, Share2, Printer, Sparkles, Pencil, Search, AlertTriangle, Calendar, MapPin, QrCode, Download, FileText, Camera, X } from
-'lucide-react';
+import { ArrowLeft, Plus, Download, Search, AlertTriangle, FileText, ChevronRight, X, User, Briefcase, Activity, Calendar, FileQuestion, Users, FileSignature, CheckCircle2, Shield, Save, Building2, TreeDeciduous, ShieldAlert, Zap, Box, Wind, Droplets, ArrowUpCircle, Truck, Pencil, Share2, Trash2, QrCode } from 'lucide-react';
+import PremiumHeader from '../components/PremiumHeader';
 import { usePaywall } from '../hooks/usePaywall';
 import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
@@ -16,7 +14,12 @@ import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { downloadCSV } from '../services/exportCsv';
 import { DataTable } from '../components/DataTable';
-import PremiumHeader from '../components/PremiumHeader';
+import {
+  ModuleFormLayout,
+  ModuleFormToolbar,
+  ModuleFormSection,
+  ModuleActionBar,
+} from '../components/module';
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
@@ -166,6 +169,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [qrTarget, setQrTarget] = useState<any>(null);
   const [shareItem, setShareItem] = useState<any>(null);
+  const [printItem, setPrintItem] = useState<any>(null);
   const [selectedReport, setSelectedReport] = useState<any>(null);
 
   // Form state
@@ -453,19 +457,21 @@ export default function AccidentInvestigation(): React.ReactElement | null {
 
 
     return (
-      <div className="container min-h-screen bg-slate-50 dark:bg-slate-900 pb-28 pt-22">
-                <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
-        title="Investigaciones de Accidentes"
-        subtitle="Registros de siniestros"
-        icon={<AlertTriangle size={32} color="#ffffff" />}
-        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
+      <div className="container w-full max-w-[1200px] mx-auto pb-32">
+        <div className="no-print">
+          <PremiumHeader
+            title="Investigaciones de Accidentes"
+            subtitle="Registros de siniestros"
+            icon={<AlertTriangle size={36} color="#ffffff" />}
+          />
+        </div>
         
 
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
                 {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
                 <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Investigación de Accidente - ${shareItem?.victimaNombre || ''}`} text={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⚠️ Gravedad: ${shareItem.gravedad}` : ''} rawMessage={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}` : ''} elementIdToPrint="pdf-content" fileName={`Accidente_${shareItem?.victimaNombre || 'Reporte'}.pdf`} />
-                <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
-                    {shareItem && <AccidentPdfGenerator report={{ ...shareItem, id: shareItem.id || Date.now() }} isHeadless={true} />}
+                <div id="pdf-content" className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+                    {(shareItem || printItem) && <AccidentPdfGenerator report={{ ...(shareItem || printItem), id: (shareItem || printItem).id || Date.now() }} isHeadless={true} />}
                 </div>
 
                 <main className="w-full max-w-[1000px] mx-auto pb-8">
@@ -501,12 +507,12 @@ export default function AccidentInvestigation(): React.ReactElement | null {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-24 pt-22">
-            <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
+    <ModuleFormLayout>
+            <ModuleFormToolbar
       title={isEdit ? 'Editar Investigación' : 'Investigación de Accidente'}
       subtitle="Metodología Árbol de Causas"
       icon={<AlertTriangle />}
-      color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
+      onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined} />
       
 
             <main className="w-full max-w-[1000px] mx-auto px-6 py-8">
@@ -539,10 +545,9 @@ export default function AccidentInvestigation(): React.ReactElement | null {
           )}
                 </div>
 
-                <div className="flex-1 p-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-xl">
-                    <h2 className="text-xl mb-8 border-b border-slate-200 dark:border-slate-700 pb-3 text-blue-600 dark:text-blue-400 font-extrabold">
-                        {SECTIONS[currentStep]}
-                    </h2>
+                <div className="flex-1 p-4 md:p-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-xl">
+                    <ModuleFormSection title={SECTIONS[currentStep] || ''} icon={<FileText />}>
+                        <div className="mb-4" />
 
                     {currentStep === 0 &&
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -732,6 +737,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                             </button>
                         </div>
           }
+                    </ModuleFormSection>
                 </div>
 
                 {/* Navegación Inferior Responsive */}
@@ -753,11 +759,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                 </div>
 
                 {/* Firmas y Autorizaciones */}
-                <div className="card animate-fade-in mt-[3rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2.5rem] box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.08)]">
-                    <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.7rem] text-[var(--color-primary)] font-[900] text-[1.25rem] uppercase letter-spacing-[1.2px]">
-                        <Pencil size={22} className="text-[var(--color-primary)]" /> Firmas y Autorizaciones
-                    </h3>
-
+                <ModuleFormSection title="Firmas y Autorizaciones" icon={<Pencil />}>
                     <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
                         <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                         <div className="flex gap-[1rem] flex-wrap justify-center">
@@ -873,18 +875,40 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                             </div>
             }
                     </div>
-                </div>
+                </ModuleFormSection>
             </main>
 
-            <div className="no-print floating-action-bar">
-                <button
-          onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-          className="btn-floating-action bg-[#36B37E] text-[#ffffff]">
-
-          
-                    <Save size={18} /> GUARDAR
-                </button>
-            </div>
-        </div>);
+            <ModuleActionBar
+              actions={[
+                {
+                  id: 'save',
+                  label: 'GUARDAR',
+                  icon: <Save />,
+                  variant: 'primary',
+                  onClick: () => requirePro(handleSave)
+                },
+                {
+                  id: 'share',
+                  label: 'COMPARTIR',
+                  icon: <Share2 size={18} />,
+                  variant: 'secondary',
+                  onClick: () => requirePro(() => setShareItem(formData))
+                },
+                {
+                  id: 'print',
+                  label: 'IMPRIMIR PDF',
+                  icon: <Printer size={18} />,
+                  variant: 'secondary',
+                  onClick: () => {
+                    setPrintItem(formData);
+                    setTimeout(() => {
+                      window.print();
+                      setTimeout(() => setPrintItem(null), 10000);
+                    }, 500);
+                  }
+                }
+              ]}
+            />
+        </ModuleFormLayout>);
 
 }

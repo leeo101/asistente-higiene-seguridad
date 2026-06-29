@@ -341,7 +341,7 @@ export default function CAPAManager(): React.ReactElement | null {
         icon={<RefreshCw size={36} color="#ffffff" />} />
       
 
-            <div className="flex items-center justify-space-between gap-[1rem] mt-[1.5rem] mb-[2rem] flex-wrap">
+            <div className="flex items-center justify-between gap-[1rem] mt-[1.5rem] mb-[2rem] flex-wrap">
                 <div className="flex gap-[1rem] flex-wrap">
                     <></>
                     <button
@@ -400,7 +400,7 @@ export default function CAPAManager(): React.ReactElement | null {
         marginBottom: isMobile ? '1.5rem' : '2rem'
       }} className="grid">
                 <div className="card" style={{ padding: isMobile ? '1rem' : '1.25rem' }}>
-                    <div className="flex justify-space-between items-center mb-[0.75rem]">
+                    <div className="flex justify-between items-center mb-[0.75rem]">
                         <span style={{ fontSize: isMobile ? '0.75rem' : '0.85rem' }} className="font-[600] text-[var(--color-text-muted)]">Tasa de Efectividad</span>
                         <ThumbsUp size={isMobile ? 18 : 20} color="#10b981" />
                     </div>
@@ -413,7 +413,7 @@ export default function CAPAManager(): React.ReactElement | null {
                 </div>
 
                 <div className="card" style={{ padding: isMobile ? '1rem' : '1.25rem' }}>
-                    <div className="flex justify-space-between items-center mb-[0.75rem]">
+                    <div className="flex justify-between items-center mb-[0.75rem]">
                         <span style={{ fontSize: isMobile ? '0.75rem' : '0.85rem' }} className="font-[600] text-[var(--color-text-muted)]">Entrega a Tiempo</span>
                         <Target size={isMobile ? 18 : 20} color="#3b82f6" />
                     </div>
@@ -426,7 +426,7 @@ export default function CAPAManager(): React.ReactElement | null {
                 </div>
 
                 <div className="card" style={{ padding: isMobile ? '1rem' : '1.25rem' }}>
-                    <div className="flex justify-space-between items-center mb-[0.75rem]">
+                    <div className="flex justify-between items-center mb-[0.75rem]">
                         <span style={{ fontSize: isMobile ? '0.75rem' : '0.85rem' }} className="font-[600] text-[var(--color-text-muted)]">Críticas Pendientes</span>
                         <Zap size={isMobile ? 18 : 20} color="#dc2626" />
                     </div>
@@ -1065,7 +1065,7 @@ function CreateCapaModal({ capa, setCapa, onSave, onClose, CAPA_TYPES, CAPA_SOUR
   return (
     <div className="modal-fullscreen-overlay modal-overlay-glass" onClick={onClose}>
             <div className="modal-fullscreen-content modal-glass max-w-[680px] p-[2rem] border-[1px_solid_var(--glass-border)]" onClick={(e) => e.stopPropagation()}>
-                <div className="flex justify-space-between items-center mb-[1.5rem] pb-[1rem] border-bottom-[1px_solid_var(--glass-border-subtle)]">
+                <div className="flex justify-between items-center mb-[1.5rem] pb-[1rem] border-bottom-[1px_solid_var(--glass-border-subtle)]">
                     <h2 className="m-[0] text-[1.4rem] font-[900] text-[var(--color-text)] flex items-center gap-[0.5rem]">
                         <RefreshCw size={20} className="animate-spin-slow" color="var(--color-primary)" />
                         Nueva Acción CAPA
@@ -1134,7 +1134,7 @@ function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose
     <div className="modal-fullscreen-overlay modal-overlay-glass" onClick={onClose}>
             <div className="modal-fullscreen-content modal-glass max-w-[720px] p-[0] border-[1px_solid_var(--glass-border)] overflow-[hidden]" onClick={(e) => e.stopPropagation()}>
                 {/* Header */}
-                <div style={{ background: `linear-gradient(135deg, ${statusConfig.bg}, rgba(var(--color-surface-rgb), 0.95))`, borderBottom: `2.5px solid ${statusConfig.color}` }} className="p-[1.5rem_2rem] flex justify-space-between items-center">
+                <div style={{ background: `linear-gradient(135deg, ${statusConfig.bg}, rgba(var(--color-surface-rgb), 0.95))`, borderBottom: `2.5px solid ${statusConfig.color}` }} className="p-[1.5rem_2rem] flex justify-between items-center">
                     <div className="flex items-center gap-4">
                         <div style={{ background: `linear-gradient(135deg, ${priorityConfig.color}, ${priorityConfig.color}cc)`, boxShadow: `0 8px 20px ${priorityConfig.color}25` }} className="w-[56px] h-[56px] rounded-[var(--radius-xl)] flex flex-col items-center justify-center text-[#fff]">
                             <span className="text-[1.75rem] line-height-[1]">{priorityConfig.icon}</span>
@@ -1239,7 +1239,7 @@ function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose
                     {/* Verificación de Eficacia */}
                     {capa.status === 'closed' &&
           <div style={{ background: capa.effectivenessVerified ? 'rgba(16, 185, 129, 0.05)' : 'rgba(245, 158, 11, 0.05)', border: `1px solid ${capa.effectivenessVerified ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)'}` }} className="mb-[1.75rem] p-[1.25rem] rounded-[var(--radius-xl)]">
-                            <div className="flex justify-space-between items-center">
+                            <div className="flex justify-between items-center">
                                 <div>
                                     <h3 style={{ color: capa.effectivenessVerified ? '#10b981' : '#f59e0b' }} className="text-[0.9rem] font-[800] m-[0_0_0.25rem]">
                                         {capa.effectivenessVerified ? 'Eficacia Verificada' : 'Eficacia Pendiente de Verificación'}
@@ -1282,7 +1282,7 @@ function CreateActionModal({ capa, onSave, onClose, CONTROL_HIERARCHY }) {
   return (
     <div className="modal-fullscreen-overlay modal-overlay-glass" onClick={onClose}>
             <div className="modal-fullscreen-content modal-glass max-w-[580px] p-[2rem] border-[1px_solid_var(--glass-border)]" onClick={(e) => e.stopPropagation()}>
-                <div className="flex justify-space-between items-center mb-[1.5rem] pb-[1rem] border-bottom-[1px_solid_var(--glass-border-subtle)]">
+                <div className="flex justify-between items-center mb-[1.5rem] pb-[1rem] border-bottom-[1px_solid_var(--glass-border-subtle)]">
                     <h2 className="m-[0] text-[1.25rem] font-[900] text-[var(--color-text)] flex items-center gap-[0.5rem]">
                         <Plus size={20} color="var(--color-primary)" />
                         Nueva Acción en Plan

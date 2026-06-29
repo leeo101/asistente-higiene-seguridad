@@ -16,6 +16,7 @@ import PdfSignatures from '../components/PdfSignatures';
 import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
 
 // Constants from ConfinedSpace.tsx
 const CONFINED_SPACE_TYPES = [
@@ -254,21 +255,16 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
 
   return (
     <div className="container min-h-[100vh] pb-[8rem]">
-            <PremiumHeader
-        title={isEdit ? 'Editar Permiso Espacio Confinado' : 'Nuevo Permiso OSHA 1910.146'}
-        subtitle="Registro de ingreso y condiciones de seguridad"
-        icon={<Tent size={36} color="#ffffff" />} />
-      
-
-            <div className="no-print mt-[1.5rem] mb-[1.5rem] z-[10]">
-                <></>
-            </div>
-
-            <main className="p-[2rem_1rem] max-w-[1000px] m-[0_auto]">
-                <div className="card animate-fade-in bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[24px] box-shadow-[var(--shadow-lg)]" style={{ padding: isMobile ? '1.5rem' : '2.5rem' }}>
-
+            <ModuleFormLayout>
+                <ModuleFormToolbar
+                    title={isEdit ? 'Editar Permiso Espacio Confinado' : 'Nuevo Permiso OSHA 1910.146'}
+                    subtitle="Registro de ingreso y condiciones de seguridad"
+                    icon={<Tent size={36} color="#ffffff" />}
+                />
+                
+                <ModuleFormDocument id="pdf-content">
                     {/* Sección: Información General */}
-                    <SectionTitle icon={<ClipboardCheck size={20} />} title="Información del Espacio" />
+                    <ModuleFormSection title="Información del Espacio" icon={<ClipboardCheck size={20} />}>
                     <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem] mb-[2.5rem]">
                         <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
                             <label className="block mb-2 text-sm font-semibold text-slate-400">Nombre del Espacio *</label>
@@ -299,9 +295,10 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                             <input type="text" className="input-professional" value={permit.description} onChange={(e) => setPermit({ ...permit, description: e.target.value })} placeholder="Limpieza, soldadura, inspección..." />
                         </div>
                     </div>
+                    </ModuleFormSection>
 
                     {/* Sección: Peligros */}
-                    <SectionTitle icon={<AlertTriangle size={20} />} title="Peligros Potenciales" />
+                    <ModuleFormSection title="Peligros Potenciales" icon={<AlertTriangle size={20} />}>
                     <div style={{ gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(5, 1fr)' }} className="grid gap-[0.75rem] mb-[2.5rem]">
                         {POTENTIAL_HAZARDS.map((hazard) =>
             <button
@@ -322,9 +319,10 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                             </button>
             )}
                     </div>
+                    </ModuleFormSection>
 
                     {/* Sección: Equipamiento */}
-                    <SectionTitle icon={<ShieldCheck size={20} />} title="Equipamiento Requerido" />
+                    <ModuleFormSection title="Equipamiento Requerido" icon={<ShieldCheck size={20} />}>
                     <div style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)' }} className="grid gap-[0.75rem] mb-[2.5rem]">
                         {permit.equipment.map((equip) =>
             <label key={equip.id} style={{
@@ -344,9 +342,10 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                             </label>
             )}
                     </div>
+                    </ModuleFormSection>
 
                     {/* Sección: Equipo de Trabajo */}
-                    <SectionTitle icon={<Users size={20} />} title="Equipo de Trabajo" />
+                    <ModuleFormSection title="Equipo de Trabajo" icon={<Users size={20} />}>
                     <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem] mb-[2rem]">
                         <div>
                             <label className="block mb-2 text-sm font-semibold text-slate-400">Entrante(s) Autorizado(s)</label>
@@ -388,9 +387,10 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                             <input type="text" className="input-professional" value={permit.team.rescue} onChange={(e) => setPermit({ ...permit, team: { ...permit.team, rescue: e.target.value } })} placeholder="Empresa o equipo interno" />
                         </div>
                     </div>
+                    </ModuleFormSection>
 
                     {/* Sección: Monitoreo Atmosférico */}
-                    <SectionTitle icon={<Activity size={20} />} title="Monitoreo Atmosférico" />
+                    <ModuleFormSection title="Monitoreo Atmosférico" icon={<Activity size={20} />}>
                     <div style={{ gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(5, 1fr)' }} className="grid gap-[1rem] mb-[2rem]">
                         <div>
                             <label className="block mb-2 text-sm font-semibold text-slate-400">O₂ (%)</label>
@@ -413,9 +413,10 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                             <input type="time" className="input-professional" value={permit.gasMonitoring?.time || ''} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, time: e.target.value } })} />
                         </div>
                     </div>
+                    </ModuleFormSection>
 
                     {/* Sección: Ventilación */}
-                    <SectionTitle icon={<Wind size={20} />} title="Ventilación" />
+                    <ModuleFormSection title="Ventilación" icon={<Wind size={20} />}>
                     <div className="flex gap-[1.5rem] mb-[2rem] flex-wrap">
                         <label className="flex items-center gap-[0.5rem] cursor-pointer">
                             <input type="checkbox" checked={permit.ventilation?.natural || false} onChange={(e) => setPermit({ ...permit, ventilation: { ...permit.ventilation, natural: e.target.checked } })} className="w-[20px] h-[20px]" />
@@ -430,19 +431,20 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                             <span className="font-[700]">Extractiva</span>
                         </label>
                     </div>
+                    </ModuleFormSection>
 
                     {/* Observaciones */}
-                    <SectionTitle icon={<Activity size={20} />} title="Observaciones Finales" />
+                    <ModuleFormSection title="Observaciones Finales" icon={<Activity size={20} />}>
                     <textarea
             className="input-professional min-h-[120px]"
             value={permit.observations}
             onChange={(e) => setPermit({ ...permit, observations: e.target.value })}
 
             placeholder="Detalles adicionales, medidas preventivas específicas, condiciones climáticas, etc." />
-          
+                    </ModuleFormSection>
 
                     <div className="mt-[2.5rem]">
-                        <SectionTitle icon={<Pencil size={20} />} title="Firmas y Autorizaciones" />
+                        <ModuleFormSection title="Firmas y Autorizaciones" icon={<Pencil size={20} />}>
 
                         <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
                             <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
@@ -567,21 +569,16 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                                 </div>
               }
                         </div>
+                          </ModuleFormSection>
                     </div>
-                </div>
-            </main>
+                </ModuleFormDocument>
+            </ModuleFormLayout>
 
-            <div className="no-print floating-action-bar">
-                <button onClick={() => navigate(-1)} className="btn-floating-action bg-[var(--color-surface)] text-[var(--color-text)] border-[1px_solid_var(--color-border)]">
-                    <X size={18} /> CANCELAR
-                </button>
-                <button onClick={() => setShowShareModal(true)} className="btn-floating-action bg-[#0052CC] text-[#ffffff]">
-                    <Share2 size={18} /> COMPARTIR
-                </button>
-                <button onClick={(e) => {e.preventDefault();requirePro(handleSave);}} className="btn-floating-action bg-[#16a34a] text-[#ffffff]">
-                    <Save size={18} /> GENERAR PERMISO
-                </button>
-            </div>
+            <ModuleActionBar actions={[
+                { id: 'cancel', label: 'CANCELAR', icon: <X size={18} />, variant: 'secondary', onClick: () => navigate(-1) },
+                { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'secondary', onClick: () => setShowShareModal(true) },
+                { id: 'save', label: 'GENERAR PERMISO', icon: <Save size={18} />, variant: 'primary', onClick: (e: any) => { e.preventDefault(); requirePro(handleSave); } }
+            ]} />
 
             <ShareModal
         isOpen={showShareModal}

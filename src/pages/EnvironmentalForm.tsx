@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, Leaf, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Activity, Droplets, Wind, Thermometer, Sun, Eye, Printer, Share2, Pencil } from 'lucide-react';
+import { ArrowLeft, Save, Leaf, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Activity, Droplets, Wind, Thermometer, Sun, Eye, Printer, Share2, Pencil, FileText } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
@@ -8,8 +8,13 @@ import EnvironmentalPdf from '../components/EnvironmentalPdf';
 import PdfSignatures from '../components/PdfSignatures';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
-import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import {
+  ModuleFormLayout,
+  ModuleFormToolbar,
+  ModuleFormSection,
+  ModuleActionBar,
+} from '../components/module';
 
 const labelStyle: React.CSSProperties = {
   fontSize: '0.85rem',
@@ -184,21 +189,14 @@ export default function EnvironmentalForm(): React.ReactElement | null {
   };
 
   return (
-    <div className="min-h-[100vh] bg-[var(--color-background)] pb-[2rem]">
-            <div className="no-print p-[2rem_1.5rem_0] max-w-[1000px] m-[0_auto]">
-                <PremiumHeader
+        <ModuleFormLayout>
+            <ModuleFormToolbar
           title={isEdit ? 'Editar Monitoreo Ambiental' : 'Nuevo Monitoreo Ambiental'}
           subtitle="Registro de Parámetros y Condiciones"
-          icon={<Leaf size={32} color="#ffffff" />}
-          color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
-        
+          icon={<Leaf />}
+        />
 
-                <div className="flex justify-space-between items-center flex-wrap gap-[1rem] mt-[1rem]">
-                    <></>
-                </div>
-            </div>
-
-            <main className="p-[1.5rem] max-w-[1000px] m-[0_auto]">
+            <ModuleFormSection title="Datos del Monitoreo" icon={<MapPin />}>
                 <div className="card p-[2rem] bg-[var(--gradient-card)] border-[1px_solid_var(--glass-border)]">
                     <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem]">
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
@@ -237,9 +235,11 @@ export default function EnvironmentalForm(): React.ReactElement | null {
                             </select>
                         </div>
                     </div>
+                </div>
+            </ModuleFormSection>
 
-                    <div className="mt-[2.5rem]">
-                        <h3 className="m-[0_0_1rem_0] text-[1rem] font-[800] text-[var(--color-primary)]">Parámetros Registrados</h3>
+            <ModuleFormSection title="Parámetros Registrados" icon={<Activity />}>
+                    <div className="mt-[1rem]">
                         <div style={{ gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, 1fr)' }} className="grid gap-[1rem]">
                             <div style={isMobile ? { gridColumn: 'span 2' } : {}}>
                                 <label style={labelSubStyle}>Temperatura (°C)</label>
@@ -267,10 +267,11 @@ export default function EnvironmentalForm(): React.ReactElement | null {
               }
                         </div>
                     </div>
+            </ModuleFormSection>
 
-                    <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="mt-[2.5rem] grid gap-[2rem]">
+            <ModuleFormSection title="Equipo de Medición (Res. 295/03)" icon={<Thermometer />}>
+                    <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[2rem]">
                         <div>
-                            <h3 className="m-0 mb-4 text-xl font-extrabold text-emerald-500">Equipo de Medición (Res. 295/03)</h3>
                             <div className="grid grid-template-columns-[1fr] gap-[1rem]">
                                 <div>
                                     <label className="block mb-2 text-sm font-semibold text-slate-400">Marca / Modelo del Instrumento</label>
@@ -302,9 +303,10 @@ export default function EnvironmentalForm(): React.ReactElement | null {
                             </div>
                         </div>
                     </div>
+            </ModuleFormSection>
 
-                    <div className="mt-[2.5rem]">
-                        <label className="block mb-2 text-sm font-semibold text-slate-400">Observaciones y Conclusiones del Monitoreo</label>
+            <ModuleFormSection title="Observaciones y Conclusiones del Monitoreo" icon={<FileText />}>
+                    <div className="mt-[1rem]">
                         <textarea
               value={measurement.observations}
               onChange={(e) => setMeasurement({ ...measurement, observations: e.target.value })}
@@ -312,11 +314,10 @@ export default function EnvironmentalForm(): React.ReactElement | null {
               placeholder="Describa el estado de las instalaciones, fuentes emisoras detectadas y si se cumple con el VLE..." className="min-h-[100px] pt-[0.75rem]" />
             
                     </div>
-                    {/* Firmas y Autorizaciones */}
-                    <div className="card animate-fade-in mt-[2.5rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2.5rem] box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.08)]">
-                        <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.7rem] text-[var(--color-primary)] font-[900] text-[1.25rem] uppercase letter-spacing-[1.2px]">
-                            <Pencil size={22} className="text-[var(--color-primary)]" /> Firmas y Aprobaciones del Monitoreo
-                        </h3>
+            </ModuleFormSection>
+
+            <ModuleFormSection title="Firmas y Aprobaciones del Monitoreo" icon={<Pencil />}>
+                    <div className="card animate-fade-in bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2.5rem] box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.08)]">
 
                         {/* Custom visual switches */}
                         <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
@@ -437,33 +438,15 @@ export default function EnvironmentalForm(): React.ReactElement | null {
               }
                         </div>
                     </div>
-                </div>
+            </ModuleFormSection>
 
-            </main>
-
-            <div className="no-print floating-action-bar">
-                <button
-          onClick={() => requirePro(() => setShowShareModal(true))}
-          className="btn-floating-action bg-[#0052CC] text-[#ffffff]">
-
-          
-                    <Share2 size={18} /> COMPARTIR
-                </button>
-                <button
-          onClick={() => requirePro(() => window.print())}
-          className="btn-floating-action bg-[#FF8B00] text-[#ffffff]">
-
-          
-                    <Printer size={18} /> IMPRIMIR PDF
-                </button>
-                <button
-          onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-          className="btn-floating-action bg-[#36B37E] text-[#ffffff]">
-
-          
-                    <Save size={18} /> GUARDAR REGISTRO
-                </button>
-            </div>
+            <ModuleActionBar
+              actions={[
+                { id: 'save', label: 'GUARDAR REGISTRO', icon: <Save />, variant: 'primary', onClick: () => requirePro(handleSave) },
+                { id: 'share', label: 'COMPARTIR', icon: <Share2 />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) },
+                { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer />, variant: 'secondary', onClick: () => requirePro(() => window.print()) }
+              ]}
+            />
 
             <ShareModal
         isOpen={showShareModal}
@@ -476,9 +459,9 @@ export default function EnvironmentalForm(): React.ReactElement | null {
         fileName={`Ambiente_${measurement.stationName || 'Sin_Nombre'}.pdf`} />
       
 
-            <div className="print-only fixed left-[0] opacity-[0.01] top-[0]">
+            <div className="print-only fixed left-[-9999px] opacity-[0.01] top-[0] pointer-events-[none]" id="pdf-content">
                 <EnvironmentalPdf data={{ ...measurement, id: (measurement as any).id || Date.now().toString(), createdAt: (measurement as any).createdAt || new Date().toISOString() }} />
             </div>
-        </div>);
+        </ModuleFormLayout>);
 
 }

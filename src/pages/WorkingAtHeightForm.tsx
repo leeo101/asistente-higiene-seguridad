@@ -10,6 +10,7 @@ import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
 
 const WORK_TYPES = [
 { id: 'scaffolding', name: 'Andamios', icon: '🏗️' },
@@ -199,21 +200,15 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
   } as any;
 
   return (
-    <div className="container page-transition min-h-[100vh] bg-[var(--color-background)] pb-[4rem]">
-            <main className="max-w-[1000px] m-[0_auto]">
-                <div className="no-print mb-8">
-                    <PremiumHeader
-            title={isEdit ? 'Editar Permiso en Altura' : 'Permiso de Trabajo en Altura'}
-            subtitle="Gestión de permisos según OSHA 1926.501"
-            icon={<ArrowDown size={32} color="#ffffff" />}
-            color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
-          
-                    <div className="flex justify-space-between items-center flex-wrap gap-[1rem] mt-[1rem]">
-                        <></>
-                    </div>
-                </div>
-
-                <div className="card animate-fade-in p-[2.5rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-top-[4px_solid_#f59e0b] rounded-[var(--radius-xl)] box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.08)]">
+    <div className="container min-h-[100vh] pb-[8rem]">
+            <ModuleFormLayout>
+                <ModuleFormToolbar
+                    title={isEdit ? 'Editar Permiso en Altura' : 'Permiso de Trabajo en Altura'}
+                    subtitle="Gestión de permisos según OSHA 1926.501"
+                    icon={<ArrowDown size={36} color="#ffffff" />}
+                />
+                <ModuleFormDocument>
+                    <ModuleFormSection title="Información General" icon={<User size={20} />}>
                     <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem]">
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
                             <label className="block mb-2 text-sm font-semibold text-slate-400">Nombre del Trabajador *</label>
@@ -246,7 +241,7 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                             </div>
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Alturaestimada (metros) *</label>
+                            <label className="block mb-2 text-sm font-semibold text-slate-400">Altura estimada (metros) *</label>
                             <div className="relative">
                                 <input type="number" step="0.1" value={permit.height} onChange={(e) => setPermit({ ...permit, height: e.target.value })} style={{ ...inputStyle }} placeholder="Ej: 3.5" className="pr-[2.5rem]" />
                                 <span className="absolute right-[1rem] top-[50%] transform-[translateY(-50%)] font-[700] text-[var(--color-text-muted)]">m</span>
@@ -290,10 +285,10 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                             </div>
                         </div>
                     </div>
+                    </ModuleFormSection>
 
                     <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="mt-[2.5rem] grid gap-[2rem]">
-                        <div>
-                            <h3 className="m-0 mb-4 text-xl font-extrabold text-emerald-500">Validación Legal (Res. SRT 61/23)</h3>
+                        <ModuleFormSection title="Validación Legal (Res. SRT 61/23)" icon={<Shield size={20} />}>
                             
                             <div className="flex flex-col gap-4">
                                 <div style={{
@@ -339,10 +334,9 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                   
                                 </div>
                             </div>
-                        </div>
+                        </ModuleFormSection>
 
-                        <div>
-                            <h3 className="m-0 mb-4 text-xl font-extrabold text-emerald-500">Inspección de Equipos</h3>
+                        <ModuleFormSection title="Inspección de Equipos" icon={<Ruler size={20} />}>
                             {Object.entries(permit.equipmentCheck).map(([key, value]) =>
               <div key={key} className="mb-[1rem]">
                                     <label className="block mb-2 text-sm font-semibold text-slate-400">{key === 'harness' ? 'Arnés' : key === 'lanyard' ? 'Cola de Amarre' : 'Punto de Anclaje'}</label>
@@ -369,11 +363,11 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                                     </div>
                                 </div>
               )}
-                        </div>
+                        </ModuleFormSection>
                     </div>
 
                     <div className="mt-[2.5rem]">
-                        <h3 className="m-0 mb-4 text-xl font-extrabold text-emerald-500">Equipos de Protección Personal (EPP)</h3>
+                        <ModuleFormSection title="Equipos de Protección Personal (EPP)" icon={<Shield size={20} />}>
                         <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1rem]">
                             {Object.entries(permit.ppe).map(([key, value]) =>
               <button
@@ -403,23 +397,23 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                                 </button>
               )}
                         </div>
+                        </ModuleFormSection>
                     </div>
 
                     <div className="mt-[2.5rem]">
-                        <label className="block mb-2 text-sm font-semibold text-slate-400">Observaciones Adicionales</label>
+                        <ModuleFormSection title="Observaciones Adicionales" icon={<AlertTriangle size={20} />}>
                         <textarea
               value={permit.observations}
               onChange={(e) => setPermit({ ...permit, observations: e.target.value })}
               style={{ ...inputStyle }}
               placeholder="Describa cualquier detalle relevante del trabajo o riesgos específicos..." className="min-h-[80px] pt-[0.75rem]" />
             
+                        </ModuleFormSection>
                     </div>
 
                     {/* Firmas y Autorizaciones */}
                     <div className="mt-[2.5rem]">
-                        <h3 className="m-0 mb-4 text-xl font-extrabold text-emerald-500 flex items-center gap-2">
-                            <Pencil size={20} /> Firmas y Autorizaciones del Permiso
-                        </h3>
+                        <ModuleFormSection title="Firmas y Autorizaciones del Permiso" icon={<Pencil size={20} />}>
 
                         <div className="no-print mb-[2rem] p-[1.5rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] flex flex-col gap-[1rem] items-center box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.05)]">
                             <div className="text-[var(--color-text)] text-[0.95rem] font-[800] uppercase letter-spacing-[0.5px]">
@@ -532,34 +526,16 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                 }
                             </div>
                         </div>
+                           </ModuleFormSection>
                     </div>
-                </div>
+                </ModuleFormDocument>
+            </ModuleFormLayout>
 
-            </main>
-
-            <div className="no-print floating-action-bar">
-                <button
-          onClick={() => requirePro(() => setShowShareModal(true))}
-          className="btn-floating-action bg-[#0052CC] text-[#ffffff]">
-
-          
-                    <Share2 size={18} /> COMPARTIR
-                </button>
-                <button
-          onClick={() => requirePro(() => window.print())}
-          className="btn-floating-action bg-[#FF8B00] text-[#ffffff]">
-
-          
-                    <Printer size={18} /> IMPRIMIR PDF
-                </button>
-                <button
-          onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-          className="btn-floating-action bg-[#36B37E] text-[#ffffff]">
-
-          
-                    <Save size={18} /> GUARDAR PERMISO
-                </button>
-            </div>
+            <ModuleActionBar actions={[
+                { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'secondary', onClick: () => requirePro(() => window.print()) },
+                { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) },
+                { id: 'save', label: 'GUARDAR PERMISO', icon: <Save size={18} />, variant: 'primary', onClick: (e: any) => { e.preventDefault(); requirePro(handleSave); } }
+            ]} />
 
             <ShareModal
         isOpen={showShareModal}
@@ -569,7 +545,7 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
         fileName={`Altura_${permit.workerName || 'Sin_Nombre'}.pdf`} />
       
 
-            <div className="print-only fixed left-[0] opacity-[0.01] top-[0]">
+            <div id="pdf-content" className="print-only fixed left-[0] opacity-[0.01] top-[0]">
                 <WorkingAtHeightPdf data={{ ...permit, createdAt: (permit as any).createdAt || new Date().toISOString() } as any} />
             </div>
         </div>);

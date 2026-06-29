@@ -132,7 +132,12 @@ export default function MedicalAptitudes() {
   }];
 
 
-  const filtered = exams.filter((e) => e.workerName.toLowerCase().includes(searchTerm.toLowerCase()) || e.dni.includes(searchTerm));
+  const filtered = exams.filter((e) => {
+    const name = e?.workerName?.toLowerCase() || '';
+    const term = searchTerm?.toLowerCase() || '';
+    const dniStr = e?.dni || '';
+    return name.includes(term) || dniStr.includes(searchTerm);
+  });
 
   return (
     <AnimatedPage>
@@ -214,13 +219,27 @@ export default function MedicalAptitudes() {
                     </div> :
 
         <div className="mt-8">
-                        <div className="flex justify-space-between items-center mb-[1.5rem] gap-[1rem] flex-wrap">
+                        <div className="flex justify-between items-center mb-[1.5rem] gap-[1rem] flex-wrap">
                             <div style={{ width: isMobile ? '100%' : '450px' }} className="flex items-center border-[2px_solid_#10b981] rounded-[8px] bg-[rgba(16,185,129,0.02)] px-[1rem] focus-within:ring-[3px] focus-within:ring-[rgba(16,185,129,0.2)] transition-all">
                                 <Search size={20} className="text-[#64748b] mr-[0.5rem] flex-shrink-0" />
                                 <input type="text" placeholder="Buscar trabajador..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] py-[0.85rem] bg-transparent border-none outline-none text-[1rem] font-[500] m-0" />
                             </div>
                             {!isMobile &&
-            <button onClick={() => setShowForm(true)} className="flex items-center gap-[0.4rem] px-[0.9rem] py-[0.5rem] text-[0.85rem] text-white rounded-[8px] font-[700] transition-colors cursor-pointer" style={{ backgroundColor: '#10b981', boxShadow: '0 4px 10px rgba(16,185,129,0.2)' }}>
+            <button onClick={() => {
+              setFormData({
+                id: '',
+                workerName: '',
+                dni: '',
+                examType: 'periodico',
+                examDate: new Date().toISOString().split('T')[0],
+                expirationDate: '',
+                result: 'apto',
+                clinic: '',
+                doctor: '',
+                notes: ''
+              });
+              setShowForm(true);
+            }} className="flex items-center gap-[0.4rem] px-[0.9rem] py-[0.5rem] text-[0.85rem] text-white rounded-[8px] font-[700] transition-colors cursor-pointer" style={{ backgroundColor: '#10b981', boxShadow: '0 4px 10px rgba(16,185,129,0.2)' }}>
                                     <Plus size={16} /> Nuevo Examen
                                 </button>
             }
@@ -236,7 +255,21 @@ export default function MedicalAptitudes() {
                         </div>
 
                         {isMobile &&
-          <button onClick={() => setShowForm(true)} className="fixed bottom-[5rem] right-[1.5rem] w-[56px] h-[56px] rounded-[50%] bg-[var(--color-primary)] text-[white] border-none box-shadow-[0_4px_12px_rgba(0,0,0,0.2)] flex items-center justify-center z-[10]">
+          <button onClick={() => {
+              setFormData({
+                id: '',
+                workerName: '',
+                dni: '',
+                examType: 'periodico',
+                examDate: new Date().toISOString().split('T')[0],
+                expirationDate: '',
+                result: 'apto',
+                clinic: '',
+                doctor: '',
+                notes: ''
+              });
+              setShowForm(true);
+            }} className="fixed bottom-[5rem] right-[1.5rem] w-[56px] h-[56px] rounded-[50%] bg-[var(--color-primary)] text-[white] border-none box-shadow-[0_4px_12px_rgba(0,0,0,0.2)] flex items-center justify-center z-[10]">
                                 <Plus size={24} />
                             </button>
           }

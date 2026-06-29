@@ -12,9 +12,15 @@ import PdfSignatures from '../components/PdfSignatures';
 import LiftingPdfGenerator from '../components/LiftingPdfGenerator';
 import ConfirmModal from '../components/ConfirmModal';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import {
+  ModuleFormLayout,
+  ModuleFormToolbar,
+  ModuleFormDocument,
+  ModuleFormSection,
+  ModuleActionBar,
+} from '../components/module';
 
-const labelClass = "block mb-2 text-sm font-bold text-slate-200";
-const inputClass = "w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-white text-base outline-none transition-all focus:border-emerald-500";
+
 export default function LiftingForm(): React.ReactElement | null {
   const { requirePro } = usePaywall();
   const navigate = useNavigate();
@@ -231,13 +237,16 @@ export default function LiftingForm(): React.ReactElement | null {
 
   if (!isFormVisible && !isEdit) {
     return (
-      <div className={`container min-h-screen bg-slate-950 pb-28 ${isMobile ? "pt-18" : "pt-22"}`}>
-                <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
-        title="Planes de Izaje"
-        subtitle="Gestión e historial de planes de izaje seguro."
-        icon={<Weight size={32} color="#ffffff" />}
-        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
+      <div className="container w-full max-w-[1200px] mx-auto pb-32">
+        <div className="no-print">
+          <PremiumHeader
+            title="Planes de Izaje"
+            subtitle="Gestión e historial de planes de izaje seguro."
+            icon={<Weight size={32} color="#ffffff" />}
+          />
+        </div>
         
+
                 
                 <main className="p-[0_0_2rem_0] max-w-[1000px] m-[0_auto] w-[100%]">
                     {/* Botones de Navegación */}
@@ -363,40 +372,36 @@ export default function LiftingForm(): React.ReactElement | null {
           message="Esta acción no se puede deshacer."
           iconEmoji="🗑️" />
         
-            </div>);
+      </div>);
 
   }
 
   return (
-    <div className={`min-h-screen bg-slate-950 pb-8 ${isMobile ? "pt-30" : "pt-26"}`}>
-            <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
+    <ModuleFormLayout>
+            <ModuleFormToolbar onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
       title={isEdit ? 'Editar Plan de Izaje' : 'Nuevo Plan de Izaje'}
       subtitle="Complete la información del plan de izaje."
       icon={<Crane size={32} color="#ffffff" />}
-      color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
-      
+      />
 
-            <main className="p-[3.5rem_1.5rem_1.5rem] max-w-[1000px] m-[0_auto]">
-                <div className="mb-6">
-                    <></>
-                </div>
-                <div className="card p-[2rem] bg-[var(--gradient-card)] border-[1px_solid_var(--glass-border)]">
+        <ModuleFormDocument id="pdf-content">
+            <ModuleFormSection title="Datos de la Maniobra" icon={<Crane />}>
                     <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem]">
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
-                            <label className={labelClass}>Ubicación de la Maniobra *</label>
-                            <input type="text" value={plan.location} onChange={(e) => setPlan({ ...plan, location: e.target.value })} className={inputClass} placeholder="Sector, Plataforma..." />
+                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Ubicación de la Maniobra *</label>
+                            <input type="text" value={plan.location} onChange={(e) => setPlan({ ...plan, location: e.target.value })} className="module-form-input" placeholder="Sector, Plataforma..." />
                         </div>
                         <div>
-                            <label className={labelClass}>Fecha</label>
-                            <input type="date" value={plan.date} onChange={(e) => setPlan({ ...plan, date: e.target.value })} className={inputClass} />
+                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Fecha</label>
+                            <input type="date" value={plan.date} onChange={(e) => setPlan({ ...plan, date: e.target.value })} className="module-form-input" />
                         </div>
                         <div>
-                            <label className={labelClass}>Hora Estimada</label>
-                            <input type="time" value={plan.time} onChange={(e) => setPlan({ ...plan, time: e.target.value })} className={inputClass} />
+                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Hora Estimada</label>
+                            <input type="time" value={plan.time} onChange={(e) => setPlan({ ...plan, time: e.target.value })} className="module-form-input" />
                         </div>
                         <div>
-                            <label className={labelClass}>Equipo a Utilizar</label>
-                            <select value={plan.equipment} onChange={(e) => setPlan({ ...plan, equipment: e.target.value })} className={inputClass}>
+                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Equipo a Utilizar</label>
+                            <select value={plan.equipment} onChange={(e) => setPlan({ ...plan, equipment: e.target.value })} className="module-form-input">
                                 <option value="Grua Movil">Grúa Móvil</option>
                                 <option value="Grua Torre">Grúa Torre</option>
                                 <option value="Puente Grua">Puente Grúa</option>
@@ -405,57 +410,51 @@ export default function LiftingForm(): React.ReactElement | null {
                             </select>
                         </div>
                         <div>
-                            <label className={labelClass}>Velocidad Viento (km/h)</label>
-                            <input type="number" value={plan.windSpeed} onChange={(e) => setPlan({ ...plan, windSpeed: e.target.value })} className={inputClass} placeholder="Máx 32 km/h" />
+                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Velocidad Viento (km/h)</label>
+                            <input type="number" value={plan.windSpeed} onChange={(e) => setPlan({ ...plan, windSpeed: e.target.value })} className="module-form-input" placeholder="Máx 32 km/h" />
                         </div>
                     </div>
+            </ModuleFormSection>
 
-                    <div style={{ background: isCritical ? '#fef2f2' : 'var(--color-surface)', border: `1px solid ${isCritical ? '#fecaca' : 'var(--color-border)'}` }} className="mt-[2.5rem] p-[1.5rem] rounded-[12px]">
-                        <h3 style={{ color: isCritical ? '#dc2626' : 'var(--color-primary)' }} className="m-[0_0_1rem_0] flex items-center gap-[0.5rem]">
-                            <Weight size={20} /> Cálculos de Carga {isCritical && '(IZAJE CRÍTICO)'}
-                        </h3>
+            <ModuleFormSection title="Cálculos de Carga" icon={<Weight />}>
+                    <div className="p-[1.5rem] rounded-[12px] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)]">
                         <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr' }} className="grid gap-[1rem]">
                             <div>
-                                <label className={labelClass}>Peso Total a Izar (kg) *</label>
-                                <input type="number" value={plan.loadWeight} onChange={(e) => setPlan({ ...plan, loadWeight: e.target.value })} className={inputClass} placeholder="Incluye accesorios" />
+                                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Peso Total a Izar (kg) *</label>
+                                <input type="number" value={plan.loadWeight} onChange={(e) => setPlan({ ...plan, loadWeight: e.target.value })} className="module-form-input" placeholder="Incluye accesorios" />
                             </div>
                             <div>
-                                <label className={labelClass}>Capacidad Bruta Grúa (kg) *</label>
-                                <input type="number" value={plan.equipmentCapacity} onChange={(e) => setPlan({ ...plan, equipmentCapacity: e.target.value })} className={inputClass} placeholder="Capacidad a radio max" />
+                                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Capacidad Bruta Grúa (kg) *</label>
+                                <input type="number" value={plan.equipmentCapacity} onChange={(e) => setPlan({ ...plan, equipmentCapacity: e.target.value })} className="module-form-input" placeholder="Capacidad a radio max" />
                             </div>
                             <div>
-                                <label className={labelClass}>Porcentaje Capacidad</label>
+                                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Porcentaje Capacidad</label>
                                 <div style={{
-
-
-                  background: isCritical ? '#dc2626' : '#16a34a'
-
-
-
-
-
-                }} className="p-[0.75rem] rounded-[12px] text-[white] font-[900] text-[1.1rem] text-center mt-[0.2rem]">
+                                    background: isCritical ? '#dc2626' : '#16a34a'
+                                }} className="p-[0.75rem] rounded-[12px] text-[white] font-[900] text-[1.1rem] text-center mt-[0.2rem]">
                                     {loadPercentage}%
                                 </div>
                             </div>
                         </div>
                     </div>
+            </ModuleFormSection>
 
-                    <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="mt-[2.5rem] grid gap-[2rem]">
+            <ModuleFormSection title="Personal y Seguridad" icon={<Users />}>
+                <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[2rem]">
                         <div>
                             <h3 className="m-[0_0_1rem_0] text-[1.1rem] font-[800] text-[var(--color-primary)]">Personal Involucrado</h3>
                             <div className="flex flex-col gap-4">
                                 <div>
-                                    <label className={labelClass}>Operador del Equipo</label>
-                                    <input type="text" value={plan.personnel.operator} onChange={(e) => setPlan({ ...plan, personnel: { ...plan.personnel, operator: e.target.value } })} className={inputClass} />
+                                    <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Operador del Equipo</label>
+                                    <input type="text" value={plan.personnel.operator} onChange={(e) => setPlan({ ...plan, personnel: { ...plan.personnel, operator: e.target.value } })} className="module-form-input" />
                                 </div>
                                 <div>
-                                    <label className={labelClass}>Rigger / Señalero</label>
-                                    <input type="text" value={plan.personnel.rigger} onChange={(e) => setPlan({ ...plan, personnel: { ...plan.personnel, rigger: e.target.value } })} className={inputClass} />
+                                    <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Rigger / Señalero</label>
+                                    <input type="text" value={plan.personnel.rigger} onChange={(e) => setPlan({ ...plan, personnel: { ...plan.personnel, rigger: e.target.value } })} className="module-form-input" />
                                 </div>
                                 <div>
-                                    <label className={labelClass}>Supervisor a cargo</label>
-                                    <input type="text" value={plan.personnel.supervisor} onChange={(e) => setPlan({ ...plan, personnel: { ...plan.personnel, supervisor: e.target.value } })} className={inputClass} />
+                                    <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Supervisor a cargo</label>
+                                    <input type="text" value={plan.personnel.supervisor} onChange={(e) => setPlan({ ...plan, personnel: { ...plan.personnel, supervisor: e.target.value } })} className="module-form-input" />
                                 </div>
                             </div>
                         </div>
@@ -474,15 +473,8 @@ export default function LiftingForm(): React.ReactElement | null {
                   key={item.key}
                   onClick={() => toggleChecklist(item.key)}
                   style={{
-
                     background: (plan.checklist as any)[item.key] ? 'rgba(22, 163, 74, 0.1)' : 'var(--color-surface)',
                     border: `2px solid ${(plan.checklist as any)[item.key] ? '#16a34a' : 'var(--color-border)'}`
-
-
-
-
-
-
                   }} className="p-[0.75rem] rounded-[var(--radius-lg)] cursor-pointer flex items-center gap-[0.75rem] text-left">
                   
                                         <div style={{ background: (plan.checklist as any)[item.key] ? '#16a34a' : 'transparent' }} className="w-[20px] h-[20px] rounded-[6px] border-[2px_solid_#16a34a] flex items-center justify-center flex-shrink-[0]">
@@ -496,38 +488,19 @@ export default function LiftingForm(): React.ReactElement | null {
                     </div>
 
                     <div className="mt-[2.5rem]">
-                        <label className={labelClass}>Observaciones Adicionales</label>
+                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Observaciones Adicionales</label>
                         <textarea
               value={plan.observations}
               onChange={(e) => setPlan({ ...plan, observations: e.target.value })}
-              className={`${inputClass} min-h-[100px]`}
+              className="module-form-input min-h-[100px]"
               placeholder="Interferencias, maniobras complejas..." />
             
                     </div>
+            </ModuleFormSection>
 
-                    {/* Firmas y Autorizaciones */}
-                    <div className="mt-[3rem]">
-                        <div className="flex items-center gap-[0.75rem] mb-[1.5rem]">
-                            <div className="bg-[rgba(56,_189,_248,_0.1)] p-[0.5rem] rounded-[8px]">
-                                <Pencil size={24} color="#38bdf8" />
-                            </div>
-                            <h3 className="m-[0] text-[1.3rem] font-[800] text-[var(--color-primary)]">
-                                Firmas y Autorizaciones del Plan
-                            </h3>
-                        </div>
-
+            <ModuleFormSection title="Firmas y Autorizaciones" icon={<Pencil />}>
                         {/* Signature Visibility Toggles (Pill style) */}
                         <div className="no-print mb-[2rem] p-[1.2rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[16px] flex flex-col gap-[1rem] box-shadow-[0_4px_6px_rgba(0,0,0,0.02)]">
-
-
-
-
-
-
-
-
-
-              
                             <div className="text-[var(--color-text)] text-[0.85rem] font-[800] uppercase letter-spacing-[0.5px]">
                                 INCLUIR FIRMAS EN EL DOCUMENTO:
                             </div>
@@ -538,28 +511,19 @@ export default function LiftingForm(): React.ReactElement | null {
                 { id: 'supervisor', label: 'Supervisor de Izaje', checked: showSignatures.supervisor }].
                 map((sig) =>
                 <label key={sig.id} style={{
-
-
-
-
-
                   background: sig.checked ? 'rgba(56, 189, 248, 0.1)' : 'var(--color-background)',
                   border: `1px solid ${sig.checked ? '#38bdf8' : 'var(--color-border)'}`
-
-
                 }} className="flex items-center gap-[0.5rem] cursor-pointer p-[0.5rem_1rem] rounded-[20px] transition-[all_0.2s_ease]">
                                         <div style={{
-
                     border: `2px solid ${sig.checked ? '#38bdf8' : 'var(--color-text-secondary)'}`,
                     background: sig.checked ? '#38bdf8' : 'transparent'
-
                   }} className="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center">
                                             {sig.checked && <span className="text-[#fff] text-[12px] font-[bold]">✓</span>}
                                         </div>
                                         <input
                     type="checkbox"
                     checked={sig.checked}
-                    onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="none" />
+                    onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="hidden" />
 
                    
                                         <span style={{ fontWeight: sig.checked ? 700 : 500, color: sig.checked ? 'var(--color-text)' : 'var(--color-text-secondary)' }} className="text-[0.9rem]">
@@ -606,19 +570,8 @@ export default function LiftingForm(): React.ReactElement | null {
 
                         {/* Interactive Signature Drawing Pads - Premium Glassmorphism */}
                         <div className="no-print grid grid-template-columns-[repeat(auto-fit,_minmax(300px,_1fr))] gap-[2rem] mt-[2rem]">
-
-
-
-
-              
                             {showSignatures.operator &&
               <div className="animate-fade-in bg-[rgba(var(--color-surface-rgb),_0.3)] backdrop-filter-[blur(10px)] rounded-[16px] p-[1.5rem] border-[1px_solid_var(--glass-border)]">
-
-
-
-
-
-                
                                     <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase letter-spacing-[0.5px]">
                                         Firma del Operador
                                     </div>
@@ -632,12 +585,6 @@ export default function LiftingForm(): React.ReactElement | null {
                             
                             {showSignatures.professional &&
               <div className="animate-fade-in bg-[rgba(var(--color-surface-rgb),_0.3)] backdrop-filter-[blur(10px)] rounded-[16px] p-[1.5rem] border-[1px_solid_var(--glass-border)]">
-
-
-
-
-
-                
                                     <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase letter-spacing-[0.5px]">
                                         Firma de Especialista H&S
                                     </div>
@@ -651,12 +598,6 @@ export default function LiftingForm(): React.ReactElement | null {
 
                             {showSignatures.supervisor &&
               <div className="animate-fade-in bg-[rgba(var(--color-surface-rgb),_0.3)] backdrop-filter-[blur(10px)] rounded-[16px] p-[1.5rem] border-[1px_solid_var(--glass-border)]">
-
-
-
-
-
-                
                                     <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase letter-spacing-[0.5px]">
                                         Firma del Supervisor
                                     </div>
@@ -668,40 +609,16 @@ export default function LiftingForm(): React.ReactElement | null {
                                 </div>
               }
                         </div>
-                    </div>
-                </div>
-            </main>
+            </ModuleFormSection>
+        </ModuleFormDocument>
 
-            <div className="no-print floating-action-bar">
-                <button
-          onClick={() => {setIsFormVisible(false);setIsEdit(false);}}
-          className="btn-floating-action bg-[var(--color-surface)] text-[var(--color-text)] border-[1px_solid_var(--color-border)]">
-
-          
-                    <ArrowLeft size={18} /> ATRÁS
-                </button>
-                <button
-          onClick={() => requirePro(() => setShowShareModal(true))}
-          className="btn-floating-action bg-[#0052CC] text-[#ffffff]">
-
-          
-                    <Share2 size={18} /> COMPARTIR
-                </button>
-                <button
-          onClick={() => requirePro(() => window.print())}
-          className="btn-floating-action bg-[#FF8B00] text-[#ffffff]">
-
-          
-                    <Printer size={18} /> IMPRIMIR PDF
-                </button>
-                <button
-          onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-          className="btn-floating-action bg-[#36B37E] text-[#ffffff]">
-
-          
-                    <Save size={18} /> GUARDAR PLAN
-                </button>
-            </div>
+        <ModuleActionBar
+            actions={[
+                { id: 'save', label: 'GUARDAR PLAN', icon: <Save />, variant: 'primary', onClick: () => requirePro(handleSave) },
+                { id: 'share', label: 'COMPARTIR', icon: <Share2 />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) },
+                { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer />, variant: 'secondary', onClick: () => requirePro(() => window.print()) }
+            ]}
+        />
 
             <ShareModal
         isOpen={showShareModal}
@@ -714,7 +631,7 @@ export default function LiftingForm(): React.ReactElement | null {
         fileName={`Izaje_${plan.location?.replace(/\s+/g, '_') || 'Nuevo'}.pdf`} />
       
 
-            <div className="print-only fixed left-[0] opacity-[0.01] top-[0]">
+            <div className="print-only fixed left-[-9999px] top-[0] opacity-[0.01] pointer-events-none" id="pdf-content">
                 <LiftingPdfGenerator data={{
           ...plan,
           professionalSignature: plan.professionalSignature || professional.signature,
@@ -727,6 +644,5 @@ export default function LiftingForm(): React.ReactElement | null {
           }
         }} />
             </div>
-        </div>);
-
+    </ModuleFormLayout>);
 }

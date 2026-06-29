@@ -82,7 +82,7 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
 
   return (
     <div
-      id="toolbox-pdf-content"
+      id="pdf-content"
       className="pdf-container print-area p-[12mm_15mm] font-family-[Helvetica,_Arial,_sans-serif] bg-[#ffffff] text-[#1e293b] w-[210mm] box-sizing-[border-box] relative border-top-[12px_solid_#0052CC] text-[9pt]">
 
 

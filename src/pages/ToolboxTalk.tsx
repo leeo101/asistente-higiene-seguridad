@@ -21,6 +21,7 @@ import { DataTable } from '../components/DataTable';
 import { downloadCSV } from '../services/exportCsv';
 import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { ModuleFormLayout, ModuleFormToolbar, ModuleActionBar } from '../components/module';
 
 function DeleteConfirm({ onConfirm, onCancel }: any) {
   return (
@@ -388,7 +389,7 @@ export default function ToolboxTalk(): React.ReactElement {
   return (
     <>
             <style>{printStyles}</style>
-            <div className="container no-print pt-[6rem] pb-[6rem] max-w-[900]">
+            <div className="container no-print pb-[6rem] max-w-[900px] mx-auto">
                 <Breadcrumbs />
 
                 <ShareModal
@@ -398,34 +399,21 @@ export default function ToolboxTalk(): React.ReactElement {
           title={`Charla de 5 Minutos — ${shareItem?.tema}`}
           text={shareItem ? `📋 Charla de 5 Minutos\n📅 Fecha: ${shareItem.fecha}\n👷 Responsable: ${shareItem.responsable}\n🏢 Área: ${shareItem.area}\n📌 Tema: ${shareItem.tema}\n👥 Asistentes: ${shareItem.asistentes.filter((a) => a.nombre).length}` : ''}
           rawMessage={shareItem ? `📋 Charla de 5 Minutos\n📅 Fecha: ${shareItem.fecha}\n👷 Responsable: ${shareItem.responsable}\n🏢 Área: ${shareItem.area}\n📌 Tema: ${shareItem.tema}\n👥 Asistentes: ${shareItem.asistentes.filter((a) => a.nombre).length}` : ''}
-          elementIdToPrint="toolbox-pdf-content"
+          elementIdToPrint="pdf-content"
           fileName={`Charla_5min_${shareItem?.tema?.replace(/\s+/g, '_') || 'sin_tema'}.pdf`} />
         
-                <div className="absolute left-[0] opacity-[0.01] top-[-12000px] pointer-events-[none]">
-                    {shareItem && <ToolboxTalkPdfGenerator data={{ ...shareItem, showSignatures: shareItem.showSignatures || { operator: false, professional: true, supervisor: false } }} professional={professional} />}
-                </div>
-
                 {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
 
-                {/* Floating Action Buttons */}
-                {showForm &&
-        <div className="no-print floating-action-bar">
-                        <button onClick={(e) => {e.preventDefault();requirePro(handleSave);}} className="btn-floating-action bg-[linear-gradient(135deg,_#10b981,_#059669)] text-[#fff]">
-                            <Save size={18} /> GUARDAR
-                        </button>
-                        <button onClick={() => requirePro(() => window.print())} className="btn-floating-action bg-[linear-gradient(135deg,_#f59e0b,_#d97706)] text-[#fff]">
-                            <Printer size={18} /> IMPRIMIR
-                        </button>
-                    </div>
-        }
-
                 {!showForm ?
-        <>
-                        <PremiumHeader onBack={showForm ? () => {setShowForm(false);} : undefined}
-          title="Charla de 5 Minutos"
-          subtitle="Registro de asistentes y firma digital"
-          icon={<MessageSquare size={36} color="#ffffff" />} />
-          
+        <div className="w-full">
+                        <div className="no-print">
+                            <PremiumHeader
+                                title="Charla de 5 Minutos"
+                                subtitle="Registro de asistentes y firma digital"
+                                icon={<MessageSquare size={36} color="#ffffff" />}
+                            />
+                        </div>
+                        <div className="p-[2rem] max-w-[1200px] m-[0_auto] flex flex-col relative">
 
                         {/* ═══ Stats Dashboard ═══ */}
                         <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(180px,_1fr))] gap-[1rem] mb-[1.5rem]">
@@ -494,18 +482,20 @@ export default function ToolboxTalk(): React.ReactElement {
             emptyMessage="No hay charlas registradas."
             emptyIcon={<MessageSquare size={48} />} />
           
-                    </> :
+                    </div>
+        </div> : 
 
-        <>
-                        <div className="no-print">
-                            <PremiumHeader onBack={showForm ? () => {setShowForm(false);} : undefined}
-            title={editId ? 'Editar Charla' : 'Nueva Charla'}
-            subtitle="Registro de asistentes y firma digital"
-            icon={<MessageSquare size={36} color="#ffffff" />} />
-            
-                            <div className="mt-[1.5rem] mb-[1.5rem] z-[10]">
-                                <></>
-                            </div>
+        <div className="w-full">
+            <ModuleFormLayout>
+                <ModuleFormToolbar
+                    title={editId ? 'Editar Charla' : 'Nueva Charla'}
+                    subtitle="Registro de asistentes y firma digital"
+                    icon={<MessageSquare size={36} color="#ffffff" />}
+                    onBack={() => {setShowForm(false);}}
+                />
+                <div className="p-[2rem] max-w-[1200px] m-[0_auto] flex flex-col relative">
+                        <div className="mt-[1.5rem] mb-[1.5rem] z-[10]">
+                            <></>
                         </div>
 
                         {/* ═══ DATOS GENERALES ═══ */}
@@ -804,13 +794,18 @@ export default function ToolboxTalk(): React.ReactElement {
               }
                             </div>
                         </div>
-                    </>
+                        <ModuleActionBar actions={[
+                            { id: 'save', label: 'GUARDAR', icon: <Save size={18} />, variant: 'primary', onClick: (e) => {e.preventDefault();requirePro(handleSave);} },
+                            { id: 'print', label: 'IMPRIMIR', icon: <Printer size={18} />, variant: 'secondary', onClick: () => requirePro(() => window.print()) }
+                        ]} />
+                    </div>
+            </ModuleFormLayout>
+        </div>
         }
+            <div id="pdf-content" className="print-area fixed left-[0] top-[0] opacity-[0.01] pointer-events-[none]" style={{ zIndex: -1 }}>
+                <ToolboxTalkPdfGenerator data={{ ...(shareItem || form), showSignatures: (shareItem || form).showSignatures || showSignatures }} professional={professional} />
             </div>
-
-            <div className="print-area fixed left-[0] top-[0] opacity-[0.01] pointer-events-[none]" style={{ zIndex: -1 }}>
-                <ToolboxTalkPdfGenerator data={{ ...form, showSignatures }} professional={professional} />
-            </div>
-        </>);
-
+        </div>
+        </>
+    );
 }

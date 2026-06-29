@@ -22,6 +22,7 @@ import { DataTable } from '../components/DataTable';
 import AnimatedPage from '../components/AnimatedPage';
 import QRModal from '../components/QRModal';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { ModuleFormLayout, ModuleFormToolbar, ModuleFormSection, ModuleActionBar } from '../components/module';
 
 function StatCard({ icon, label, value, color, gradient }: {icon: React.ReactNode;label: string;value: string | number;color: string;gradient: string;}) {
   return (
@@ -324,8 +325,27 @@ export default function TrainingManagement(): React.ReactElement | null {
 
   return (
     <AnimatedPage>
-            <div className="w-full max-w-7xl mx-auto px-4 pb-24 min-h-screen flex flex-col pt-24">
-                {deleteTarget &&
+      <div className="container min-h-screen bg-[var(--color-background)] pb-[8rem]">
+        {(!showForm && !showExamForm) ? (
+                    <div className="no-print">
+                        <PremiumHeader
+                            title="Gestión de Capacitaciones"
+                            subtitle="Registros de formación del personal"
+                            icon={<Users size={36} color="#ffffff" />}
+                        />
+                    </div>
+                ) : (
+                    <ModuleFormToolbar
+                        title={showExamForm ? 'Generador de Exámenes' : (editingId ? 'Editar Capacitación' : 'Nueva Capacitación')}
+                        subtitle={showExamForm ? "Cree plantillas en blanco para evaluar capacitaciones" : "Complete los detalles y la asistencia de la charla"}
+                        icon={showExamForm ? <FileText size={36} color="#ffffff" /> : <BookOpen size={36} color="#ffffff" />}
+                        onBack={() => {setShowForm(false); setShowExamForm(false);}}
+                    />
+                )}
+                
+                {(!showForm && !showExamForm) ? (
+                    <div className="p-[2rem] max-w-[1200px] m-[0_auto] flex flex-col relative">
+                        {deleteTarget &&
         <div className="fixed inset-0 bg-black/60 z-[1000] flex items-center justify-center backdrop-blur-md">
                         <div className="bg-white/90 dark:bg-slate-900/90 max-w-[360px] w-[95%] text-center p-10 rounded-3xl border border-white/20 dark:border-slate-700 shadow-2xl relative backdrop-blur-xl">
                             <Trash2 size={48} className="text-red-500 mx-auto mb-6" />
@@ -352,7 +372,7 @@ export default function TrainingManagement(): React.ReactElement | null {
 
         }
                 {createPortal(
-          <div className="ats-pdf-offscreen" aria-hidden="true">
+          <div id="pdf-content" className="ats-pdf-offscreen" aria-hidden="true">
                         {(shareItem || showForm || showExamForm) && (
             printType === 'examen' ?
             <TrainingExamPdfGenerator data={shareItem || { ...formData, showSignatures }} /> :
@@ -369,19 +389,13 @@ export default function TrainingManagement(): React.ReactElement | null {
 
                 {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
 
+                    </div>
+                ) : (
+                    <ModuleFormLayout>
+                        <div className="p-[2rem] max-w-[1200px] m-[0_auto] flex flex-col relative">
                 {showExamForm ?
-        <>
+        <div className="w-full">
                         {/* EXAM BUILDER VIEW */}
-                        <div className="floating-action-bar no-print">
-                            <button onClick={() => handlePrint('examen')} className="btn-floating-action bg-[#8E44AD] text-[#ffffff]">
-                                <FileText size={18} /> IMPRIMIR EXAMEN
-                            </button>
-                        </div>
-                        <PremiumHeader onBack={showForm ? () => {setShowForm(false);} : undefined}
-          title="Generador de Exámenes"
-          subtitle="Cree plantillas en blanco para evaluar capacitaciones"
-          icon={<FileText size={36} color="#ffffff" />} />
-          
                         <div className="mt-[1.5rem] mb-[1.5rem] z-[10]">
                             <></>
                         </div>
@@ -443,26 +457,13 @@ export default function TrainingManagement(): React.ReactElement | null {
               )}
                             </div>
                         </div>
-                    </> :
+                        <ModuleActionBar actions={[
+                            { id: 'print', label: 'IMPRIMIR EXAMEN', icon: <FileText size={18} />, variant: 'secondary', onClick: () => handlePrint('examen') }
+                        ]} />
+                    </div> :
         showForm ?
-        <>
+        <div className="w-full">
                         {/* FORM VIEW */}
-                        <div className="floating-action-bar no-print">
-                            <button onClick={(e) => {e.preventDefault();requirePro(handleSave);}} className="btn-floating-action bg-[#36B37E] text-[#ffffff]">
-                                <Save size={18} /> GUARDAR
-                            </button>
-                            <button onClick={() => requirePro(() => setShareItem(formData))} className="btn-floating-action bg-[#0052CC] text-[#ffffff]">
-                                <Share2 size={18} /> COMPARTIR
-                            </button>
-                            <button onClick={() => handlePrint('asistencia')} className="btn-floating-action bg-[#FF8B00] text-[#ffffff]">
-                                <Printer size={18} /> IMPRIMIR PDF
-                            </button>
-                        </div>
-                        <PremiumHeader onBack={showForm ? () => {setShowForm(false);} : undefined}
-          title={editingId ? 'Editar Capacitación' : 'Nueva Capacitación'}
-          subtitle="Complete los detalles y la asistencia de la charla"
-          icon={<BookOpen size={36} color="#ffffff" />} />
-          
                         <div className="mt-[1.5rem] mb-[1.5rem] z-[10]">
                             <></>
                         </div>
@@ -649,17 +650,17 @@ export default function TrainingManagement(): React.ReactElement | null {
             }
                         </div>
                         
+                        <ModuleActionBar actions={[
+                            { id: 'save', label: 'GUARDAR', icon: <Save size={18} />, variant: 'primary', onClick: (e) => {e.preventDefault();requirePro(handleSave);} },
+                            { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'secondary', onClick: () => requirePro(() => setShareItem(formData)) },
+                            { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'secondary', onClick: () => handlePrint('asistencia') }
+                        ]} />
 
-                    </> :
+                    </div> :
 
-        <>
+        <div className="w-full">
                         {/* HISTORY VIEW */}
-                        <PremiumHeader onBack={showForm ? () => {setShowForm(false);} : undefined}
-          title="Gestión de Capacitaciones"
-          subtitle="Registros de formación del personal"
-          icon={<Users size={36} color="#ffffff" />} />
-          
-                        <div className="flex items-center justify-space-between gap-[1rem] mt-[1.5rem] mb-[2rem] flex-wrap">
+                        <div className="flex items-center justify-between gap-[1rem] mt-[1.5rem] mb-[2rem] flex-wrap">
                             <div className="flex gap-[1rem] flex-wrap">
                                 <></>
                                 <button
@@ -695,11 +696,14 @@ export default function TrainingManagement(): React.ReactElement | null {
               emptyIcon={<BookOpen size={48} />} />
             
                         </div>
-                    </>
-        }
-            </div>
+                    </div>
+                }
+                                    </div>
+                    </ModuleFormLayout>
+                )}
+        </div>
             
-            {!showForm && <AdBanner />}
+            {!showForm && !showExamForm && <AdBanner />}
         </AnimatedPage>);
 
 }

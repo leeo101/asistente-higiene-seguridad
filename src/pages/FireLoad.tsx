@@ -25,6 +25,7 @@ import { getCountryNormativa } from '../data/legislationData';
 import { DataTable } from '../components/DataTable';
 import QRModal from '../components/QRModal';
 import FireLoadPdfGenerator from '../components/FireLoadPdfGenerator';
+import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
 
 function DeleteConfirm({ onConfirm, onCancel }: any) {
   return (
@@ -552,7 +553,7 @@ export default function FireLoad(): React.ReactElement | null {
                 </> :
 
       <>
-            <div>
+            <div className="animate-fade-in ats-editor-panel">
             <ShareModal
             isOpen={showShare}
             open={showShare}
@@ -563,80 +564,50 @@ export default function FireLoad(): React.ReactElement | null {
             rawMessage={``}
             fileName={`Carga_de_Fuego_${formData.empresa || 'Reporte'}.pdf`} />
           
+            <ModuleFormLayout>
+                <ModuleFormToolbar
+                    title={editData ? 'Editar Carga de Fuego' : 'Cálculo Carga de Fuego'}
+                    subtitle={`Cálculo según ${countryNorms.fire}`}
+                    icon={<Flame size={28} className="text-orange-500" />}
+                />
 
+                <ModuleFormDocument id="pdf-content">
+                    {/* ENCABEZADO PARA IMPRESIÓN */}
+                    <div className="print-only">
+                        <div className="grid grid-cols-[1fr_2fr_1fr] items-center border-b-4 border-slate-200 pb-6 mb-8 w-full gap-6">
+                            <div className="text-left">
+                                <p className="m-0 font-bold text-[0.65rem] uppercase text-slate-500 tracking-wider">Sistema de Gestión</p>
+                                <p className="m-0 font-black text-xs uppercase text-slate-800">Control H&S</p>
+                            </div>
 
-            {/* Floating Action Buttons */}
-            <div className="no-print floating-action-bar">
-                <button
-              onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-              className="btn-floating-action bg-[linear-gradient(135deg,_#10b981,_#059669)] text-[#ffffff] font-[800]">
+                            <div className="text-center">
+                                <h2 className="m-0 text-[1.2rem] font-black text-blue-600 uppercase tracking-wide leading-tight">
+                                    {editData ? 'Editar Carga de Fuego' : 'Cálculo Carga de Fuego'}
+                                </h2>
+                                <p className="mt-1 text-[0.65rem] text-slate-500 font-semibold">{countryNorms.fire}</p>
+                            </div>
 
-              
-                    <Save size={18} /> GUARDAR
-                </button>
-                <button
-              onClick={() => requirePro(() => setShowShare(true))}
-              className="btn-floating-action bg-[linear-gradient(135deg,_#3b82f6,_#2563eb)] text-[#ffffff] font-[800]">
+                            <div className="flex justify-end">
+                                <CompanyLogo className="h-[45px] w-[auto] max-w-[140px] object-fit-[contain]" />
+                            </div>
+                        </div>
 
-              
-                    <Share2 size={18} /> COMPARTIR
-                </button>
-                <button
-              onClick={handlePrint}
-              className="btn-floating-action bg-[linear-gradient(135deg,_#f97316,_#ea580c)] text-[#ffffff] font-[800]">
-
-              
-                    <Printer size={18} /> IMPRIMIR PDF
-                </button>
-            </div>
-
-            <div id="pdf-content" className="w-full flex flex-col gap-4 bg-white text-black">
-                <div className="grid grid-cols-[1fr_2fr_1fr] items-center border-b-4 border-slate-200 pb-6 mb-8 w-full gap-6">
-                    <div className="text-left">
-                        <p className="m-0 font-bold text-[0.65rem] uppercase text-slate-500 tracking-wider">Sistema de Gestión</p>
-                        <p className="m-0 font-black text-xs uppercase text-slate-800">Control H&S</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 bg-slate-50 p-5 rounded-xl border border-slate-200">
+                            <div className="flex flex-col gap-[8px]">
+                                <div><span className="text-[0.7rem] text-[#64748b] font-[700] uppercase">ESTABLECIMIENTO:</span> <span className="font-[800] text-[0.9rem]">{formData.empresa || '-'}</span></div>
+                                <div><span className="text-[0.7rem] text-[#64748b] font-[700] uppercase">SECTOR:</span> <span className="font-[800] text-[0.9rem]">{formData.sector || '-'}</span></div>
+                            </div>
+                            <div className="flex flex-col gap-[8px]">
+                                <div><span className="text-[0.7rem] text-[#64748b] font-[700] uppercase">ACTIVIDAD:</span> <span className="font-[800] text-[0.9rem]">{formData.actividadResumen || '-'}</span></div>
+                                <div><span className="text-[0.7rem] text-[#64748b] font-[700] uppercase">SUPERFICIE:</span> <span className="font-[800] text-[0.9rem]">{formData.superficie} m²</span></div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="text-center">
-                        <h2 className="m-0 text-[1.2rem] font-black text-blue-600 uppercase tracking-wide leading-tight">
-                            {editData ? 'Editar Carga de Fuego' : 'Cálculo Carga de Fuego'}
-                        </h2>
-                        <p className="mt-1 text-[0.65rem] text-slate-500 font-semibold">{countryNorms.fire}</p>
-                    </div>
-
-                    <div className="flex justify-end">
-                        <CompanyLogo className="h-[45px] w-[auto] max-w-[140px] object-fit-[contain]" />
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 bg-slate-50 p-5 rounded-xl border border-slate-200">
-                    <div className="flex flex-col gap-[8px]">
-                        <div><span className="text-[0.7rem] text-[#64748b] font-[700] uppercase">ESTABLECIMIENTO:</span> <span className="font-[800] text-[0.9rem]">{formData.empresa || '-'}</span></div>
-                        <div><span className="text-[0.7rem] text-[#64748b] font-[700] uppercase">SECTOR:</span> <span className="font-[800] text-[0.9rem]">{formData.sector || '-'}</span></div>
-                    </div>
-                    <div className="flex flex-col gap-[8px]">
-                         <div><span className="text-[0.7rem] text-[#64748b] font-[700] uppercase">ACTIVIDAD:</span> <span className="font-[800] text-[0.9rem]">{formData.actividadResumen || '-'}</span></div>
-                         <div><span className="text-[0.7rem] text-[#64748b] font-[700] uppercase">SUPERFICIE:</span> <span className="font-[800] text-[0.9rem]">{formData.superficie} m²</span></div>
-                    </div>
-                </div>
-
-                <div className="no-print">
-                    <PremiumHeader onBack={showForm ? () => {setShowForm(false);} : undefined}
-              title={editData ? 'Editar Carga de Fuego' : 'Estudio de Carga de Fuego'}
-              subtitle={`Cálculo según ${countryNorms.fire}`}
-              icon={<Flame size={36} color="#ffffff" />} />
-              
-                    <div className="mt-[1.5rem] mb-[1.5rem] z-[10]">
-                        <></>
-                    </div>
-                </div>
-
-                <div className="main-layout flex flex-col lg:flex-row gap-6 no-print items-start">
-                    <div className="flex flex-col gap-6 flex-1 w-full">
-                        <div className="p-8 border-t-4 border-t-orange-500 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-3xl shadow-sm">
-                            <h3 className="mt-0 mb-6 flex items-center gap-2 text-lg font-black text-slate-800 dark:text-slate-100">
-                                <Building2 size={20} color="#f97316" className="filter-[drop-shadow(0_0_8px_rgba(249,_115,_22,_0.3))]" /> Datos del Sector de Incendio
-                            </h3>
+                    <div className="flex flex-col lg:flex-row gap-6 items-start">
+                        <div className="flex flex-col gap-6 flex-1 w-full">
+                            
+                            <ModuleFormSection title="Datos del Sector de Incendio" icon={<Building2 size={20} className="text-orange-500" />}>
                             <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5">Empresa / Establecimiento</label>
@@ -769,13 +740,9 @@ export default function FireLoad(): React.ReactElement | null {
                                     El riesgo afecta directamente el cálculo de la Resistencia al Fuego (RF) necesaria.
                                 </p>
                             </div>
-                        </div>
+                            </ModuleFormSection>
 
-                        <div className="glass-card p-[2rem] border-top-[3px_solid_#ea580c] rounded-[var(--radius-2xl)] border-left-[1px_solid_var(--glass-border)] border-right-[1px_solid_var(--glass-border)] border-bottom-[1px_solid_var(--glass-border)]">
-                            <h3 className="mt-0 mb-6 flex items-center gap-2 text-lg font-black text-slate-800 dark:text-slate-100">
-                                <Flame size={20} color="#ea580c" className="filter-[drop-shadow(0_0_8px_rgba(234,_88,_12,_0.3))]" /> Inventario de Materiales Combustibles
-                            </h3>
-
+                            <ModuleFormSection title="Inventario de Materiales Combustibles" icon={<Flame size={20} className="text-orange-500" />}>
                             <div className="flex flex-col gap-[0.8rem]">
                                 {/* VISTA EN PANTALLA (Formulario Interactivo) */}
                                 <div className="no-print flex flex-col gap-[0.8rem]">
@@ -839,7 +806,7 @@ export default function FireLoad(): React.ReactElement | null {
                                      </button>
                                  </div>
                              </div>
-                        </div>
+                            </ModuleFormSection>
                     </div>
 
                     <div style={{ width: isMobile ? '100%' : '350px' }} className="results-grid no-print sticky top-[1.5rem] flex flex-col gap-[1.5rem]">
@@ -1006,30 +973,14 @@ export default function FireLoad(): React.ReactElement | null {
                 </div>
 
                 {/* SECCIÓN DE CONCLUSIÓN */}
-                <div className="glass-card print-area p-[2rem] mt-[2.5rem] border-top-[3px_solid_#a855f7] border-left-[1px_solid_var(--glass-border)] border-right-[1px_solid_var(--glass-border)] border-bottom-[1px_solid_var(--glass-border)]">
-                    <div className="flex justify-space-between items-center mb-[1.5rem] flex-wrap gap-[1rem]">
-                        <h3 className="m-[0] flex items-center gap-[0.7rem] text-[var(--color-text)] text-[1.15rem] font-[900]">
-                            <FileText size={22} color="#a855f7" className="filter-[drop-shadow(0_0_8px_rgba(168,_85,_247,_0.3))]" /> Conclusión Profesional
-                        </h3>
+                <ModuleFormSection title="Conclusión Profesional" icon={<FileText size={22} className="text-purple-500" />}>
+                        <div className="flex justify-space-between items-center mb-[1.5rem] flex-wrap gap-[1rem]">
                         <button
                   className="no-print p-[0.65rem_1.25rem] bg-[linear-gradient(135deg,_#a855f7,_#ec4899)] box-shadow-[0_4px_15px_rgba(168,_85,_247,_0.25)] text-[#ffffff] border-none rounded-[12px] font-[800] text-[0.75rem] flex items-center gap-[0.5rem] transition-[all_0.2s] outline-[none]"
                   onClick={handleGenerateConclusion}
                   disabled={isGeneratingConclusion}
                   style={{
-
-
-
-
-
-
-
-
                     cursor: isGeneratingConclusion ? 'wait' : 'pointer'
-
-
-
-
-
                   }}
                   onMouseEnter={(e) => {e.currentTarget.style.transform = 'translateY(-1px)';e.currentTarget.style.boxShadow = '0 6px 20px rgba(168, 85, 247, 0.35)';}}
                   onMouseLeave={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = '0 4px 15px rgba(168, 85, 247, 0.25)';}}>
@@ -1043,18 +994,6 @@ export default function FireLoad(): React.ReactElement | null {
                 value={formData.conclusion || ''}
                 onChange={(e) => setFormData((prev) => ({ ...prev, conclusion: e.target.value }))}
                 className="form-input no-print fireload-focus-glow w-[100%] p-[1rem] rounded-[12px] border-[1px_solid_var(--glass-border)] bg-[var(--color-surface)] text-[var(--color-text)] min-h-[120px] resize-[vertical] font-family-[inherit] transition-[all_0.2s]"
-
-
-
-
-
-
-
-
-
-
-
-
                 placeholder="Escriba la conclusión del estudio o use el botón de IA para generarla..." />
               
 
@@ -1063,13 +1002,10 @@ export default function FireLoad(): React.ReactElement | null {
                             {formData.conclusion}
                         </div>
               }
-                </div>
+                </ModuleFormSection>
 
                 {/* SECCIÓN DE FIRMAS */}
-                <div className="glass-card print-area p-[2rem] mt-[2.5rem] border-top-[3px_solid_#22c55e] border-left-[1px_solid_var(--glass-border)] border-right-[1px_solid_var(--glass-border)] border-bottom-[1px_solid_var(--glass-border)]">
-                    <h3 className="mt-[0] mb-[1.5rem] flex items-center gap-[0.7rem] text-[var(--color-text)] text-[1.15rem] font-[900]">
-                        <ShieldCheck size={22} color="#22c55e" className="filter-[drop-shadow(0_0_8px_rgba(34,_197,_94,_0.3))]" /> Firmas y Validación
-                    </h3>
+                <ModuleFormSection title="Firmas y Validación" icon={<ShieldCheck size={22} className="text-green-500" />}>
 
                     <div className="no-print mb-8 p-4 bg-slate-50 border border-slate-200 rounded-xl w-full flex flex-col md:flex-row gap-4 justify-between items-center text-xs font-bold text-slate-700">
                         <div>INCLUIR FIRMAS EN EL DOCUMENTO:</div>
@@ -1121,8 +1057,15 @@ export default function FireLoad(): React.ReactElement | null {
                 box2={showSignatures.professional ? undefined : null} />
               
                     <PdfBrandingFooter />
-                </div>
-                </div>
+                </ModuleFormSection>
+                </ModuleFormDocument>
+            </ModuleFormLayout>
+            <ModuleActionBar actions={[
+                { id: 'cancel', label: 'CANCELAR', icon: <ArrowLeft size={18} />, variant: 'secondary', onClick: () => { setShowForm(false); } },
+                { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'secondary', onClick: () => requirePro(() => setShowShare(true)) },
+                { id: 'print', label: 'IMPRIMIR', icon: <Printer size={18} />, variant: 'secondary', onClick: handlePrint },
+                { id: 'save', label: 'GUARDAR FICHA', icon: <Save size={18} />, variant: 'primary', onClick: () => requirePro(() => handleSave()) }
+            ]} />
             </div>
             </>
       }

@@ -9,7 +9,20 @@ import { jsPDF } from 'jspdf';
  * - Captura en bloques iterativos para evadir límites de RAM de Canvas en móviles
  */
 export async function generatePdfBlob(elementId: string, isLandscape: boolean = false): Promise<Blob> {
-    const originalElement = document.getElementById(elementId);
+    const elements = document.querySelectorAll(`[id="${elementId}"]`);
+    let originalElement: HTMLElement | null = null;
+    
+    if (elements.length > 0) {
+        // Si hay múltiples IDs duplicados por transiciones de página, tomamos el del portal activo o el último renderizado
+        for (let i = elements.length - 1; i >= 0; i--) {
+            const el = elements[i] as HTMLElement;
+            if (el.closest('.active-portal-print') || el.closest('.ats-pdf-offscreen') || i === 0) {
+                originalElement = el;
+                break;
+            }
+        }
+    }
+
     if (!originalElement) {
         throw new Error(`Elemento con id '${elementId}' no encontrado.`);
     }
@@ -125,7 +138,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
             html2canvas: { 
                 scale: dynamicScale, 
                 useCORS: true, 
-                allowTaint: true,
+                allowTaint: false, // DESHABILITADO: Previene SecurityError al intentar capturar imágenes sin CORS (ej. Firebase)
                 logging: false,
                 windowWidth: isLandscape ? 1600 : 1200,
                 width: isLandscape ? 1600 : 1200,
