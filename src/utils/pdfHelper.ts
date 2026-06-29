@@ -70,7 +70,9 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         'border-radius: 0',
         'box-sizing: border-box !important',
         'margin: 0',
-        'padding: 10px 20px' // Agrega margen interno lateral para evitar cortes en los bordes
+        'padding: 10px 20px',
+        'opacity: 1 !important',
+        'visibility: visible !important'
     ].join('; ');
 
     offscreenContainer.appendChild(clone);

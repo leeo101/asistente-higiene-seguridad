@@ -69,7 +69,7 @@ export default function CAPAPage(): React.ReactElement | null {
         fileName={`CAPA_${selected?.title || 'Sin_Titulo'}.pdf`} />
       
 
-            <div className="print-only fixed left-[0] opacity-[0.01] top-[0]">
+            <div className="ats-pdf-offscreen" id="pdf-content" aria-hidden="true">
                 <CAPAPdf data={selected} />
             </div>
             <ConfirmModal

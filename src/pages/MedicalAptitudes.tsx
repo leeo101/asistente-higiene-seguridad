@@ -133,10 +133,10 @@ export default function MedicalAptitudes() {
 
 
   const filtered = exams.filter((e) => {
-    const name = e?.workerName?.toLowerCase() || '';
-    const term = searchTerm?.toLowerCase() || '';
-    const dniStr = e?.dni || '';
-    return name.includes(term) || dniStr.includes(searchTerm);
+    const name = String(e?.workerName || '').toLowerCase();
+    const term = String(searchTerm || '').toLowerCase();
+    const dniStr = String(e?.dni || '');
+    return name.includes(term) || dniStr.includes(term);
   });
 
   return (
@@ -218,8 +218,8 @@ export default function MedicalAptitudes() {
                         </div>
                     </div> :
 
-        <div className="mt-8">
-                        <div className="flex justify-between items-center mb-[1.5rem] gap-[1rem] flex-wrap">
+        <div className="mt-8 relative z-[50]">
+                        <div className="flex justify-between items-center mb-[1.5rem] gap-[1rem] flex-wrap relative z-[50]">
                             <div style={{ width: isMobile ? '100%' : '450px' }} className="flex items-center border-[2px_solid_#10b981] rounded-[8px] bg-[rgba(16,185,129,0.02)] px-[1rem] focus-within:ring-[3px] focus-within:ring-[rgba(16,185,129,0.2)] transition-all">
                                 <Search size={20} className="text-[#64748b] mr-[0.5rem] flex-shrink-0" />
                                 <input type="text" placeholder="Buscar trabajador..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] py-[0.85rem] bg-transparent border-none outline-none text-[1rem] font-[500] m-0" />
@@ -269,7 +269,7 @@ export default function MedicalAptitudes() {
                 notes: ''
               });
               setShowForm(true);
-            }} className="fixed bottom-[5rem] right-[1.5rem] w-[56px] h-[56px] rounded-[50%] bg-[var(--color-primary)] text-[white] border-none box-shadow-[0_4px_12px_rgba(0,0,0,0.2)] flex items-center justify-center z-[10]">
+            }} className="fixed bottom-[5rem] right-[1.5rem] w-[56px] h-[56px] rounded-[50%] bg-[var(--color-primary)] text-[white] border-none box-shadow-[0_4px_12px_rgba(0,0,0,0.2)] flex items-center justify-center z-[50]">
                                 <Plus size={24} />
                             </button>
           }

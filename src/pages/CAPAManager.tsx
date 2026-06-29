@@ -332,7 +332,7 @@ export default function CAPAManager(): React.ReactElement | null {
         fileName={`CAPA_${shareItem?.title.replace(/\s+/g, '_') || 'Accion'}.pdf`} />
       
 
-            <div className="fixed left-[0] opacity-[0.01] top-[0] pointer-events-[none]">
+            <div className="ats-pdf-offscreen" id="pdf-content" aria-hidden="true">
                 {shareItem && <CAPAPdf data={shareItem} />}
             </div>
             <PremiumHeader
@@ -341,7 +341,7 @@ export default function CAPAManager(): React.ReactElement | null {
         icon={<RefreshCw size={36} color="#ffffff" />} />
       
 
-            <div className="flex items-center justify-between gap-[1rem] mt-[1.5rem] mb-[2rem] flex-wrap">
+            <div className="flex items-center justify-between gap-[1rem] mt-[1.5rem] mb-[2rem] flex-wrap relative z-[50]">
                 <div className="flex gap-[1rem] flex-wrap">
                     <></>
                     <button
@@ -481,8 +481,7 @@ export default function CAPAManager(): React.ReactElement | null {
 
 
 
-        flexDirection: isMobile ? 'column' : 'row'
-      }} className="flex gap-[1rem] mb-[1.5rem]">
+      }} className="flex gap-[1rem] mb-[1.5rem] relative z-[50]">
                 <div className="flex-[1] min-width-[280px] relative">
                     <Search
             size={20}

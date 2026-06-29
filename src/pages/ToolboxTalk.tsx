@@ -120,28 +120,23 @@ const printStyles = `
 /* ── Premium Stat Card ── */
 function ToolboxStatCard({ icon, label, value, color, gradient }: {icon: React.ReactNode;label: string;value: string | number;color: string;gradient: string;}) {
   return (
-    <div className="toolbox-stat-card">
-            <div className="toolbox-stat-glow" style={{ background: `radial-gradient(circle, ${color}33 0%, transparent 70%)` }} />
-            <div className="flex items-center gap-[0.75rem] mb-[1rem] relative z-[1]">
+    <div style={{ backgroundColor: 'var(--color-background)', borderColor: 'var(--color-border)' }} className="rounded-[16px] p-[1rem] border-[1px] shadow-sm relative overflow-hidden transition-all hover:-translate-y-1 hover:shadow-md">
+            <div className="absolute top-0 right-0 w-[100px] h-[100px] rounded-full opacity-10 pointer-events-none -mt-4 -mr-4 blur-xl" style={{ background: color }} />
+            <div className="flex items-center gap-3 mb-3 relative z-[1]">
                 <div style={{
-
           background: gradient,
-
-
-          boxShadow: `0 8px 24px ${color}30`
-
-        }} className="w-[44] h-[44] rounded-[var(--radius-xl)] flex items-center justify-center text-[#ffffff]">
+          boxShadow: `0 4px 12px ${color}40`
+        }} className="w-[48px] h-[48px] rounded-[12px] flex items-center justify-center text-white shrink-0">
                     {icon}
                 </div>
+                <div className="relative z-[1] text-[0.8rem] font-[800] uppercase tracking-wide leading-tight" style={{ color: 'var(--color-text-muted)' }}>
+                    {label}
+                </div>
             </div>
-            <div className="relative z-[1] text-[2rem] font-[900] text-[var(--color-text)] line-height-[1] letter-spacing-[-1px] mb-[0.25rem]">
+            <div className="relative z-[1] text-[2rem] font-[900] leading-none" style={{ color: 'var(--color-text)' }}>
                 {value}
             </div>
-            <div className="relative z-[1] text-[0.75rem] font-[700] text-[var(--color-text-muted)] uppercase letter-spacing-[0.5px]">
-                {label}
-            </div>
         </div>);
-
 }
 
 /* ── Section Header ── */
@@ -173,16 +168,13 @@ function SectionHeader({ icon, title, rightContent }: {icon: React.ReactNode;tit
 /* ── Input with Icon ── */
 function IconInput({ icon, label, ...props }: {icon: React.ReactNode;label: string;[key: string]: any;}) {
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
             <label className="toolbox-input-label">{label}</label>
             <div className="relative">
-                <div className="absolute left-[14] top-[50%] transform-[translateY(-50%)] text-[#64748b] pointer-events-[none] flex">
-
-
-          
+                <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
                     {icon}
                 </div>
-                <input className="toolbox-input-pro toolbox-focus-glow" {...props} />
+                <input className="toolbox-input-pro toolbox-focus-glow" style={{ paddingLeft: '44px' }} {...props} />
             </div>
         </div>);
 
@@ -416,7 +408,7 @@ export default function ToolboxTalk(): React.ReactElement {
                         <div className="p-[2rem] max-w-[1200px] m-[0_auto] flex flex-col relative">
 
                         {/* ═══ Stats Dashboard ═══ */}
-                        <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(180px,_1fr))] gap-[1rem] mb-[1.5rem]">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                             <ToolboxStatCard
               icon={<MessageSquare size={20} color="#fff" />}
               label="Charlas Dictadas"
@@ -453,18 +445,22 @@ export default function ToolboxTalk(): React.ReactElement {
                 setForm(emptyTalk());
                 setEditId(null);
                 setShowForm(true);
-              }} className="flex-[0_1_auto] p-[1rem_1.5rem] rounded-[16px] bg-[#36B37E] text-[#fff] border-none font-[800] text-[1rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(54,179,126,0.3)] white-space-[nowrap]">
+              }} style={{ backgroundColor: '#16a34a', color: '#ffffff' }} className="flex-none px-6 py-4 rounded-[16px] font-[800] text-[1rem] cursor-pointer flex items-center gap-2 shadow-[0_4px_15px_rgba(22,163,74,0.3)] transition-all hover:-translate-y-1 whitespace-nowrap border-none">
 
               
                                 <Plus size={20} /> Nueva Charla
                             </button>
-                            <div className="flex-[1_1_100%] min-width-[0] relative">
-                                <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <div className="flex-[1_1_100%] min-width-[0]" style={{ position: 'relative' }}>
+                                <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
+                                    <Search size={20} />
+                                </div>
                                 <input
                 type="text"
                 placeholder="Buscar por tema, área o responsable..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)} className="w-full py-3 pr-4 pl-12 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-sm" />
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ width: '100%', padding: '12px 16px 12px 48px', borderRadius: '16px', border: '2px solid var(--color-border)', backgroundColor: 'var(--color-background)', color: 'var(--color-text)', outline: 'none' }}
+                className="transition-all shadow-sm" />
 
               
                             </div>
@@ -538,28 +534,23 @@ export default function ToolboxTalk(): React.ReactElement {
                                     <input type="text" value={form.tema}
                 onChange={(e) => setForm((f) => ({ ...f, tema: e.target.value }))}
                 placeholder="Ingresá o seleccioná un tema..."
-                className="toolbox-input-plain toolbox-focus-glow pr-[110px]" />
+                style={{ paddingRight: '110px' }}
+                className="toolbox-input-plain toolbox-focus-glow" />
 
                 
                                     <button
                   onClick={() => setShowTopics((s) => !s)}
                   style={{
-
-
+                    position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)',
                     background: showTopics ? 'rgba(0,82,204,0.1)' : 'linear-gradient(135deg, #0052CC, #0077ff)',
                     color: showTopics ? '#0052CC' : '#fff',
-
-
-
-
-                    boxShadow: showTopics ? 'none' : '0 2px 8px rgba(0,82,204,0.25)'
-
-                  }} className="absolute right-[6px] p-[0.4rem_0.8rem] border-none rounded-[10px] font-[700] cursor-pointer flex items-center gap-[0.35rem] text-[0.75rem] transition-[all_0.2s_cubic-bezier(0.4,_0,_0.2,_1)]">
+                    boxShadow: showTopics ? 'none' : '0 2px 8px rgba(0,82,204,0.25)',
+                    padding: '6px 12px', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px'
+                  }}>
                   
                                         <ChevronDown size={14} style={{
-
-                    transform: showTopics ? 'rotate(180deg)' : 'rotate(0deg)'
-                  }} className="transition-[transform_0.25s]" /> 
+                    transform: showTopics ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.25s'
+                  }} /> 
                                         {showTopics ? 'Cerrar' : 'Plantillas'}
                                     </button>
                                 </div>
@@ -662,23 +653,16 @@ export default function ToolboxTalk(): React.ReactElement {
                                             <button
                     onClick={() => updateAttendee(att.id, 'firma', !att.firma)}
                     className={`toolbox-signature-pill ${att.firma ? 'toolbox-signature-pill-active' : ''}`}
-                    style={{ border: att.firma ? '1.5px solid #10b981' : undefined, background: att.firma ? 'rgba(16,185,129,0.08)' : undefined, color: att.firma ? '#10b981' : undefined }}>
+                    style={{ border: att.firma ? '1.5px solid #10b981' : '1.5px solid #f59e0b', background: att.firma ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)', color: att.firma ? '#10b981' : '#f59e0b', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '6px', borderRadius: '8px', fontWeight: 'bold' }}>
                     
                                                 <CheckCircle2 size={16} /> {att.firma ? 'Firmó ✓' : 'Sin firma'}
                                             </button>
                                             <button onClick={() => removeAttendee(att.id)}
-
-
-
-
-
-
-
-
-                  onMouseEnter={(e) => {e.currentTarget.style.background = 'rgba(239,68,68,0.12)';e.currentTarget.style.borderColor = '#ef4444';}}
-                  onMouseLeave={(e) => {e.currentTarget.style.background = 'rgba(239,68,68,0.06)';e.currentTarget.style.borderColor = 'rgba(239,68,68,0.2)';}} className="bg-[rgba(239,68,68,0.06)] border-[1.5px_solid_rgba(239,68,68,0.2)] rounded-[10] p-[0.55rem] cursor-pointer text-[#ef4444] flex items-center justify-center transition-[all_0.15s]">
+                  onMouseEnter={(e) => {e.currentTarget.style.background = '#ef4444'; e.currentTarget.style.color = 'white';}}
+                  onMouseLeave={(e) => {e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.color = '#dc2626';}}
+                  style={{ background: 'rgba(239,68,68,0.1)', border: '1.5px solid #ef4444', color: '#dc2626', borderRadius: '10px', padding: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
                     
-                                                <Trash2 size={15} />
+                                                <Trash2 size={16} />
                         </button>
                                         </div>
                                     </div>
@@ -794,10 +778,18 @@ export default function ToolboxTalk(): React.ReactElement {
               }
                             </div>
                         </div>
-                        <ModuleActionBar actions={[
-                            { id: 'save', label: 'GUARDAR', icon: <Save size={18} />, variant: 'primary', onClick: (e) => {e.preventDefault();requirePro(handleSave);} },
-                            { id: 'print', label: 'IMPRIMIR', icon: <Printer size={18} />, variant: 'secondary', onClick: () => requirePro(() => window.print()) }
-                        ]} />
+                        <div className="no-print w-full flex flex-wrap gap-4 items-center justify-end p-6 mt-4 border-t border-slate-200">
+                            <button
+                                onClick={() => requirePro(() => window.print())}
+                                style={{ backgroundColor: '#0ea5e9', color: 'white', padding: '12px 24px', borderRadius: '12px', border: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                <Printer size={18} /> IMPRIMIR
+                            </button>
+                            <button
+                                onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
+                                style={{ backgroundColor: '#16a34a', color: 'white', padding: '12px 24px', borderRadius: '12px', border: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                <Save size={18} /> GUARDAR
+                            </button>
+                        </div>
                     </div>
             </ModuleFormLayout>
         </div>

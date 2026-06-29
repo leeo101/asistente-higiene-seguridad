@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Save, Plus, Trash2, Flame, Calculator,
   FileText, Printer, Building2, Layout, Maximize2,
-  Info, TriangleAlert, ShieldCheck, History, Share2, Sparkles, Loader2, Calendar, QrCode } from
+  Info, TriangleAlert, ShieldCheck, History, Share2, Sparkles, Loader2, Calendar, QrCode, Search } from
 'lucide-react';
 import { fireMaterials, riskActivityGroups } from '../data/fireMaterials';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -25,7 +25,8 @@ import { getCountryNormativa } from '../data/legislationData';
 import { DataTable } from '../components/DataTable';
 import QRModal from '../components/QRModal';
 import FireLoadPdfGenerator from '../components/FireLoadPdfGenerator';
-import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
+import SignatureCanvas from '../components/SignatureCanvas';
+import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar, ModuleWizardFooter } from '../components/module';
 
 function DeleteConfirm({ onConfirm, onCancel }: any) {
   return (
@@ -97,6 +98,8 @@ export default function FireLoad(): React.ReactElement | null {
     materiales: [
     { nombre: 'Madera (General)', peso: 0, poderCalorifico: 4400, totalKcal: 0 }],
 
+    operatorSignature: '',
+    supervisorSignature: '',
     id: ''
   });
 
@@ -336,7 +339,27 @@ export default function FireLoad(): React.ReactElement | null {
   };
 
   const handlePrint = () => {
-    requirePro(() => window.print());
+    requirePro(() => {
+      const container = document.getElementById('fireload-pdf-form');
+      const element = container?.querySelector('#pdf-content');
+      if (!element) {
+        toast.error('No se pudo generar el documento para imprimir.');
+        return;
+      }
+      
+      document.body.classList.add('printing-isolated');
+      element.classList.add('isolated-print-target');
+
+      setTimeout(() => {
+        window.print();
+        
+        // Clean up after the print dialog is closed (window.print is blocking in most browsers)
+        setTimeout(() => {
+          document.body.classList.remove('printing-isolated');
+          element.classList.remove('isolated-print-target');
+        }, 1000);
+      }, 100);
+    });
   };
 
   const handleSave = async () => {
@@ -438,49 +461,46 @@ export default function FireLoad(): React.ReactElement | null {
     header: 'Acciones',
     accessor: 'id',
     render: (item: any) =>
-    <div className="flex gap-[0.45rem]">
+    <div className="flex items-center gap-1.5">
                     <button
         onClick={() => {
           setFormData(item);
           if (item.showSignatures) setShowSignatures(item.showSignatures);
           setShowForm(true);
-        }} className="p-[0.45rem_0.85rem] bg-[var(--color-surface)] border-[1px_solid_var(--glass-border-subtle)] rounded-[10px] cursor-pointer text-[0.75rem] font-[800] text-[var(--color-text)] flex items-center gap-[4px] transition-[all_0.2s]">
-
-        
-                        <FileText size={16} /> Ver
+        }} title="Ver" style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform">
+                        <FileText size={16} />
                     </button>
                     <button
         onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/fireload/${item.id}?print=true`;setQrTarget({ text: url, title: `Carga de Fuego — ${item.sector}` });})}
-
-        title="QR" className="p-[0.45rem] bg-[rgba(139,92,246,0.06)] border-[1px_solid_rgba(139,92,246,0.18)] rounded-[10px] text-[#8b5cf6] cursor-pointer flex items-center justify-center transition-[all_0.2s]">
-        
+        title="QR" style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform">
                         <QrCode size={16} />
                     </button>
                     <button
         onClick={() => requirePro(() => setShareItem(item))}
-
-        title="Compartir" className="p-[0.45rem] bg-[rgba(22,163,74,0.06)] border-[1px_solid_rgba(22,163,74,0.18)] rounded-[10px] text-[#16a34a] cursor-pointer flex items-center justify-center transition-[all_0.2s]">
-        
+        title="Compartir" style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform">
                         <Share2 size={16} />
                     </button>
                     <button
-        onClick={(e) => {e.stopPropagation();setDeleteTarget(item.id);}} className="p-[0.45rem] bg-[rgba(239,68,68,0.06)] border-[1px_solid_rgba(239,68,68,0.18)] rounded-[10px] text-[#ef4444] cursor-pointer flex items-center justify-center transition-[all_0.2s]">
-
-        
+        onClick={(e) => {e.stopPropagation();setDeleteTarget(item.id);}} title="Eliminar" style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform">
                         <Trash2 size={16} />
                     </button>
                 </div>
 
   }];
 
-
-  return (
+return (
     <div className="container max-w-[1000px] mx-auto px-4 pb-32">
             {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
             {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} onClose={() => setQrTarget(null)} />}
             <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Carga de Fuego - ${(shareItem as any)?.sector || ''}`} text={shareItem ? `🔥 Estudio de Carga de Fuego\n🏗️ Empresa: ${(shareItem as any).empresa}\n📍 Sector: ${(shareItem as any).sector}\n🔥 Carga Qf: ${(shareItem as any).results?.cargaDeFuego?.toFixed(2)} Kg/m²\n🛡️ RF: ${(shareItem as any).results?.rfRequerida}` : ''} rawMessage={''} elementIdToPrint="pdf-content" fileName={`Carga_Fuego_${(shareItem as any)?.sector || 'Estudio'}.pdf`} />
             <div className="ats-pdf-offscreen">
-                <FireLoadPdfGenerator data={shareItem} />
+                <FireLoadPdfGenerator data={shareItem ? {
+                  ...shareItem,
+                  professionalSignature: (shareItem as any).professionalSignature || professional?.signature,
+                  professionalStamp: (shareItem as any).professionalStamp || professional?.stamp,
+                  professionalName: (shareItem as any).professionalName || professional?.name,
+                  professionalLicense: (shareItem as any).professionalLicense || professional?.license
+                } : null} />
             </div>
 
             {!showForm ?
@@ -495,15 +515,16 @@ export default function FireLoad(): React.ReactElement | null {
                     <div className="my-6 flex flex-wrap gap-4 items-center">
                         <></>
                         <div className="flex-1 min-w-[250px] relative">
-                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                                <Flame size={18} />
+                            <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 flex items-center justify-center" style={{ left: '16px' }}>
+                                <Search size={18} />
                             </div>
                             <input
               type="text"
               placeholder="Buscar por empresa o sector..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
+              style={{ paddingLeft: '44px' }}
+              className="w-full pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
             
                         </div>
                         <select
@@ -534,7 +555,9 @@ export default function FireLoad(): React.ReactElement | null {
               });
               setShowForm(true);
             }}
-            className="flex-none px-6 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-base cursor-pointer flex items-center gap-2 shadow-[0_4px_15px_rgba(16,185,129,0.3)] transition-colors whitespace-nowrap">
+            className="flex-none px-6 py-4 rounded-2xl text-white font-extrabold text-base cursor-pointer flex items-center gap-2 shadow-[0_4px_15px_rgba(22,163,74,0.3)] transition-colors whitespace-nowrap" style={{ backgroundColor: '#16a34a' }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#15803d'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#16a34a'}>
             
                             <Plus size={20} /> Nuevo Cálculo
                         </button>
@@ -544,6 +567,7 @@ export default function FireLoad(): React.ReactElement | null {
                         <DataTable
             data={filteredHistory}
             columns={columns}
+            hideHeader={true}
             searchPlaceholder="Buscar..."
             searchFields={['empresa', 'sector']}
             emptyMessage="No se encontraron estudios de carga de fuego."
@@ -553,17 +577,29 @@ export default function FireLoad(): React.ReactElement | null {
                 </> :
 
       <>
-            <div className="animate-fade-in ats-editor-panel">
             <ShareModal
             isOpen={showShare}
             open={showShare}
             onClose={() => setShowShare(false)}
             title={`Carga de Fuego – ${formData.empresa}`}
             text={`🔥 Estudio de Carga de Fuego\n🏗️ Empresa: ${formData.empresa}\n📍 Sector: ${formData.sector}\n🔥 Carga Qf: ${results.cargaDeFuego.toFixed(2)} Kg/m²\n🛡️ RF Requerida: ${results.rfRequerida}\n\nGenerado con Asistente HYS`}
-            elementIdToPrint="pdf-content"
+            elementIdToPrint="fireload-pdf-form"
             rawMessage={``}
             fileName={`Carga_de_Fuego_${formData.empresa || 'Reporte'}.pdf`} />
+
+            <div id="fireload-pdf-form" className="ats-pdf-offscreen">
+                <FireLoadPdfGenerator data={{ 
+                  ...formData, 
+                  results, 
+                  showSignatures,
+                  professionalSignature: professional?.signature,
+                  professionalStamp: professional?.stamp,
+                  professionalName: professional?.name,
+                  professionalLicense: professional?.license
+                }} />
+            </div>
           
+            <div className="animate-fade-in ats-editor-panel">
             <ModuleFormLayout>
                 <ModuleFormToolbar
                     title={editData ? 'Editar Carga de Fuego' : 'Cálculo Carga de Fuego'}
@@ -611,53 +647,44 @@ export default function FireLoad(): React.ReactElement | null {
                             <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5">Empresa / Establecimiento</label>
-                                    <div className="no-print relative">
-                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                                            <Building2 size={16} />
-                                        </div>
+                                    <div className="no-print flex items-center fireload-focus-glow w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 transition-all shadow-sm focus-within:ring-2 focus-within:ring-blue-500 px-3 py-2.5">
+                                        <Building2 size={18} className="text-slate-400 flex-shrink-0 mr-2" />
                                         <input
                           type="text"
                           value={formData.empresa}
                           onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
                           placeholder="Ej: Planta Industrial Sur"
-                          className="fireload-focus-glow w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
-                        
+                          className="w-full bg-transparent text-slate-800 dark:text-slate-200 outline-none" />
                                     </div>
-                                    <div className="print-only p-[8px] border-bottom-[1px_solid_#eee]">{formData.empresa || '-'}</div>
+                                    <div className="print-only p-2 border-b border-slate-200">{formData.empresa || '-'}</div>
                                 </div>
                                 <div>
                                     <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5">Sector / Depósito</label>
-                                    <div className="no-print relative">
-                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                                            <Layout size={16} />
-                                        </div>
+                                    <div className="no-print flex items-center fireload-focus-glow w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 transition-all shadow-sm focus-within:ring-2 focus-within:ring-blue-500 px-3 py-2.5">
+                                        <Layout size={18} className="text-slate-400 flex-shrink-0 mr-2" />
                                         <input
                           type="text"
                           value={formData.sector}
                           onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
                           placeholder="Ej: Salón de Ventas"
-                          className="fireload-focus-glow w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
-                        
+                          className="w-full bg-transparent text-slate-800 dark:text-slate-200 outline-none" />
                                     </div>
-                                    <div className="print-only p-[8px] border-bottom-[1px_solid_#eee]">{formData.sector || '-'}</div>
+                                    <div className="print-only p-2 border-b border-slate-200">{formData.sector || '-'}</div>
                                 </div>
                             </div>
 
                             <div className="mb-4">
                                 <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5">Actividad (Resumen para Encabezado)</label>
-                                <div className="no-print relative">
-                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                                        <FileText size={16} />
-                                    </div>
+                                <div className="no-print flex items-center fireload-focus-glow w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 transition-all shadow-sm focus-within:ring-2 focus-within:ring-blue-500 px-3 py-2.5">
+                                    <FileText size={18} className="text-slate-400 flex-shrink-0 mr-2" />
                                     <input
                         type="text"
                         value={formData.actividadResumen}
                         onChange={(e) => setFormData({ ...formData, actividadResumen: e.target.value })}
                         placeholder="Ej: Planta Industrial, Depósito de Telas..."
-                        className="fireload-focus-glow w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
-                      
+                        className="w-full bg-transparent text-slate-800 dark:text-slate-200 outline-none" />
                                 </div>
-                                <div className="print-only p-[8px] border-bottom-[1px_solid_#eee]">{formData.actividadResumen || '-'}</div>
+                                <div className="print-only p-2 border-b border-slate-200">{formData.actividadResumen || '-'}</div>
                             </div>
 
                             <div className="mb-4">
@@ -679,52 +706,45 @@ export default function FireLoad(): React.ReactElement | null {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5">Superficie del Sector (m²)</label>
-                                    <div className="no-print relative">
-                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                                            <Maximize2 size={16} />
-                                        </div>
+                                    <div className="no-print flex items-center fireload-focus-glow w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 transition-all shadow-sm focus-within:ring-2 focus-within:ring-blue-500 px-3 py-2.5">
+                                        <Maximize2 size={18} className="text-slate-400 flex-shrink-0 mr-2" />
                                         <input
                           type="number"
                           value={formData.superficie === 0 ? '' : formData.superficie}
                           onChange={(e) => setFormData({ ...formData, superficie: e.target.value === '' ? 0 : parseFloat(e.target.value) || 0 })}
                           onFocus={(e) => e.target.select()}
                           placeholder="0"
-                          className="fireload-focus-glow w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
-                        
+                          className="w-full bg-transparent text-slate-800 dark:text-slate-200 outline-none" />
                                     </div>
-                                    <div className="print-only p-[8px] border-bottom-[1px_solid_#eee]">{formData.superficie} m²</div>
+                                    <div className="print-only p-2 border-b border-slate-200">{formData.superficie} m²</div>
                                 </div>
                                 <div>
                                     <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5">Grupo de Actividad</label>
-                                    <div className="no-print relative">
-                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                                            <Flame size={16} />
-                                        </div>
+                                    <div className="no-print flex items-center fireload-focus-glow w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 transition-all shadow-sm focus-within:ring-2 focus-within:ring-blue-500 px-3 py-2.5">
+                                        <Flame size={18} className="text-slate-400 flex-shrink-0 mr-2" />
                                         <input
                           list="activityList"
                           value={formData.actividadGrupo}
                           onChange={(e) => setFormData({ ...formData, actividadGrupo: e.target.value })}
                           placeholder="Ej: Industrial, Comercial..."
-                          className="fireload-focus-glow w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+                          className="w-full bg-transparent text-slate-800 dark:text-slate-200 outline-none" />
                         
                                         <datalist id="activityList">
                                             {(riskActivityGroups || []).map((g) => <option key={g.id} value={g.label} />)}
                                         </datalist>
                                     </div>
-                                    <div className="print-only p-[8px] border-bottom-[1px_solid_#eee]">{formData.actividadGrupo}</div>
+                                    <div className="print-only p-2 border-b border-slate-200">{formData.actividadGrupo}</div>
                                 </div>
                             </div>
 
                             <div className="mt-4">
                                 <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5">Nivel de Riesgo ({countryNorms.fire.split(' ')[0]})</label>
-                                <div className="no-print relative">
-                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                                        <ShieldCheck size={16} />
-                                    </div>
+                                <div className="no-print flex items-center fireload-focus-glow w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 transition-all shadow-sm focus-within:ring-2 focus-within:ring-blue-500 px-3 py-2.5">
+                                    <ShieldCheck size={18} className="text-slate-400 flex-shrink-0 mr-2" />
                                     <select
                         value={formData.riesgo}
                         onChange={(e) => setFormData({ ...formData, riesgo: e.target.value })}
-                        className="fireload-focus-glow w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all appearance-none">
+                        className="w-full bg-transparent text-slate-800 dark:text-slate-200 outline-none">
                         
                                         <option value="R1">Riesgo 1 (Explosivo)</option>
                                         <option value="R2">Riesgo 2 (Inflamable)</option>
@@ -735,7 +755,7 @@ export default function FireLoad(): React.ReactElement | null {
                                         <option value="R7">Riesgo 7 (Refractario)</option>
                                     </select>
                                 </div>
-                                <div className="print-only p-[8px] border-bottom-[1px_solid_#eee] font-[bold]">{formData.riesgo}</div>
+                                <div className="print-only p-2 border-b border-slate-200 font-bold">{formData.riesgo}</div>
                                 <p className="no-print m-[0.4rem_0_0_0] text-[0.75rem] text-[var(--color-text-muted)] font-[500]">
                                     El riesgo afecta directamente el cálculo de la Resistencia al Fuego (RF) necesaria.
                                 </p>
@@ -747,60 +767,57 @@ export default function FireLoad(): React.ReactElement | null {
                                 {/* VISTA EN PANTALLA (Formulario Interactivo) */}
                                 <div className="no-print flex flex-col gap-[0.8rem]">
                                     {(formData.materiales || []).map((m, idx) =>
-                      <div key={idx} className="fireload-material-row grid gap-[0.8rem] items-end" style={{ gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr 1.2fr auto' }}>
+                      <div key={idx} className="fireload-material-row grid gap-3 items-end" style={{ gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr 1.2fr auto' }}>
                                             <div>
-                                                <label className="text-[0.75rem] font-[700] text-[var(--color-text-muted)] uppercase block mb-[0.3rem]">Material #{idx + 1}</label>
+                                                <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5">Material #{idx + 1}</label>
                                                 <input
                             list="materialList"
                             value={m.nombre}
                             onChange={(e) => handleMaterialChange(idx, 'nombre', e.target.value)}
                             placeholder="Ej: Madera, Plásticos, Papel..."
-                            className="fireload-focus-glow w-[100%] p-[0.6rem] rounded-[8px] border-[1px_solid_var(--color-border)] bg-[var(--color-background)] text-[var(--color-text)] transition-[all_0.2s]" />
+                            className="w-full p-2.5 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm" />
 
                           
                                                 <datalist id="materialList">
                                                     {(fireMaterials || []).map((fm, i) => <option key={i} value={fm.nombre} />)}
                                                 </datalist>
                                             </div>
-                                            <div className="grid grid-template-columns-[1fr] gap-[0.2rem]">
-                                                <label className="text-[0.75rem] font-[700] text-[var(--color-text-muted)] uppercase">Peso (Kg)</label>
+                                            <div>
+                                                <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5">Peso (Kg)</label>
                                                 <input
                             type="number"
                             value={m.peso === 0 ? '' : m.peso}
                             onChange={(e) => handleMaterialChange(idx, 'peso', e.target.value)}
                             onFocus={(e) => e.target.select()}
                             placeholder="0"
-                            className="fireload-focus-glow w-[100%] p-[0.6rem] rounded-[8px] border-[1px_solid_var(--color-border)] bg-[var(--color-background)] text-[var(--color-text)] transition-[all_0.2s]" />
+                            className="w-full p-2.5 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm" />
 
                           
                                             </div>
-                                            <div className="grid grid-template-columns-[1fr] gap-[0.2rem]">
-                                                <label className="text-[0.75rem] font-[700] text-[var(--color-text-muted)] uppercase">Calor (Mcal/Kg)</label>
+                                            <div>
+                                                <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5">Calor (Mcal/Kg)</label>
                                                 <input
                             type="number"
                             value={m.poderCalorifico === 0 ? '' : m.poderCalorifico}
                             onChange={(e) => handleMaterialChange(idx, 'poderCalorifico', e.target.value)}
                             onFocus={(e) => e.target.select()}
                             placeholder="0"
-                            className="fireload-focus-glow w-[100%] p-[0.6rem] rounded-[8px] border-[1px_solid_var(--color-border)] bg-[var(--color-background)] text-[var(--color-text)] transition-[all_0.2s]" />
+                            className="w-full p-2.5 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm" />
 
                           
                                             </div>
                                             <button
                           onClick={() => removeMaterial(idx)}
-
-                          onMouseEnter={(e) => {e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';e.currentTarget.style.transform = 'scale(1.05)';}}
-                          onMouseLeave={(e) => {e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)';e.currentTarget.style.transform = 'none';}} className="bg-[rgba(239,_68,_68,_0.05)] border-[1px_solid_rgba(239,_68,_68,_0.15)] text-[#ef4444] p-[0.6rem] rounded-[8px] cursor-pointer flex items-center justify-center transition-[all_0.2s] align-self-[end] h-[38px] min-width-[38px]">
+                          className="bg-red-50 text-red-500 hover:bg-red-100 hover:scale-105 p-3 rounded-xl cursor-pointer flex items-center justify-center transition-all h-[44px]">
                           
-                                                <Trash2 size={16} />
+                                                <Trash2 size={18} />
                                             </button>
                                         </div>
                       )}
                                      <button
                         onClick={addMaterial}
-
-                        onMouseEnter={(e) => {e.currentTarget.style.background = 'rgba(249, 115, 22, 0.08)';e.currentTarget.style.borderColor = '#f97316';}}
-                        onMouseLeave={(e) => {e.currentTarget.style.background = 'rgba(249, 115, 22, 0.03)';e.currentTarget.style.borderColor = 'var(--glass-border)';}} className="border-style-[dashed] p-[1rem] w-[100%] bg-[rgba(249,_115,_22,_0.03)] border-[2px_dashed_var(--glass-border)] text-[#f97316] rounded-[12px] font-[800] text-[0.85rem] cursor-pointer flex items-center justify-center gap-[0.5rem] transition-[all_0.2s]">
+                        style={{ backgroundColor: '#f97316', color: '#fff', border: 'none' }}
+                        className="w-full py-4 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:-translate-y-1 transition-transform">
                         
                                          <Plus size={18} /> Agregar Material Combustible
                                      </button>
@@ -809,62 +826,62 @@ export default function FireLoad(): React.ReactElement | null {
                             </ModuleFormSection>
                     </div>
 
-                    <div style={{ width: isMobile ? '100%' : '350px' }} className="results-grid no-print sticky top-[1.5rem] flex flex-col gap-[1.5rem]">
-                        <div className="glass-card bg-[linear-gradient(135deg,_#f97316,_#ea580c)] text-[#ffffff] text-center p-[2rem] rounded-[var(--radius-2xl)] border-none box-shadow-[0_8px_30px_rgba(249,_115,_22,_0.35)] relative overflow-[hidden]">
-                            <div className="absolute inset-[0] bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.15),_transparent)] pointer-events-[none]" />
-                            <div className="text-[0.75rem] font-[900] uppercase letter-spacing-[1px] opacity-[0.9] mb-[0.5rem] flex items-center justify-center gap-[0.3rem]">
-                                <Flame size={14} /> Carga de Fuego Qf
+                    <div style={{ width: isMobile ? '100%' : '350px' }} className="results-grid no-print sticky top-6 flex flex-col gap-6">
+                        <div className="text-center p-8 rounded-2xl relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#ffffff', boxShadow: '0 8px 30px rgba(249, 115, 22, 0.35)' }}>
+                            <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at top right, rgba(255,255,255,0.15), transparent)' }} />
+                            <div className="text-xs font-black uppercase tracking-wider opacity-90 mb-2 flex items-center justify-center gap-1.5">
+                                <Flame size={16} /> Carga de Fuego Qf
                             </div>
-                            <div className="text-[3rem] font-[900] text-shadow-[0_2px_10px_rgba(0,0,0,0.2)] line-height-[1]">{(results.cargaDeFuego || 0).toFixed(2)}</div>
-                            <div className="text-[0.85rem] font-[700] opacity-[0.95] mt-[0.5rem]">Kg de Madera / m²</div>
+                            <div className="text-5xl font-black leading-none" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>{(results.cargaDeFuego || 0).toFixed(2)}</div>
+                            <div className="text-sm font-bold opacity-95 mt-2">Kg de Madera / m²</div>
                         </div>
 
-                        <div className="glass-card p-[1.25rem] rounded-[var(--radius-xl)] flex flex-col gap-[0.75rem] bg-[var(--color-surface)] border-top-[1px_solid_var(--glass-border-subtle)] border-right-[1px_solid_var(--glass-border-subtle)] border-bottom-[1px_solid_var(--glass-border-subtle)]" style={{ borderLeft: `5px solid ${threat.border}` }}>
-                            <div className="flex justify-space-between items-center">
-                                <span className="text-[var(--color-text-muted)] text-[0.8rem] font-[700] uppercase letter-spacing-[0.5px]">Riesgo Dominante:</span>
-                                <span className="font-[900] bg-[var(--color-background)] p-[0.2rem_0.6rem] rounded-[8px] border-[1px_solid_var(--glass-border-subtle)] text-[0.85rem] text-[var(--color-text)]">{formData.riesgo}</span>
+                        <div className="p-5 rounded-2xl flex flex-col gap-3 bg-white dark:bg-slate-800 shadow-sm" style={{ border: '1px solid var(--color-border)', borderLeft: `5px solid ${threat.border}` }}>
+                            <div className="flex justify-between items-center">
+                                <span className="text-slate-500 text-sm font-bold uppercase tracking-wide">Riesgo Dominante:</span>
+                                <span className="font-black bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg text-sm text-slate-800 dark:text-slate-200">{formData.riesgo}</span>
                             </div>
-                            <div className="flex justify-space-between items-center">
-                                <span className="text-[var(--color-text-muted)] text-[0.8rem] font-[700] uppercase letter-spacing-[0.5px]">Resistencia RF Requerida:</span>
-                                <span style={{ color: threat.text }} className="font-[900] text-[1.15rem]">{results.rfRequerida}</span>
+                            <div className="flex justify-between items-center">
+                                <span className="text-slate-500 text-sm font-bold uppercase tracking-wide">Resistencia RF:</span>
+                                <span style={{ color: threat.text }} className="font-black text-xl">{results.rfRequerida}</span>
                             </div>
-                            <div className="flex justify-space-between items-center border-top-[1px_solid_var(--glass-border-subtle)] pt-[0.5rem] mt-[0.25rem]">
-                                <span className="text-[var(--color-text-muted)] text-[0.75rem] font-[700]">Nivel de Amenaza:</span>
-                                <span style={{ color: threat.text }} className="text-[0.75rem] font-[800] uppercase flex items-center gap-[4px]">
-                                    <span style={{ background: threat.border }} className="w-[6px] h-[6px] rounded-[50%] inline-block"></span>
+                            <div className="flex justify-between items-center border-t border-slate-200 dark:border-slate-700 pt-3 mt-1">
+                                <span className="text-slate-500 text-xs font-bold">Nivel de Amenaza:</span>
+                                <span style={{ color: threat.text }} className="text-xs font-extrabold uppercase flex items-center gap-1.5">
+                                    <span style={{ background: threat.border }} className="w-2 h-2 rounded-full inline-block"></span>
                                     {threat.label}
                                 </span>
                             </div>
                         </div>
 
-                        <div className="glass-card p-[1.5rem] rounded-[var(--radius-xl)] border-[1px_solid_var(--glass-border)] bg-[var(--color-surface)]">
-                            <h4 className="m-[0_0_1rem_0] text-[0.95rem] font-[900] flex items-center gap-[0.5rem] text-[#ea580c]">
-                                <ShieldCheck size={18} /> Resultados del Cálculo
+                        <div className="p-6 rounded-2xl bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700">
+                            <h4 className="m-0 mb-4 text-base font-black flex items-center gap-2 text-orange-600">
+                                <ShieldCheck size={20} /> Resultados del Cálculo
                             </h4>
-                            <div className="flex flex-col gap-[0.8rem] text-[0.85rem]">
-                                <div className="flex justify-space-between border-bottom-[1px_solid_var(--glass-border-subtle)] pb-[0.4rem]">
-                                    <span className="text-[var(--color-text-muted)] font-[600]">Carga Térmica Total</span>
-                                    <span className="font-[800] text-[var(--color-text)]">{Math.round(results.cargaTermicaTotal || 0).toLocaleString()} Kcal</span>
+                            <div className="flex flex-col gap-3 text-sm">
+                                <div className="flex justify-between items-center border-b border-slate-300 pb-2">
+                                    <span style={{ color: '#000000' }} className="font-extrabold text-[0.85rem]">Carga Térmica Total</span>
+                                    <span style={{ color: '#000000' }} className="font-black text-[0.9rem] text-right ml-2">{Math.round(results.cargaTermicaTotal || 0).toLocaleString()} Kcal</span>
                                 </div>
-                                <div className="flex justify-space-between border-bottom-[1px_solid_var(--glass-border-subtle)] pb-[0.4rem]">
-                                    <span className="text-[var(--color-text-muted)] font-[600]">Madera Equivalente</span>
-                                    <span className="font-[800] text-[var(--color-text)]">{(results.maderaEquivalente || 0).toFixed(2)} Kg</span>
+                                <div className="flex justify-between items-center border-b border-slate-300 pb-2">
+                                    <span style={{ color: '#000000' }} className="font-extrabold text-[0.85rem]">Madera Equivalente</span>
+                                    <span style={{ color: '#000000' }} className="font-black text-[0.9rem] text-right ml-2">{(results.maderaEquivalente || 0).toFixed(2)} Kg</span>
                                 </div>
-                                <div className="flex justify-space-between border-bottom-[1px_solid_var(--glass-border-subtle)] pb-[0.4rem]">
-                                    <span className="text-[var(--color-text-muted)] font-[600]">Superficie Sector</span>
-                                    <span className="font-[800] text-[var(--color-text)]">{formData.superficie} m²</span>
+                                <div className="flex justify-between items-center border-b border-slate-300 pb-2">
+                                    <span style={{ color: '#000000' }} className="font-extrabold text-[0.85rem]">Superficie Sector</span>
+                                    <span style={{ color: '#000000' }} className="font-black text-[0.9rem] text-right ml-2">{formData.superficie} m²</span>
                                 </div>
-                                <div className="flex justify-space-between border-bottom-[1px_solid_var(--glass-border-subtle)] pb-[0.4rem]">
-                                    <span className="text-[var(--color-text-muted)] font-[600]">Riesgo Dominante</span>
-                                    <span className="font-[800] text-[#f97316]">{formData.riesgo}</span>
+                                <div className="flex justify-between items-center border-b border-slate-300 pb-2">
+                                    <span style={{ color: '#000000' }} className="font-extrabold text-[0.85rem]">Riesgo Dominante</span>
+                                    <span style={{ color: '#000000' }} className="font-black text-[0.9rem] text-right ml-2">{formData.riesgo}</span>
                                 </div>
-                                <div className="flex justify-space-between border-bottom-[1px_solid_var(--glass-border-subtle)] pb-[0.4rem]">
-                                    <span className="text-[var(--color-text-muted)] font-[600]">RF Mínima Requerida</span>
-                                    <span style={{ color: threat.text }} className="font-[800]">{results.rfRequerida}</span>
+                                <div className="flex justify-between items-center border-b border-slate-300 pb-2">
+                                    <span style={{ color: '#000000' }} className="font-extrabold text-[0.85rem]">RF Mínima Requerida</span>
+                                    <span style={{ color: threat.text || '#000000' }} className="font-black text-[0.9rem] text-right ml-2">{results.rfRequerida}</span>
                                 </div>
-                                <div className="flex justify-space-between mt-[0.5rem] bg-[rgba(249,_115,_22,_0.05)] p-[0.6rem_0.8rem] rounded-[10px] border-[1px_solid_rgba(249,115,22,0.15)]">
-                                    <span className="font-[700] text-[var(--color-text)] text-[0.8rem]">Extintores ABC Sugeridos</span>
-                                    <span className="font-[900] text-[#f97316] text-[0.85rem]">{results.minMatafuegos} u.</span>
+                                <div className="flex justify-between items-center mt-2 p-3 rounded-xl border border-slate-400" style={{ backgroundColor: 'rgba(0,0,0,0.05)' }}>
+                                    <span style={{ color: '#000000' }} className="font-extrabold text-[0.9rem]">Extintores ABC Sugeridos</span>
+                                    <span style={{ color: '#000000' }} className="font-black text-[1rem] text-right ml-2">{results.minMatafuegos} u.</span>
                                 </div>
                             </div>
                         </div>
@@ -993,7 +1010,7 @@ export default function FireLoad(): React.ReactElement | null {
                     <textarea
                 value={formData.conclusion || ''}
                 onChange={(e) => setFormData((prev) => ({ ...prev, conclusion: e.target.value }))}
-                className="form-input no-print fireload-focus-glow w-[100%] p-[1rem] rounded-[12px] border-[1px_solid_var(--glass-border)] bg-[var(--color-surface)] text-[var(--color-text)] min-h-[120px] resize-[vertical] font-family-[inherit] transition-[all_0.2s]"
+                className="w-full p-4 rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 min-h-[120px] resize-y focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
                 placeholder="Escriba la conclusión del estudio o use el botón de IA para generarla..." />
               
 
@@ -1034,6 +1051,23 @@ export default function FireLoad(): React.ReactElement | null {
                         </div>
                     </div>
 
+                    <div className="no-print grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        {showSignatures.operator && (
+                            <SignatureCanvas
+                                onSave={(sig) => setFormData(prev => ({ ...prev, operatorSignature: sig || '' }))}
+                                initialImage={formData.operatorSignature}
+                                title="Firma del Operador / Depositario"
+                            />
+                        )}
+                        {showSignatures.supervisor && (
+                            <SignatureCanvas
+                                onSave={(sig) => setFormData(prev => ({ ...prev, supervisorSignature: sig || '' }))}
+                                initialImage={formData.supervisorSignature}
+                                title="Firma del Supervisor"
+                            />
+                        )}
+                    </div>
+
                     <PdfSignatures
                 data={{
                   ...formData,
@@ -1045,13 +1079,13 @@ export default function FireLoad(): React.ReactElement | null {
                 box1={showSignatures.operator ? {
                   title: 'OPERADOR / DEPOSITARIO',
                   subtitle: 'Aclaración y Firma',
-                  signatureUrl: null,
+                  signatureUrl: formData.operatorSignature || null,
                   isProfessional: false
                 } : null}
                 box3={showSignatures.supervisor ? {
                   title: 'SUPERVISOR',
                   subtitle: 'DNI / ACLARACIÓN',
-                  signatureUrl: null,
+                  signatureUrl: formData.supervisorSignature || null,
                   isProfessional: false
                 } : null}
                 box2={showSignatures.professional ? undefined : null} />
@@ -1060,12 +1094,17 @@ export default function FireLoad(): React.ReactElement | null {
                 </ModuleFormSection>
                 </ModuleFormDocument>
             </ModuleFormLayout>
-            <ModuleActionBar actions={[
-                { id: 'cancel', label: 'CANCELAR', icon: <ArrowLeft size={18} />, variant: 'secondary', onClick: () => { setShowForm(false); } },
-                { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'secondary', onClick: () => requirePro(() => setShowShare(true)) },
-                { id: 'print', label: 'IMPRIMIR', icon: <Printer size={18} />, variant: 'secondary', onClick: handlePrint },
-                { id: 'save', label: 'GUARDAR FICHA', icon: <Save size={18} />, variant: 'primary', onClick: () => requirePro(() => handleSave()) }
-            ]} />
+                <ModuleWizardFooter
+                    currentStep={1}
+                    totalSteps={1}
+                    onPrev={() => setShowForm(false)}
+                    onNext={() => {}}
+                    finalActions={[
+                        { id: 'share', label: 'Compartir', icon: <Share2 size={18} />, variant: 'info', onClick: () => requirePro(() => setShowShare(true)) },
+                        { id: 'print', label: 'Imprimir', icon: <Printer size={18} />, variant: 'warning', onClick: handlePrint },
+                        { id: 'save', label: 'Guardar Ficha', icon: <Save size={18} />, variant: 'primary', onClick: () => requirePro(() => handleSave()) }
+                    ]}
+                />
             </div>
             </>
       }

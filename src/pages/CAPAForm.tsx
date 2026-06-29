@@ -13,7 +13,7 @@ import {
   ModuleFormToolbar,
   ModuleFormDocument,
   ModuleFormSection,
-  ModuleActionBar,
+  ModuleWizardFooter,
 } from '../components/module';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
@@ -199,13 +199,13 @@ export default function CAPAForm(): React.ReactElement | null {
   };
 
   return (
-        <ModuleFormLayout>
+        <ModuleFormLayout className="pt-24 pb-32">
             <ModuleFormToolbar
           title={isEdit ? 'Editar Acción CAPA' : 'Nueva Acción CAPA'}
           subtitle={isEdit ? 'Actualice la información de la acción correctiva o preventiva en curso.' : 'Registre una nueva acción para el proceso de mejora continua.'}
           icon={<Shield />} />
         
-        <ModuleFormDocument>
+        <ModuleFormDocument className="ats-editor-panel">
             <ModuleFormSection title="Metadatos Principales" icon={<Target />}>
                 <div className="flex flex-col gap-6 w-full">
                     <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '1rem' : '1.5rem' }} className="grid">
@@ -530,11 +530,16 @@ export default function CAPAForm(): React.ReactElement | null {
             </ModuleFormSection>
         </ModuleFormDocument>
 
-            <ModuleActionBar
-              actions={[
-                { id: 'save', label: 'GUARDAR CAPA', icon: <Save />, variant: 'primary', onClick: () => requirePro(handleSave) },
-                { id: 'share', label: 'COMPARTIR', icon: <Share2 />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) },
-                { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer />, variant: 'secondary', onClick: () => requirePro(() => window.print()) }
+            <ModuleWizardFooter
+              currentStep={1}
+              totalSteps={1}
+              onPrev={() => navigate('/capa')}
+              onNext={() => {}}
+              finalActions={[
+                { id: 'clear', label: 'Cancelar', icon: <ArrowLeft size={18} />, variant: 'danger', onClick: () => navigate('/capa') },
+                { id: 'print', label: 'Imprimir', icon: <Printer size={18} />, variant: 'warning', onClick: () => requirePro(() => window.print()) },
+                { id: 'share', label: 'Compartir', icon: <Share2 size={18} />, variant: 'info', onClick: () => requirePro(() => setShowShareModal(true)) },
+                { id: 'save', label: 'Guardar CAPA', icon: <Save size={18} />, variant: 'primary', onClick: (e) => { e?.preventDefault(); requirePro(handleSave); } }
               ]}
             />
 
@@ -549,7 +554,7 @@ export default function CAPAForm(): React.ReactElement | null {
         fileName={`CAPA_${capa.title || 'Sin_Nombre'}.pdf`} />
       
 
-            <div className="print-only fixed left-[-9999px] top-[0] opacity-[0.01] pointer-events-[none]" id="pdf-content">
+            <div className="ats-pdf-offscreen" id="pdf-content" aria-hidden="true">
                 <CAPAPdf data={{ ...capa, showSignatures, createdAt: capa.createdAt || new Date().toISOString() }} />
             </div>
         </ModuleFormLayout>);
