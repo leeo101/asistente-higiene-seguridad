@@ -11,8 +11,9 @@ import { useSync } from '../contexts/SyncContext';
 import { downloadCSV } from '../services/exportCsv';
 import { usePaywall } from '../hooks/usePaywall';
 import PPEReceiptPdfGenerator from '../components/PPEReceiptPdfGenerator';
-import { ModuleFormLayout, ModuleFormToolbar, ModuleFormSection, ModuleActionBar } from '../components/module';
 import Breadcrumbs from '../components/Breadcrumbs';
+import PremiumHeader from '../components/PremiumHeader';
+import { ModuleFormLayout, ModuleFormSection, ModuleActionBar } from '../components/module';
 
 const EPP_TYPES = [
 'Casco de seguridad', 'Calzado de seguridad', 'Guantes de trabajo',
@@ -162,12 +163,15 @@ export default function PPETracker(): React.ReactElement | null {
   return (
     <div className="min-h-screen bg-[var(--color-background)] pb-[8rem]">
         <ModuleFormLayout>
-            <ModuleFormToolbar
-                title="Control de EPP"
-                subtitle="Res. SIyC 18/25 · Res. SRT 299/11"
-                icon={<HardHat size={36} color="#ffffff" />}
-                onBack={isFormVisible ? () => setIsFormVisible(false) : undefined}
-            />
+            <Breadcrumbs />
+            <div className="mt-24">
+                <PremiumHeader
+                    title="Control de EPP"
+                    subtitle="Res. SIyC 18/25 · Res. SRT 299/11"
+                    icon={<HardHat size={36} color="#ffffff" />}
+                    onBack={isFormVisible ? () => setIsFormVisible(false) : undefined}
+                />
+            </div>
             <div className="p-[2rem] max-w-[1000px] m-[0_auto]">
       
 
@@ -178,10 +182,10 @@ export default function PPETracker(): React.ReactElement | null {
                     </div>
                     {items.length > 0 &&
         <div className="flex gap-2">
-                            <button onClick={() => requirePro(() => window.print())} className="bg-blue-600 hover:bg-blue-700 text-white border-none rounded-lg px-3 py-2 text-xs font-extrabold cursor-pointer shadow-lg shadow-blue-500/30 transition-all">
+                            <button onClick={() => requirePro(() => window.print())} style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', boxShadow: '0 8px 20px rgba(59,130,246,0.3)' }} className="text-white border-none rounded-lg px-4 py-2 text-xs font-extrabold cursor-pointer hover:scale-[1.03] active:scale-[0.97] transition-all">
                                 <span className="hidden sm:inline">IMPRIMIR RES. 299/11</span><span className="inline sm:hidden">RES 299/11</span>
                             </button>
-                            <button onClick={handleExport} className="bg-emerald-500 hover:bg-emerald-600 text-white border-none rounded-lg px-3 py-2 text-xs font-extrabold cursor-pointer shadow-lg shadow-emerald-500/30 flex items-center gap-1 transition-all">
+                            <button onClick={handleExport} style={{ background: 'linear-gradient(135deg, #10b981, #047857)', boxShadow: '0 8px 20px rgba(16,185,129,0.3)' }} className="text-white border-none rounded-lg px-4 py-2 text-xs font-extrabold cursor-pointer hover:scale-[1.03] active:scale-[0.97] flex items-center gap-1 transition-all">
                                 <Download size={14} /> <span className="hidden sm:inline">EXCEL</span>
                             </button>
                         </div>
@@ -263,13 +267,15 @@ export default function PPETracker(): React.ReactElement | null {
             <div className="flex gap-1.5 mb-6 bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
                 <button
           onClick={() => setIsFormVisible(false)}
-          className={`flex-1 py-3 px-4 rounded-xl border-none font-extrabold text-sm cursor-pointer transition-all flex items-center justify-center gap-2 ${!isFormVisible ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}>
+          style={!isFormVisible ? { background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 8px 20px rgba(16,185,129,0.3)', color: '#fff' } : {}}
+          className={`flex-1 py-3 px-4 rounded-xl border-none font-extrabold text-sm cursor-pointer transition-all flex items-center justify-center gap-2 ${!isFormVisible ? '' : 'bg-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}>
           
                     <Shield size={18} /> Inventario
                 </button>
                 <button
           onClick={() => setIsFormVisible(true)}
-          className={`flex-1 py-3 px-4 rounded-xl border-none font-extrabold text-sm cursor-pointer transition-all flex items-center justify-center gap-2 ${isFormVisible ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}>
+          style={isFormVisible ? { background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 8px 20px rgba(16,185,129,0.3)', color: '#fff' } : {}}
+          className={`flex-1 py-3 px-4 rounded-xl border-none font-extrabold text-sm cursor-pointer transition-all flex items-center justify-center gap-2 ${isFormVisible ? '' : 'bg-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}>
           
                     <Plus size={18} /> Nueva Entrega
                 </button>
@@ -413,74 +419,81 @@ export default function PPETracker(): React.ReactElement | null {
                             {form.type === 'Otro' &&
             <div className="col-span-full animate-fade-in">
                                     <label className="font-bold text-sm mb-1 block">Descripción del EPP Especial</label>
-                                    <input
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
-                value={form.custom}
-                onChange={(e) => setForm({ ...form, custom: e.target.value })}
-                placeholder="Ej: Pantalla de soldadura fotosensible" />
-              
+                                    <div className="relative">
+                                        <Info size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                        <input
+                    className="w-full pl-[2.8rem] pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
+                    value={form.custom}
+                    onChange={(e) => setForm({ ...form, custom: e.target.value })}
+                    placeholder="Ej: Pantalla de soldadura fotosensible" />
+                                    </div>
                                 </div>
             }
                             
                             <div>
                                 <label className="font-bold text-sm mb-1 block">Responsable (Trabajador)</label>
                                 <div className="relative">
+                                    <User size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none" />
                                     <input
-                  className="w-full px-4 py-3 pl-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
+                  className="w-full pl-[2.8rem] pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
                   value={form.responsible}
                   onChange={(e) => setForm({ ...form, responsible: e.target.value })}
                   placeholder="Nombre del trabajador" />
-                
-                                    <User size={14} color="var(--color-text-light)" className="absolute left-3.5 top-3.5 text-slate-400" />
                                 </div>
                             </div>
                             
                             <div>
                                 <label className="font-bold text-sm mb-1 block">Fecha de compra / entrega</label>
                                 <div className="relative">
+                                    <Calendar size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none" />
                                     <input
-                  className="w-full px-4 py-3 pl-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
+                  className="w-full pl-[2.8rem] pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
                   type="date"
                   value={form.purchaseDate}
                   onChange={(e) => setForm({ ...form, purchaseDate: e.target.value })} />
-                
-                                    <Calendar size={14} color="var(--color-text-light)" className="absolute left-3.5 top-3.5 text-slate-400 pointer-events-none" />
                                 </div>
                             </div>
                             
                             <div>
                                 <label className="font-bold text-sm mb-1 block">Vida útil (meses)</label>
-                                <input
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
-                type="number"
-                min="1"
-                max="120"
-                value={form.lifeMonths}
-                onChange={(e) => setForm({ ...form, lifeMonths: e.target.value })}
-                placeholder="12" />
-              
+                                <div className="relative">
+                                    <Clock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                    <input
+                    className="w-full pl-[2.8rem] pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
+                    type="number"
+                    min="1"
+                    max="120"
+                    value={form.lifeMonths}
+                    onChange={(e) => setForm({ ...form, lifeMonths: e.target.value })}
+                    placeholder="12" />
+                                </div>
                             </div>
                             
                             <div>
                                 <label className="font-bold text-sm mb-1 block">Norma de Certificación</label>
-                                <select
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
-                value={form.certStandard}
-                onChange={(e) => setForm({ ...form, certStandard: e.target.value })}>
-                
-                                    <option value="">— Seleccioná —</option>
-                                    {CERT_STANDARDS.map((s) => <option key={s} value={s}>{s}</option>)}
-                                </select>
+                                <div className="relative">
+                                    <ShieldCheck size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                    <select
+                    className="w-full pl-[2.8rem] pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors appearance-none"
+                    value={form.certStandard}
+                    onChange={(e) => setForm({ ...form, certStandard: e.target.value })}>
+                    
+                                        <option value="">— Seleccioná —</option>
+                                        {CERT_STANDARDS.map((s) => <option key={s} value={s}>{s}</option>)}
+                                    </select>
+                                </div>
                             </div>
                             
                             <div className={form.certStandard ? '' : 'col-span-full'}>
                                 <label className="font-bold text-sm mb-1 block">N° de Certificado / Sello AR</label>
-                                <input
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
-                value={form.certNumber}
-                onChange={(e) => setForm({ ...form, certNumber: e.target.value })}
-                placeholder="Ej: AR-2025-001234" />
-              
+                                <div className="relative">
+                                    <QrCode size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                    <input
+                    className="w-full pl-[2.8rem] pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
+                    value={form.certNumber}
+                    onChange={(e) => setForm({ ...form, certNumber: e.target.value })}
+                    placeholder="Ej: AR-2025-001234" />
+                                </div>
                             </div>
 
                             {showARStamp &&
@@ -505,10 +518,17 @@ export default function PPETracker(): React.ReactElement | null {
             }
                         </div>
                     </ModuleFormSection>
-                    
-                    <ModuleActionBar actions={[
-                        { id: 'save', label: 'GUARDAR EPP', icon: <ShieldCheck size={18} />, variant: 'primary', onClick: handleAdd }
-                    ]} />
+                    <div className="mt-12 flex justify-center">
+                        <button
+                            type="button"
+                            onClick={handleAdd}
+                            style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 8px 20px rgba(16,185,129,0.3)' }}
+                            className="flex items-center gap-2 px-10 py-3.5 rounded-full font-extrabold shadow-md transition-all hover:scale-105 active:scale-95 text-white border-none cursor-pointer"
+                        >
+                            <ShieldCheck size={20} />
+                            GUARDAR EPP
+                        </button>
+                    </div>
                 </div>
       }
             </div>

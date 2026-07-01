@@ -133,7 +133,9 @@ export default function ChecklistPdfGenerator({
           <h1 className="m-[0] font-[900] text-[1.8rem] letter-spacing-[-0.02em] uppercase line-height-[1] text-[#0f172a]">
             {checklistData.checklistTitle || 'CHECK LIST'}
           </h1>
-          <div style={{ backgroundColor: globalRiskColor }} className="mt-[0.4rem] text-[white] p-[0.2rem_0.8rem] rounded-[12px] text-[0.65rem] font-[800] letter-spacing-[0.1em]">
+          <hr style={{ borderTop: `4px solid ${globalRiskColor}` }} className="mt-[0.5rem] w-[60px] border-0 rounded-[2px]" />
+          
+          <div style={{ backgroundColor: globalRiskColor }} className="mt-[0.6rem] text-[white] p-[0.25rem_0.8rem] rounded-[12px] text-[0.65rem] font-[800] letter-spacing-[0.1em] box-shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
             {globalRiskLabel}
           </div>
         </div>
@@ -241,21 +243,21 @@ export default function ChecklistPdfGenerator({
       </div>
 
       {/* Resumen Estadístico */}
-      <div className="flex gap-[0.8rem] mb-[1rem]">
-        <div className="flex-[1] bg-green-50 dark:bg-green-900/20 border-[1.5px_solid_#86efac] rounded-[8px] p-[0.6rem] text-center">
-          <div className="text-[0.55rem] font-[800] text-green-600 dark:text-green-400 uppercase letter-spacing-[0.05em] mb-[0.2rem]">✓ CUMPLE</div>
-          <div className="text-[1.4rem] font-[900] text-[#15803d] line-height-[1]">{okCount}</div>
-          <div className="mt-[0.2rem] bg-[#16a34a] text-[#fff] p-[0.1rem_0.5rem] rounded-[12px] text-[0.65rem] font-[900] inline-block">{okPercent}%</div>
+      <div className="flex gap-[0.8rem] mb-[1.2rem]">
+        <div className="flex-[1] bg-[linear-gradient(135deg,_#f0fdf4_0%,_#dcfce7_100%)] border-[1px_solid_#86efac] rounded-[10px] p-[0.8rem] text-center box-shadow-[0_4px_12px_rgba(34,197,94,0.1)]">
+          <div className="text-[0.6rem] font-[900] text-[#166534] uppercase letter-spacing-[0.05em] mb-[0.3rem] flex items-center justify-center gap-[0.2rem]"><Check size={12}/> CUMPLE</div>
+          <div className="text-[1.8rem] font-[900] text-[#15803d] line-height-[1]">{okCount}</div>
+          <div className="mt-[0.4rem] bg-[#16a34a] text-[#fff] p-[0.15rem_0.6rem] rounded-[12px] text-[0.7rem] font-[900] inline-block box-shadow-[0_2px_4px_rgba(22,163,74,0.3)]">{okPercent}%</div>
         </div>
-        <div className="flex-[1] bg-[#fef2f2] border-[1.5px_solid_#fca5a5] rounded-[8px] p-[0.6rem] text-center">
-          <div className="text-[0.55rem] font-[800] text-red-600 dark:text-red-400 uppercase letter-spacing-[0.05em] mb-[0.2rem]">✗ NO CUMPLE</div>
-          <div className="text-[1.4rem] font-[900] text-[#b91c1c] line-height-[1]">{failCount}</div>
-          <div className="mt-[0.2rem] bg-[#dc2626] text-[#fff] p-[0.1rem_0.5rem] rounded-[12px] text-[0.65rem] font-[900] inline-block">{failPercent}%</div>
+        <div className="flex-[1] bg-[linear-gradient(135deg,_#fef2f2_0%,_#fee2e2_100%)] border-[1px_solid_#fca5a5] rounded-[10px] p-[0.8rem] text-center box-shadow-[0_4px_12px_rgba(239,68,68,0.1)]">
+          <div className="text-[0.6rem] font-[900] text-[#991b1b] uppercase letter-spacing-[0.05em] mb-[0.3rem] flex items-center justify-center gap-[0.2rem]"><X size={12}/> NO CUMPLE</div>
+          <div className="text-[1.8rem] font-[900] text-[#b91c1c] line-height-[1]">{failCount}</div>
+          <div className="mt-[0.4rem] bg-[#dc2626] text-[#fff] p-[0.15rem_0.6rem] rounded-[12px] text-[0.7rem] font-[900] inline-block box-shadow-[0_2px_4px_rgba(220,38,38,0.3)]">{failPercent}%</div>
         </div>
-        <div className="flex-[1] bg-slate-50 dark:bg-slate-800/50 border-[1.5px_solid_#cbd5e1] rounded-[8px] p-[0.6rem] text-center">
-          <div className="text-[0.55rem] font-[800] text-[#64748b] uppercase letter-spacing-[0.05em] mb-[0.2rem]">— N / A</div>
-          <div className="text-[1.4rem] font-[900] text-slate-600 dark:text-slate-400 line-height-[1]">{naCount}</div>
-          <div className="mt-[0.2rem] bg-[#64748b] text-[#fff] p-[0.1rem_0.5rem] rounded-[12px] text-[0.65rem] font-[900] inline-block">{naPercent}%</div>
+        <div className="flex-[1] bg-[linear-gradient(135deg,_#f8fafc_0%,_#f1f5f9_100%)] border-[1px_solid_#cbd5e1] rounded-[10px] p-[0.8rem] text-center box-shadow-[0_4px_12px_rgba(100,116,139,0.1)]">
+          <div className="text-[0.6rem] font-[900] text-[#475569] uppercase letter-spacing-[0.05em] mb-[0.3rem] flex items-center justify-center gap-[0.2rem]"><Activity size={12}/> N / A</div>
+          <div className="text-[1.8rem] font-[900] text-[#475569] line-height-[1]">{naCount}</div>
+          <div className="mt-[0.4rem] bg-[#64748b] text-[#fff] p-[0.15rem_0.6rem] rounded-[12px] text-[0.7rem] font-[900] inline-block box-shadow-[0_2px_4px_rgba(100,116,139,0.3)]">{naPercent}%</div>
         </div>
       </div>
       
@@ -279,17 +281,18 @@ export default function ChecklistPdfGenerator({
       {sections.map((section: any, sectionIdx: number) => {
         const sectionFails = section.items.filter((item: any) => item.status === 'FAIL' || item.status === 'NC' || item.value === 'NO' || item.estado === 'NO');
         return (
-          <div key={section.id} className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[0.8rem] avoid-break">
-            <div className="bg-[#e2e8f0] p-[0.4rem_0.8rem] flex justify-space-between items-center border-bottom-[2px_solid_#cbd5e1]">
-              <h3 className="m-[0] font-[900] text-[0.75rem] text-[#0f172a] uppercase letter-spacing-[0.04em]">
+          <div key={section.id} className="border-[1px_solid_#cbd5e1] rounded-[8px] mb-[1rem] avoid-break overflow-hidden box-shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
+            <div className="bg-[linear-gradient(90deg,_#1e293b_0%,_#334155_100%)] p-[0.5rem_0.8rem] flex justify-space-between items-center border-bottom-[2px_solid_#0f172a]">
+              <h3 className="m-[0] font-[900] text-[0.8rem] text-[#fff] uppercase letter-spacing-[0.05em] flex items-center gap-[0.4rem]">
+                <ClipboardCheck size={14} className="text-blue-400" />
                 {section.title}
               </h3>
               {sectionFails.length > 0 ? (
-                <span className="p-[0.1rem_0.5rem] bg-red-500 hover:bg-red-600 text-[#fff] rounded-[12px] text-[0.55rem] font-[800]">
+                <span className="p-[0.15rem_0.6rem] bg-[#ef4444] text-[#fff] rounded-[12px] text-[0.55rem] font-[900] box-shadow-[0_2px_4px_rgba(239,68,68,0.3)]">
                   ⚠ {sectionFails.length} NO CONFORME{sectionFails.length > 1 ? 'S' : ''}
                 </span>
               ) : (
-                <span className="p-[0.1rem_0.5rem] bg-[#166534] text-[#dcfce7] rounded-[12px] text-[0.55rem] font-[800]">
+                <span className="p-[0.15rem_0.6rem] bg-[#22c55e] text-[#fff] rounded-[12px] text-[0.55rem] font-[900] box-shadow-[0_2px_4px_rgba(34,197,94,0.3)]">
                   ✓ SIN DESVÍOS
                 </span>
               )}

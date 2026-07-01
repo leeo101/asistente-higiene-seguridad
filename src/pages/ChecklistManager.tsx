@@ -28,6 +28,8 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
+import { generatePdfBlob } from '../utils/pdfHelper';
+import { savePdfBlob, getPdfBlob } from '../utils/indexedDBHelper';
 
 const DEFAULT_TEMPLATES = {
   'manual_tools': {
@@ -426,6 +428,8 @@ export default function ChecklistManager(): React.ReactElement | null {
   const [shareItem, setShareItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEmpresa, setFilterEmpresa] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [autoPrintShare, setAutoPrintShare] = useState(false);
 
   const [companyInfo, setCompanyInfo] = useState({
     name: '',
@@ -593,6 +597,37 @@ export default function ChecklistManager(): React.ReactElement | null {
     // Deep save for specific report persistence
     localStorage.setItem(`checklist_${id}`, JSON.stringify(data));
 
+    let hasStaticPdf = false;
+    try {
+      setIsSaving(true);
+      const loadingToast = toast.loading('Guardando y generando PDF...', { 
+        id: 'save-checklist',
+        style: {
+          background: 'linear-gradient(135deg, #2563eb 0%, #4338ca 100%)',
+          color: '#fff',
+          fontWeight: 'bold',
+          borderRadius: '12px',
+          padding: '12px 20px',
+          boxShadow: '0 10px 25px -5px rgba(37, 99, 235, 0.4)'
+        },
+        iconTheme: {
+          primary: '#fff',
+          secondary: '#2563eb'
+        }
+      });
+      // Capturar el PDF actual para congelarlo en el tiempo
+      const pdfBlob = await generatePdfBlob('pdf-content-editor');
+      await savePdfBlob(id, pdfBlob);
+      hasStaticPdf = true;
+      toast.success('PDF archivado correctamente.', { id: 'save-checklist' });
+    } catch (err) {
+      console.error('Error saving static PDF:', err);
+      toast.dismiss('save-pdf');
+      toast.error('Se guardaron los datos pero falló el archivo del PDF.', { duration: 4000 });
+    } finally {
+      setIsSaving(false);
+    }
+
     // Sync with history list
     const history = JSON.parse(localStorage.getItem('tool_checklists_history') || '[]');
     const existingIndex = history.findIndex((h) => h.id === id);
@@ -604,7 +639,8 @@ export default function ChecklistManager(): React.ReactElement | null {
       serial: inspectionInfo.serial || 'S/N',
       fecha: new Date().toISOString(),
       title: checklistTitle,
-      type: 'Checklist'
+      type: 'Checklist',
+      hasStaticPdf
     };
 
     if (existingIndex >= 0) {
@@ -702,15 +738,7 @@ export default function ChecklistManager(): React.ReactElement | null {
   };
 
   // Progress calculation
-  const progressItems = [
-  { label: 'Empresa', done: !!companyInfo.name?.trim() },
-  { label: 'Inspector', done: !!companyInfo.inspector?.trim() },
-  { label: 'Área / Equipo', done: !!inspectionInfo.item?.trim() },
-  { label: 'Puntos de Control', done: activeSections.length > 0 && activeSections.every((s) => s.items.length > 0 && s.items.every((i) => i.status !== null)) },
-  { label: 'Firmas', done: !!signature || !!operatorSignature || !!supervisorSignature }];
-
-  const completedCount = progressItems.filter((p) => p.done).length;
-  const progressPct = Math.round(completedCount / progressItems.length * 100);
+  const progressPct = Math.round((currentStep / totalSteps) * 100);
   const progressLabel = progressPct === 100 ? 'Listo para guardar y exportar ✅' : progressPct >= 66 ? 'Casi completo' : progressPct >= 33 ? 'En progreso' : 'Pendiente';
   const progressColor = progressPct === 100 ? '#10b981' : progressPct >= 66 ? '#f59e0b' : progressPct >= 33 ? '#3b82f6' : '#94a3b8';
 
@@ -811,10 +839,25 @@ export default function ChecklistManager(): React.ReactElement | null {
     accessor: 'id',
     render: (item: any) =>
     <div className="flex gap-[0.4rem]">
-                    <button onClick={() => {setSearchParams({ id: item.id });setShowForm(true);}} className="p-[0.4rem_0.8rem] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[8px] cursor-pointer text-[0.75rem] font-[700] text-[var(--color-text)] flex items-center gap-[4px]"><FileText size={15} /> Ver</button>
-                    <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/checklist/${item.id}?print=true`;setQrTarget({ text: url, title: `Checklist — ${item.equipo}`, details: <><p className="m-[0_0_0.3rem]"><strong>Empresa:</strong> {item.empresa}</p><p className="m-[0_0_0.3rem]"><strong>Equipo:</strong> {item.equipo}</p><p className="m-[0]"><strong>Fecha:</strong> {new Date(item.fecha).toLocaleDateString('es-AR')}</p></> } as any);})} title="QR" className="p-[0.4rem] bg-[rgba(139,92,246,0.08)] border-[1px_solid_rgba(139,92,246,0.2)] rounded-[8px] text-[#8b5cf6] cursor-pointer"><QrCode size={15} /></button>
-                    <button onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('checklist_' + item.id) || 'null') || item))} title="Compartir" className="p-[0.4rem] bg-[rgba(22,163,74,0.08)] border-[1px_solid_rgba(22,163,74,0.2)] rounded-[8px] text-green-600 dark:text-green-400 cursor-pointer"><Share2 size={15} /></button>
-                    <button onClick={() => setDeleteTarget(item.id)} className="p-[0.4rem] bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[8px] text-[#ef4444] cursor-pointer"><Trash2 size={15} /></button>
+                    <button onClick={async () => {
+                      if (item.hasStaticPdf) {
+                          toast.loading('Abriendo documento...', { id: 'load-pdf' });
+                          const blob = await getPdfBlob(item.id);
+                          toast.dismiss('load-pdf');
+                          if (blob) {
+                              const url = window.URL.createObjectURL(blob);
+                              window.open(url, '_blank');
+                              return;
+                          } else {
+                              toast.error('No se pudo cargar el PDF estático.');
+                          }
+                      }
+                      setSearchParams({ id: item.id });setShowForm(true);
+                    }} style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }} className="p-[0.5rem_0.8rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform text-[0.75rem] font-[800] flex items-center gap-[4px]"><FileText size={15} /> Ver</button>
+                    <button onClick={() => {setSearchParams({ id: item.id });setShowForm(true);}} style={{ backgroundColor: '#f59e0b', color: '#fff', border: 'none' }} title="Editar" className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Edit3 size={15} /></button>
+                    <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/checklist/${item.id}?print=true`;setQrTarget({ text: url, title: `Checklist — ${item.equipo}`, details: <><p className="m-[0_0_0.3rem]"><strong>Empresa:</strong> {item.empresa}</p><p className="m-[0_0_0.3rem]"><strong>Equipo:</strong> {item.equipo}</p><p className="m-[0]"><strong>Fecha:</strong> {new Date(item.fecha).toLocaleDateString('es-AR')}</p></> } as any);})} title="QR" style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><QrCode size={15} /></button>
+                    <button onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('checklist_' + item.id) || 'null') || item))} title="Compartir" style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Share2 size={15} /></button>
+                    <button onClick={() => setDeleteTarget(item.id)} style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Trash2 size={15} /></button>
                 </div>
 
   }];
@@ -869,28 +912,28 @@ export default function ChecklistManager(): React.ReactElement | null {
                     </div>
 
                     <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap items-center">
-                        <></>
                         <button
-            onClick={() => {setSearchParams({});setShowForm(true);setCurrentStep(1);}} className="flex-[0_1_auto] p-[1rem_1.5rem] rounded-[16px] bg-emerald-500 hover:bg-emerald-600 text-[#fff] border-none font-[800] text-[1rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(54,179,126,0.3)] white-space-[nowrap]">
+            onClick={() => {setSearchParams({});setShowForm(true);setCurrentStep(1);}} style={{ backgroundColor: '#22c55e', color: 'white' }} className="flex-[0_1_auto] h-[54px] px-[1.5rem] rounded-[16px] hover:bg-[#16a34a] border-none font-[800] text-[1rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(34,197,94,0.3)] white-space-[nowrap]">
 
             
                             <Plus size={20} /> Nuevo Checklist
                         </button>
-                        <div className="flex-[1_1_300px] relative">
-                            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <div className="flex-[1_1_300px] h-[54px] flex items-center bg-[var(--color-surface)] border-[2px_solid_var(--color-border)] rounded-[16px] px-[1rem] shadow-[0_4px_20px_rgba(0,0,0,0.05)] focus-within:border-[var(--color-primary)] focus-within:shadow-[0_0_0_4px_rgba(37,99,235,0.1)] transition-all">
+                            <Search size={20} className="text-[var(--color-text-muted)] flex-shrink-0 mr-[0.5rem]" />
                             <input
-              type="text"
-              placeholder="Buscar por equipo, empresa o serial..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} className="w-full py-3 pr-4 pl-12 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-sm" />
-
-            
+                              type="text"
+                              placeholder="Buscar por equipo, empresa o serial..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)} 
+                              className="w-full h-full bg-transparent text-[var(--color-text)] text-[1rem] !border-none !outline-none !ring-0 !shadow-none m-0" 
+                              style={{ border: 'none', boxShadow: 'none' }}
+                            />
                         </div>
                         <div className="flex-[0_1_250px]">
                             <select
               value={filterEmpresa}
               onChange={(e) => setFilterEmpresa(e.target.value)}
-              style={{ color: filterEmpresa ? 'var(--color-text)' : 'var(--color-text-muted)' }} className="w-[100%] p-[1rem] rounded-[16px] border-[2px_solid_var(--color-border)] text-[1rem] outline-[none] bg-[var(--color-surface)] box-shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+              style={{ color: filterEmpresa ? 'var(--color-text)' : 'var(--color-text-muted)' }} className="w-[100%] h-[54px] px-[1rem] rounded-[16px] border-[2px_solid_var(--color-border)] text-[1rem] outline-[none] bg-[var(--color-surface)] box-shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
               
                                 <option value="">Todas las Empresas</option>
                                 {uniqueEmpresas.map((emp: any) =>
@@ -904,6 +947,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                     <DataTable
           data={filteredHistory}
           columns={columns}
+          hideHeader={true}
           searchPlaceholder="Buscar..."
           emptyMessage="No se encontraron registros de Checklists."
           emptyIcon={<ClipboardList size={48} />} />
@@ -911,15 +955,6 @@ export default function ChecklistManager(): React.ReactElement | null {
 
                     {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} details={(qrTarget as any).details} onClose={() => setQrTarget(null)} />}
                     {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
-                    <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Checklist - ${(shareItem as any)?.equipo || ''}`} text={shareItem ? `📋 Checklist de Seguridadn🔧 Equipo: ${(shareItem as any).equipo}n🏗️ Empresa: ${(shareItem as any).empresa}n📅 Fecha: ${new Date((shareItem as any).fecha).toLocaleDateString('es-AR')}` : ''} rawMessage={``} elementIdToPrint="pdf-content" fileName={`Checklist_${(shareItem as any)?.equipo || 'Reporte'}.pdf`} />
-        
-
-                    {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} details={(qrTarget as any).details} onClose={() => setQrTarget(null)} />}
-                    {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
-                    <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Checklist - ${(shareItem as any)?.equipo || ''}`} text={shareItem ? `📋 Checklist de Seguridadn🔧 Equipo: ${(shareItem as any).equipo}n🏗️ Empresa: ${(shareItem as any).empresa}n📅 Fecha: ${new Date((shareItem as any).fecha).toLocaleDateString('es-AR')}` : ''} rawMessage={``} elementIdToPrint="pdf-content" fileName={`Checklist_${(shareItem as any)?.equipo || 'Reporte'}.pdf`} />
-                    <div className="ats-pdf-offscreen">
-                        {shareItem && <ChecklistPdfGenerator checklistData={{ ...shareItem, availableNorms }} isHeadless={true} pdfElementId="pdf-content" />}
-                    </div>
                 </> :
 
       <>
@@ -1004,28 +1039,10 @@ export default function ChecklistManager(): React.ReactElement | null {
 
                 {/* Progress Bar Graphic */}
                 <div className="flex flex-col gap-[0.6rem] mt-[1rem]">
-                    <div className="h-[8px] bg-[var(--color-background)] rounded-[999px] overflow-[hidden]">
+                    <div className="h-[8px] bg-[var(--color-background)] rounded-[999px] overflow-hidden">
                         <div style={{
-
-                width: `${currentStep / totalSteps * 100}%`
-
-
-
-
-              }} className="h-[100%] bg-[var(--gradient-premium)] rounded-[999px] transition-[width_0.5s_cubic-bezier(0.4,_0,_0.2,_1)] box-shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-                    </div>
-                    <div className="flex justify-space-between p-[0_4px]">
-                        {['Datos', 'Inspección', 'Plan/Obs', 'Firmas'].map((label, idx) =>
-              <span key={label} style={{
-
-                color: currentStep >= idx + 1 ? 'var(--color-primary)' : 'var(--color-text-muted)'
-
-
-
-              }} className="text-[0.75rem] font-[900] transition-[color_0.3s] uppercase letter-spacing-[0.5px]">
-                                {label}
-                            </span>
-              )}
+                width: `${progressPct}%`
+              }} className="h-full bg-blue-600 rounded-[999px] transition-[width_0.5s_cubic-bezier(0.4,_0,_0.2,_1)] shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
                     </div>
                 </div>
             </div>
@@ -1130,7 +1147,8 @@ export default function ChecklistManager(): React.ReactElement | null {
         }
 
             {/* TEMPLATE SELECTOR - Responsive Grid */}
-            <div className="no-print grid grid-template-columns-[repeat(auto-fit,_minmax(100px,_1fr))] gap-[0.8rem] mb-[1.5rem]">
+            {currentStep === 2 && (
+            <div className="no-print grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-[0.8rem] mb-[1.5rem]">
 
 
 
@@ -1165,6 +1183,7 @@ export default function ChecklistManager(): React.ReactElement | null {
 
             })}
             </div>
+            )}
             
             {/* EDITABLE SECTIONS - Responsive */}
             {currentStep === 2 &&
@@ -1174,28 +1193,28 @@ export default function ChecklistManager(): React.ReactElement | null {
               <div key={section.id} className="card p-[0] mb-[1.5rem]">
                             <div className="bg-[var(--color-background)] p-[1rem] border-bottom-[2px_solid_var(--color-border)] flex flex-col gap-[0.8rem] items-center">
                                 <input
-                    className="font-black text-xl uppercase tracking-tighter bg-transparent outline-none w-full border-none focus:ring-0 text-center placeholder:text-slate-400 text-center m-[0] w-[100%] text-[var(--color-text)]"
-
+                    className="font-black text-xl uppercase tracking-tighter bg-transparent outline-none w-full rounded-lg p-2 focus:ring-0 text-center placeholder:text-slate-400 m-[0] text-[var(--color-text)]"
+                    style={{ border: '2px solid #1e293b' }}
                     value={section.title}
                     onChange={(e) => updateSectionTitle(section.id, e.target.value)} />
                   
                                 <div className="flex gap-[0.5rem] flex-wrap justify-center">
                                     <button
-                      onClick={() => removeSection(section.id)} className="p-[0.4rem_0.8rem] bg-[var(--color-danger)] text-[#ffffff] text-[0.65rem] font-[900] border-none rounded-[4px] cursor-pointer flex items-center gap-[0.4rem] white-space-[nowrap]">
-
-                      
+                      onClick={() => removeSection(section.id)} 
+                      style={{ backgroundColor: '#ef4444', color: '#ffffff' }}
+                      className="p-[0.4rem_0.8rem] text-[0.65rem] font-[900] border-none rounded-[4px] cursor-pointer flex items-center gap-[0.4rem] white-space-[nowrap]">
                                         <X size={12} strokeWidth={4} /> QUITAR
                                     </button>
                                     <button
-                      onClick={() => checkAllOk(section.id)} className="p-[0.4rem_0.8rem] bg-[var(--color-text)] text-[#ffffff] text-[0.65rem] font-[900] border-none rounded-[4px] cursor-pointer white-space-[nowrap]">
-
-                      
+                      onClick={() => checkAllOk(section.id)} 
+                      style={{ backgroundColor: '#10b981', color: '#ffffff' }}
+                      className="p-[0.4rem_0.8rem] text-[0.65rem] font-[900] border-none rounded-[4px] cursor-pointer white-space-[nowrap]">
                                         TODO OK
                                     </button>
                                     <button
-                      onClick={() => addItem(section.id)} className="p-[0.4rem_0.8rem] bg-[var(--color-primary)] text-[#ffffff] text-[0.65rem] font-[900] border-none rounded-[4px] cursor-pointer white-space-[nowrap]">
-
-                      
+                      onClick={() => addItem(section.id)} 
+                      style={{ backgroundColor: '#3b82f6', color: '#ffffff' }}
+                      className="p-[0.4rem_0.8rem] text-[0.65rem] font-[900] border-none rounded-[4px] cursor-pointer white-space-[nowrap]">
                                         + ITEM
                                     </button>
                                 </div>
@@ -1205,7 +1224,9 @@ export default function ChecklistManager(): React.ReactElement | null {
                                 {section.items.map((item, idx) =>
                   <div key={idx} style={{ borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid var(--color-border)' }} className="flex flex-col gap-[0]">
                                         <div className="flex items-center p-[1rem] gap-[0.8rem] flex-wrap">
-                                            <div className="min-width-[24px] h-[24px] bg-[var(--color-background)] text-[var(--color-text-muted)] rounded-[6px] flex items-center justify-center text-[0.65rem] font-[900] flex-shrink-[0]">
+                                            <div 
+                                                style={{ backgroundColor: '#1e293b', color: '#ffffff', minWidth: '32px', height: '32px', fontSize: '0.9rem' }}
+                                                className="rounded-[6px] flex items-center justify-center font-[900] flex-shrink-[0]">
                                                 {idx + 1}
                                             </div>
                                             <textarea
@@ -1217,7 +1238,9 @@ export default function ChecklistManager(): React.ReactElement | null {
                           target.style.height = 'auto';
                           target.style.height = target.scrollHeight + 'px';
                         }}
-                        onChange={(e) => updateItem(section.id, idx, 'text', e.target.value)} className="flex-[1] min-width-[200px] p-[0.5rem] font-[700] text-[0.9rem] outline-[none] bg-[transparent] resize-[none] border-none text-[var(--color-text)]" />
+                        onChange={(e) => updateItem(section.id, idx, 'text', e.target.value)} 
+                        style={{ border: '2px solid #1e293b' }}
+                        className="flex-[1] min-w-[200px] p-2 font-bold text-[0.9rem] outline-none bg-transparent resize-none rounded-md text-[var(--color-text)]" />
                       
                                             <button
                         onClick={() => {
@@ -1233,14 +1256,15 @@ export default function ChecklistManager(): React.ReactElement | null {
                           );
                         }}
 
-                        title="Eliminar" className="bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[8px] cursor-pointer text-[#ef4444] p-[0.3rem_0.45rem] flex items-center flex-shrink-[0]">
-                        
-                                                <Trash2 size={15} />
+                        title="Eliminar" 
+                        style={{ backgroundColor: '#fee2e2', color: '#ef4444', border: '1px solid #fca5a5' }}
+                        className="rounded-[8px] cursor-pointer p-[0.3rem_0.45rem] flex items-center flex-shrink-[0]">
+                                                <Trash2 size={16} />
                                             </button>
                                         </div>
                                         <div className="flex flex-col gap-[0.5rem] p-[0.5rem_1rem] bg-[var(--color-background)] border-top-[1px_dashed_var(--color-border)]">
                                             <div className="flex items-center justify-space-between gap-[1rem] flex-wrap">
-                                                <div className="ats-status-group flex-shrink-[0]">
+                                                <div className="ats-status-group flex-shrink-[0]" style={{ border: '2px solid #cbd5e1', borderRadius: '10px', padding: '4px', display: 'flex', gap: '4px' }}>
                                                     <StatusBtn active={item.status === 'OK'} type="OK" onClick={() => updateItem(section.id, idx, 'status', 'OK')} label="C" />
                                                     <StatusBtn active={item.status === 'FAIL'} type="FAIL" onClick={() => updateItem(section.id, idx, 'status', 'FAIL')} label="NC" />
                                                     <StatusBtn active={item.status === 'NA'} type="NA" onClick={() => updateItem(section.id, idx, 'status', 'NA')} label="N/A" />
@@ -1251,9 +1275,9 @@ export default function ChecklistManager(): React.ReactElement | null {
                             type="text"
                             placeholder="Observación / Anomalía..."
                             value={item.observation || ''}
-                            onChange={(e) => updateItem(section.id, idx, 'observation', e.target.value)} className="flex-[1] p-[0.4rem_0.8rem] border-[1px_solid_var(--color-border)] rounded-[8px] text-[0.8rem] outline-[none] bg-[var(--color-surface)] text-[var(--color-text)]" />
-
-                          
+                            style={{ border: '2px solid #1e293b', padding: '0.5rem', borderRadius: '0.5rem', flex: 1, minWidth: '150px' }}
+                            onChange={(e) => updateItem(section.id, idx, 'observation', e.target.value)} 
+                            className="text-sm font-bold outline-none text-slate-900 dark:text-slate-100 bg-transparent" />
 
                                                     <input
                             type="file"
@@ -1276,29 +1300,18 @@ export default function ChecklistManager(): React.ReactElement | null {
                             }}
                             accept="image/*"
                             capture="environment"
-                            multiple className="none" />
+                            multiple 
+                            style={{ display: 'none' }} />
 
                           
 
                                                     <button
                             onClick={() => document.getElementById(`file-input-${section.id}-${idx}`)?.click()}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                            title="Capturar foto de evidencia" className="p-[0.4rem_0.8rem] bg-[rgba(37,99,235,0.1)] border-[1px_solid_rgba(37,99,235,0.2)] rounded-[8px] cursor-pointer flex items-center gap-[0.3rem] text-[var(--color-primary)] text-[0.75rem] font-[bold] m-[0]">
+                            title="Capturar foto de evidencia" 
+                            style={{ backgroundColor: '#6366f1', color: '#ffffff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '8px' }}
+                            className="cursor-pointer flex items-center gap-[0.3rem] text-[0.75rem] font-bold m-0 shadow-sm">
                             
-                                                        <Camera size={14} />
+                                                        <Camera size={16} />
                                                         <span>{item.photos?.length || 0}</span>
                                                     </button>
                                                 </div>
@@ -1342,7 +1355,7 @@ export default function ChecklistManager(): React.ReactElement | null {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-[2rem]">
                   {/* EPPs Selector */}
-                  <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)]">
+                  <div style={{ border: '2px solid #cbd5e1', borderRadius: '16px', padding: '1.5rem', backgroundColor: '#ffffff', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
                       <h4 className="m-[0_0_1rem_0] text-[0.9rem] font-[800] uppercase text-[var(--color-text)]">Selección de EPPs</h4>
                       <div className="flex flex-wrap gap-[0.8rem]">
                           {[
@@ -1363,7 +1376,15 @@ export default function ChecklistManager(): React.ReactElement | null {
                                           const updated = isSelected ? current.filter(e => e !== epp.id) : [...current, epp.id];
                                           setEpps(updated);
                                       }}
-                                      className={`flex items-center gap-[0.5rem] p-[0.6rem_1rem] rounded-[12px] border transition-[all_0.2s] ${isSelected ? 'bg-blue-100 border-blue-500 text-blue-700' : 'bg-[var(--color-background)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-blue-300'}`}
+                                      style={{ 
+                                          border: isSelected ? '2px solid #3b82f6' : '2px solid #cbd5e1', 
+                                          backgroundColor: isSelected ? '#eff6ff' : '#f8fafc', 
+                                          color: isSelected ? '#1d4ed8' : '#475569',
+                                          padding: '0.6rem 1rem', 
+                                          borderRadius: '12px',
+                                          cursor: 'pointer'
+                                      }}
+                                      className="flex items-center gap-[0.5rem] transition-colors"
                                   >
                                       <Icon size={18} />
                                       <span className="font-[800] text-[0.8rem]">{epp.label}</span>
@@ -1374,7 +1395,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                   </div>
 
                   {/* Photo Upload */}
-                  <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)]">
+                  <div style={{ border: '2px solid #cbd5e1', borderRadius: '16px', padding: '1.5rem', backgroundColor: '#ffffff', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
                       <h4 className="m-[0_0_1rem_0] text-[0.9rem] font-[800] uppercase text-[var(--color-text)]">Evidencia Fotográfica</h4>
                       <p className="text-[0.8rem] text-[var(--color-text-muted)] mb-[1rem]">Adjunte hasta 2 fotografías de los hallazgos de la inspección.</p>
                       
@@ -1382,7 +1403,9 @@ export default function ChecklistManager(): React.ReactElement | null {
                           {[0, 1].map(index => {
                               const photoUrl = fotos?.[index];
                               return (
-                                  <div key={index} className="flex-[1] aspect-square rounded-[12px] border-[2px_dashed_var(--color-border)] flex items-center justify-center relative overflow-hidden bg-[var(--color-background)] hover:border-blue-400 transition-colors">
+                                  <div key={index} 
+                                      style={{ border: '2px dashed #94a3b8', borderRadius: '12px', backgroundColor: '#f8fafc', minHeight: '120px' }}
+                                      className="flex-[1] aspect-square flex items-center justify-center relative overflow-hidden transition-colors">
                                       {photoUrl ? (
                                           <>
                                               <img src={photoUrl} alt={`Evidencia ${index + 1}`} className="w-full h-full object-cover" />
@@ -1430,7 +1453,7 @@ export default function ChecklistManager(): React.ReactElement | null {
           )}
 
 
-          {currentStep === 5 &&
+          {currentStep === 4 &&
         <div className="no-print mb-8">
                 {/* PLAN DE ACCIÓN - FORMULARIO */}
                 <div className="border-[2px_solid_#f59e0b] rounded-[12px] p-[1.5rem] bg-[linear-gradient(135deg,_#fffbeb_0%,_#fef3c7_100%)] relative">
@@ -1502,9 +1525,11 @@ export default function ChecklistManager(): React.ReactElement | null {
                             <h4 className="text-[0.75rem] font-[900] text-[#64748b] uppercase mb-[0.5rem]">{category}</h4>
                             <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(200px,_1fr))] gap-[0.5rem]">
                                 {availableNorms.filter((norm) => norm.category === category).map((norm) =>
-                <label key={norm.id} style={{ background: selectedNorms.includes(norm.id) ? '#f3e8ff' : '#fff', border: `1px solid ${selectedNorms.includes(norm.id) ? '#a855f7' : '#e2e8f0'}` }} className="flex items-center gap-[0.5rem] p-[0.6rem_0.8rem] rounded-[8px] cursor-pointer transition-[all_0.2s]">
-                                        <input type="checkbox" checked={selectedNorms.includes(norm.id)} onChange={(e) => {if (e.target.checked) {setSelectedNorms([...selectedNorms, norm.id]);} else {setSelectedNorms(selectedNorms.filter((id) => id !== norm.id));}}} className="w-4 h-4" />
-                                        <span className="text-[0.75rem] font-[600] text-slate-800 dark:text-slate-200">{norm.name}</span>
+                <label key={norm.id} style={{ background: selectedNorms.includes(norm.id) ? '#faf5ff' : '#ffffff', border: `1px solid ${selectedNorms.includes(norm.id) ? '#a855f7' : '#e2e8f0'}` }} className="flex items-start gap-[0.8rem] p-[0.8rem] rounded-[8px] cursor-pointer transition-[all_0.2s] hover:border-purple-400 shadow-sm">
+                                        <div className="flex-shrink-0 mt-[1px] flex items-center justify-center">
+                                            <input type="checkbox" checked={selectedNorms.includes(norm.id)} onChange={(e) => {if (e.target.checked) {setSelectedNorms([...selectedNorms, norm.id]);} else {setSelectedNorms(selectedNorms.filter((id) => id !== norm.id));}}} className="w-[18px] h-[18px] cursor-pointer outline-none focus:ring-0 focus:outline-none m-0 p-0" style={{ accentColor: '#9333ea' }} />
+                                        </div>
+                                        <span className="text-[0.85rem] font-[900] text-[#0f172a] leading-tight flex-1 text-left">{norm.name}</span>
                                     </label>
                 )}
                             </div>
@@ -1515,7 +1540,7 @@ export default function ChecklistManager(): React.ReactElement | null {
         }
 
             {/* Firmas y Autorizaciones */}
-            {currentStep === 4 &&
+            {currentStep === 5 &&
         <div className="no-print card mt-[1.5rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[var(--radius-xl)] p-[2rem]">
                 <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.7rem] text-[var(--color-primary)] font-[900] text-[1.2rem] uppercase letter-spacing-[1px]">
                     <Pencil size={24} /> Firmas y Autorizaciones
@@ -1534,39 +1559,26 @@ export default function ChecklistManager(): React.ReactElement | null {
                 return (
                   <label
                     key={sig.id}
-                    className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease]"
+                    className="flex items-center gap-2 cursor-pointer select-none p-[0.6rem_1.2rem] rounded-full font-[800] text-[0.8rem] transition-all"
                     style={{
-
-
-                      border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
-                      background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
-                      color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
-
-
-
-                      boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
+                      border: isChecked ? '1px solid #3b82f6' : '1px solid #cbd5e1',
+                      background: isChecked ? '#eff6ff' : 'transparent',
+                      color: isChecked ? '#2563eb' : '#64748b',
                     }}>
                     
                                     <input
                       type="checkbox"
                       checked={isChecked}
-                      onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))} className="none" />
+                      onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))} className="hidden" />
 
                     
                                     <div style={{
-
-
-
-                      border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
-                      background: isChecked ? 'var(--color-primary)' : 'transparent'
-
-
-
-
-                    }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
+                      border: isChecked ? '2px solid #3b82f6' : '2px solid #94a3b8',
+                      background: isChecked ? '#3b82f6' : 'transparent'
+                    }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-all flex-shrink-0">
                                         {isChecked && <CheckCircle2 size={12} color="white" />}
                                     </div>
-                                    {sig.label}
+                                    <span className="whitespace-nowrap leading-none mt-[1px]">{sig.label}</span>
                                 </label>);
 
               })}
@@ -1639,24 +1651,66 @@ export default function ChecklistManager(): React.ReactElement | null {
         </div>
       }
       </ModuleFormLayout>
+
+      <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 mt-6 pt-6 border-t border-slate-200 dark:border-slate-700 no-print w-full">
+          {currentStep > 1 
+              ? <button onClick={prevStep} style={{ backgroundColor: '#475569', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><ArrowLeft size={16} /> ANTERIOR</button>
+              : <button onClick={() => { setShowForm(false); setCurrentStep(1); }} style={{ backgroundColor: '#ef4444', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><ArrowLeft size={16} /> CANCELAR</button>
+          }
+          
+          {currentStep < totalSteps && 
+              <button onClick={nextStep} style={{ backgroundColor: '#2563eb', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95">SIGUIENTE <ArrowRight size={16} /></button>
+          }
+          {currentStep === totalSteps && 
+              <>
+                 <button onClick={() => requirePro(() => {
+                   const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, operatorSignature, signature, supervisorSignature };
+                   setAutoPrintShare(true);
+                   setShareItem(data as any);
+                 })} style={{ backgroundColor: '#1e293b', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><Printer size={16} /> IMPRIMIR</button>
+                 <button onClick={() => requirePro(() => {
+                   const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, operatorSignature, signature, supervisorSignature };
+                   setAutoPrintShare(false);
+                   setShareItem(data as any);
+                 })} style={{ backgroundColor: '#3b82f6', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><Share2 size={16} /> COMPARTIR</button>
+                 <button disabled={isSaving} onClick={(e) => requirePro(() => handleSave())} style={{ backgroundColor: isSaving ? '#94a3b8' : '#059669', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-[0_4px_12px_rgba(5,150,105,0.3)] text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><Save size={16} /> {isSaving ? 'GUARDANDO...' : 'GUARDAR'}</button>
+              </>
+          }
+      </div>
       </>
       }
+    
+      <ShareModal 
+        isOpen={!!shareItem} 
+        open={!!shareItem} 
+        onClose={() => {setShareItem(null); setAutoPrintShare(false);}} 
+        autoPrint={autoPrintShare} 
+        title={`Checklist - ${(shareItem as any)?.equipo || ''}`} 
+        text={shareItem ? `📋 Checklist de Seguridad\n🔧 Equipo: ${(shareItem as any).equipo}\n🏗️ Empresa: ${(shareItem as any).empresa}\n📅 Fecha: ${new Date((shareItem as any).fecha).toLocaleDateString('es-AR')}` : ''} 
+        rawMessage={``} 
+        elementIdToPrint="pdf-content" 
+        fileName={`Checklist_${(shareItem as any)?.equipo || 'Reporte'}.pdf`} 
+      />
+      <div className="ats-pdf-offscreen">
+        {shareItem && <ChecklistPdfGenerator checklistData={{ ...shareItem, availableNorms }} isHeadless={true} pdfElementId="pdf-content" />}
+      </div>
+      {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} details={(qrTarget as any).details} onClose={() => setQrTarget(null)} />}
+      {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
     </div>
   );
-
 }
 
 function DocBox({ label, value, onChange, type = "text", large = false, highlight = false, flex = 1, list = null }) {
     return (
-        <div className={`p-3 min-w-0 flex flex-col justify-center sm:border-r-2 last:border-r-0 sm:print:border-r-2 border-slate-200 ${highlight ? 'bg-slate-50/50' : ''}`}>
-            <label className="text-[0.55rem] font-black text-slate-400 uppercase tracking-widest block mb-1 whitespace-nowrap leading-none text-left">{label}</label>
+        <div className={`p-3 min-w-0 flex flex-col justify-center sm:border-r-2 last:border-r-0 sm:print:border-r-2 border-slate-200 ${highlight ? 'bg-slate-50/50 dark:bg-slate-800' : ''}`}>
+            <label className="text-[0.65rem] font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-widest block mb-2 leading-tight text-left">{label}</label>
             <input
         type={type}
         list={list}
-        className={`w-full outline-none bg-transparent font-black ${large ? 'text-lg tracking-tight' : 'text-xs uppercase'} text-black focus:bg-yellow-50 text-left transition-colors min-w-0`}
+        className={`w-full p-2 border-2 border-slate-800 dark:border-slate-400 rounded-md outline-none bg-transparent font-black ${large ? 'text-lg tracking-tight' : 'text-sm uppercase'} text-black dark:text-white focus:bg-yellow-50 dark:focus:bg-slate-700 text-left transition-colors min-w-0`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={large ? "Ej: Amoladora, Andamio..." : ""} />
+        placeholder="" />
       
         </div>);
 

@@ -18,6 +18,7 @@ interface ShareModalProps {
   text?: string;
   elementIdToPrint?: string;
   fileName?: string;
+  autoPrint?: boolean;
 }
 
 export default function ShareModal({
@@ -28,7 +29,8 @@ export default function ShareModal({
   rawMessage,
   text,
   elementIdToPrint,
-  fileName: propFileName
+  fileName: propFileName,
+  autoPrint
 }: ShareModalProps) {
   const { isPro } = usePaywall();
   const displayOpen = isOpen !== undefined ? isOpen : open;
@@ -54,7 +56,17 @@ export default function ShareModal({
     return () => window.removeEventListener('keydown', handleEsc);
   }, [displayOpen, onClose]);
 
+  useEffect(() => {
+    if (displayOpen && autoPrint) {
+       setTimeout(() => {
+           handlePrint();
+       }, 500);
+    }
+  }, [displayOpen, autoPrint]);
+
   if (!displayOpen) return null;
+
+
 
   const handleCopy = () => {
     if (!message) return;
@@ -83,7 +95,21 @@ export default function ShareModal({
 
     if (Capacitor.isNativePlatform()) {
       setIsGenerating(true);
-      toast.loading('Generando vista previa...', { id: 'pdf-gen' });
+      toast.loading('Generando vista previa...', { 
+        id: 'pdf-gen',
+        style: {
+          background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
+          color: '#fff',
+          fontWeight: 'bold',
+          borderRadius: '12px',
+          padding: '12px 20px',
+          boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.4)'
+        },
+        iconTheme: {
+          primary: '#fff',
+          secondary: '#10b981'
+        }
+      });
 
       try {
         // Pequeno delay para ui
@@ -134,7 +160,7 @@ export default function ShareModal({
         document.body.classList.remove('printing-isolated');
         if (element) element.classList.remove('isolated-print-target');
         onClose();
-      }, 8000);
+      }, 100);
     }
   };
 
@@ -308,6 +334,9 @@ export default function ShareModal({
     hijack: false
   }];
 
+  if (autoPrint) {
+    return <div style={{ display: 'none' }} className="print-hidden-helper"></div>;
+  }
 
   return createPortal(
     <div className="share-modal-overlay" onClick={onClose}>
