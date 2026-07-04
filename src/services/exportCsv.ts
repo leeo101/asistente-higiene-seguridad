@@ -2,7 +2,7 @@
  * exportCsv.ts — Utilidad genérica para exportar datos a Excel (XLSX) con estilos y logo
  */
 
-import ExcelJS from 'exceljs/dist/exceljs.min.js';
+import ExcelJS from 'exceljs';
 
 // Tipos
 export interface ColumnMap {

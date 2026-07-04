@@ -54,12 +54,12 @@ export default function ThermalStress(): React.ReactElement | null {
   const location = useLocation();
   const { currentUser } = useAuth();
   const { syncCollection } = useSync();
+  const [currentEditItem, setCurrentEditItem] = useState(location.state?.editData || null);
 
-  const editData = location.state?.editData;
-  useDocumentTitle(editData ? 'Editar Estrés Térmico' : 'Cálculo Estrés Térmico');
+  useDocumentTitle(currentEditItem ? 'Editar Estrés Térmico' : 'Cálculo Estrés Térmico');
 
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
-  const [isFormVisible, setIsFormVisible] = useState(!!editData);
+  const [isFormVisible, setIsFormVisible] = useState(!!currentEditItem);
 
   const [history, setHistory] = useState<any[]>([]);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
@@ -85,13 +85,13 @@ export default function ThermalStress(): React.ReactElement | null {
   };
 
   const [formData, setFormData] = useState(() => {
-    if (editData) {
+    if (currentEditItem) {
       return {
-        ...editData,
-        operatorSignature: editData.operatorSignature || '',
-        supervisorSignature: editData.supervisorSignature || editData.signature || '',
-        signature: editData.signature || editData.supervisorSignature || '',
-        showSignatures: editData.showSignatures || { operator: true, professional: true, supervisor: true }
+        ...currentEditItem,
+        operatorSignature: currentEditItem.operatorSignature || '',
+        supervisorSignature: currentEditItem.supervisorSignature || currentEditItem.signature || '',
+        signature: currentEditItem.signature || currentEditItem.supervisorSignature || '',
+        showSignatures: currentEditItem.showSignatures || { operator: true, professional: true, supervisor: true }
       };
     }
     return {
@@ -243,6 +243,7 @@ export default function ThermalStress(): React.ReactElement | null {
     render: (item: any) =>
     <div className="flex gap-[0.4rem]">
                     <button onClick={() => {
+        setCurrentEditItem(item);
         setFormData({
           ...item,
           operatorSignature: item.operatorSignature || '',
@@ -251,10 +252,10 @@ export default function ThermalStress(): React.ReactElement | null {
           showSignatures: item.showSignatures || { operator: true, professional: true, supervisor: true }
         });
         setIsFormVisible(true);
-      }} title="Editar" className="p-[0.4rem] bg-[rgba(59,130,246,0.08)] border-[1px_solid_rgba(59,130,246,0.2)] rounded-[8px] text-[#3b82f6] cursor-pointer"><Pencil size={15} /></button>
-                    <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/thermal/${item.id}?print=true`;setQrTarget({ text: url, title: `Estrés Térmico — ${item.puesto}` });})} title="QR" className="p-[0.4rem] bg-[rgba(139,92,246,0.08)] border-[1px_solid_rgba(139,92,246,0.2)] rounded-[8px] text-[#8b5cf6] cursor-pointer"><QrCode size={15} /></button>
-                    <button onClick={() => requirePro(() => setShareItem(item))} title="Compartir" className="p-[0.4rem] bg-[rgba(22,163,74,0.08)] border-[1px_solid_rgba(22,163,74,0.2)] rounded-[8px] text-[#16a34a] cursor-pointer"><Share2 size={15} /></button>
-                    <button onClick={() => setDeleteTarget(item.id)} className="p-[0.4rem] bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[8px] text-[#ef4444] cursor-pointer"><Trash2 size={15} /></button>
+      }} title="Editar" className="btn-outline bg-[#3b82f6] text-[#ffffff] border-color-[#3b82f6] p-[0.5rem] rounded-[10px] w-[36px] h-[36px] flex items-center justify-center cursor-pointer hover:bg-[#2563eb] transition-colors"><Pencil size={15} /></button>
+                    <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/thermal/${item.id}?print=true`;setQrTarget({ text: url, title: `Estrés Térmico — ${item.puesto}` });})} title="QR" className="btn-outline bg-[#8b5cf6] text-[#ffffff] border-color-[#8b5cf6] p-[0.5rem] rounded-[10px] w-[36px] h-[36px] flex items-center justify-center cursor-pointer hover:bg-[#7c3aed] transition-colors"><QrCode size={15} /></button>
+                    <button onClick={() => requirePro(() => setShareItem(item))} title="Compartir" className="btn-outline bg-[#10b981] text-[#ffffff] border-color-[#10b981] p-[0.5rem] rounded-[10px] w-[36px] h-[36px] flex items-center justify-center cursor-pointer hover:bg-[#059669] transition-colors"><Share2 size={15} /></button>
+                    <button onClick={() => setDeleteTarget(item.id)} className="btn-outline bg-[#ef4444] text-[#ffffff] border-color-[#ef4444] p-[0.5rem] rounded-[10px] w-[36px] h-[36px] flex items-center justify-center cursor-pointer hover:bg-[#dc2626] transition-colors"><Trash2 size={15} /></button>
                 </div>
 
   }];
@@ -321,9 +322,9 @@ export default function ThermalStress(): React.ReactElement | null {
     }
 
     const report = {
-      id: editData?.id || Date.now(),
-      date: editData?.date || new Date().toISOString(),
-      evaluador: editData?.evaluador || currentUser?.displayName || 'Profesional HSE',
+      id: currentEditItem?.id || Date.now(),
+      date: currentEditItem?.date || new Date().toISOString(),
+      evaluador: currentEditItem?.evaluador || currentUser?.displayName || 'Profesional HSE',
       normativa: 'Res. SRT 30/2023',
       ...formData,
       professionalSignature: formData.professionalSignature || professional.signature,
@@ -341,8 +342,8 @@ export default function ThermalStress(): React.ReactElement | null {
       console.error('[ThermalStress] Error parsing thermal_history:', error);
     }
 
-    if (editData) {
-      history = history.map((item) => item.id === editData.id ? report : item);
+    if (currentEditItem) {
+      history = history.map((item) => item.id === currentEditItem.id ? report : item);
     } else {
       history.unshift(report);
     }
@@ -351,7 +352,7 @@ export default function ThermalStress(): React.ReactElement | null {
     syncCollection('thermal_history', history);
     setHistory(history);
 
-    toast.success(editData ? 'Evaluación térmica actualizada.' : 'Medición guardada en el historial.');
+    toast.success(currentEditItem ? 'Evaluación térmica actualizada.' : 'Medición guardada en el historial.');
     setIsFormVisible(false);
   };
 
@@ -412,6 +413,7 @@ export default function ThermalStress(): React.ReactElement | null {
             <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
                 {shareItem && <ThermalStressPdfGenerator data={shareItem} isHeadless={true} onBack={() => {}} />}
             </div>
+      
 
             {!isFormVisible ?
       <div className="animate-fade-in p-[0_1rem] w-[100%] max-w-[1200px] m-[0_auto]">
@@ -421,12 +423,10 @@ export default function ThermalStress(): React.ReactElement | null {
         icon={<ThermometerSun size={36} color="#ffffff" />} />
         
                     
-                    <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
-                        <div className="flex gap-[1rem] items-center">
-                            <></>
-                        </div>
+                    <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap justify-end bg-[var(--color-surface,_#fff)] p-[1.5rem] rounded-[24px] box-shadow-[0_10px_40px_rgba(0,0,0,0.04)] border-[1px_solid_rgba(0,0,0,0.05)]">
                         <button
             onClick={() => {
+              setCurrentEditItem(null);
               setFormData({
                 puesto: '', sector: '', tarea: '', fecha: new Date().toISOString().split('T')[0],
                 cargaSolar: false, tbh: '', tg: '', tbs: '', viento: '',
@@ -436,9 +436,10 @@ export default function ThermalStress(): React.ReactElement | null {
               });
               setIsFormVisible(true);
             }}
-            className="flex-none px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white border-none font-extrabold text-[0.95rem] cursor-pointer flex items-center gap-2 shadow-lg shadow-emerald-500/30 whitespace-nowrap transition-all hover:-translate-y-0.5">
-            
-                            <Plus size={20} /> Nuevo Estudio
+            onMouseOver={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 12px 25px rgba(16,185,129,0.4)';}}
+            onMouseOut={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.3)';}}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '0 1.5rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(16,185,129,0.3)', whiteSpace: 'nowrap', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', height: '100%', minHeight: '3.5rem' }}>
+                            <Plus size={22} strokeWidth={2.5} /> Nuevo Estudio
                         </button>
                     </div>
 
@@ -472,8 +473,8 @@ export default function ThermalStress(): React.ReactElement | null {
             });
             requirePro(() => {
               const report = {
-                id: editData?.id || Date.now(),
-                date: editData?.date || new Date().toISOString(),
+                id: currentEditItem?.id || Date.now(),
+                date: currentEditItem?.date || new Date().toISOString(),
                 evaluador: currentUser?.displayName || 'Profesional HSE',
                 normativa: 'Res. SRT 30/2023',
                 ...formData,
@@ -495,7 +496,7 @@ export default function ThermalStress(): React.ReactElement | null {
 
                     <div className="no-print animate-fade-in">
                         <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
-          title={editData ? 'Editar Estrés Térmico' : 'Estrés Térmico Calculadora'}
+          title={currentEditItem ? 'Editar Estrés Térmico' : 'Estrés Térmico Calculadora'}
           subtitle="Res. SRT 30/2023 — reemplaza Res. 295/03 (derogada)"
           icon={<ThermometerSun size={36} color="#ffffff" />} />
           
@@ -847,7 +848,6 @@ export default function ThermalStress(): React.ReactElement | null {
             resultados
           }}
           onBack={() => {}} />
-        
             </div>
         </div>);
 

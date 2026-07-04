@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
   ChevronRight, ChevronLeft, ArrowLeft,
-  Save, Accessibility, AlertCircle, Info, Building2, Sparkles, Loader2 } from
+  Save, Accessibility, AlertCircle, Info, Building2, Sparkles, Loader2, Printer, Share2, CheckCircle2, Circle } from
 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
@@ -19,6 +19,9 @@ import {
   ModuleActionBar,
 } from '../components/module';
 import { getErrorMessage } from '../utils/errorUtils';
+import ErgonomicsPdfGenerator from '../components/ErgonomicsPdfGenerator';
+import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
 
 export default function ErgonomicsForm(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -27,9 +30,17 @@ export default function ErgonomicsForm(): React.ReactElement | null {
   const location = useLocation();
   const editData = location.state?.editData;
   const [step, setStep] = useState(1);
+  const [profile, setProfile] = useState<any>(null);
+  const [signature, setSignature] = useState<any>(null);
+  const [showSignatures, setShowSignatures] = useState({ operator: true, supervisor: true, professional: true });
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    const savedProfile = localStorage.getItem('personalData');
+    if (savedProfile) setProfile(JSON.parse(savedProfile));
+
+    const sig = localStorage.getItem('signatureStampData');
+    if (sig) setSignature(JSON.parse(sig));
   }, []);
   const [formData, setFormData] = useState(editData || {
     empresa: '',
@@ -38,37 +49,71 @@ export default function ErgonomicsForm(): React.ReactElement | null {
     puesto: '',
     descripcionTarea: '',
     planilla1: {
-      esfuerzoManual: false,
       levantamientoCarga: false,
-      posturasForzadas: false,
-      movimientosRepetitivos: false,
+      transporteCargas: false,
       empujeArrastre: false,
-      vibraciones: false,
-      confortTermico: false,
-      bipedestación: false
+      bipedestacion: false,
+      movimientosRepetitivos: false,
+      posturasForzadas: false,
+      vibracionesManoBrazo: false,
+      vibracionesCuerpoEntero: false,
+      estresContacto: false,
+      estresTermico: false,
     },
     calculoLevantamiento: {
       peso: 0,
-      asimetria: '0', // 0, 30, 45, 60, 90
-      frecuencia: 'baja', // baja, media, alta
-      distanciaH: 'cerca', // cerca (<25cm), media (25-50cm), lejos (>50cm)
-      altura: 'cintura' // suelo, rodilla, cintura, hombro
+      agarre: 'Bueno',
+      distanciaH: 25,
+      distanciaV: 75,
+      frecuencia: 0.2,
+      duracion: 1,
+      torsion: 0
     },
-    recomendaciones: ''
+    recomendaciones: '',
+    operatorSignature: '',
+    supervisorSignature: ''
   });
 
   const categories = [
-  { id: 'esfuerzoManual', label: 'Esfuerzo Manual Intenso' },
-  { id: 'levantamientoCarga', label: 'Levantamiento/Descenso de Cargas' },
-  { id: 'posturasForzadas', label: 'Posturas Forzadas' },
-  { id: 'movimientosRepetitivos', label: 'Movimientos Repetitivos' },
-  { id: 'empujeArrastre', label: 'Empuje y Arrastre' },
-  { id: 'vibraciones', label: 'Vibraciones Cuerpo/Mano' },
-  { id: 'confortTermico', label: 'Confort Térmico' }];
+    { id: 'levantamientoCarga', label: 'Levantamiento / Descenso' },
+    { id: 'transporteCargas', label: 'Transporte manual de cargas' },
+    { id: 'empujeArrastre', label: 'Empuje o arrastre de cargas' },
+    { id: 'bipedestacion', label: 'Bipedestación estática' },
+    { id: 'movimientosRepetitivos', label: 'Movimientos repetitivos' },
+    { id: 'posturasForzadas', label: 'Posturas forzadas' },
+    { id: 'vibracionesManoBrazo', label: 'Vibraciones mano-brazo' },
+    { id: 'vibracionesCuerpoEntero', label: 'Vibraciones cuerpo entero' },
+    { id: 'estresContacto', label: 'Estrés de contacto' },
+    { id: 'estresTermico', label: 'Estrés térmico (Frío/Calor)' }
+  ];
 
 
   const handleNext = () => setStep(step + 1);
   const handleBack = () => setStep(step - 1);
+
+  const handlePrint = () => {
+    requirePro(() => {
+      const element = document.getElementById('pdf-content');
+      if (!element) {
+        toast.error('No se pudo generar el documento para imprimir.');
+        return;
+      }
+      document.body.classList.add('printing-isolated');
+      element.classList.add('isolated-print-target');
+
+      const cleanup = () => {
+        document.body.classList.remove('printing-isolated');
+        element.classList.remove('isolated-print-target');
+        window.removeEventListener('afterprint', cleanup);
+        window.removeEventListener('focus', cleanup);
+      };
+
+      window.addEventListener('afterprint', cleanup);
+      window.addEventListener('focus', cleanup);
+      setTimeout(cleanup, 1500);
+      window.print();
+    });
+  };
 
   const handleSave = () => {
     const id = editData?.id || Date.now().toString();
@@ -93,7 +138,7 @@ export default function ErgonomicsForm(): React.ReactElement | null {
     syncCollection('ergonomics_history', history);
 
     toast.success(editData ? 'Estudio actualizado correctamente.' : 'Estudio registrado con éxito.');
-    navigate(`/ergonomics-report?id=${id}`, { state: { report } });
+    navigate('/ergonomics');
   };
 
   const [isGeneratingConclusion, setIsGeneratingConclusion] = useState(false);
@@ -133,6 +178,18 @@ export default function ErgonomicsForm(): React.ReactElement | null {
 
   return (
     <ModuleFormLayout>
+        <div className="ats-pdf-offscreen" aria-hidden="true">
+            <ErgonomicsPdfGenerator 
+                data={{
+                    ...formData,
+                    riesgo: Object.values(formData.planilla1).filter((v) => v === true).length > 2 || (formData.planilla1.levantamientoCarga && formData.calculoLevantamiento.peso > 25) ? 'Moderado' : 'Tolerable'
+                }} 
+                profile={profile} 
+                signature={signature} 
+                showSignatures={showSignatures} 
+            />
+        </div>
+        <div className="pt-24 no-print"></div>
         <ModuleFormToolbar
             title={editData ? 'Editar Estudio Ergonómico' : 'Nuevo Estudio Ergonómico'}
             subtitle="Protocolo Res. SRT 886/15"
@@ -199,9 +256,13 @@ export default function ErgonomicsForm(): React.ReactElement | null {
           
                     </div>
 
-                    <button onClick={handleNext} className="btn-primary w-full p-4 rounded-xl flex items-center justify-center gap-2 text-base font-bold transition-colors">
-                        Siguiente Paso <ChevronRight size={20} />
-                    </button>
+                    <div className="flex justify-center w-full">
+                        <button onClick={handleNext} 
+                            style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none' }}
+                            className="px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm font-extrabold shadow-lg hover:opacity-90 transition-all hover:-translate-y-0.5 cursor-pointer">
+                            Siguiente <ChevronRight size={18} />
+                        </button>
+                    </div>
       </ModuleFormSection>
       }
 
@@ -210,39 +271,40 @@ export default function ErgonomicsForm(): React.ReactElement | null {
                     <p className="text-[0.95rem] text-[var(--color-text-muted)] mb-[2rem] font-[600]">
                         Indique la presencia de factores de riesgo en el puesto:
                     </p>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-10">
                         {categories.map((cat) =>
-          <label
+          <div
             key={cat.id}
-            className="hover:shadow-md transition-all flex items-center gap-[1rem] p-[1.2rem] rounded-[16px] cursor-pointer"
+            onClick={() => setFormData({
+              ...formData,
+              planilla1: { ...formData.planilla1, [cat.id as keyof typeof formData.planilla1]: !formData.planilla1[cat.id as keyof typeof formData.planilla1] }
+            })}
+            className="transition-all duration-300 flex flex-col justify-center items-center gap-2 p-3 rounded-[16px] cursor-pointer text-center"
             style={{
-
-              background: formData.planilla1[cat.id] ? 'rgba(54,179,126,0.08)' : 'var(--color-background)',
-              border: `2px solid ${formData.planilla1[cat.id] ? '#36B37E' : 'var(--color-border)'}`
-
+              background: formData.planilla1[cat.id as keyof typeof formData.planilla1] ? 'linear-gradient(to bottom right, rgba(16,185,129,0.1), rgba(16,185,129,0.02))' : 'var(--color-surface)',
+              border: `1px solid ${formData.planilla1[cat.id as keyof typeof formData.planilla1] ? '#10b981' : 'var(--color-border)'}`,
+              boxShadow: formData.planilla1[cat.id as keyof typeof formData.planilla1] ? '0 8px 20px -4px rgba(16,185,129,0.2)' : '0 2px 10px -2px rgba(0,0,0,0.05)',
+              transform: formData.planilla1[cat.id as keyof typeof formData.planilla1] ? 'translateY(-2px)' : 'none'
             }}>
-            
-                                <input
-              type="checkbox"
-              checked={formData.planilla1[cat.id]}
-              onChange={(e) => setFormData({
-                ...formData,
-                planilla1: { ...formData.planilla1, [cat.id]: e.target.checked }
-              })} className="w-[22px] h-[22px] m-[0] accent-color-[#36B37E]" />
-
-            
-                                <span style={{ color: formData.planilla1[cat.id] ? 'var(--color-text)' : 'var(--color-text-muted)' }} className="text-[0.95rem] font-[700]">{cat.label}</span>
-                            </label>
+                {formData.planilla1[cat.id as keyof typeof formData.planilla1] ? 
+                    <CheckCircle2 size={24} color="#10b981" /> : 
+                    <Circle size={24} color="var(--color-text-muted)" opacity={0.3} />
+                }
+                <span style={{ color: formData.planilla1[cat.id as keyof typeof formData.planilla1] ? 'var(--color-text)' : 'var(--color-text-muted)' }} className="text-xs font-bold leading-tight">{cat.label}</span>
+          </div>
           )}
                     </div>
 
-                    <div className="flex gap-[1rem] flex-wrap">
-                        <button onClick={handleBack} className="btn-secondary flex-1 min-w-[120px] p-4 rounded-xl flex items-center justify-center gap-2 font-extrabold transition-colors">
-                            <ChevronLeft size={20} /> Atrás
+                    <div className="flex gap-4 flex-wrap justify-center w-full mt-6">
+                        <button onClick={handleBack} 
+                            style={{ background: 'linear-gradient(135deg, #64748b, #475569)', color: 'white', border: 'none' }}
+                            className="px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-extrabold text-sm shadow-lg hover:opacity-90 transition-all hover:-translate-y-0.5 cursor-pointer">
+                            <ChevronLeft size={18} /> Atrás
                         </button>
-                        <button onClick={handleNext} className="btn-primary flex-[2] min-w-[180px] p-4 rounded-xl flex items-center justify-center gap-2 font-extrabold transition-colors">
-                            Siguiente Paso <ChevronRight size={20} />
+                        <button onClick={handleNext} 
+                            style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none' }}
+                            className="px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-extrabold text-sm shadow-lg hover:opacity-90 transition-all hover:-translate-y-0.5 cursor-pointer">
+                            Siguiente <ChevronRight size={18} />
                         </button>
                     </div>
       </ModuleFormSection>
@@ -358,25 +420,113 @@ export default function ErgonomicsForm(): React.ReactElement | null {
                         </div>
                     </div>
 
-                    <div className="no-print flex gap-[1rem] mt-[2rem] flex-wrap">
-                        <button
-            onClick={handleBack} className="flex-[1] min-width-[120px] p-[1rem] bg-[transparent] text-[var(--color-text)] border-[2px_solid_var(--color-border)] rounded-[12px] font-[800] flex items-center justify-center gap-[0.5rem] cursor-pointer">
+                    <div className="mt-[2.5rem] mb-[2rem] no-print">
+                        <div className="flex flex-col mb-[1rem]">
+                            <label className="m-[0] font-[700] text-[0.95rem] text-[var(--color-text)]">Firmas y Autorizaciones</label>
+                            <div className="text-[var(--color-text)] font-[800] text-[0.75rem] uppercase tracking-wider mt-2 mb-3">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                            <div className="flex flex-wrap gap-4 mb-4">
+                                <label className="flex items-center gap-[0.5rem] p-[0.6rem_1rem] bg-[#f8fafc] border-[1px_solid_#e2e8f0] rounded-[8px] cursor-pointer transition-[all_0.2s_ease]">
+                                    <input type="checkbox" className="hidden" checked={showSignatures.operator} onChange={(e) => setShowSignatures({...showSignatures, operator: e.target.checked})} />
+                                    <div style={{ border: showSignatures.operator ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)', background: showSignatures.operator ? 'var(--color-primary)' : 'transparent' }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
+                                        {showSignatures.operator && <CheckCircle2 size={12} color="white" />}
+                                    </div>
+                                    <span className="text-[0.8rem] font-[700] text-[#1e293b]">Operador / Trabajador</span>
+                                </label>
+                                <label className="flex items-center gap-[0.5rem] p-[0.6rem_1rem] bg-[#f8fafc] border-[1px_solid_#e2e8f0] rounded-[8px] cursor-pointer transition-[all_0.2s_ease]">
+                                    <input type="checkbox" className="hidden" checked={showSignatures.supervisor} onChange={(e) => setShowSignatures({...showSignatures, supervisor: e.target.checked})} />
+                                    <div style={{ border: showSignatures.supervisor ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)', background: showSignatures.supervisor ? 'var(--color-primary)' : 'transparent' }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
+                                        {showSignatures.supervisor && <CheckCircle2 size={12} color="white" />}
+                                    </div>
+                                    <span className="text-[0.8rem] font-[700] text-[#1e293b]">Supervisor / Empleador</span>
+                                </label>
+                                <label className="flex items-center gap-[0.5rem] p-[0.6rem_1rem] bg-[#f8fafc] border-[1px_solid_#e2e8f0] rounded-[8px] cursor-pointer transition-[all_0.2s_ease]">
+                                    <input type="checkbox" className="hidden" checked={showSignatures.professional} onChange={(e) => setShowSignatures({...showSignatures, professional: e.target.checked})} />
+                                    <div style={{ border: showSignatures.professional ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)', background: showSignatures.professional ? 'var(--color-primary)' : 'transparent' }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
+                                        {showSignatures.professional && <CheckCircle2 size={12} color="white" />}
+                                    </div>
+                                    <span className="text-[0.8rem] font-[700] text-[#1e293b]">Profesional Actuante</span>
+                                </label>
+                            </div>
+                        </div>
 
-            
-                            <ChevronLeft size={20} /> ATRÁS
+                        {/* On-Sheet Visual Preview of PDF signature blocks */}
+                        <PdfSignatures
+                            data={{
+                                ...formData,
+                                professionalSignature: signature?.signature,
+                                professionalName: profile?.name,
+                                professionalLicense: profile?.license
+                            }}
+                            box1={showSignatures.operator ? {
+                                title: 'OPERADOR / TRABAJADOR',
+                                subtitle: 'Toma de conocimiento',
+                                signatureUrl: formData.operatorSignature || null,
+                                isProfessional: false
+                            } : null}
+                            box2={showSignatures.supervisor ? {
+                                title: 'SUPERVISOR / EMPLEADOR',
+                                subtitle: 'Firma Autorizada',
+                                signatureUrl: formData.supervisorSignature || null,
+                                isProfessional: false
+                            } : null}
+                            box3={showSignatures.professional ? {
+                                title: 'PROFESIONAL ACTUANTE',
+                                subtitle: (profile?.name || 'Firma y Sello').toUpperCase(),
+                                signatureUrl: signature?.signature || null,
+                                isProfessional: true,
+                                license: profile?.license
+                            } : null}
+                        />
+
+                        {/* Interactive Signature Drawing Pads */}
+                        <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {showSignatures.operator && (
+                            <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                                <SignatureCanvas
+                                    onSave={(sig) => setFormData((prev) => ({ ...prev, operatorSignature: sig || '' }))}
+                                    initialImage={formData.operatorSignature}
+                                    label="Firma del Operador / Trabajador" />
+                            </div>
+                            )}
+                            {showSignatures.supervisor && (
+                            <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                                <SignatureCanvas
+                                    onSave={(sig) => setFormData((prev) => ({ ...prev, supervisorSignature: sig || '' }))}
+                                    initialImage={formData.supervisorSignature}
+                                    label="Firma del Supervisor / Empleador" />
+                            </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex flex-row gap-2 justify-between w-full mt-[2.5rem] no-print overflow-x-auto pb-2">
+                        <button onClick={handleBack} 
+                            style={{ background: 'linear-gradient(135deg, #64748b, #475569)', color: 'white', border: 'none' }}
+                            className="flex-1 min-w-[80px] px-2 py-2 rounded-lg flex items-center justify-center gap-1 font-extrabold text-[0.7rem] shadow-md hover:opacity-90 transition-all hover:-translate-y-0.5 cursor-pointer">
+                            <ChevronLeft size={14} /> ATRÁS
+                        </button>
+                        
+                        <button onClick={() => requirePro(handleSave)}
+                            style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none' }}
+                            className="flex-1 min-w-[90px] px-2 py-2 rounded-lg flex items-center justify-center gap-1 font-extrabold text-[0.7rem] shadow-md hover:opacity-90 transition-all hover:-translate-y-0.5 cursor-pointer">
+                            <Save size={14} /> GUARDAR
+                        </button>
+                        
+                        <button onClick={handlePrint}
+                            style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: 'white', border: 'none' }}
+                            className="flex-1 min-w-[90px] px-2 py-2 rounded-lg flex items-center justify-center gap-1 font-extrabold text-[0.7rem] shadow-md hover:opacity-90 transition-all hover:-translate-y-0.5 cursor-pointer">
+                            <Printer size={14} /> PDF
+                        </button>
+                        
+                        <button onClick={() => requirePro(handleShare)}
+                            style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: 'white', border: 'none' }}
+                            className="flex-1 min-w-[100px] px-2 py-2 rounded-lg flex items-center justify-center gap-1 font-extrabold text-[0.7rem] shadow-md hover:opacity-90 transition-all hover:-translate-y-0.5 cursor-pointer">
+                            <Share2 size={14} /> COMPARTIR
                         </button>
                     </div>
       </ModuleFormSection>
       }
         </ModuleFormDocument>
 
-        {step === 3 && (
-            <ModuleActionBar
-                actions={[
-                    { id: 'save', label: 'GUARDAR ESTUDIO', icon: <Save />, variant: 'primary', onClick: () => requirePro(handleSave) }
-                ]}
-            />
-        )}
     </ModuleFormLayout>);
-
 }

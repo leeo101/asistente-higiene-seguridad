@@ -284,16 +284,8 @@ export default function ShareModal({
 
     if (!elementIdToPrint) return;
 
-    if (Capacitor.isNativePlatform()) {
-      handleNativeShare('Descargar');
-      return;
-    }
-
-    // Trigger native print for true vector PDF quality instead of html2canvas screenshots
-    toast.success('Para obtener la mejor calidad (sin capturas), selecciona "Guardar como PDF" en la siguiente ventana.', { duration: 5000 });
-    setTimeout(() => {
-      handlePrint();
-    }, 1500);
+    // Trigger PDF generation via the same logic as native share, which falls back to download on desktop
+    handleNativeShare('Descargar');
   };
 
   const options = [

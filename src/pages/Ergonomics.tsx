@@ -62,13 +62,14 @@ export default function Ergonomics(): React.ReactElement | null {
         icon={<Accessibility size={36} color="#ffffff" />} />
       
 
-            <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
+            <div className="flex items-center justify-between gap-4 mb-6 flex-wrap relative z-10">
                 <div className="flex gap-[1rem] items-center">
                     <></>
                 </div>
                 <button
           onClick={() => navigate('/ergonomics-form')}
-          className="flex-none px-6 py-3 rounded-xl bg-emerald-500 text-white font-extrabold text-sm flex items-center gap-2 shadow-[0_4px_15px_rgba(16,185,129,0.3)] whitespace-nowrap hover:bg-emerald-600 transition-colors cursor-pointer border-none">
+          style={{ backgroundColor: '#10b981', color: 'white' }}
+          className="flex-none px-6 py-3 rounded-xl font-extrabold text-sm flex items-center gap-2 shadow-[0_4px_15px_rgba(16,185,129,0.3)] whitespace-nowrap hover:opacity-90 transition-opacity cursor-pointer border-none">
           
                     <Plus size={20} /> Nuevo Estudio
                 </button>
@@ -76,13 +77,14 @@ export default function Ergonomics(): React.ReactElement | null {
 
             {/* Search */}
             <div className="relative mb-8">
-                <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search size={20} className="absolute text-slate-400 pointer-events-none" style={{ left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
                 <input
           type="text"
           placeholder="Buscar por empresa, sector o puesto..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full py-4 pr-4 pl-12 rounded-2xl border-2 border-slate-700 bg-slate-900 text-base outline-none shadow-sm focus:border-emerald-500 transition-colors text-white" />
+          style={{ paddingLeft: '3rem', backgroundColor: 'var(--color-surface)', color: 'var(--color-text)', borderColor: 'var(--color-border)' }}
+          className="w-full py-4 pr-4 rounded-2xl border-2 text-base outline-none shadow-sm focus:border-emerald-500 transition-colors" />
         
             </div>
 
@@ -90,22 +92,22 @@ export default function Ergonomics(): React.ReactElement | null {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredHistory.length > 0 ?
         filteredHistory.map((item) =>
-        <div key={item.id} className="card hover:shadow-md transition-all p-6 border border-slate-700 flex flex-col gap-4 rounded-2xl bg-slate-900">
+        <div key={item.id} className="card hover:shadow-md transition-all p-6 border flex flex-col gap-4 rounded-2xl" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
                             <div className="flex justify-space-between items-start">
                                 <div className="flex gap-[1rem] items-start">
                                     <div className="w-[48px] h-[48px] bg-[rgba(59,_130,_246,_0.1)] rounded-[12px] flex items-center justify-center text-[var(--color-primary)] flex-shrink-[0]">
                                         <Accessibility size={24} />
                                     </div>
                                     <div>
-                                        <h3 className="m-0 text-xl font-black text-slate-100">{item.empresa || 'Empresa sin nombre'}</h3>
-                                        <p className="m-0 text-slate-400 text-sm font-bold mt-1">
+                                        <h3 className="m-0 text-xl font-black" style={{ color: 'var(--color-text)' }}>{item.empresa || 'Empresa sin nombre'}</h3>
+                                        <p className="m-0 text-sm font-bold mt-1" style={{ color: 'var(--color-text-muted)' }}>
                                             {item.puesto} · {item.sector}
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-2 text-sm text-slate-400 bg-slate-950 p-2.5 rounded-lg">
+                            <div className="flex items-center gap-2 text-sm p-2.5 rounded-lg" style={{ backgroundColor: 'var(--color-background)', color: 'var(--color-text-muted)' }}>
                                 <Calendar size={16} /> 
                                 <span className="font-semibold">{new Date(parseInt(item.id)).toLocaleDateString('es-AR')}</span>
                             </div>
@@ -120,15 +122,15 @@ export default function Ergonomics(): React.ReactElement | null {
                             <div className="flex justify-space-between mt-[0.5rem] pt-[1rem] border-top-[1px_solid_var(--color-border)]">
                                 <button
               onClick={() => navigate('/ergonomics-form', { state: { editData: item } })}
-
-              className="hover:bg-[rgba(var(--color-primary-rgb),0.15)] flex-[1] p-[0.6rem] bg-[rgba(var(--color-primary-rgb),_0.1)] text-[var(--color-primary)] border-[1px_solid_rgba(var(--color-primary-rgb),_0.2)] rounded-[8px] font-[800] text-[0.8rem] cursor-pointer flex justify-center items-center gap-[0.5rem]">
+              style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#2563eb', border: '1px solid rgba(59, 130, 246, 0.2)' }}
+              className="hover:opacity-80 flex-[1] p-[0.6rem] rounded-[8px] font-[800] text-[0.8rem] cursor-pointer flex justify-center items-center gap-[0.5rem] transition-opacity">
               
                                     <FileText size={16} /> VER / EDITAR
                                 </button>
                                 <button
               onClick={() => setDeleteTarget(item.id)}
-
-              title="Eliminar" className="p-[0.6rem] ml-[0.5rem] bg-[transparent] text-[#ef4444] border-none cursor-pointer">
+              style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#dc2626', border: 'none' }}
+              title="Eliminar" className="p-[0.6rem] ml-[0.5rem] rounded-[8px] cursor-pointer hover:opacity-80 transition-opacity flex justify-center items-center">
               
                                     <Trash2 size={18} />
                                 </button>
@@ -136,7 +138,7 @@ export default function Ergonomics(): React.ReactElement | null {
                         </div>
         ) :
 
-        <div className="grid-column-[1_/_-1] p-[3rem] text-center bg-[var(--color-surface)] rounded-[20px] border-[2px_dashed_var(--color-border)]">
+        <div className="grid-column-[1_/_-1] p-[3rem] text-center rounded-[20px] border-[2px_dashed_var(--color-border)]" style={{ backgroundColor: 'var(--color-surface)' }}>
                         <Accessibility size={48} color="var(--color-text-muted)" className="m-[0_auto] mb-[1rem] opacity-[0.5]" />
                         <h3 className="m-[0] text-[var(--color-text)]">No hay estudios registrados</h3>
                         <p className="text-[var(--color-text-muted)] text-[0.9rem]">Creá tu primer evaluación ergonómica para comenzar.</p>

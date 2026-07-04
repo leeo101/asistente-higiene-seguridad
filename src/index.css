@@ -29,17 +29,17 @@
   --color-danger: #EF4444;
   --color-danger-dark: #DC2626;
 
-  /* Refined Light Mode (SaaS Grade) */
-  --color-background: #F8FAFC;
-  --color-background-gradient: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
-  --color-surface: rgba(255, 255, 255, 0.9);
+  /* Refined Light Mode (SaaS Grade) - Adjusted to reduce blinding white */
+  --color-background: #F1F5F9;
+  --color-background-gradient: linear-gradient(180deg, #F1F5F9 0%, #E2E8F0 100%);
+  --color-surface: rgba(255, 255, 255, 0.95);
   --color-surface-solid: #FFFFFF;
   --color-text: #0F172A;
-  --color-text-muted: #64748B;
-  --color-text-light: #94A3B8;
-  --color-border: rgba(15, 23, 42, 0.06);
-  --color-border-hover: rgba(15, 23, 42, 0.12);
-  --color-surface-hover: #F1F5F9;
+  --color-text-muted: #475569;
+  --color-text-light: #64748B;
+  --color-border: rgba(15, 23, 42, 0.12);
+  --color-border-hover: rgba(15, 23, 42, 0.18);
+  --color-surface-hover: #F8FAFC;
 
   /* Premium Gradients & Glass */
   --gradient-premium: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
@@ -65,10 +65,10 @@
   --glass-glow-strong: 0 0 60px rgba(59, 130, 246, 0.15);
 
   /* Component Specifics */
-  --color-header-bg: rgba(255, 255, 255, 0.9);
-  --color-input-bg: #FFFFFF;
-  --color-input-border: rgba(15, 23, 42, 0.1);
-  --color-input-focus: rgba(59, 130, 246, 0.5);
+  --color-header-bg: rgba(255, 255, 255, 0.95);
+  --color-input-bg: #F8FAFC;
+  --color-input-border: rgba(15, 23, 42, 0.15);
+  --color-input-focus: rgba(59, 130, 246, 0.6);
 
   /* Shadows Premium */
   --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.03);
@@ -764,12 +764,19 @@ textarea {
   padding: 0.8rem 1rem;
   margin-bottom: 1rem;
   border-radius: 8px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
+  border: 1px solid rgba(15, 23, 42, 0.25); /* Stronger border when not focused */
+  background: var(--color-input-bg);
   color: var(--color-text);
   font-family: var(--font-family);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  font-weight: 500;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
   box-sizing: border-box;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #64748B; /* Stronger placeholder color */
+  opacity: 1;
 }
 
 input:focus,
@@ -1678,6 +1685,8 @@ button[aria-label*="Atrás"],
     height: auto !important;
     min-height: 0 !important;
     background: transparent !important;
+    opacity: 1 !important;
+    visibility: visible !important;
   }
 
   body.printing-isolated .isolated-print-target {

@@ -4,20 +4,14 @@ import CompanyLogo from './CompanyLogo';
 export default function PPEReceiptPdfGenerator({ items = [] }: {items?: any[];}): React.ReactElement | null {
   // Plantilla estándar de Resolución 299/11 SRT (Argentina)
   return (
-    <div className="w-[100%] flex justify-center">
+    <div className="w-full print:m-0 print:p-0">
             <div
         id="ppe-receipt-pdf"
-        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[10mm_15mm] bg-[#ffffff] text-[#000000] box-sizing-[border-box] m-[0_auto] text-[9pt] font-family-[Arial,_Helvetica,_sans-serif]">
+        className="pdf-container print-area w-full p-[10mm_15mm] bg-[#ffffff] text-[#000000] box-sizing-[border-box] m-[0_auto] text-[9pt] font-family-[Arial,_Helvetica,_sans-serif]">
 
-
-
-
-
-
-        
                 <style type="text/css" media="print">
                     {`
-                        @page { size: A4 portrait; margin: 10mm; }
+                        @page { size: A4 landscape; margin: 10mm; }
                         body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                         .no-print { display: none !important; }
                         .print-area { box-shadow: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: none !important; border: none !important; border-radius: 0 !important; min-height: auto !important; height: auto !important; }

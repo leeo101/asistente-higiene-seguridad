@@ -100,8 +100,8 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
 
   if (boxes.length === 0) return null;
 
-  return (
-    <div className="avoid-break w-[100%] page-break-inside-[avoid] break-inside-[avoid] block mt-[1.5rem] border-top-[2px_dashed_#cbd5e1] pt-[1.5rem] pb-[1rem] text-center">
+    return (
+    <div className="avoid-break w-[100%] page-break-inside-[avoid] break-inside-[avoid] block mt-[0.5rem] border-top-[2px_dashed_#cbd5e1] pt-[1rem] pb-[1rem] text-center">
 
 
 

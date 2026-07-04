@@ -298,24 +298,24 @@ export default function ConfinedSpace(): React.ReactElement | null {
         icon={<Tent size={36} color="#ffffff" />} />
       
 
-            <div className="flex items-center justify-space-between gap-[1rem] mb-[1.5rem] flex-wrap">
+            <div className="flex items-center justify-between gap-[1rem] mb-[1.5rem] flex-wrap w-full">
                 <div className="flex gap-[1rem] items-center">
-                    <></>
                 </div>
                 <button
-          onClick={() => navigate('/confined-space/new')} className="flex-[0_1_auto] p-[0.8rem_1.5rem] rounded-[12px] bg-[#36B37E] text-[#fff] border-none font-[800] text-[0.95rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(54,179,126,0.3)] white-space-[nowrap]">
-
-          
-                    <Plus size={20} /> Nuevo Permiso
+                    type="button"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        console.log("Navigating to /confined-space/new");
+                        navigate('/confined-space/new');
+                    }} 
+                    style={{ backgroundColor: '#16a34a', color: '#ffffff', zIndex: 50, position: 'relative' }}
+                    className="ml-auto p-[0.8rem_1.5rem] rounded-[12px] border-none font-[800] text-[0.95rem] cursor-pointer flex items-center gap-[0.5rem] shadow-[0_4px_15px_rgba(22,163,74,0.3)] transition-[all_0.2s] whitespace-nowrap"
+                >
+                    <Plus size={20} color="#ffffff" strokeWidth={2.5} /> Nuevo Permiso
                 </button>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-template-columns-[repeat(2,_1fr)] gap-[1rem] mb-[2rem]">
-
-
-
-
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-[1rem] mb-[2rem]">
         
                 <StatCard
           icon={<FileText size={24} />}
@@ -416,7 +416,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
               type="text"
               placeholder="Buscar por espacio, ubicación..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.85rem_1rem_0.85rem_3rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.95rem] font-[500] outline-[none]" />
+              onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] py-[0.85rem] pr-[1rem] pl-[2.8rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.95rem] font-[500] outline-[none] focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" />
 
 
 
@@ -732,31 +732,14 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
     }}>
             {/* Icono */}
             <div style={{
-
-
         background: `${isExpired ? '#9ca3af' : statusConfig.color}15`
-
-
-
-
-
       }} className="w-[56px] h-[56px] rounded-[var(--radius-xl)] flex items-center justify-center flex-shrink-[0]">
                 <Tent size={28} color={isExpired ? '#9ca3af' : statusConfig.color} strokeWidth={2.5} />
             </div>
 
-            {/* Información */}
             <div className="flex-[1_1_200px] min-width-[0]">
                 <div className="flex items-center gap-[0.75rem] mb-[0.5rem] flex-wrap">
                     <h3 className="m-[0] text-[1.1rem] font-[800] text-[var(--color-text)] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis] max-w-[calc(100vw_-_200px)]">
-
-
-
-
-
-
-
-
-            
                         {spaceType?.icon} {permit.spaceName}
                     </h3>
                     <span className="px-3 py-1 rounded-full text-xs font-extrabold uppercase shrink-0" style={{ backgroundColor: statusConfig.bg, color: statusConfig.color }}>
@@ -764,13 +747,6 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                     </span>
                 </div>
                 <div className="flex flex-wrap gap-[1rem] text-[0.85rem] text-[var(--color-text-muted)] font-[500]">
-
-
-
-
-
-
-          
                     <span className="flex items-center gap-[0.35rem]">
                         <Tent size={14} />
                         {permit.location || 'Sin ubicación'}
@@ -786,94 +762,51 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                 </div>
             </div>
 
-            {/* Acciones */}
-            <div className="flex gap-[0.5rem] flex-wrap flex-shrink-[0] ml-[auto]">
-                {permit.status === 'pending' &&
-        <button
-          onClick={onAuthorize}
-
-
-
-
-
-
-
-
-
-
-
-          title="Autorizar Permiso" className="p-[0.6rem_0.75rem] bg-[#16a34a] border-none rounded-[var(--radius-md)] cursor-pointer text-[#fff] font-[700] text-[0.8rem] transition-[all_var(--transition-fast)]">
-          
-                        <CheckCircle2 size={18} />
+            <div className="flex justify-between items-center mt-[1rem] pt-[1rem] border-top-[1px_solid_var(--color-border)]">
+                <span className="text-[0.75rem] text-[var(--color-text-muted)] font-[600] flex items-center gap-[0.4rem]">
+                    <Clock size={14} /> Creado: {new Date(permit.createdAt).toLocaleDateString()}
+                </span>
+                <div className="flex gap-[0.5rem]">
+                    {permit.status === 'pending' &&
+                        <button
+                            onClick={onAuthorize}
+                            title="Autorizar Permiso" className="p-[0.6rem] bg-[#16a34a] border-none rounded-[8px] cursor-pointer text-[#fff] shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]">
+                            <CheckCircle2 size={18} />
+                        </button>
+                    }
+                    {permit.status === 'active' &&
+                        <>
+                            <button
+                                onClick={onSuspend}
+                                title="Suspender Permiso" className="p-[0.6rem] bg-[#f59e0b] border-none rounded-[8px] cursor-pointer text-[#fff] shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]">
+                                <AlertTriangle size={18} />
+                            </button>
+                            <button
+                                onClick={onComplete}
+                                title="Completar Permiso" className="p-[0.6rem] bg-[#0ea5e9] border-none rounded-[8px] cursor-pointer text-[#fff] shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]">
+                                <CheckSquare size={18} />
+                            </button>
+                        </>
+                    }
+                    <button
+                        onClick={onEdit}
+                        className="p-[0.6rem] bg-[#6366f1] border-none rounded-[8px] cursor-pointer text-[#fff] shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]"
+                        title="Editar Permiso">
+                        <Edit3 size={18} />
                     </button>
-        }
-                {permit.status === 'active' &&
-        <>
-                        <button
-            onClick={onSuspend}
-
-
-
-
-
-
-
-
-
-
-
-            title="Suspender Permiso" className="p-[0.6rem_0.75rem] bg-[#dc2626] border-none rounded-[var(--radius-md)] cursor-pointer text-[#fff] font-[700] text-[0.8rem] transition-[all_var(--transition-fast)]">
-            
-                            <AlertTriangle size={18} />
-                        </button>
-                        <button
-            onClick={onComplete}
-
-
-
-
-
-
-
-
-
-
-
-            title="Completar Permiso" className="p-[0.6rem_0.75rem] bg-[#3b82f6] border-none rounded-[var(--radius-md)] cursor-pointer text-[#fff] font-[700] text-[0.8rem] transition-[all_var(--transition-fast)]">
-            
-                            <CheckSquare size={18} />
-                        </button>
-                    </>
-        }
-                <button
-          onClick={onEdit}
-          className="p-2 bg-slate-800 border border-slate-700 rounded-lg text-emerald-500 hover:bg-slate-700 transition-colors"
-          title="Editar Permiso">
-          
-                    <Edit3 size={18} />
-                </button>
-                <button
-          onClick={onShare}
-
-
-
-
-
-
-
-
-
-          title="Compartir PDF" className="p-[0.6rem_0.75rem] bg-[#dcfce7] border-[1px_solid_#86efac] rounded-[var(--radius-md)] cursor-pointer text-[#16a34a] transition-[all_var(--transition-fast)]">
-          
-                    <Share2 size={18} />
-                </button>
-                <button
-          onClick={onDelete}
-          className="p-2 bg-slate-800 border border-slate-700 rounded-lg text-red-500 hover:bg-slate-700 transition-colors"
-          title="Eliminar">
-          
-                    <Trash2 size={18} />
-                </button>
+                    <button
+                        onClick={onShare}
+                        className="p-[0.6rem] bg-[#8b5cf6] border-none rounded-[8px] cursor-pointer text-[#fff] shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]"
+                        title="Compartir PDF">
+                        <Share2 size={18} />
+                    </button>
+                    <button
+                        onClick={onDelete}
+                        className="p-[0.6rem] bg-[#ef4444] border-none rounded-[8px] cursor-pointer text-[#fff] shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]"
+                        title="Eliminar">
+                        <Trash2 size={18} />
+                    </button>
+                </div>
             </div>
         </div>);
 

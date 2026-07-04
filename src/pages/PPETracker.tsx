@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Plus, Trash2, HardHat, TriangleAlert, CheckCircle, Clock, Shield,
   Download, QrCode, ExternalLink, Info, Footprints, Hand, Glasses, Ear, Shirt,
-  Wind, Eye, Flame, Activity, HelpCircle, User, Calendar, ShieldCheck, Award, X } from
+  Wind, Eye, Flame, Activity, HelpCircle, User, Calendar, ShieldCheck, Award, X,
+  Zap, Thermometer, Droplets, Snowflake, Beaker, Briefcase, Pencil } from
 'lucide-react';
 import toast from 'react-hot-toast';
 import { useSync } from '../contexts/SyncContext';
@@ -19,7 +20,9 @@ const EPP_TYPES = [
 'Casco de seguridad', 'Calzado de seguridad', 'Guantes de trabajo',
 'Lentes de seguridad', 'Protector auditivo', 'Arnés de seguridad',
 'Chaleco reflectivo', 'Mascarilla / Respirador', 'Careta facial',
-'Ropa ignífuga', 'Botas de goma', 'Rodilleras', 'Otro'];
+'Ropa ignífuga', 'Botas de goma', 'Rodilleras', 'Faja lumbar',
+'Guantes dieléctricos', 'Traje para frío', 'Traje químico', 
+'Cofia / Redecilla', 'Delantal de cuero', 'Botiquín personal', 'Otro'];
 
 
 // Configuración visual de colores e iconos premium para cada tipo de EPP
@@ -36,6 +39,13 @@ const EPP_CONFIG = {
   'Ropa ignífuga': { icon: Flame, color: '#EF4444', bg: 'rgba(239,68,68,0.08)' },
   'Botas de goma': { icon: Footprints, color: '#0EA5E9', bg: 'rgba(14,165,233,0.08)' },
   'Rodilleras': { icon: Activity, color: '#64748B', bg: 'rgba(100,116,139,0.08)' },
+  'Faja lumbar': { icon: Activity, color: '#8B5CF6', bg: 'rgba(139,92,246,0.08)' },
+  'Guantes dieléctricos': { icon: Zap, color: '#F59E0B', bg: 'rgba(245,158,11,0.08)' },
+  'Traje para frío': { icon: Snowflake, color: '#38BDF8', bg: 'rgba(56,189,248,0.08)' },
+  'Traje químico': { icon: Droplets, color: '#22C55E', bg: 'rgba(34,197,94,0.08)' },
+  'Cofia / Redecilla': { icon: User, color: '#F43F5E', bg: 'rgba(244,63,94,0.08)' },
+  'Delantal de cuero': { icon: Shirt, color: '#A16207', bg: 'rgba(161,98,7,0.08)' },
+  'Botiquín personal': { icon: Briefcase, color: '#DC2626', bg: 'rgba(220,38,38,0.08)' },
   'Otro': { icon: HelpCircle, color: '#94A3B8', bg: 'rgba(148,163,184,0.08)' }
 };
 
@@ -113,22 +123,32 @@ export default function PPETracker(): React.ReactElement | null {
     if (!form.purchaseDate) {toast.error('Ingresá la fecha de compra/entrega');return;}
 
     const newItem = {
-      id: Date.now(),
+      id: form.id || Date.now(),
       type: form.type === 'Otro' ? form.custom || 'Otro' : form.type,
       responsible: form.responsible,
       purchaseDate: form.purchaseDate,
       lifeMonths: form.lifeMonths || 12,
       certStandard: form.certStandard,
       certNumber: form.certNumber,
-      addedAt: new Date().toISOString()
+      addedAt: form.id ? form.addedAt : new Date().toISOString()
     };
 
-    const updated = [newItem, ...items];
+    const updated = [newItem, ...items.filter(i => i.id !== newItem.id)];
     await save(updated);
 
-    toast.success('EPP registrado');
+    toast.success(form.id ? 'EPP actualizado' : 'EPP registrado');
     setForm(EMPTY_FORM);
     setIsFormVisible(false);
+  };
+
+  const handleEdit = (item) => {
+    const isStandard = EPP_TYPES.includes(item.type);
+    setForm({
+      ...item,
+      type: isStandard ? item.type : 'Otro',
+      custom: isStandard ? '' : item.type
+    });
+    setIsFormVisible(true);
   };
 
   const handleDelete = (id) => {
@@ -162,6 +182,7 @@ export default function PPETracker(): React.ReactElement | null {
 
   return (
     <div className="min-h-screen bg-[var(--color-background)] pb-[8rem]">
+      <div className="print:hidden">
         <ModuleFormLayout>
             <Breadcrumbs />
             <div className="mt-24">
@@ -181,11 +202,11 @@ export default function PPETracker(): React.ReactElement | null {
                         <></>
                     </div>
                     {items.length > 0 &&
-        <div className="flex gap-2">
-                            <button onClick={() => requirePro(() => window.print())} style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', boxShadow: '0 8px 20px rgba(59,130,246,0.3)' }} className="text-white border-none rounded-lg px-4 py-2 text-xs font-extrabold cursor-pointer hover:scale-[1.03] active:scale-[0.97] transition-all">
+        <div className="flex gap-2 relative z-50">
+                            <button type="button" onClick={() => window.print()} style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', boxShadow: '0 8px 20px rgba(59,130,246,0.3)' }} className="text-white border-none rounded-lg px-4 py-2 text-xs font-extrabold cursor-pointer hover:scale-[1.03] active:scale-[0.97] transition-all relative z-50">
                                 <span className="hidden sm:inline">IMPRIMIR RES. 299/11</span><span className="inline sm:hidden">RES 299/11</span>
                             </button>
-                            <button onClick={handleExport} style={{ background: 'linear-gradient(135deg, #10b981, #047857)', boxShadow: '0 8px 20px rgba(16,185,129,0.3)' }} className="text-white border-none rounded-lg px-4 py-2 text-xs font-extrabold cursor-pointer hover:scale-[1.03] active:scale-[0.97] flex items-center gap-1 transition-all">
+                            <button type="button" onClick={handleExport} style={{ background: 'linear-gradient(135deg, #10b981, #047857)', boxShadow: '0 8px 20px rgba(16,185,129,0.3)' }} className="text-white border-none rounded-lg px-4 py-2 text-xs font-extrabold cursor-pointer hover:scale-[1.03] active:scale-[0.97] flex items-center gap-1 transition-all relative z-50">
                                 <Download size={14} /> <span className="hidden sm:inline">EXCEL</span>
                             </button>
                         </div>
@@ -281,8 +302,8 @@ export default function PPETracker(): React.ReactElement | null {
                 </button>
             </div>
 
-            {!isFormVisible ?
-      <>
+            {!isFormVisible ? (
+      <React.Fragment>
                     {/* List */}
                     {items.length === 0 ?
         <div className="text-center py-12 text-slate-500 dark:text-slate-400 bg-white/50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 border-dashed">
@@ -309,10 +330,10 @@ export default function PPETracker(): React.ReactElement | null {
             return (
               <div
                 key={item.id}
-                className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md border border-slate-200 dark:border-slate-700/50 relative overflow-hidden transition-all stagger-item border-left-width-[5px]" style={{ borderLeftColor: statusColor, animationDelay: `${index * 0.08}s` }}>
+                className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md border border-slate-200 dark:border-slate-700/50 relative overflow-hidden transition-all stagger-item border-left-width-[6px]" style={{ borderLeftColor: statusColor, borderColor: config.color, animationDelay: `${index * 0.08}s` }}>
                 
-                                {/* Brillo sutil de fondo del estado */}
-                                <div className="absolute inset-0 opacity-15 pointer-events-none" style={{ background: `linear-gradient(90deg, ${statusColorLight} 0%, transparent 100%)` }} />
+                                {/* Brillo sutil de fondo del estado y del EPP */}
+                                <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ background: `linear-gradient(135deg, ${config.bg} 0%, transparent 100%)` }} />
 
                                 <div className="flex justify-between items-start gap-4 flex-wrap relative z-10">
                                     <div className="flex-1 min-w-0">
@@ -363,26 +384,28 @@ export default function PPETracker(): React.ReactElement | null {
                                             </div>
                     }
                                     </div>
-                                    
-                                    <button
-                    onClick={() => handleDelete(item.id)}
-                    className="p-2 bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 hover:border-red-500/25 rounded-lg text-red-500 cursor-pointer shrink-0 transition-all flex items-center justify-center hover:scale-105">
-
-
-                    
-                                        <Trash2 size={14} />
-                                    </button>
+                                    <div className="flex items-center gap-2 shrink-0 self-center">
+                                        <button
+                                            onClick={() => handleEdit(item)}
+                                            className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400 text-white shadow-md shadow-blue-500/30 cursor-pointer transition-all duration-300 flex items-center justify-center hover:scale-110 active:scale-95 group border border-blue-400/50"
+                                            title="Editar EPP">
+                                            <Pencil size={18} color="#ffffff" strokeWidth={2.5} className="transition-transform group-hover:rotate-12" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(item.id)}
+                                            className="p-2 rounded-lg bg-gradient-to-br from-red-500 to-rose-500 hover:from-red-400 hover:to-rose-400 text-white shadow-md shadow-red-500/30 cursor-pointer transition-all duration-300 flex items-center justify-center hover:scale-110 active:scale-95 group border border-red-400/50"
+                                            title="Eliminar EPP">
+                                            <Trash2 size={18} color="#ffffff" strokeWidth={2.5} className="transition-transform group-hover:rotate-12" />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>);
 
           })}
                 </div>
-        }
-            
-            <div className="print-only fixed left-[0] opacity-[0.01] top-[0]">
-                <PPEReceiptPdfGenerator />
-            </div>
-            </> :
+          }
+            </React.Fragment>
+      ) : (
 
       <div className="animate-fade-in">
                     <ModuleFormSection title="Registro de Nuevo EPP" icon={<Plus size={20} />}>
@@ -402,12 +425,22 @@ export default function PPETracker(): React.ReactElement | null {
                       key={t}
                       type="button"
                       onClick={() => setForm({ ...form, type: t })}
-                      className={`flex flex-col items-center justify-center gap-1.5 py-2.5 px-1.5 rounded-xl cursor-pointer transition-all ${isSelected ? 'border-[2.5px] scale-[1.02] shadow-md' : 'border-[1.5px] border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm'}`} style={{ borderColor: isSelected ? config.color : undefined, background: isSelected ? config.bg : undefined, boxShadow: isSelected ? `0 4px 10px ${config.bg}` : undefined }}>
-                      
-                                                <div className={`flex items-center justify-center w-7 h-7 rounded-full transition-all ${isSelected ? 'bg-white shadow-sm' : ''}`} style={{ background: !isSelected ? config.bg : undefined, color: config.color }}>
-                                                    <IconComponent size={15} strokeWidth={2.2} />
+                      className={`relative flex flex-col items-center justify-center gap-2 py-3 px-1.5 rounded-xl cursor-pointer transition-all duration-300 border-[2px] overflow-hidden ${isSelected ? 'scale-[1.02] z-10' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600'}`} 
+                      style={{ 
+                          borderColor: isSelected ? config.color : undefined, 
+                          backgroundColor: isSelected ? config.bg : undefined,
+                          boxShadow: isSelected ? `0 6px 16px -4px ${config.color}50` : undefined
+                      }}>
+                                                <div className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300`} 
+                                                     style={{ 
+                                                         backgroundColor: isSelected ? config.color : config.bg, 
+                                                         color: isSelected ? '#ffffff' : config.color,
+                                                         boxShadow: isSelected ? `0 2px 6px ${config.color}80` : undefined
+                                                     }}>
+                                                    <IconComponent size={16} strokeWidth={isSelected ? 2.5 : 2} />
                                                 </div>
-                                                <span className={`text-[0.68rem] text-center leading-tight break-words ${isSelected ? 'font-extrabold text-slate-800 dark:text-slate-100' : 'font-semibold text-slate-500 dark:text-slate-400'}`}>
+                                                <span className={`text-[0.68rem] text-center leading-tight break-words px-1 z-10 ${isSelected ? 'font-extrabold' : 'font-semibold text-slate-500 dark:text-slate-400'}`}
+                                                      style={{ color: isSelected ? config.color : undefined }}>
                                                     {t}
                                                 </span>
                                             </button>);
@@ -530,9 +563,14 @@ export default function PPETracker(): React.ReactElement | null {
                         </button>
                     </div>
                 </div>
-      }
+      )}
             </div>
         </ModuleFormLayout>
-    </div>);
-
+      </div>
+      
+      <div className="print-only">
+         <PPEReceiptPdfGenerator items={items} />
+      </div>
+    </div>
+  );
 }

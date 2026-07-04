@@ -99,8 +99,8 @@ export default function ConfinedSpacePdf({ data }: {data: any;}): React.ReactEle
                     </div>
 
                     <div className="flex-[2] flex flex-col items-center justify-center text-center">
-                        <h1 className="m-[0] font-[900] text-[1.8rem] letter-spacing-[-0.02em] uppercase line-height-[1] text-[#ffffff] bg-[#0f172a] p-[0.4rem_1rem] rounded-[8px]">ESPACIO CONFINADO</h1>
-                        <div style={{ background: hasGasAlert ? '#dc2626' : '#f59e0b' }} className="mt-[0.5rem] text-[white] p-[0.2rem_0.8rem] rounded-[12px] text-[0.65rem] font-[800] letter-spacing-[0.08em]">
+                        <h1 className="m-[0] font-[900] text-[2.2rem] letter-spacing-[-0.02em] uppercase line-height-[1.1] text-[#ffffff] bg-[#0f172a] p-[0.5rem_1.2rem] rounded-[8px]">ESPACIO CONFINADO</h1>
+                        <div style={{ background: hasGasAlert ? '#dc2626' : '#f59e0b' }} className="mt-[0.6rem] text-[white] p-[0.3rem_1rem] rounded-[12px] text-[0.7rem] font-[800] letter-spacing-[0.08em]">
                             PERMISO DE INGRESO — RES. SRT 95/03
                         </div>
                     </div>
@@ -117,18 +117,27 @@ export default function ConfinedSpacePdf({ data }: {data: any;}): React.ReactEle
                             IDENTIFICACIÓN DEL ESPACIO CONFINADO
                         </span>
                         <div className="font-[900] text-[1.3rem] text-[#0f172a] mt-[0.3rem]">{data.spaceName || 'No especificado'}</div>
+                        {data.description && <div className="text-[0.8rem] text-[#475569] mt-[0.2rem]">{data.description}</div>}
                     </div>
 
-                    <div className="flex bg-[#ffffff]">
-                        <div className="flex-[1] p-[0.75rem_1rem] border-right-[1px_solid_#e2e8f0]">
+                    <div className="flex bg-[#ffffff] flex-wrap">
+                        <div className="flex-[1_1_30%] p-[0.75rem_1rem] border-right-[1px_solid_#e2e8f0] border-bottom-[1px_solid_#e2e8f0]">
+                            <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Building2 size={12} /> DEPARTAMENTO</span>
+                            <div className="font-[700] text-[0.9rem] text-[#334155] mt-[0.2rem]">{data.department || 'No especificado'}</div>
+                        </div>
+                        <div className="flex-[1_1_30%] p-[0.75rem_1rem] border-right-[1px_solid_#e2e8f0] border-bottom-[1px_solid_#e2e8f0]">
                             <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><MapPin size={12} /> UBICACIÓN / SECTOR</span>
                             <div className="font-[700] text-[0.9rem] text-[#334155] mt-[0.2rem]">{data.location || 'No especificada'}</div>
                         </div>
-                        <div className="flex-[1] p-[0.75rem_1rem] border-right-[1px_solid_#e2e8f0]">
+                        <div className="flex-[1_1_30%] p-[0.75rem_1rem] border-bottom-[1px_solid_#e2e8f0]">
+                            <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Calendar size={12} /> TIPO DE ESPACIO</span>
+                            <div className="font-[700] text-[0.9rem] text-[#334155] mt-[0.2rem] capitalize">{data.spaceType || 'Tanque'}</div>
+                        </div>
+                        <div className="flex-[1_1_50%] p-[0.75rem_1rem] border-right-[1px_solid_#e2e8f0]">
                             <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Calendar size={12} /> FECHA</span>
                             <div className="font-[700] text-[0.9rem] text-[#334155] mt-[0.2rem]">{data.createdAt ? new Date(data.createdAt).toLocaleDateString('es-AR') : 'N/A'}</div>
                         </div>
-                        <div className="flex-[1] p-[0.75rem_1rem]">
+                        <div className="flex-[1_1_50%] p-[0.75rem_1rem]">
                             <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Clock size={12} /> DURACIÓN ESTIMADA</span>
                             <div className="font-[700] text-[0.9rem] text-[#334155] mt-[0.2rem]">{data.duration || 'N/A'}</div>
                         </div>
@@ -251,14 +260,6 @@ export default function ConfinedSpacePdf({ data }: {data: any;}): React.ReactEle
                     </div>
         }
 
-                {/* Nota legal */}
-                <div className="mb-[1.5rem] bg-[#fffbeb] border-[1px_solid_#fde68a] rounded-[6px] p-[0.7rem_1rem] flex items-start gap-[0.6rem]">
-                    <AlertTriangle size={16} color="#d97706" className="flex-shrink-[0] mt-[0.1rem]" />
-                    <p className="m-[0] text-[0.72rem] text-[#92400e] font-[700] line-height-[1.5]">
-                        <strong>AVISO LEGAL:</strong> Según Res. SRT 95/03 — Anexo I. Este permiso es de validez única por ingreso y caduca al finalizar el turno, al detectarse condiciones atmosféricas fuera de límite, o ante cualquier situación de emergencia. Prohibido el ingreso sin autorización firmada.
-                    </p>
-                </div>
-
                 {/* Firmas */}
                 <PdfSignatures
           data={data}
@@ -282,6 +283,14 @@ export default function ConfinedSpacePdf({ data }: {data: any;}): React.ReactEle
             signatureUrl: data.signature || data.supervisorSignature || null,
             isProfessional: false
           } : null} />
+
+                {/* Nota legal */}
+                <div className="mt-[1rem] bg-[#fffbeb] border-[1px_solid_#fde68a] rounded-[6px] p-[0.7rem_1rem] flex items-start gap-[0.6rem] page-break-inside-[avoid] break-inside-[avoid]">
+                    <AlertTriangle size={16} color="#d97706" className="flex-shrink-[0] mt-[0.1rem]" />
+                    <p className="m-[0] text-[0.72rem] text-[#92400e] font-[700] line-height-[1.5]">
+                        <strong>AVISO LEGAL:</strong> Según Res. SRT 95/03 — Anexo I. Este permiso es de validez única por ingreso y caduca al finalizar el turno, al detectarse condiciones atmosféricas fuera de límite, o ante cualquier situación de emergencia. Prohibido el ingreso sin autorización firmada.
+                    </p>
+                </div>
         
 
                 <PdfBrandingFooter />

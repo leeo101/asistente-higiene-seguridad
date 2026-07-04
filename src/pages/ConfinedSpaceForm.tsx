@@ -5,7 +5,7 @@ import {
   ArrowLeft, Save, Tent, ClipboardCheck, CheckCircle2,
   Eye, Printer, Share2, AlertTriangle, XCircle,
   User, Users, Shield, Wind, Droplets, Thermometer,
-  Activity, ShieldCheck, AlertCircle, Plus, Trash2, Pencil, X } from
+  Activity, ShieldCheck, AlertCircle, Plus, Trash2, Pencil, X, Check } from
 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
@@ -127,19 +127,28 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
     let signature = legacySignature || null;
     let stamp = null;
     if (savedSigData) {
-      const parsed = JSON.parse(savedSigData);
-      signature = parsed.signature || signature;
-      stamp = parsed.stamp || null;
+      try {
+        const parsed = JSON.parse(savedSigData);
+        signature = parsed.signature || signature;
+        stamp = parsed.stamp || null;
+      } catch (e) {
+        console.error('Error parsing signatureStampData', e);
+      }
     }
 
     if (savedData) {
-      const data = JSON.parse(savedData);
-      setProfessional({
-        name: data.name || '',
-        license: data.license || '',
-        signature: signature,
-        stamp: stamp
-      });
+      try {
+        const data = JSON.parse(savedData);
+        setProfessional({
+          name: data.name || '',
+          license: data.license || '',
+          signature: signature,
+          stamp: stamp
+        });
+      } catch (e) {
+        console.error('Error parsing personalData', e);
+        setProfessional((prev: any) => ({ ...prev, signature, stamp }));
+      }
     } else {
       setProfessional((prev: any) => ({ ...prev, signature, stamp }));
     }
@@ -262,16 +271,16 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                     icon={<Tent size={36} color="#ffffff" />}
                 />
                 
-                <ModuleFormDocument id="pdf-content">
+                <ModuleFormDocument>
                     {/* Sección: Información General */}
                     <ModuleFormSection title="Información del Espacio" icon={<ClipboardCheck size={20} />}>
                     <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem] mb-[2.5rem]">
                         <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Nombre del Espacio *</label>
+                            <label className="block mb-2 text-sm font-semibold text-slate-700">Nombre del Espacio *</label>
                             <input type="text" className="input-professional" value={permit.spaceName} onChange={(e) => setPermit({ ...permit, spaceName: e.target.value })} placeholder="Ej: Tanque de Almacenamiento T-101" />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Tipo de Espacio</label>
+                            <label className="block mb-2 text-sm font-semibold text-slate-700">Tipo de Espacio</label>
                             <select className="input-professional" value={permit.spaceType} onChange={(e) => setPermit({ ...permit, spaceType: e.target.value })}>
                                 {CONFINED_SPACE_TYPES.map((t) =>
                 <option key={t.id} value={t.id}>{t.icon} {t.name}</option>
@@ -279,19 +288,19 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                             </select>
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Ubicación / Planta *</label>
+                            <label className="block mb-2 text-sm font-semibold text-slate-700">Ubicación / Planta *</label>
                             <input type="text" className="input-professional" value={permit.location} onChange={(e) => setPermit({ ...permit, location: e.target.value })} placeholder="Ej: Planta Norte, Sector B" />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Departamento</label>
+                            <label className="block mb-2 text-sm font-semibold text-slate-700">Departamento</label>
                             <input type="text" className="input-professional" value={permit.department} onChange={(e) => setPermit({ ...permit, department: e.target.value })} placeholder="Mantenimiento / Operaciones" />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Duración Estimada</label>
+                            <label className="block mb-2 text-sm font-semibold text-slate-700">Duración Estimada</label>
                             <input type="text" className="input-professional" value={permit.duration || ''} onChange={(e) => setPermit({ ...permit, duration: e.target.value })} placeholder="Ej: 4 horas" />
                         </div>
                         <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Descripción del Trabajo</label>
+                            <label className="block mb-2 text-sm font-semibold text-slate-700">Descripción del Trabajo</label>
                             <input type="text" className="input-professional" value={permit.description} onChange={(e) => setPermit({ ...permit, description: e.target.value })} placeholder="Limpieza, soldadura, inspección..." />
                         </div>
                     </div>
@@ -305,13 +314,10 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
               key={hazard.id}
               onClick={() => toggleHazard(hazard.id)}
               style={{
-
                 background: permit.hazards.includes(hazard.id as never) ? 'rgba(239, 68, 68, 0.1)' : 'var(--color-surface)',
-                border: `2px solid ${permit.hazards.includes(hazard.id as never) ? '#ef4444' : 'var(--color-border)'}`
-
-
-
-
+                border: 'none',
+                boxShadow: permit.hazards.includes(hazard.id as never) ? 'inset 0 0 0 2px #ef4444' : 'none',
+                color: permit.hazards.includes(hazard.id as never) ? '#ef4444' : 'var(--color-text)'
               }} className="p-[0.75rem_0.5rem] rounded-[var(--radius-lg)] cursor-pointer flex flex-col items-center gap-[0.5rem] transition-[all_0.2s]">
               
                                 <span className="text-[1.5rem]">{hazard.icon}</span>
@@ -326,14 +332,14 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                     <div style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)' }} className="grid gap-[0.75rem] mb-[2.5rem]">
                         {permit.equipment.map((equip) =>
             <label key={equip.id} style={{
-
               background: equip.checked ? 'rgba(16, 163, 74, 0.1)' : 'var(--color-surface)',
-              border: `2px solid ${equip.checked ? '#16a34a' : 'var(--color-border)'}`
-
-
-
-            }} className="p-[1rem] rounded-[var(--radius-lg)] cursor-pointer flex items-center gap-[1rem]">
-                                <input type="checkbox" checked={equip.checked} onChange={() => toggleEquipment(equip.id)} className="w-[20px] h-[20px]" />
+              border: 'none',
+              boxShadow: equip.checked ? 'inset 0 0 0 2px #16a34a' : 'none'
+            }} className="p-[1rem] rounded-[var(--radius-lg)] cursor-pointer flex items-center gap-[1rem] transition-[all_0.2s]">
+                                <input type="checkbox" checked={equip.checked} onChange={() => toggleEquipment(equip.id)} className="hidden" />
+                                <div className={`w-[24px] h-[24px] rounded-[6px] border-[2px] flex items-center justify-center shrink-0 transition-colors ${equip.checked ? 'bg-[#16a34a] border-[#16a34a] text-white' : 'border-[#94a3b8] bg-white'}`}>
+                                    {equip.checked && <Check size={16} strokeWidth={3} />}
+                                </div>
                                 <span className="text-[1.2rem]">{equip.icon}</span>
                                 <div className="flex-[1]">
                                     <div className="text-[0.85rem] font-[700]">{equip.name}</div>
@@ -348,19 +354,20 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                     <ModuleFormSection title="Equipo de Trabajo" icon={<Users size={20} />}>
                     <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem] mb-[2rem]">
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Entrante(s) Autorizado(s)</label>
+                            <label className="block mb-2 text-sm font-semibold text-slate-700">Entrante(s) Autorizado(s)</label>
                             <div className="flex gap-[0.5rem] mb-[0.5rem]">
                                 <input id="entrant-input" type="text" className="input-professional" placeholder="Nombre completo" onKeyDown={(e) => {
                   if (e.key === 'Enter') {
+                    e.preventDefault();
                     const val = (e.target as HTMLInputElement).value.trim();
                     if (val) {addTeamMember('entrant', val);(e.target as HTMLInputElement).value = '';}
                   }
                 }} />
-                                <button onClick={() => {
+                                <button type="button" onClick={() => {
                   const input = document.getElementById('entrant-input') as HTMLInputElement;
                   const val = input.value.trim();
                   if (val) {addTeamMember('entrant', val);input.value = '';}
-                }} className="btn-primary w-[auto] m-[0] p-[0_1rem]"><Plus size={20} /></button>
+                }} style={{ backgroundColor: '#16a34a', color: '#ffffff' }} className="p-[0_0.75rem] h-[50px] rounded-[8px] flex items-center justify-center transition-colors shadow-sm shrink-0 border-none cursor-pointer"><Plus size={20} strokeWidth={3} /></button>
                             </div>
                             <div className="flex flex-wrap gap-[0.5rem]">
                                 {permit.team.entrants.map((entrant, idx) =>
@@ -375,15 +382,15 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                             </div>
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Vigía de Seguridad *</label>
+                            <label className="block mb-2 text-sm font-semibold text-slate-700">Vigía de Seguridad *</label>
                             <input type="text" className="input-professional" value={permit.team.attendant} onChange={(e) => setPermit({ ...permit, team: { ...permit.team, attendant: e.target.value } })} placeholder="Nombre del vigía" />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Supervisor de Entrada *</label>
+                            <label className="block mb-2 text-sm font-semibold text-slate-700">Supervisor de Entrada *</label>
                             <input type="text" className="input-professional" value={permit.team.supervisor} onChange={(e) => setPermit({ ...permit, team: { ...permit.team, supervisor: e.target.value } })} placeholder="Nombre del supervisor" />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Equipo de Rescate</label>
+                            <label className="block mb-2 text-sm font-semibold text-slate-700">Equipo de Rescate</label>
                             <input type="text" className="input-professional" value={permit.team.rescue} onChange={(e) => setPermit({ ...permit, team: { ...permit.team, rescue: e.target.value } })} placeholder="Empresa o equipo interno" />
                         </div>
                     </div>
@@ -393,23 +400,23 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                     <ModuleFormSection title="Monitoreo Atmosférico" icon={<Activity size={20} />}>
                     <div style={{ gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(5, 1fr)' }} className="grid gap-[1rem] mb-[2rem]">
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">O₂ (%)</label>
+                            <label className="block mb-2 text-sm font-semibold text-slate-700">O₂ (%)</label>
                             <input type="number" step="0.1" className="input-professional" value={permit.gasMonitoring?.o2 || ''} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, o2: e.target.value } })} placeholder="20.9" />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">LEL (%)</label>
+                            <label className="block mb-2 text-sm font-semibold text-slate-700">LEL (%)</label>
                             <input type="number" step="1" className="input-professional" value={permit.gasMonitoring?.lel || ''} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, lel: e.target.value } })} placeholder="0" />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">CO (ppm)</label>
+                            <label className="block mb-2 text-sm font-semibold text-slate-700">CO (ppm)</label>
                             <input type="number" step="1" className="input-professional" value={permit.gasMonitoring?.co || ''} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, co: e.target.value } })} placeholder="0" />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">H₂S (ppm)</label>
+                            <label className="block mb-2 text-sm font-semibold text-slate-700">H₂S (ppm)</label>
                             <input type="number" step="1" className="input-professional" value={permit.gasMonitoring?.h2s || ''} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, h2s: e.target.value } })} placeholder="0" />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Hora Medición</label>
+                            <label className="block mb-2 text-sm font-semibold text-slate-700">Hora Medición</label>
                             <input type="time" className="input-professional" value={permit.gasMonitoring?.time || ''} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, time: e.target.value } })} />
                         </div>
                     </div>
@@ -417,18 +424,39 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
 
                     {/* Sección: Ventilación */}
                     <ModuleFormSection title="Ventilación" icon={<Wind size={20} />}>
-                    <div className="flex gap-[1.5rem] mb-[2rem] flex-wrap">
-                        <label className="flex items-center gap-[0.5rem] cursor-pointer">
-                            <input type="checkbox" checked={permit.ventilation?.natural || false} onChange={(e) => setPermit({ ...permit, ventilation: { ...permit.ventilation, natural: e.target.checked } })} className="w-[20px] h-[20px]" />
-                            <span className="font-[700]">Natural</span>
+                    <div style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)' }} className="grid gap-[1rem] mb-[2rem]">
+                        <label style={{
+              background: permit.ventilation?.natural ? 'rgba(16, 163, 74, 0.1)' : 'var(--color-surface)',
+              border: 'none',
+              boxShadow: permit.ventilation?.natural ? 'inset 0 0 0 2px #16a34a' : 'none'
+            }} className="p-[1rem] rounded-[var(--radius-lg)] cursor-pointer flex items-center gap-[0.75rem] transition-[all_0.2s]">
+                            <input type="checkbox" checked={permit.ventilation?.natural || false} onChange={(e) => setPermit({ ...permit, ventilation: { ...permit.ventilation, natural: e.target.checked } })} className="hidden" />
+                            <div className={`w-[24px] h-[24px] rounded-[6px] border-[2px] flex items-center justify-center shrink-0 transition-colors ${permit.ventilation?.natural ? 'bg-[#16a34a] border-[#16a34a] text-white' : 'border-[#94a3b8] bg-white'}`}>
+                                {permit.ventilation?.natural && <Check size={16} strokeWidth={3} />}
+                            </div>
+                            <span className="font-[700] text-[0.95rem]">Natural</span>
                         </label>
-                        <label className="flex items-center gap-[0.5rem] cursor-pointer">
-                            <input type="checkbox" checked={permit.ventilation?.forced || false} onChange={(e) => setPermit({ ...permit, ventilation: { ...permit.ventilation, forced: e.target.checked } })} className="w-[20px] h-[20px]" />
-                            <span className="font-[700]">Forzada</span>
+                        <label style={{
+              background: permit.ventilation?.forced ? 'rgba(16, 163, 74, 0.1)' : 'var(--color-surface)',
+              border: 'none',
+              boxShadow: permit.ventilation?.forced ? 'inset 0 0 0 2px #16a34a' : 'none'
+            }} className="p-[1rem] rounded-[var(--radius-lg)] cursor-pointer flex items-center gap-[0.75rem] transition-[all_0.2s]">
+                            <input type="checkbox" checked={permit.ventilation?.forced || false} onChange={(e) => setPermit({ ...permit, ventilation: { ...permit.ventilation, forced: e.target.checked } })} className="hidden" />
+                            <div className={`w-[24px] h-[24px] rounded-[6px] border-[2px] flex items-center justify-center shrink-0 transition-colors ${permit.ventilation?.forced ? 'bg-[#16a34a] border-[#16a34a] text-white' : 'border-[#94a3b8] bg-white'}`}>
+                                {permit.ventilation?.forced && <Check size={16} strokeWidth={3} />}
+                            </div>
+                            <span className="font-[700] text-[0.95rem]">Forzada</span>
                         </label>
-                        <label className="flex items-center gap-[0.5rem] cursor-pointer">
-                            <input type="checkbox" checked={permit.ventilation?.extractive || false} onChange={(e) => setPermit({ ...permit, ventilation: { ...permit.ventilation, extractive: e.target.checked } })} className="w-[20px] h-[20px]" />
-                            <span className="font-[700]">Extractiva</span>
+                        <label style={{
+              background: permit.ventilation?.extractive ? 'rgba(16, 163, 74, 0.1)' : 'var(--color-surface)',
+              border: 'none',
+              boxShadow: permit.ventilation?.extractive ? 'inset 0 0 0 2px #16a34a' : 'none'
+            }} className="p-[1rem] rounded-[var(--radius-lg)] cursor-pointer flex items-center gap-[0.75rem] transition-[all_0.2s]">
+                            <input type="checkbox" checked={permit.ventilation?.extractive || false} onChange={(e) => setPermit({ ...permit, ventilation: { ...permit.ventilation, extractive: e.target.checked } })} className="hidden" />
+                            <div className={`w-[24px] h-[24px] rounded-[6px] border-[2px] flex items-center justify-center shrink-0 transition-colors ${permit.ventilation?.extractive ? 'bg-[#16a34a] border-[#16a34a] text-white' : 'border-[#94a3b8] bg-white'}`}>
+                                {permit.ventilation?.extractive && <Check size={16} strokeWidth={3} />}
+                            </div>
+                            <span className="font-[700] text-[0.95rem]">Extractiva</span>
                         </label>
                     </div>
                     </ModuleFormSection>
@@ -446,8 +474,8 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                     <div className="mt-[2.5rem]">
                         <ModuleFormSection title="Firmas y Autorizaciones" icon={<Pencil size={20} />}>
 
-                        <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
-                            <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                        <div className="no-print mb-8 p-6 bg-transparent border-[1px_solid_var(--color-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
+                            <div className="text-slate-700 font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                             <div className="flex gap-[1rem] flex-wrap justify-center">
                                 {[
                 { id: 'operator', label: 'Responsable / Entrante' },
@@ -460,35 +488,23 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                       key={sig.id}
                       className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease]"
                       style={{
-
-
-                        border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
-                        background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
-                        color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
-
-
-
-                        boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
+                        border: 'none',
+                        background: isChecked ? 'rgba(16, 163, 74, 0.1)' : 'var(--color-surface)',
+                        color: isChecked ? '#16a34a' : 'var(--color-text-light)',
+                        boxShadow: isChecked ? 'inset 0 0 0 2px #16a34a' : 'none'
                       }}>
                       
                                             <input
                         type="checkbox"
                         checked={isChecked}
-                        onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="none" />
+                        onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="hidden" />
 
                       
                                             <div style={{
-
-
-
-                        border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
-                        background: isChecked ? 'var(--color-primary)' : 'transparent'
-
-
-
-
+                        border: isChecked ? '2px solid #16a34a' : '2px solid var(--color-text-light)',
+                        background: isChecked ? '#16a34a' : 'transparent'
                       }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
-                                                {isChecked && <CheckCircle2 size={12} color="white" />}
+                                                {isChecked && <Check size={12} color="white" strokeWidth={4} />}
                                             </div>
                                             {sig.label}
                                         </label>);
@@ -576,7 +592,7 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
 
             <ModuleActionBar actions={[
                 { id: 'cancel', label: 'CANCELAR', icon: <X size={18} />, variant: 'secondary', onClick: () => navigate(-1) },
-                { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'secondary', onClick: () => setShowShareModal(true) },
+                { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'info', onClick: () => setShowShareModal(true) },
                 { id: 'save', label: 'GENERAR PERMISO', icon: <Save size={18} />, variant: 'primary', onClick: (e: any) => { e.preventDefault(); requirePro(handleSave); } }
             ]} />
 
