@@ -2810,9 +2810,9 @@ svg.ph-duotone [opacity="0.2"] {
 
 /* â”€â”€â”€ ATS PDF / Print â”€â”€â”€ */
 .ats-pdf-offscreen {
-  position: fixed;
-  left: -9999px;
-  top: 0;
+  position: absolute;
+  left: 0;
+  top: -99999px;   /* Empujar MUY arriba: no crea scroll horizontal, html2canvas puede capturarlo */
   width: 210mm;
   pointer-events: none !important;
   z-index: -9999;

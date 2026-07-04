@@ -795,13 +795,13 @@ export default function ExtintoresManager() {
           className="ats-pdf-offscreen active-portal-print"
           aria-hidden="true"
           style={{
-            position: 'fixed',
-            left: '-9999px',
-            top: '0',
+            position: 'absolute',
+            left: '0',
+            top: '-99999px',
             width: '210mm',
             height: 'auto',
             overflow: 'visible',
-            opacity: '1',
+            opacity: 1,
             pointerEvents: 'none',
             zIndex: -9999,
             background: '#ffffff'
@@ -824,13 +824,13 @@ export default function ExtintoresManager() {
           className="ats-pdf-offscreen active-portal-print"
           aria-hidden="true"
           style={{
-            position: 'fixed',
-            left: '-9999px',
-            top: '0',
+            position: 'absolute',
+            left: '0',
+            top: '-99999px',
             width: '210mm',
             height: 'auto',
             overflow: 'visible',
-            opacity: '1',
+            opacity: 1,
             pointerEvents: 'none',
             zIndex: -9999,
             background: '#ffffff'

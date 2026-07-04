@@ -179,8 +179,10 @@ export default function ShareModal({
     toast.loading('Generando PDF...', { id: 'pdf-gen' });
 
     try {
-      // Pequeño delay para que el toast de "generando" se muestre antes de bloquear el hilo
-      await new Promise((resolve) => setTimeout(resolve, 80));
+      // Delay más generoso para que el toast se muestre Y el navegador termine de pintar
+      // antes de que html2canvas bloquee el hilo principal
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
       const pdfBlob = await generatePdfBlob(elementIdToPrint);
 

@@ -30,14 +30,13 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     // Contenedor off-screen: visible para html2canvas pero fuera del viewport del usuario
     const offscreenContainer = document.createElement('div');
     offscreenContainer.setAttribute('data-pdf-offscreen', 'true');
-    offscreenContainer.classList.add('ats-pdf-offscreen'); // Add class to trigger CSS height fixes
+    offscreenContainer.classList.add('ats-pdf-offscreen');
     offscreenContainer.style.cssText = [
-        'position: fixed',
-        'left: -9999px',
-        'top: 0',
+        'position: absolute',
+        'left: 0',
+        'top: -99999px',   // Push far UP (vertical) — does NOT create horizontal scroll
         'z-index: -9999',
-        'width: ' + (isLandscape ? '1600px' : '1200px'), // Adjusted width for closer A4 aspect ratio
-
+        'width: ' + (isLandscape ? '1600px' : '1200px'),
         'height: auto',
         'overflow: visible',
         'visibility: visible',
@@ -108,12 +107,15 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
 
     try {
         await waitForImages(clone);
-        // En móvil, el portal de React necesita más tiempo para renderizar y pintar
-        const renderWait = (window.innerWidth < 768 || ('ontouchstart' in window)) ? 4000 : 2500;
+        // Dar tiempo al navegador para pintar el clon antes de capturar
+        // requestAnimationFrame + doble tick garantiza que el layout está listo
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        const renderWait = (window.innerWidth < 768 || ('ontouchstart' in window)) ? 1500 : 600;
         await new Promise(resolve => setTimeout(resolve, renderWait));
+        // Forzar reflow para que html2canvas tenga dimensiones correctas
         offscreenContainer.getBoundingClientRect();
         clone.getBoundingClientRect();
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise(resolve => setTimeout(resolve, 200));
 
         const isMobileCanvas = window.innerWidth < 768 || ('ontouchstart' in window);
         
