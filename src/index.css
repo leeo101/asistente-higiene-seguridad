@@ -2810,14 +2810,16 @@ svg.ph-duotone [opacity="0.2"] {
 
 /* â”€â”€â”€ ATS PDF / Print â”€â”€â”€ */
 .ats-pdf-offscreen {
-  position: absolute;
-  left: 0;
+  position: fixed;
+  left: -9999px;
   top: 0;
   width: 210mm;
-  pointer-events: none;
+  pointer-events: none !important;
   z-index: -9999;
   overflow: visible;
-  opacity: 0;
+  opacity: 1;
+  touch-action: none !important;
+  user-select: none !important;
 }
 
 /* Solo mostrar el offscreen que contiene el elemento marcado para imprimir */

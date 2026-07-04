@@ -32,8 +32,8 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     offscreenContainer.setAttribute('data-pdf-offscreen', 'true');
     offscreenContainer.classList.add('ats-pdf-offscreen'); // Add class to trigger CSS height fixes
     offscreenContainer.style.cssText = [
-        'position: absolute',
-        'left: 0',
+        'position: fixed',
+        'left: -9999px',
         'top: 0',
         'z-index: -9999',
         'width: ' + (isLandscape ? '1600px' : '1200px'), // Adjusted width for closer A4 aspect ratio
@@ -43,7 +43,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         'visibility: visible',
         'opacity: 1',
         'pointer-events: none',
-        'z-index: -9999',
+        'touch-action: none',
         'background: #ffffff'
     ].join('; ');
 
@@ -108,10 +108,12 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
 
     try {
         await waitForImages(clone);
-        await new Promise(resolve => setTimeout(resolve, 2500));
+        // En móvil, el portal de React necesita más tiempo para renderizar y pintar
+        const renderWait = (window.innerWidth < 768 || ('ontouchstart' in window)) ? 4000 : 2500;
+        await new Promise(resolve => setTimeout(resolve, renderWait));
         offscreenContainer.getBoundingClientRect();
         clone.getBoundingClientRect();
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 800));
 
         const isMobileCanvas = window.innerWidth < 768 || ('ontouchstart' in window);
         

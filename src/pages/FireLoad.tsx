@@ -550,7 +550,8 @@ return (
                 conclusion: '',
                 materiales: [
                 { nombre: 'Madera (General)', peso: 0, poderCalorifico: 4400, totalKcal: 0 }],
-
+                operatorSignature: '',
+                supervisorSignature: '',
                 id: ''
               });
               setShowForm(true);

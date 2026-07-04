@@ -518,11 +518,7 @@ export default function ErgonomicsForm(): React.ReactElement | null {
                             <Printer size={14} /> PDF
                         </button>
                         
-                        <button onClick={() => requirePro(handleShare)}
-                            style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: 'white', border: 'none' }}
-                            className="flex-1 min-w-[100px] px-2 py-2 rounded-lg flex items-center justify-center gap-1 font-extrabold text-[0.7rem] shadow-md hover:opacity-90 transition-all hover:-translate-y-0.5 cursor-pointer">
-                            <Share2 size={14} /> COMPARTIR
-                        </button>
+
                     </div>
       </ModuleFormSection>
       }

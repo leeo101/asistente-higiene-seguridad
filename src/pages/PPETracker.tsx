@@ -85,7 +85,7 @@ function StatusBadge({ days }) {
 
 }
 
-const EMPTY_FORM = { type: '', custom: '', responsible: '', purchaseDate: '', lifeMonths: '', certStandard: '', certNumber: '' };
+const EMPTY_FORM = { type: '', custom: '', responsible: '', purchaseDate: '', lifeMonths: '', certStandard: '', certNumber: '', id: '', addedAt: '' };
 
 export default function PPETracker(): React.ReactElement | null {
   const { requirePro } = usePaywall();

@@ -781,25 +781,68 @@ export default function ExtintoresManager() {
             <ShareModal
         isOpen={!!shareItem}
         open={!!shareItem}
-        onClose={() => setShareItem(null)}
+        onClose={() => { setShareItem(null); setPrintItem(null); }}
         title={Array.isArray(shareItem) ? "Inventario de Extintores" : `Ficha Técnica - Extintor #${shareItem?.numero}`}
         text={shareItem ? Array.isArray(shareItem) ? `🧯 Inventario de Extintores\n📊 Total: ${shareItem.length}` : `📋 Ficha de Extintor\n🔥 Chapa: ${shareItem.numero}\n📍 Ubicación: ${shareItem.ubicacion}` : ''}
         rawMessage={''}
         elementIdToPrint="pdf-content"
         fileName={Array.isArray(shareItem) ? `Inventario_Extintores_${filterEmpresa || 'Completo'}.pdf` : `Ficha_Extintor_${shareItem?.numero || 'Reporte'}.pdf`} />
-      
-            {(printItem || shareItem) && createPortal(
+
+            {/* PDF Portal: siempre montado cuando shareItem está activo para que html2canvas lo encuentre */}
+            {shareItem && createPortal(
         <div
           id="pdf-content"
           className="ats-pdf-offscreen active-portal-print"
-          aria-hidden="true">
-          
-                    {printItem && !Array.isArray(printItem) || shareItem && !Array.isArray(shareItem) ?
-          <ExtinguisherProfilePdf data={printItem || shareItem || formData} isHeadless={true} /> :
-
-          <ExtinguisherPdfGenerator extinguishers={Array.isArray(printItem) ? printItem : Array.isArray(shareItem) ? shareItem : []} showSignatures={globalShowSignatures} globalSignatures={globalSignaturesData} />
+          aria-hidden="true"
+          style={{
+            position: 'fixed',
+            left: '-9999px',
+            top: '0',
+            width: '210mm',
+            height: 'auto',
+            overflow: 'visible',
+            opacity: '1',
+            pointerEvents: 'none',
+            zIndex: -9999,
+            background: '#ffffff'
+          }}>
+          {shareItem && !Array.isArray(shareItem)
+            ? <ExtinguisherProfilePdf data={shareItem} isHeadless={true} />
+            : <ExtinguisherPdfGenerator
+                extinguishers={Array.isArray(shareItem) ? shareItem : []}
+                showSignatures={globalShowSignatures}
+                globalSignatures={globalSignaturesData} />
           }
-                </div>,
+        </div>,
+        document.body
+      )}
+
+            {/* Print portal separado: solo para window.print() */}
+            {printItem && createPortal(
+        <div
+          id="pdf-content-print"
+          className="ats-pdf-offscreen active-portal-print"
+          aria-hidden="true"
+          style={{
+            position: 'fixed',
+            left: '-9999px',
+            top: '0',
+            width: '210mm',
+            height: 'auto',
+            overflow: 'visible',
+            opacity: '1',
+            pointerEvents: 'none',
+            zIndex: -9999,
+            background: '#ffffff'
+          }}>
+          {printItem && !Array.isArray(printItem)
+            ? <ExtinguisherProfilePdf data={printItem} isHeadless={true} />
+            : <ExtinguisherPdfGenerator
+                extinguishers={Array.isArray(printItem) ? printItem : []}
+                showSignatures={globalShowSignatures}
+                globalSignatures={globalSignaturesData} />
+          }
+        </div>,
         document.body
       )}
 
