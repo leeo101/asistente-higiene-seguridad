@@ -33,7 +33,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     offscreenContainer.classList.add('ats-pdf-offscreen');
     offscreenContainer.style.cssText = [
         'position: absolute',
-        'left: 0',
+        'left: -9999px',
         'top: -99999px',   // Push far UP (vertical) — does NOT create horizontal scroll
         'z-index: -9999',
         'width: ' + (isLandscape ? '1600px' : '1200px'),
@@ -52,6 +52,8 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     // Agregamos esta clase para que los componentes que solo se muestran en impresión
     // (como el pie de página legal) se hagan visibles en el clon antes de tomar la foto.
     clone.classList.add('force-pdf-print');
+    clone.classList.remove('ats-pdf-offscreen'); // Evitar que herede el -99999px !important
+    clone.classList.remove('active-portal-print');
 
     const targetWidth = isLandscape ? 1600 : 1200;
 
@@ -61,14 +63,17 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         'max-width: ' + targetWidth + 'px !important',
         'height: auto !important', // Permitir que expanda todo lo necesario
         'min-height: 0 !important',
-        'display: block',
-        'position: relative',
-        'background: #ffffff',
+        'display: block !important',
+        'position: relative !important',
+        'top: 0 !important',
+        'left: 0 !important',
+        'transform: none !important',
+        'background: #ffffff !important',
         'color: #000000',
-        'box-shadow: none',
+        'box-shadow: none !important',
         'border-radius: 0',
         'box-sizing: border-box !important',
-        'margin: 0',
+        'margin: 0 !important',
         'padding: 10px 20px',
         'opacity: 1 !important',
         'visibility: visible !important'

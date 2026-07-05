@@ -796,7 +796,7 @@ export default function ExtintoresManager() {
           aria-hidden="true"
           style={{
             position: 'absolute',
-            left: '0',
+            left: '-9999px',
             top: '-99999px',
             width: '210mm',
             height: 'auto',
@@ -825,7 +825,7 @@ export default function ExtintoresManager() {
           aria-hidden="true"
           style={{
             position: 'absolute',
-            left: '0',
+            left: '-9999px',
             top: '-99999px',
             width: '210mm',
             height: 'auto',
