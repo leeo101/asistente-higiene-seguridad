@@ -11,23 +11,25 @@ export default function PdfBrandingFooter() {
                 @media print {
                     .pdf-brand-container {
                         display: block !important;
-                        margin-top: 3rem;
-                        padding-top: 1.5rem;
-                        padding-bottom: 2rem;
-                        margin-bottom: 2rem;
+                        margin-top: 1.5rem; /* Reducido para que la línea final entre en la primera hoja */
+                        padding-top: 1rem;
+                        padding-bottom: 0.5rem;
+                        margin-bottom: 0.5rem;
                         border-top: 2px solid #1e293b;
                         page-break-inside: avoid !important;
+                        break-inside: avoid !important;
                         background-color: #ffffff;
                     }
                 }
                 .force-pdf-print .pdf-brand-container {
                     display: block !important;
-                    margin-top: 3rem;
-                    padding-top: 1.5rem;
-                    padding-bottom: 2rem;
-                    margin-bottom: 2rem;
+                    margin-top: 1.5rem;
+                    padding-top: 1rem;
+                    padding-bottom: 0.5rem;
+                    margin-bottom: 0.5rem;
                     border-top: 2px solid #1e293b;
                     page-break-inside: avoid !important;
+                    break-inside: avoid !important;
                     background-color: #ffffff;
                 }
                 
@@ -63,11 +65,11 @@ export default function PdfBrandingFooter() {
                     align-items: center;
                     justify-content: center;
                     gap: 0.5rem;
-                    font-size: 0.7rem !important;
+                    font-size: 0.65rem !important;
                     color: #64748b !important;
                     font-weight: 600 !important;
                     letter-spacing: 0.02em;
-                    margin-top: 1.5rem;
+                    margin-top: 0.75rem;
                     font-family: 'Inter', sans-serif;
                 }
                 .pdf-brand img {

@@ -149,51 +149,127 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
             html2canvas: { 
                 scale: dynamicScale, 
                 useCORS: true, 
-                allowTaint: false, // DESHABILITADO: Previene SecurityError al intentar capturar imágenes sin CORS (ej. Firebase)
+                allowTaint: false, 
                 logging: false,
-                windowWidth: isLandscape ? 1600 : 1200,
-                width: isLandscape ? 1600 : 1200,
+                windowWidth: isLandscape ? 1600 : 1280, // Punto dulce intermedio para escalar
+                width: isLandscape ? 1600 : 1280,
                 x: 0,
                 y: 0,
                 scrollX: 0,
                 scrollY: 0,
-                windowHeight: totalHeight // ensure full height is captured
+                windowHeight: totalHeight
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
             pagebreak: { mode: ['css', 'legacy'], avoid: '.avoid-break' }
         };
 
-        // html2pdf procesa automáticamente las clases pageBreakInside: avoid y no corta los elementos por la mitad
-        const worker = html2pdf().set(opt as any).from(clone).toPdf();
-        
-        await worker.get('pdf').then((pdf: any) => {
-            const totalPages = pdf.internal.getNumberOfPages();
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = pdf.internal.pageSize.getHeight();
+        // [WORKAROUND] html2canvas no soporta oklch() generado por Tailwind v4.
+        // Hacemos un monkey-patch de getComputedStyle para convertir colores a HEX
+        // usando el Canvas API nativo del navegador, que sí los entiende.
+        const originalGetComputedStyle = window.getComputedStyle;
+        const colorCache = new Map<string, string>();
+        const colorCanvas = document.createElement('canvas');
+        const colorCtx = colorCanvas.getContext('2d');
+
+        function convertColor(val: string): string {
+            if (!val) return val;
+            let finalVal = val;
             
-            // Agregar pie de página a todas las páginas para garantizar que siempre salga
-            for (let i = 1; i <= totalPages; i++) {
-                pdf.setPage(i);
-                pdf.setFontSize(7);
-                pdf.setTextColor(150, 163, 184); // color slate-400
-                pdf.text(
-                    'Generado con Asistente HYS — La plataforma de Higiene y Seguridad con IA',
-                    pageWidth / 2, 
-                    pageHeight - 6, 
-                    { align: 'center' }
-                );
-                // Número de página
-                pdf.text(
-                    `Página ${i} de ${totalPages}`,
-                    pageWidth - 10,
-                    pageHeight - 6,
-                    { align: 'right' }
-                );
+            // Si el color original tiene oklch, intentamos convertirlo con el Canvas
+            if (finalVal.includes('oklch')) {
+                if (colorCache.has(val)) return colorCache.get(val)!;
+                if (colorCtx) {
+                    colorCtx.fillStyle = '#000000'; // fallback inicial
+                    colorCtx.fillStyle = finalVal;
+                    finalVal = colorCtx.fillStyle; 
+                    // finalVal ahora es #hex, rgba(...), color(srgb ...), o sigue siendo oklch si falla
+                }
             }
-        });
-        
-        const pdfBlob = await worker.output('blob');
-        return pdfBlob;
+
+            // html2canvas tampoco soporta color(srgb ...) que es lo que devuelven los navegadores modernos (Chrome 111+)
+            if (finalVal.includes('color(srgb')) {
+                const match = finalVal.match(/color\(srgb\s+([0-9.]+)\s+([0-9.]+)\s+([0-9.]+)(?:\s*\/\s*([0-9.]+))?\)/);
+                if (match) {
+                    const r = Math.round(parseFloat(match[1]) * 255);
+                    const g = Math.round(parseFloat(match[2]) * 255);
+                    const b = Math.round(parseFloat(match[3]) * 255);
+                    const a = match[4] ? parseFloat(match[4]) : 1;
+                    finalVal = `rgba(${r}, ${g}, ${b}, ${a})`;
+                }
+            }
+            
+            // Fallback extremadamente simple si sigue siendo oklch (para que no crashee)
+            if (finalVal.includes('oklch')) {
+                const match = finalVal.match(/oklch\(\s*([0-9.]+)/);
+                if (match) {
+                    const l = parseFloat(match[1]);
+                    if (l > 0.8) finalVal = 'rgba(255, 255, 255, 1)';
+                    else if (l < 0.4) finalVal = 'rgba(0, 0, 0, 1)';
+                    else finalVal = 'rgba(128, 128, 128, 1)';
+                }
+            }
+
+            if (val.includes('oklch')) {
+                colorCache.set(val, finalVal);
+            }
+            
+            return finalVal;
+        }
+
+        window.getComputedStyle = function(el: Element, pseudoElt?: string | null) {
+            const style = originalGetComputedStyle(el, pseudoElt);
+            return new Proxy(style, {
+                get(target: any, prop: string) {
+                    if (prop === 'getPropertyValue') {
+                        return function(propName: string) {
+                            return convertColor(target.getPropertyValue(propName));
+                        };
+                    }
+                    const val = target[prop];
+                    if (typeof val === 'string' && val.includes('oklch')) {
+                        return convertColor(val);
+                    }
+                    return typeof val === 'function' ? val.bind(target) : val;
+                }
+            });
+        };
+
+        try {
+            // html2pdf procesa automáticamente las clases pageBreakInside: avoid y no corta los elementos por la mitad
+            const worker = html2pdf().set(opt as any).from(clone).toPdf();
+            
+            await worker.get('pdf').then((pdf: any) => {
+                const totalPages = pdf.internal.getNumberOfPages();
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                
+                // Agregar pie de página a todas las páginas para garantizar que siempre salga
+                for (let i = 1; i <= totalPages; i++) {
+                    pdf.setPage(i);
+                    pdf.setFontSize(7);
+                    pdf.setTextColor(150, 163, 184); // color slate-400
+                    pdf.text(
+                        'Generado con Asistente HYS — La plataforma de Higiene y Seguridad con IA',
+                        pageWidth / 2, 
+                        pageHeight - 6, 
+                        { align: 'center' }
+                    );
+                    // Número de página
+                    pdf.text(
+                        `Página ${i} de ${totalPages}`,
+                        pageWidth - 10,
+                        pageHeight - 6,
+                        { align: 'right' }
+                    );
+                }
+            });
+            
+            const pdfBlob = await worker.output('blob');
+            return pdfBlob;
+        } finally {
+            // Restaurar getComputedStyle
+            window.getComputedStyle = originalGetComputedStyle;
+        }
 
     } finally {
         // Siempre limpiar el contenedor off-screen

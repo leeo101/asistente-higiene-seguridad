@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import {
   Flame, Plus, Search, MapPin, QrCode, ArrowLeft, ShieldCheck, Activity, CheckCircle,
-  Calendar, Edit3, Trash2, Printer, AlertTriangle, CheckCircle2, Camera, Share2, Pencil, Download, FileSpreadsheet, CalendarDays, History, UploadCloud, DownloadCloud, Info, Save } from
+  Calendar, Edit3, Trash2, Printer, AlertTriangle, CheckCircle2, Camera, Share2, Pencil, Download, FileSpreadsheet, CalendarDays, History, UploadCloud, DownloadCloud, Info, Save, Settings } from
 'lucide-react';
 import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
 import { useAuth } from '../contexts/AuthContext';
@@ -664,7 +664,16 @@ export default function ExtintoresManager() {
         color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
         
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-6 animate-fade-in">
+                    <div className="flex justify-end mb-4 mt-2">
+                        <button
+            onClick={() => requirePro(() => setShowForm(true))}
+            onMouseOver={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 12px 25px rgba(16,185,129,0.4)';}}
+            onMouseOut={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.3)';}} className="flex-[0_1_auto] min-h-[3.5rem] p-[0_1.8rem] rounded-[16px] bg-[linear-gradient(135deg,_#10b981_0%,_#059669_100%)] text-[#fff] border-none font-[800] text-[1rem] cursor-pointer flex items-center justify-center gap-[0.6rem] box-shadow-[0_8px_20px_rgba(16,185,129,0.3)] white-space-[nowrap] transition-[all_0.3s_cubic-bezier(0.4,_0,_0.2,_1)]">
+                            <Plus size={22} strokeWidth={2.5} /> Registrar Matafuego
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 animate-fade-in">
                         {(() => {
                             const stats = { total: filtered.length, vencidos: 0, porVencer: 0, operativos: 0 };
                             filtered.forEach(ext => {
@@ -682,21 +691,21 @@ export default function ExtintoresManager() {
                             const complRate = stats.total > 0 ? Math.round(((stats.total - stats.vencidos) / stats.total) * 100) : 100;
                             return (
                                 <>
-                                    <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
-                                        <div className="p-3 bg-blue-100 text-blue-600 rounded-xl"><Flame size={24} /></div>
-                                        <div><p style={{ color: 'var(--color-text)' }} className="text-sm font-bold mb-1 uppercase opacity-60">Total Equipos</p><h3 style={{ color: 'var(--color-text)' }} className="text-2xl font-black m-0">{stats.total}</h3></div>
+                                    <div className="bg-white dark:bg-slate-800 p-3 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-4 text-center sm:text-left">
+                                        <div className="p-2 sm:p-3 bg-blue-100 text-blue-600 rounded-xl"><Flame size={20} className="sm:w-6 sm:h-6" /></div>
+                                        <div className="overflow-hidden w-full"><p style={{ color: 'var(--color-text)' }} className="text-[0.65rem] sm:text-sm font-bold mb-0 sm:mb-1 uppercase opacity-60 truncate">Total Equipos</p><h3 style={{ color: 'var(--color-text)' }} className="text-xl sm:text-2xl font-black m-0">{stats.total}</h3></div>
                                     </div>
-                                    <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
-                                        <div className="p-3 bg-red-100 text-red-600 rounded-xl"><AlertTriangle size={24} /></div>
-                                        <div><p className="text-sm text-slate-500 font-bold mb-1 uppercase">Vencidos</p><h3 className="text-2xl font-black text-red-600 m-0">{stats.vencidos}</h3></div>
+                                    <div className="bg-white dark:bg-slate-800 p-3 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-4 text-center sm:text-left">
+                                        <div className="p-2 sm:p-3 bg-red-100 text-red-600 rounded-xl"><AlertTriangle size={20} className="sm:w-6 sm:h-6" /></div>
+                                        <div className="overflow-hidden w-full"><p className="text-[0.65rem] sm:text-sm text-slate-500 font-bold mb-0 sm:mb-1 uppercase truncate">Vencidos</p><h3 className="text-xl sm:text-2xl font-black text-red-600 m-0">{stats.vencidos}</h3></div>
                                     </div>
-                                    <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
-                                        <div className="p-3 bg-amber-100 text-amber-600 rounded-xl"><Calendar size={24} /></div>
-                                        <div><p className="text-sm text-slate-500 font-bold mb-1 uppercase">Próximos a Vencer</p><h3 className="text-2xl font-black text-amber-600 m-0">{stats.porVencer}</h3></div>
+                                    <div className="bg-white dark:bg-slate-800 p-3 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-4 text-center sm:text-left">
+                                        <div className="p-2 sm:p-3 bg-amber-100 text-amber-600 rounded-xl"><Calendar size={20} className="sm:w-6 sm:h-6" /></div>
+                                        <div className="overflow-hidden w-full"><p className="text-[0.65rem] sm:text-sm text-slate-500 font-bold mb-0 sm:mb-1 uppercase truncate" title="Próximos a Vencer">Próx. a Vencer</p><h3 className="text-xl sm:text-2xl font-black text-amber-600 m-0">{stats.porVencer}</h3></div>
                                     </div>
-                                    <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
-                                        <div className="p-3 bg-emerald-100 text-emerald-600 rounded-xl"><Activity size={24} /></div>
-                                        <div><p className="text-sm text-slate-500 font-bold mb-1 uppercase">Cumplimiento</p><h3 className="text-2xl font-black text-emerald-600 m-0">{complRate}%</h3></div>
+                                    <div className="bg-white dark:bg-slate-800 p-3 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-4 text-center sm:text-left">
+                                        <div className="p-2 sm:p-3 bg-emerald-100 text-emerald-600 rounded-xl"><Activity size={20} className="sm:w-6 sm:h-6" /></div>
+                                        <div className="overflow-hidden w-full"><p className="text-[0.65rem] sm:text-sm text-slate-500 font-bold mb-0 sm:mb-1 uppercase truncate" title="Cumplimiento">Cumplimiento</p><h3 className="text-xl sm:text-2xl font-black text-emerald-600 m-0">{complRate}%</h3></div>
                                     </div>
                                 </>
                             );
@@ -1035,32 +1044,38 @@ export default function ExtintoresManager() {
                         </div>
                         </ModuleFormSection>
 
-                        <div className="flex gap-[1rem] justify-end mt-[2rem] flex-wrap">
-                            {editingId && (
-                                <button type="button" onClick={() => setShowHistoryModal(formData)} style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none' }} className="p-[0.8rem_1.5rem] rounded-[12px] font-[800] cursor-pointer flex items-center gap-[0.5rem] mr-auto transition-transform hover:-translate-y-0.5 shadow-md">
-                                    <History size={18} /> Ver Historial
+                        <div className="flex flex-col sm:flex-row gap-3 justify-between items-center mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+                            <div className="flex gap-3 w-full sm:w-auto">
+                                <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-sm" style={{ backgroundColor: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }}>
+                                    <ArrowLeft size={18} /> Cancelar
                                 </button>
-                            )}
-                            <button type="button" onClick={() => {
-              setPrintItem(formData);
-              setTimeout(() => {
-                window.print();
-                setTimeout(() => setPrintItem(null), 10000);
-              }, 600);
-            }} style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }} className="p-[0.8rem_1.5rem] rounded-[12px] font-[800] cursor-pointer flex items-center gap-[0.5rem] transition-transform hover:-translate-y-0.5 shadow-md">
-                                <Printer size={18} /> Generar PDF
-                            </button>
-                            <button type="button" onClick={() => {setShareItem(formData);}} style={{ backgroundColor: '#8b5cf6', color: '#ffffff', border: 'none' }} className="p-[0.8rem_1.5rem] rounded-[12px] font-[800] cursor-pointer flex items-center gap-[0.5rem] transition-transform hover:-translate-y-0.5 shadow-md">
-                                <Share2 size={18} /> Compartir
-                            </button>
+                                {editingId && (
+                                    <button type="button" onClick={() => setShowHistoryModal(formData)} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md" style={{ backgroundColor: '#0ea5e9', color: '#ffffff', border: 'none' }}>
+                                        <History size={18} /> Historial
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="flex gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap justify-end">
+                                <button type="button" onClick={() => {
+                                  setPrintItem(formData);
+                                  setTimeout(() => {
+                                    window.print();
+                                    setTimeout(() => setPrintItem(null), 10000);
+                                  }, 600);
+                                }} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md" style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }}>
+                                    <Printer size={18} /> Generar PDF
+                                </button>
+                                <button type="button" onClick={() => {setShareItem(formData);}} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md" style={{ backgroundColor: '#8b5cf6', color: '#ffffff', border: 'none' }}>
+                                    <Share2 size={18} /> Compartir
+                                </button>
+                                <button type="button" onClick={(e) => requirePro(() => handleSave(e))} className="w-full sm:w-auto p-[0.8rem_1.5rem] rounded-xl font-black cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-lg" style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#ffffff', border: 'none' }}>
+                                    <Save size={18} /> Guardar Extintor
+                                </button>
+                            </div>
                         </div>
                     </ModuleFormDocument>
                     </ModuleFormLayout>
-
-                    <ModuleActionBar actions={[
-                        { id: 'cancel', label: 'CANCELAR', icon: <ArrowLeft size={18} />, variant: 'secondary', onClick: () => { setShowForm(false); setEditingId(null); } },
-                        { id: 'save', label: 'GUARDAR FICHA', icon: <Save size={18} />, variant: 'primary', onClick: (e) => requirePro(() => handleSave(e)) }
-                    ]} />
                 </div> :
 
       <>
@@ -1094,95 +1109,125 @@ export default function ExtintoresManager() {
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                             </div>
                         </div>
-                        <button
-            onClick={() => requirePro(() => setShowForm(true))}
-
-            onMouseOver={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 12px 25px rgba(16,185,129,0.4)';}}
-            onMouseOut={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.3)';}} className="flex-[0_1_auto] min-h-[3.5rem] p-[0_1.8rem] rounded-[16px] bg-[linear-gradient(135deg,_#10b981_0%,_#059669_100%)] text-[#fff] border-none font-[800] text-[1rem] cursor-pointer flex items-center justify-center gap-[0.6rem] box-shadow-[0_8px_20px_rgba(16,185,129,0.3)] white-space-[nowrap] transition-[all_0.3s_cubic-bezier(0.4,_0,_0.2,_1)]">
-            
-                            <Plus size={22} strokeWidth={2.5} /> Registrar Matafuego
-                        </button>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                        <button onClick={downloadTemplate} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'none'} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#ffffff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(16,185,129,0.3)', transition: 'all 0.2s', width: '100%' }}>
-                            <DownloadCloud size={20} /> Descargar Plantilla
-                        </button>
-                        <label onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'none'} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#ffffff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(59,130,246,0.3)', transition: 'all 0.2s', width: '100%' }}>
-                            <UploadCloud size={20} /> Importar Excel
-                            <input type="file" accept=".xlsx, .xls" style={{ display: 'none' }} ref={fileInputRef} onChange={handleExcelImport} />
-                        </label>
-                        <button onClick={() => setShowCalendar(true)} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'none'} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem', background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#ffffff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 15px rgba(245,158,11,0.3)', transition: 'all 0.2s', width: '100%' }}>
-                            <CalendarDays size={20} /> Calendario de Vencimientos
-                        </button>
-                    </div>
+                    {/* Panel unificado de Herramientas de Gestión */}
+                    <div className="bg-white dark:bg-slate-800 p-[1.5rem] rounded-[24px] border-[1px_solid_#e2e8f0] dark:border-slate-700 shadow-[0_4px_20px_rgba(0,0,0,0.03)] mb-[2rem]">
+                        <h3 className="m-0 mb-[1.5rem] flex items-center gap-2 text-slate-800 dark:text-slate-100 text-lg font-black border-b border-slate-100 dark:border-slate-700 pb-3">
+                            <Settings size={22} className="text-blue-500" /> Herramientas de Gestión y Exportación
+                        </h3>
+                        
+                        <style>
+                            {`
+                                .action-btn-premium {
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    gap: 0.4rem;
+                                    padding: 0 0.5rem;
+                                    height: 2.5rem;
+                                    font-size: 0.7rem;
+                                    font-weight: 800;
+                                    border-radius: 50px;
+                                    border: none;
+                                    cursor: pointer;
+                                    color: white;
+                                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                                    letter-spacing: 0.5px;
+                                    width: 100%;
+                                    white-space: nowrap;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                }
+                                .btn-pdf { background: linear-gradient(135deg, #f87171, #ef4444); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+                                .btn-pdf:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4); }
+                                .btn-excel { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+                                .btn-excel:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); }
+                                .btn-share { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
+                                .btn-share:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4); }
+                                .btn-signatures { background: linear-gradient(135deg, #8b5cf6, #7c3aed); box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); }
+                                .btn-signatures:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4); }
+                                .btn-calendar { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); }
+                                .btn-calendar:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4); }
+                                
+                                .tool-item {
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    text-align: center;
+                                    gap: 0.5rem;
+                                }
+                                .tool-desc {
+                                    font-size: 0.65rem;
+                                    color: #64748b;
+                                    line-height: 1.2;
+                                    font-weight: 500;
+                                }
+                            `}
+                        </style>
 
-                    <div className="flex gap-[0.8rem] mb-[1.5rem] flex-wrap justify-end">
-                        {filtered.length > 0 &&
-          <>
-                                <style>
-                                    {`
-                                        .action-btn-premium {
-                                            display: flex;
-                                            align-items: center;
-                                            gap: 0.5rem;
-                                            padding: 0.6rem 1.2rem;
-                                            font-size: 0.8rem;
-                                            font-weight: 800;
-                                            border-radius: 50px;
-                                            border: none;
-                                            cursor: pointer;
-                                            color: white;
-                                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                                            letter-spacing: 0.5px;
-                                        }
-                                        .btn-pdf {
-                                            background: linear-gradient(135deg, #f87171, #ef4444);
-                                            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
-                                        }
-                                        .btn-pdf:hover {
-                                            transform: translateY(-2px);
-                                            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
-                                        }
-                                        .btn-excel {
-                                            background: linear-gradient(135deg, #10b981, #059669);
-                                            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-                                        }
-                                        .btn-excel:hover {
-                                            transform: translateY(-2px);
-                                            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-                                        }
-                                        .btn-share {
-                                            background: linear-gradient(135deg, #3b82f6, #2563eb);
-                                            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-                                        }
-                                        .btn-share:hover {
-                                            transform: translateY(-2px);
-                                            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-                                        }
-                                        .btn-signatures {
-                                            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-                                            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
-                                        }
-                                        .btn-signatures:hover {
-                                            transform: translateY(-2px);
-                                            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
-                                        }
-                                    `}
-                                </style>
-                                <button onClick={() => requirePro(() => setShowGlobalSignatureModal(true))} className="action-btn-premium btn-signatures">
-                                    <Pencil size={16} /> FIRMAS PDF
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                            {/* Herramientas Base */}
+                            <div className="tool-item">
+                                <button onClick={downloadTemplate} className="action-btn-premium btn-excel">
+                                    <DownloadCloud size={16} /> PLANTILLA
                                 </button>
-                                <button onClick={() => requirePro(handlePrintPdf)} className="action-btn-premium btn-pdf">
-                                    <Printer size={16} /> IMPRIMIR PDF
+                                <span className="tool-desc">Excel en blanco<br/>para llenar</span>
+                            </div>
+                            
+                            <div className="tool-item">
+                                <label className="action-btn-premium btn-share m-0 w-full cursor-pointer">
+                                    <UploadCloud size={16} /> IMPORTAR
+                                    <input type="file" accept=".xlsx, .xls" className="hidden" ref={fileInputRef} onChange={handleExcelImport} />
+                                </label>
+                                <span className="tool-desc">Cargar datos<br/>masivamente</span>
+                            </div>
+                            
+                            <div className="tool-item">
+                                <button onClick={() => setShowCalendar(true)} className="action-btn-premium btn-calendar">
+                                    <CalendarDays size={16} /> CALENDARIO
                                 </button>
-                                <button onClick={() => requirePro(handleExportExcel)} className="action-btn-premium btn-excel">
-                                    <Download size={16} /> EXPORTAR EXCEL
-                                </button>
-                                <button onClick={() => requirePro(() => setShareItem(filtered))} className="action-btn-premium btn-share">
-                                    <Share2 size={16} /> COMPARTIR
-                                </button>
-                            </>
-          }
+                                <span className="tool-desc">Ver próximos<br/>vencimientos</span>
+                            </div>
+
+                            {/* Herramientas que requieren datos (Globales) */}
+                            {filtered.length > 0 ? (
+                                <>
+                                    <div className="tool-item">
+                                        <button onClick={() => requirePro(() => setShowGlobalSignatureModal(true))} className="action-btn-premium btn-signatures">
+                                            <Pencil size={16} /> FIRMAS
+                                        </button>
+                                        <span className="tool-desc">Configurar firma<br/>del reporte</span>
+                                    </div>
+                                    
+                                    <div className="tool-item">
+                                        <button onClick={() => requirePro(handleExportExcel)} className="action-btn-premium btn-excel">
+                                            <Download size={16} /> EXPORTAR
+                                        </button>
+                                        <span className="tool-desc">Bajar listado<br/>actual a Excel</span>
+                                    </div>
+                                    
+                                    <div className="tool-item">
+                                        <button onClick={() => requirePro(() => setShareItem(filtered))} className="action-btn-premium btn-share">
+                                            <Share2 size={16} /> COMPARTIR
+                                        </button>
+                                        <span className="tool-desc">Enviar link<br/>de la lista</span>
+                                    </div>
+
+                                    <div className="tool-item">
+                                        <button onClick={() => requirePro(handlePrintPdf)} className="action-btn-premium btn-pdf">
+                                            <Printer size={16} /> IMPRIMIR
+                                        </button>
+                                        <span className="tool-desc">Generar reporte<br/>completo (A4)</span>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="col-span-4 flex items-center justify-center border-l border-slate-100 dark:border-slate-700 pl-4">
+                                    <span className="text-xs text-slate-400 font-bold uppercase tracking-wider text-center">
+                                        ⚠️ Registrá o importá equipos para habilitar firmas y exportación de PDFs
+                                    </span>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <DataTable

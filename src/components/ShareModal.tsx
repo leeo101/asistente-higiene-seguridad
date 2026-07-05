@@ -269,9 +269,9 @@ export default function ShareModal({
       } else {
         fallbackShare();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating/sharing PDF:", error);
-      toast.error('Hubo un error al procesar el PDF. Intentá de nuevo.', { id: 'pdf-gen' });
+      toast.error(`Error: ${error?.message || 'Error desconocido al generar PDF'}`, { id: 'pdf-gen', duration: 5000 });
     } finally {
       setIsGenerating(false);
     }
