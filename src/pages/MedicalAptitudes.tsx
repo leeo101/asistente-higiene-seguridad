@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Plus, Search, Calendar, HeartPulse, UserCheck, AlertTriangle, FileText, CheckCircle2, XCircle } from 'lucide-react';
+import { Shield, Plus, Search, Calendar, HeartPulse, UserCheck, AlertTriangle, FileText, CheckCircle2, XCircle, QrCode } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import PremiumHeader from '../components/PremiumHeader';
 import { DataTable } from '../components/DataTable';
 import AnimatedPage from '../components/AnimatedPage';
 import toast from 'react-hot-toast';
+import { QRCodeSVG } from 'qrcode.react';
 
 export default function MedicalAptitudes() {
   const { currentUser } = useAuth();
@@ -14,6 +15,7 @@ export default function MedicalAptitudes() {
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isMobile, setIsMobile] = useState(false);
+  const [qrModal, setQrModal] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     id: '',
@@ -125,9 +127,14 @@ export default function MedicalAptitudes() {
     header: 'Acciones',
     accessor: 'id',
     render: (item: any) =>
-    <button onClick={() => {setFormData(item);setShowForm(true);}} className="p-[4px_8px] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[4px] cursor-pointer">
-                    Editar
-                </button>
+      <div className="flex gap-2">
+        <button onClick={() => {setFormData(item);setShowForm(true);}} className="p-[4px_8px] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[4px] cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            Editar
+        </button>
+        <button onClick={() => setQrModal(item)} className="p-[4px_8px] flex items-center gap-1 bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 border border-blue-200 dark:border-blue-500/30 rounded-[4px] cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors font-bold text-xs">
+            <QrCode size={14} /> QR
+        </button>
+      </div>
 
   }];
 
@@ -273,6 +280,31 @@ export default function MedicalAptitudes() {
                                 <Plus size={24} />
                             </button>
           }
+
+          {qrModal && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+              <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl relative">
+                <button onClick={() => setQrModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                  <XCircle size={24} />
+                </button>
+                <div className="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-4">
+                  <QrCode size={32} />
+                </div>
+                <h3 className="text-xl font-extrabold text-slate-900 dark:text-white m-0 mb-2">QR del Trabajador</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-sm m-0 mb-6 font-medium">{qrModal.workerName} (DNI: {qrModal.dni})</p>
+                
+                <div className="bg-white p-4 rounded-xl inline-block border border-slate-200 shadow-sm mb-6">
+                  <QRCodeSVG value={`${window.location.origin}/worker-portal/${qrModal.dni}`} size={200} />
+                </div>
+
+                <p className="text-xs text-slate-400 mb-6">Escaneá este código para ver el estado de aptitud médica y capacitaciones de este trabajador.</p>
+
+                <button onClick={() => setQrModal(null)} className="w-full py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition-colors cursor-pointer">
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          )}
                     </div>
         }
             </div>

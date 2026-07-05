@@ -118,6 +118,7 @@ export default function ManagementReport(): React.ReactElement | null {
       const toastId = toast.loading('Generando reporte en PDF...');
       const { jsPDF } = await import('jspdf');
       const autoTable = (await import('jspdf-autotable')).default;
+      const html2canvas = (await import('html2canvas')).default;
       const personalData = JSON.parse(localStorage.getItem('personalData') || '{}');
       const profName = personalData.fullName || personalData.name || 'Profesional de HyS';
       const company = personalData.company || 'Empresa No Definida';
@@ -189,13 +190,38 @@ export default function ManagementReport(): React.ReactElement | null {
       const splitSummary = doc.splitTextToSize(executiveSummary, pageWidth - 30);
       doc.text(splitSummary, 15, 110);
 
+      // --- GRÁFICO CIRCULAR ---
+      let currentY = 115 + splitSummary.length * 5 + 5;
+      const chartEl = document.getElementById('chart-container-pdf');
+      if (chartEl && chartData.length > 0) {
+        try {
+          const canvas = await html2canvas(chartEl, { scale: 2, useCORS: true });
+          const imgData = canvas.toDataURL('image/png');
+          const pdfWidth = pageWidth - 30;
+          const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+          
+          if (currentY + pdfHeight > pageHeight - 20) {
+            doc.addPage();
+            currentY = 20;
+          }
+          
+          doc.addImage(imgData, 'PNG', 15, currentY, pdfWidth, pdfHeight);
+          currentY += pdfHeight + 10;
+        } catch (err) {
+          console.error("Error capturing chart", err);
+        }
+      }
+
       // --- TABLA DETALLADA ---
-      const startY = 115 + splitSummary.length * 5 + 5;
+      if (currentY > pageHeight - 40) {
+        doc.addPage();
+        currentY = 20;
+      }
 
       doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(...primaryColor);
-      doc.text('Desglose de Gestión Documental', 15, startY);
+      doc.text('Desglose de Gestión Documental', 15, currentY);
 
       const tableData = [
       ['Análisis de Trabajo Seguro (ATS)', `${metrics.ats.total} confeccionados`, 'Evaluación de tareas rutinarias y no rutinarias.'],
@@ -214,7 +240,7 @@ export default function ManagementReport(): React.ReactElement | null {
       }
 
       autoTable(doc, {
-        startY: startY + 5,
+        startY: currentY + 5,
         head: [['Módulo / Actividad', 'Volumen', 'Detalle Técnico']],
         body: tableData,
         theme: 'grid',
@@ -228,18 +254,24 @@ export default function ManagementReport(): React.ReactElement | null {
       });
 
       // --- FOOTER AND SIGNATURE ---
-      const finalY = (doc as any).lastAutoTable.finalY || startY + 50;
+      const finalY = (doc as any).lastAutoTable.finalY || currentY + 50;
 
       // Check page break for signature
       if (finalY > pageHeight - 60) {
         doc.addPage();
         doc.setDrawColor(156, 163, 175);
+        if (personalData.signature) {
+          try { doc.addImage(personalData.signature, 'PNG', 135, 30, 40, 20); } catch (e) {}
+        }
         doc.line(130, 50, 190, 50);
         doc.setFontSize(9);
         doc.setTextColor(...textGray);
         doc.text('Firma del Profesional / Responsable', 135, 55);
       } else {
         doc.setDrawColor(156, 163, 175);
+        if (personalData.signature) {
+          try { doc.addImage(personalData.signature, 'PNG', 135, finalY + 20, 40, 20); } catch (e) {}
+        }
         doc.line(130, finalY + 40, 190, finalY + 40);
         doc.setFontSize(9);
         doc.setTextColor(...textGray);
@@ -331,7 +363,7 @@ export default function ManagementReport(): React.ReactElement | null {
 
                         {/* Gráfico de Distribución */}
                         {chartData.length > 0 &&
-          <div className="card p-[1.5rem] flex flex-col">
+          <div className="card p-[1.5rem] flex flex-col" id="chart-container-pdf">
                                 <h3 className="m-[0_0_1rem] text-[1rem] font-[700] text-[var(--color-text)] flex items-center gap-[0.5rem]">
                                     <Target size={18} color="var(--color-primary)" /> Distribución del Esfuerzo
                                 </h3>

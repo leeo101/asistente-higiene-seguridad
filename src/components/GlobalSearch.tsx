@@ -6,7 +6,7 @@ import {
   HardHat, Users, Siren, Map, Accessibility, Scale, Camera,
   ShieldAlert, ThermometerSun, Shield, Plus, Zap, CheckCircle,
   MessageSquare, PieChart, Lock, Droplets, Volume2, Beaker,
-  ArrowUp, Truck, Timer, FileText } from
+  ArrowUp, Truck, Timer, FileText, UserCircle } from
 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -81,7 +81,8 @@ const SOURCES = [
 { key: 'lighting_history', label: 'Iluminación', color: '#eab308', bg: 'rgba(234,179,8,0.1)', icon: <Lightbulb size={15} />, nav: '/lighting-history', titleField: 'empresa', subtitleField: 'sector', dateField: 'date' },
 { key: 'work_permits_history', label: 'Permiso', color: '#2563eb', bg: 'rgba(37,99,235,0.1)', icon: <KeySquare size={15} />, nav: '/work-permit-history', titleField: 'empresa', subtitleField: 'tarea', dateField: 'createdAt' },
 { key: 'training_history', label: 'Capacitación', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', icon: <Users size={15} />, nav: '/training-history', titleField: 'tema', subtitleField: 'empresa', dateField: 'fecha' },
-{ key: 'reports_history', label: 'Informe', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', icon: <ScrollText size={15} />, nav: '/history', titleField: 'title', subtitleField: 'company', dateField: 'createdAt' }];
+{ key: 'reports_history', label: 'Informe', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', icon: <ScrollText size={15} />, nav: '/history', titleField: 'title', subtitleField: 'company', dateField: 'createdAt' },
+{ key: 'ehs_medical_db', label: 'Trabajador', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', icon: <UserCircle size={15} />, nav: '/worker-portal', titleField: 'workerName', subtitleField: 'dni', dateField: 'examDate', isWorker: true }];
 
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -122,7 +123,8 @@ export default function GlobalSearch({ onClose }: GlobalSearchProps): React.Reac
           const title = item[src.titleField] || '';
           const subtitle = src.subtitleField ? item[src.subtitleField] || '' : '';
           if (normalizeText(`${title} ${subtitle}`).includes(q)) {
-            found.push({ key: `h-${src.key}-${item.id || item.fecha}`, id: item.id || item.fecha, nav: src.nav, color: src.color, bg: src.bg, icon: src.icon, label: src.label, title: title || '—', subtitle, date: item[src.dateField], isModule: false });
+            const finalNav = (src as any).isWorker ? `/worker-portal/${item[(src as any).subtitleField]}` : src.nav;
+            found.push({ key: `h-${src.key}-${item.id || item.fecha}`, id: item.id || item.fecha, nav: finalNav, color: src.color, bg: src.bg, icon: src.icon, label: src.label, title: title || '—', subtitle, date: item[src.dateField], isModule: false });
           }
         });
       } catch {/* skip malformed */}

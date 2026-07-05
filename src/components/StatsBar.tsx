@@ -31,26 +31,35 @@ function AnimatedNumber({ value }: AnimatedNumberProps) {
 }
 
 export default function StatsBar() {
-  const [stats, setStats] = useState([]);
+  const [stats, setStats] = useState<any[]>([]);
   const [eppAlert, setEppAlert] = useState(0);
   const [totalThisMonth, setTotalThisMonth] = useState(0);
+  const [totalLastMonth, setTotalLastMonth] = useState(0);
   const [safetyScore, setSafetyScore] = useState(100);
 
   useEffect(() => {
     // Load counts from localStorage
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1).getTime();
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999).getTime();
     let monthTotal = 0;
+    let lastMonthTot = 0;
 
     const computed = STATS_CONFIG.map((cfg) => {
       try {
         const items = JSON.parse(localStorage.getItem(cfg.key) || '[]');
         // Count this month
-        const thisMonth = items.filter((i) => {
+        const thisMonth = items.filter((i: any) => {
           const d = new Date(i.fecha || i.date || i.createdAt || i.addedAt);
           return d.getTime() >= monthStart;
         }).length;
+        const lastMonth = items.filter((i: any) => {
+          const d = new Date(i.fecha || i.date || i.createdAt || i.addedAt).getTime();
+          return d >= lastMonthStart && d <= lastMonthEnd;
+        }).length;
         monthTotal += thisMonth;
+        lastMonthTot += lastMonth;
         return { ...cfg, total: items.length, thisMonth };
       } catch {
         return { ...cfg, total: 0, thisMonth: 0 };
@@ -70,6 +79,7 @@ export default function StatsBar() {
 
     setStats(computed.map((s) => s.key === 'ai_camera_history' ? { ...s, compliance: currentCompliance } : s));
     setTotalThisMonth(monthTotal);
+    setTotalLastMonth(lastMonthTot);
 
     // Check EPP alerts
     let ppeUrgent = 0;
@@ -154,17 +164,16 @@ export default function StatsBar() {
                 </div>
 
                 <div className="bg-[rgba(255,255,255,0.03)] border-[1px_solid_var(--color-border)] rounded-[20px] p-[1.2rem] flex flex-col justify-center">
-
-
-
-
-
-
-
-          
                     <div className="flex justify-space-between items-center mb-[0.5rem]">
                         <span className="text-[0.8rem] font-[700] text-[var(--color-text-muted)]">Carga de Trabajo</span>
-                        <span className="text-[0.8rem] font-[800] text-[var(--color-primary)]">{totalThisMonth} docs</span>
+                        <div className="flex flex-col items-end">
+                            <span className="text-[0.8rem] font-[800] text-[var(--color-primary)]">{totalThisMonth} docs</span>
+                            {totalLastMonth > 0 && (
+                                <span className={`text-[0.65rem] font-[700] ${totalThisMonth >= totalLastMonth ? 'text-[#10b981]' : 'text-[#ef4444]'}`}>
+                                    {totalThisMonth >= totalLastMonth ? '↗' : '↘'} {Math.round(Math.abs((totalThisMonth - totalLastMonth) / totalLastMonth) * 100)}% vs anterior
+                                </span>
+                            )}
+                        </div>
                     </div>
                     <div className="w-[100%] h-[8px] bg-[rgba(59,_130,_246,_0.1)] rounded-[4px] overflow-[hidden]">
                         <div style={{ width: `${Math.min(100, totalThisMonth / 20 * 100)}%` }} className="h-[100%] bg-[var(--color-primary)] rounded-[4px]" />

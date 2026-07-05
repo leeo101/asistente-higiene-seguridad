@@ -20,6 +20,7 @@ import { Toaster, toast } from 'react-hot-toast';
 import { usePaywall } from './hooks/usePaywall';
 import NativePermissionRequester from './components/NativePermissionRequester';
 import AutoAdsManager from './components/ads/AutoAdsManager';
+import OnboardingTour from './components/OnboardingTour';
 // Custom lazy loader that catches chunk errors and reloads
 const lazyWithRetry = (componentImport: () => Promise<any>) =>
   lazy(async () => {
@@ -127,6 +128,7 @@ const ContractorManagement = lazyWithRetry(() => import('./pages/ContractorManag
 const Legajos = lazyWithRetry(() => import('./pages/Legajos'));
 const LegajoForm = lazyWithRetry(() => import('./pages/LegajoForm'));
 const FleetManager = lazyWithRetry(() => import('./pages/FleetManager'));
+const IncidentHeatmap = lazyWithRetry(() => import('./pages/IncidentHeatmap'));
 const AccidentHistory = lazyWithRetry(() => import('./pages/AccidentHistory'));
 
 // SAFETY MODULE FORMS
@@ -496,6 +498,7 @@ function App() {
         <GlobalPrintGuard />
         <PushNotificationEnabler />
         <ThemeApplier />
+        <OnboardingTour />
         <NetworkBadge />
         <OfflineIndicator />
         <Toaster
@@ -595,6 +598,7 @@ function App() {
                   <Route path="/report" element={<Report />} />
                   <Route path="/risk-matrix" element={<RiskMatrix />} />
                   <Route path="/risk-matrix-report" element={<RiskMatrixReport />} />
+                  <Route path="/incident-heatmap" element={<ProtectedRoute><IncidentHeatmap /></ProtectedRoute>} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/reports-report" element={<ReportsReport />} />
                   <Route path="/entrenamientos" element={<TrainingManagement />} />

@@ -43,7 +43,7 @@ export default function SignatureCanvas({
         setBioVerified(true);
         toast.success('✅ Identidad verificada — podés firmar', { duration: 2500 });
       } else {
-        toast.error(result.message, { duration: 3000 });
+        toast.error((result as any).message || 'Error', { duration: 3000 });
       }
     } catch {
       toast.error('Error de biometría');

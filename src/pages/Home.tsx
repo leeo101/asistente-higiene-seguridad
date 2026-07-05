@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import {
   ClipboardText, House, ClockCounterClockwise, User, Users, GearSix,
   Fire, ChartBar, CaretRight, Plus, Gavel, Siren,
@@ -146,6 +146,7 @@ const quickLinks: QuickLink[] = [
 { to: '/evacuation-history', icon: <Timer weight="duotone" size={26} />, label: 'Simulador de Evacuación', sub: 'Cálculo de Tiempos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', premium: true, category: 'specific', norm: 'NFPA 101' },
 { to: '/legajos', icon: <FileText weight="duotone" size={26} />, label: 'Legajos Técnicos', sub: 'Decreto 351/79', color: '#eab308', bg: 'rgba(234,179,8,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'Dec. 351' },
 { to: '/medical', icon: <Activity weight="duotone" size={26} />, label: 'Aptitudes Médicas', sub: 'Exámenes Preocupacionales y Periódicos', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'Res. 37/10' },
+{ to: '/incident-heatmap', icon: <MapTrifold weight="duotone" size={26} />, label: 'Mapa Calor', sub: 'Focos de Incidentes', color: '#f97316', bg: 'rgba(249,115,22,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'ISO 31000' },
 { to: '/emergency-plan', icon: <Siren weight="duotone" size={26} />, label: 'Plan de Emergencias', sub: 'Roles, Brigadas y Simulacros', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'Ley 19587' }].
 sort((a, b) => a.label.localeCompare(b.label, 'es-AR'));
 
@@ -227,21 +228,26 @@ export default function Home(): React.ReactElement {
   const heroWords = ['ATS', 'Carga de Fuego', 'Auditorías', 'Matrices de Riesgo', 'Capacitaciones'];
   const typedWord = useTypewriter(heroWords);
 
-  const typeColors: Record<string, {bg: string;text: string;icon: React.ReactElement;}> = {
-    'ATS': { bg: 'rgba(16, 185, 129, 0.1)', text: '#059669', icon: <ShieldCheck weight="duotone" size={20} /> },
-    'Carga Fuego': { bg: 'rgba(249, 115, 22, 0.1)', text: '#ea580c', icon: <Fire weight="duotone" size={20} /> },
-    'Inspección': { bg: 'rgba(59, 130, 246, 0.1)', text: '#2563eb', icon: <ClipboardText weight="duotone" size={20} /> },
-    'Matriz': { bg: 'rgba(139, 92, 246, 0.1)', text: '#7c3aed', icon: <Warning weight="duotone" size={20} /> },
-    'Informe': { bg: 'rgba(236, 72, 153, 0.1)', text: '#db2777', icon: <Scroll weight="duotone" size={20} /> },
-    'Checklist': { bg: 'rgba(20, 184, 166, 0.1)', text: '#0d9488', icon: <ClipboardText weight="duotone" size={20} /> },
-    'Iluminación': { bg: 'rgba(234, 179, 8, 0.1)', text: '#ca8a04', icon: <Lightbulb weight="duotone" size={20} /> },
-    'Permiso': { bg: 'rgba(37, 99, 235, 0.1)', text: '#1d4ed8', icon: <Key weight="duotone" size={20} /> },
-    'Eval. Riesgo': { bg: 'rgba(139, 92, 246, 0.1)', text: '#7c3aed', icon: <Warning weight="duotone" size={20} /> },
-    'Accidente': { bg: 'rgba(239, 68, 68, 0.1)', text: '#dc2626', icon: <Siren weight="duotone" size={20} /> }
-  };
-
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
   const [daysLeft, setDaysLeft] = useState<number | typeof Infinity | null>(null);
+  const [isInspectorMode, setIsInspectorMode] = useState<boolean>(() => {
+    return localStorage.getItem('inspector_mode') === 'true';
+  });
+
+  const handleToggleInspectorMode = () => {
+    setIsInspectorMode(prev => {
+      const next = !prev;
+      localStorage.setItem('inspector_mode', String(next));
+      return next;
+    });
+  };
+
+  const filteredQuickLinks = useMemo(() => {
+    if (!isInspectorMode) return quickLinks;
+    const allowed = ['/ats', '/checklists', '/work-permit', '/ai-camera-manager', '/ai-general-camera-manager'];
+    return quickLinks.filter(link => allowed.includes(link.to));
+  }, [isInspectorMode]);
+
   const [stats, setStats] = useState<StatItem[]>([
   { label: 'Accidentes', value: 0, icon: <Siren weight="duotone" />, color: '#ef4444', grad: 'linear-gradient(135deg,#ef4444,#b91c1c)', key: 'accident_history' },
   { label: 'ATS', value: 0, icon: <ShieldCheck weight="duotone" />, color: '#10b981', grad: 'linear-gradient(135deg,#10b981,#059669)', key: 'ats_history' },
@@ -262,11 +268,16 @@ export default function Home(): React.ReactElement {
   const [recentModulePaths, setRecentModulePaths] = useState<Set<string>>(new Set());
   const [moduleCounts, setModuleCounts] = useState<Record<string, number>>({});
 
+  const categories = useMemo(() => {
+    const cats = new Set(filteredQuickLinks.map(l => l.category));
+    return Array.from(cats);
+  }, [filteredQuickLinks]);
+
   const handleRecentWorkClick = (type: string) => {
     const typeRoutes: Record<string, string> = {
       'ATS': '/ats',
       'Carga Fuego': '/fire-load',
-      'Inspección': '/history', // fallback to history for inspections
+      'Inspección': '/history',
       'Matriz': '/risk-matrix-history',
       'Informe': '/reports',
       'Checklist': '/tool-inspection-history',
@@ -278,22 +289,6 @@ export default function Home(): React.ReactElement {
     const route = typeRoutes[type] || '/';
     navigate(route);
   };
-
-  const categories = [
-  { id: 'all', label: 'Todos' },
-  { id: 'ia', label: 'IA y Automatización' },
-  { id: 'docs', label: 'Documentación' },
-  { id: 'critical', label: 'Trabajos Críticos' },
-  { id: 'management', label: 'Gestión y Auditoría' },
-  { id: 'specific', label: 'Específicos' }];
-
-
-  const filteredLinks = quickLinks.filter((link) => {
-    const matchesCategory = activeCategory === 'all' || link.category === activeCategory;
-    const matchesSearch = link.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    link.sub.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -468,7 +463,6 @@ export default function Home(): React.ReactElement {
     loadDailyInsight();
     loadModuleCounts();
 
-    // Build set of recently-used module paths (used this week)
     try {
       const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
       const typeToPath: Record<string, string> = {
@@ -525,21 +519,8 @@ export default function Home(): React.ReactElement {
     <AnimatedPage>
     <div className="page-transition pb-[4rem]">
 
-      {/* FIXED TOP NAV FOR GUESTS */}
       {!currentUser &&
         <div className="fixed top-[0] left-[0] right-[0] z-[8000] flex justify-space-between items-center p-[0.8rem_1.2rem] bg-[rgba(2,_6,_23,_0.85)] backdrop-filter-[blur(12px)] webkit-backdrop-filter-[blur(12px)] border-bottom-[1px_solid_rgba(255,255,255,0.05)]">
-
-
-
-
-
-
-
-
-
-
-
-          
           <div className="flex items-center gap-[0.5rem] font-[800] text-[1.2rem] text-[white] letter-spacing-[-0.5px]">
             <ShieldCheck weight="duotone" size={24} color="#60a5fa" />
             <span style={{ display: isMobile ? 'none' : 'inline' }}>Asistente H&S</span>
@@ -547,17 +528,13 @@ export default function Home(): React.ReactElement {
           <div className="flex gap-[0.5rem] items-center">
             <button
               onClick={() => navigate('/login')}
-
               onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
               onMouseOut={(e) => e.currentTarget.style.background = 'transparent'} className="bg-[transparent] border-[1px_solid_rgba(255,255,255,0.1)] text-[white] font-[600] p-[0.5rem_1rem] rounded-[8px] cursor-pointer transition-[all_0.2s]">
-              
               Iniciar sesión
             </button>
             <button
               onClick={() => navigate('/login', { state: { view: 'register' } })}
               className="glow-button p-[0.5rem_1rem] text-[0.95rem] rounded-[8px]">
-
-              
               Registrarse
             </button>
           </div>
@@ -566,7 +543,6 @@ export default function Home(): React.ReactElement {
 
       {!currentUser && <StickyCtaBanner />}
 
-      {/* HERO BANNER / DASHBOARD HEADER */}
       {!currentUser ?
         <div
           className="home-hero-banner p-[clamp(8rem,_12vw,_10rem)_1.2rem_6rem] relative overflow-[hidden] mb-[0] border-bottom-[1px_solid_rgba(255,255,255,0.05)] w-[100%] box-sizing-[border-box] bg-[radial-gradient(circle_at_top_right,_#1e3a8a,_#020617)]"
@@ -575,29 +551,7 @@ export default function Home(): React.ReactElement {
             e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
             e.currentTarget.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
           }}>
-
-
-
-
-
-
-
-
-
-
-          
           <div className="glow-cursor absolute top-[var(--mouse-y,_0)] left-[var(--mouse-x,_0)] w-[600px] h-[600px] bg-[radial-gradient(circle,_rgba(168,85,247,0.15)_0%,_rgba(0,0,0,0)_50%)] transform-[translate(-50%,_-50%)] pointer-events-[none] z-[0] transition-[opacity_0.3s_ease]" />
-
-
-
-
-
-
-
-
-
-
-          
 
           <StarryBackground />
           <div style={{ gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: isMobile ? '2rem' : '4rem' }} className="relative z-[1] max-w-[1200px] m-[0_auto] grid items-center">
@@ -629,18 +583,12 @@ export default function Home(): React.ReactElement {
                   </button>
                 </>
               </div>
-              {/* Social proof avatars */}
               <div style={{ justifyContent: isMobile ? 'center' : 'flex-start' }} className="flex items-center gap-[0.8rem] mb-[1.5rem]">
                 <div className="flex">
                   {['#3b82f6', '#10b981', '#a855f7', '#f97316', '#ec4899'].map((c, i) =>
                   <div key={i} style={{
-
                     background: `linear-gradient(135deg, ${c}, ${c}99)`,
-
                     marginLeft: i === 0 ? 0 : '-10px'
-
-
-
                   }} className="w-[36px] h-[36px] rounded-[50%] border-[2px_solid_rgba(2,6,23,0.8)] flex items-center justify-center text-[white] font-[900] text-[0.75rem] flex-shrink-[0]">{['J', 'M', 'C', 'L', 'R'][i]}</div>
                   )}
                 </div>
@@ -654,7 +602,6 @@ export default function Home(): React.ReactElement {
                 </div>
               </div>
 
-              {/* Stats inline */}
               <div style={{ gap: isMobile ? '1.5rem' : '2.5rem', justifyContent: isMobile ? 'center' : 'flex-start' }} className="flex mt-[2rem] border-top-[1px_solid_rgba(255,255,255,0.1)] pt-[2rem] flex-wrap">
                 <CounterItem value={1240} label="Profesionales" suffix="+" />
                 <CounterItem value={8500} label="Reportes" suffix="+" />
@@ -662,7 +609,6 @@ export default function Home(): React.ReactElement {
               </div>
             </div>
             
-            {/* Interactive Hero Demo */}
             <div className="stagger-item hidden-mobile animation-delay-[0.4s] perspective-[1000px]">
               <Suspense fallback={<div className="h-[300px]" />}>
                 <InteractiveHeroDemo />
@@ -671,7 +617,6 @@ export default function Home(): React.ReactElement {
           </div>
         </div> : (
 
-        /* DASHBOARD HERO BANNER */
         <div className="p-[clamp(8rem,_10vw,_9rem)_1.2rem_2rem] bg-[var(--color-hero-bg)] border-bottom-[1px_solid_var(--color-border)] relative overflow-[hidden]">
           <StarryBackground />
           <div className="relative z-[1] max-w-[1200px] m-[0_auto]">
@@ -681,20 +626,8 @@ export default function Home(): React.ReactElement {
                 <span className="text-[0.75rem] font-[800] text-[#60a5fa] uppercase letter-spacing-[1px]">Dashboard Privado</span>
               </div>
               
-              <div style={{
-
-
-
-
-
-
-                backdropFilter: isMobile ? 'none' : 'blur(12px)'
-
-
-              }} className="flex items-center gap-[1.5rem] bg-[rgba(255,255,255,0.03)] border-[1px_solid_rgba(255,255,255,0.08)] p-[1.5rem] rounded-[24px] box-shadow-[0_20px_40px_rgba(0,0,0,0.2)] relative overflow-[hidden]">
+              <div style={{ backdropFilter: isMobile ? 'none' : 'blur(12px)' }} className="flex items-center gap-[1.5rem] bg-[rgba(255,255,255,0.03)] border-[1px_solid_rgba(255,255,255,0.08)] p-[1.5rem] rounded-[24px] box-shadow-[0_20px_40px_rgba(0,0,0,0.2)] relative overflow-[hidden]">
                 <div className="absolute top-[-50%] left-[-10%] w-[150px] h-[150px] bg-[radial-gradient(circle,_rgba(59,130,246,0.15)_0%,_transparent_70%)] pointer-events-[none]" />
-
-
                 
                 <div className="w-[70px] h-[70px] bg-[linear-gradient(135deg,_rgba(255,255,255,0.1),_rgba(255,255,255,0.02))] border-[1px_solid_rgba(255,255,255,0.2)] rounded-[18px] p-[12px] flex-shrink-[0] box-shadow-[0_8px_16px_rgba(0,0,0,0.2)]">
                   <img src="/logo.png" alt="Logo" className="w-[100%] h-[100%] object-fit-[contain]" />
@@ -710,18 +643,9 @@ export default function Home(): React.ReactElement {
               </div>
             </div>
 
-            {/* --- BENTO GRID — COMMAND CENTER --- */}
             <div className="bento-container stagger-item animation-delay-[0.2s]">
-
-              {/* ── TILE 1: Daily AI Insight (bento-main) ── */}
               <div className="bento-item bento-main">
-                {/* Ambient glow blob */}
-                <div style={{
-
-
-
-                  filter: isMobile ? 'none' : 'blur(20px)'
-                }} className="absolute top-[-30%] right-[-10%] w-[220px] h-[220px] bg-[radial-gradient(circle,_rgba(168,85,247,0.2)_0%,_transparent_70%)] pointer-events-[none]" />
+                <div style={{ filter: isMobile ? 'none' : 'blur(20px)' }} className="absolute top-[-30%] right-[-10%] w-[220px] h-[220px] bg-[radial-gradient(circle,_rgba(168,85,247,0.2)_0%,_transparent_70%)] pointer-events-[none]" />
 
                 <div className="flex justify-space-between items-start mb-[1.2rem] relative z-[1]">
                   <div>
@@ -763,7 +687,6 @@ export default function Home(): React.ReactElement {
                   }
                 </div>
 
-                {/* Total docs stat pill */}
                 <div className="flex items-center gap-[0.5rem] mt-[1rem] relative z-[1]">
                   <div className="flex gap-[0.4rem] flex-wrap">
                     {[
@@ -779,9 +702,7 @@ export default function Home(): React.ReactElement {
                 </div>
               </div>
 
-              {/* ── TILE 2: Safety Score Gauge (bento-score) ── */}
               <div className="bento-item bento-score">
-                {/* Ambient glow */}
                 <div style={{ filter: isMobile ? 'none' : 'blur(25px)' }} className="absolute bottom-[-20%] left-[50%] transform-[translateX(-50%)] w-[180px] h-[180px] bg-[radial-gradient(circle,_rgba(16,185,129,0.2)_0%,_transparent_70%)] pointer-events-[none]" />
 
                 <div className="flex justify-between items-center mb-[0.5rem] relative z-[1]">
@@ -796,12 +717,10 @@ export default function Home(): React.ReactElement {
                   const totalDocs = stats.reduce((a, s) => a + s.value, 0);
                   const accidents = stats.find((s) => s.label === 'Accidentes')?.value ?? 0;
                   const permisos = stats.find((s) => s.label === 'Permisos')?.value ?? 0;
-                  // Score: base 60 + docs bonus (hasta 30) - accidents penalty + permits bonus
                   const raw = Math.min(100, Math.max(0,
                   60 + Math.min(totalDocs * 3, 30) - accidents * 8 + Math.min(permisos * 2, 10)
                   ));
                   const score = totalDocs === 0 ? 0 : raw;
-                  // SVG arc: r=45, circumference=283
                   const gaugeOffset = 283 - 283 * score / 100;
                   const scoreColor = score >= 80 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
                   const scoreLabel = score >= 80 ? 'Excelente' : score >= 50 ? 'En Progreso' : score === 0 ? 'Sin datos' : 'Atención';
@@ -840,7 +759,6 @@ export default function Home(): React.ReactElement {
                 })()}
               </div>
 
-              {/* ── TILE 3: KPIs con Sparklines (bento-kpi) ── */}
               <div className="bento-item bento-kpi">
                 <h3 className="m-[0_0_0.9rem_0] text-[0.95rem] font-[800] text-[white] flex items-center gap-[0.4rem]">
                   <ChartPieSlice size={16} color="#f59e0b" weight="duotone" />
@@ -848,7 +766,6 @@ export default function Home(): React.ReactElement {
                 </h3>
                 <div className="flex flex-col gap-[0.6rem] flex-[1]">
                   {stats.filter((s) => ['ATS', 'Permisos', 'Checklists'].includes(s.label)).map((stat, i) => {
-                    // Build 7-point sparkline from localStorage weekly data
                     const buildSparkline = (key: string) => {
                       try {
                         const items: any[] = JSON.parse(localStorage.getItem(key) || '[]');
@@ -878,7 +795,6 @@ export default function Home(): React.ReactElement {
                         <div className="flex-[1] min-width-[0]">
                           <div className="text-[0.7rem] text-[rgba(255,255,255,0.6)] font-[600]">{stat.label}</div>
                         </div>
-                        {/* Sparkline */}
                         <svg width={W} height={H} className="sparkline-svg" style={{ color: stat.color, '--sparkline-len': '300', '--spark-delay': `${0.3 + i * 0.1}s` } as React.CSSProperties}>
                           <defs>
                             <linearGradient id={`sg-${i}`} x1="0" y1="0" x2="0" y2="1">
@@ -898,7 +814,6 @@ export default function Home(): React.ReactElement {
                 </div>
               </div>
 
-              {/* ── TILE 4: Activity Timeline (bento-timeline) ── */}
               {!isMobile &&
               <div className="bento-item bento-timeline">
                 <div className="flex justify-space-between items-center mb-[0.8rem]">
@@ -913,7 +828,6 @@ export default function Home(): React.ReactElement {
                   }
                 </div>
                 <div className="flex-[1] relative flex flex-col gap-[0]">
-                  {/* Vertical line */}
                   {recentWorks.length > 0 &&
                   <div className="absolute left-[4px] top-[5px] bottom-[5px] w-[1px] bg-[linear-gradient(to_bottom,_rgba(59,130,246,0.4),_transparent)] rounded-[1px]" />
                   }
@@ -927,7 +841,6 @@ export default function Home(): React.ReactElement {
                         onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
                         onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'} className="flex items-start gap-[0.75rem] p-[0.5rem_0.5rem_0.5rem_0] cursor-pointer rounded-[10px] transition-[background_0.2s]">
                         
-                        {/* Dot on the timeline */}
                         <div className="pl-[0px] pt-[3px] flex-shrink-[0]">
                           <div className="timeline-dot ml-[0]" style={{ color: tc.text }} />
                         </div>
@@ -954,7 +867,6 @@ export default function Home(): React.ReactElement {
               </div>
               }
 
-              {/* ── TILE 5: Quick Access (bento-quick) ── */}
               {!isMobile &&
               <div className="bento-item bento-quick">
                 <h3 className="m-[0_0_0.8rem_0] text-[0.95rem] font-[800] text-[white] flex items-center gap-[0.4rem]">
@@ -992,14 +904,11 @@ export default function Home(): React.ReactElement {
               }
 
             </div>
-            {/* --- FIN BENTO GRID --- */}
-
           </div>
         </div>)
         }
 
 
-      {/* Marketing Landing Content - Primary for visitors */}
       {!currentUser &&
         <Suspense fallback={<div className="p-[4rem] text-center text-[var(--color-text-muted)]">Cargando...</div>}>
           <div className="mt-[0]">
@@ -1016,14 +925,11 @@ export default function Home(): React.ReactElement {
         }
 
 
-      {/* Dashboard for Logged Users */}
       {currentUser &&
         <div className="mt-[2.5rem] max-w-[1200px] m-[2.5rem_auto_0] p-[0_1rem]">
           
-          {/* 🚨 Alerta Urgente del Día */}
           <UrgentAlertWidget />
 
-          {/* Professional Tools Grid */}
           <div className="mb-[4rem]">
             <div className="flex flex-col gap-[1.5rem] mb-[2rem]" style={{ minWidth: 0 }}>
               <div className="flex justify-space-between items-end flex-wrap gap-[1rem]">
@@ -1037,49 +943,29 @@ export default function Home(): React.ReactElement {
                   </p>
                 </div>
               </div>
-
-              <div 
-                className="hide-scrollbar"
-                style={{ 
-                  display: 'flex', 
-                  flexDirection: 'row', 
-                  flexWrap: 'nowrap', 
-                  overflowX: 'auto', 
-                  WebkitOverflowScrolling: 'touch', 
-                  touchAction: 'pan-x',
-                  gap: '0.5rem', 
-                  padding: '0.2rem 0.2rem 0.7rem 0.2rem',
-                  width: '100%',
-                  scrollbarWidth: 'none', /* Firefox */
-                  msOverflowStyle: 'none' /* IE/Edge */
-                }}
-              >
-                {categories.map((cat) =>
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`p-[0.55rem_1.15rem] rounded-[100px] border-[1px_solid] font-[600] text-[0.82rem] cursor-pointer transition-[all_0.25s_cubic-bezier(0.16,_1,_0.3,_1)] min-h-[auto] box-shadow-[none] ${activeCategory === cat.id ? 'cat-pill-active' : 'cat-pill-inactive'}`}
-                  style={{
-                    flexShrink: 0,
-                    whiteSpace: 'nowrap',
-
-
-
-                    borderColor: activeCategory === cat.id ? 'transparent' : 'var(--color-border)',
-                    background: activeCategory === cat.id ? undefined : 'transparent',
-                    color: activeCategory === cat.id ? undefined : 'var(--color-text-muted)'
-
-
-
-
-
-
-
-                  }}>
-                  
-                    {cat.label}
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-[2rem] relative z-[5] no-print">
+                <div className="flex gap-[0.5rem] overflow-x-auto pb-[0.5rem] w-full hide-scrollbar" style={{ WebkitOverflowScrolling: 'touch' }}>
+                  <button
+                    onClick={() => setActiveCategory('all')}
+                    className={`px-[1.2rem] py-[0.6rem] rounded-[20px] font-[700] text-[0.8rem] transition-all flex-shrink-0 cursor-pointer ${activeCategory === 'all' ? 'bg-[var(--color-primary)] text-white shadow-[0_4px_12px_rgba(59,130,246,0.3)]' : 'bg-[var(--glass-bg)] border-[1px_solid_var(--glass-border)] text-[var(--color-text)] hover:bg-[var(--color-surface-hover)]'}`}>
+                    Todos
                   </button>
-                )}
+                  {categories.includes('docs') && <button onClick={() => setActiveCategory('docs')} className={`px-[1.2rem] py-[0.6rem] rounded-[20px] font-[700] text-[0.8rem] transition-all flex-shrink-0 cursor-pointer ${activeCategory === 'docs' ? 'bg-[var(--color-primary)] text-white shadow-[0_4px_12px_rgba(59,130,246,0.3)]' : 'bg-[var(--glass-bg)] border-[1px_solid_var(--glass-border)] text-[var(--color-text)] hover:bg-[var(--color-surface-hover)]'}`}>Documentación</button>}
+                  {categories.includes('critical') && <button onClick={() => setActiveCategory('critical')} className={`px-[1.2rem] py-[0.6rem] rounded-[20px] font-[700] text-[0.8rem] transition-all flex-shrink-0 cursor-pointer ${activeCategory === 'critical' ? 'bg-[var(--color-primary)] text-white shadow-[0_4px_12px_rgba(59,130,246,0.3)]' : 'bg-[var(--glass-bg)] border-[1px_solid_var(--glass-border)] text-[var(--color-text)] hover:bg-[var(--color-surface-hover)]'}`}>Riesgo Crítico</button>}
+                  {categories.includes('specific') && <button onClick={() => setActiveCategory('specific')} className={`px-[1.2rem] py-[0.6rem] rounded-[20px] font-[700] text-[0.8rem] transition-all flex-shrink-0 cursor-pointer ${activeCategory === 'specific' ? 'bg-[var(--color-primary)] text-white shadow-[0_4px_12px_rgba(59,130,246,0.3)]' : 'bg-[var(--glass-bg)] border-[1px_solid_var(--glass-border)] text-[var(--color-text)] hover:bg-[var(--color-surface-hover)]'}`}>Específicos</button>}
+                  {categories.includes('management') && <button onClick={() => setActiveCategory('management')} className={`px-[1.2rem] py-[0.6rem] rounded-[20px] font-[700] text-[0.8rem] transition-all flex-shrink-0 cursor-pointer ${activeCategory === 'management' ? 'bg-[var(--color-primary)] text-white shadow-[0_4px_12px_rgba(59,130,246,0.3)]' : 'bg-[var(--glass-bg)] border-[1px_solid_var(--glass-border)] text-[var(--color-text)] hover:bg-[var(--color-surface-hover)]'}`}>Gestión</button>}
+                  {categories.includes('ia') && <button onClick={() => setActiveCategory('ia')} className={`px-[1.2rem] py-[0.6rem] rounded-[20px] font-[700] text-[0.8rem] transition-all flex-shrink-0 cursor-pointer ${activeCategory === 'ia' ? 'bg-[var(--color-primary)] text-white shadow-[0_4px_12px_rgba(59,130,246,0.3)]' : 'bg-[var(--glass-bg)] border-[1px_solid_var(--glass-border)] text-[var(--color-text)] hover:bg-[var(--color-surface-hover)]'}`}>IA</button>}
+                </div>
+
+                <div className="flex items-center gap-3 bg-[var(--glass-bg)] border-[1px_solid_var(--glass-border)] p-[0.35rem_0.8rem] rounded-[100px] shrink-0">
+                  <span className="text-[0.85rem] font-[700] text-[var(--color-text)]">Modo Campo</span>
+                  <button 
+                    onClick={handleToggleInspectorMode}
+                    className={`relative w-[36px] h-[20px] rounded-full transition-colors ${isInspectorMode ? 'bg-[#10b981]' : 'bg-[rgba(100,116,139,0.3)]'} cursor-pointer border-none outline-none`}
+                  >
+                    <div className={`absolute top-[2px] left-[2px] w-[16px] h-[16px] rounded-full bg-[white] transition-transform ${isInspectorMode ? 'translate-x-[16px]' : 'translate-x-[0px]'} box-shadow-[0_2px_4px_rgba(0,0,0,0.2)]`} />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1089,7 +975,7 @@ export default function Home(): React.ReactElement {
               gap: isMobile ? '0.6rem' : '1.2rem'
 
             }} className="grid grid-auto-rows-[auto]">
-              {filteredLinks.length > 0 ? filteredLinks.map((link, i) => {
+              {filteredQuickLinks.filter((link) => activeCategory === 'all' || link.category === activeCategory).length > 0 ? filteredQuickLinks.filter((link) => activeCategory === 'all' || link.category === activeCategory).map((link, i) => {
                 // Convert hex color to RGB triplet for CSS custom property
                 const hexToRgb = (hex: string) => {
                   const m = hex.replace('#', '').match(/.{2}/g);
