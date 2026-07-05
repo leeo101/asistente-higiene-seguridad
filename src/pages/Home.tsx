@@ -1021,19 +1021,10 @@ export default function Home(): React.ReactElement {
           
           {/* Professional Tools Grid */}
           <div className="mb-[4rem]">
-            <div className="flex flex-col gap-[1.5rem] mb-[2rem]">
+            <div className="flex flex-col gap-[1.5rem] mb-[2rem]" style={{ minWidth: 0 }}>
               <div className="flex justify-space-between items-end flex-wrap gap-[1rem]">
                 <div>
                   <h2 className="text-[clamp(1.5rem,_4vw,_2rem)] font-[900] m-[0] text-[var(--color-text)] flex items-center gap-[0.6rem] letter-spacing-[-1px]">
-
-
-
-
-
-
-
-
-                    
                     <Star size={28} fill="#f59e0b" color="#f59e0b" />
                     Bóveda Pro
                   </h2>
@@ -1043,14 +1034,30 @@ export default function Home(): React.ReactElement {
                 </div>
               </div>
 
-              {/* Categories Tabs */}
-              <div className="hide-scrollbar flex gap-[0.5rem] overflow-x-[auto] p-[0.2rem_0.2rem_0.7rem_0.2rem]">
+              <div 
+                className="hide-scrollbar"
+                style={{ 
+                  display: 'flex', 
+                  flexDirection: 'row', 
+                  flexWrap: 'nowrap', 
+                  overflowX: 'auto', 
+                  WebkitOverflowScrolling: 'touch', 
+                  touchAction: 'pan-x',
+                  gap: '0.5rem', 
+                  padding: '0.2rem 0.2rem 0.7rem 0.2rem',
+                  width: '100%',
+                  scrollbarWidth: 'none', /* Firefox */
+                  msOverflowStyle: 'none' /* IE/Edge */
+                }}
+              >
                 {categories.map((cat) =>
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`p-[0.55rem_1.15rem] rounded-[100px] border-[1px_solid] font-[600] text-[0.82rem] cursor-pointer white-space-[nowrap] transition-[all_0.25s_cubic-bezier(0.16,_1,_0.3,_1)] min-h-[auto] box-shadow-[none] ${activeCategory === cat.id ? 'cat-pill-active' : ''}`}
+                  className={`p-[0.55rem_1.15rem] rounded-[100px] border-[1px_solid] font-[600] text-[0.82rem] cursor-pointer transition-[all_0.25s_cubic-bezier(0.16,_1,_0.3,_1)] min-h-[auto] box-shadow-[none] ${activeCategory === cat.id ? 'cat-pill-active' : 'cat-pill-inactive'}`}
                   style={{
+                    flexShrink: 0,
+                    whiteSpace: 'nowrap',
 
 
 
@@ -1099,7 +1106,7 @@ export default function Home(): React.ReactElement {
                       '--stagger-delay': staggerDelay,
                       '--card-accent-rgb': accentRgb,
                       textDecoration: 'none',
-                      padding: isMobile ? '1rem 0.5rem' : '1.4rem 1rem',
+                      padding: isMobile ? '0.8rem 0.35rem' : '1.4rem 1rem',
                       borderRadius: isMobile ? '16px' : '20px',
                       background: 'var(--color-surface)',
                       border: `1px solid var(--color-border)`,
@@ -1109,7 +1116,8 @@ export default function Home(): React.ReactElement {
                       justifyContent: 'center',
                       textAlign: 'center',
                       gap: isMobile ? '0.4rem' : '0.65rem',
-                      minHeight: isMobile ? '130px' : '175px'
+                      height: '100%',
+                      minHeight: isMobile ? '118px' : '175px'
                     } as React.CSSProperties}
                     onMouseMove={(e) => {
                       const rect = e.currentTarget.getBoundingClientRect();
@@ -1152,12 +1160,7 @@ export default function Home(): React.ReactElement {
                       {link.badge &&
                       <span style={{
                         background: `linear-gradient(135deg, ${link.color}, ${link.color}cc)`,
-
-
-
                         fontSize: isMobile ? '0.52rem' : '0.62rem',
-
-
                         boxShadow: `0 2px 8px rgba(${accentRgb} / 0.35)`
 
                       }} className="text-[#fff] p-[2px_6px] rounded-[100px] font-[800] letter-spacing-[0.3px] line-height-[1.4]">
@@ -1182,34 +1185,33 @@ export default function Home(): React.ReactElement {
                     {/* Label + subtitle */}
                     <div className="w-[100%] p-[0_0.15rem]">
                       <h3 style={{
-
-                        fontSize: isMobile ? '0.78rem' : '0.92rem'
-
-
-
-
-
-
-                      }} className="m-[0] font-[800] text-[var(--color-text)] word-break-[break-word] hyphens-[auto] line-height-[1.2] text-center">
+                        fontSize: isMobile ? '0.72rem' : '0.92rem',
+                        margin: 0,
+                        fontWeight: 800,
+                        color: 'var(--color-text)',
+                        wordBreak: 'break-word',
+                        hyphens: 'auto',
+                        lineHeight: 1.15,
+                        textAlign: 'center',
+                        width: '100%'
+                      }}>
                         {link.label}
                       </h3>
-                      {!isMobile &&
-                      <p className="m-[0.2rem_0_0] text-[0.75rem] text-[var(--color-text-muted)] line-height-[1.3] opacity-[0.8] word-break-[break-word] hyphens-[auto]">
-
-
-
-
-
-
-
-                        
-                          {link.sub}
-                        </p>
-                      }
+                      <p style={{
+                        margin: '0.2rem 0 0',
+                        fontSize: isMobile ? '0.65rem' : '0.75rem',
+                        lineHeight: '1.3',
+                        color: 'var(--color-text-muted)',
+                        opacity: 0.8,
+                        wordBreak: 'break-word',
+                        hyphens: 'auto'
+                      }}>
+                        {link.sub}
+                      </p>
                     </div>
 
-                    {/* Normative badge — bottom, only on desktop */}
-                    {!isMobile && link.norm &&
+                    {/* Normative badge — bottom */}
+                    {link.norm &&
                     <span
                       className="module-norm-badge"
                       style={{ '--card-accent-rgb': accentRgb } as React.CSSProperties}>

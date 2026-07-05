@@ -4,7 +4,7 @@ import {
   X, User, House, GearSix, ClockCounterClockwise, SignOut, CalendarBlank,
   ChatText, ShieldCheck, ChartPieSlice,
   Users, Crown, Image as ImageIconPh, ChartBar,
-  CloudSlash, CloudArrowUp, CloudCheck, Plant } from
+  CloudSlash, CloudArrowUp, CloudCheck, Plant, Moon, Sun } from
 '@phosphor-icons/react';
 import { useNotificationScheduler } from '../hooks/useNotificationScheduler';
 
@@ -39,14 +39,11 @@ const navItems: NavItem[] = [
 { to: '/calendar', icon: <CalendarBlank weight="duotone" size={20} />, label: 'Calendario', always: true },
 { to: '/settings', icon: <GearSix weight="duotone" size={20} />, label: 'Configuración', auth: true },
 { to: '/dashboard', icon: <ChartPieSlice weight="duotone" size={20} color="#10b981" />, label: 'Dashboard', auth: true },
-{ to: '/environmental-incidents', icon: <Plant weight="duotone" size={20} color="#10b981" />, label: 'Incidentes Ambientales', auth: true },
 { to: '/contractors', icon: <Users weight="duotone" size={20} color="#3b82f6" />, label: 'Contratistas', auth: true },
 { to: '/logo-settings', icon: <ImageIconPh weight="duotone" size={20} />, label: 'Logo de Empresa', auth: true },
 { to: '/profile', icon: <User weight="duotone" size={20} />, label: 'Mi Perfil', auth: true },
 { to: '/privacy', icon: <ShieldCheck weight="duotone" size={20} />, label: 'Privacidad', always: true },
 { to: '/management-report', icon: <ChartBar weight="duotone" size={20} color="#8b5cf6" />, label: 'Reporte Mensual', auth: true },
-{ to: '/medical', icon: <User weight="duotone" size={20} color="#10b981" />, label: 'Aptitudes Médicas', auth: true },
-{ to: '/emergency-plan', icon: <ShieldCheck weight="duotone" size={20} color="#ef4444" />, label: 'Plan de Emergencias', auth: true },
 { to: '/worker-portal', icon: <User weight="duotone" size={20} color="#3b82f6" />, label: 'Portal del Trabajador', auth: true }];
 
 
@@ -56,6 +53,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
   const { currentUser, logout } = useAuth();
   const { isPro, daysRemaining } = usePaywall();
   const { isOnline, syncing, pendingCount } = useSync();
+
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+  };
 
   // Dispara notificaciones nativas del sistema una vez al día
   useNotificationScheduler();
@@ -155,20 +160,28 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
 
           
           {/* Top row: Logo + close */}
-          <div className="flex items-center justify-space-between">
-            <div className="flex items-center gap-[0.8rem]">
-              <div className="w-[42px] h-[42px] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[12px] p-[6px] flex-shrink-[0] box-shadow-[var(--shadow-sm)]">
-                <img src="/logo.png" alt="Logo de Asistente HYS" className="w-[100%] h-[100%] object-fit-[contain]" />
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-[0.6rem]">
+              <div className="w-[36px] h-[36px] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[12px] p-[6px] flex-shrink-[0] box-shadow-[var(--shadow-sm)]">
+                <img src="/logo.png" alt="Logo" className="w-[100%] h-[100%] object-fit-[contain]" />
               </div>
-              <span className="text-[1.2rem] font-[900] text-[var(--color-text)] letter-spacing-[-0.5px] font-family-[var(--font-heading)]">Asistente HYS</span>
+              <span className="text-[0.95rem] font-[900] text-[var(--color-text)] letter-spacing-[-0.3px] font-family-[var(--font-heading)]">Asistente HYS</span>
             </div>
             
-            <button onClick={onClose}
-            onMouseOver={(e) => {e.currentTarget.style.background = 'var(--color-border)';e.currentTarget.style.color = 'var(--color-text)';}}
-            onMouseOut={(e) => {e.currentTarget.style.background = 'var(--color-background)';e.currentTarget.style.color = 'var(--color-text-muted)';}} className="p-[0] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] w-[36px] h-[36px] rounded-[10px] flex items-center justify-center cursor-pointer text-[var(--color-text-muted)] transition-[all_0.2s_ease]">
-              
-              <X weight="bold" size={20} />
-            </button>
+            <div className="flex items-center gap-[0.5rem]">
+              <button onClick={toggleTheme}
+                onMouseOver={(e) => {e.currentTarget.style.background = 'var(--color-border)';e.currentTarget.style.color = 'var(--color-text)';}}
+                onMouseOut={(e) => {e.currentTarget.style.background = 'var(--color-background)';e.currentTarget.style.color = 'var(--color-text-muted)';}} 
+                className="p-[0] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] w-[42px] h-[42px] rounded-[10px] flex items-center justify-center cursor-pointer text-[var(--color-text-muted)] transition-[all_0.2s_ease]">
+                  {theme === 'dark' ? <Moon weight="duotone" size={24} /> : <Sun weight="duotone" size={24} />}
+              </button>
+              <button onClick={onClose}
+                onMouseOver={(e) => {e.currentTarget.style.background = 'var(--color-border)';e.currentTarget.style.color = 'var(--color-text)';}}
+                onMouseOut={(e) => {e.currentTarget.style.background = 'var(--color-background)';e.currentTarget.style.color = 'var(--color-text-muted)';}} 
+                className="p-[0] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] w-[42px] h-[42px] rounded-[10px] flex items-center justify-center cursor-pointer text-[var(--color-text-muted)] transition-[all_0.2s_ease]">
+                <X weight="bold" size={28} />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -202,7 +215,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
         }
 
         {/* ── NAVIGATION ── */}
-        <nav className="flex-[1] overflow-y-[auto] p-[1rem_0.8rem] flex flex-col gap-[0.25rem] scrollbar-width-[thin] pb-[2rem]">
+        <nav 
+          className="flex-[1] overflow-y-auto touch-pan-y p-[1rem_0.8rem] flex flex-col gap-[0.25rem] scrollbar-width-[thin] pb-[2rem]"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
 
 
 
@@ -242,19 +258,20 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
 
           <a href="mailto:asistente.hs.soporte@gmail.com?subject=Sugerencia - Asistente HYS" onClick={onClose} className="text-decoration-[none] p-[0_0.5rem]">
             <div
-
-
-
-
-
-
-
-
-              onMouseOver={(e) => {e.currentTarget.style.borderColor = 'var(--color-primary)';e.currentTarget.style.color = 'var(--color-primary)';}}
-              onMouseOut={(e) => {e.currentTarget.style.borderColor = 'var(--color-border)';e.currentTarget.style.color = 'var(--color-text-muted)';}} className="flex items-center gap-[0.8rem] p-[0.8rem] rounded-[12px] text-[var(--color-text-muted)] text-[0.85rem] font-[600] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] transition-[all_0.2s_ease]">
-              
-              <ChatText size={18} weight="duotone" />
-              Soporte y Sugerencias
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(59,130,246,0.15)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
+              }} 
+              className="flex items-center gap-[0.9rem] p-[0.9rem_1rem] rounded-[12px] text-[var(--color-primary)] text-[0.88rem] font-[700] bg-[rgba(59,130,246,0.08)] border-[1px_solid_rgba(59,130,246,0.2)] transition-[all_0.2s_ease]"
+            >
+              <div className="w-[32px] h-[32px] rounded-[10px] bg-[var(--color-primary)] text-white flex items-center justify-center flex-shrink-[0]">
+                <ChatText size={18} weight="fill" />
+              </div>
+              <span>Soporte y Sugerencias</span>
             </div>
           </a>
 
@@ -302,24 +319,23 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
           <AdBanner placement="sidebar" />
 
           {currentUser &&
-          <button
-            onClick={handleLogout}
-
-
-
-
-
-
-
-
-
-
-            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'}
-            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.05)'} className="flex items-center gap-[0.9rem] p-[0.8rem_1rem] rounded-[12px] text-[#ef4444] bg-[rgba(239,68,68,0.05)] border-[1px_solid_rgba(239,68,68,0.2)] cursor-pointer mt-[0.5rem] text-left w-[100%] font-[600] text-[0.9rem] transition-[background_0.15s]">
-            
+          <div className="mt-[auto] pt-[2rem]">
+            <button
+              onClick={handleLogout}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = '#ef4444';
+                e.currentTarget.style.color = '#ffffff';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(239,68,68,0.08)';
+                e.currentTarget.style.color = '#ef4444';
+              }} 
+              className="flex items-center justify-center gap-[0.7rem] p-[0.85rem_1rem] rounded-[12px] text-[#ef4444] bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] cursor-pointer w-[100%] font-[700] text-[0.95rem] transition-[all_0.25s_ease]"
+            >
               <SignOut weight="bold" size={20} />
               <span>Cerrar Sesión</span>
             </button>
+          </div>
           }
         </nav>
       </div>

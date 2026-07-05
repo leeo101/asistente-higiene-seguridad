@@ -304,18 +304,19 @@ function CloudStatusIndicator() {
       <div
         title={`${pendingCount > 0 ? `${pendingCount} cambios pendientes de subir` : 'Sin conexión (guardado local)'}`}
         style={{
-          display: 'flex', alignItems: 'center', gap: '0.4rem',
-          fontSize: '0.65rem', fontWeight: 800,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: '#fbbf24',
-          flexShrink: 0, whiteSpace: 'nowrap',
+          flexShrink: 0,
           background: 'rgba(251,191,36,0.1)',
-          padding: '0.2rem 0.5rem',
-          borderRadius: '8px',
-          border: '1px solid rgba(251,191,36,0.2)'
+          width: '42px',
+          height: '42px',
+          padding: '0',
+          borderRadius: '12px',
+          border: '1px solid rgba(251,191,36,0.2)',
+          transition: 'all 0.3s'
         }}
       >
-        <CloudOff weight="bold" size={18} />
-        <span className="header-title">{pendingCount > 0 ? `Pendiente (${pendingCount})` : 'Offline'}</span>
+        <CloudOff weight="bold" size={22} />
       </div>
     );
   }
@@ -324,26 +325,22 @@ function CloudStatusIndicator() {
     <div
       title={syncing ? 'Sincronizando...' : lastSync ? `Sincronizado ${lastSync.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}` : 'Conectado a la nube'}
       style={{
-        display: 'flex', alignItems: 'center', gap: '0.4rem',
-        fontSize: '0.65rem', fontWeight: 800,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
         color: syncing ? '#93c5fd' : '#86efac',
-        flexShrink: 0, whiteSpace: 'nowrap',
+        flexShrink: 0,
         background: syncing ? 'rgba(59,130,246,0.1)' : 'rgba(134,239,172,0.1)',
-        padding: '0.2rem 0.5rem',
-        borderRadius: '8px',
-        border: syncing ? '1px solid rgba(59,130,246,0.2)' : '1px solid rgba(134,239,172,0.2)'
+        width: '42px',
+        height: '42px',
+        padding: '0',
+        borderRadius: '12px',
+        border: syncing ? '1px solid rgba(59,130,246,0.2)' : '1px solid rgba(134,239,172,0.2)',
+        transition: 'all 0.3s'
       }}
     >
       {syncing ? (
-        <>
-          <Cloud weight={syncing ? 'duotone' : 'bold'} size={18} className={syncing ? 'loading-spin' : ''} />
-          <span className="header-title">{pendingCount > 0 ? `Subiendo (${pendingCount})` : 'Sync...'}</span>
-        </>
+        <Cloud weight="duotone" size={22} className="loading-spin" />
       ) : (
-        <>
-          <Cloud size={16} />
-          <span className="header-title" style={{ display: 'none' }}>Conectado</span>
-        </>
+        <Cloud weight="bold" size={22} />
       )}
     </div>
   );
@@ -408,8 +405,10 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
         style={{
           background: isDashboard ? 'rgba(255, 255, 255, 0.05)' : 'var(--color-background)',
           border: isDashboard ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '0.6rem',
+          borderRadius: '12px',
+          width: '42px',
+          height: '42px',
+          padding: '0',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -432,8 +431,10 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
         style={{
           background: isDashboard ? 'rgba(255, 255, 255, 0.05)' : 'var(--color-background)',
           border: isDashboard ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '0.5rem',
+          borderRadius: '12px',
+          width: '42px',
+          height: '42px',
+          padding: '0',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -444,7 +445,7 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
           transition: 'all var(--transition-base)'
         }}
       >
-        <Search weight="bold" size={18} />
+        <Search weight="bold" size={22} />
       </button>
       <HeaderNotifications />
       <CloudStatusIndicator />

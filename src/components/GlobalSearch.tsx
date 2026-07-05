@@ -94,7 +94,12 @@ export default function GlobalSearch({ onClose }: GlobalSearchProps): React.Reac
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
-  useEffect(() => {inputRef.current?.focus();}, []);
+  useEffect(() => {
+    inputRef.current?.focus();
+    // Bloquear scroll de la página de fondo
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
 
   // ── Build search results ─────────────────────────────────────────────────
   useEffect(() => {
@@ -154,11 +159,10 @@ export default function GlobalSearch({ onClose }: GlobalSearchProps): React.Reac
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div
-
-      onClick={onClose} className="fixed inset-[0] z-[9999] bg-[rgba(0,0,0,0.6)] backdrop-filter-[blur(10px)] webkit-backdrop-filter-[blur(10px)] flex items-start justify-center p-[max(3.5rem,_8vh)_1rem_1rem] overflow-y-[auto]">
+      onClick={onClose} className="fixed inset-0 z-[9999] bg-[rgba(0,0,0,0.6)] backdrop-blur-md flex items-start justify-center pt-[max(3.5rem,8vh)] px-4 pb-4 overflow-y-auto">
       
       <div
-        onClick={(e) => e.stopPropagation()} className="w-[100%] max-w-[620px] rounded-[24px] overflow-[hidden] box-shadow-[0_40px_120px_rgba(0,0,0,0.5),_0_0_0_1px_rgba(255,255,255,0.08)] bg-[var(--glass-thick,_rgba(255,255,255,0.92))] backdrop-filter-[blur(40px)] webkit-backdrop-filter-[blur(40px)] animation-[cmdIn_0.2s_cubic-bezier(0.16,1,0.3,1)]">
+        onClick={(e) => e.stopPropagation()} className="w-full max-w-[620px] rounded-[24px] overflow-hidden shadow-[0_40px_120px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.08)] bg-[var(--glass-thick,rgba(255,255,255,0.92))] backdrop-blur-3xl animation-[cmdIn_0.2s_cubic-bezier(0.16,1,0.3,1)]">
 
         
         {/* ── Input ─────────────────────────────────────────────────────── */}
@@ -174,17 +178,15 @@ export default function GlobalSearch({ onClose }: GlobalSearchProps): React.Reac
             onKeyDown={handleKeyDown} className="flex-[1] border-none outline-[none] bg-[transparent] text-[1.05rem] text-[var(--color-text)] font-[600] font-family-[inherit] min-width-[0]" />
 
           
-          {query ?
-          <button onClick={() => setQuery('')} aria-label="Limpiar búsqueda" className="bg-[none] border-none cursor-pointer text-[var(--color-text-muted)] flex p-[0.25rem] rounded-[6px] flex-shrink-[0]">
+          {query && (
+            <button onClick={() => setQuery('')} aria-label="Limpiar búsqueda" className="bg-[none] border-none cursor-pointer text-[var(--color-text-muted)] flex p-[0.25rem] rounded-[6px] shrink-0">
               <X size={18} />
-            </button> :
-
-          <kbd style={kbdStyle}>ESC</kbd>
-          }
+            </button>
+          )}
         </div>
 
         {/* ── Body ──────────────────────────────────────────────────────── */}
-        <div className="max-height-[min(460px,_60vh)] overflow-y-[auto] overscroll-behavior-[contain]">
+        <div className="max-h-[min(460px,60vh)] overflow-y-auto overscroll-contain">
 
           {/* Empty state → Quick Actions + Module Grid */}
           {query.length < 2 &&
@@ -207,7 +209,7 @@ export default function GlobalSearch({ onClose }: GlobalSearchProps): React.Reac
             )}
 
               <SectionLabel text="📂 Módulos" />
-              <div className="grid grid-template-columns-[repeat(auto-fill,_minmax(155px,_1fr))] gap-[0.5rem] p-[0.75rem_1.4rem_1.1rem]">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(155px,1fr))] gap-2 p-[0.75rem_1.4rem_1.1rem]">
                 {MODULES.slice(0, 9).map((mod) =>
               <button
                 key={mod.nav}

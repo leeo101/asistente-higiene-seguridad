@@ -53,12 +53,11 @@ export default function HeaderNotifications() {
         style={{
           background: hasAlerts ? 'rgba(255, 0, 0, 0.2)' : (isDashboard ? 'rgba(255, 255, 255, 0.05)' : 'rgba(15, 23, 42, 0.05)'),
           border: hasAlerts ? '1px solid rgba(255, 0, 0, 0.7)' : (isDashboard ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(15, 23, 42, 0.1)'),
-          color: hasAlerts ? '#ff4444' : (isDashboard ? 'rgba(255, 255, 255, 0.7)' : '#64748b'),
           boxShadow: hasAlerts ? '0 0 16px rgba(255, 0, 0, 0.5), inset 0 0 8px rgba(255, 0, 0, 0.2)' : 'none',
           animation: hasAlerts ? 'bell-shake 2s infinite cubic-bezier(.36,.07,.19,.97) both' : 'none'
         }}
         title={hasAlerts ? `${notifications.length} alerta${notifications.length !== 1 ? 's' : ''} de vencimiento` : 'Notificaciones'}
-        className="p-[0] relative flex-shrink-[0] w-[48px] h-[48px] rounded-[14px] flex items-center justify-center cursor-pointer transition-[all_0.3s_ease]"
+        className="p-[0] relative flex-shrink-[0] w-[42px] h-[42px] rounded-[12px] flex items-center justify-center cursor-pointer transition-[all_0.3s_ease]"
       >
         <style>{`
           @keyframes bell-shake {
@@ -67,9 +66,9 @@ export default function HeaderNotifications() {
             20%, 40%, 60%, 80% { transform: rotate(7deg); }
           }
         `}</style>
-        <Bell weight={hasAlerts ? 'fill' : 'duotone'} size={26} />
+        <Bell weight={hasAlerts ? 'fill' : 'bold'} size={22} color="#f59e0b" />
         {hasAlerts && (
-          <span className="absolute top-[-5px] right-[-5px] bg-[#ef4444] text-[#fff] rounded-[50%] w-[20px] h-[20px] text-[0.65rem] font-[900] flex items-center justify-center border-[2px_solid_var(--color-hero-bg,_#0f172a)] box-shadow-[0_0_8px_rgba(239,68,68,0.7)]">
+          <span className="absolute top-[-5px] right-[-5px] bg-[#ef4444] text-[#fff] rounded-[50%] w-[18px] h-[18px] text-[0.6rem] font-[900] flex items-center justify-center border-[2px_solid_var(--color-hero-bg,_#0f172a)] box-shadow-[0_0_8px_rgba(239,68,68,0.7)]">
             {notifications.length > 9 ? '9+' : notifications.length}
           </span>
         )}

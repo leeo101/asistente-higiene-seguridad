@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import {
   Flame, Plus, Search, MapPin, QrCode, ArrowLeft, ShieldCheck, Activity, CheckCircle,
-  Calendar, Edit3, Trash2, Printer, AlertTriangle, CheckCircle2, Camera, Share2, Pencil, Download, FileSpreadsheet, CalendarDays, History, UploadCloud, DownloadCloud, Info, Save, Settings } from
+  Calendar, Edit3, Trash2, Printer, AlertTriangle, CheckCircle2, Camera, Share2, Pencil, Download, FileSpreadsheet, CalendarDays, History, UploadCloud, DownloadCloud, Info, Save, Settings, ChevronDown } from
 'lucide-react';
 import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
 import { useAuth } from '../contexts/AuthContext';
@@ -40,6 +40,7 @@ export default function ExtintoresManager() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEmpresa, setFilterEmpresa] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [showTools, setShowTools] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [qrData, setQrData] = useState(null);
   const [showQrModal, setShowQrModal] = useState(false);
@@ -1111,12 +1112,23 @@ export default function ExtintoresManager() {
                         </div>
                     </div>
                     {/* Panel unificado de Herramientas de Gestión */}
-                    <div className="bg-white dark:bg-slate-800 p-[1.5rem] rounded-[24px] border-[1px_solid_#e2e8f0] dark:border-slate-700 shadow-[0_4px_20px_rgba(0,0,0,0.03)] mb-[2rem]">
-                        <h3 className="m-0 mb-[1.5rem] flex items-center gap-2 text-slate-800 dark:text-slate-100 text-lg font-black border-b border-slate-100 dark:border-slate-700 pb-3">
-                            <Settings size={22} className="text-blue-500" /> Herramientas de Gestión y Exportación
-                        </h3>
+                    <div 
+                        className="bg-white dark:bg-slate-800 rounded-[24px] border border-slate-200 dark:border-slate-700 shadow-[0_4px_20px_rgba(0,0,0,0.03)] mb-[2rem] overflow-hidden"
+                        style={{ transform: 'translateZ(0)' }}
+                    >
+                        <button 
+                            onClick={() => setShowTools(!showTools)}
+                            className={`w-full flex items-center justify-between p-[1.5rem] bg-transparent border-none cursor-pointer outline-none focus:outline-none focus:ring-0 active:bg-slate-50 dark:active:bg-slate-700 md:hover:bg-slate-50 md:dark:hover:bg-slate-700 transition-colors ${showTools ? 'rounded-t-[24px]' : 'rounded-[24px]'}`}
+                            style={{ WebkitTapHighlightColor: 'transparent' }}
+                        >
+                            <h3 className="m-0 flex items-center gap-2 text-slate-800 dark:text-slate-100 text-lg font-black">
+                                <Settings size={22} className="text-blue-500" /> Herramientas de Gestión y Exportación
+                            </h3>
+                            <ChevronDown size={24} className={`text-slate-400 transition-transform duration-300 ${showTools ? 'rotate-180' : ''}`} />
+                        </button>
                         
-                        <style>
+                        <div className={`transition-all duration-300 ease-in-out ${showTools ? 'max-h-[1000px] opacity-100 px-[1.5rem] pb-[1.5rem]' : 'max-h-0 opacity-0 px-[1.5rem] pb-0 overflow-hidden'}`}>
+                            <style>
                             {`
                                 .action-btn-premium {
                                     display: flex;
@@ -1227,6 +1239,7 @@ export default function ExtintoresManager() {
                                     </span>
                                 </div>
                             )}
+                        </div>
                         </div>
                     </div>
 
