@@ -1,5 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Trash2, Upload, PenTool } from 'lucide-react';
+import { Fingerprint, ShieldCheck, Warning } from '@phosphor-icons/react';
+import { isBiometricAvailable, authenticateWithBiometric } from '../services/biometricService';
+import toast from 'react-hot-toast';
 
 interface SignatureCanvasProps {
   onSave: (dataUrl: string | null) => void;
@@ -7,6 +10,8 @@ interface SignatureCanvasProps {
   label?: string;
   title?: string;
   height?: number;
+  requireBiometric?: boolean;  // si true, pide huella antes de habilitar el canvas
+  signerLabel?: string;        // nombre del firmante para el prompt
 }
 
 export default function SignatureCanvas({
@@ -14,8 +19,41 @@ export default function SignatureCanvas({
   initialImage = null,
   label,
   title,
-  height = 150
+  height = 150,
+  requireBiometric = false,
+  signerLabel = 'documento'
 }: SignatureCanvasProps) {
+  const [bioAvailable, setBioAvailable] = useState<boolean | null>(null);
+  const [bioVerified, setBioVerified] = useState(false);
+  const [bioLoading, setBioLoading] = useState(false);
+
+  useEffect(() => {
+    if (requireBiometric) {
+      isBiometricAvailable().then(setBioAvailable);
+    } else {
+      setBioAvailable(false);
+    }
+  }, [requireBiometric]);
+
+  const handleBiometricAuth = async () => {
+    setBioLoading(true);
+    try {
+      const result = await authenticateWithBiometric(`Firmar ${signerLabel}`);
+      if (result.success) {
+        setBioVerified(true);
+        toast.success('✅ Identidad verificada — podés firmar', { duration: 2500 });
+      } else {
+        toast.error(result.message, { duration: 3000 });
+      }
+    } catch {
+      toast.error('Error de biometría');
+    } finally {
+      setBioLoading(false);
+    }
+  };
+
+  // Canvas bloqueado si se requiere biometría y aún no fue verificada
+  const isLocked = requireBiometric && bioAvailable === true && !bioVerified;
   const displayLabel = label || title;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -146,6 +184,69 @@ export default function SignatureCanvas({
 
   return (
     <div className="mb-[1.5rem]">
+      {/* Biometric gate */}
+      {isLocked && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.06))',
+          border: '1px solid rgba(99,102,241,0.25)',
+          borderRadius: '14px',
+          padding: '1.2rem',
+          marginBottom: '0.75rem',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '0.75rem',
+          textAlign: 'center'
+        }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: '50%',
+            background: 'rgba(99,102,241,0.12)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}>
+            <Fingerprint size={28} color="#6366f1" weight="duotone" />
+          </div>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--color-text)' }}>
+              Verificá tu identidad antes de firmar
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: 4 }}>
+              Usá tu huella digital o Face ID para habilitar el campo de firma
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleBiometricAuth}
+            disabled={bioLoading}
+            style={{
+              background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+              color: '#fff', border: 'none', borderRadius: '10px',
+              padding: '0.6rem 1.4rem', fontWeight: 700, fontSize: '0.85rem',
+              cursor: bioLoading ? 'not-allowed' : 'pointer',
+              opacity: bioLoading ? 0.7 : 1,
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              transition: 'all 0.2s'
+            }}
+          >
+            {bioLoading
+              ? <><span style={{ display: 'inline-block', animation: 'spin 1s linear infinite', fontSize: '1rem' }}>⟳</span> Verificando...</>
+              : <><Fingerprint size={16} weight="bold" /> Verificar con Biometría</>
+            }
+          </button>
+        </div>
+      )}
+      {/* Verified badge */}
+      {requireBiometric && bioVerified && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.5rem',
+          background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)',
+          borderRadius: '10px', padding: '0.4rem 0.8rem', marginBottom: '0.5rem'
+        }}>
+          <ShieldCheck size={16} color="#10b981" weight="fill" />
+          <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#10b981' }}>
+            Identidad verificada biométricamente
+          </span>
+        </div>
+      )}
             {displayLabel &&
       <label className="block text-[0.8rem] font-[700] text-[var(--color-text-muted)] uppercase mb-[0.5rem]">
 
@@ -160,13 +261,10 @@ export default function SignatureCanvas({
       }
             
             <div style={{
-
-
-
-
-        height: `${height}px`
-
-
+        height: `${height}px`,
+        opacity: isLocked ? 0.35 : 1,
+        pointerEvents: isLocked ? 'none' : 'auto',
+        transition: 'opacity 0.3s'
       }} className="relative border-[2px_dashed_var(--color-border)] rounded-[12px] bg-[var(--color-surface)] touch-action-[none] overflow-[hidden]">
                 {image ?
         <div className="relative w-[100%] h-[100%]">

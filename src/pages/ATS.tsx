@@ -158,9 +158,11 @@ export default function ATS(): React.ReactElement | null {
 
   const [showShare, setShowShare] = useState(false);
   const [isGeneratingATS, setIsGeneratingATS] = useState(false);
+  const [isVisionATS, setIsVisionATS] = useState(false);
   const [showAIModal, setShowAIModal] = useState(false);
   const [aiTaskInput, setAiTaskInput] = useState('');
   const [isAdModalOpen, setIsAdModalOpen] = useState(true);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
@@ -224,6 +226,72 @@ export default function ATS(): React.ReactElement | null {
     } finally {
       setIsGeneratingATS(false);
     }
+  };
+
+  const handleVisionUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    requirePro(async () => {
+      setIsVisionATS(true);
+      const loadingToast = toast.loading('Analizando foto con IA...');
+
+      try {
+        // Convert to Base64
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = async () => {
+          const imageBase64 = reader.result as string;
+
+          const res = await fetch(`${API_BASE_URL}/api/vision-ats`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${await auth.currentUser?.getIdToken(true)}`
+            },
+            body: JSON.stringify({ imageBase64 })
+          });
+
+          if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || 'Fallo en la conexión');
+          }
+
+          const data = await res.json();
+
+          if (!Array.isArray(data) || data.length === 0) {
+            throw new Error('La respuesta de la IA no tiene el formato correcto');
+          }
+
+          const newTasks = data.map((item, index) => ({
+            id: Date.now() + index,
+            paso: item.paso || '',
+            riesgo: item.riesgo || '',
+            control: item.control || '',
+            nivelRiesgo: item.nivelRiesgo || 'Medio',
+            realizado: false
+          }));
+
+          setFormData((prev) => ({
+            ...prev,
+            tareas: newTasks
+          }));
+
+          toast.success('ATS completado desde foto ✨', { id: loadingToast });
+          setIsVisionATS(false);
+        };
+        reader.onerror = () => {
+          throw new Error('Error al leer el archivo');
+        };
+      } catch (error) {
+        console.error('Error generating vision ATS:', error);
+        toast.error(`Error al generar: ${getErrorMessage(error)}`, { id: loadingToast });
+        setIsVisionATS(false);
+      }
+    });
+    
+    // reset input
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const applyPresetTasks = (name) => {
@@ -797,30 +865,38 @@ export default function ATS(): React.ReactElement | null {
                                 <div className="flex gap-[0.6rem] flex-wrap">
                                     <button
                       onClick={handleGenerateAI}
-                      disabled={isGeneratingATS}
+                      disabled={isGeneratingATS || isVisionATS}
                       style={{
-
-
-
-
-
-
-
-
-
-                        cursor: isGeneratingATS ? 'wait' : 'pointer',
-
-
-
-
-
-                        opacity: isGeneratingATS ? 0.7 : 1
+                        cursor: (isGeneratingATS || isVisionATS) ? 'wait' : 'pointer',
+                        opacity: (isGeneratingATS || isVisionATS) ? 0.7 : 1
                       }}
                       className="hover:scale-[1.03] active:scale-[0.97] hover:shadow-[0_6px_22px_rgba(139,92,246,0.5)] flex-[1] min-width-[120px] p-[0.7rem_1.4rem] bg-[linear-gradient(135deg,_#8b5cf6,_#ec4899)] text-[#ffffff] border-none rounded-[14px] font-[900] text-[0.8rem] flex items-center justify-center gap-[0.5rem] box-shadow-[0_4px_18px_rgba(139,92,246,0.35)] transition-[all_0.3s_cubic-bezier(0.34,_1.56,_0.64,_1)]">
                       
                                         {isGeneratingATS ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                                         {isGeneratingATS ? 'PENSANDO...' : 'IA MÁGICA'}
                                     </button>
+
+                                    <input 
+                                      type="file" 
+                                      accept="image/*" 
+                                      capture="environment" 
+                                      ref={fileInputRef} 
+                                      onChange={handleVisionUpload} 
+                                      style={{ display: 'none' }} 
+                                    />
+                                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isGeneratingATS || isVisionATS}
+                      style={{
+                        cursor: (isGeneratingATS || isVisionATS) ? 'wait' : 'pointer',
+                        opacity: (isGeneratingATS || isVisionATS) ? 0.7 : 1
+                      }}
+                      className="hover:scale-[1.03] active:scale-[0.97] hover:shadow-[0_6px_22px_rgba(59,130,246,0.5)] flex-[1] min-width-[120px] p-[0.7rem_1.4rem] bg-[linear-gradient(135deg,_#3b82f6,_#2563eb)] text-[#ffffff] border-none rounded-[14px] font-[900] text-[0.8rem] flex items-center justify-center gap-[0.5rem] box-shadow-[0_4px_18px_rgba(59,130,246,0.35)] transition-[all_0.3s_cubic-bezier(0.34,_1.56,_0.64,_1)]">
+                      
+                                        {isVisionATS ? <Loader2 size={16} className="animate-spin" /> : <CameraIcon size={16} />}
+                                        {isVisionATS ? 'ANALIZANDO...' : 'AUTOCOMPLETAR FOTO'}
+                                    </button>
+
                                     <button
                       onClick={addTask}
                       className="hover:scale-[1.03] active:scale-[0.97] hover:shadow-[0_6px_18px_rgba(16,185,129,0.35)] flex-[1] min-width-[120px] p-[0.7rem_1.4rem] border-none rounded-[14px] font-[900] text-[0.8rem] cursor-pointer flex items-center justify-center gap-[0.5rem] box-shadow-[0_4px_14px_rgba(16,185,129,0.25)] transition-[all_0.3s_cubic-bezier(0.34,_1.56,_0.64,_1)]"

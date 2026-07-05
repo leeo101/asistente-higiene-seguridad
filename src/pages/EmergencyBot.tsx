@@ -153,6 +153,29 @@ export default function EmergencyBot(): React.ReactElement | null {
     addUserMessage(userMessage);
     setInputValue('');
     setIsTyping(true);
+    
+    // Construir el contexto de la empresa a partir del localStorage
+    let companyContext = '';
+    try {
+      const ext = localStorage.getItem('extinguisher_history');
+      if (ext) {
+        const extData = JSON.parse(ext);
+        companyContext += `\nExtintores registrados: ${extData.length}. ` + 
+          (extData.length > 0 ? `Ejemplo: ${extData[0].type || 'Matafuego'} en sector ${extData[0].sector || 'general'}.` : '');
+      }
+      const acc = localStorage.getItem('accident_history');
+      if (acc) {
+        const accData = JSON.parse(acc);
+        companyContext += `\nAccidentes históricos registrados: ${accData.length}.`;
+      }
+      const epp = localStorage.getItem('ppe_history');
+      if (epp) {
+        const eppData = JSON.parse(epp);
+        companyContext += `\nEntregas de EPP registradas: ${eppData.length}.`;
+      }
+    } catch (e) {
+      console.warn("Error leyendo contexto de la empresa", e);
+    }
 
     try {
       // Intentar obtener respuesta de la IA
@@ -161,7 +184,8 @@ export default function EmergencyBot(): React.ReactElement | null {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userMessage,
-          context: selectedEmergency || 'general'
+          context: selectedEmergency || 'general',
+          companyContext: companyContext
         })
       });
 

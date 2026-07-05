@@ -15,6 +15,9 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import ConfirmModal from '../components/ConfirmModal';
 import toast from 'react-hot-toast';
+import { Sparkles, Loader2 } from 'lucide-react';
+import { API_BASE_URL } from '../config';
+import { auth } from '../firebase';
 
 const STORAGE_KEY = 'ehs_kpi_data';
 
@@ -152,6 +155,60 @@ export default function SafetyKPIs(): React.ReactElement {
   };
 
   const [form, setForm] = useState<KPIEntry>(emptyForm);
+  const [isPredicting, setIsPredicting] = useState(false);
+  const [predictionData, setPredictionData] = useState<any>(null);
+  
+  // Try to load prediction from local storage
+  useEffect(() => {
+    const raw = localStorage.getItem('ehs_prediction');
+    if (raw) {
+      try {
+        setPredictionData(JSON.parse(raw));
+      } catch {}
+    }
+  }, []);
+
+  const handlePredict = async () => {
+    try {
+      requirePro(async () => {
+          setIsPredicting(true);
+          const toastId = toast.loading('Analizando historial de accidentes con IA...');
+          
+          try {
+            const rawAcc = localStorage.getItem('accident_history');
+            const historyData = rawAcc ? JSON.parse(rawAcc) : [];
+            
+            if (historyData.length === 0) {
+              toast.error('No hay suficientes accidentes registrados para predecir.', { id: toastId });
+              setIsPredicting(false);
+              return;
+            }
+
+            const token = await auth.currentUser?.getIdToken(true);
+            const response = await fetch(`${API_BASE_URL}/api/predict-accidents`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ historyData })
+            });
+
+            if (!response.ok) throw new Error('Error en el servidor');
+
+            const data = await response.json();
+            setPredictionData(data);
+            localStorage.setItem('ehs_prediction', JSON.stringify(data));
+            toast.success('Predicción generada con éxito ✨', { id: toastId });
+          } catch (err) {
+            console.error(err);
+            toast.error('Error al generar la predicción', { id: toastId });
+          } finally {
+            setIsPredicting(false);
+          }
+      });
+    } catch(e) { }
+  };
 
   useEffect(() => {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -342,11 +399,7 @@ export default function SafetyKPIs(): React.ReactElement {
         color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
         
 
-                    <div className="flex gap-[1rem] mb-[1.5rem]">
-                        <></>
-                    </div>
-                    
-                    <div className="mb-[2rem] flex justify-start">
+                    <div className="mb-[2rem] flex justify-start gap-4 flex-wrap">
                         <button
             onClick={() => {setShowForm(true);setEditing(null);setForm(emptyForm);}}
             className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/30 flex items-center gap-2 transition-all"
@@ -355,11 +408,56 @@ export default function SafetyKPIs(): React.ReactElement {
             
                             <RefreshCw size={18} /> Ingresar Período
                         </button>
+                        
+                        <button
+            onClick={handlePredict}
+            disabled={isPredicting}
+            className="px-6 py-3 bg-[linear-gradient(135deg,_#6366f1,_#4f46e5)] hover:opacity-90 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-500/30 flex items-center gap-2 transition-all disabled:opacity-50"
+            onMouseEnter={(e) => { if (!isPredicting) e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+            
+                            {isPredicting ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+                            Análisis Predictivo de Accidentes (IA)
+                        </button>
                     </div>
+
+                    {predictionData && (
+                        <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/50 p-6 rounded-3xl mb-8 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-8 opacity-10">
+                                <Sparkles size={120} />
+                            </div>
+                            <h3 className="m-0 mb-4 flex items-center gap-3 text-indigo-700 dark:text-indigo-400 font-extrabold text-lg">
+                                <Sparkles size={24} /> Predicción IA para el Próximo Mes
+                            </h3>
+                            <p className="text-slate-700 dark:text-slate-300 font-semibold mb-6 text-sm">
+                                {predictionData.prediccionPrincipal}
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                                    <h4 className="text-rose-500 font-bold m-0 mb-2 uppercase text-xs">Zonas de Riesgo</h4>
+                                    <ul className="m-0 pl-4 text-slate-600 dark:text-slate-400">
+                                        {predictionData.zonasRiesgo?.map((z:string, i:number) => <li key={i}>{z}</li>)}
+                                    </ul>
+                                </div>
+                                <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                                    <h4 className="text-amber-500 font-bold m-0 mb-2 uppercase text-xs">Tareas Críticas</h4>
+                                    <ul className="m-0 pl-4 text-slate-600 dark:text-slate-400">
+                                        {predictionData.tareasCriticas?.map((z:string, i:number) => <li key={i}>{z}</li>)}
+                                    </ul>
+                                </div>
+                                <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                                    <h4 className="text-emerald-500 font-bold m-0 mb-2 uppercase text-xs">Recomendaciones</h4>
+                                    <ul className="m-0 pl-4 text-slate-600 dark:text-slate-400">
+                                        {predictionData.recomendaciones?.map((z:string, i:number) => <li key={i}>{z}</li>)}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
             {/* KPI Cards */}
             {latestMetrics ?
-        <>
+                <>
                     <p className="m-0 mb-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                         📅 Último período: {latest?.label}
                     </p>

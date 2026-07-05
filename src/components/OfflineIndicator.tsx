@@ -1,6 +1,7 @@
 import React from 'react';
 import { useOffline } from '../hooks/useOffline';
-import { WifiOff, Wifi, CloudOff, CheckCircle } from 'lucide-react';
+import { WifiOff, CheckCircle } from 'lucide-react';
+import { CloudArrowUp } from '@phosphor-icons/react';
 
 /**
  * Banner que muestra el estado de conexión offline/online
@@ -10,6 +11,20 @@ export default function OfflineIndicator() {
   const isOffline = useOffline();
   const [wasOffline, setWasOffline] = React.useState(false);
   const [showRestored, setShowRestored] = React.useState(false);
+  const [queueCount, setQueueCount] = React.useState(0);
+
+  // Read queue count from localStorage
+  React.useEffect(() => {
+    const readQueue = () => {
+      try {
+        const q = JSON.parse(localStorage.getItem('hys_offline_queue') || '[]');
+        setQueueCount(q.length);
+      } catch { setQueueCount(0); }
+    };
+    readQueue();
+    window.addEventListener('storage', readQueue);
+    return () => window.removeEventListener('storage', readQueue);
+  }, []);
 
   React.useEffect(() => {
     if (isOffline) {
@@ -98,21 +113,13 @@ export default function OfflineIndicator() {
                     </div>
                     <div className="flex-[1]">
                         <p className="m-[0] font-[800] text-[0.9rem] text-[#92400e] line-height-[1.3]">
-
-
-
-
-
-            
                             📴 Sin conexión
                         </p>
                         <p className="m-[0.2rem_0_0_0] text-[0.8rem] text-[#78350f] line-height-[1.4]">
-
-
-
-
-            
-                            Tus cambios se guardarán localmente
+                          {queueCount > 0
+                            ? `${queueCount} elemento${queueCount !== 1 ? 's' : ''} en cola — se sincronizan al reconectar`
+                            : 'Tus cambios se guardarán localmente'
+                          }
                         </p>
                     </div>
                 </> :

@@ -25,6 +25,7 @@ import StarryBackground from '../components/StarryBackground';
 import StickyCtaBanner from '../components/StickyCtaBanner';
 import StatsBar from '../components/StatsBar';
 import NewsWidget from '../components/NewsWidget';
+import UrgentAlertWidget from '../components/UrgentAlertWidget';
 
 // Landing components — lazy porque solo se renderizan para usuarios no autenticados
 const InteractiveHeroDemo = lazy(() => import('../components/landing/InteractiveHeroDemo'));
@@ -1019,6 +1020,9 @@ export default function Home(): React.ReactElement {
       {currentUser &&
         <div className="mt-[2.5rem] max-w-[1200px] m-[2.5rem_auto_0] p-[0_1rem]">
           
+          {/* 🚨 Alerta Urgente del Día */}
+          <UrgentAlertWidget />
+
           {/* Professional Tools Grid */}
           <div className="mb-[4rem]">
             <div className="flex flex-col gap-[1.5rem] mb-[2rem]" style={{ minWidth: 0 }}>

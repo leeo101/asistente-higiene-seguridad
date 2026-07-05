@@ -19,7 +19,11 @@ const { onSchedule } = require("firebase-functions/v2/scheduler");
 
 admin.initializeApp();
 
-setGlobalOptions({ maxInstances: 10, region: "us-central1" });
+setGlobalOptions({ 
+    maxInstances: 10, 
+    region: "us-central1",
+    secrets: ["RESEND_API_KEY", "MP_ACCESS_TOKEN", "GEMINI_API_KEY"]
+});
 
 // ==========================================
 // MERCADO PAGO FUNCTION
@@ -165,6 +169,156 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
         } catch (error) {
             logger.error("Error analyzing image", error);
             res.status(500).json({ error: 'Error al analizar la imagen' });
+        }
+    });
+});
+
+// ==========================================
+// PREDICTIVE ACCIDENTS AI
+// ==========================================
+exports.predictAccidents = onRequest((req, res) => {
+    return cors(req, res, async () => {
+        try {
+            // SECURITY: Require authenticated user
+            const authHeader = req.headers.authorization || '';
+            if (!authHeader.startsWith('Bearer ')) {
+                return res.status(401).json({ error: 'No autorizado' });
+            }
+            try {
+                await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
+            } catch (e) {
+                return res.status(401).json({ error: 'Token inválido' });
+            }
+
+            const { historyData } = req.body;
+            if (!historyData || !Array.isArray(historyData)) {
+                return res.status(400).json({ error: 'historyData array requerido' });
+            }
+
+            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
+            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+            const prompt = `
+Sos un experto analista en higiene y seguridad laboral. Analizá el siguiente historial de accidentes de una empresa y hacé una predicción para el mes próximo.
+Historial de accidentes provisto:
+${JSON.stringify(historyData.slice(0, 50), null, 2)}
+
+Devolvé tu análisis en formato JSON estricto con la siguiente estructura:
+{
+  "prediccionPrincipal": "Texto resumen de la predicción principal",
+  "zonasRiesgo": ["Zona 1", "Zona 2"],
+  "tareasCriticas": ["Tarea 1", "Tarea 2"],
+  "recomendaciones": ["Rec 1", "Rec 2"]
+}`;
+
+            const result = await model.generateContent(prompt);
+            const responseText = result.response.text();
+            
+            let cleanedJson = responseText.trim();
+            if (cleanedJson.startsWith('```json')) {
+                cleanedJson = cleanedJson.replace(/```json/, '').replace(/```$/, '').trim();
+            } else if (cleanedJson.startsWith('```')) {
+                cleanedJson = cleanedJson.replace(/```/, '').replace(/```$/, '').trim();
+            }
+
+            const parsedData = JSON.parse(cleanedJson);
+            res.json(parsedData);
+        } catch (error) {
+            logger.error("Error predicting accidents", error);
+            res.status(500).json({ error: 'Error al generar predicción' });
+        }
+    });
+});
+
+// ==========================================
+// EMERGENCY CHATBOT
+// ==========================================
+exports.emergencyChat = onRequest((req, res) => {
+    return cors(req, res, async () => {
+        try {
+            const { message, context, companyContext } = req.body;
+            if (!message) return res.status(400).json({ error: 'Mensaje requerido' });
+
+            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
+            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+            let systemPrompt = `Sos EmergencyBot, un asistente virtual experto en emergencias, higiene y seguridad (H&S) para trabajadores en Argentina. Respondé de forma CLARA, DIRECTA y TRANQUILIZADORA.
+Usa viñetas o listas numeradas si hay pasos a seguir.
+Si es una emergencia crítica, remarcá primero "LLAMAR AL 911" o números locales (107 SAME, 100 Bomberos).`;
+
+            if (companyContext) {
+                systemPrompt += `\n\nATENCIÓN: Tenés acceso a la siguiente información específica de la empresa del usuario. Úsala para responder mejor a sus dudas sobre recursos internos (ej: dónde hay extintores, qué EPP tienen, accidentes previos):
+${companyContext}`;
+            }
+
+            const prompt = `Contexto de la emergencia seleccionada por el usuario: ${context}
+            
+Mensaje del usuario: ${message}`;
+
+            const result = await model.generateContent({
+                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                systemInstruction: { role: 'system', parts: [{ text: systemPrompt }] }
+            });
+            
+            res.json({ response: result.response.text() });
+        } catch (error) {
+            logger.error("Error emergency chat", error);
+            res.status(500).json({ error: 'Error al procesar el mensaje' });
+        }
+    });
+});
+
+// ==========================================
+// VISION ATS
+// ==========================================
+exports.visionAts = onRequest((req, res) => {
+    return cors(req, res, async () => {
+        try {
+            // SECURITY: Require authenticated user
+            const authHeader = req.headers.authorization || '';
+            if (!authHeader.startsWith('Bearer ')) {
+                return res.status(401).json({ error: 'No autorizado' });
+            }
+            try {
+                await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
+            } catch (e) {
+                return res.status(401).json({ error: 'Token inválido' });
+            }
+
+            const { imageBase64 } = req.body;
+            if (!imageBase64) return res.status(400).json({ error: 'Imagen requerida' });
+
+            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
+            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+            const prompt = `Sos un prevencionista de riesgos laborales. Analizá esta imagen del lugar de trabajo y generá un Análisis de Trabajo Seguro (ATS).
+Devolvé UNICAMENTE un JSON array válido con los pasos a seguir, donde cada objeto tenga esta estructura:
+[
+  { "paso": "Descripción del paso", "riesgo": "Riesgo asociado", "control": "Medida preventiva", "nivelRiesgo": "Bajo|Medio|Alto" }
+]`;
+
+            const imagePart = {
+                inlineData: {
+                    data: imageBase64.split(',')[1] || imageBase64,
+                    mimeType: "image/jpeg"
+                }
+            };
+
+            const result = await model.generateContent([prompt, imagePart]);
+            const responseText = result.response.text();
+            
+            let cleanedJson = responseText.trim();
+            if (cleanedJson.startsWith('```json')) {
+                cleanedJson = cleanedJson.replace(/```json/, '').replace(/```$/, '').trim();
+            } else if (cleanedJson.startsWith('```')) {
+                cleanedJson = cleanedJson.replace(/```/, '').replace(/```$/, '').trim();
+            }
+
+            const parsedData = JSON.parse(cleanedJson);
+            res.json(parsedData);
+        } catch (error) {
+            logger.error("Error vision ats", error);
+            res.status(500).json({ error: 'Error al analizar la imagen para ATS' });
         }
     });
 });
@@ -471,6 +625,48 @@ exports.checkExpirationsJob = onSchedule("every day 08:00", async (event) => {
         logger.info(`checkExpirationsJob finalizado. Total mensajes enviados: ${totalMessages}`);
     } catch (error) {
         logger.error("Error en checkExpirationsJob", error);
+    }
+});
+
+// ==========================================
+// WEEKLY SUMMARY EMAIL CRON JOB
+// ==========================================
+exports.weeklySummaryEmail = onSchedule("0 9 * * 1", async (event) => { // Every Monday at 9:00 AM
+    logger.info("Iniciando weeklySummaryEmail...");
+    try {
+        const usersSnapshot = await admin.firestore().collection("users").get();
+        if (usersSnapshot.empty) return;
+
+        let sentCount = 0;
+        for (const userDoc of usersSnapshot.docs) {
+            const uid = userDoc.id;
+            const userData = userDoc.data();
+            const email = userData.email;
+            
+            if (!email) continue;
+            // Only send to pro users (if you track that, else to all for now)
+            
+            const { data, error } = await resend.emails.send({
+                from: 'Asistente HYS <soporte@asistentehs.com>',
+                to: email,
+                subject: 'Tu Resumen Semanal de H&S',
+                html: `
+                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8fafc; border-radius: 12px;">
+                        <h2 style="color: #1e3a8a;">Resumen Semanal de Seguridad</h2>
+                        <p>Hola,</p>
+                        <p>Aquí tienes el resumen de tu gestión de Higiene y Seguridad de la última semana. Accede a la plataforma para ver más detalles y predicciones de riesgos actualizadas.</p>
+                        <div style="margin-top: 20px; padding: 15px; background: #fff; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <p style="margin:0;">✅ Entrá a tu <strong>Asistente HYS</strong> para revisar alertas críticas.</p>
+                        </div>
+                        <p style="font-size: 12px; color: #94a3b8; margin-top: 30px;">Asistente HYS - 2026</p>
+                    </div>
+                `
+            });
+            if (!error) sentCount++;
+        }
+        logger.info(`weeklySummaryEmail enviado a ${sentCount} usuarios.`);
+    } catch (error) {
+        logger.error("Error en weeklySummaryEmail", error);
     }
 });
 
