@@ -25,6 +25,12 @@ service cloud.firestore {
       allow read, write: if false;
     }
     
+    // SECURITY: Password reset codes are written/read only by Admin SDK (Cloud Functions)
+    // Clients must NEVER be able to read or write their own reset codes
+    match /passwordResetCodes/{uid} {
+      allow read, write: if false;
+    }
+    
     // Default deny for all other paths para evitar colecciones no intencionadas
     match /{path=**} {
       allow read, write: if false;

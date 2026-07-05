@@ -45,13 +45,8 @@ export function usePaywall() {
   const isAdmin = useMemo(() => {
     if (!currentUser) return false;
     const email = currentUser.email?.toLowerCase() || '';
-    const isHardcodedAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === email);
-    
-    // Check local storage override if email is missing or no match
-    const localRole = localStorage.getItem('userRole');
-    const isLocalAdmin = localRole === 'admin';
-    
-    return isHardcodedAdmin || isLocalAdmin;
+    // SECURITY: Only trust server-verified Firebase email, NO localStorage fallback
+    return ADMIN_EMAILS.some(e => e.toLowerCase() === email);
   }, [currentUser]);
 
   const isHardcodedPro = useMemo(() => {

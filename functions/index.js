@@ -1,7 +1,16 @@
 const { setGlobalOptions } = require("firebase-functions");
 const { onRequest } = require("firebase-functions/https");
 const logger = require("firebase-functions/logger");
-const cors = require("cors")({ origin: true });
+// SECURITY: Only allow requests from our own domains
+const cors = require("cors")({
+    origin: [
+        'https://asistentehs.com',
+        'https://asistentehs-b594e.web.app',
+        'https://asistentehs-b594e.firebaseapp.com',
+        'http://localhost:5173',   // dev
+        'http://localhost:4173'    // preview
+    ]
+});
 const { MercadoPagoConfig, Preference } = require("mercadopago");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const nodemailer = require("nodemailer");
@@ -18,22 +27,33 @@ setGlobalOptions({ maxInstances: 10, region: "us-central1" });
 exports.createSubscription = onRequest((req, res) => {
     return cors(req, res, async () => {
         try {
-            const client = new MercadoPagoConfig({
-                accessToken: process.env.MP_ACCESS_TOKEN || 'APP_USR-8644102194347274-021115-95fc0f02072be336a791b34e4cfbee7f-183552286'
-            });
+            // SECURITY: Require authenticated user
+            const authHeader = req.headers.authorization || '';
+            if (!authHeader.startsWith('Bearer ')) {
+                return res.status(401).json({ error: 'No autorizado' });
+            }
+            const idToken = authHeader.split('Bearer ')[1];
+            try {
+                await admin.auth().verifyIdToken(idToken);
+            } catch (e) {
+                return res.status(401).json({ error: 'Token inválido' });
+            }
+
+            const mpToken = process.env.MP_ACCESS_TOKEN;
+            if (!mpToken) return res.status(500).json({ error: 'Configuración de pago no disponible' });
+
+            const client = new MercadoPagoConfig({ accessToken: mpToken });
             const preference = new Preference(client);
 
             const response = await preference.create({
                 body: {
-                    items: [
-                        {
-                            id: 'premium-sub',
-                            title: 'Suscripción Mensual Asistente HS Premium',
-                            quantity: 1,
-                            unit_price: 10,
-                            currency_id: 'USD'
-                        }
-                    ],
+                    items: [{
+                        id: 'premium-sub',
+                        title: 'Suscripción Mensual Asistente HS Premium',
+                        quantity: 1,
+                        unit_price: 10,
+                        currency_id: 'USD'
+                    }],
                     back_urls: {
                         success: 'https://asistentehs-b594e.web.app/subscribe?status=approved',
                         failure: 'https://asistentehs-b594e.web.app/subscribe',
@@ -45,7 +65,7 @@ exports.createSubscription = onRequest((req, res) => {
             res.json({ init_point: response.init_point });
         } catch (error) {
             logger.error("Error creating Mercado Pago preference", error);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error: 'Error al crear preferencia de pago' });
         }
     });
 });
@@ -56,11 +76,29 @@ exports.createSubscription = onRequest((req, res) => {
 exports.analyzeImage = onRequest({ timeoutSeconds: 300, memory: "1GiB" }, (req, res) => {
     return cors(req, res, async () => {
         try {
+            // SECURITY: Require authenticated user
+            const authHeader = req.headers.authorization || '';
+            if (!authHeader.startsWith('Bearer ')) {
+                return res.status(401).json({ error: 'No autorizado' });
+            }
+            const idToken = authHeader.split('Bearer ')[1];
+            let decodedToken;
+            try {
+                decodedToken = await admin.auth().verifyIdToken(idToken);
+            } catch (e) {
+                return res.status(401).json({ error: 'Token inválido' });
+            }
+            // Optional: only allow PRO users
+            if (!decodedToken.isPro && !decodedToken.admin) {
+                // Allow anyway but log for monitoring
+                logger.info(`analyzeImage called by non-pro user: ${decodedToken.uid}`);
+            }
+
             const { image } = req.body;
             if (!image) return res.status(400).json({ error: 'No se envió imagen' });
 
             const apiKey = process.env.GEMINI_API_KEY;
-            if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
+            if (!apiKey) return res.status(500).json({ error: 'Servicio de IA no disponible' });
 
             const genAI = new GoogleGenerativeAI(apiKey);
             const safetySettings = [
@@ -81,11 +119,11 @@ Tu tarea es verificar el uso de Elementos de Protección Personal (EPP) y detect
 Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguiente formato exacto:
 {
     "personDetected": true/false,
-    "helmetUsed": true/false, // Casco
-    "shoesUsed": true/false,  // Calzado de seguridad o botines
-    "glovesUsed": true/false, // Guantes de trabajo
-    "clothingUsed": true/false, // Ropa de trabajo, uniforme o chaleco reflectivo
-    "ppeComplete": true/false, // Si tiene todos los EPP básicos listados antes
+    "helmetUsed": true/false,
+    "shoesUsed": true/false,
+    "glovesUsed": true/false,
+    "clothingUsed": true/false,
+    "ppeComplete": true/false,
     "foundRisks": ["Descripción del riesgo 1", "Riesgo 2"],
     "detections": [
         {"label": "Casco", "box_2d": [ymin, xmin, ymax, xmax]},
@@ -96,16 +134,8 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
 }
 Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de 0 a 1000.`;
 
-            const imagePart = {
-                inlineData: { data: base64Data, mimeType }
-            };
-
-            const models = [
-                "gemini-2.0-flash",
-                "gemini-1.5-flash-latest",
-                "gemini-1.5-pro-latest",
-                "gemini-1.5-flash"
-            ];
+            const imagePart = { inlineData: { data: base64Data, mimeType } };
+            const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"];
 
             let result;
             let lastError;
@@ -123,7 +153,6 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
             if (!result) throw lastError || new Error('Todos los modelos fallaron');
 
             const responseText = result.response.text();
-
             let cleanedJson = responseText.trim();
             if (cleanedJson.startsWith('```json')) {
                 cleanedJson = cleanedJson.replace(/```json/, '').replace(/```$/, '').trim();
@@ -135,7 +164,7 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
             res.json(parsedData);
         } catch (error) {
             logger.error("Error analyzing image", error);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error: 'Error al analizar la imagen' });
         }
     });
 });
@@ -144,14 +173,48 @@ const { Resend } = require("resend");
 
 const resend = new Resend(process.env.RESEND_API_KEY || "dummy_key_for_build");
 
+// In-memory rate limiter: max 3 requests per email per 10 minutes
+const forgotPasswordRateLimit = new Map();
 
 exports.forgotPassword = onRequest((req, res) => {
     return cors(req, res, async () => {
         const { email } = req.body;
-        if (!email) return res.status(400).json({ error: 'Email requerido' });
+        if (!email || typeof email !== 'string') return res.status(400).json({ error: 'Email requerido' });
+
+        // Basic email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) return res.status(400).json({ error: 'Email inválido' });
+
+        // SECURITY: Rate limiting - max 3 attempts per email per 10 minutes
+        const now = Date.now();
+        const key = email.toLowerCase();
+        const attempts = forgotPasswordRateLimit.get(key) || [];
+        const recentAttempts = attempts.filter(t => now - t < 10 * 60 * 1000);
+        if (recentAttempts.length >= 3) {
+            return res.status(429).json({ error: 'Demasiados intentos. Esperá 10 minutos.' });
+        }
+        recentAttempts.push(now);
+        forgotPasswordRateLimit.set(key, recentAttempts);
 
         try {
-            const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
+            // SECURITY: Verify email belongs to a registered Firebase user
+            let userRecord;
+            try {
+                userRecord = await admin.auth().getUserByEmail(email);
+            } catch (e) {
+                // Don't reveal if email exists or not (prevents user enumeration)
+                logger.info(`forgotPassword: email not found or error: ${email}`);
+                return res.json({ message: 'Si el correo está registrado, recibirás un código.' });
+            }
+
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            const expiresAt = now + 10 * 60 * 1000; // 10 minutes
+
+            // SECURITY: Store code server-side in Firestore with expiry
+            await admin.firestore()
+                .collection('passwordResetCodes')
+                .doc(userRecord.uid)
+                .set({ code, expiresAt, email: email.toLowerCase() });
 
             const { data, error } = await resend.emails.send({
                 from: 'Asistente HYS <soporte@asistentehs.com>',
@@ -160,50 +223,35 @@ exports.forgotPassword = onRequest((req, res) => {
                 html: `
                     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border-radius: 16px; overflow: hidden; background-color: #f8fafc; border: 1px solid #e2e8f0;">
                         <div style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); padding: 40px 20px; text-align: center;">
-                            <img src="https://asistentehs.com/logo.png" alt="Asistente HYS" style="width: 80px; height: auto; margin-bottom: 20px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">
-                            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">Asistente H&S</h1>
+                            <img src="https://asistentehs.com/logo.png" alt="Asistente HYS" style="width: 80px; height: auto; margin-bottom: 20px;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800;">Asistente H&amp;S</h1>
                         </div>
-                        
                         <div style="padding: 40px 30px; background-color: #ffffff;">
-                            <h2 style="color: #0f172a; margin-top: 0; font-size: 20px; font-weight: 700;">Hola,</h2>
-                            <p style="color: #475569; line-height: 1.6; font-size: 16px;">
-                                Has solicitado restablecer tu contraseña en el <strong>Asistente de Higiene y Seguridad</strong>.
-                            </p>
-                            
+                            <h2 style="color: #0f172a; margin-top: 0;">Hola,</h2>
+                            <p style="color: #475569; line-height: 1.6;">Has solicitado restablecer tu contraseña en el <strong>Asistente de Higiene y Seguridad</strong>.</p>
                             <div style="margin: 35px 0; text-align: center;">
                                 <p style="color: #64748b; font-size: 14px; margin-bottom: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Tu Código de Verificación</p>
                                 <div style="background-color: #f1f5f9; padding: 20px; border-radius: 12px; display: inline-block; border: 1px dashed #cbd5e1;">
                                     <span style="font-size: 36px; font-weight: 800; color: #1e3a8a; letter-spacing: 8px; font-family: monospace;">${code}</span>
                                 </div>
+                                <p style="color: #ef4444; font-size: 13px; margin-top: 12px;">Expira en 10 minutos</p>
                             </div>
-
-                            <p style="color: #475569; line-height: 1.6; font-size: 16px;">
-                                Usa este código en la aplicación para verificar tu identidad y establecer una nueva contraseña.
-                            </p>
-                            
-                            <p style="color: #94a3b8; font-size: 14px; line-height: 1.5; border-top: 1px solid #f1f5f9; padding-top: 25px; margin-top: 35px;">
-                                <strong>¿No solicitaste este cambio?</strong><br>
-                                Puedes ignorar este correo de forma segura. El código expirará en breve por tu seguridad.
+                            <p style="color: #94a3b8; font-size: 14px; border-top: 1px solid #f1f5f9; padding-top: 25px; margin-top: 35px;">
+                                <strong>¿No solicitaste este cambio?</strong><br>Ignorá este correo. El código expira automáticamente.
                             </p>
                         </div>
-                        
                         <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
-                            <p style="color: #64748b; font-size: 12px; margin: 0;">
-                                © 2026 Asistente de Higiene y Seguridad. Todos los derechos reservados.
-                            </p>
+                            <p style="color: #64748b; font-size: 12px; margin: 0;">&copy; 2026 Asistente de Higiene y Seguridad.</p>
                         </div>
                     </div>
                 `
             });
 
             if (error) throw error;
-
-            res.json({
-                message: 'Código de recuperación enviado a tu correo.'
-            });
+            res.json({ message: 'Si el correo está registrado, recibirás un código.' });
         } catch (error) {
-            logger.error("Error sending forgot password email via Resend", error);
-            res.status(500).json({ error: error.message });
+            logger.error("Error sending forgot password email", error);
+            res.status(500).json({ error: 'Error al enviar el correo' });
         }
     });
 });
