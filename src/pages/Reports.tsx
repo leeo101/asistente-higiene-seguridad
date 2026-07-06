@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { usePaywall } from '../hooks/usePaywall';
 import ConfirmModal from '../components/ConfirmModal';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, Package, Plus, Trash2, History, Share2, Printer, Clock, Edit2, CheckCircle2, Download, Calendar } from 'lucide-react';
+import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, Package, Plus, Trash2, History, Share2, Printer, Clock, Edit2, CheckCircle2, Download, Calendar, X } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 import PhotoAttachments from '../components/PhotoAttachments';
@@ -11,6 +11,7 @@ import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 import PremiumHeader from '../components/PremiumHeader';
 import { DataTable } from '../components/DataTable';
+import { ModuleActionBar } from '../components/module/ModuleActionBar';
 
 import ShareModal from '../components/ShareModal';
 import ProfessionalReportPdfGenerator from '../components/ProfessionalReportPdfGenerator';
@@ -257,28 +258,23 @@ export default function Reports(): React.ReactElement | null {
                 </div>
 
                 <main className="p-[0_0_2rem_0] max-w-[1000px] m-[0_auto] w-[100%]">
-                    {/* Botones de Navegación */}
-                    <div className="flex gap-[1rem] p-[0_1rem] mb-[1rem]">
-                        <></>
-                    </div>
-
-                    <div className="flex items-center justify-end gap-[1rem] mb-[2rem] flex-wrap p-[0_1rem]">
-                        <div className="flex gap-[0.8rem]">
+                    <div className="flex items-center justify-between gap-[1rem] mb-[2rem] flex-wrap p-[0_1rem]">
+                        <div className="flex gap-[0.8rem] ml-auto">
                             <button onClick={() => {
-
-                // downloadCSV
-              }} className="flex items-center gap-[0.4rem] bg-[#36B37E] border-none rounded-[10px] p-[0.6rem_1rem] text-[0.8rem] font-[800] cursor-pointer text-[#ffffff]">
-                                <Download size={14} /> EXCEL
+                                // downloadCSV
+                            }} className="btn-secondary hover-lift flex items-center justify-center gap-[0.5rem] px-5 py-3 w-[auto] m-[0] text-white border-none rounded-xl font-bold transition-colors shadow-lg shadow-emerald-500/30" style={{ background: '#10b981' }}>
+                                <Download size={18} /> EXCEL
                             </button>
-                            <button onClick={() => {setProjectData({
-                    title: '', company: '', location: '', date: new Date().toISOString().split('T')[0],
-                    responsable: professional.name || ''
-                  });
-                  setContent('');
-                  setPhotos([]);
-                  setTemplate('general');
-                  setIsFormVisible(true);
-                }} className="btn-primary hover-lift flex items-center gap-[0.5rem] p-[0.6rem_1.2rem] w-[auto] m-[0] bg-[linear-gradient(135deg,_#10b981,_#059669)] text-[#fff] border-none rounded-[12px] font-[800] box-shadow-[0_4px_15px_rgba(16,_185,_129,_0.3)]">
+                            <button onClick={() => {
+                                setProjectData({
+                                    title: '', company: '', location: '', date: new Date().toISOString().split('T')[0],
+                                    responsable: professional.name || ''
+                                });
+                                setContent('');
+                                setPhotos([]);
+                                setTemplate('general');
+                                setIsFormVisible(true);
+                            }} className="btn-primary hover-lift flex items-center justify-center gap-[0.5rem] px-5 py-3 w-[auto] m-[0] text-white border-none rounded-xl font-bold shadow-lg shadow-emerald-500/30" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                                 <Plus size={18} /> NUEVO INFORME
                             </button>
                         </div>
@@ -376,13 +372,21 @@ export default function Reports(): React.ReactElement | null {
       color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
       
 
-            <main className="p-[2rem_1.5rem] max-w-[1000px] m-[0_auto]">
+      <main className="p-[2rem_1.5rem] max-w-[1000px] m-[0_auto]">
+          <ModuleActionBar
+            actions={[
+              { id: 'cancel', label: 'CANCELAR', icon: <X size={18} />, variant: 'secondary', onClick: () => setIsFormVisible(false) },
+              { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'info', onClick: () => toast.error('Selecciona "Generar Informe" primero para poder compartirlo.') },
+              { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'warning', onClick: () => toast.error('Selecciona "Generar Informe" primero para poder imprimirlo.') },
+              { id: 'save', label: 'GENERAR INFORME', icon: <Save size={18} />, variant: 'primary', onClick: () => requirePro(handleSave) }
+            ]}
+          />
                 <div className="mb-6">
                     <></>
                 </div>
 
                 {/* Template Selector */}
-                <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(140px,_1fr))] gap-[1rem] mb-[2.5rem]">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-[0.5rem] md:gap-[1rem] mb-[2.5rem]">
                     {templates.map((t) =>
           <div
             key={t.id}
@@ -392,30 +396,19 @@ export default function Reports(): React.ReactElement | null {
                 setPersonnel([{ id: Date.now(), name: '', dni: '' }]);
               }
             }}
-            className="card hover-lift text-center p-[1.5rem_1rem] cursor-pointer transition-[all_0.3s_ease] rounded-[16px] flex flex-col items-center gap-[0.8rem]"
+            className="card hover-lift text-center p-[0.75rem_0.5rem] cursor-pointer transition-[all_0.3s_ease] rounded-[12px] flex flex-col items-center gap-[0.5rem]"
             style={{
-
-
-
               border: template === t.id ? '2px solid var(--color-primary)' : '1px solid var(--glass-border)',
               background: template === t.id ? 'rgba(var(--color-primary-rgb), 0.08)' : 'var(--gradient-card)'
-
-
-
-
-
-
             }}>
             
                             <div style={{
               color: template === t.id ? 'var(--color-primary)' : 'var(--color-text-muted)',
-
               background: template === t.id ? 'rgba(255,255,255,0.1)' : 'transparent'
-
-            }} className="p-[1rem] rounded-[50%]">
-                                {React.cloneElement(t.icon, { size: 36 })}
+            }} className="p-[0.5rem] rounded-[50%]">
+                                {React.cloneElement(t.icon, { size: 24 })}
                             </div>
-                            <div style={{ color: template === t.id ? 'var(--color-text)' : 'var(--color-text-muted)' }} className="text-[0.9rem] font-[800]">{t.label}</div>
+                            <div style={{ color: template === t.id ? 'var(--color-text)' : 'var(--color-text-muted)' }} className="text-[0.75rem] md:text-[0.8rem] font-[700] leading-tight">{t.label}</div>
                         </div>
           )}
                 </div>
@@ -622,7 +615,7 @@ export default function Reports(): React.ReactElement | null {
                 return (
                   <label
                     key={sig.id}
-                    className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease]"
+                    className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease] whitespace-nowrap"
                     style={{
 
 
@@ -638,7 +631,7 @@ export default function Reports(): React.ReactElement | null {
                                         <input
                       type="checkbox"
                       checked={isChecked}
-                      onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))} className="none" />
+                      onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))} className="hidden" />
 
                     
                                         <div style={{
@@ -660,7 +653,6 @@ export default function Reports(): React.ReactElement | null {
               })}
                         </div>
                     </div>
-
                     {/* On-Sheet Visual Preview of PDF signature blocks */}
                     <div className="mb-8">
                         <PdfSignatures
@@ -723,31 +715,6 @@ export default function Reports(): React.ReactElement | null {
                             </div>
             }
                     </div>
-                </div>
-
-                {/* Floating Action Buttons */}
-                <div className="no-print floating-action-bar">
-                    <button
-            onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-            className="btn-floating-action bg-[#36B37E] text-[white]">
-
-            
-                        <Save size={18} /> GENERAR INFORME
-                    </button>
-                    <button
-            onClick={() => toast.error('Selecciona "Generar Informe" primero para poder compartirlo.')}
-            className="btn-floating-action bg-[#0052CC] text-[white]">
-
-            
-                        <Share2 size={18} /> COMPARTIR
-                    </button>
-                    <button
-            onClick={() => toast.error('Selecciona "Generar Informe" primero para poder imprimirlo.')}
-            className="btn-floating-action bg-[#FF8B00] text-[white]">
-
-            
-                        <Printer size={18} /> IMPRIMIR PDF
-                    </button>
                 </div>
             </main>
         </div>);

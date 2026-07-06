@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Calculator, Info, RefreshCw, Printer, Search, Settings2, CheckCircle2, TriangleAlert, Share2, Save, ArrowLeft, ThermometerSun, Pencil, MapPin, Trash2, QrCode, Plus } from
 'lucide-react';
+import AnimatedPage from '../components/AnimatedPage';
 import ShareModal from '../components/ShareModal';
 import ThermalStressPdfGenerator from '../components/ThermalStressPdfGenerator';
 import PdfSignatures from '../components/PdfSignatures';
@@ -252,10 +253,11 @@ export default function ThermalStress(): React.ReactElement | null {
           showSignatures: item.showSignatures || { operator: true, professional: true, supervisor: true }
         });
         setIsFormVisible(true);
-      }} title="Editar" className="btn-outline bg-[#3b82f6] text-[#ffffff] border-color-[#3b82f6] p-[0.5rem] rounded-[10px] w-[36px] h-[36px] flex items-center justify-center cursor-pointer hover:bg-[#2563eb] transition-colors"><Pencil size={15} /></button>
-                    <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/thermal/${item.id}?print=true`;setQrTarget({ text: url, title: `Estrés Térmico — ${item.puesto}` });})} title="QR" className="btn-outline bg-[#8b5cf6] text-[#ffffff] border-color-[#8b5cf6] p-[0.5rem] rounded-[10px] w-[36px] h-[36px] flex items-center justify-center cursor-pointer hover:bg-[#7c3aed] transition-colors"><QrCode size={15} /></button>
-                    <button onClick={() => requirePro(() => setShareItem(item))} title="Compartir" className="btn-outline bg-[#10b981] text-[#ffffff] border-color-[#10b981] p-[0.5rem] rounded-[10px] w-[36px] h-[36px] flex items-center justify-center cursor-pointer hover:bg-[#059669] transition-colors"><Share2 size={15} /></button>
-                    <button onClick={() => setDeleteTarget(item.id)} className="btn-outline bg-[#ef4444] text-[#ffffff] border-color-[#ef4444] p-[0.5rem] rounded-[10px] w-[36px] h-[36px] flex items-center justify-center cursor-pointer hover:bg-[#dc2626] transition-colors"><Trash2 size={15} /></button>
+        window.scrollTo(0, 0);
+      }} title="Editar" style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Pencil size={16} /></button>
+                    <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/thermal/${item.id}?print=true`;setQrTarget({ text: url, title: `Estrés Térmico — ${item.puesto}` });})} title="QR" style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><QrCode size={16} /></button>
+                    <button onClick={() => requirePro(() => setShareItem(item))} title="Compartir" style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Share2 size={16} /></button>
+                    <button onClick={() => setDeleteTarget(item.id)} title="Eliminar" style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Trash2 size={16} /></button>
                 </div>
 
   }];
@@ -354,6 +356,7 @@ export default function ThermalStress(): React.ReactElement | null {
 
     toast.success(currentEditItem ? 'Evaluación térmica actualizada.' : 'Medición guardada en el historial.');
     setIsFormVisible(false);
+    window.scrollTo(0, 0);
   };
 
   const [showUpdateAlert, setShowUpdateAlert] = useState(() => {
@@ -364,7 +367,8 @@ export default function ThermalStress(): React.ReactElement | null {
   const handlePrint = () => requirePro(() => window.print());
 
   return (
-    <div className="container min-h-screen flex flex-col pb-24">
+    <AnimatedPage>
+    <div className="container mx-auto">
             {showUpdateAlert &&
       <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
                     <div className="bg-white dark:bg-slate-800 m-auto p-8 rounded-2xl max-w-[400px] text-center shadow-2xl">
@@ -425,21 +429,27 @@ export default function ThermalStress(): React.ReactElement | null {
                     
                     <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap justify-end bg-[var(--color-surface,_#fff)] p-[1.5rem] rounded-[24px] box-shadow-[0_10px_40px_rgba(0,0,0,0.04)] border-[1px_solid_rgba(0,0,0,0.05)]">
                         <button
-            onClick={() => {
-              setCurrentEditItem(null);
-              setFormData({
-                puesto: '', sector: '', tarea: '', fecha: new Date().toISOString().split('T')[0],
-                cargaSolar: false, tbh: '', tg: '', tbs: '', viento: '',
-                aptaMedica: false, aclimatado: false, ritmo: 'moderado', ciclo: 'continuo',
-                operatorSignature: '', supervisorSignature: '', signature: '',
-                showSignatures: { operator: true, professional: true, supervisor: true }
-              });
-              setIsFormVisible(true);
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              try {
+                setCurrentEditItem(null);
+                setFormData({
+                  puesto: '', sector: '', tarea: '', fecha: new Date().toISOString().split('T')[0],
+                  cargaSolar: false, tbh: '', tg: '', tbs: '', viento: '',
+                  aptaMedica: false, aclimatado: false, ritmo: 'moderado', ciclo: 'continuo',
+                  operatorSignature: '', supervisorSignature: '', signature: '',
+                  showSignatures: { operator: true, professional: true, supervisor: true }
+                });
+                setIsFormVisible(true);
+                window.scrollTo(0, 0);
+              } catch (err: any) {
+                alert("Error al abrir: " + err.message);
+              }
             }}
-            onMouseOver={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 12px 25px rgba(16,185,129,0.4)';}}
-            onMouseOut={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.3)';}}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '0 1.5rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(16,185,129,0.3)', whiteSpace: 'nowrap', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', height: '100%', minHeight: '3.5rem' }}>
-                            <Plus size={22} strokeWidth={2.5} /> Nuevo Estudio
+            className="hover:scale-105 active:scale-95"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '0 1.5rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(16,185,129,0.3)', whiteSpace: 'nowrap', transition: 'transform 0.2s ease, box-shadow 0.2s ease', height: '100%', minHeight: '3.5rem' }}>
+                            <Plus size={22} strokeWidth={2.5} className="pointer-events-none" /> <span className="pointer-events-none">Nuevo Estudio</span>
                         </button>
                     </div>
 
@@ -456,43 +466,7 @@ export default function ThermalStress(): React.ReactElement | null {
                 </div> :
 
       <>
-                    <div className="no-print floating-action-bar">
-                        <button onClick={() => setIsFormVisible(false)} className="btn-floating-action bg-[var(--color-surface)] text-[var(--color-text)] border-[1px_solid_var(--color-border)]">
-                            <ArrowLeft size={18} /> ATRÁS
-                        </button>
-                        <button onClick={(e) => {e.preventDefault();requirePro(handleSave);}} className="btn-floating-action bg-[#36B37E] text-[#ffffff]">
-                            <Save size={18} /> GUARDAR
-                        </button>
-                        <button onClick={() => {
-            setFormData({
-              ...formData,
-              professionalSignature: formData.professionalSignature || professional.signature,
-              professionalName: formData.professionalName || professional.name,
-              professionalLicense: formData.professionalLicense || professional.license,
-              professionalStamp: formData.professionalStamp || professional.stamp
-            });
-            requirePro(() => {
-              const report = {
-                id: currentEditItem?.id || Date.now(),
-                date: currentEditItem?.date || new Date().toISOString(),
-                evaluador: currentUser?.displayName || 'Profesional HSE',
-                normativa: 'Res. SRT 30/2023',
-                ...formData,
-                professionalSignature: formData.professionalSignature || professional.signature,
-                professionalName: formData.professionalName || professional.name,
-                professionalLicense: formData.professionalLicense || professional.license,
-                professionalStamp: formData.professionalStamp || professional.stamp,
-                resultados
-              };
-              setShareItem(report);
-            });
-          }} className="btn-floating-action bg-[#0052CC] text-[#ffffff]">
-                            <Share2 size={18} /> COMPARTIR
-                        </button>
-                        <button onClick={handlePrint} className="btn-floating-action bg-[#FF8B00] text-[#ffffff]">
-                            <Printer size={18} /> IMPRIMIR PDF
-                        </button>
-                    </div>
+
 
                     <div className="no-print animate-fade-in">
                         <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
@@ -543,8 +517,12 @@ export default function ThermalStress(): React.ReactElement | null {
                                 <h2 className="text-lg font-bold m-0 flex items-center gap-2 text-orange-500">
                                     <ThermometerSun size={20} /> Mediciones Ambientales
                                 </h2>
-                                <label className="flex items-center gap-2 text-[0.85rem] cursor-pointer bg-orange-100 dark:bg-orange-900/30 px-3 py-1.5 rounded-xl text-orange-700 dark:text-orange-400 font-bold">
-                                    <input type="checkbox" checked={formData.cargaSolar} onChange={(e) => handleInput('cargaSolar', e.target.checked)} className="m-0" /> Al sol / Carga Solar
+                                <label className={`flex items-center gap-3 text-[0.85rem] cursor-pointer px-4 py-2 rounded-xl font-bold transition-colors ${formData.cargaSolar ? 'bg-orange-500 text-white shadow-md shadow-orange-500/30' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600'}`}>
+                                    <div className={`relative w-10 h-5 rounded-full transition-colors ${formData.cargaSolar ? 'bg-white/30' : 'bg-slate-300 dark:bg-slate-500'}`}>
+                                        <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${formData.cargaSolar ? 'translate-x-5 shadow-sm' : ''}`} />
+                                    </div>
+                                    <input type="checkbox" checked={formData.cargaSolar} onChange={(e) => handleInput('cargaSolar', e.target.checked)} className="sr-only" /> 
+                                    Al sol / Carga Solar
                                 </label>
                             </div>
 
@@ -564,11 +542,14 @@ export default function ThermalStress(): React.ReactElement | null {
                                 </div>
                                 <div>
                                     <label>¿Trabajador aclimatado? <span className="text-[0.65rem] text-[#f97316] font-[700]">🆕 Res. 30/2023</span></label>
-                                    <label style={{ background: formData.aclimatado ? 'rgba(16,185,129,0.1)' : 'var(--color-background)', border: `1px solid ${formData.aclimatado ? '#10b981' : 'var(--color-border)'}`, color: formData.aclimatado ? '#059669' : 'var(--color-text-muted)' }} className="flex items-center gap-[0.5rem] text-[0.85rem] cursor-pointer p-[0.5rem_0.8rem] rounded-[10px] font-[700]">
-                                        <input type="checkbox" checked={formData.aclimatado} onChange={(e) => handleInput('aclimatado', e.target.checked)} className="m-0" />
+                                    <label className={`flex items-center gap-3 text-[0.85rem] cursor-pointer p-3 rounded-xl font-bold transition-all border-2 ${formData.aclimatado ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 shadow-sm' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
+                                        <div className={`relative w-10 h-5 rounded-full transition-colors shrink-0 ${formData.aclimatado ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
+                                            <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${formData.aclimatado ? 'translate-x-5 shadow-sm' : ''}`} />
+                                        </div>
+                                        <input type="checkbox" checked={formData.aclimatado} onChange={(e) => handleInput('aclimatado', e.target.checked)} className="sr-only" />
                                         {formData.aclimatado ? 'Sí — 5-14 días completados' : 'No aclimatado'}
                                     </label>
-                                    <span className="text-[0.72rem] text-[var(--color-text-muted)]">La aclimatación gradual eleva la tolerancia fisiológica al calor.</span>
+                                    <span className="text-[0.72rem] text-[var(--color-text-muted)] mt-1 block">La aclimatación gradual eleva la tolerancia fisiológica al calor.</span>
                                 </div>
                                 {formData.cargaSolar &&
                   <div className="grid-column-[1_/_-1]">
@@ -605,12 +586,15 @@ export default function ThermalStress(): React.ReactElement | null {
                                 </div>
 
                                 {/* Apto médico — obligatorio Res. 30/2023 */}
-                                <div style={{ background: formData.aptaMedica ? 'rgba(16,185,129,0.07)' : 'rgba(239,68,68,0.05)', border: `1px solid ${formData.aptaMedica ? '#10b981' : 'rgba(239,68,68,0.2)'}` }} className="rounded-[12px] p-[0.8rem_1rem]">
-                                    <label style={{ color: formData.aptaMedica ? '#059669' : '#dc2626' }} className="flex items-center gap-[0.6rem] cursor-pointer font-[700] text-[0.87rem]">
-                                        <input type="checkbox" checked={formData.aptaMedica} onChange={(e) => handleInput('aptaMedica', e.target.checked)} className="m-[0] w-[16px] h-[16px]" />
-                                        ✅ Apto Médico Específico para Exposición al Calor
+                                <div className={`rounded-xl p-4 border-2 transition-all ${formData.aptaMedica ? 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-500 shadow-sm' : 'bg-red-50 dark:bg-red-900/10 border-red-400'}`}>
+                                    <label className={`flex items-center gap-3 cursor-pointer font-extrabold text-[0.9rem] ${formData.aptaMedica ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                                        <div className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${formData.aptaMedica ? 'bg-emerald-500' : 'bg-red-400'}`}>
+                                            <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${formData.aptaMedica ? 'translate-x-6 shadow-sm' : ''}`} />
+                                        </div>
+                                        <input type="checkbox" checked={formData.aptaMedica} onChange={(e) => handleInput('aptaMedica', e.target.checked)} className="sr-only" />
+                                        <span>{formData.aptaMedica ? '✅ Apto Médico Presentado' : '❌ Falta Apto Médico'}</span>
                                     </label>
-                                    <p className="m-[0.4rem_0_0] text-[0.72rem] text-[var(--color-text-muted)]">Obligatorio por Res. SRT 30/2023. El trabajador debe tener apto médico antes de operar en ambientes con riesgo térmico.</p>
+                                    <p className="mt-2 text-[0.75rem] font-medium text-slate-600 dark:text-slate-400">Obligatorio por Res. SRT 30/2023. El trabajador debe tener apto médico antes de operar en ambientes con riesgo térmico.</p>
                                 </div>
                             </div>
                         </div>
@@ -620,33 +604,33 @@ export default function ThermalStress(): React.ReactElement | null {
                     <div className="flex flex-col gap-6">
 
                         {/* Card Dictamen */}
-                        <div className="bg-white dark:bg-slate-800 border-2 border-blue-500 rounded-3xl overflow-hidden shadow-xl">
-                            <div className="bg-blue-600 text-white p-4 flex items-center gap-2 font-extrabold">
-                                <Calculator size={20} /> Dictamen — {countryNorms.thermal}
+                        <div className="bg-slate-50 dark:bg-slate-900 border-2 border-indigo-600 dark:border-indigo-500 rounded-[28px] overflow-hidden shadow-2xl">
+                            <div className="bg-indigo-600 text-white p-5 flex items-center gap-3 font-black tracking-wide text-lg shadow-md">
+                                <Calculator size={24} /> DICTAMEN TÉCNICO — {countryNorms.thermal}
                             </div>
 
-                            <div className="p-6 text-center">
+                            <div className="p-8 text-center bg-white dark:bg-slate-800">
                                 {/* TGBH grande */}
-                                <div className="text-[0.85rem] text-slate-500 dark:text-slate-400 font-bold uppercase mb-1.5">
+                                <div className="text-[1.1rem] text-black dark:text-white font-black uppercase mb-2 tracking-wider">
                                     Índice TGBH Calculado
                                 </div>
-                                <div className="text-[3.5rem] font-black leading-none text-slate-800 dark:text-slate-100 mb-5">
+                                <div className="text-[4rem] font-black leading-none text-black dark:text-white mb-8 drop-shadow-sm">
                                     {resultados.tgbh !== null ? `${resultados.tgbh}°C` : '--'}
                                 </div>
 
                                 {/* VLA y VLE */}
                                 <div className="grid grid-cols-2 gap-2 mb-4">
                                     <div className="flex flex-col items-center p-2.5 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
-                                        <span className="text-[0.6rem] font-black uppercase text-amber-600 dark:text-amber-500 mb-1">VLA (Acción)</span>
-                                        <span className="font-black text-amber-600 dark:text-amber-500">{resultados.vla !== null ? `${resultados.vla}°C` : '--'}</span>
+                                        <span className="text-[0.65rem] font-black uppercase text-amber-700 dark:text-amber-400 mb-1">VLA (Acción)</span>
+                                        <span className="font-black text-[1.1rem] text-amber-700 dark:text-amber-400">{resultados.vla !== null ? `${resultados.vla}°C` : '--'}</span>
                                     </div>
                                     <div className="flex flex-col items-center p-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800">
-                                        <span className="text-[0.6rem] font-black uppercase text-red-600 dark:text-red-500 mb-1">VLE (Límite)</span>
-                                        <span className="font-black text-red-600 dark:text-red-500">{resultados.vle !== null ? `${resultados.vle}°C` : '--'}</span>
+                                        <span className="text-[0.65rem] font-black uppercase text-red-700 dark:text-red-400 mb-1">VLE (Límite)</span>
+                                        <span className="font-black text-[1.1rem] text-red-700 dark:text-red-400">{resultados.vle !== null ? `${resultados.vle}°C` : '--'}</span>
                                     </div>
-                                    <div className="flex justify-between px-3 py-2 bg-slate-100 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-700 col-span-full">
-                                        <span className="text-slate-500 dark:text-slate-400 font-semibold text-[0.82rem]">Carga Solar:</span>
-                                        <span style={{ color: formData.cargaSolar ? '#f97316' : 'var(--color-text)' }} className="font-[800] text-[0.82rem]">{formData.cargaSolar ? 'SÍ' : 'NO'}</span>
+                                    <div className="flex justify-between px-4 py-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 col-span-full items-center">
+                                        <span className="text-blue-800 dark:text-blue-300 font-bold text-[0.9rem]">Carga Solar Aplicada:</span>
+                                        <span className={`font-black text-[0.9rem] px-2 py-0.5 rounded-md ${formData.cargaSolar ? 'bg-orange-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}`}>{formData.cargaSolar ? 'SÍ' : 'NO'}</span>
                                     </div>
                                 </div>
 
@@ -664,7 +648,7 @@ export default function ThermalStress(): React.ReactElement | null {
                         resultados.enVLA ? 'ZONA DE ALERTA (VLA)' : 'ADMISIBLE'
                         }
                                             </div>
-                                            <div className="text-xs font-semibold opacity-90">
+                                            <div className="text-xs font-bold opacity-90">
                                                 {!resultados.admisible ?
                         'Supera VLE. Rotación o control urgente (Res. 30/2023).' :
                         resultados.enVLA ?
@@ -675,9 +659,9 @@ export default function ThermalStress(): React.ReactElement | null {
                                         </div>
                                     </div> :
 
-                  <div className="p-6 rounded-2xl bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 border border-dashed border-slate-300 dark:border-slate-600">
-                                        <Info size={24} className="mx-auto mb-2 opacity-50" />
-                                        <p className="m-0 text-[0.85rem]">Ingresá las temperaturas de globo y bulbo húmedo para ver el resultado.</p>
+                  <div className="p-6 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-800 dark:text-indigo-300 border-2 border-indigo-200 dark:border-indigo-800/50 font-bold shadow-inner">
+                                        <Info size={28} className="mx-auto mb-3 opacity-90 text-indigo-500" />
+                                        <p className="m-0 text-[0.95rem]">Ingresá las temperaturas de globo y bulbo húmedo para ver el resultado técnico.</p>
                                     </div>
                   }
 
@@ -694,20 +678,22 @@ export default function ThermalStress(): React.ReactElement | null {
                         </div>
 
                         {/* Card Fundamento Legal */}
-                        <div className="p-6 rounded-3xl bg-orange-50/50 dark:bg-orange-900/10 border border-orange-200/50 dark:border-orange-800/50">
-                            <h3 className="text-sm text-orange-600 dark:text-orange-500 m-0 mb-3 flex items-center gap-1.5 font-bold">
-                                <Info size={16} /> Fundamento Legal
+                        <div className="p-7 rounded-[28px] bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/40 dark:to-amber-950/40 border-2 border-orange-200 dark:border-orange-800/60 shadow-inner">
+                            <h3 className="text-base text-orange-700 dark:text-orange-400 m-0 mb-4 flex items-center gap-2 font-black uppercase tracking-wide">
+                                <Info size={20} strokeWidth={2.5} /> Fundamento Legal Aplicado
                             </h3>
-                            <p className="text-[0.8rem] text-orange-900/80 dark:text-orange-200/80 m-0 mb-2 leading-relaxed">
-                                <strong>{countryNorms.thermal} ({countryNorms.general})</strong> — Vigente desde 2024 (prórroga Res. 7/2024).
+                            <p className="text-[0.9rem] text-slate-800 dark:text-slate-200 m-0 mb-4 leading-relaxed font-medium">
+                                <strong className="text-orange-900 dark:text-orange-300 font-extrabold bg-orange-200/50 dark:bg-orange-900/50 px-2 py-0.5 rounded-md">{countryNorms.thermal} ({countryNorms.general})</strong> — Vigente desde 2024 (prórroga Res. 7/2024).
                                 Reemplazó el Anexo II del Dec. 351/79 y art. relacionados en Dec. 911/96 y 249/07.
                                 El índice adoptado es el TGBH (Temperatura de Globo y Bulbo Húmedo).
                             </p>
-                            <code className="text-[0.73rem] bg-orange-100 dark:bg-orange-900/30 p-2.5 rounded-lg block text-orange-700 dark:text-orange-400 leading-[1.8]">
-                                Interior: TGBH = 0.7·Tbh + 0.3·Tg<br />
-                                Exterior (sol): TGBH = 0.7·Tbh + 0.2·Tg + 0.1·Tbs<br />
-                                VLA = VLE &minus; 1.5°C &nbsp;(criterio ACGIH adoptado)
-                            </code>
+                            <div className="bg-white/80 dark:bg-black/40 p-4 rounded-2xl border border-orange-100 dark:border-orange-900/50 shadow-sm">
+                                <code className="text-[0.8rem] block text-slate-800 dark:text-slate-200 font-mono font-bold leading-loose">
+                                    <span className="text-emerald-700 dark:text-emerald-400">Interior:</span> TGBH = 0.7·Tbh + 0.3·Tg<br />
+                                    <span className="text-orange-600 dark:text-orange-400">Exterior (sol):</span> TGBH = 0.7·Tbh + 0.2·Tg + 0.1·Tbs<br />
+                                    <span className="text-indigo-600 dark:text-indigo-400">Límites:</span> VLA = VLE &minus; 1.5°C &nbsp;<span className="text-slate-500 text-[0.7rem]">(ACGIH)</span>
+                                </code>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -718,8 +704,8 @@ export default function ThermalStress(): React.ReactElement | null {
                         <Pencil size={20} /> Firmas y Autorizaciones
                     </h2>
 
-                    <div className="no-print mb-8 p-6 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl w-full flex flex-col gap-5 justify-center items-center">
-                        <div className="text-slate-800 dark:text-slate-100 font-extrabold text-[0.85rem] uppercase tracking-wide">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                    <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
+                        <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase tracking-wide">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                         <div className="flex gap-4 flex-wrap justify-center">
                             {[
                 { id: 'operator', label: 'Trabajador Evaluado' },
@@ -730,35 +716,23 @@ export default function ThermalStress(): React.ReactElement | null {
                   return (
                     <label
                       key={sig.id}
-                      className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease]"
+                      className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease] whitespace-nowrap"
                       style={{
-
-
                         border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
                         background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
                         color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
-
-
-
                         boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
                       }}>
                       
                                         <input
                         type="checkbox"
                         checked={isChecked}
-                        onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="none" />
+                        onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="hidden" />
 
                       
                                         <div style={{
-
-
-
                         border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
                         background: isChecked ? 'var(--color-primary)' : 'transparent'
-
-
-
-
                       }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
                                             {isChecked && <CheckCircle2 size={12} color="white" />}
                                         </div>
@@ -830,14 +804,59 @@ export default function ThermalStress(): React.ReactElement | null {
               }
                     </div>
                 </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 justify-between items-center mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+                    <div className="flex gap-3 w-full sm:w-auto">
+                        <button type="button" onClick={() => setIsFormVisible(false)} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-sm" style={{ backgroundColor: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }}>
+                            <ArrowLeft size={18} /> Cancelar
+                        </button>
+                    </div>
+
+                    <div className="flex gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap justify-end">
+                        <button type="button" onClick={handlePrint} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md" style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }}>
+                            <Printer size={18} /> Generar PDF
+                        </button>
+                        <button type="button" onClick={() => {
+                            setFormData({
+                                ...formData,
+                                professionalSignature: formData.professionalSignature || professional.signature,
+                                professionalName: formData.professionalName || professional.name,
+                                professionalLicense: formData.professionalLicense || professional.license,
+                                professionalStamp: formData.professionalStamp || professional.stamp
+                            });
+                            requirePro(() => {
+                                const report = {
+                                    id: currentEditItem?.id || Date.now(),
+                                    date: currentEditItem?.date || new Date().toISOString(),
+                                    evaluador: currentUser?.displayName || 'Profesional HSE',
+                                    normativa: 'Res. SRT 30/2023',
+                                    ...formData,
+                                    professionalSignature: formData.professionalSignature || professional.signature,
+                                    professionalName: formData.professionalName || professional.name,
+                                    professionalLicense: formData.professionalLicense || professional.license,
+                                    professionalStamp: formData.professionalStamp || professional.stamp,
+                                    resultados
+                                };
+                                setShareItem(report);
+                            });
+                        }} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md" style={{ backgroundColor: '#8b5cf6', color: '#ffffff', border: 'none' }}>
+                            <Share2 size={18} /> Compartir
+                        </button>
+                        <button type="button" onClick={(e) => {e.preventDefault(); requirePro(handleSave);}} className="w-full sm:w-auto p-[0.8rem_1.5rem] rounded-xl font-black cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-lg" style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#ffffff', border: 'none' }}>
+                            <Save size={18} /> Guardar Evaluación
+                        </button>
+                    </div>
+                </div>
             </div>
             </>
       }
 
             {/* PRO upgrade banner */}
-            <AdBanner />
+            {!isFormVisible && <AdBanner />}
+            {isFormVisible && <AdBanner />}
 
             {/* Reporte oculto para impresión directa */}
+            {isFormVisible && (
             <div className="print-only">
                 <ThermalStressPdfGenerator
           data={{
@@ -849,6 +868,8 @@ export default function ThermalStress(): React.ReactElement | null {
           }}
           onBack={() => {}} />
             </div>
-        </div>);
+            )}
+        </div>
+    </AnimatedPage>);
 
 }

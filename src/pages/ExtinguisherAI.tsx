@@ -361,14 +361,16 @@ export default function ExtinguisherAI() {
           icon={<Flame size={36} color="#ffffff" />} />
         
                     
+        
+                    
                     <div className="flex items-center justify-space-between gap-[1rem] mb-[1.5rem] flex-wrap">
                         <div className="flex gap-[1rem] items-center">
                             <></>
                         </div>
                         <button
-            onClick={() => setIsCameraVisible(true)} className="flex-[0_1_auto] p-[0.8rem_1.5rem] rounded-[12px] bg-emerald-500 hover:bg-emerald-600 text-[#fff] border-none font-[800] text-[0.95rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(54,179,126,0.3)] white-space-[nowrap]">
-
-            
+            onClick={() => setIsCameraVisible(true)} 
+            style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }}
+            className="flex-[0_1_auto] p-[0.8rem_1.5rem] rounded-[14px] font-[800] text-[0.95rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_12px_rgba(16,185,129,0.2)] transition-transform hover:-translate-y-0.5 white-space-[nowrap]">
                             <Plus size={20} /> Nueva Inspección
                         </button>
                     </div>
@@ -441,13 +443,11 @@ export default function ExtinguisherAI() {
                                             {item.status === 'vigente' ? 'VIGENTE' : 'VENCIDO'}
                                         </div>
                                     </div>
-
-                                    <div className="flex gap-[0.8rem] mt-[1rem] border-top-[1px_solid_var(--color-border)] pt-[1rem] flex-wrap">
+                                    <div className="flex gap-[0.5rem] mt-[1rem] border-top-[1px_solid_var(--color-border)] pt-[1rem] flex-wrap justify-end">
                                         <button
                 onClick={() => setShareItem(item)}
-                className="btn-primary flex-[2] p-[0.6rem] text-[0.85rem] flex items-center gap-[0.4rem] justify-center">
-
-                
+                style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }}
+                className="flex-[2] sm:flex-none p-[0.5rem_1rem] rounded-[8px] text-[0.85rem] font-[800] flex items-center justify-center gap-[0.4rem] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform">
                                             <Share2 size={16} /> Ver Reporte
                                         </button>
                                         <button
@@ -455,16 +455,17 @@ export default function ExtinguisherAI() {
                   const url = `${window.location.origin}/v/${currentUser?.uid}/extinguisher/${item.id}?print=true`;
                   setQrTarget({ text: url, title: `Inspección — Extintor ${item.type || 'IA'}` });
                 }}
-
-                title="Generar QR" className="p-[0.6rem] bg-[rgba(139,92,246,0.06)] border-[1px_solid_rgba(139,92,246,0.18)] rounded-[8px] text-[#8b5cf6] cursor-pointer flex items-center justify-center">
-                
+                title="Generar QR"
+                style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }}
+                className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center">
                                             <QrCode size={16} />
                                         </button>
                                         <button
-                onClick={() => setDeleteTarget(item.id)} className="p-[0.6rem] bg-[rgba(239,68,68,0.05)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[8px] text-[#ef4444] cursor-pointer">
-
-                
-                                            <Trash2 size={18} />
+                onClick={() => setDeleteTarget(item.id)}
+                title="Eliminar"
+                style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }}
+                className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center">
+                                            <Trash2 size={16} />
                                         </button>
                                     </div>
                                 </div>

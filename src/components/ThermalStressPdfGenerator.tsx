@@ -109,8 +109,20 @@ export default function ThermalStressPdfGenerator({ data, onBack = () => window.
                         .gradient-header {
                             background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
                         }
+                        .gradient-header, .gradient-header * {
+                            color: #ffffff !important;
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                            color-adjust: exact !important;
+                        }
                         .metric-card {
                             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                        }
+                        .pdf-important-text {
+                            color: #000000 !important;
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                            color-adjust: exact !important;
                         }
                     `}
                 </style>
@@ -343,7 +355,7 @@ export default function ThermalStressPdfGenerator({ data, onBack = () => window.
                                 <div className="text-[8.5pt] text-[#475569] font-[800] uppercase mb-[8px]">
                                     📈 TGBH OBTENIDO
                                 </div>
-                                <div className="text-[36pt] font-[900] text-[#1e293b] line-height-[1] mb-[4px]">
+                                <div className="pdf-important-text text-[36pt] font-[900] text-[#1e293b] line-height-[1] mb-[4px]">
                                     {report?.resultados?.tgbh || '--'}°C
                                 </div>
                                 <div className="text-[8.5pt] text-[#64748b] font-[600] bg-[#e2e8f0] p-[4px_8px] rounded-[4px] inline-block">

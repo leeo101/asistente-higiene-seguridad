@@ -185,9 +185,14 @@ body {
   min-width: 320px;
   min-height: 100dvh;
   padding-top: var(--safe-area-top);
-  padding-bottom: max(var(--safe-area-bottom), 5rem);
+  padding-bottom: env(safe-area-inset-bottom);
   font-family: var(--font-family);
   background: var(--color-background-gradient);
+  overscroll-behavior-y: none;
+}
+
+html {
+  overscroll-behavior-y: none;
 }
 
 #root {
@@ -198,6 +203,15 @@ body {
   display: flex;
   flex-direction: column;
   text-align: left;
+}
+
+.app-container {
+  width: 100%;
+  height: 100%;
+  min-height: 100dvh; /* FOOLPROOF: Force it to take full height even if flex fails */
+  display: flex;
+  flex-direction: column;
+  flex: 1; 
 }
 
 /* Botones Premium */
@@ -1549,14 +1563,7 @@ button[aria-label*="Atrás"],
   object-fit: contain !important;
 }
 
-.force-pdf-print h1,
-.force-pdf-print h2,
-.force-pdf-print h3,
-.force-pdf-print h4,
-.force-pdf-print p,
-.force-pdf-print span {
-  color: #000 !important;
-}
+/* Removed forced black text so PDF retains custom colored headers */
 
 /* Print Styles */
 @media print {
@@ -1817,6 +1824,7 @@ button[aria-label*="Atrás"],
   .print-only,
   .print-text-box,
   .print-header {
+    display: block !important;
     position: static !important;
     overflow: visible !important;
     clip: auto !important;
@@ -2799,7 +2807,7 @@ svg.ph-duotone [opacity="0.2"] {
 
 /* Global fix: Hide main UI when a dedicated print view exists on the page */
 @media print {
-  body:has(.print-only) main,
+  body:has(.print-only) main:not(:has(#pdf-content)),
   body:has(.print-only) .app-container > :not(:has(.print-only)):not(.floating-action-bar) {
       display: none !important;
   }
@@ -3986,7 +3994,7 @@ input, textarea, [contenteditable="true"] {
     }
     .main-content {
         padding: 0.5rem !important; 
-        width: 100vw !important;
+        width: 100% !important;
         overflow-x: hidden;
     }
     .card, .glass-card, .glass-panel, .glass-card-premium {

@@ -521,7 +521,7 @@ function App() {
           }}
         />
         <PWAReloadPrompt />
-        <div className="app-container" style={{ position: 'relative' }}>
+        <div className="app-container flex flex-col min-h-screen" style={{ position: 'relative' }}>
           <TopHeader setIsSidebarOpen={setIsSidebarOpen} setIsSearchOpen={setIsSearchOpen} />
 
           {isSearchOpen && <GlobalSearch onClose={() => setIsSearchOpen(false)} />}
@@ -531,7 +531,7 @@ function App() {
           </div>
 
           <Suspense fallback={<LoadingScreen />}>
-            <div className="page-transition" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div className="main-content flex-1 flex flex-col page-transition">
               <AnimatePresence mode="wait">
                 <Routes location={location} key={location.pathname}>
                   <Route path="/login" element={<Login />} />
@@ -658,7 +658,7 @@ function App() {
               </AnimatePresence>
             </div>
           </Suspense>
-          <div className="no-print">
+          <div className="no-print w-full">
             <Footer />
             <InstallBanner />
           </div>

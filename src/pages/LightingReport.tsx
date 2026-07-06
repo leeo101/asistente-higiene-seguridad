@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Save, Plus, Trash2, Lightbulb, Calculator,
   FileText, Printer, Building2, Layout, Maximize2,
-  Info, TriangleAlert, ShieldCheck, History, Share2, Sun, Sparkles, Loader2 } from
+  Info, TriangleAlert, ShieldCheck, History, Share2, Sun, Sparkles, Loader2, Check } from
 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -22,7 +22,7 @@ import { getCountryNormativa } from '../data/legislationData';
 import { auth } from '../firebase';
 import { Search } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
-
+import { ModuleActionBar } from '../components/module';
 const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '0.85rem 1.2rem',
@@ -320,6 +320,7 @@ export default function LightingReport(): React.ReactElement | null {
         icon={<Lightbulb size={32} color="#ffffff" />}
         color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
         
+        
                 
                 <main className="p-[0_0_2rem_0] max-w-[1000px] m-[0_auto] w-[100%]">
                     {/* Botones de Navegación */}
@@ -327,33 +328,32 @@ export default function LightingReport(): React.ReactElement | null {
                         <></>
                     </div>
 
-                    <div className="flex justify-space-between gap-[1rem] mb-[2rem] flex-wrap p-[0_1rem]">
-                        <div className="relative flex-[1_1_300px]">
-                            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <div className="flex flex-col gap-4 mb-[2rem] px-4">
+                        <div className="flex justify-end">
+                            <button onClick={() => {
+                  setFormData({
+                    empresa: '', sector: '', descripcionActividad: '', tipoTarea: '', luxRequerido: 500, conclusion: '',
+                    operatorSignature: '', supervisorSignature: '', mediciones: [{ id: Date.now().toString(), ubicacion: 'Puesto 1', luxMedido: 0 as any }]
+                  });
+                  setIsFormVisible(true);
+                }}
+                onMouseOver={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 12px 25px rgba(16,185,129,0.4)';}}
+                onMouseOut={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.3)';}}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '0 1.5rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(16,185,129,0.3)', whiteSpace: 'nowrap', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', minHeight: '3.5rem' }}>
+                                <Plus size={22} strokeWidth={2.5} /> Nuevo Estudio
+                            </button>
+                        </div>
+                        <div className="relative w-full">
+                            <Search size={22} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
                             <input
                 type="text"
                 placeholder="Buscar por empresa o sector..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.8rem_1rem_0.8rem_2.8rem] rounded-[12px] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] box-sizing-[border-box]" />
-
-
-
-
-
-              
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={(e) => {e.currentTarget.style.border = '2px solid #3b82f6';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = '0 0 0 4px rgba(59,130,246,0.1)';}}
+                onBlur={(e) => {e.currentTarget.style.border = '2px solid transparent';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = 'none';}}
+                style={{ width: '100%', height: '100%', minHeight: '3.5rem', padding: '0.75rem 1rem 0.75rem 3.5rem', borderRadius: '1rem', border: '2px solid transparent', backgroundColor: 'rgba(241, 245, 249, 0.5)', fontSize: '1rem', outline: 'none', transition: 'all 0.3s', fontWeight: 500, color: 'var(--color-text)' }} />
                         </div>
-                        <button onClick={() => {
-              setFormData({
-                empresa: '', sector: '', descripcionActividad: '', tipoTarea: '', luxRequerido: 500, conclusion: '',
-                operatorSignature: '', supervisorSignature: '', mediciones: [{ id: Date.now().toString(), ubicacion: 'Puesto 1', luxMedido: 0 as any }]
-              });
-              setIsFormVisible(true);
-            }}
-            className="btn-primary hover-lift m-[0] bg-[linear-gradient(135deg,_#10b981,_#059669)] border-none flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(16,_185,_129,_0.3)] p-[0.8rem_1.5rem] rounded-[12px]">
-
-              
-                            <Plus size={20} /> NUEVO ESTUDIO
-                        </button>
                     </div>
 
                     <div className="grid grid-template-columns-[repeat(auto-fill,_minmax(300px,_1fr))] gap-[1.5rem] p-[0_1rem]">
@@ -427,39 +427,86 @@ export default function LightingReport(): React.ReactElement | null {
   }
 
   return (
-    <div className="min-h-[100vh] bg-[var(--color-background)] pb-[2rem] pt-[6.5rem]">
+    <div className="min-h-[100vh] bg-[var(--color-background)] pb-[2rem] pt-[6.5rem] lighting-report-container">
+      <style>{`
+        @media print {
+          body * { visibility: hidden; }
+          #pdf-content, #pdf-content * { visibility: visible !important; }
+          #pdf-content {
+            position: static !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            background: white !important;
+          }
+          .no-print { display: none !important; }
+          .print-only { display: block !important; }
+          .lighting-report-container > *:not(main):not(style) {
+            display: none !important;
+          }
+          .lighting-report-container, .lighting-report-container main, .app-container, .main-content {
+            display: block !important;
+            position: static !important;
+            height: auto !important;
+            min-height: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: visible !important;
+          }
+        }
+        
+        /* Fallback for html2canvas (Compartir PDF) */
+        .ats-pdf-offscreen #pdf-content {
+            background: white !important;
+            width: 1200px !important;
+            padding: 40px !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        .ats-pdf-offscreen .no-print { display: none !important; }
+        .ats-pdf-offscreen .print-only { display: block !important; opacity: 1 !important; visibility: visible !important; color: black !important; }
+        .ats-pdf-offscreen .card { background: white !important; border: 1px solid #ccc !important; }
+      `}</style>
             <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
       title={location.state?.editData ? 'Editar Protocolo de Iluminación' : 'Nuevo Estudio de Iluminación'}
       subtitle={`Medición según ${countryNorms.lighting}`}
       icon={<Lightbulb size={32} color="#ffffff" />}
       color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
-      
 
-            {/* Floating Action Buttons */}
-            <div className="no-print floating-action-bar">
-                
-                <button
-          onClick={saveReport}
-          className="btn-floating-action bg-[#36B37E] text-[white]">
-
-          
-                    <Save size={18} /> GUARDAR
-                </button>
-                <button
-          onClick={() => requirePro(() => setShowShare(true))}
-          className="btn-floating-action bg-[#0052CC] text-[white]">
-
-          
-                    <Share2 size={18} /> COMPARTIR
-                </button>
-                <button
-          onClick={() => requirePro(() => window.print())}
-          className="btn-floating-action bg-[#FF8B00] text-[white]">
-
-          
-                    <Printer size={18} /> IMPRIMIR PDF
-                </button>
-            </div>
+            <ModuleActionBar
+              actions={[
+                {
+                  id: 'share',
+                  label: 'COMPARTIR',
+                  icon: <Share2 size={18} />,
+                  variant: 'info',
+                  onClick: () => requirePro(() => setShowShare(true)),
+                },
+                {
+                  id: 'print',
+                  label: 'IMPRIMIR PDF',
+                  icon: <Printer size={18} />,
+                  variant: 'warning',
+                  onClick: () => requirePro(() => window.print()),
+                },
+                {
+                  id: 'save',
+                  label: 'GUARDAR',
+                  icon: <Save size={18} />,
+                  variant: 'primary',
+                  onClick: (e) => { e.preventDefault(); saveReport(); },
+                },
+                {
+                  id: 'cancel',
+                  label: 'CANCELAR',
+                  icon: <ArrowLeft size={18} />,
+                  variant: 'danger',
+                  onClick: () => setIsFormVisible(false),
+                },
+              ]}
+            />
 
             <main className="p-[2rem_1.5rem] max-w-[1000px] m-[0_auto]">
                 <div className="mb-6">
@@ -728,32 +775,31 @@ export default function LightingReport(): React.ReactElement | null {
                   return (
                     <label
                       key={sig.id}
-                      className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] transition-[all_0.2s_ease] font-[700] text-[0.85rem]"
+                      className="flex items-center gap-2 cursor-pointer select-none p-[0.6rem_1.25rem] rounded-[99px] transition-[all_0.3s] font-[600] text-[0.875rem] border-[2px_solid_transparent]"
                       style={{
-
-
-                        border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
-                        background: isChecked ? 'rgba(var(--color-primary-rgb), 0.1)' : 'transparent',
-                        color: isChecked ? 'var(--color-primary)' : 'var(--color-text-muted)'
-
-
-
+                        borderColor: isChecked ? '#3b82f6' : 'var(--color-border)',
+                        background: isChecked ? 'rgba(59, 130, 246, 0.08)' : 'transparent',
+                        color: isChecked ? '#3b82f6' : 'var(--color-text-muted)'
                       }}>
-                      
-                                        <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))} className="accent-color-[var(--color-primary)] w-[1.1rem] h-[1.1rem] cursor-pointer" />
-
-
-
-
-
-
-                      
-                                        {sig.label}
-                                    </label>);
-
+                      <div className="relative flex items-center justify-center">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))}
+                          className="absolute opacity-0 w-0 h-0"
+                        />
+                        <div className={`flex items-center justify-center w-[1.25rem] h-[1.25rem] rounded-[50%] border-[2px_solid_transparent] transition-[all_0.3s] ${
+                          isChecked 
+                            ? 'border-[#3b82f6] bg-[#3b82f6]' 
+                            : 'border-[#cbd5e1]'
+                        }`}>
+                          <Check size={12} strokeWidth={3} className={`transition-[all_0.3s] ${
+                            isChecked ? 'text-[#fff] scale-100' : 'text-[transparent] scale-50'
+                          }`} />
+                        </div>
+                      </div>
+                      <span className="font-[800]">{sig.label}</span>
+                    </label>);
                 })}
                         </div>
                     </div>

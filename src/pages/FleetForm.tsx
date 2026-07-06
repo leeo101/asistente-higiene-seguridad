@@ -266,23 +266,27 @@ export default function FleetForm(): React.ReactElement | null {
                         <></>
                     </div>
 
-                    <div className="flex justify-between gap-4 mb-8 flex-wrap px-4">
-                        <div className="relative flex-1 basis-[300px]">
-                            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <div className="flex flex-col gap-4 mb-[2rem] px-4">
+                        <div className="flex justify-end">
+                            <button
+                  onClick={() => setIsFormVisible(true)}
+                  onMouseOver={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 12px 25px rgba(16,185,129,0.4)';}}
+                  onMouseOut={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.3)';}}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '0 1.5rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(16,185,129,0.3)', whiteSpace: 'nowrap', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', minHeight: '3.5rem' }}>
+                                <Plus size={22} strokeWidth={2.5} /> Nueva Inspección
+                            </button>
+                        </div>
+                        <div className="relative w-full">
+                            <Search size={22} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
                             <input
                 type="text"
                 placeholder="Buscar por patente o conductor..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full py-3 px-4 pl-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 outline-none" />
-              
+                onFocus={(e) => {e.currentTarget.style.border = '2px solid #3b82f6';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = '0 0 0 4px rgba(59,130,246,0.1)';}}
+                onBlur={(e) => {e.currentTarget.style.border = '2px solid transparent';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = 'none';}}
+                style={{ width: '100%', height: '100%', minHeight: '3.5rem', padding: '0.75rem 1rem 0.75rem 3.5rem', borderRadius: '1rem', border: '2px solid transparent', backgroundColor: 'rgba(241, 245, 249, 0.5)', fontSize: '1rem', outline: 'none', transition: 'all 0.3s', fontWeight: 500, color: 'var(--color-text)' }} />
                         </div>
-                        <button
-              onClick={() => setIsFormVisible(true)}
-              className="btn-primary m-0 bg-gradient-to-br from-emerald-500 to-emerald-600 border-none flex items-center gap-2 shadow-lg shadow-emerald-500/30 py-3 px-6 rounded-xl hover:-translate-y-0.5 transition-all text-white font-bold">
-              
-                            <Plus size={20} /> NUEVA INSPECCIÓN
-                        </button>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
@@ -339,16 +343,25 @@ export default function FleetForm(): React.ReactElement | null {
                                             </div>
                                         </div>
 
-                                        <div className="flex justify-space-between items-center pt-[1rem] border-top-[1px_solid_var(--color-border)]">
-                                            <span className="text-[0.8rem] text-[var(--color-primary)] font-[600] flex items-center gap-[0.25rem]">
-                                                <FileText size={14} /> Ver / Editar
-                                            </span>
+                                        <div className="flex justify-end gap-[0.5rem] pt-[1rem] border-top-[1px_solid_var(--color-border)]">
+                                            <button
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  setForm({ ...item, showSignatures: item.showSignatures || { operator: true, professional: true, supervisor: true } });
+                                                  setIsEdit(true);
+                                                  setIsFormVisible(true);
+                                                }}
+                                                style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }}
+                                                className="flex-1 sm:flex-none p-[0.5rem_1rem] rounded-[8px] text-[0.85rem] font-[800] flex items-center justify-center gap-[0.4rem] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"
+                                            >
+                                                <FileText size={16} /> Ver / Editar
+                                            </button>
                                             <button
                       onClick={(e) => handleDelete(item.id, e)}
-
-                      title="Eliminar" className="bg-[transparent] border-none text-[#ef4444] cursor-pointer p-[0.5rem]">
-                      
-                                                <Trash2 size={18} />
+                      title="Eliminar"
+                      style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }}
+                      className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center">
+                                                <Trash2 size={16} />
                                             </button>
                                         </div>
                                     </div>);
@@ -498,57 +511,39 @@ export default function FleetForm(): React.ReactElement | null {
                             </h3>
                         </div>
 
-                        {/* Signature Visibility Toggles (Pill style) */}
-                        <div className="no-print mb-[2rem] p-[1.2rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[16px] flex flex-col gap-[1rem] box-shadow-[0_4px_6px_rgba(0,0,0,0.02)]">
-
-
-
-
-
-
-
-
-
-              
-                            <div className="text-[var(--color-text)] text-[0.85rem] font-[800] uppercase letter-spacing-[0.5px]">
-                                INCLUIR FIRMAS EN EL DOCUMENTO:
-                            </div>
-                            <div className="flex gap-[1rem] flex-wrap">
+                        {/* Signature Visibility Toggles */}
+                        <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.02)] border-[1px_solid_var(--color-border)] rounded-[24px] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center box-shadow-[0_4px_6px_rgba(0,0,0,0.02)]">
+                            <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                            <div className="flex gap-[1rem] flex-wrap justify-center">
                                 {[
-                { id: 'operator', label: 'Conductor', checked: showSignatures.operator },
-                { id: 'professional', label: 'Especialista H&S', checked: showSignatures.professional },
-                { id: 'supervisor', label: 'Inspector / Control', checked: showSignatures.supervisor }].
-                map((sig) =>
-                <label key={sig.id} style={{
-
-
-
-
-
-                  background: sig.checked ? 'rgba(56, 189, 248, 0.1)' : 'var(--color-background)',
-                  border: `1px solid ${sig.checked ? '#38bdf8' : 'var(--color-border)'}`
-
-
-                }} className="flex items-center gap-[0.5rem] cursor-pointer p-[0.5rem_1rem] rounded-[20px] transition-[all_0.2s_ease]">
-                                        <div style={{
-
-                    border: `2px solid ${sig.checked ? '#38bdf8' : 'var(--color-text-secondary)'}`,
-                    background: sig.checked ? '#38bdf8' : 'transparent'
-
-                  }} className="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center">
-                                            {sig.checked && <span className="text-[#fff] text-[12px] font-[bold]">✓</span>}
-                                        </div>
-                                        <input
-                    type="checkbox"
-                    checked={sig.checked}
-                    onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="none" />
-
-                   
-                                        <span style={{ fontWeight: sig.checked ? 700 : 500, color: sig.checked ? 'var(--color-text)' : 'var(--color-text-secondary)' }} className="text-[0.9rem]">
+                  { id: 'operator', label: 'Conductor' },
+                  { id: 'professional', label: 'Especialista H&S' },
+                  { id: 'supervisor', label: 'Inspector / Control' }].
+                  map((sig) => {
+                    const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                    return (
+                      <label
+                        key={sig.id}
+                        className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[24px] font-[750] text-[0.85rem] transition-[all_0.2s_ease] whitespace-nowrap"
+                        style={{
+                          border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
+                          background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
+                          color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
+                          boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
+                        }}>
+                                            <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="hidden" />
+                                            <div style={{
+                          border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
+                          background: isChecked ? 'var(--color-primary)' : 'transparent'
+                        }} className="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
+                                                {isChecked && <CheckCircle2 size={12} color="white" strokeWidth={3} />}
+                                            </div>
                                             {sig.label}
-                                        </span>
-                                    </label>
-                )}
+                                        </label>);
+                  })}
                             </div>
                         </div>
 

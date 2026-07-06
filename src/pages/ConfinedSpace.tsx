@@ -762,15 +762,15 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                 </div>
             </div>
 
-            <div className="flex justify-between items-center mt-[1rem] pt-[1rem] border-top-[1px_solid_var(--color-border)]">
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-[1rem] mt-[1rem] pt-[1rem] border-top-[1px_solid_var(--color-border)]">
                 <span className="text-[0.75rem] text-[var(--color-text-muted)] font-[600] flex items-center gap-[0.4rem]">
                     <Clock size={14} /> Creado: {new Date(permit.createdAt).toLocaleDateString()}
                 </span>
-                <div className="flex gap-[0.5rem]">
+                <div className="flex gap-[0.5rem] flex-wrap">
                     {permit.status === 'pending' &&
                         <button
                             onClick={onAuthorize}
-                            title="Autorizar Permiso" className="p-[0.6rem] bg-[#16a34a] border-none rounded-[8px] cursor-pointer text-[#fff] shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]">
+                            title="Autorizar Permiso" className="p-[0.6rem] border-none rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]" style={{ backgroundColor: '#16a34a', color: '#fff' }}>
                             <CheckCircle2 size={18} />
                         </button>
                     }
@@ -778,31 +778,41 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                         <>
                             <button
                                 onClick={onSuspend}
-                                title="Suspender Permiso" className="p-[0.6rem] bg-[#f59e0b] border-none rounded-[8px] cursor-pointer text-[#fff] shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]">
+                                title="Suspender Permiso" className="p-[0.6rem] border-none rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]" style={{ backgroundColor: '#f59e0b', color: '#fff' }}>
                                 <AlertTriangle size={18} />
                             </button>
                             <button
                                 onClick={onComplete}
-                                title="Completar Permiso" className="p-[0.6rem] bg-[#0ea5e9] border-none rounded-[8px] cursor-pointer text-[#fff] shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]">
+                                title="Completar Permiso" className="p-[0.6rem] border-none rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]" style={{ backgroundColor: '#0ea5e9', color: '#fff' }}>
                                 <CheckSquare size={18} />
                             </button>
                         </>
                     }
                     <button
+                        onClick={onView}
+                        className="p-[0.6rem] border-none rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]"
+                        style={{ backgroundColor: '#3b82f6', color: '#fff' }}
+                        title="Ver Detalles">
+                        <Eye size={18} />
+                    </button>
+                    <button
                         onClick={onEdit}
-                        className="p-[0.6rem] bg-[#6366f1] border-none rounded-[8px] cursor-pointer text-[#fff] shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]"
+                        className="p-[0.6rem] border-none rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]"
+                        style={{ backgroundColor: '#6366f1', color: '#fff' }}
                         title="Editar Permiso">
                         <Edit3 size={18} />
                     </button>
                     <button
                         onClick={onShare}
-                        className="p-[0.6rem] bg-[#8b5cf6] border-none rounded-[8px] cursor-pointer text-[#fff] shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]"
+                        className="p-[0.6rem] border-none rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]"
+                        style={{ backgroundColor: '#8b5cf6', color: '#fff' }}
                         title="Compartir PDF">
                         <Share2 size={18} />
                     </button>
                     <button
                         onClick={onDelete}
-                        className="p-[0.6rem] bg-[#ef4444] border-none rounded-[8px] cursor-pointer text-[#fff] shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]"
+                        className="p-[0.6rem] border-none rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]"
+                        style={{ backgroundColor: '#ef4444', color: '#fff' }}
                         title="Eliminar">
                         <Trash2 size={18} />
                     </button>
@@ -1140,9 +1150,9 @@ function PermitDetailModal({ permit, statusConfig, onClose, CONFINED_SPACE_TYPES
   const isExpired = permit.validUntil && new Date(permit.validUntil) < new Date();
 
   return (
-    <div className="modal-fullscreen-overlay" onClick={onClose}>
+    <div className="modal-fullscreen-overlay" onClick={onClose} style={{ zIndex: 1000, display: 'flex', padding: '2rem' }}>
             <div
-        className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto m-auto"
+        className="bg-[var(--color-surface)] text-[var(--color-text)] border border-[var(--color-border)] rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto m-auto relative"
         onClick={(e) => e.stopPropagation()}>
         
                 {/* Header */}
@@ -1150,21 +1160,10 @@ function PermitDetailModal({ permit, statusConfig, onClose, CONFINED_SPACE_TYPES
 
           background: `${statusConfig.bg}`,
           borderBottom: `2px solid ${statusConfig.color}`
-
-
-
-
         }} className="p-[1.5rem] flex justify-space-between items-center mb-[1.5rem]">
                     <div className="flex items-center gap-4">
                         <div style={{
-
-
               background: `linear-gradient(135deg, ${isExpired ? '#9ca3af' : statusConfig.color}, ${isExpired ? '#6b7280' : statusConfig.color}cc)`
-
-
-
-
-
             }} className="w-[64px] h-[64px] rounded-[var(--radius-xl)] flex items-center justify-center text-[#fff]">
                             <Tent size={32} strokeWidth={2.5} />
                         </div>
@@ -1179,18 +1178,19 @@ function PermitDetailModal({ permit, statusConfig, onClose, CONFINED_SPACE_TYPES
                     </div>
                     <button
             onClick={onClose}
-            className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition-colors">
-            
+            className="p-2 bg-[rgba(0,0,0,0.05)] hover:bg-[rgba(0,0,0,0.1)] rounded-lg transition-colors">
                         <XCircle size={24} />
                     </button>
                 </div>
+                
+                <div className="px-[1.5rem] pb-[1.5rem]">
 
                 {/* Información del espacio */}
                 <div className="mb-6">
-                    <h3 className="text-sm font-extrabold mb-3 uppercase">
+                    <h3 className="text-sm font-extrabold mb-3 uppercase text-[var(--color-text)]">
                         Información del Espacio
                     </h3>
-                    <div className="grid grid-template-columns-[1fr_1fr] gap-[1rem]">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-[1rem]">
                         <InfoDetail label="Tipo" value={spaceType?.name || '-'} />
                         <InfoDetail label="Departamento" value={permit.department || '-'} />
                         <InfoDetail label="Válido Desde" value={permit.validFrom ? new Date(permit.validFrom).toLocaleString() : '-'} />
@@ -1334,7 +1334,6 @@ function PermitDetailModal({ permit, statusConfig, onClose, CONFINED_SPACE_TYPES
 
 
 
-          
                         <h4 className="m-[0_0_0.5rem_0] text-[0.85rem] font-[700]">
                             Observaciones
                         </h4>
@@ -1346,14 +1345,6 @@ function PermitDetailModal({ permit, statusConfig, onClose, CONFINED_SPACE_TYPES
 
                 {/* Alerta OSHA */}
                 <div className="p-[1rem] bg-[#fef3c7] border-[1px_solid_#f59e0b] rounded-[var(--radius-lg)] mb-[1.5rem] flex gap-[0.75rem]">
-
-
-
-
-
-
-
-          
                     <AlertTriangle size={20} color="#d97706" className="flex-shrink-[0]" />
                     <div>
                         <h4 className="m-[0_0_0.25rem_0] text-[0.85rem] font-[700] text-[#d97706]">
@@ -1372,6 +1363,7 @@ function PermitDetailModal({ permit, statusConfig, onClose, CONFINED_SPACE_TYPES
           
                     Cerrar
                 </button>
+                </div>
             </div>
         </div>);
 
