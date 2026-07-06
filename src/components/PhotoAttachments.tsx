@@ -62,13 +62,6 @@ export default function PhotoAttachments({ photos = [], onChange, maxPhotos = 5,
                         </span>
                     }
                 </label>
-                {photos.length < maxPhotos &&
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()} className="flex items-center gap-[0.5rem] bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-[10px] p-[0.4rem_0.8rem] cursor-pointer text-[0.8rem] font-[700] shadow-[0_4px_12px_rgba(16,185,129,0.25)] transition-all transform hover:translate-y-[-2px] border-none">
-                        <Image size={15} /> Agregar foto
-                    </button>
-        }
                 <input
           ref={fileInputRef}
           type="file"
