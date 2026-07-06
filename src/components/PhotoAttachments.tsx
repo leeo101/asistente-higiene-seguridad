@@ -57,24 +57,16 @@ export default function PhotoAttachments({ photos = [], onChange, maxPhotos = 5,
                 <label className="text-[0.82rem] font-[700] text-[var(--color-text-muted)] flex items-center gap-[0.4rem]">
                     <Camera size={15} /> {label}
                     {photos.length > 0 &&
-          <span className="bg-[rgba(59,130,246,0.1)] text-[var(--color-primary)] p-[0.1rem_0.5rem] rounded-[20px] text-[0.65rem] font-[800]">
+                        <span className="bg-[rgba(59,130,246,0.1)] text-[var(--color-primary)] p-[0.1rem_0.5rem] rounded-[20px] text-[0.65rem] font-[800]">
                             {photos.length}/{maxPhotos}
                         </span>
-          }
+                    }
                 </label>
                 {photos.length < maxPhotos &&
         <button
           type="button"
-          onClick={() => fileInputRef.current?.click()} className="flex items-center gap-[0.4rem] bg-[rgba(59,130,246,0.08)] border-[1px_solid_rgba(59,130,246,0.2)] rounded-[8px] p-[0.35rem_0.75rem] text-[var(--color-primary)] cursor-pointer text-[0.78rem] font-[700]">
-
-
-
-
-
-
-
-          
-                        <Image size={14} /> Agregar foto
+          onClick={() => fileInputRef.current?.click()} className="flex items-center gap-[0.5rem] bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-[10px] p-[0.4rem_0.8rem] cursor-pointer text-[0.8rem] font-[700] shadow-[0_4px_12px_rgba(16,185,129,0.25)] transition-all transform hover:translate-y-[-2px] border-none">
+                        <Image size={15} /> Agregar foto
                     </button>
         }
                 <input
@@ -92,18 +84,12 @@ export default function PhotoAttachments({ photos = [], onChange, maxPhotos = 5,
       <button
         type="button"
         onClick={() => fileInputRef.current?.click()}
-
-
-
-
-
-
-        onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--color-primary)'}
-        onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--color-border)'} className="w-[100%] p-[1.5rem] border-[2px_dashed_var(--color-border)] rounded-[12px] bg-[transparent] cursor-pointer flex flex-col items-center gap-[0.5rem] text-[var(--color-text-muted)] transition-[border-color_0.2s]">
-        
-                    <Camera size={24} className="opacity-[0.4]" />
-                    <span className="text-[0.82rem] font-[600]">Tocá para adjuntar fotos de evidencia</span>
-                    <span className="text-[0.72rem]">JPG, PNG — máx. {maxPhotos} fotos</span>
+        className="w-[100%] p-[2rem] border-[2px_dashed_#10b981] rounded-[16px] bg-[rgba(16,215,140,0.04)] hover:bg-[rgba(16,215,140,0.08)] cursor-pointer flex flex-col items-center gap-[0.75rem] text-[#0f766e] transition-[all_0.3s_ease] shadow-inner group">
+                    <div className="bg-[#10b981] text-white p-[0.8rem] rounded-full shadow-[0_4px_15px_rgba(16,185,129,0.4)] group-hover:scale-110 transition-transform">
+                        <Camera size={26} />
+                    </div>
+                    <span className="text-[0.95rem] font-[800] tracking-tight">Toca para adjuntar fotos de evidencia</span>
+                    <span className="text-[0.75rem] font-medium opacity-80">JPG, PNG — máx. {maxPhotos} fotos</span>
                 </button> :
 
       <div className="grid grid-template-columns-[repeat(auto-fill,_minmax(100px,_1fr))] gap-[0.6rem]">
