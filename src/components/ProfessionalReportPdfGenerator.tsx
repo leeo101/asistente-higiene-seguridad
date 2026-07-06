@@ -5,7 +5,7 @@ import PdfSignatures from './PdfSignatures';
 import { getCountryNormativa } from '../data/legislationData';
 import PdfBrandingFooter from './PdfBrandingFooter';
 
-export default function ProfessionalReportPdfGenerator({ currentReport }: {currentReport: any;}): React.ReactElement | null {
+export default function ProfessionalReportPdfGenerator({ currentReport, customId }: {currentReport: any; customId?: string}): React.ReactElement | null {
   // logo code removed
 
 
@@ -19,133 +19,158 @@ export default function ProfessionalReportPdfGenerator({ currentReport }: {curre
 
   return (
     <div className="w-[100%] flex justify-center">
-            <div
-        id="pdf-content"
-        className="pdf-container print-area border-none shadow-none w-[100%] max-w-[210mm] min-h-[297mm] p-[15mm] bg-[#ffffff] text-[#000000] box-sizing-[border-box] m-[0_auto] text-[10pt] font-family-[system-ui,_-apple-system,_sans-serif]">
+        <div
+            id={customId || "pdf-content"}
+            className="pdf-container print-area border-none shadow-none w-[100%] max-w-[210mm] min-h-[297mm] p-[10mm_15mm] bg-[#ffffff] text-[#1e293b] box-sizing-[border-box] m-[0_auto] text-[10pt] font-family-[system-ui,_-apple-system,_sans-serif]"
+        >
+            <style type="text/css" media="print">
+                {`
+                    @page { size: A4 portrait; margin: 10mm; }
+                    body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                    .no-print { display: none !important; }
+                    .print-area { 
+                        box-shadow: none !important; 
+                        margin: 0 !important; 
+                        padding: 5mm !important; 
+                        width: 100% !important; 
+                        max-width: none !important; 
+                        border: none !important;
+                        border-radius: 0 !important; 
+                    }
+                    .company-logo {
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                        color-adjust: exact !important;
+                    }
+                    .striped-row:nth-child(even) { background-color: #f8fafc; }
+                `}
+            </style>
 
-
-
-
-
-
-        
-                <style type="text/css" media="print">
-                    {`
-                        @page { size: A4 portrait; margin: 10mm; }
-                        body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-                        .no-print { display: none !important; }
-                        .print-area { 
-                            box-shadow: none !important; 
-                            margin: 0 !important; 
-                            padding: 5mm !important; 
-                            width: 100% !important; 
-                            max-width: none !important; 
-                            border: none !important;
-                            border-radius: 0 !important; 
-                        }
-                        .company-logo {
-                            -webkit-print-color-adjust: exact !important;
-                            print-color-adjust: exact !important;
-                            color-adjust: exact !important;
-                        }
-                    `}
-                </style>
-
-                {/* Header with Professional Info */}
-                <div className="flex justify-space-between border-bottom-[2px_solid_#3b82f6] pb-[2rem] mb-[2.5rem] gap-[1.5rem]">
-                    <div className="flex-[1]">
-                        <h1 className="m-[0_0_0.5rem_0] text-[#3b82f6] text-[2.5rem] font-[900] letter-spacing-[-1px]">INFORME</h1>
-                        <p className="m-[0] text-[0.9rem] text-[#475569] uppercase letter-spacing-[1px] font-[700]">
-                            {report.title || 'Informe Técnico'}
-                        </p>
+            {/* Header Rediseñado */}
+            <div className="flex justify-between items-start border-bottom-[3px_solid_#0f172a] pb-[1.5rem] mb-[2rem]">
+                <div className="flex-[1]">
+                    <div className="inline-block bg-[#0f172a] text-[#ffffff] font-[800] text-[0.7rem] uppercase letter-spacing-[2px] p-[0.3rem_0.8rem] rounded-full mb-[1rem]">
+                        Documento Oficial
                     </div>
-                    <div className="flex items-center justify-end h-[60px]">
-                        <CompanyLogo className="max-height-[100%] max-w-[150px] object-fit-[contain]" />
-
-
-
-
-
-            
-                    </div>
-                    <div className="text-right border-left-[1px_solid_#e2e8f0] pl-[2rem]">
-                        <p className="m-[0] font-[800] text-[1.2rem] text-[#1e293b]">PROFESIONAL HYS</p>
-                    </div>
+                    <h1 className="m-[0_0_0.3rem_0] text-[#0f172a] text-[2.2rem] font-[900] letter-spacing-[-0.5px] leading-tight">
+                        INFORME TÉCNICO
+                    </h1>
+                    <p className="m-[0] text-[1.1rem] text-[#334155] font-[600]">
+                        {report.title || 'Reporte de Higiene y Seguridad'}
+                    </p>
                 </div>
-
-                {/* Metadata Grid */}
-                <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(200px,_1fr))] gap-[1.5rem] mb-[3rem] bg-[#f8fafc] p-[1.5rem] rounded-[8px] border-[1px_solid_#e2e8f0] text-[#1e293b]">
-                    <div className="flex items-center gap-[0.8rem]">
-                        <Building2 size={20} color="#3b82f6" />
-                        <div>
-                            <p className="m-[0] text-[0.75rem] text-[#64748b]">Empresa</p>
-                            <p className="m-[0] font-[700]">{report.company || '-'}</p>
-                        </div>
+                <div className="flex flex-col items-end gap-[1rem]">
+                    <div className="h-[65px] flex items-center">
+                        <CompanyLogo className="max-height-[100%] max-w-[160px] object-fit-[contain]" />
                     </div>
-                    <div className="flex items-center gap-[0.8rem]">
-                        <MapPin size={20} color="#3b82f6" />
-                        <div>
-                            <p className="m-[0] text-[0.75rem] text-[#64748b]">Ubicación</p>
-                            <p className="m-[0] font-[700]">{report.location || 'N/A'}</p>
-                        </div>
+                    <div className="text-right">
+                        <p className="m-[0] font-[900] text-[1.1rem] text-[#0f172a] letter-spacing-[1px]">PROFESIONAL HYS</p>
                     </div>
-                    <div className="flex items-center gap-[0.8rem]">
-                        <Calendar size={20} color="#3b82f6" />
-                        <div>
-                            <p className="m-[0] text-[0.75rem] text-[#64748b]">Fecha</p>
-                            <p className="m-[0] font-[700]">{report.date ? new Date(report.date).toLocaleDateString('es-AR') : new Date().toLocaleDateString('es-AR')}</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Main Content Area / Observations */}
-                <div className="mb-[1rem] text-[#3b82f6] font-[800] text-[0.8rem] letter-spacing-[2px] uppercase">DETALLE / OBSERVACIONES</div>
-                <div className="mb-[4rem] white-space-[pre-wrap] word-break-[break-word] overflow-wrap-[anywhere] line-height-[1.6] text-[1.05rem] text-[#1e293b] border-top-[2px_solid_#f1f5f9] pt-[1rem]">
-                    {report.content || 'Sin observaciones registradas.'}
-                </div>
-
-                {/* Personnel List Table if applicable */}
-                {(report.template === 'training' || report.template === 'epp') && report.personnel && report.personnel.length > 0 &&
-        <div className="mb-[4rem] page-break-inside-[auto]">
-                        <h4 className="m-[0_0_1rem_0] text-[#3b82f6] border-bottom-[1px_solid_#e2e8f0] pb-[0.5rem] font-[800]">
-                            Personal Interviniente / Firmas
-                        </h4>
-                        <div className="w-[100%]">
-                            <table className="table-layout-[fixed] word-break-[break-word] overflow-wrap-[break-word] w-[100%] border-collapse-[collapse] text-[0.85rem]">
-                                <thead>
-                                    <tr className="avoid-break break-inside-[avoid] bg-[#f1f5f9]">
-                                        <th className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-left text-[#475569]">Nombre y Apellido</th>
-                                        <th className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-left text-[#475569]">DNI / CUIL</th>
-                                        <th className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-left w-[35%] text-[#475569]">Firma</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {report.personnel.map((p, idx) =>
-                <tr className="avoid-break" key={p.id || idx} style={{}}>
-                                            <td className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-[#1e293b] font-[600]">{p.name}</td>
-                                            <td className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-[#1e293b]">{p.dni}</td>
-                                            <td className="border-[1px_solid_#e2e8f0] p-[0.8rem] h-[65px] vertical-align-[bottom] text-center">
-                                                <div className="border-top-[1px_dotted_#000] w-[80%] m-[0_auto] text-[0.7rem] text-[#64748b]">
-                                                    Firma del Trabajador
-                                                </div>
-                                            </td>
-                                        </tr>
-                )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-        }
-
-                {/* Firmas */}
-                <PdfSignatures data={report} />
-            <PdfBrandingFooter />
-
-                {/* Footer Legal */}
-                <div className="w-[100%] text-center text-[0.7rem] text-[#94a3b8] mt-[3rem] font-style-[italic] border-top-[1px_solid_#e2e8f0] pt-[1rem]">
-                    Documento generado por Asistente de Higiene y Seguridad - Conforme a {countryNorms.general}
                 </div>
             </div>
-        </div>);
+
+            {/* Metadata Grid Rediseñada */}
+            <div className="flex flex-wrap gap-[1rem] mb-[2.5rem] bg-[#f8fafc] p-[1.2rem_1.5rem] rounded-[12px] border-[1px_solid_#cbd5e1]">
+                <div className="flex-[1] min-w-[150px] border-right-[1px_solid_#e2e8f0] pr-[1rem]">
+                    <div className="flex items-center gap-[0.5rem] mb-[0.3rem]">
+                        <Building2 size={16} className="text-[#3b82f6]" />
+                        <span className="text-[0.75rem] text-[#64748b] font-[700] uppercase letter-spacing-[1px]">Empresa</span>
+                    </div>
+                    <p className="m-[0] font-[800] text-[1rem] text-[#0f172a]">{report.company || '-'}</p>
+                </div>
+                <div className="flex-[1] min-w-[150px] border-right-[1px_solid_#e2e8f0] pr-[1rem]">
+                    <div className="flex items-center gap-[0.5rem] mb-[0.3rem]">
+                        <MapPin size={16} className="text-[#3b82f6]" />
+                        <span className="text-[0.75rem] text-[#64748b] font-[700] uppercase letter-spacing-[1px]">Ubicación</span>
+                    </div>
+                    <p className="m-[0] font-[800] text-[1rem] text-[#0f172a]">{report.location || 'N/A'}</p>
+                </div>
+                <div className="flex-[1] min-w-[150px]">
+                    <div className="flex items-center gap-[0.5rem] mb-[0.3rem]">
+                        <Calendar size={16} className="text-[#3b82f6]" />
+                        <span className="text-[0.75rem] text-[#64748b] font-[700] uppercase letter-spacing-[1px]">Fecha</span>
+                    </div>
+                    <p className="m-[0] font-[800] text-[1rem] text-[#0f172a]">{report.date ? new Date(report.date).toLocaleDateString('es-AR') : new Date().toLocaleDateString('es-AR')}</p>
+                </div>
+            </div>
+
+            {/* Contenido Principal */}
+            <div className="mb-[2.5rem] avoid-break">
+                <div className="flex items-center gap-[0.8rem] mb-[1.2rem]">
+                    <div className="w-[8px] h-[24px] bg-[#3b82f6] rounded-[4px]"></div>
+                    <h3 className="m-[0] text-[#0f172a] font-[800] text-[1.1rem] uppercase letter-spacing-[1px]">Detalle / Observaciones</h3>
+                </div>
+                <div className="bg-[#ffffff] p-[1.5rem] rounded-[12px] border-[1px_solid_#e2e8f0] box-shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]">
+                    <div className="white-space-[pre-wrap] word-break-[break-word] overflow-wrap-[anywhere] line-height-[1.8] text-[1.05rem] text-[#334155]">
+                        {report.content || 'Sin observaciones registradas.'}
+                    </div>
+                </div>
+            </div>
+
+            {/* Fotos de Evidencia si existen */}
+            {report.photos && report.photos.length > 0 && (
+                <div className="mb-[3rem] avoid-break">
+                    <div className="flex items-center gap-[0.8rem] mb-[1.2rem]">
+                        <div className="w-[8px] h-[24px] bg-[#3b82f6] rounded-[4px]"></div>
+                        <h3 className="m-[0] text-[#0f172a] font-[800] text-[1.1rem] uppercase letter-spacing-[1px]">Registro Fotográfico</h3>
+                    </div>
+                    <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(250px,_1fr))] gap-[1rem]">
+                        {report.photos.map((photo: any, index: number) => (
+                            <div key={photo.id || index} className="border-[1px_solid_#e2e8f0] rounded-[12px] overflow-hidden bg-[#f8fafc] p-[0.5rem] avoid-break break-inside-[avoid]">
+                                <img src={photo.url} alt="Evidencia" className="w-[100%] h-[200px] object-fit-[cover] rounded-[8px] border-[1px_solid_#cbd5e1]" />
+                                {photo.description && (
+                                    <p className="m-[0.8rem_0_0.3rem_0] text-[0.85rem] text-[#475569] text-center font-[600]">{photo.description}</p>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Personal Interviniente */}
+            {(report.template === 'training' || report.template === 'epp') && report.personnel && report.personnel.length > 0 && (
+                <div className="mb-[3rem] avoid-break">
+                    <div className="flex items-center gap-[0.8rem] mb-[1.2rem]">
+                        <div className="w-[8px] h-[24px] bg-[#3b82f6] rounded-[4px]"></div>
+                        <h3 className="m-[0] text-[#0f172a] font-[800] text-[1.1rem] uppercase letter-spacing-[1px]">Personal Interviniente</h3>
+                    </div>
+                    <div className="border-[1px_solid_#cbd5e1] rounded-[12px] overflow-hidden">
+                        <table className="w-[100%] border-collapse-[collapse] text-[0.9rem]">
+                            <thead>
+                                <tr className="bg-[#0f172a] text-[#ffffff]">
+                                    <th className="p-[1rem] text-left font-[700] w-[40%]">Nombre y Apellido</th>
+                                    <th className="p-[1rem] text-left font-[700] w-[25%]">DNI / CUIL</th>
+                                    <th className="p-[1rem] text-center font-[700] w-[35%]">Firma del Trabajador</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {report.personnel.map((p: any, idx: number) => (
+                                    <tr className="avoid-break striped-row border-bottom-[1px_solid_#e2e8f0]" key={p.id || idx}>
+                                        <td className="p-[1rem] text-[#0f172a] font-[700]">{p.name}</td>
+                                        <td className="p-[1rem] text-[#334155]">{p.dni}</td>
+                                        <td className="p-[1rem] h-[80px] vertical-align-[bottom]">
+                                            <div className="border-bottom-[1px_dashed_#94a3b8] w-[80%] m-[0_auto]"></div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {/* Firmas */}
+            <div className="avoid-break mt-[2rem]">
+                <PdfSignatures data={report} />
+            </div>
+
+            <PdfBrandingFooter />
+
+            {/* Footer Legal */}
+            <div className="w-[100%] text-center text-[0.75rem] text-[#64748b] mt-[3rem] font-[600] border-top-[1px_solid_#cbd5e1] pt-[1.5rem]">
+                Documento generado por Asistente de Higiene y Seguridad - Conforme a {countryNorms.general}
+            </div>
+        </div>
+    </div>);
 
 }

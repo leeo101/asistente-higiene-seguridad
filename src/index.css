@@ -2511,12 +2511,20 @@ button[aria-label*="Atrás"],
     background: white !important;
     visibility: visible !important;
     display: block !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
 
   /* Ensure background colors and images are printed */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  /* Fix for text becoming black on dark backgrounds during print */
+  .pdf-container .bg-\[\#1e293b\] span,
+  .pdf-container .bg-\[\#1e293b\] svg {
+    color: #ffffff !important;
   }
 
   /* Hide common UI elements that might stay visible */

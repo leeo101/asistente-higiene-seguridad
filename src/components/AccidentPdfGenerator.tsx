@@ -44,7 +44,7 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
   }
 
   return (
-    <div className="container pb-[3rem] min-h-[100vh] flex flex-col">
+    <div className={`pb-[3rem] min-h-[100vh] ${isHeadless ? 'block' : 'container flex flex-col'}`}>
             {!isHeadless &&
       <div className="no-print flex items-center justify-space-between mb-[1.5rem] flex-wrap gap-[1rem]">
                     <div className="flex items-center gap-[1rem]">
@@ -59,7 +59,7 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                 </div>
       }
 
-            <div className="flex-[1] flex justify-center">
+            <div className={isHeadless ? 'block' : 'flex-[1] flex justify-center'}>
                 <div
           id="pdf-content"
           className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[12mm_15mm] bg-[#ffffff] text-[#1e293b] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box] text-[9pt] font-family-[Helvetica,_Arial,_sans-serif]"
@@ -82,6 +82,13 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                                 width: 100% !important; max-width: none !important;
                                 border-top: 12px solid ${sev.borderTop} !important;
                                 border-radius: 0 !important; min-height: auto !important;
+                                display: block !important;
+                            }
+                            @media print {
+                                .print-text-white { 
+                                    color: white !important; 
+                                    -webkit-text-fill-color: white !important;
+                                }
                             }
                         `}
                     </style>
@@ -115,8 +122,8 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                     {/* 1 - Datos del Siniestro */}
                     <div style={{ border: `1.5px solid ${sev.border}` }} className="rounded-[6px] mb-[1.2rem]">
                         <div className="bg-[#1e293b] p-[0.5rem_1rem] flex items-center gap-[0.5rem]">
-                            <TriangleAlert size={14} color={sev.borderTop} />
-                            <span className="font-[900] text-[0.75rem] text-[#ffffff] uppercase letter-spacing-[0.04em]">1 — DATOS DEL SINIESTRO</span>
+                            <TriangleAlert size={14} color="#ffffff" className="print-text-white" />
+                            <span className="font-[900] text-[0.75rem] text-[#ffffff] print-text-white uppercase letter-spacing-[0.04em]">1 — DATOS DEL SINIESTRO</span>
                         </div>
                         <div className="grid grid-template-columns-[2fr_1fr_1fr] bg-[#f8fafc] border-bottom-[1px_solid_#e2e8f0]">
                             <div className="p-[0.7rem_1rem] border-right-[1px_solid_#e2e8f0]">
@@ -146,8 +153,8 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                     {/* 2 - Datos del Accidentado */}
                     <div className="border-[1px_solid_#fca5a5] rounded-[6px] mb-[1.2rem]">
                         <div className="bg-[#1e293b] p-[0.5rem_1rem] flex items-center gap-[0.5rem]">
-                            <User size={14} color="#fca5a5" />
-                            <span className="font-[900] text-[0.75rem] text-[#ffffff] uppercase letter-spacing-[0.04em]">2 — DATOS DEL ACCIDENTADO</span>
+                            <User size={14} color="#ffffff" className="print-text-white" />
+                            <span className="font-[900] text-[0.75rem] text-[#ffffff] print-text-white uppercase letter-spacing-[0.04em]">2 — DATOS DEL ACCIDENTADO</span>
                         </div>
                         <div className="grid grid-template-columns-[repeat(2,_1fr)] bg-[#f8fafc] border-bottom-[1px_solid_#e2e8f0]">
                             <div className="p-[0.7rem_1rem] border-right-[1px_solid_#e2e8f0]">
@@ -184,8 +191,8 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                     {/* 3 - Descripción del Hecho */}
                     <div className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1.2rem]">
                         <div className="bg-[#1e293b] p-[0.5rem_1rem] flex items-center gap-[0.5rem]">
-                            <FileText size={14} color="#fff" />
-                            <span className="font-[900] text-[0.75rem] text-[#ffffff] uppercase letter-spacing-[0.04em]">3 — DESCRIPCIÓN DEL HECHO</span>
+                            <FileText size={14} color="#ffffff" className="print-text-white" />
+                            <span className="font-[900] text-[0.75rem] text-[#ffffff] print-text-white uppercase letter-spacing-[0.04em]">3 — DESCRIPCIÓN DEL HECHO</span>
                         </div>
                         <div className="p-[0.9rem_1rem] text-[0.85rem] line-height-[1.6] text-[#334155] font-[600] bg-[#f8fafc] white-space-[pre-wrap] text-justify">
                             {report?.descripcionHecho || 'Sin descripción detallada.'}
@@ -207,8 +214,8 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                     {/* 4 - Análisis Causal 5 Porqués */}
                     <div className="border-[1px_solid_#ddd6fe] rounded-[6px] mb-[1.2rem]">
                         <div className="bg-[#1e293b] p-[0.5rem_1rem] flex items-center gap-[0.5rem]">
-                            <Search size={14} color="#c4b5fd" />
-                            <span className="font-[900] text-[0.75rem] text-[#ffffff] uppercase letter-spacing-[0.04em]">4 — ANÁLISIS CAUSAL — MÉTODO "5 PORQUÉS"</span>
+                            <Search size={14} color="#ffffff" className="print-text-white" />
+                            <span className="font-[900] text-[0.75rem] text-[#ffffff] print-text-white uppercase letter-spacing-[0.04em]">4 — ANÁLISIS CAUSAL — MÉTODO "5 PORQUÉS"</span>
                         </div>
 
                         <div className="p-[0.8rem_1rem] bg-[#f5f3ff] border-bottom-[1px_solid_#ddd6fe]">
@@ -243,8 +250,8 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                     {/* 5 - Plan de Acción */}
                     <div className="border-[1px_solid_#bbf7d0] rounded-[6px] mb-[1.5rem]">
                         <div className="bg-[#1e293b] p-[0.5rem_1rem] flex items-center gap-[0.5rem]">
-                            <CheckCircle size={14} color="#86efac" />
-                            <span className="font-[900] text-[0.75rem] text-[#ffffff] uppercase letter-spacing-[0.04em]">5 — PLAN DE ACCIÓN CORRECTIVA / PREVENTIVA</span>
+                            <CheckCircle size={14} color="#ffffff" className="print-text-white" />
+                            <span className="font-[900] text-[0.75rem] text-[#ffffff] print-text-white uppercase letter-spacing-[0.04em]">5 — PLAN DE ACCIÓN CORRECTIVA / PREVENTIVA</span>
                         </div>
                         <table className="table-layout-[fixed] word-break-[break-word] overflow-wrap-[break-word] w-[100%] border-collapse-[collapse] text-[8.5pt]">
                             <thead>
@@ -276,13 +283,13 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                     {report?.fotos && report.fotos.length > 0 &&
           <div className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1.5rem]">
                             <div className="bg-[#1e293b] p-[0.5rem_1rem] flex items-center gap-[0.5rem]">
-                                <FileText size={14} color="#fff" />
-                                <span className="font-[900] text-[0.75rem] text-[#ffffff] uppercase letter-spacing-[0.04em]">6 — REGISTRO FOTOGRÁFICO / EVIDENCIA</span>
+                                <FileText size={14} color="#ffffff" className="print-text-white" />
+                                <span className="font-[900] text-[0.75rem] text-[#ffffff] print-text-white uppercase letter-spacing-[0.04em]">6 — REGISTRO FOTOGRÁFICO / EVIDENCIA</span>
                             </div>
-                            <div className="p-[1rem] grid grid-template-columns-[repeat(auto-fill,_minmax(200px,_1fr))] gap-[1rem] bg-[#f8fafc]">
+                            <div className="p-[1rem] grid grid-cols-3 gap-[1rem] bg-[#f8fafc]">
                                 {report.fotos.map((foto: string, idx: number) =>
-              <div key={idx} className="avoid-break break-inside-[avoid] border-[1px_solid_#e2e8f0] rounded-[8px] overflow-[hidden] bg-[#fff] p-[0.5rem]">
-                                        <img src={foto} alt={`Evidencia ${idx + 1}`} className="w-[100%] h-[auto] max-height-[200px] object-fit-[contain] block" />
+              <div key={idx} className="avoid-break break-inside-avoid border-[1px_solid_#e2e8f0] rounded-[8px] overflow-hidden bg-[#fff] p-[0.5rem] flex items-center justify-center">
+                                        <img src={foto} alt={`Evidencia ${idx + 1}`} className="w-full h-auto max-h-[180px] object-contain block" />
                                     </div>
               )}
                             </div>
@@ -292,22 +299,7 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                     {/* Firmas */}
                     
 
-                    {/* Evidencia Fotográfica */}
-                    {report?.fotos && report.fotos.length > 0 &&
-          <div className="mb-[1.2rem] page-break-inside-[avoid] border-[1px_solid_#cbd5e1] rounded-[6px]">
-                            <div className="bg-[#1e293b] p-[0.5rem_1rem] flex items-center gap-[0.5rem]">
-                                <span className="font-[900] text-[0.75rem] text-[#ffffff] uppercase letter-spacing-[0.04em]">EVIDENCIA FOTOGRÁFICA</span>
-                            </div>
-                            <div className="grid grid-template-columns-[repeat(3,_1fr)] gap-[0.5rem] p-[1rem] bg-[#ffffff]">
-                                {report.fotos.map((photo: string, i: number) =>
-              <div key={i} className="aspect-ratio-[4/3] bg-[#f1f5f9] rounded-[4px] overflow-[hidden] border-[1px_solid_#e2e8f0]">
-                                        <img src={photo} alt={"Evidencia " + (i + 1)} className="w-[100%] h-[100%] object-fit-[cover]" />
-                                    </div>
-              )}
-                            </div>
-                        </div>
-          }
-
+                    <div className="avoid-break break-inside-avoid mt-[2rem]">
                         <PdfSignatures
             data={report}
             box1={report.showSignatures?.operator ? {
@@ -330,6 +322,7 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
               signatureUrl: report.signature || report.supervisorSignature || null,
               isProfessional: false
             } : null} />
+                    </div>
           
 
                     <PdfBrandingFooter />

@@ -16,6 +16,30 @@ import { ModuleActionBar } from '../components/module/ModuleActionBar';
 import ShareModal from '../components/ShareModal';
 import ProfessionalReportPdfGenerator from '../components/ProfessionalReportPdfGenerator';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { generatePdfBlob } from '../utils/pdfHelper';
+
+class ReportErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
+  constructor(props: {children: React.ReactNode}) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '2rem', background: '#fee2e2', color: '#991b1b', margin: '2rem', borderRadius: '12px' }}>
+          <h2>Algo salió mal al abrir el formulario:</h2>
+          <pre style={{ whiteSpace: 'pre-wrap' }}>{this.state.error?.message}</pre>
+          <pre style={{ whiteSpace: 'pre-wrap', fontSize: '0.8rem' }}>{this.state.error?.stack}</pre>
+          <button onClick={() => window.location.reload()} style={{ marginTop: '1rem', padding: '0.5rem 1rem', background: '#dc2626', color: 'white', borderRadius: '6px' }}>Recargar</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
@@ -87,7 +111,6 @@ export default function Reports(): React.ReactElement | null {
   const [extraFields, setExtraFields] = useState<Record<string, any>>({});
   const [personnel, setPersonnel] = useState(() => [{ id: Date.now(), name: '', dni: '' }]);
 
-  // Signature states
   const [showSignatures, setShowSignatures] = useState({
     operator: true,
     supervisor: true,
@@ -96,6 +119,9 @@ export default function Reports(): React.ReactElement | null {
   const [operatorSignature, setOperatorSignature] = useState('');
   const [signature, setSignature] = useState('');
   const [supervisorSignature, setSupervisorSignature] = useState('');
+  
+  const [isPrinting, setIsPrinting] = useState(false);
+  const [printData, setPrintData] = useState<any>(null);
   const [professional, setProfessional] = useState({ name: '', license: '', signature: null as string | null, stamp: null as string | null });
 
   const loadHistory = () => {
@@ -125,7 +151,10 @@ export default function Reports(): React.ReactElement | null {
       if (data.personnel && data.personnel.length > 0) {
         setPersonnel(data.personnel);
       }
-      if (data.showSignatures) setShowSignatures(data.showSignatures);
+      if (data.showSignatures !== undefined) {
+        if (typeof data.showSignatures === 'object') setShowSignatures(data.showSignatures);
+        else if (typeof data.showSignatures === 'boolean') setShowSignatures({ operator: data.showSignatures, supervisor: data.showSignatures, professional: data.showSignatures });
+      }
       setOperatorSignature(data.operatorSignature || '');
       setSignature(data.signature || '');
       setSupervisorSignature(data.supervisorSignature || '');
@@ -144,6 +173,39 @@ export default function Reports(): React.ReactElement | null {
       }
     }
   }, [location.state]);
+
+  const handleDirectPrintFromHistory = (item: any) => {
+      setPrintData(item);
+      setIsPrinting(true);
+      setTimeout(() => {
+          const element = document.getElementById('pdf-direct-print');
+          if (!element) {
+              toast.error('No se pudo generar el documento para imprimir.');
+              setIsPrinting(false);
+              setPrintData(null);
+              return;
+          }
+          
+          document.body.classList.add('printing-isolated');
+          element.classList.add('isolated-print-target');
+          
+          const cleanup = () => {
+              document.body.classList.remove('printing-isolated');
+              element.classList.remove('isolated-print-target');
+              window.removeEventListener('afterprint', cleanup);
+              window.removeEventListener('focus', cleanup);
+              setIsPrinting(false);
+              setPrintData(null);
+          };
+          
+          window.addEventListener('afterprint', cleanup);
+          window.addEventListener('focus', cleanup);
+          
+          setTimeout(() => {
+              window.print();
+          }, 300);
+      }, 500);
+  };
 
   const handleAddPerson = () => {
     setPersonnel([...personnel, { id: Date.now(), name: '', dni: '' }]);
@@ -192,7 +254,7 @@ export default function Reports(): React.ReactElement | null {
     await syncCollection('reports_history', updated);
     localStorage.setItem('current_report', JSON.stringify(newReport));
     toast.success('Informe guardado con éxito');
-    navigate('/reports-report');
+    setIsFormVisible(false);
   };
 
   const confirmDelete = () => {
@@ -210,14 +272,7 @@ export default function Reports(): React.ReactElement | null {
   <button
     onClick={(e) => {e.stopPropagation();setDeleteTarget(id);}}
     title="Eliminar"
-
-
-
-
-
-    onMouseEnter={(e) => e.currentTarget.style.background = '#fecaca'}
-    onMouseLeave={(e) => e.currentTarget.style.background = '#fee2e2'} className="bg-[#fee2e2] border-none rounded-[10px] text-[#dc2626] cursor-pointer p-[0.5rem_0.6rem] flex items-center flex-shrink-[0]">
-    
+    style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center">
             <Trash2 size={16} />
         </button>;
 
@@ -233,6 +288,9 @@ export default function Reports(): React.ReactElement | null {
   if (!isFormVisible) {
     return (
       <div className="container min-h-[100vh] bg-[var(--color-background)] pb-[7rem] pt-[5.5rem]">
+          <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+              {printData && <ProfessionalReportPdfGenerator currentReport={printData} customId="pdf-direct-print" />}
+          </div>
                 <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
         title="Informes Profesionales"
         subtitle="Gestión e historial de informes técnicos."
@@ -259,22 +317,28 @@ export default function Reports(): React.ReactElement | null {
 
                 <main className="p-[0_0_2rem_0] max-w-[1000px] m-[0_auto] w-[100%]">
                     <div className="flex items-center justify-between gap-[1rem] mb-[2rem] flex-wrap p-[0_1rem]">
-                        <div className="flex gap-[0.8rem] ml-auto">
+                        <div className="flex items-center gap-[0.8rem] ml-auto">
                             <button onClick={() => {
                                 // downloadCSV
-                            }} className="btn-secondary hover-lift flex items-center justify-center gap-[0.5rem] px-5 py-3 w-[auto] m-[0] text-white border-none rounded-xl font-bold transition-colors shadow-lg shadow-emerald-500/30" style={{ background: '#10b981' }}>
+                            }} className="btn-secondary hover-lift flex items-center justify-center gap-[0.5rem] px-5 py-3 h-[48px] w-[auto] m-[0] text-white border-none rounded-xl font-bold transition-colors shadow-lg shadow-emerald-500/30" style={{ background: '#10b981' }}>
                                 <Download size={18} /> EXCEL
                             </button>
                             <button onClick={() => {
                                 setProjectData({
                                     title: '', company: '', location: '', date: new Date().toISOString().split('T')[0],
-                                    responsable: professional.name || ''
+                                    responsable: professional?.name || ''
                                 });
                                 setContent('');
                                 setPhotos([]);
                                 setTemplate('general');
+                                setPersonnel([{ id: Date.now(), name: '', dni: '' }]);
+                                setShowSignatures({ operator: true, supervisor: true, professional: true });
+                                setOperatorSignature('');
+                                setSignature('');
+                                setSupervisorSignature('');
+                                setExtraFields({});
                                 setIsFormVisible(true);
-                            }} className="btn-primary hover-lift flex items-center justify-center gap-[0.5rem] px-5 py-3 w-[auto] m-[0] text-white border-none rounded-xl font-bold shadow-lg shadow-emerald-500/30" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                            }} className="btn-primary hover-lift flex items-center justify-center gap-[0.5rem] px-5 py-3 h-[48px] w-[auto] m-[0] text-white border-none rounded-xl font-bold shadow-lg shadow-emerald-500/30" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
                                 <Plus size={18} /> NUEVO INFORME
                             </button>
                         </div>
@@ -331,23 +395,21 @@ export default function Reports(): React.ReactElement | null {
                       setIsFormVisible(true);
                     }}
 
-                    title="Editar" className="p-[0.4rem_0.6rem] bg-[rgba(59,130,246,0.1)] text-[#3b82f6] border-[1px_solid_rgba(59,130,246,0.2)] rounded-[8px] cursor-pointer flex items-center gap-[4px]">
+                    title="Editar" style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center">
                     
                                             <Edit2 size={16} />
                                         </button>
                                         <button
-                    onClick={() => {localStorage.setItem('current_report', JSON.stringify(item));navigate('/reports-report');}}
+                    onClick={() => handleDirectPrintFromHistory(item)}
 
-
-
-                    title="Ver PDF" className="p-[0.4rem_0.6rem] bg-[rgba(16,185,129,0.1)] text-[#10b981] border-[1px_solid_rgba(16,185,129,0.2)] rounded-[8px] cursor-pointer flex items-center gap-[4px]">
+                    title="Ver PDF" style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center gap-[4px]">
                     
-                                            <FileText size={16} /> <span className="text-[0.75rem] font-[700]">PDF</span>
+                                            <FileText size={16} /> <span className="text-[0.75rem] font-[700] ml-1">PDF</span>
                                         </button>
                                         <button
                     onClick={() => setShareItem({ type: 'report', data: item })}
 
-                    title="Compartir" className="p-[0.4rem_0.6rem] bg-[rgba(236,72,153,0.1)] text-[#ec4899] border-[1px_solid_rgba(236,72,153,0.2)] rounded-[8px] cursor-pointer">
+                    title="Compartir" style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center">
                     
                                             <Share2 size={16} />
                                         </button>
@@ -364,21 +426,72 @@ export default function Reports(): React.ReactElement | null {
   }
 
   return (
-    <div className="min-h-[100vh] bg-[var(--color-background)] pb-[6rem] pt-[5.5rem]">
-            <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
-      title="Generar Informe"
-      subtitle="Documentación Profesional de Seguridad e Higiene"
+    <ReportErrorBoundary>
+      <div className="min-h-[100vh] bg-[var(--color-background)] pb-[6rem] pt-[5.5rem]">
+              <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
+        title="Generar Informe"
+        subtitle="Documentación Profesional de Seguridad e Higiene"
       icon={<FileText />}
       color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
       
 
       <main className="p-[2rem_1.5rem] max-w-[1000px] m-[0_auto]">
+          <ShareModal
+            isOpen={!!shareItem}
+            open={!!shareItem}
+            onClose={() => setShareItem(null)}
+            title={`Informe - ${shareItem?.data?.title || ''}`}
+            text={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString('es-AR')}` : ''}
+            rawMessage={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString('es-AR')}` : ''}
+            elementIdToPrint="pdf-content"
+            fileName={`Informe_${shareItem?.data?.title || 'Profesional'}.pdf`}
+          />
+          <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+              {shareItem?.type === 'report' && <ProfessionalReportPdfGenerator currentReport={shareItem.data} />}
+              {printData && <ProfessionalReportPdfGenerator currentReport={printData} customId="pdf-direct-print" />}
+          </div>
+
           <ModuleActionBar
             actions={[
               { id: 'cancel', label: 'CANCELAR', icon: <X size={18} />, variant: 'secondary', onClick: () => setIsFormVisible(false) },
-              { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'info', onClick: () => toast.error('Selecciona "Generar Informe" primero para poder compartirlo.') },
-              { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'warning', onClick: () => toast.error('Selecciona "Generar Informe" primero para poder imprimirlo.') },
-              { id: 'save', label: 'GENERAR INFORME', icon: <Save size={18} />, variant: 'primary', onClick: () => requirePro(handleSave) }
+              { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'info', onClick: () => {
+                  const data = { id: projectData.id || Date.now(), template, ...projectData, content, extraFields, photos, personnel: template === 'training' || template === 'epp' ? personnel : [], createdAt: new Date().toISOString(), showSignatures, operatorSignature, signature, supervisorSignature, professionalSignature: professional?.signature, professionalName: professional?.name, professionalLicense: professional?.license };
+                  setShareItem({ type: 'report', data });
+              }},
+              { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'warning', onClick: () => {
+                  const data = { id: projectData.id || Date.now(), template, ...projectData, content, extraFields, photos, personnel: template === 'training' || template === 'epp' ? personnel : [], createdAt: new Date().toISOString(), showSignatures, operatorSignature, signature, supervisorSignature, professionalSignature: professional?.signature, professionalName: professional?.name, professionalLicense: professional?.license };
+                  setPrintData(data);
+                  setIsPrinting(true);
+                  setTimeout(() => {
+                      const element = document.getElementById('pdf-direct-print');
+                      if (!element) {
+                          toast.error('No se pudo generar el documento para imprimir.');
+                          setIsPrinting(false);
+                          setPrintData(null);
+                          return;
+                      }
+                      
+                      document.body.classList.add('printing-isolated');
+                      element.classList.add('isolated-print-target');
+                      
+                      const cleanup = () => {
+                          document.body.classList.remove('printing-isolated');
+                          element.classList.remove('isolated-print-target');
+                          window.removeEventListener('afterprint', cleanup);
+                          window.removeEventListener('focus', cleanup);
+                          setIsPrinting(false);
+                          setPrintData(null);
+                      };
+                      
+                      window.addEventListener('afterprint', cleanup);
+                      window.addEventListener('focus', cleanup);
+                      
+                      setTimeout(() => {
+                          window.print();
+                      }, 100);
+                  }, 500);
+              }},
+              { id: 'save', label: 'GUARDAR', icon: <Save size={18} />, variant: 'primary', onClick: () => requirePro(handleSave) }
             ]}
           />
                 <div className="mb-6">
@@ -658,28 +771,28 @@ export default function Reports(): React.ReactElement | null {
                         <PdfSignatures
               data={{
                 ...projectData,
-                professionalSignature: professional.signature,
-                professionalName: professional.name,
-                professionalLicense: professional.license
+                professionalSignature: professional?.signature,
+                professionalName: professional?.name,
+                professionalLicense: professional?.license
               }}
-              box1={showSignatures.operator ? {
+              box1={showSignatures?.operator ? {
                 title: 'OPERADOR',
                 subtitle: 'Firma / Aclaración',
                 signatureUrl: operatorSignature || null,
                 isProfessional: false
               } : null}
-              box2={showSignatures.supervisor ? {
+              box2={showSignatures?.supervisor ? {
                 title: 'SUPERVISOR',
                 subtitle: 'Firma / Aclaración',
                 signatureUrl: supervisorSignature || null,
                 isProfessional: false
               } : null}
-              box3={showSignatures.professional ? {
+              box3={showSignatures?.professional ? {
                 title: 'PROFESIONAL ACTUANTE',
-                subtitle: (professional.name || 'Firma y Sello').toUpperCase(),
-                signatureUrl: signature || professional.signature || null,
+                subtitle: (professional?.name || 'Firma y Sello').toUpperCase(),
+                signatureUrl: signature || professional?.signature || null,
                 isProfessional: true,
-                license: professional.license
+                license: professional?.license
               } : null} />
             
             <PdfBrandingFooter />
@@ -687,7 +800,7 @@ export default function Reports(): React.ReactElement | null {
 
                     {/* Interactive Signature Drawing Pads */}
                     <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {showSignatures.operator &&
+                        {showSignatures?.operator &&
             <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
                                 <SignatureCanvas
                 onSave={(sig) => setOperatorSignature(sig || '')}
@@ -696,7 +809,7 @@ export default function Reports(): React.ReactElement | null {
               
                             </div>
             }
-                        {showSignatures.supervisor &&
+                        {showSignatures?.supervisor &&
             <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
                                 <SignatureCanvas
                 onSave={(sig) => setSupervisorSignature(sig || '')}
@@ -705,7 +818,7 @@ export default function Reports(): React.ReactElement | null {
               
                             </div>
             }
-                        {showSignatures.professional &&
+                        {showSignatures?.professional &&
             <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
                                 <SignatureCanvas
                 onSave={(sig) => setSignature(sig || '')}
@@ -717,6 +830,7 @@ export default function Reports(): React.ReactElement | null {
                     </div>
                 </div>
             </main>
-        </div>);
-
+        </div>
+    </ReportErrorBoundary>
+  );
 }

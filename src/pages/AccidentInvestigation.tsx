@@ -23,7 +23,7 @@ import {
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
-const SECTIONS = ['Datos Generales', 'Accidentado', 'Descripción y Testigos', 'Análisis Causal', 'Medidas Preventivas'];
+const SECTIONS = ['Datos Generales', 'Accidentado', 'Descripción y Testigos', 'Análisis Causal', 'Medidas Preventivas', 'Firmas'];
 
 const severityConfig: Record<string, {color: string;bg: string;}> = {
   'Leve': { color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
@@ -87,7 +87,7 @@ function AdjuntosSection({
         type="file"
         accept="image/*"
         multiple
-        onChange={handleFiles} className="none" />
+        onChange={handleFiles} className="hidden" />
 
       
       <button type="button" onClick={() => fileRef.current?.click()}
@@ -445,12 +445,12 @@ export default function AccidentInvestigation(): React.ReactElement | null {
       header: 'Acciones',
       accessor: 'id',
       render: (item: any) =>
-      <div className="flex gap-1.5">
-                        <button onClick={() => setSelectedReport(item)} className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer text-xs font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Ver</button>
-                        <button onClick={() => {setFormData(item);setIsEdit(true);setIsFormVisible(true);}} className="p-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-500 cursor-pointer hover:bg-blue-500/20 transition-colors" title="Editar"><Pencil size={15} /></button>
-                        <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/accident/${item.id}?print=true`;setQrTarget({ text: url, title: `Accidente — ${item.victimaNombre}` });})} className="p-1.5 bg-purple-500/10 border border-purple-500/20 rounded-lg text-purple-500 cursor-pointer hover:bg-purple-500/20 transition-colors" title="QR"><QrCode size={15} /></button>
-                        <button onClick={() => requirePro(() => setShareItem(item))} className="p-1.5 bg-green-500/10 border border-green-500/20 rounded-lg text-green-600 cursor-pointer hover:bg-green-500/20 transition-colors" title="Compartir"><Share2 size={15} /></button>
-                        <button onClick={() => setDeleteTarget(item.id)} className="p-1.5 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 cursor-pointer hover:bg-red-500/20 transition-colors"><Trash2 size={15} /></button>
+                    <div className="flex gap-1.5">
+                        <button onClick={() => setSelectedReport(item)} style={{ backgroundColor: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1' }} className="px-3 py-1.5 rounded-[8px] cursor-pointer text-xs font-bold transition-transform hover:-translate-y-0.5 shadow-sm">Ver</button>
+                        <button onClick={() => {setFormData(item);setIsEdit(true);setIsFormVisible(true);}} style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform" title="Editar"><Pencil size={15} /></button>
+                        <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/accident/${item.id}?print=true`;setQrTarget({ text: url, title: `Accidente — ${item.victimaNombre}` });})} style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform" title="QR"><QrCode size={15} /></button>
+                        <button onClick={() => requirePro(() => setShareItem(item))} style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform" title="Compartir"><Share2 size={15} /></button>
+                        <button onClick={() => setDeleteTarget(item.id)} style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Trash2 size={15} /></button>
                     </div>
 
     }];
@@ -483,7 +483,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                     <div className="flex items-center justify-end gap-4 mb-8 flex-wrap px-4">
                         <div className="flex gap-3">
                             {history.length > 0 &&
-              <button onClick={handleExportCSV} className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 border-none rounded-xl px-4 py-2.5 text-xs font-extrabold cursor-pointer text-white transition-colors shadow-lg shadow-emerald-500/20">
+                                <button onClick={handleExportCSV} style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }} className="flex items-center gap-1.5 border-none rounded-xl px-4 py-2.5 text-xs font-extrabold cursor-pointer text-white transition-transform hover:-translate-y-0.5">
                                     <Download size={14} /> EXCEL
                                 </button>
               }
@@ -508,6 +508,12 @@ export default function AccidentInvestigation(): React.ReactElement | null {
 
   return (
     <ModuleFormLayout>
+        <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Investigación de Accidente - ${shareItem?.victimaNombre || ''}`} text={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⚠️ Gravedad: ${shareItem.gravedad}` : ''} rawMessage={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}` : ''} elementIdToPrint="pdf-content" fileName={`Accidente_${shareItem?.victimaNombre || 'Reporte'}.pdf`} />
+        
+        <div id="pdf-content" className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+            {(shareItem || printItem) && <AccidentPdfGenerator report={{ ...(shareItem || printItem), id: (shareItem || printItem).id || Date.now() }} isHeadless={true} />}
+        </div>
+        <div className="pt-24 sm:pt-28">
             <ModuleFormToolbar
       title={isEdit ? 'Editar Investigación' : 'Investigación de Accidente'}
       subtitle="Metodología Árbol de Causas"
@@ -515,18 +521,15 @@ export default function AccidentInvestigation(): React.ReactElement | null {
       onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined} />
       
 
-            <main className="w-full max-w-[1000px] mx-auto px-6 py-8">
-                <div className="mb-6">
-                    <></>
-                </div>
+            <main className="w-full max-w-[1000px] mx-auto px-6 pb-8 pt-0">
                 {/* Actualización Normativa */}
-                <div className="mb-10 p-5 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-cyan-500/5 border border-cyan-500/20 flex gap-4 items-start">
-                    <Sparkles size={24} color="#0891b2" className="flex-shrink-0 mt-0.5" />
+                <div className="mb-10 mt-2 p-5 rounded-2xl bg-[#e0f2fe] border border-cyan-300 shadow-sm flex gap-4 items-start">
+                    <Sparkles size={24} color="#0284c7" className="flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
-                        <h4 className="m-0 mb-1.5 text-slate-800 dark:text-slate-100 text-[0.95rem] font-extrabold">
+                        <h4 className="m-0 mb-1.5 text-black text-[1rem] font-extrabold">
                             Metodología Avalada: Res. SRT 7/2026 y Dec. 549/2025
                         </h4>
-                        <p className="m-0 text-slate-500 dark:text-slate-400 text-[0.85rem] leading-relaxed">
+                        <p className="m-0 text-slate-900 text-[0.9rem] font-medium leading-relaxed">
                             El presente análisis de causas y recolección testimonial se estructura para conformar prueba sólida frente a Comisiones Médicas, cumpliendo exigencias del Nuevo Protocolo de Valoración del Daño Corporal y nuevo baremo vigente.
                         </p>
                     </div>
@@ -537,14 +540,15 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                     <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-slate-200 dark:bg-slate-700 z-0 -translate-y-1/2" />
                     {SECTIONS.map((section, index) =>
           <div key={index} className="flex flex-col items-center z-10 gap-2 cursor-pointer" onClick={() => setCurrentStep(index)}>
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2 ${currentStep >= index ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400'}`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2 ${currentStep > index ? 'bg-emerald-500 border-emerald-500 text-white' : currentStep === index ? 'bg-blue-600 border-blue-600 text-white scale-125 shadow-lg shadow-blue-500/50' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400'}`}>
                                 {currentStep > index ? <CheckCircle2 size={16} /> : index + 1}
                             </div>
-                            <span className={`text-xs text-center max-w-[80px] hidden sm:inline ${currentStep === index ? 'font-bold text-slate-800 dark:text-slate-200' : 'font-medium text-slate-500 dark:text-slate-400'}`}>{section}</span>
+                            <span className={`text-xs text-center max-w-[80px] hidden sm:inline ${currentStep === index ? 'font-extrabold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded shadow-sm' : 'font-medium text-slate-500 dark:text-slate-400'}`}>{section}</span>
                         </div>
           )}
                 </div>
 
+                {currentStep !== 5 && (
                 <div className="flex-1 p-4 md:p-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-xl">
                     <ModuleFormSection title={SECTIONS[currentStep] || ''} icon={<FileText />}>
                         <div className="mb-4" />
@@ -629,23 +633,27 @@ export default function AccidentInvestigation(): React.ReactElement | null {
 
                             <div className="flex justify-between items-center mt-4 pb-4 border-b border-slate-200 dark:border-slate-700">
                                 <h3 className="text-lg m-0 text-blue-600 dark:text-blue-400 font-bold">Testigos del Hecho</h3>
-                                <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer" onClick={() => addArrayItem('testigos', { nombre: '', declaracion: '' })}>
+                                <button className="flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-bold transition-colors cursor-pointer shadow-sm hover:opacity-80" 
+                                        style={{ backgroundColor: '#eff6ff', color: '#2563eb', borderColor: '#bfdbfe' }}
+                                        onClick={() => addArrayItem('testigos', { nombre: '', declaracion: '' })}>
                                     <UserPlus size={16} /> Añadir Testigo
                                 </button>
                             </div>
 
                             {formData.testigos.map((t: any, i: number) =>
             <div key={i} className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 relative">
-                                    {formData.testigos.length > 1 &&
-              <button
-                onClick={() => removeArrayItem('testigos', i)}
-                className="absolute top-4 right-4 bg-red-500/10 text-red-500 border-none p-2 rounded-lg cursor-pointer hover:bg-red-500/20 transition-colors"
-                title="Eliminar Testigo">
-                
-                                            <Trash2 size={16} />
-                        </button>
-              }
-                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nombre del Testigo {i + 1}</label>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider m-0">Nombre del Testigo {i + 1}</label>
+                                        {formData.testigos.length > 1 &&
+                                            <button
+                                                onClick={() => removeArrayItem('testigos', i)}
+                                                className="flex items-center justify-center border-none p-2 rounded-lg cursor-pointer transition-colors shadow-sm hover:opacity-80"
+                                                style={{ backgroundColor: '#fee2e2', color: '#ef4444' }}
+                                                title="Eliminar Testigo">
+                                                <Trash2 size={16} />
+                                            </button>
+                                        }
+                                    </div>
                                     <input type="text" placeholder="Nombre completo o cargo" value={t.nombre} onChange={(e) => handleArrayChange('testigos', i, 'nombre', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm mb-4" />
                                     
                                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Declaración Breve</label>
@@ -657,9 +665,9 @@ export default function AccidentInvestigation(): React.ReactElement | null {
 
                     {currentStep === 3 &&
           <div className="flex flex-col gap-6">
-                            <div className="bg-blue-500/10 p-6 rounded-2xl border border-blue-500/20 text-sm text-slate-800 dark:text-slate-200">
-                                <div className="flex items-center gap-2 font-extrabold mb-2 text-blue-600 dark:text-blue-400">
-                                    <Search size={20} /> Metodología de los "5 Porqués"
+                            <div className="bg-[#e0f2fe] p-6 rounded-2xl border border-cyan-300 shadow-sm text-sm text-slate-900 font-medium">
+                                <div className="flex items-center gap-2 font-extrabold mb-2 text-black text-[1rem]">
+                                    <Search size={20} color="#0284c7" /> Metodología de los "5 Porqués"
                                 </div>
                                 Técnica sistemática para iterar preguntando "¿Por qué ocurrió?" hasta llegar a la causa raíz sistémica o de gestión, evitando culpar únicamente al error humano.
                             </div>
@@ -739,26 +747,31 @@ export default function AccidentInvestigation(): React.ReactElement | null {
           }
                     </ModuleFormSection>
                 </div>
+                )}
 
                 {/* Navegación Inferior Responsive */}
-                <div className="flex justify-space-between mt-[2rem] gap-[1rem] flex-wrap">
+                <div className="flex justify-center mt-8 gap-4 pb-8">
+                    {currentStep > 0 && currentStep < 5 &&
                     <button
-            className="btn-outline flex-[1] min-width-[120px] bg-[var(--color-surface)] m-[0] rounded-[12px] p-[0.8rem]"
+            className="px-5 py-2.5 border-none rounded-xl font-bold text-sm flex items-center gap-2 cursor-pointer transition-all shadow-sm"
             onClick={handlePrev}
-            disabled={currentStep === 0}
-            style={{ opacity: currentStep === 0 ? 0.4 : 1 }}>
+            style={{ backgroundColor: '#94a3b8', color: '#ffffff' }}>
             
-                        <ChevronLeft size={20} /> Atrás
+                        <ChevronLeft size={16} /> Atrás
                     </button>
+                    }
 
                     {currentStep < SECTIONS.length - 1 &&
-          <button className="btn-primary hover-lift m-[0] flex-[1] min-width-[120px] flex items-center justify-center gap-[0.5rem] rounded-[12px] p-[0.8rem]" onClick={handleNext}>
-                            Siguiente <ChevronRight size={20} />
+          <button className="px-5 py-2.5 border-none rounded-xl font-bold text-sm flex items-center gap-2 cursor-pointer transition-all shadow-md hover:-translate-y-0.5" 
+                  style={{ backgroundColor: '#3b82f6', color: '#ffffff' }}
+                  onClick={handleNext}>
+                            Siguiente <ChevronRight size={16} />
                         </button>
           }
                 </div>
 
                 {/* Firmas y Autorizaciones */}
+                {currentStep === 5 && (
                 <ModuleFormSection title="Firmas y Autorizaciones" icon={<Pencil />}>
                     <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
                         <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
@@ -772,7 +785,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                 return (
                   <label
                     key={sig.id}
-                    className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease]"
+                    className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease] whitespace-nowrap"
                     style={{
 
 
@@ -788,7 +801,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                                         <input
                       type="checkbox"
                       checked={isChecked}
-                      onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="none" />
+                      onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="hidden" />
 
                     
                                         <div style={{
@@ -876,39 +889,38 @@ export default function AccidentInvestigation(): React.ReactElement | null {
             }
                     </div>
                 </ModuleFormSection>
+                )}
             </main>
 
-            <ModuleActionBar
-              actions={[
-                {
-                  id: 'save',
-                  label: 'GUARDAR',
-                  icon: <Save />,
-                  variant: 'primary',
-                  onClick: () => requirePro(handleSave)
-                },
-                {
-                  id: 'share',
-                  label: 'COMPARTIR',
-                  icon: <Share2 size={18} />,
-                  variant: 'secondary',
-                  onClick: () => requirePro(() => setShareItem(formData))
-                },
-                {
-                  id: 'print',
-                  label: 'IMPRIMIR PDF',
-                  icon: <Printer size={18} />,
-                  variant: 'secondary',
-                  onClick: () => {
-                    setPrintItem(formData);
-                    setTimeout(() => {
-                      window.print();
-                      setTimeout(() => setPrintItem(null), 10000);
-                    }, 500);
-                  }
-                }
-              ]}
-            />
+            {currentStep === 5 && (
+            <div className="flex flex-row justify-center gap-2 mt-4 w-full px-2">
+                <button
+                    className="px-4 py-2 text-white border-none rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-all shadow-md hover:shadow-lg cursor-pointer"
+                    style={{ backgroundColor: '#10b981' }}
+                    onClick={() => requirePro(handleSave)}>
+                    <Save size={16} /> <span className="hidden sm:inline">GUARDAR</span>
+                </button>
+                <button
+                    className="px-4 py-2 text-white border-none rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-all shadow-md hover:shadow-lg cursor-pointer"
+                    style={{ backgroundColor: '#6366f1' }}
+                    onClick={() => requirePro(() => setShareItem(formData))}>
+                    <Share2 size={16} /> <span className="hidden sm:inline">COMPARTIR</span>
+                </button>
+                <button
+                    className="px-4 py-2 text-white border-none rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-all shadow-md hover:shadow-lg cursor-pointer"
+                    style={{ backgroundColor: '#0ea5e9' }}
+                    onClick={() => {
+                        setPrintItem(formData);
+                        setTimeout(() => {
+                            window.print();
+                            setTimeout(() => setPrintItem(null), 10000);
+                        }, 500);
+                    }}>
+                    <Printer size={16} /> <span className="hidden sm:inline">IMPRIMIR</span>
+                </button>
+            </div>
+            )}
+        </div>
         </ModuleFormLayout>);
 
 }
