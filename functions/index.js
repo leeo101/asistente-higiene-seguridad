@@ -705,7 +705,6 @@ exports.weeklySummaryEmail = onSchedule("0 9 * * 1", async (event) => { // Every
         logger.error("Error en weeklySummaryEmail", error);
     }
 });
-});
 
 // ==========================================
 // ANALYZE GENERAL RISKS
