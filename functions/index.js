@@ -196,7 +196,6 @@ exports.predictAccidents = onRequest((req, res) => {
             }
 
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
-            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
 
             const prompt = `
 Sos un experto analista en higiene y seguridad laboral. Analizá el siguiente historial de accidentes de una empresa y hacé una predicción para el mes próximo.
@@ -252,7 +251,6 @@ exports.emergencyChat = onRequest((req, res) => {
             const { message, context, companyContext } = req.body;
             if (!message) return res.status(400).json({ error: 'Mensaje requerido' });
 
-            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
 
             let systemPrompt = `Sos EmergencyBot, un asistente virtual experto en emergencias, higiene y seguridad (H&S) para trabajadores en Argentina. Respondé de forma CLARA, DIRECTA y TRANQUILIZADORA.
@@ -314,7 +312,6 @@ exports.visionAts = onRequest((req, res) => {
             const { imageBase64 } = req.body;
             if (!imageBase64) return res.status(400).json({ error: 'Imagen requerida' });
 
-            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
 
             const prompt = `Sos un prevencionista de riesgos laborales. Analizá esta imagen del lugar de trabajo y generá un Análisis de Trabajo Seguro (ATS).
