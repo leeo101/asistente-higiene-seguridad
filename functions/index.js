@@ -705,4 +705,115 @@ exports.weeklySummaryEmail = onSchedule("0 9 * * 1", async (event) => { // Every
         logger.error("Error en weeklySummaryEmail", error);
     }
 });
+});
 
+// ==========================================
+// ANALYZE GENERAL RISKS
+// ==========================================
+exports.analyzeGeneralRisks = onRequest({ timeoutSeconds: 300, memory: "1GiB" }, (req, res) => {
+    return cors(req, res, async () => {
+        try {
+            const { image } = req.body;
+            if (!image) return res.status(400).json({ error: 'No se envió imagen' });
+
+            const apiKey = process.env.GEMINI_API_KEY || "dummy_key_for_build";
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"];
+            
+            const prompt = `Actúa como experto en higiene y seguridad. Analiza esta imagen y detecta riesgos laborales.
+Devuelve ÚNICAMENTE un objeto JSON estricto con esta estructura:
+{
+  "detections": [
+    { "box_2d": [ymin, xmin, ymax, xmax] } 
+  ],
+  "riskLevel": "Bajo|Medio|Alto|Crítico",
+  "immediateAction": "acción a tomar",
+  "applicableLegislation": ["Ley 19587", "etc"]
+}
+IMPORTANTE: box_2d contiene coordenadas normalizadas (0 a 1000). ymin, xmin, ymax, xmax son números enteros.`;
+
+            const base64Data = image.split(',')[1] || image;
+            const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
+            const imagePart = { inlineData: { data: base64Data, mimeType } };
+
+            let result;
+            let lastError;
+            for (const modelName of models) {
+                try {
+                    const model = genAI.getGenerativeModel({ model: modelName });
+                    result = await model.generateContent([prompt, imagePart]);
+                    if (result) break;
+                } catch (err) {
+                    lastError = err;
+                    continue;
+                }
+            }
+            if (!result) throw new Error(lastError ? lastError.message : 'Todos los modelos fallaron');
+
+            const responseText = result.response.text();
+            let cleanedJson = responseText.trim().replace(/^```json/, '').replace(/```$/, '').trim();
+            const parsedData = JSON.parse(cleanedJson);
+            res.json(parsedData);
+        } catch (error) {
+            logger.error("Error analyzeGeneralRisks", error);
+            res.status(500).json({ error: error.message });
+        }
+    });
+});
+
+// ==========================================
+// ANALYZE EXTINGUISHER
+// ==========================================
+exports.analyzeExtinguisher = onRequest({ timeoutSeconds: 300, memory: "1GiB" }, (req, res) => {
+    return cors(req, res, async () => {
+        try {
+            const { image } = req.body;
+            if (!image) return res.status(400).json({ error: 'No se envió imagen' });
+
+            const apiKey = process.env.GEMINI_API_KEY || "dummy_key_for_build";
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"];
+            
+            const prompt = `Actúa como inspector de extintores. Analiza esta imagen.
+Devuelve ÚNICAMENTE un JSON estricto con esta estructura:
+{
+  "extinguisherDetected": true,
+  "type": "ABC",
+  "confidence": 0.95,
+  "capacity": "5kg",
+  "status": "vigente",
+  "lastCheck": "2023-10-15",
+  "nextCheck": "2024-10-15",
+  "phDate": "2028-10-15",
+  "recommendations": ["rec1", "rec2"]
+}
+Si no se detecta un extintor, extinguisherDetected debe ser false y el resto puede estar vacío.`;
+
+            const base64Data = image.split(',')[1] || image;
+            const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
+            const imagePart = { inlineData: { data: base64Data, mimeType } };
+
+            let result;
+            let lastError;
+            for (const modelName of models) {
+                try {
+                    const model = genAI.getGenerativeModel({ model: modelName });
+                    result = await model.generateContent([prompt, imagePart]);
+                    if (result) break;
+                } catch (err) {
+                    lastError = err;
+                    continue;
+                }
+            }
+            if (!result) throw new Error(lastError ? lastError.message : 'Todos los modelos fallaron');
+
+            const responseText = result.response.text();
+            let cleanedJson = responseText.trim().replace(/^```json/, '').replace(/```$/, '').trim();
+            const parsedData = JSON.parse(cleanedJson);
+            res.json(parsedData);
+        } catch (error) {
+            logger.error("Error analyzeExtinguisher", error);
+            res.status(500).json({ error: error.message });
+        }
+    });
+});

@@ -24,6 +24,14 @@
         "function": "forgotPassword"
       },
       {
+        "source": "/api/analyze-general-risks",
+        "function": "analyzeGeneralRisks"
+      },
+      {
+        "source": "/api/analyze-extinguisher",
+        "function": "analyzeExtinguisher"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
