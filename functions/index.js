@@ -196,7 +196,7 @@ exports.predictAccidents = onRequest((req, res) => {
             }
 
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
 
             const prompt = `
 Sos un experto analista en higiene y seguridad laboral. Analizá el siguiente historial de accidentes de una empresa y hacé una predicción para el mes próximo.
@@ -211,7 +211,20 @@ Devolvé tu análisis en formato JSON estricto con la siguiente estructura:
   "recomendaciones": ["Rec 1", "Rec 2"]
 }`;
 
-            const result = await model.generateContent(prompt);
+            const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"];
+            let result;
+            let lastError;
+            for (const modelName of models) {
+                try {
+                    const model = genAI.getGenerativeModel({ model: modelName });
+                    result = await model.generateContent(prompt);
+                    if (result) break;
+                } catch (err) {
+                    lastError = err;
+                    continue;
+                }
+            }
+            if (!result) throw new Error(lastError ? 'Todos los modelos fallaron: ' + lastError.message : 'Todos los modelos fallaron');
             const responseText = result.response.text();
             
             let cleanedJson = responseText.trim();
@@ -240,7 +253,7 @@ exports.emergencyChat = onRequest((req, res) => {
             if (!message) return res.status(400).json({ error: 'Mensaje requerido' });
 
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
 
             let systemPrompt = `Sos EmergencyBot, un asistente virtual experto en emergencias, higiene y seguridad (H&S) para trabajadores en Argentina. Respondé de forma CLARA, DIRECTA y TRANQUILIZADORA.
 Usa viñetas o listas numeradas si hay pasos a seguir.
@@ -255,10 +268,23 @@ ${companyContext}`;
             
 Mensaje del usuario: ${message}`;
 
-            const result = await model.generateContent({
-                contents: [{ role: 'user', parts: [{ text: prompt }] }],
-                systemInstruction: { role: 'system', parts: [{ text: systemPrompt }] }
-            });
+            const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"];
+            let result;
+            let lastError;
+            for (const modelName of models) {
+                try {
+                    const model = genAI.getGenerativeModel({ model: modelName });
+                    result = await model.generateContent({
+                        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                        systemInstruction: { role: 'system', parts: [{ text: systemPrompt }] }
+                    });
+                    if (result) break;
+                } catch (err) {
+                    lastError = err;
+                    continue;
+                }
+            }
+            if (!result) throw new Error(lastError ? 'Todos los modelos fallaron: ' + lastError.message : 'Todos los modelos fallaron');
             
             res.json({ response: result.response.text() });
         } catch (error) {
@@ -289,7 +315,7 @@ exports.visionAts = onRequest((req, res) => {
             if (!imageBase64) return res.status(400).json({ error: 'Imagen requerida' });
 
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
 
             const prompt = `Sos un prevencionista de riesgos laborales. Analizá esta imagen del lugar de trabajo y generá un Análisis de Trabajo Seguro (ATS).
 Devolvé UNICAMENTE un JSON array válido con los pasos a seguir, donde cada objeto tenga esta estructura:
@@ -304,7 +330,20 @@ Devolvé UNICAMENTE un JSON array válido con los pasos a seguir, donde cada obj
                 }
             };
 
-            const result = await model.generateContent([prompt, imagePart]);
+            const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"];
+            let result;
+            let lastError;
+            for (const modelName of models) {
+                try {
+                    const model = genAI.getGenerativeModel({ model: modelName });
+                    result = await model.generateContent([prompt, imagePart]);
+                    if (result) break;
+                } catch (err) {
+                    lastError = err;
+                    continue;
+                }
+            }
+            if (!result) throw new Error(lastError ? 'Todos los modelos fallaron: ' + lastError.message : 'Todos los modelos fallaron');
             const responseText = result.response.text();
             
             let cleanedJson = responseText.trim();
