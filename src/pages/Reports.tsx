@@ -26,7 +26,7 @@ class ReportErrorBoundary extends React.Component<{children: React.ReactNode}, {
   static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
   }
-  render() {
+  override render() {
     if (this.state.hasError) {
       return (
         <div style={{ padding: '2rem', background: '#fee2e2', color: '#991b1b', margin: '2rem', borderRadius: '12px' }}>
