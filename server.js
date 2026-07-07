@@ -9,6 +9,29 @@ import { Resend } from 'resend';
 
 dotenv.config();
 
+// Validate critical environment variables
+function validateEnv() {
+    const requiredVars = [
+        'MP_ACCESS_TOKEN',
+        'GEMINI_API_KEY',
+        'RESEND_API_KEY',
+        'ADMIN_API_KEY',
+        'FIREBASE_SERVICE_ACCOUNT_KEY'
+    ];
+    const missing = requiredVars.filter(v => !process.env[v]);
+    if (missing.length > 0) {
+        console.error(`\x1b[31m[CRITICAL SECURITY WARNING] Faltan las siguientes variables de entorno requeridas: ${missing.join(', ')}\x1b[0m`);
+    }
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+        try {
+            JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+        } catch (e) {
+            console.error('\x1b[31m[CRITICAL SECURITY WARNING] FIREBASE_SERVICE_ACCOUNT_KEY no es un JSON válido\x1b[0m');
+        }
+    }
+}
+validateEnv();
+
 // Require Firebase Admin (already in dependencies)
 import admin from 'firebase-admin';
 
@@ -96,8 +119,23 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Admin-Key']
 }))
-app.use(express.json({ limit: '50mb' })) // Increase limit for images
-app.use(express.urlencoded({ limit: '50mb', extended: true }))
+
+// Limit general API JSON/URLencoded payloads to 1mb to prevent DoS
+app.use((req, res, next) => {
+    const fileUploadRoutes = [
+        '/api/analyze-image',
+        '/api/analyze-contractor-doc',
+        '/api/analyze-extinguisher',
+        '/api/analyze-general-risks'
+    ];
+    if (fileUploadRoutes.includes(req.path)) {
+        return next();
+    }
+    express.json({ limit: '1mb' })(req, res, (err) => {
+        if (err) return res.status(400).json({ error: 'Payload demasiado grande o inválido.' });
+        express.urlencoded({ limit: '1mb', extended: true })(req, res, next);
+    });
+});
 
 // ==========================================
 // RATE LIMITING CONFIGURATION
@@ -234,6 +272,37 @@ const requirePro = async (req, res, next) => {
     return res.status(403).json({ error: 'Se requiere suscripción PRO (Forbidden)' });
 };
 
+// Middlewares de validación y sanitización defensiva
+const validateEmail = (req, res, next) => {
+    const email = req.body?.email;
+    if (!email) {
+        return res.status(400).json({ error: 'El correo electrónico es requerido.' });
+    }
+    const emailRegex = /^[^s@]+@[^s@]+\.[^s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Formato de correo electrónico no válido.' });
+    }
+    req.body.email = email.toLowerCase().trim();
+    next();
+};
+
+const validateStringInput = (field, maxLength = 1000) => {
+    return (req, res, next) => {
+        const value = req.body?.[field];
+        if (value !== undefined && value !== null) {
+            if (typeof value !== 'string') {
+                return res.status(400).json({ error: `El campo ${field} debe ser una cadena de texto.` });
+            }
+            if (value.length > maxLength) {
+                return res.status(400).json({ error: `El campo ${field} excede el límite de ${maxLength} caracteres.` });
+            }
+            // Sanitización básica eliminando etiquetas HTML
+            req.body[field] = value.replace(/<[^>]*>/g, '').trim();
+        }
+        next();
+    };
+};
+
 
 // Payment endpoint - moderate limiter
 app.post('/api/create-subscription', adminLimiter, async (req, res) => {
@@ -273,7 +342,7 @@ app.post('/api/create-subscription', adminLimiter, async (req, res) => {
 // ==========================================
 
 // Payment verification endpoint
-app.post('/api/verify-payment', verifyFirebaseToken, async (req, res) => {
+app.post('/api/verify-payment', verifyFirebaseToken, validateStringInput('payment_id', 100), async (req, res) => {
     try {
         const { payment_id } = req.body;
         if (!payment_id) return res.status(400).json({ error: 'Missing payment_id' });
@@ -297,7 +366,7 @@ app.post('/api/verify-payment', verifyFirebaseToken, async (req, res) => {
 // AI VISION API (Gemini)
 // ==========================================
 
-app.post('/api/analyze-image', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
+app.post('/api/analyze-image', express.json({ limit: '50mb' }), express.urlencoded({ limit: '50mb', extended: true }), aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
@@ -423,7 +492,7 @@ REGLAS ESTRICTAS:
 // ==========================================
 // AI CONTRACTOR DOCUMENT ANALYSIS (Gemini)
 // ==========================================
-app.post('/api/analyze-contractor-doc', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
+app.post('/api/analyze-contractor-doc', express.json({ limit: '50mb' }), express.urlencoded({ limit: '50mb', extended: true }), aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
@@ -545,7 +614,7 @@ app.post('/api/daily-insight', aiLimiter, verifyFirebaseToken, requirePro, async
     }
 });
 
-app.post('/api/ai-advisor', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
+app.post('/api/ai-advisor', aiLimiter, verifyFirebaseToken, requirePro, validateStringInput('taskDescription', 2000), async (req, res) => {
     try {
         const { taskDescription, country = 'argentina' } = req.body;
         if (!taskDescription) return res.status(400).json({ error: 'Falta la descripción de la tarea' });
@@ -610,7 +679,7 @@ app.post('/api/ai-advisor', aiLimiter, verifyFirebaseToken, requirePro, async (r
 // ==========================================
 // AI EXTINGUISHER VISION (Gemini)
 // ==========================================
-app.post('/api/analyze-extinguisher', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
+app.post('/api/analyze-extinguisher', express.json({ limit: '50mb' }), express.urlencoded({ limit: '50mb', extended: true }), aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
@@ -699,7 +768,7 @@ REGLAS ESTRICTAS:
 // ==========================================
 // AI ATS GENERATOR (Gemini)
 // ==========================================
-app.post('/api/ai-ats-generator', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
+app.post('/api/ai-ats-generator', aiLimiter, verifyFirebaseToken, requirePro, validateStringInput('taskTitle', 500), async (req, res) => {
     try {
         const { taskTitle, country = 'argentina' } = req.body;
         if (!taskTitle) return res.status(400).json({ error: 'Falta el título de la tarea' });
@@ -859,7 +928,7 @@ app.post('/api/ai-legal-summary', aiLimiter, verifyFirebaseToken, requirePro, as
 // ==========================================
 // AI GENERAL RISKS VISION (Gemini)
 // ==========================================
-app.post('/api/ai-stopcard', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
+app.post('/api/ai-stopcard', aiLimiter, verifyFirebaseToken, requirePro, validateStringInput('transcript', 2000), async (req, res) => {
     try {
         const { transcript, country = 'argentina' } = req.body;
         if (!transcript) return res.status(400).json({ error: 'Falta transcripción' });
@@ -909,7 +978,7 @@ app.post('/api/ai-stopcard', aiLimiter, verifyFirebaseToken, requirePro, async (
 // ==========================================
 // AI GENERAL RISKS VISION (Gemini)
 // ==========================================
-app.post('/api/analyze-general-risks', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
+app.post('/api/analyze-general-risks', express.json({ limit: '50mb' }), express.urlencoded({ limit: '50mb', extended: true }), aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
@@ -1041,9 +1110,8 @@ if (process.env.RESEND_API_KEY) {
 }
 
 // Password reset - strict limiter (security critical)
-app.post('/api/forgot-password', authLimiter, async (req, res) => {
+app.post('/api/forgot-password', authLimiter, validateEmail, async (req, res) => {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Email requerido' });
 
     try {
         // Use Firebase Admin SDK to generate the native reset link
@@ -1151,12 +1219,9 @@ app.post('/api/forgot-password', authLimiter, async (req, res) => {
 // REGISTRATION REQUESTS API (Firestore)
 // ==========================================
 
-app.post('/api/register-request', async (req, res) => {
+app.post('/api/register-request', validateEmail, validateStringInput('name', 100), validateStringInput('profession', 150), validateStringInput('phone', 30), async (req, res) => {
     try {
         const { name, email, profession, phone } = req.body;
-        if (!name || !email) {
-            return res.status(400).json({ error: 'Nombre y correo son obligatorios' });
-        }
 
         if (!db) {
             console.error('[DATABASE] Firestore not initialized.');
@@ -1211,9 +1276,8 @@ app.delete('/api/admin/requests/:id', adminLimiter, isAdmin, async (req, res) =>
 
 
 // Welcome email - email limiter (prevent spam)
-app.post('/api/welcome-email', emailLimiter, async (req, res) => {
+app.post('/api/welcome-email', emailLimiter, validateEmail, validateStringInput('name', 100), async (req, res) => {
     const { email, name } = req.body;
-    if (!email || !name) return res.status(400).json({ error: 'Email y nombre requeridos' });
 
     console.log(`[WELCOME EMAIL] Preparing email for ${email}...`);
 
