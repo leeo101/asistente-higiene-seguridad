@@ -49,51 +49,50 @@ export default function AiReportPdfGenerator({ item }: {item: any;}): React.Reac
                     `}
                 </style>
 
-                {/* Header */}
-                <div className="flex justify-space-between items-center border-bottom-[2px_solid_var(--color-primary)] pb-[1.5rem] mb-[2rem]">
-                    <div>
-                        <h1 className="m-[0_0_0.5rem_0] text-[var(--color-primary)] text-[24pt] font-[900]">INFORME AI</h1>
-                        <p className="m-[0] text-[10pt] text-[#475569] uppercase">Inspección Visual de Seguridad</p>
-                    </div>
-                    <div className="text-right">
-                        <div className="h-[50px] min-width-[50px] flex items-center justify-end mb-[0.5rem]">
-
-
-
-
-
-
-              
-                            <CompanyLogo className="h-[100%] w-[auto] max-w-[150px] object-fit-[contain]" />
-
-
-
-
-
-
-              
+                {/* Header Rediseñado Premium */}
+                <div className="flex justify-between items-start border-bottom-[3px_solid_#3b82f6] pb-[1.5rem] mb-[2rem]">
+                    <div className="flex-[1]">
+                        <div className="inline-block bg-[linear-gradient(135deg,_#3b82f6,_#2563eb)] text-[#ffffff] font-[800] text-[0.7rem] uppercase letter-spacing-[2px] p-[0.4rem_1rem] rounded-full mb-[1rem]">
+                            Análisis por Inteligencia Artificial
                         </div>
-                        <div className="text-[8pt] text-[#64748b] font-[700]">
-                            {new Date(data.date).toLocaleDateString('es-AR')}
+                        <h1 className="m-[0_0_0.3rem_0] text-[#0f172a] text-[2.4rem] font-[900] letter-spacing-[-0.5px] leading-tight">
+                            INFORME AI
+                        </h1>
+                        <p className="m-[0] text-[1.1rem] text-[#3b82f6] font-[700] uppercase letter-spacing-[1px]">
+                            Inspección Visual Avanzada
+                        </p>
+                    </div>
+                    <div className="flex flex-col items-end gap-[1rem]">
+                        <div className="h-[65px] flex items-center">
+                            <CompanyLogo className="h-[100%] w-[auto] max-w-[150px] object-fit-[contain]" />
+                        </div>
+                        <div className="text-[9pt] text-[#64748b] font-[700] bg-[#f1f5f9] p-[0.3rem_0.8rem] rounded-full">
+                            Fecha: {new Date(data.date).toLocaleDateString('es-AR')}
                         </div>
                     </div>
                 </div>
 
-                {/* Info Block */}
-                <div className="grid grid-template-columns-[1fr_1fr_1fr] gap-[1rem] bg-[#f8fafc] p-[1rem] rounded-[8px] border-[1px_solid_#e2e8f0] mb-[2rem]">
-                    <div>
-                        <p className="m-[0] text-[8pt] text-[#64748b]">Tipo</p>
-                        <p className="m-[0] font-[800] text-[10pt] text-[var(--color-primary)]">
+                {/* Info Block Rediseñado */}
+                <div className="flex flex-wrap gap-[1rem] mb-[2.5rem] bg-[#f8fafc] p-[1.5rem] rounded-[12px] border-[1px_solid_#cbd5e1]">
+                    <div className="flex-[1] min-w-[150px] border-right-[1px_solid_#e2e8f0] pr-[1rem]">
+                        <div className="flex items-center gap-[0.5rem] mb-[0.3rem]">
+                            <span className="text-[0.75rem] text-[#64748b] font-[700] uppercase letter-spacing-[1px]">Tipo de Análisis</span>
+                        </div>
+                        <p className="m-[0] font-[800] text-[1rem] text-[#3b82f6]">
                             {data.type === 'general_risks' ? 'RIESGOS GENERALES' : 'VERIFICAR EPP'}
                         </p>
                     </div>
-                    <div>
-                        <p className="m-[0] text-[8pt] text-[#64748b]">Empresa / Planta</p>
-                        <p className="m-[0] font-[600] text-[10pt]">{company}</p>
+                    <div className="flex-[1] min-w-[150px] border-right-[1px_solid_#e2e8f0] pr-[1rem]">
+                        <div className="flex items-center gap-[0.5rem] mb-[0.3rem]">
+                            <span className="text-[0.75rem] text-[#64748b] font-[700] uppercase letter-spacing-[1px]">Empresa / Planta</span>
+                        </div>
+                        <p className="m-[0] font-[800] text-[1rem] text-[#0f172a]">{company}</p>
                     </div>
-                    <div>
-                        <p className="m-[0] text-[8pt] text-[#64748b]">Fecha</p>
-                        <p className="m-[0] font-[600] text-[10pt]">{new Date(data.date).toLocaleString()}</p>
+                    <div className="flex-[1] min-w-[150px]">
+                        <div className="flex items-center gap-[0.5rem] mb-[0.3rem]">
+                            <span className="text-[0.75rem] text-[#64748b] font-[700] uppercase letter-spacing-[1px]">Fecha y Hora</span>
+                        </div>
+                        <p className="m-[0] font-[800] text-[1rem] text-[#0f172a]">{new Date(data.date).toLocaleString('es-AR')}</p>
                     </div>
                 </div>
 
@@ -111,11 +110,14 @@ export default function AiReportPdfGenerator({ item }: {item: any;}): React.Reac
                     </div>
                 </div>
 
-                {/* Analysis Results */}
-                <div className="mb-[2rem]">
-                    <h3 className="border-bottom-[1px_solid_#e2e8f0] pb-[0.5rem] mb-[1rem] text-[#1e293b] text-[12pt]">
-                        {data.type === 'general_risks' ? 'Resumen de Riesgos Detectados' : 'Evaluación de EPP Detectada'}
-                    </h3>
+                {/* Analysis Results Rediseñado */}
+                <div className="mb-[2.5rem] avoid-break">
+                    <div className="flex items-center gap-[0.8rem] mb-[1.2rem]">
+                        <div className="w-[8px] h-[24px] bg-[#3b82f6] rounded-[4px]"></div>
+                        <h3 className="m-[0] text-[#0f172a] font-[800] text-[1.1rem] uppercase letter-spacing-[1px]">
+                            {data.type === 'general_risks' ? 'Resumen de Riesgos Detectados' : 'Evaluación de EPP Detectada'}
+                        </h3>
+                    </div>
 
                     {data.type !== 'general_risks' ?
           <>

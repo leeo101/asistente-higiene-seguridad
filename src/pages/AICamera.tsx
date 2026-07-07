@@ -417,10 +417,10 @@ export default function AICamera(): React.ReactElement | null {
                         <div className="absolute bottom-[2.5rem] left-[0] w-[100%] flex justify-center z-[20]">
                             <button
               onClick={handleCapture} className="group relative w-[80px] h-[80px] rounded-[50%] bg-[rgba(255,255,255,0.2)] backdrop-filter-[blur(10px)] cursor-pointer flex items-center justify-center border-none outline-none transition-all duration-300 hover:scale-[1.05]">
-                                <div className="absolute inset-[0] rounded-[50%] border-[2px_solid_rgba(255,255,255,0.6)] box-sizing-[border-box]" />
-                                <div className="w-[64px] h-[64px] rounded-[50%] bg-white flex items-center justify-center box-shadow-[0_0_20px_rgba(255,255,255,0.8)] transition-all duration-300 group-active:scale-[0.9] group-active:bg-[#e2e8f0]">
-                                   <Camera size={28} className="text-[#0f172a]" />
-                                </div>
+                                {/* Anillo exterior animado */}
+                                <div className="absolute inset-[0] rounded-[50%] border-[2px_solid_rgba(255,255,255,0.8)] opacity-[0.5] scale-[1.1] transition-all duration-300 group-hover:scale-[1.15] group-hover:opacity-[1]"></div>
+                                {/* Botón interior sólido */}
+                                <div className="w-[60px] h-[60px] rounded-[50%] bg-[#ffffff] shadow-[0_4px_15px_rgba(0,0,0,0.2)] transition-all duration-300 group-hover:scale-[0.95]"></div>
                             </button>
                         </div>
                     </> :

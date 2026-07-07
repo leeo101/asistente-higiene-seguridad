@@ -597,18 +597,11 @@ export default function ExtinguisherAI() {
                             </button>
                             
                             <button
-                    onClick={handleCapture} className="p-[1.2rem] bg-[linear-gradient(135deg,_#ef4444,_#dc2626)] border-none rounded-[50%] text-[#ffffff] cursor-pointer box-shadow-[0_4px_15px_rgba(239,_68,_68,_0.4)]">
-
-
-
-
-
-
-
-
-
-                    
-                                <Camera size={28} />
+                                onClick={handleCapture} className="group relative w-[80px] h-[80px] rounded-[50%] bg-[rgba(255,255,255,0.2)] backdrop-filter-[blur(10px)] cursor-pointer flex items-center justify-center border-none outline-none transition-all duration-300 hover:scale-[1.05]">
+                                {/* Anillo exterior animado */}
+                                <div className="absolute inset-[0] rounded-[50%] border-[2px_solid_rgba(255,255,255,0.8)] opacity-[0.5] scale-[1.1] transition-all duration-300 group-hover:scale-[1.15] group-hover:opacity-[1]"></div>
+                                {/* Botón interior sólido */}
+                                <div className="w-[60px] h-[60px] rounded-[50%] bg-[#ffffff] shadow-[0_4px_15px_rgba(0,0,0,0.2)] transition-all duration-300 group-hover:scale-[0.95]"></div>
                             </button>
                         </div>
                     </> :

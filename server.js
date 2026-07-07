@@ -652,8 +652,8 @@ REGLAS ESTRICTAS:
         const imagePart = { inlineData: { data: base64Data, mimeType } };
 
         const models = [
-            "gemini-2.0-flash",
-            "gemini-1.5-flash",
+            "gemini-2.5-flash",
+            "gemini-flash-latest",
             "gemini-2.5-flash",
             "gemini-flash-latest"
         ];

@@ -5,11 +5,11 @@ export interface Config {
 }
 
 /**
- * En desarrollo usamos rutas relativas (/api) → el proxy de Vite reenvía a Express :3001.
- * Evita CORS y el error "Origen no autorizado" al abrir la app por IP de red (192.168.x.x).
- * En producción la API vive en Render.
+ * Usamos rutas relativas (/api) en todos los entornos.
+ * - En desarrollo: el proxy de Vite reenvía a Express :3001.
+ * - En producción (Firebase Hosting): firebase.json reescribe /api a Cloud Functions.
  */
-export const API_BASE_URL: string = import.meta.env.DEV ? '' : 'https://asistentehs.onrender.com';
+export const API_BASE_URL: string = '';
 
 export const ADMIN_EMAILS: string[] = [
   'enzorodriguez31@gmail.com',
