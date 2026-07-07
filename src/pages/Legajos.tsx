@@ -186,19 +186,31 @@ export default function Legajos() {
         {hasAccess &&
           <>
           <button
-              onClick={() => {
-                navigate('/legajos/nuevo');
+              onClick={() => navigate('/legajos/nuevo')}
+              className="text-white py-3 px-6 rounded-xl font-extrabold cursor-pointer flex items-center gap-2 transition-all text-sm border-none shadow-[0_4px_15px_rgba(16,185,129,0.4)]"
+              style={{ backgroundColor: '#10b981' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.backgroundColor = '#059669';
               }}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white py-3 px-6 rounded-xl font-extrabold cursor-pointer flex items-center gap-2 transition-all text-sm shadow-[0_4px_15px_rgba(16,185,129,0.4)] transform hover:-translate-y-0.5">
-
-              
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.backgroundColor = '#10b981';
+              }}>
             <Plus size={18} /> Nuevo Legajo
           </button>
           <button
               onClick={() => setShowQRModal(true)}
-              className="bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-xl font-extrabold cursor-pointer flex items-center gap-2 transition-all text-sm shadow-[0_4px_15px_rgba(59,130,246,0.4)] transform hover:-translate-y-0.5">
-
-              
+              className="text-white py-3 px-6 rounded-xl font-extrabold cursor-pointer flex items-center gap-2 transition-all text-sm border-none shadow-[0_4px_15px_rgba(59,130,246,0.4)]"
+              style={{ backgroundColor: '#3b82f6' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.backgroundColor = '#2563eb';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.backgroundColor = '#3b82f6';
+              }}>
             Portal Trabajador (QR)
           </button>
           </>

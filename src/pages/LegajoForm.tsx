@@ -1196,25 +1196,101 @@ export default function LegajoForm() {
             
           </div>
           }
+
+        {/* ═══ Navigation Buttons ═══ */}
+        <div className="flex justify-center items-center gap-6 mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              const idx = TABS.findIndex(t => t.id === activeTab);
+              if (idx > 0) setActiveTab(TABS[idx - 1].id);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            disabled={TABS.findIndex(t => t.id === activeTab) === 0}
+            className="px-6 py-2.5 rounded-xl text-white text-sm font-extrabold transition-all border-none flex items-center gap-2 shadow-lg shadow-slate-400/30 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            style={{ backgroundColor: '#64748b' }}
+            onMouseEnter={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.backgroundColor = '#475569';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.backgroundColor = '#64748b';
+              }
+            }}
+          >
+            <ArrowLeft size={16} /> Atrás
+          </button>
+          
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              const idx = TABS.findIndex(t => t.id === activeTab);
+              if (idx < TABS.length - 1) setActiveTab(TABS[idx + 1].id);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            disabled={TABS.findIndex(t => t.id === activeTab) === TABS.length - 1}
+            className="px-6 py-2.5 rounded-xl text-white text-sm font-extrabold transition-all border-none flex items-center gap-2 shadow-lg shadow-blue-500/30 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            style={{ backgroundColor: '#3b82f6' }}
+            onMouseEnter={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.backgroundColor = '#2563eb';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.backgroundColor = '#3b82f6';
+              }
+            }}
+          >
+            Siguiente <ArrowLeft size={16} className="rotate-180" />
+          </button>
+        </div>
+
       </div>
 
       </main>
-      <div className="no-print floating-action-bar">
+      {activeTab === 'firmas' && (
+      <div className="no-print floating-action-bar flex flex-col sm:flex-row gap-3 w-full max-w-full px-4 sm:px-0">
           {id &&
         <button
           onClick={handleGeneratePDF}
-          className="btn-floating-action bg-orange-500 hover:bg-orange-600 text-white">
+          className="flex-1 w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2 transition-all text-white border-none"
+          style={{ backgroundColor: '#f97316' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.backgroundColor = '#ea580c';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.backgroundColor = '#f97316';
+          }}>
           
                 <Printer size={18} /> IMPRIMIR PDF
             </button>
         }
           <button
           onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-          className="btn-floating-action bg-emerald-500 hover:bg-emerald-600 text-white">
+          className="flex-1 w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-green-500/30 flex items-center justify-center gap-2 transition-all text-white border-none"
+          style={{ backgroundColor: '#22c55e' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.backgroundColor = '#16a34a';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.backgroundColor = '#22c55e';
+          }}>
           
               <Save size={18} /> GUARDAR LEGAJO
           </button>
       </div>
+      )}
     </div>);
 
 }

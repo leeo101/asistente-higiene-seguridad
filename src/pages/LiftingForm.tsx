@@ -418,14 +418,14 @@ export default function LiftingForm(): React.ReactElement | null {
   }
 
   return (
-    <ModuleFormLayout>
+    <ModuleFormLayout className="pt-[100px] pb-32">
             <ModuleFormToolbar onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
       title={isEdit ? 'Editar Plan de Izaje' : 'Nuevo Plan de Izaje'}
       subtitle="Complete la información del plan de izaje."
       icon={<Crane size={32} color="#ffffff" />}
       />
 
-        <ModuleFormDocument id="pdf-content">
+        <ModuleFormDocument className="no-print">
             <ModuleFormSection title="Datos de la Maniobra" icon={<Crane />}>
                     <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem]">
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
@@ -655,9 +655,9 @@ export default function LiftingForm(): React.ReactElement | null {
 
         <ModuleActionBar
             actions={[
-                { id: 'save', label: 'GUARDAR PLAN', icon: <Save />, variant: 'primary', onClick: () => requirePro(handleSave) },
-                { id: 'share', label: 'COMPARTIR', icon: <Share2 />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) },
-                { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer />, variant: 'secondary', onClick: () => requirePro(() => window.print()) }
+                { id: 'save', label: 'GUARDAR', icon: <Save />, variant: 'primary', onClick: () => requirePro(handleSave) },
+                { id: 'share', label: 'COMPARTIR', icon: <Share2 />, variant: 'info', onClick: () => requirePro(() => setShowShareModal(true)) },
+                { id: 'print', label: 'IMPRIMIR', icon: <Printer />, variant: 'secondary', onClick: () => requirePro(() => window.print()) }
             ]}
         />
 

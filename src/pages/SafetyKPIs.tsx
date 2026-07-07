@@ -71,7 +71,7 @@ function KPICard({ title, value, unit, icon: Icon, color, gradient, infoKey, tre
 }: {title: string;value: number | string;unit: string;icon: any;color: string;gradient: string;infoKey?: string;trend?: number;}) {
   const [showInfo, setShowInfo] = useState(false);
   return (
-    <div className="relative flex flex-col justify-center p-5 rounded-3xl text-white shadow-xl cursor-default transition-all duration-300 group hover:-translate-y-1.5" style={{ background: gradient, boxShadow: `0 12px 35px ${color}40, inset 0 1px 1px rgba(255,255,255,0.2)` }}
+    <div className={`relative flex flex-col justify-center p-5 rounded-3xl text-white shadow-xl cursor-default transition-all duration-300 group hover:-translate-y-1.5 ${showInfo ? 'z-50' : 'z-10'}`} style={{ background: gradient, boxShadow: `0 12px 35px ${color}40, inset 0 1px 1px rgba(255,255,255,0.2)` }}
     onMouseEnter={(e) => {e.currentTarget.style.boxShadow = `0 20px 40px ${color}60, inset 0 1px 1px rgba(255,255,255,0.3)`;}} onMouseLeave={(e) => {e.currentTarget.style.boxShadow = `0 12px 35px ${color}40, inset 0 1px 1px rgba(255,255,255,0.2)`;}}>
       
             <div className="flex justify-between items-start mb-3">
@@ -402,9 +402,16 @@ export default function SafetyKPIs(): React.ReactElement {
                     <div className="mb-[2rem] flex justify-start gap-4 flex-wrap">
                         <button
             onClick={() => {setShowForm(true);setEditing(null);setForm(emptyForm);}}
-            className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/30 flex items-center gap-2 transition-all"
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+            className="px-6 py-3 text-white rounded-xl font-bold text-sm shadow-lg shadow-green-500/30 flex items-center gap-2 transition-all"
+            style={{ backgroundColor: '#22c55e' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.backgroundColor = '#16a34a';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.backgroundColor = '#22c55e';
+            }}>
             
                             <RefreshCw size={18} /> Ingresar Período
                         </button>
@@ -526,15 +533,15 @@ export default function SafetyKPIs(): React.ReactElement {
         }
 
             {/* Definitions box */}
-            <div className="p-[1.5rem] mb-[2rem] bg-[linear-gradient(135deg,_rgba(59,_130,_246,_0.05),_rgba(37,_99,_235,_0.1))] border-[1px_solid_rgba(59,_130,_246,_0.2)] rounded-[20px] box-shadow-[0_8px_32px_rgba(0,0,0,0.05)]">
+            <div className="p-6 mb-8 rounded-3xl shadow-xl" style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
 
 
 
 
 
           
-                <h4 className="m-0 mb-4 text-[0.95rem] font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-2.5">
-                    <div className="bg-blue-500 text-white rounded-xl p-1.5 flex">
+                <h4 className="m-0 mb-4 text-[0.95rem] font-extrabold flex items-center gap-2.5" style={{ color: '#1e293b' }}>
+                    <div className="text-white rounded-xl p-1.5 flex" style={{ backgroundColor: '#3b82f6' }}>
                         <Info size={16} strokeWidth={2.5} />
                     </div>
                     Fórmulas y Estándares de Cálculo (ISO 45001 / OIT)
@@ -561,12 +568,12 @@ export default function SafetyKPIs(): React.ReactElement {
 
             {/* History Table */}
             {entries.length > 0 &&
-        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6">
-                    <h3 className="m-0 mb-4 text-base font-extrabold text-slate-800 dark:text-slate-100">Historial de Períodos</h3>
+        <div className="rounded-2xl p-6 shadow-xl" style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
+                    <h3 className="m-0 mb-4 text-base font-extrabold" style={{ color: '#1e293b' }}>Historial de Períodos</h3>
                     <div className="overflow-x-auto">
                         <table className="w-full border-collapse text-[0.85rem]">
                             <thead>
-                                <tr className="bg-slate-50 dark:bg-slate-800/50">
+                                <tr style={{ backgroundColor: '#f8fafc' }}>
                                     {['Período', 'Hrs Trab.', 'Trabaj.', 'A c/baja', 'A s/baja', 'Días perd.', 'IF', 'IFCA', 'IG', ''].map((h) =>
                   <th key={h} className="px-3 py-2.5 text-left font-extrabold text-slate-500 dark:text-slate-400 text-xs uppercase whitespace-nowrap">{h}</th>
                   )}
@@ -589,11 +596,17 @@ export default function SafetyKPIs(): React.ReactElement {
                                             <td className="px-2 py-3">
                                                 <div className="flex gap-1.5">
                                                     <button onClick={() => {setEditing(e);setForm(e);setShowForm(true);}}
-                          className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 cursor-pointer text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                          className="text-white border-none rounded-lg px-3 py-1.5 cursor-pointer text-xs font-bold shadow-sm transition-all"
+                          style={{ backgroundColor: '#3b82f6' }}
+                          onMouseEnter={(ev) => ev.currentTarget.style.backgroundColor = '#2563eb'}
+                          onMouseLeave={(ev) => ev.currentTarget.style.backgroundColor = '#3b82f6'}>
                                                         Editar
                                                     </button>
                                                     <button onClick={() => handleDelete(e.id)}
-                          className="bg-transparent border border-red-500 rounded-lg px-2.5 py-1.5 cursor-pointer text-xs font-bold text-red-500 hover:bg-red-500/10 transition-colors">
+                          className="text-white border-none rounded-lg px-2.5 py-1.5 cursor-pointer text-xs font-bold shadow-sm transition-all"
+                          style={{ backgroundColor: '#ef4444' }}
+                          onMouseEnter={(ev) => ev.currentTarget.style.backgroundColor = '#dc2626'}
+                          onMouseLeave={(ev) => ev.currentTarget.style.backgroundColor = '#ef4444'}>
                                                         ✕
                                                     </button>
                                                 </div>
@@ -647,7 +660,16 @@ export default function SafetyKPIs(): React.ReactElement {
                 toast.error('Error al leer registros de accidentes.');
               }
             }}
-            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-500/30 flex items-center gap-2 transition-all">
+            className="px-5 py-2.5 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-500/30 flex items-center gap-2 transition-all"
+            style={{ backgroundColor: '#2563eb' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.backgroundColor = '#1d4ed8';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.backgroundColor = '#2563eb';
+            }}>
             
                         <RefreshCw size={16} /> Auto-completar Incidentes
                     </button>
@@ -699,7 +721,16 @@ export default function SafetyKPIs(): React.ReactElement {
                         <div className="text-[0.85rem] text-slate-700 dark:text-slate-300">
                             <strong>Tip:</strong> Puedes autocompletar los accidentes desde el módulo de investigación.
                         </div>
-                        <button type="button" onClick={autoImportFromAccidents} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white border-none px-4 py-2.5 rounded-lg text-sm font-bold cursor-pointer transition-colors shadow-lg shadow-blue-500/20">
+                        <button type="button" onClick={autoImportFromAccidents} className="flex items-center gap-2 text-white border-none px-4 py-2.5 rounded-lg text-sm font-bold cursor-pointer shadow-lg shadow-blue-500/20 transition-all"
+            style={{ backgroundColor: '#2563eb' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.backgroundColor = '#1d4ed8';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.backgroundColor = '#2563eb';
+            }}>
                             <RefreshCw size={16} /> Importar Accidentes
                         </button>
                     </div>
@@ -725,19 +756,33 @@ export default function SafetyKPIs(): React.ReactElement {
           }
                 </div>
 
-                <div className="no-print floating-action-bar">
+                <div className="no-print floating-action-bar flex flex-col sm:flex-row gap-3 w-full max-w-full px-4 sm:px-0">
                     <button
             onClick={() => {setShowForm(false);setEditing(null);}}
-            className="btn-floating-action bg-[var(--color-surface)] text-[var(--color-text)] border-[1px_solid_var(--color-border)]">
-
-            
+            className="flex-1 w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-red-500/30 flex items-center justify-center gap-2 transition-all text-white border-none"
+            style={{ backgroundColor: '#ef4444' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.backgroundColor = '#dc2626';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.backgroundColor = '#ef4444';
+            }}>
                         <X size={18} /> CANCELAR
                     </button>
                     <button
             onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-            className="btn-floating-action bg-[#10b981] text-[#ffffff] border-none">
-
-            
+            className="flex-1 w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-green-500/30 flex items-center justify-center gap-2 transition-all text-white border-none"
+            style={{ backgroundColor: '#22c55e' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.backgroundColor = '#16a34a';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.backgroundColor = '#22c55e';
+            }}>
                         <Save size={18} /> GUARDAR KPI
                     </button>
                 </div>
