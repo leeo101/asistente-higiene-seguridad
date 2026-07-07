@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, AlertTriangle, ShieldCheck, Weight, ArrowDownToLine, Users, Printer, Share2, Pencil, Search, Plus, Trash2, Calendar, CheckCircle2, FileText } from 'lucide-react';
+import { ArrowLeft, Save, AlertTriangle, ShieldCheck, Weight, ArrowDownToLine, Users, Printer, Share2, Pencil, Search, Plus, Trash2, Calendar, CheckCircle2, FileText, Building2, Download, ClipboardList, QrCode } from 'lucide-react';
 import { Crane } from '@phosphor-icons/react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import PremiumHeader from '../components/PremiumHeader';
@@ -12,6 +12,10 @@ import PdfSignatures from '../components/PdfSignatures';
 import LiftingPdfGenerator from '../components/LiftingPdfGenerator';
 import ConfirmModal from '../components/ConfirmModal';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import QRModal from '../components/QRModal';
+import { DataTable } from '../components/DataTable';
+import { auth } from '../firebase';
+import { downloadCSV } from '../services/exportCsv';
 import {
   ModuleFormLayout,
   ModuleFormToolbar,
@@ -20,8 +24,10 @@ import {
   ModuleActionBar,
 } from '../components/module';
 
-
 export default function LiftingForm(): React.ReactElement | null {
+  const currentUser = auth.currentUser;
+  const [qrTarget, setQrTarget] = useState(null);
+  const [shareItem, setShareItem] = useState(null);
   const { requirePro } = usePaywall();
   const navigate = useNavigate();
   const location = useLocation();
@@ -235,9 +241,77 @@ export default function LiftingForm(): React.ReactElement | null {
   const loadPercentage = calculateLoadPercentage();
   const isCritical = parseFloat(loadPercentage as string) >= 75;
 
+  const handleExportCSV = () => {
+    requirePro(() => {
+      downloadCSV(plans.map((i: any) => ({
+        ubicacion: i.location, fecha: i.date,
+        equipo: i.equipment || '', capacidad: i.equipmentCapacity || '', carga: i.loadWeight || ''
+      })), 'izaje_historial', {
+        ubicacion: 'Ubicación/Maniobra', fecha: 'Fecha',
+        equipo: 'Equipo', capacidad: 'Capacidad (kg)', carga: 'Carga (kg)'
+      });
+    });
+  };
+
+  const columns = [
+  {
+    header: 'Fecha',
+    accessor: 'date',
+    sortable: true,
+    render: (item: any) =>
+    <span className="flex items-center gap-[0.4rem] text-[var(--color-text-muted)] white-space-[nowrap]">
+                    <Calendar size={14} /> {new Date(item.date).toLocaleDateString()}
+                </span>
+  },
+  {
+    header: 'Maniobra / Ubicación',
+    accessor: 'location',
+    sortable: true,
+    render: (item: any) =>
+    <div className="flex items-center gap-[0.8rem]">
+                    <div className="bg-[rgba(16,185,129,0.1)] p-[0.5rem] rounded-[8px] text-[var(--color-secondary)]">
+                        <Weight size={16} />
+                    </div>
+                    <div className="font-[700]">{item.location || 'Sin ubicación'}</div>
+                </div>
+  },
+  {
+    header: 'Equipo',
+    accessor: 'equipment',
+    sortable: true,
+    render: (item: any) =>
+    <span className="flex items-center gap-[0.4rem]">
+                    <Building2 size={14} /> {item.equipment || '—'}
+                </span>
+  },
+  {
+    header: 'Criticidad',
+    accessor: 'id',
+    render: (item: any) => {
+        const loadRatio = item.loadWeight && item.equipmentCapacity ? parseFloat(item.loadWeight) / parseFloat(item.equipmentCapacity) * 100 : 0;
+        const isCritical = loadRatio >= 75;
+        return (
+            <span style={{ background: isCritical ? '#fef2f2' : '#f0fdf4', color: isCritical ? '#dc2626' : '#16a34a' }} className="p-[0.3rem_0.6rem] rounded-[6px] text-[0.75rem] font-[900] flex items-center gap-[0.25rem] max-w-max">
+                {isCritical ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />} {isCritical ? 'CRÍTICO' : 'NORMAL'}
+            </span>
+        );
+    }
+  },
+  {
+    header: 'Acciones',
+    accessor: 'id',
+    render: (item: any) =>
+    <div className="flex items-center gap-1.5">
+                    <button onClick={(e) => {e.stopPropagation();setPlan({...item, showSignatures: item.showSignatures || {operator: true, professional: true, supervisor: true}});setIsEdit(true);setIsFormVisible(true);}} title="Ver" style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><FileText size={16} /></button>
+                    <button onClick={(e) => {e.stopPropagation();requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/lifting/${item.id}?print=true`;setQrTarget({ text: url, title: `Plan Izaje — ${item.location}` } as any);})}} title="QR" style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><QrCode size={16} /></button>
+                    <button onClick={(e) => {e.stopPropagation();requirePro(() => setShareItem(item))}} title="Compartir" style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Share2 size={16} /></button>
+                    <button onClick={(e) => {e.stopPropagation();handleDelete(item.id, e)}} title="Eliminar" style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Trash2 size={16} /></button>
+                </div>
+  }];
+
   if (!isFormVisible && !isEdit) {
     return (
-      <div className="container w-full max-w-[1200px] mx-auto pb-32">
+      <div className="container w-full max-w-[1200px] mx-auto pt-24 pb-32">
         <div className="no-print">
           <PremiumHeader
             title="Planes de Izaje"
@@ -246,134 +320,101 @@ export default function LiftingForm(): React.ReactElement | null {
           />
         </div>
         
+                <main className="w-full">
+                        {/* KPIs */}
+                        <div className="no-print grid grid-cols-1 md:grid-cols-3 gap-[1rem] mb-[2rem]">
+                            <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
+                                <div className="bg-blue-100 text-blue-600 p-[1rem] rounded-[12px]"><ClipboardList size={28} /></div>
+                                <div>
+                                    <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">Planes Generados</div>
+                                    <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{plans.length}</div>
+                                </div>
+                            </div>
+                            <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
+                                <div className="bg-red-100 text-red-600 p-[1rem] rounded-[12px]"><AlertTriangle size={28} /></div>
+                                <div>
+                                    <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">Izajes Críticos</div>
+                                    <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{plans.filter(p => {const load = parseFloat(p.loadWeight); const cap = parseFloat(p.equipmentCapacity); return (load/cap)*100 >= 75;}).length}</div>
+                                </div>
+                            </div>
+                            <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
+                                <div className="bg-green-100 text-green-600 p-[1rem] rounded-[12px]"><CheckCircle2 size={28} /></div>
+                                <div>
+                                    <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">Planes Última Semana</div>
+                                    <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{plans.filter(h => new Date(h.createdAt || h.date) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}</div>
+                                </div>
+                            </div>
+                        </div>
 
-                
-                <main className="p-[0_0_2rem_0] max-w-[1000px] m-[0_auto] w-[100%]">
-                    {/* Botones de Navegación */}
-                    <div className="flex gap-[1rem] p-[0_1rem] mb-[1rem]">
-                        <></>
-                    </div>
-
-                    <div className="flex justify-space-between gap-[1rem] mb-[2rem] flex-wrap p-[0_1rem]">
-                        <div className="relative flex-[1_1_300px]">
-                            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <input
+                        <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap items-stretch bg-[var(--color-surface,_#fff)] p-[1.5rem] rounded-[24px] box-shadow-[0_10px_40px_rgba(0,0,0,0.04)] border-[1px_solid_rgba(0,0,0,0.05)]">
+                            <div className="flex-[1_1_250px] relative">
+                                <Search size={22} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                                <input
                 type="text"
                 placeholder="Buscar por ubicación o equipo..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.8rem_1rem_0.8rem_2.8rem] rounded-[12px] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] box-sizing-[border-box]" />
-
-
-
-
-
-
-
-
-
-              
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={(e) => {e.currentTarget.style.border = '2px solid #3b82f6';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = '0 0 0 4px rgba(59,130,246,0.1)';}}
+                onBlur={(e) => {e.currentTarget.style.border = '2px solid transparent';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = 'none';}}
+                style={{ width: '100%', height: '100%', minHeight: '3.5rem', padding: '0.75rem 1rem 0.75rem 3.5rem', borderRadius: '1rem', border: '2px solid transparent', backgroundColor: 'rgba(241, 245, 249, 0.5)', fontSize: '1rem', outline: 'none', transition: 'all 0.3s', fontWeight: 500, color: 'var(--color-text)' }} />
+                            </div>
+                            
+                            <div className="flex gap-[0.5rem]">
+                                <button
+                  onClick={() => setIsFormVisible(true)}
+                  onMouseOver={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 12px 25px rgba(16,185,129,0.4)';}}
+                  onMouseOut={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.3)';}}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '0 1.5rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(16,185,129,0.3)', whiteSpace: 'nowrap', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', height: '100%', minHeight: '3.5rem' }}>
+                                    <Plus size={22} strokeWidth={2.5} /> Nuevo Plan
+                                </button>
+                                
+                                {plans.length > 0 &&
+                                    <button
+                                        onClick={handleExportCSV}
+                                        onMouseOver={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 12px 25px rgba(59,130,246,0.4)';}}
+                                        onMouseOut={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = '0 8px 20px rgba(59,130,246,0.3)';}}
+                                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0 1.5rem', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#ffffff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(59,130,246,0.3)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', height: '100%', minHeight: '3.5rem' }}>
+                                        <Download size={20} strokeWidth={2.5} /> Excel
+                                    </button>
+                                }
+                            </div>
                         </div>
-                        <button
-              onClick={() => setIsFormVisible(true)}
-              className="btn-primary m-[0] bg-[#10b981] flex items-center gap-[0.5rem]">
 
-              
-                            <Plus size={20} /> NUEVO PLAN
-                        </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
-                        {filteredPlans.length === 0 ?
-            <div className="grid-column-[1_/_-1] text-center p-[4rem_2rem] bg-[var(--color-surface)] rounded-[24px] border-[1px_dashed_var(--color-border)]">
-                                <Weight size={48} className="text-[var(--color-text-light)] mb-[1rem]" />
-                                <h3 className="m-[0_0_0.5rem_0]">No hay planes registrados</h3>
-                                <p className="m-[0] text-[var(--color-text-muted)]">Cargue su primer plan de izaje.</p>
-                            </div> :
-
-            filteredPlans.map((item: any) => {
-              const loadRatio = item.loadWeight && item.equipmentCapacity ?
-              parseFloat(item.loadWeight) / parseFloat(item.equipmentCapacity) * 100 :
-              0;
-              const isCritical = loadRatio >= 75;
-
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => {
-                    setPlan({ ...item, showSignatures: item.showSignatures || { operator: true, professional: true, supervisor: true } });
-                    setIsEdit(true);
-                    setIsFormVisible(true);
-                  }}
-                  className="card hover-lift animate-fade-in cursor-pointer p-6 rounded-2xl bg-slate-900 border border-slate-700">
-                  
-                                        <div className="flex justify-space-between items-start mb-[1rem]">
-                                            <div>
-                                                <h3 className="m-[0_0_0.25rem_0] text-[1.2rem] font-[900]">{item.location}</h3>
-                                                <span className="text-[0.8rem] text-[var(--color-text-muted)] flex items-center gap-[0.25rem]">
-                                                    <Calendar size={14} /> {new Date(item.date).toLocaleDateString()}
-                                                </span>
-                                            </div>
-                                            <span style={{
-                      background: isCritical ? '#fef2f2' : '#f0fdf4',
-                      color: isCritical ? '#dc2626' : '#16a34a'
-
-
-
-
-
-
-
-                    }} className="p-[0.3rem_0.6rem] rounded-[6px] text-[0.75rem] font-[900] flex items-center gap-[0.25rem]">
-                                                {isCritical ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />}
-                                                {isCritical ? 'CRÍTICO' : 'NORMAL'}
-                                            </span>
-                                        </div>
-                                        
-                                        <div className="flex flex-col gap-[0.5rem] mb-[1.5rem]">
-                                            <div className="flex justify-space-between text-[0.9rem]">
-                                                <span className="text-[var(--color-text-muted)]">Equipo:</span>
-                                                <span className="font-semibold">{item.equipment || '-'}</span>
-                                            </div>
-                                            <div className="flex justify-space-between text-[0.9rem]">
-                                                <span className="text-[var(--color-text-muted)]">Carga:</span>
-                                                <span className="font-semibold">{item.loadWeight ? `${item.loadWeight} kg` : '-'}</span>
-                                            </div>
-                                            <div className="flex justify-space-between text-[0.9rem]">
-                                                <span className="text-[var(--color-text-muted)]">% Capacidad:</span>
-                                                <span style={{ color: isCritical ? '#dc2626' : 'inherit' }} className="font-[600]">
-                                                    {loadRatio ? `${loadRatio.toFixed(1)}%` : '-'}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex justify-space-between items-center pt-[1rem] border-top-[1px_solid_var(--color-border)]">
-                                            <span className="text-[0.8rem] text-[var(--color-primary)] font-[600] flex items-center gap-[0.25rem]">
-                                                <FileText size={14} /> Ver / Editar
-                                            </span>
-                                            <button
-                      onClick={(e) => handleDelete(item.id, e)}
-
-                      title="Eliminar" className="bg-[transparent] border-none text-[#ef4444] cursor-pointer p-[0.5rem]">
-                      
-                                                <Trash2 size={18} />
-                                            </button>
-                                        </div>
-                                    </div>);
-
-            })
-            }
-                    </div>
-                </main>
-                <ConfirmModal
+                        <DataTable
+            data={filteredPlans}
+            columns={columns}
+            searchPlaceholder="Buscar..."
+            hideHeader={true}
+            emptyMessage="No se encontraron planes de izaje."
+            emptyIcon={<Weight size={48} />} />
+          
+                        {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} onClose={() => setQrTarget(null)} />}
+                        
+                        <ConfirmModal
           isOpen={confirmModal.isOpen}
           onClose={() => setConfirmModal({ isOpen: false, payload: null })}
           onConfirm={executeDelete}
           title="¿Eliminar registro?"
           message="Esta acción no se puede deshacer."
+          type="danger"
           iconEmoji="🗑️" />
-        
-      </div>);
 
+                        <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Plan Izaje - ${(shareItem as any)?.location || ''}`} rawMessage={shareItem ? `📋 Plan de Izaje\n📍 Ubicación: ${(shareItem as any).location}\n🏗️ Equipo: ${(shareItem as any).equipment}\n📅 Fecha: ${(shareItem as any).date}` : ''} text={shareItem ? `📋 Plan de Izaje\n📍 Ubicación: ${(shareItem as any).location}\n🏗️ Equipo: ${(shareItem as any).equipment}\n📅 Fecha: ${(shareItem as any).date}` : ''} elementIdToPrint="pdf-content" fileName={`Izaje_${(shareItem as any)?.location?.replace(/\s+/g, '_') || 'Reporte'}.pdf`} />
+                        <div className="ats-pdf-offscreen print-only opacity-[0.01] pointer-events-none fixed left-[-9999px]" id="pdf-content">
+                            {shareItem && <LiftingPdfGenerator data={{
+                              ...(shareItem as any),
+                              professionalSignature: (shareItem as any).professionalSignature || professional.signature,
+                              professionalName: (shareItem as any).professionalName || professional.name,
+                              professionalLicense: (shareItem as any).professionalLicense || professional.license,
+                              professionalStamp: (shareItem as any).professionalStamp || professional.stamp,
+                              signatures: {
+                                operator: (shareItem as any).operatorSignature || (shareItem as any).signatures?.operator || '',
+                                supervisor: (shareItem as any).supervisorSignature || (shareItem as any).signatures?.supervisor || ''
+                              }
+                            }} />}
+                        </div>
+                </main>
+      </div>);
   }
 
   return (
