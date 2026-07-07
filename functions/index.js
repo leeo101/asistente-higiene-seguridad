@@ -154,7 +154,7 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
                 }
             }
 
-            if (!result) throw lastError || new Error('Todos los modelos fallaron');
+            if (!result) throw new Error(lastError ? 'Todos los modelos fallaron: ' + lastError.message : 'Todos los modelos fallaron');
 
             const responseText = result.response.text();
             let cleanedJson = responseText.trim();
@@ -196,7 +196,7 @@ exports.predictAccidents = onRequest((req, res) => {
             }
 
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
             const prompt = `
 Sos un experto analista en higiene y seguridad laboral. Analizá el siguiente historial de accidentes de una empresa y hacé una predicción para el mes próximo.
@@ -240,7 +240,7 @@ exports.emergencyChat = onRequest((req, res) => {
             if (!message) return res.status(400).json({ error: 'Mensaje requerido' });
 
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
             let systemPrompt = `Sos EmergencyBot, un asistente virtual experto en emergencias, higiene y seguridad (H&S) para trabajadores en Argentina. Respondé de forma CLARA, DIRECTA y TRANQUILIZADORA.
 Usa viñetas o listas numeradas si hay pasos a seguir.
@@ -289,7 +289,7 @@ exports.visionAts = onRequest((req, res) => {
             if (!imageBase64) return res.status(400).json({ error: 'Imagen requerida' });
 
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
             const prompt = `Sos un prevencionista de riesgos laborales. Analizá esta imagen del lugar de trabajo y generá un Análisis de Trabajo Seguro (ATS).
 Devolvé UNICAMENTE un JSON array válido con los pasos a seguir, donde cada objeto tenga esta estructura:
