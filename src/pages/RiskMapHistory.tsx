@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Map as MapIcon, Calendar, ChevronRight, Trash2, Share2, Edit2, QrCode, Plus } from 'lucide-react';
+import { ArrowLeft, Search, Map as MapIcon, Calendar, ChevronRight, Trash2, Share2, Edit2, QrCode, Plus, FileText } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -98,14 +98,30 @@ export default function RiskMapHistory(): React.ReactElement | null {
             onClick={() => {
               requirePro(() => navigate('/risk-maps'));
             }}
-
-
-
-
-
-
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'} className="p-[0.75rem_1.5rem] bg-[#10b981] text-[#fff] border-none rounded-[14px] font-[800] text-[0.9rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(16,185,129,0.4)] transition-[all_0.2s]">
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              padding: '0.75rem 1.5rem',
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              color: '#ffffff',
+              fontWeight: 800,
+              borderRadius: '14px',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 8px 20px rgba(16,185,129,0.3)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 12px 25px rgba(16,185,129,0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.3)';
+            }}
+            >
             
                 <Plus size={18} /> Nuevo Mapa
                 </button>
@@ -119,18 +135,11 @@ export default function RiskMapHistory(): React.ReactElement | null {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)} className="w-full py-3 pr-4 pl-12 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-sm" />
 
-
-
-
-
-
-          
             </div>
 
             <div className="flex flex-col gap-4">
-                {filteredHistory.map((map) =>
-          <div key={map.id} className="card p-[1.25rem] cursor-pointer" style={{ borderLeft: `6px solid #8b5cf6` }}
-          onClick={() => setSelectedMap(map)}>
+                {filteredHistory.map((map) => (
+                  <div key={map.id} className="card p-[1.25rem] cursor-pointer" style={{ borderLeft: `6px solid #8b5cf6` }} onClick={() => setSelectedMap(map)}>
                         <div className="flex items-center gap-4">
                             <div className="w-[48px] h-[48px] rounded-[12px] bg-[rgba(139,92,246,0.15)] text-[#8b5cf6] flex items-center justify-center flex-shrink-[0]">
                                 <MapIcon size={24} />
@@ -151,59 +160,77 @@ export default function RiskMapHistory(): React.ReactElement | null {
                             </div>
                             <ChevronRight className="hidden sm:block text-[var(--color-border)] flex-shrink-[0]" />
                         </div>
-
-                        <div className="mt-[1rem] pt-[1rem] border-top-[1px_solid_var(--color-border)] flex justify-end gap-[0.8rem]">
+                        <div className="mt-[1rem] pt-[1rem] border-top-[1px_solid_var(--color-border)] flex justify-end gap-[0.6rem]">
                             <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  requirePro(() => setShareItem(map));
-                }} className="p-[0.5rem] rounded-[8px] bg-[#dcfce7] text-[#16a34a] border-[1px_solid_#86efac] flex items-center gap-[0.3rem] text-[0.8rem] font-[700]">
-
-                
-                                <Share2 size={16} /> Compartir
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedMap(map);
+                                }}
+                                title="Ver Reporte"
+                                style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }}
+                                className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
+                            >
+                                <FileText size={16} />
                             </button>
                             <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  requirePro(() => {
-                    const url = `${window.location.origin}/v/${currentUser?.uid}/riskmap/${map.id}?print=true`;
-                    setQrTarget({ text: url, title: `Mapa de Riesgos — ${map.sector}` });
-                  });
-                }}
-
-                title="Generar QR" className="p-[0.5rem] rounded-[8px] bg-[rgba(139,92,246,0.06)] border-[1px_solid_rgba(139,92,246,0.18)] text-[#8b5cf6] cursor-pointer flex items-center justify-center">
-                
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  requirePro(() => setShareItem(map));
+                                }}
+                                title="Compartir"
+                                style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }}
+                                className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
+                            >
+                                <Share2 size={16} />
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  requirePro(() => {
+                                    const url = `${window.location.origin}/v/${currentUser?.uid}/riskmap/${map.id}?print=true`;
+                                    setQrTarget({ text: url, title: `Mapa de Riesgos — ${map.sector}` });
+                                  });
+                                }}
+                                title="Código QR"
+                                style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }}
+                                className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
+                            >
                                 <QrCode size={16} />
                             </button>
                             <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate('/risk-maps', { state: { editData: map } });
-                }} className="p-[0.5rem] rounded-[8px] bg-[#eff6ff] text-[#3b82f6] border-[1px_solid_#bfdbfe] flex items-center gap-[0.3rem] text-[0.8rem] font-[700]">
-
-                
-                                <Edit2 size={16} /> Editar
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate('/risk-maps', { state: { editData: map } });
+                                }}
+                                title="Editar"
+                                style={{ backgroundColor: '#eab308', color: '#fff', border: 'none' }}
+                                className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
+                            >
+                                <Edit2 size={16} />
                             </button>
                             <button
-                onClick={(e) => handleDelete(map.id, e)} className="p-[0.5rem] rounded-[8px] bg-[rgba(239,_68,_68,_0.05)] text-[#ef4444] border-[1px_solid_rgba(239,_68,_68,_0.2)]">
-
-                
+                                onClick={(e) => handleDelete(map.id, e)}
+                                title="Eliminar"
+                                style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }}
+                                className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
+                            >
                                 <Trash2 size={16} />
                             </button>
                         </div>
-                    </div>
-          )}
+                  </div>
+                ))}
 
-                {filteredHistory.length === 0 &&
-          <div className="text-center p-[4rem_1rem] bg-[var(--color-surface)] rounded-[24px] border-[1.5px_dashed_var(--color-border)]">
+                {filteredHistory.length === 0 && (
+                  <div className="text-center p-[4rem_1rem] bg-[var(--color-surface)] rounded-[24px] border-[1.5px_dashed_var(--color-border)]">
                         <MapIcon size={48} className="text-[var(--color-border)] mb-[1rem] opacity-[0.5]" />
                         <h3 className="m-[0_0_0.5rem_0] text-[var(--color-text)]">No hay mapas registrados</h3>
                         <p className="m-[0] text-[var(--color-text-muted)] text-[0.9rem]">
                             {searchTerm ? 'Ningún mapa coincide con la búsqueda.' : 'Tus croquis y mapas de riesgo ISO aparecerán aquí.'}
                         </p>
-                    </div>
-          }
+                  </div>
+                )}
             </div>
+
             {qrTarget &&
         <QRModal
           text={qrTarget.text}

@@ -483,10 +483,34 @@ export default function RiskMapGenerator(): React.ReactElement | null {
 
             {/* Floating actions */}
             <div className="no-print floating-action-bar flex flex-wrap gap-2 justify-center">
-                <button onClick={(e) => {e.preventDefault();requirePro(() => handleSave());}} className="glow-button hover-lift px-5 py-2.5 bg-gradient-to-br from-indigo-500 to-indigo-600 border-none rounded-xl text-white flex items-center gap-2 font-bold text-sm cursor-pointer shadow-md shadow-indigo-500/20 hover:shadow-lg hover:-translate-y-0.5 transition-all"><Save size={16} /> GUARDAR</button>
-                <button onClick={() => requirePro(() => setShowShareModal(true))} className="glow-button hover-lift px-5 py-2.5 bg-gradient-to-br from-indigo-500 to-indigo-600 border-none rounded-xl text-white flex items-center gap-2 font-bold text-sm cursor-pointer shadow-md shadow-indigo-500/20 hover:shadow-lg hover:-translate-y-0.5 transition-all"><Share2 size={16} /> COMPARTIR</button>
-                <button onClick={() => requirePro(() => window.print())} className="glow-button hover-lift px-5 py-2.5 bg-gradient-to-br from-indigo-500 to-indigo-600 border-none rounded-xl text-white flex items-center gap-2 font-bold text-sm cursor-pointer shadow-md shadow-indigo-500/20 hover:shadow-lg hover:-translate-y-0.5 transition-all"><Printer size={16} /> IMPRIMIR</button>
-                <button onClick={handleExportPNG} className="glow-button hover-lift px-5 py-2.5 bg-gradient-to-br from-indigo-500 to-indigo-600 border-none rounded-xl text-white flex items-center gap-2 font-bold text-sm cursor-pointer shadow-md shadow-indigo-500/20 hover:shadow-lg hover:-translate-y-0.5 transition-all"><Download size={16} /> PNG</button>
+                <button
+                  onClick={(e) => {e.preventDefault();requirePro(() => handleSave());}}
+                  style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 4px 15px rgba(16,185,129,0.3)' }}
+                  className="glow-button hover-lift px-5 py-2.5 border-none rounded-xl text-white flex items-center gap-2 font-bold text-sm cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                >
+                    <Save size={16} /> GUARDAR
+                </button>
+                <button
+                  onClick={() => requirePro(() => setShowShareModal(true))}
+                  style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 4px 15px rgba(16,185,129,0.3)' }}
+                  className="glow-button hover-lift px-5 py-2.5 border-none rounded-xl text-white flex items-center gap-2 font-bold text-sm cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                >
+                    <Share2 size={16} /> COMPARTIR
+                </button>
+                <button
+                  onClick={() => requirePro(() => window.print())}
+                  style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 4px 15px rgba(16,185,129,0.3)' }}
+                  className="glow-button hover-lift px-5 py-2.5 border-none rounded-xl text-white flex items-center gap-2 font-bold text-sm cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                >
+                    <Printer size={16} /> IMPRIMIR
+                </button>
+                <button
+                  onClick={handleExportPNG}
+                  style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 4px 15px rgba(16,185,129,0.3)' }}
+                  className="glow-button hover-lift px-5 py-2.5 border-none rounded-xl text-white flex items-center gap-2 font-bold text-sm cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                >
+                    <Download size={16} /> PNG
+                </button>
             </div>
 
             <div className="no-print flex flex-col gap-6">
@@ -494,7 +518,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
           title={editData ? 'Editar Mapa' : 'Nuevo Mapa'}
           subtitle="Editor de Mapa de Riesgos"
           icon={<MapIcon size={32} color="#ffffff" />}
-          color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
+          color="linear-gradient(135deg, #10b981 0%, #059669 100%)" />
         
 
                 <div className="flex justify-between items-center flex-wrap gap-4">
@@ -515,13 +539,49 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                         <label className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2 block">Sector / Planta *</label>
                         <input type="text" value={meta.sector} onChange={(e) => setMeta({ ...meta, sector: e.target.value })} placeholder="Ej. Nave 1 - Producción" className="p-3 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 text-base outline-none transition-all box-border focus:border-indigo-500" />
                     </div>
-                    <div className="flex gap-[0.75rem] items-center">
-                        <button className="glow-button hover-lift m-[0] flex items-center gap-[0.5rem] p-[0.85rem_1.25rem] text-[0.9rem] rounded-[12px] font-[700] cursor-pointer border-none"
-            onClick={() => document.getElementById('bg-upload').click()}>
+                    <div className="flex gap-[0.75rem] items-center flex-wrap">
+                        <button
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.85rem 1.25rem',
+                            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                            color: '#ffffff',
+                            fontWeight: 800,
+                            borderRadius: '12px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 15px rgba(59,130,246,0.3)',
+                            transition: 'all 0.3s'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                          onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                          className="hover-lift m-[0]"
+                          onClick={() => document.getElementById('bg-upload').click()}
+                        >
                             <ImageIcon size={18} /> Subir Plano Base
                         </button>
                         <input type="file" id="bg-upload" accept="image/*" onChange={handleImageUpload} className="none" />
-                        {backgroundImage && <button className="btn-outline m-[0] p-[0.75rem_1rem] text-[0.85rem] rounded-[12px] font-[700] border-color-[#ef4444] text-[#ef4444]" onClick={() => setBackgroundImage(null)}>✕ Quitar plano</button>}
+                        {backgroundImage && (
+                          <button
+                            style={{
+                              padding: '0.75rem 1.25rem',
+                              background: '#fef2f2',
+                              color: '#ef4444',
+                              border: '1px solid #fee2e2',
+                              fontWeight: 700,
+                              borderRadius: '12px',
+                              cursor: 'pointer',
+                              transition: 'all 0.3s'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                            onClick={() => setBackgroundImage(null)}
+                          >
+                            ✕ Quitar plano
+                          </button>
+                        )}
                     </div>
                 </div>
 
