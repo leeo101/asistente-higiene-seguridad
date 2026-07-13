@@ -208,10 +208,14 @@ function GlobalPrintGuard() {
 
 import { requestAndSaveToken } from './services/notificationService';
 import { Capacitor } from '@capacitor/core';
+import { useNotificationScheduler } from './hooks/useNotificationScheduler';
 
 function PushNotificationEnabler() {
   const { currentUser } = useAuth();
-  
+
+  // Dispara notificaciones nativas diarias de vencimientos (EPP, matafuegos, etc.)
+  useNotificationScheduler();
+
   useEffect(() => {
     // Native push is handled by NativePermissionRequester with auth context
     if (Capacitor.isNativePlatform()) return;
@@ -222,6 +226,7 @@ function PushNotificationEnabler() {
 
   return null;
 }
+
 
 function ThemeApplier() {
   const { currentUser } = useAuth();

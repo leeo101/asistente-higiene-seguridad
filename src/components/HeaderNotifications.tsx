@@ -1,13 +1,34 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Bell, X, ArrowRight } from '@phosphor-icons/react';
-import { useExpiryNotifications } from '../hooks/useExpiryNotifications';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Bell, X, BellSlash, ArrowRight, CheckCircle, Warning, Fire } from '@phosphor-icons/react';
+import { useExpiryNotifications, ExpiryNotification } from '../hooks/useExpiryNotifications';
 import { requestNotificationPermission, getPermissionStatus, sendTestNotification } from '../services/notificationService';
 import { useAuth } from '../contexts/AuthContext';
 import { Capacitor } from '@capacitor/core';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+// ─── Configuración visual por tipo ──────────────────────────────────────────
+const TYPE_META: Record<string, { emoji: string; label: string; url: string }> = {
+  ppe:          { emoji: '🦺', label: 'EPP',           url: '/ppe-tracker' },
+  extinguisher: { emoji: '🧯', label: 'Matafuego',     url: '/extintores' },
+  contractor:   { emoji: '🏢', label: 'Contratista',   url: '/contractors' },
+  worker:       { emoji: '👷', label: 'Trabajador',    url: '/contractors' },
+  capa:         { emoji: '🔧', label: 'CAPA',          url: '/capa' },
+  training:     { emoji: '🎓', label: 'Capacitación',  url: '/training-management' },
+  audit:        { emoji: '🔍', label: 'Auditoría',     url: '/audit' },
+  medical:      { emoji: '⚕️', label: 'Aptitud Méd.',  url: '/medical' },
+  drill:        { emoji: '🚨', label: 'Simulacro',     url: '/drills' },
+  permit:       { emoji: '🚧', label: 'Permiso PT',    url: '/work-permit' },
+};
+
+function urgencyColor(n: ExpiryNotification) {
+  if (n.isExpired) return { bg: 'rgba(239,68,68,0.14)', border: 'rgba(239,68,68,0.35)', text: '#fca5a5', badge: '#ef4444' };
+  if (n.daysLeft <= 3) return { bg: 'rgba(249,115,22,0.12)', border: 'rgba(249,115,22,0.3)', text: '#fdba74', badge: '#f97316' };
+  return { bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.2)', text: '#fde68a', badge: '#f59e0b' };
+}
 
 export default function HeaderNotifications() {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
   const isDashboard = location.pathname === '/';
   const { notifications, dismiss, dismissAll } = useExpiryNotifications();
@@ -15,27 +36,27 @@ export default function HeaderNotifications() {
   const [notifPermission, setNotifPermission] = useState<string>(() =>
     Capacitor.isNativePlatform() ? 'granted' : getPermissionStatus()
   );
+  const [filter, setFilter] = useState<'all' | 'expired' | 'soon'>('all');
+  const panelRef = useRef<HTMLDivElement>(null);
 
-  // Refresh permission status periodically (e.g. after user enables from settings)
+  // Refresh permission status on focus
   const refreshPermission = useCallback(() => {
-    if (!Capacitor.isNativePlatform()) {
-      setNotifPermission(getPermissionStatus());
-    }
+    if (!Capacitor.isNativePlatform()) setNotifPermission(getPermissionStatus());
   }, []);
 
   useEffect(() => {
-    // Check on mount and when window regains focus
     refreshPermission();
     window.addEventListener('focus', refreshPermission);
     return () => window.removeEventListener('focus', refreshPermission);
   }, [refreshPermission]);
 
-  // Close dropdown on outside click
+  // Close on outside click
   useEffect(() => {
     if (!showAlerts) return;
     const handler = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest('[data-notif-panel]')) setShowAlerts(false);
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        setShowAlerts(false);
+      }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -43,72 +64,128 @@ export default function HeaderNotifications() {
 
   if (!currentUser) return null;
 
+  const expired = notifications.filter(n => n.isExpired);
+  const soon = notifications.filter(n => !n.isExpired);
+  const filtered = filter === 'expired' ? expired : filter === 'soon' ? soon : notifications;
   const hasAlerts = notifications.length > 0;
 
   return (
-    <div className="relative" data-notif-panel>
-      {/* Bell button */}
+    <div className="relative" ref={panelRef}>
+      {/* ── Bell button ─────────────────────────────────────────────────── */}
       <button
-        onClick={() => setShowAlerts((v) => !v)}
+        onClick={() => setShowAlerts(v => !v)}
         style={{
-          background: hasAlerts ? 'rgba(255, 0, 0, 0.2)' : (isDashboard ? 'rgba(255, 255, 255, 0.05)' : 'rgba(15, 23, 42, 0.05)'),
-          border: hasAlerts ? '1px solid rgba(255, 0, 0, 0.7)' : (isDashboard ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(15, 23, 42, 0.1)'),
-          boxShadow: hasAlerts ? '0 0 16px rgba(255, 0, 0, 0.5), inset 0 0 8px rgba(255, 0, 0, 0.2)' : 'none',
-          animation: hasAlerts ? 'bell-shake 2s infinite cubic-bezier(.36,.07,.19,.97) both' : 'none'
+          background: hasAlerts
+            ? 'rgba(239,68,68,0.18)'
+            : isDashboard ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)',
+          border: hasAlerts
+            ? '1px solid rgba(239,68,68,0.6)'
+            : isDashboard ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(15,23,42,0.1)',
+          boxShadow: hasAlerts ? '0 0 14px rgba(239,68,68,0.4)' : 'none',
+          animation: hasAlerts ? 'bell-shake 3s infinite cubic-bezier(.36,.07,.19,.97) both' : 'none',
         }}
-        title={hasAlerts ? `${notifications.length} alerta${notifications.length !== 1 ? 's' : ''} de vencimiento` : 'Notificaciones'}
+        title={hasAlerts
+          ? `${notifications.length} alerta${notifications.length !== 1 ? 's' : ''} de vencimiento`
+          : 'Notificaciones'}
         className="p-[0] relative flex-shrink-[0] w-[42px] h-[42px] rounded-[12px] flex items-center justify-center cursor-pointer transition-[all_0.3s_ease]"
       >
         <style>{`
           @keyframes bell-shake {
-            0%, 100% { transform: rotate(0deg); }
-            10%, 30%, 50%, 70%, 90% { transform: rotate(-7deg); }
-            20%, 40%, 60%, 80% { transform: rotate(7deg); }
+            0%, 85%, 100% { transform: rotate(0deg); }
+            88%, 94% { transform: rotate(-10deg); }
+            91%, 97% { transform: rotate(10deg); }
           }
         `}</style>
-        <Bell weight={hasAlerts ? 'fill' : 'bold'} size={22} color="#f59e0b" />
+        <Bell weight={hasAlerts ? 'fill' : 'bold'} size={22} color={hasAlerts ? '#f87171' : '#f59e0b'} />
         {hasAlerts && (
-          <span className="absolute top-[-5px] right-[-5px] bg-[#ef4444] text-[#fff] rounded-[50%] w-[18px] h-[18px] text-[0.6rem] font-[900] flex items-center justify-center border-[2px_solid_var(--color-hero-bg,_#0f172a)] box-shadow-[0_0_8px_rgba(239,68,68,0.7)]">
+          <span style={{
+            position: 'absolute', top: '-5px', right: '-5px',
+            background: expired.length > 0 ? '#ef4444' : '#f59e0b',
+            color: '#fff', borderRadius: '50%',
+            width: '18px', height: '18px',
+            fontSize: '0.6rem', fontWeight: 900,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: '2px solid var(--color-hero-bg, #0f172a)',
+            boxShadow: `0 0 8px ${expired.length > 0 ? 'rgba(239,68,68,0.7)' : 'rgba(245,158,11,0.7)'}`,
+          }}>
             {notifications.length > 9 ? '9+' : notifications.length}
           </span>
         )}
       </button>
 
-      {/* Dropdown panel */}
+      {/* ── Dropdown panel ──────────────────────────────────────────────── */}
       {showAlerts && (
         <div
-          className="absolute top-[54px] right-[0] w-[300px] rounded-[16px] p-[1rem] border-[1px_solid_rgba(255,255,255,0.08)] z-[100] overflow-hidden"
           style={{
-            background: 'rgba(8, 14, 30, 0.92)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
-            maxHeight: '420px',
-            overflowY: 'auto'
+            position: 'absolute',
+            top: '54px',
+            right: '0',
+            width: '320px',
+            borderRadius: '18px',
+            padding: '1rem',
+            background: 'rgba(8,14,30,0.95)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            border: '1px solid rgba(255,255,255,0.09)',
+            boxShadow: '0 30px 60px rgba(0,0,0,0.5)',
+            zIndex: 100,
+            maxHeight: '480px',
+            overflowY: 'auto',
           }}
         >
           {/* Header */}
-          <div className="flex justify-between items-center mb-[0.8rem]">
-            <span className="text-[0.75rem] font-[900] text-[rgba(255,255,255,0.8)] uppercase tracking-wider">
-              🔔 Notificaciones
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 900, color: 'rgba(255,255,255,0.85)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              🔔 Alertas de vencimiento
             </span>
             {notifications.length > 0 && (
               <button
                 onClick={dismissAll}
-                className="text-[0.65rem] text-[rgba(255,255,255,0.4)] bg-transparent border-none cursor-pointer font-[700] hover:text-[rgba(255,255,255,0.7)] transition-colors"
+                style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)', background: 'transparent', border: 'none', cursor: 'pointer', fontWeight: 700 }}
               >
-                Descartar todo
+                Limpiar todo
               </button>
             )}
           </div>
 
-          {/* Permission prompts (web only) */}
+          {/* Summary chips */}
+          {notifications.length > 0 && (
+            <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.75rem' }}>
+              {(['all', 'expired', 'soon'] as const).map(f => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  style={{
+                    flex: 1,
+                    padding: '0.3rem 0.2rem',
+                    borderRadius: '8px',
+                    border: filter === f ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(255,255,255,0.06)',
+                    background: filter === f ? 'rgba(255,255,255,0.1)' : 'transparent',
+                    color: filter === f ? '#fff' : 'rgba(255,255,255,0.4)',
+                    fontSize: '0.65rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {f === 'all' ? `Todos (${notifications.length})` : f === 'expired' ? `❌ Vencidos (${expired.length})` : `⚠️ Próximos (${soon.length})`}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Permission prompt */}
           {!Capacitor.isNativePlatform() && notifPermission === 'default' && (
-            <div className="mb-[0.8rem] p-[0.8rem] rounded-[12px] bg-[rgba(56,189,248,0.12)] border-[1px_solid_rgba(56,189,248,0.25)]">
-              <p className="m-[0_0_0.3rem_0] text-[0.78rem] text-[rgba(255,255,255,0.9)] font-[800]">
+            <div style={{
+              marginBottom: '0.8rem', padding: '0.85rem',
+              borderRadius: '12px',
+              background: 'rgba(56,189,248,0.1)',
+              border: '1px solid rgba(56,189,248,0.25)',
+            }}>
+              <p style={{ margin: '0 0 0.3rem', fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)', fontWeight: 800 }}>
                 🔔 Activar alertas del sistema
               </p>
-              <p className="m-[0_0_0.6rem_0] text-[0.7rem] text-[rgba(255,255,255,0.6)] leading-[1.4]">
+              <p style={{ margin: '0 0 0.6rem', fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.4 }}>
                 Recibí notificaciones de vencimientos aunque la app esté cerrada.
               </p>
               <button
@@ -117,74 +194,121 @@ export default function HeaderNotifications() {
                   setNotifPermission(perm);
                   if (perm === 'granted') sendTestNotification();
                 }}
-                className="w-full p-[0.5rem] rounded-[10px] bg-[#38bdf8] text-[#0f172a] border-none cursor-pointer text-[0.78rem] font-[900] hover:bg-[#7dd3fc] transition-colors"
+                style={{
+                  width: '100%', padding: '0.55rem',
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #38bdf8, #0ea5e9)',
+                  color: '#0f172a', border: 'none',
+                  cursor: 'pointer', fontSize: '0.78rem', fontWeight: 900,
+                }}
               >
-                Activar ahora →
+                Activar notificaciones →
               </button>
             </div>
           )}
 
           {!Capacitor.isNativePlatform() && notifPermission === 'denied' && (
-            <div className="mb-[0.8rem] p-[0.7rem] rounded-[12px] bg-[rgba(239,68,68,0.1)] border-[1px_solid_rgba(239,68,68,0.2)]">
-              <p className="m-[0] text-[0.72rem] text-[#fca5a5] leading-[1.4]">
-                🚫 Notificaciones bloqueadas. Habilitá los permisos desde la configuración de tu navegador.
+            <div style={{
+              marginBottom: '0.8rem', padding: '0.7rem',
+              borderRadius: '12px',
+              background: 'rgba(239,68,68,0.1)',
+              border: '1px solid rgba(239,68,68,0.2)',
+            }}>
+              <p style={{ margin: 0, fontSize: '0.72rem', color: '#fca5a5', lineHeight: 1.4, display: 'flex', gap: '0.4rem', alignItems: 'flex-start' }}>
+                <BellSlash size={14} style={{ flexShrink: 0, marginTop: '2px' }} />
+                Notificaciones bloqueadas. Habilitá los permisos desde la configuración de tu navegador.
               </p>
             </div>
           )}
 
-          {/* Alert list */}
-          {notifications.length === 0 ? (
-            <div className="text-center py-[1rem]">
-              {notifPermission === 'granted' || Capacitor.isNativePlatform() ? (
-                <div>
-                  <p className="text-[1.5rem] mb-[0.3rem]">✅</p>
-                  <p className="text-[0.78rem] text-[rgba(255,255,255,0.55)] font-[600]">Sin vencimientos próximos</p>
-                </div>
-              ) : (
-                <p className="text-[0.75rem] text-[rgba(255,255,255,0.4)]">No hay alertas pendientes</p>
-              )}
+          {/* Notification list */}
+          {filtered.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '1.2rem 0' }}>
+              <p style={{ fontSize: '1.8rem', margin: '0 0 0.3rem' }}>
+                {notifications.length === 0 ? '✅' : '🔍'}
+              </p>
+              <p style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.45)', fontWeight: 600, margin: 0 }}>
+                {notifications.length === 0 ? 'Sin vencimientos próximos' : 'Sin resultados para este filtro'}
+              </p>
             </div>
           ) : (
-            <div className="flex flex-col gap-[0.4rem]">
-              {notifications.map((n: any) => (
-                <div
-                  key={n.id}
-                  style={{
-                    background: n.isExpired ? 'rgba(239,68,68,0.12)' : 'rgba(245,158,11,0.1)',
-                    border: n.isExpired ? '1px solid rgba(239,68,68,0.25)' : '1px solid rgba(245,158,11,0.2)',
-                  }}
-                  className="flex items-center gap-[0.5rem] p-[0.5rem_0.6rem] rounded-[10px]"
-                >
-                  <span style={{ color: n.isExpired ? '#fca5a5' : '#fde68a' }} className="text-[0.75rem] flex-[1] font-[600] leading-[1.3]">
-                    {n.type === 'ppe' ? '🦺' : n.type === 'contractor' ? '🏢' : n.type === 'worker' ? '👷' : n.type === 'checklist' ? '📋' : n.type === 'extinguisher' ? '🧯' : n.type === 'audit' ? '🔍' : n.type === 'medical' ? '⚕️' : n.type === 'drill' ? '🚨' : n.type === 'permit' ? '🚧' : n.type === 'capa' ? '🔧' : n.type === 'training' ? '🎓' : '🔔'}{' '}
-                    {n.label}
-                    <span className="block text-[0.65rem] opacity-[0.75] mt-[0.1rem]">
-                      {n.isExpired
-                        ? `Vencido hace ${Math.abs(n.daysLeft)} día${Math.abs(n.daysLeft) !== 1 ? 's' : ''}`
-                        : `Vence en ${n.daysLeft} día${n.daysLeft !== 1 ? 's' : ''}`}
-                      {n.responsible ? ` · ${n.responsible}` : ''}
-                    </span>
-                  </span>
-                  <button
-                    onClick={() => dismiss(n.id)}
-                    title="Descartar"
-                    className="bg-transparent border-none text-[rgba(255,255,255,0.35)] cursor-pointer p-[0.15rem] flex-shrink-[0] hover:text-[rgba(255,255,255,0.7)] transition-colors"
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              {filtered.map((n: ExpiryNotification) => {
+                const meta = TYPE_META[n.type] ?? { emoji: '🔔', label: n.type, url: '/' };
+                const colors = urgencyColor(n);
+                return (
+                  <div
+                    key={n.id}
+                    style={{
+                      background: colors.bg,
+                      border: `1px solid ${colors.border}`,
+                      borderRadius: '10px',
+                      padding: '0.55rem 0.65rem',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '0.5rem',
+                      cursor: 'pointer',
+                      transition: 'opacity 0.2s',
+                    }}
+                    onClick={() => { navigate(meta.url); setShowAlerts(false); }}
+                    title={`Ir a ${meta.label}`}
                   >
-                    <X weight="bold" size={14} />
-                  </button>
-                </div>
-              ))}
+                    <span style={{ fontSize: '1rem', lineHeight: 1, flexShrink: 0 }}>{meta.emoji}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: colors.text, lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {n.label}
+                      </p>
+                      <p style={{ margin: '0.1rem 0 0', fontSize: '0.65rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.2 }}>
+                        {n.isExpired
+                          ? `❌ Vencido hace ${Math.abs(n.daysLeft)} día${Math.abs(n.daysLeft) !== 1 ? 's' : ''}`
+                          : n.daysLeft === 0 ? '⚠️ Vence hoy'
+                          : `⚠️ Vence en ${n.daysLeft} día${n.daysLeft !== 1 ? 's' : ''}`}
+                        {n.responsible ? ` · ${n.responsible}` : ''}
+                      </p>
+                    </div>
+                    <button
+                      onClick={e => { e.stopPropagation(); dismiss(n.id); }}
+                      title="Descartar"
+                      style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.3)', cursor: 'pointer', padding: '0.1rem', flexShrink: 0 }}
+                    >
+                      <X weight="bold" size={13} />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           )}
 
-          {/* Footer test button (only web with permission) */}
+          {/* Footer */}
           {!Capacitor.isNativePlatform() && notifPermission === 'granted' && (
-            <button
-              onClick={() => { sendTestNotification(); setShowAlerts(false); }}
-              className="mt-[0.8rem] w-full p-[0.4rem] rounded-[8px] bg-[rgba(255,255,255,0.05)] border-[1px_solid_rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.4)] cursor-pointer text-[0.65rem] font-[700] hover:bg-[rgba(255,255,255,0.08)] transition-colors flex items-center justify-center gap-[0.3rem]"
-            >
-              Enviar notificación de prueba
-            </button>
+            <div style={{ marginTop: '0.8rem', display: 'flex', gap: '0.4rem' }}>
+              <button
+                onClick={() => { sendTestNotification(); setShowAlerts(false); }}
+                style={{
+                  flex: 1, padding: '0.4rem',
+                  borderRadius: '8px',
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: 'rgba(255,255,255,0.35)',
+                  cursor: 'pointer', fontSize: '0.65rem', fontWeight: 700,
+                }}
+              >
+                Enviar prueba 🔔
+              </button>
+              <button
+                onClick={() => { navigate('/settings'); setShowAlerts(false); }}
+                style={{
+                  flex: 1, padding: '0.4rem',
+                  borderRadius: '8px',
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: 'rgba(255,255,255,0.35)',
+                  cursor: 'pointer', fontSize: '0.65rem', fontWeight: 700,
+                }}
+              >
+                Configurar ⚙️
+              </button>
+            </div>
           )}
         </div>
       )}
