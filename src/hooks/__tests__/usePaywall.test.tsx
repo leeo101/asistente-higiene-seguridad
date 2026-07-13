@@ -33,16 +33,23 @@ describe('usePaywall', () => {
         expect(result.current.status).toBe('none');
     });
 
-    it('retorna isPro = true y status = active si el usuario es ADMIN', async () => {
-        const mockUser = createMockUser('enzorodriguez31@gmail.com', false);
+    it('retorna isPro = true y status = active si el JWT tiene claim isAdmin', async () => {
+        // isAdmin viene del servidor via JWT claim, NO de emails hardcodeados
+        const mockUser = createMockUser('cualquier@email.com', false);
+        // Sobreescribimos getIdTokenResult para devolver isAdmin: true
+        mockUser.getIdTokenResult = vi.fn().mockResolvedValue({
+            claims: { isPro: true, isAdmin: true }
+        });
         vi.spyOn(AuthContext, 'useAuth').mockReturnValue({ currentUser: mockUser } as any);
         
         const { result } = renderHook(() => usePaywall());
         
-        // ADMIN check is synchronous
-        expect(result.current.isPro).toBe(true);
-        expect(result.current.status).toBe('active');
-        expect(result.current.daysRemaining).toBe(Infinity);
+        await waitFor(() => {
+            expect(result.current.isPro).toBe(true);
+            expect(result.current.isAdmin).toBe(true);
+            expect(result.current.status).toBe('active');
+            expect(result.current.daysRemaining).toBe(Infinity);
+        });
     });
 
     it('retorna isPro = true si el servidor devuelve claim de isPro', async () => {
@@ -80,12 +87,16 @@ describe('usePaywall', () => {
     });
 
     it('requirePro ejecuta la accion si es pro', async () => {
-        const mockUser = createMockUser('enzorodriguez31@gmail.com', false);
+        // Usamos isPro via JWT claim, no email hardcodeado
+        const mockUser = createMockUser('usuario@pro.com', true); // isPro = true via claim
         vi.spyOn(AuthContext, 'useAuth').mockReturnValue({ currentUser: mockUser } as any);
 
         const { result } = renderHook(() => usePaywall());
         const mockAction = vi.fn();
-        
+
+        // Esperar a que se resuelva el claim isPro del JWT
+        await waitFor(() => expect(result.current.isPro).toBe(true));
+
         act(() => {
             result.current.requirePro(mockAction);
         });
