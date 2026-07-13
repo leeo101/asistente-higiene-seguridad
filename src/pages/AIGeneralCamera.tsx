@@ -427,9 +427,12 @@ export default function AIGeneralCamera(): React.ReactElement | null {
   return (
     <div className="container pb-[2rem] pt-[1rem] relative min-h-[100vh] flex flex-col gap-[1rem] bg-[var(--color-bg)]">
             {/* Header Moderno con Botón Volver */}
-            <div className="flex items-center justify-between p-[0.8rem_1rem] z-[10] bg-[var(--color-surface)] rounded-[20px] box-shadow-[0_8px_30px_rgba(0,0,0,0.06)] border-[1px_solid_var(--color-border)]">
-                <button onClick={() => navigate(-1)} className="flex items-center justify-center w-[44px] h-[44px] rounded-[14px] bg-[linear-gradient(135deg,_#ec4899_0%,_#be185d_100%)] text-white border-[2px_solid_white] cursor-pointer transition-all duration-300 hover:scale-[1.1] box-shadow-[0_4px_15px_rgba(236,72,153,0.6)] z-[100]">
-                    <ArrowLeft size={22} className="text-white" />
+            <div className="flex items-center justify-between p-[0.8rem_1rem] z-[10] bg-[rgba(30,41,59,0.75)] backdrop-blur-md rounded-[20px] border border-[rgba(255,255,255,0.08)] shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
+                <button 
+                  onClick={() => navigate(-1)} 
+                  className="flex items-center justify-center w-[40px] h-[40px] rounded-[12px] bg-slate-800/80 hover:bg-slate-700/80 text-white border border-white/10 cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg z-[100]"
+                >
+                    <ArrowLeft size={20} className="text-white/80" />
                 </button>
                 <div className="flex flex-col items-center">
                     <h1 className="m-[0] text-[1.1rem] font-[800] text-[var(--color-text)]">Riesgos Generales</h1>
@@ -465,13 +468,16 @@ export default function AIGeneralCamera(): React.ReactElement | null {
                             </button>
                         </div>
 
-                        {/* Botón de Captura Elegante */}
+                        {/* Botón de Captura Elegante y Transparente */}
                         <div className="absolute bottom-[2.5rem] left-[0] w-[100%] flex justify-center z-[20]">
                             <button
-              onClick={handleCapture} className="group relative w-[80px] h-[80px] rounded-[50%] bg-[rgba(255,255,255,0.2)] backdrop-filter-[blur(10px)] cursor-pointer flex items-center justify-center border-none outline-none transition-all duration-300 hover:scale-[1.05]">
-                                <div className="absolute inset-[0] rounded-[50%] border-[2px_solid_rgba(255,255,255,0.6)] box-sizing-[border-box]" />
-                                <div className="w-[64px] h-[64px] rounded-[50%] bg-white flex items-center justify-center box-shadow-[0_0_20px_rgba(236,72,153,0.8)] transition-all duration-300 group-active:scale-[0.9] group-active:bg-[#fce7f3]">
-                                   <Search size={28} className="text-[#ec4899]" />
+                              onClick={handleCapture}
+                              className="group relative w-[84px] h-[84px] rounded-full bg-white/10 backdrop-blur-md cursor-pointer flex items-center justify-center border-2 border-white/40 transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(236,72,153,0.3)]"
+                              style={{ outline: 'none' }}
+                            >
+                                <div className="absolute inset-0 rounded-full border-2 border-[#ec4899]/60 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500"></div>
+                                <div className="w-[60px] h-[60px] rounded-full bg-[#ec4899]/20 border border-[#ec4899]/80 group-hover:bg-[#ec4899]/40 transition-all duration-300 flex items-center justify-center">
+                                    <Search size={26} className="text-white opacity-90" />
                                 </div>
                             </button>
                         </div>
@@ -481,58 +487,67 @@ export default function AIGeneralCamera(): React.ReactElement | null {
                         <img src={capturedImage} alt="Captured" className="w-[100%] h-[100%] object-fit-[cover]" />
 
                         {isAnalyzing &&
-          <div className="absolute top-[0] left-[0] w-[100%] h-[100%] bg-[rgba(0,0,0,0.7)] flex flex-col items-center justify-center text-[var(--color-surface)]">
-                                <RefreshCw size={48} className="animate-spin mb-[1rem] text-[var(--color-primary)]" />
-                                <p className="font-[700] text-[1.2rem]">Analizando Entorno...</p>
+                          <div className="absolute top-[0] left-[0] w-[100%] h-[100%] bg-[rgba(0,0,0,0.75)] flex flex-col items-center justify-center text-[var(--color-surface)] z-[50]">
+                                <div className="relative flex items-center justify-center mb-[1.5rem]">
+                                    {/* Spinner giratorio exterior */}
+                                    <div className="absolute w-[80px] h-[80px] rounded-full border-2 border-white/20 border-l-[#ec4899] animate-spin" />
+                                    {/* Logo en escala de grises en el centro, pulsando */}
+                                    <img 
+                                        src="/logo.png" 
+                                        alt="Cargando" 
+                                        className="w-[50px] h-[50px] object-contain filter grayscale opacity-80 animate-pulse" 
+                                    />
+                                </div>
+                                <p className="font-[700] text-[1.2rem] tracking-wide">Analizando Entorno...</p>
+                                <p className="text-[0.8rem] text-slate-400 mt-[0.2rem]">Detectando Peligros y Condiciones Inseguras</p>
                             </div>
-          }
+                        }
 
                         {analysisResult &&
-          <div className="absolute bottom-[0] left-[0] w-[100%] p-[1.5rem] box-sizing-[border-box] bg-[linear-gradient(transparent,_rgba(0,0,0,0.95))] text-[var(--color-surface)]">
+                          <div className="absolute bottom-[0] left-[0] w-[100%] p-[1.5rem] box-sizing-[border-box] bg-[linear-gradient(transparent,_rgba(0,0,0,0.95))] text-[var(--color-surface)]">
                                 <div className="mb-[1rem]">
                                     <div className="flex items-center gap-[0.5rem] mb-[0.5rem]">
                                         <h3 className="m-[0] text-[1.2rem] font-[900]">Hallazgos IA</h3>
                                         {analysisResult.riskLevel &&
-                <span style={{
-
-                  background: analysisResult.riskLevel.toLowerCase() === 'crítico' ? '#ef4444' :
-                  analysisResult.riskLevel.toLowerCase() === 'alto' ? '#f97316' :
-                  analysisResult.riskLevel.toLowerCase() === 'medio' ? '#eab308' : '#10b981'
-
-                }} className="p-[0.2rem_0.6rem] rounded-[12px] text-[0.75rem] font-[800] text-[#fff]">
-                                                {analysisResult.riskLevel.toUpperCase()}
-                                            </span>
-                }
+                                          <span style={{
+                                            background: analysisResult.riskLevel.toLowerCase() === 'crítico' ? '#ef4444' :
+                                            analysisResult.riskLevel.toLowerCase() === 'alto' ? '#f97316' :
+                                            analysisResult.riskLevel.toLowerCase() === 'medio' ? '#eab308' : '#10b981'
+                                          }} className="p-[0.2rem_0.6rem] rounded-[12px] text-[0.75rem] font-[800] text-[#fff]">
+                                              {analysisResult.riskLevel.toUpperCase()}
+                                          </span>
+                                        }
                                     </div>
                                     <p className="m-[0.2rem_0] text-[0.85rem] text-[rgba(255,255,255,0.9)]">
                                         {analysisResult.detections?.length > 0 ?
-                `Se detectaron ${analysisResult.detections.length} riesgos potenciales.` :
-                "No se identificaron riesgos críticos evidentes."}
+                                          `Se detectaron ${analysisResult.detections.length} riesgos potenciales.` :
+                                          "No se identificaron riesgos críticos evidentes."}
                                     </p>
                                     {analysisResult.immediateAction &&
-              <p className="m-[0.5rem_0_0] text-[0.8rem] text-[#fca5a5] font-[600]">
-                                            ⚠️ Acción Inmediata: {analysisResult.immediateAction}
-                                        </p>
-              }
+                                      <p className="m-[0.5rem_0_0] text-[0.8rem] text-[#fca5a5] font-[600]">
+                                          ⚠️ Acción Inmediata: {analysisResult.immediateAction}
+                                      </p>
+                                    }
                                     {analysisResult.applicableLegislation && analysisResult.applicableLegislation.length > 0 &&
-              <p className="m-[0.5rem_0_0] text-[0.8rem] text-[#6ee7b7] font-[600]">
-                                            ⚖️ Ley/Norma: {analysisResult.applicableLegislation.join(', ')}
-                                        </p>
-              }
+                                      <p className="m-[0.5rem_0_0] text-[0.8rem] text-[#6ee7b7] font-[600]">
+                                          ⚖️ Ley/Norma: {analysisResult.applicableLegislation.join(', ')}
+                                      </p>
+                                    }
                                 </div>
                                 <div className="flex gap-[0.8rem] w-[100%] justify-center mt-[1rem]">
-                                    <button onClick={handleRetry} className="flex-[1] h-[40px] rounded-[10px] bg-[rgba(255,255,255,0.15)] backdrop-filter-[blur(8px)] border-[1px_solid_rgba(255,255,255,0.3)] text-white flex items-center justify-center gap-[0.5rem] text-[0.8rem] font-[700] cursor-pointer transition-all hover:bg-[rgba(255,255,255,0.25)]">
+                                    <button onClick={handleRetry} className="flex-[1] h-[44px] rounded-[12px] bg-[rgba(255,255,255,0.12)] backdrop-filter-[blur(8px)] border-[1px_solid_rgba(255,255,255,0.25)] text-white flex items-center justify-center gap-[0.5rem] text-[0.85rem] font-[700] cursor-pointer transition-all hover:bg-[rgba(255,255,255,0.22)] active:scale-98">
                                         <RefreshCw size={16} /> Reintentar
                                     </button>
-                                    <button onClick={handleSaveReport} className="flex-[2] h-[40px] rounded-[10px] bg-[linear-gradient(135deg,_#ec4899_0%,_#be185d_100%)] border-none text-white flex items-center justify-center gap-[0.5rem] text-[0.85rem] font-[800] cursor-pointer box-shadow-[0_4px_15px_rgba(236,72,153,0.4)] transition-all hover:scale-[1.02]">
+                                    <button onClick={handleSaveReport} className="flex-[2] h-[44px] rounded-[12px] bg-[linear-gradient(135deg,_#ec4899_0%,_#be185d_100%)] border-none text-white flex items-center justify-center gap-[0.5rem] text-[0.88rem] font-[800] cursor-pointer box-shadow-[0_4px_15px_rgba(236,72,153,0.4)] transition-all hover:brightness-[1.1] active:scale-98">
                                         Ver Detalles
                                     </button>
                                 </div>
                             </div>
-          }
+                        }
                     </div>
-        }
+                }
             </div>
             <canvas ref={canvasRef} className="hidden" />
-        </div>);
-  };
+        </div>
+  );
+}

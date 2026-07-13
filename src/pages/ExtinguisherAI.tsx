@@ -603,24 +603,22 @@ export default function ExtinguisherAI() {
                             <button
                     onClick={toggleTorch}
                     style={{
-
                       background: torchOn ? 'rgba(250, 204, 21, 0.7)' : 'rgba(0,0,0,0.6)',
-
-
                       color: torchOn ? '#000' : '#ffffff'
-
-
                     }} className="p-[0.8rem] border-none rounded-[50%] cursor-pointer backdrop-filter-[blur(10px)]">
-                    
                                 {torchOn ? <Zap size={20} /> : <ZapOff size={20} />}
                             </button>
                             
+                            {/* Botón de Captura Elegante y Transparente */}
                             <button
-                                onClick={handleCapture} className="group relative w-[80px] h-[80px] rounded-[50%] bg-[rgba(255,255,255,0.2)] backdrop-filter-[blur(10px)] cursor-pointer flex items-center justify-center border-none outline-none transition-all duration-300 hover:scale-[1.05]">
-                                {/* Anillo exterior animado */}
-                                <div className="absolute inset-[0] rounded-[50%] border-[2px_solid_rgba(255,255,255,0.8)] opacity-[0.5] scale-[1.1] transition-all duration-300 group-hover:scale-[1.15] group-hover:opacity-[1]"></div>
-                                {/* Botón interior sólido */}
-                                <div className="w-[60px] h-[60px] rounded-[50%] bg-[#ffffff] shadow-[0_4px_15px_rgba(0,0,0,0.2)] transition-all duration-300 group-hover:scale-[0.95]"></div>
+                              onClick={handleCapture}
+                              className="group relative w-[84px] h-[84px] rounded-full bg-white/10 backdrop-blur-md cursor-pointer flex items-center justify-center border-2 border-white/40 transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+                              style={{ outline: 'none' }}
+                            >
+                                <div className="absolute inset-0 rounded-full border-2 border-white/60 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500"></div>
+                                <div className="w-[60px] h-[60px] rounded-full bg-white/20 border border-white/80 group-hover:bg-white/40 transition-all duration-300 flex items-center justify-center">
+                                    <Camera className="text-white opacity-85" size={24} />
+                                </div>
                             </button>
                         </div>
                     </> :
@@ -630,53 +628,34 @@ export default function ExtinguisherAI() {
                   src={capturedImage}
                   alt="Extintor capturado" className="w-[100%] max-height-[300px] object-fit-[contain] block bg-slate-100 dark:bg-slate-800/50" />
 
-
-
-
-
-
-
-                
-                        
                         {isAnalyzing &&
-                <div className="absolute inset-[0] bg-[rgba(0,0,0,0.7)] flex flex-col items-center justify-center text-[#ffffff]">
-
-
-
-
-
-
-
-
-                  
-                                <Loader2 size={48} className="animate-spin mb-[1rem]" />
-                                <p className="text-[1.1rem] font-[700]">Analizando extintor...</p>
-                                <p className="text-[0.85rem] opacity-[0.8] mt-[0.5rem]">
+                          <div className="absolute inset-[0] bg-[rgba(0,0,0,0.75)] flex flex-col items-center justify-center text-[#ffffff] z-[50]">
+                                <div className="relative flex items-center justify-center mb-[1.2rem]">
+                                    {/* Spinner giratorio exterior */}
+                                    <div className="absolute w-[76px] h-[76px] rounded-full border-2 border-white/20 border-l-[#ef4444] animate-spin" />
+                                    {/* Logo en escala de grises en el centro, pulsando */}
+                                    <img 
+                                        src="/logo.png" 
+                                        alt="Cargando" 
+                                        className="w-[48px] h-[48px] object-contain filter grayscale opacity-80 animate-pulse" 
+                                    />
+                                </div>
+                                <p className="text-[1.1rem] font-[700] tracking-wide">Analizando extintor...</p>
+                                <p className="text-[0.8rem] opacity-[0.7] mt-[0.2rem]">
                                     La IA está identificando el tipo y estado
                                 </p>
                             </div>
-                }
+                        }
                         
                         {/* Retry Button */}
                         {!isAnalyzing &&
-                <button
-                  onClick={handleRetry} className="absolute top-[1rem] right-[1rem] p-[0.8rem] bg-[rgba(0,0,0,0.6)] border-none rounded-[50%] text-[#ffffff] cursor-pointer backdrop-filter-[blur(10px)]">
-
-
-
-
-
-
-
-
-
-
-
-
-                  
+                          <button
+                            onClick={handleRetry} 
+                            className="absolute top-[1rem] right-[1rem] p-[0.8rem] bg-[rgba(0,0,0,0.6)] hover:bg-[rgba(0,0,0,0.8)] border-none rounded-[50%] text-[#ffffff] cursor-pointer backdrop-filter-[blur(10px)] transition-all duration-200 active:scale-95"
+                          >
                                 <RefreshCw size={20} />
                             </button>
-                }
+                        }
                     </div>
               }
             </div>

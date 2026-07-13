@@ -392,9 +392,12 @@ export default function AICamera(): React.ReactElement | null {
   return (
     <div className="container pb-[2rem] pt-[1rem] relative min-h-[100vh] flex flex-col gap-[1rem] bg-[var(--color-bg)]">
             {/* Header Moderno con Botón Volver */}
-            <div className="flex items-center justify-between p-[0.8rem_1rem] z-[10] bg-[var(--color-surface)] rounded-[20px] box-shadow-[0_8px_30px_rgba(0,0,0,0.06)] border-[1px_solid_var(--color-border)]">
-                <button onClick={() => navigate(-1)} className="flex items-center justify-center w-[44px] h-[44px] rounded-[14px] bg-[linear-gradient(135deg,_#3b82f6_0%,_#1d4ed8_100%)] text-white border-[2px_solid_white] cursor-pointer transition-all duration-300 hover:scale-[1.1] box-shadow-[0_4px_15px_rgba(59,130,246,0.6)] z-[100]">
-                    <ArrowLeft size={22} className="text-white" />
+            <div className="flex items-center justify-between p-[0.8rem_1rem] z-[10] bg-[rgba(30,41,59,0.75)] backdrop-blur-md rounded-[20px] border border-[rgba(255,255,255,0.08)] shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
+                <button 
+                  onClick={() => navigate(-1)} 
+                  className="flex items-center justify-center w-[40px] h-[40px] rounded-[12px] bg-slate-800/80 hover:bg-slate-700/80 text-white border border-white/10 cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg z-[100]"
+                >
+                    <ArrowLeft size={20} className="text-white/80" />
                 </button>
                 <div className="flex flex-col items-center">
                     <h1 className="m-[0] text-[1.1rem] font-[800] text-[var(--color-text)]">Escaneo EPP</h1>
@@ -431,14 +434,17 @@ export default function AICamera(): React.ReactElement | null {
                             </button>
                         </div>
 
-                        {/* Botón de Captura Elegante */}
+                        {/* Botón de Captura Elegante y Transparente */}
                         <div className="absolute bottom-[2.5rem] left-[0] w-[100%] flex justify-center z-[20]">
                             <button
-              onClick={handleCapture} className="group relative w-[80px] h-[80px] rounded-[50%] bg-[rgba(255,255,255,0.2)] backdrop-filter-[blur(10px)] cursor-pointer flex items-center justify-center border-none outline-none transition-all duration-300 hover:scale-[1.05]">
-                                {/* Anillo exterior animado */}
-                                <div className="absolute inset-[0] rounded-[50%] border-[2px_solid_rgba(255,255,255,0.8)] opacity-[0.5] scale-[1.1] transition-all duration-300 group-hover:scale-[1.15] group-hover:opacity-[1]"></div>
-                                {/* Botón interior sólido */}
-                                <div className="w-[60px] h-[60px] rounded-[50%] bg-[#ffffff] shadow-[0_4px_15px_rgba(0,0,0,0.2)] transition-all duration-300 group-hover:scale-[0.95]"></div>
+                              onClick={handleCapture}
+                              className="group relative w-[84px] h-[84px] rounded-full bg-white/10 backdrop-blur-md cursor-pointer flex items-center justify-center border-2 border-white/40 transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+                              style={{ outline: 'none' }}
+                            >
+                                <div className="absolute inset-0 rounded-full border-2 border-white/60 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500"></div>
+                                <div className="w-[60px] h-[60px] rounded-full bg-white/20 border border-white/80 group-hover:bg-white/40 transition-all duration-300 flex items-center justify-center">
+                                    <Camera className="text-white opacity-80" size={24} />
+                                </div>
                             </button>
                         </div>
                     </> :
@@ -447,67 +453,80 @@ export default function AICamera(): React.ReactElement | null {
                         <img src={capturedImage} alt="Captured" className="w-[100%] h-[100%] object-fit-[cover]" />
 
                         {isAnalyzing &&
-          <div className="absolute top-[0] left-[0] w-[100%] h-[100%] bg-[rgba(0,0,0,0.7)] flex flex-col items-center justify-center text-[var(--color-surface)]">
-                                <RefreshCw size={48} className="spin mb-[1rem] text-[var(--color-primary)]" />
-                                <p className="font-[700] text-[1.2rem]">Analizando Persona...</p>
+                          <div className="absolute top-[0] left-[0] w-[100%] h-[100%] bg-[rgba(0,0,0,0.75)] flex flex-col items-center justify-center text-[var(--color-surface)] z-[50]">
+                                <div className="relative flex items-center justify-center mb-[1.5rem]">
+                                    {/* Spinner giratorio exterior */}
+                                    <div className="absolute w-[80px] h-[80px] rounded-full border-2 border-white/20 border-l-[#10b981] animate-spin" />
+                                    {/* Logo en escala de grises en el centro, pulsando */}
+                                    <img 
+                                        src="/logo.png" 
+                                        alt="Cargando" 
+                                        className="w-[50px] h-[50px] object-contain filter grayscale opacity-80 animate-pulse" 
+                                    />
+                                </div>
+                                <p className="font-[700] text-[1.2rem] tracking-wide">Analizando Persona...</p>
+                                <p className="text-[0.8rem] text-slate-400 mt-[0.2rem]">Detectando Elementos de Protección Personal (EPP)</p>
                             </div>
-          }
+                        }
 
                         {analysisResult &&
-          <div className="absolute bottom-[0] left-[0] w-[100%] p-[1.5rem] box-sizing-[border-box] bg-[linear-gradient(transparent,_rgba(0,0,0,0.95))] text-[var(--color-surface)]">
+                          <div className="absolute bottom-[0] left-[0] w-[100%] p-[1.5rem] box-sizing-[border-box] bg-[linear-gradient(transparent,_rgba(0,0,0,0.95))] text-[var(--color-surface)]">
                                 <div className="flex flex-col gap-[0.8rem] mb-[1rem]">
                                     <div className="flex items-center gap-[1rem] flex-wrap">
                                         {analysisResult.helmetUsed ?
-                <div className="bg-[#10b981] p-[0.6rem_1rem] rounded-[12px] flex items-center gap-[0.5rem]">
-                                                <ShieldCheck size={18} /> <span className="font-[700] text-[0.9rem]">Casco Detectado</span>
-                                            </div> :
+                                          <div className="bg-[#10b981] p-[0.6rem_1rem] rounded-[12px] flex items-center gap-[0.5rem]">
+                                              <ShieldCheck size={18} /> <span className="font-[700] text-[0.9rem]">Casco Detectado</span>
+                                          </div> :
 
-                <div className="bg-[#ef4444] p-[0.6rem_1rem] rounded-[12px] flex items-center gap-[0.5rem]">
-                                                <TriangleAlert size={18} /> <span className="font-[700] text-[0.9rem]">⚠️ FALTA CASCO</span>
-                                            </div>
-                }
+                                          <div className="bg-[#ef4444] p-[0.6rem_1rem] rounded-[12px] flex items-center gap-[0.5rem]">
+                                              <TriangleAlert size={18} /> <span className="font-[700] text-[0.9rem]">⚠️ FALTA CASCO</span>
+                                          </div>
+                                        }
                                         {analysisResult.riskLevel &&
-                <div style={{
-
-                  background: analysisResult.riskLevel.toLowerCase() === 'crítico' ? '#ef4444' :
-                  analysisResult.riskLevel.toLowerCase() === 'alto' ? '#f97316' :
-                  analysisResult.riskLevel.toLowerCase() === 'medio' ? '#eab308' : '#10b981'
-
-
-                }} className="p-[0.6rem_1rem] rounded-[12px] text-[0.85rem] font-[800] text-[#fff] flex items-center">
-                                                RIESGO: {analysisResult.riskLevel.toUpperCase()}
-                                            </div>
-                }
+                                          <div style={{
+                                            background: analysisResult.riskLevel.toLowerCase() === 'crítico' ? '#ef4444' :
+                                            analysisResult.riskLevel.toLowerCase() === 'alto' ? '#f97316' :
+                                            analysisResult.riskLevel.toLowerCase() === 'medio' ? '#eab308' : '#10b981'
+                                          }} className="p-[0.6rem_1rem] rounded-[12px] text-[0.85rem] font-[800] text-[#fff] flex items-center">
+                                              RIESGO: {analysisResult.riskLevel.toUpperCase()}
+                                          </div>
+                                        }
                                     </div>
                                     
                                     {analysisResult.immediateAction &&
-              <div className="bg-[rgba(239,_68,_68,_0.1)] border-[1px_solid_rgba(239,_68,_68,_0.3)] p-[0.8rem] rounded-[8px]">
-                                            <p className="m-[0] text-[0.8rem] text-[#fca5a5] font-[700]">
-                                                ⚠️ Acción Inmediata: {analysisResult.immediateAction}
-                                            </p>
-                                        </div>
-              }
-                                                                       {analysisResult.applicableLegislation && analysisResult.applicableLegislation.length > 0 &&
-              <div className="bg-[rgba(16,_185,_129,_0.1)] border-[1px_solid_rgba(16,_185,_129,_0.3)] p-[0.8rem] rounded-[8px]">
-                                            <p className="m-[0] text-[0.8rem] text-[#6ee7b7] font-[700]">
-                                                ⚖️ Ley/Norma: {analysisResult.applicableLegislation.join(', ')}
-                                            </p>
-                                        </div>
-              }
+                                      <div className="bg-[rgba(239,_68,_68,_0.1)] border-[1px_solid_rgba(239,_68,_68,_0.3)] p-[0.8rem] rounded-[8px]">
+                                          <p className="m-[0] text-[0.8rem] text-[#fca5a5] font-[700]">
+                                              ⚠️ Acción Inmediata: {analysisResult.immediateAction}
+                                          </p>
+                                      </div>
+                                    }
+                                    {analysisResult.applicableLegislation && analysisResult.applicableLegislation.length > 0 &&
+                                      <div className="bg-[rgba(16,_185,_129,_0.1)] border-[1px_solid_rgba(16,_185,_129,_0.3)] p-[0.8rem] rounded-[8px]">
+                                          <p className="m-[0] text-[0.8rem] text-[#6ee7b7] font-[700]">
+                                              ⚖️ Ley/Norma: {analysisResult.applicableLegislation.join(', ')}
+                                          </p>
+                                      </div>
+                                    }
                                 </div>
                                 <div className="flex gap-[0.8rem] w-[100%] justify-center mt-[1rem]">
-                                    <button onClick={handleRetry} className="flex-[1] h-[40px] rounded-[10px] bg-[rgba(255,255,255,0.15)] backdrop-filter-[blur(8px)] border-[1px_solid_rgba(255,255,255,0.3)] text-white flex items-center justify-center gap-[0.5rem] text-[0.8rem] font-[700] cursor-pointer transition-all hover:bg-[rgba(255,255,255,0.25)]">
+                                    <button onClick={handleRetry} className="flex-[1] h-[44px] rounded-[12px] bg-[rgba(255,255,255,0.12)] backdrop-filter-[blur(8px)] border-[1px_solid_rgba(255,255,255,0.25)] text-white flex items-center justify-center gap-[0.5rem] text-[0.85rem] font-[700] cursor-pointer transition-all hover:bg-[rgba(255,255,255,0.22)] active:scale-98">
                                         <RefreshCw size={16} /> Reintentar
                                     </button>
-                                    <button onClick={handleSaveReport} disabled={isSaving} className="flex-[2] h-[40px] rounded-[10px] bg-[linear-gradient(135deg,_#3b82f6_0%,_#2563eb_100%)] border-none text-white flex items-center justify-center gap-[0.5rem] text-[0.85rem] font-[800] cursor-pointer box-shadow-[0_4px_15px_rgba(59,130,246,0.4)] transition-all hover:scale-[1.02]" style={{ opacity: isSaving ? 0.7 : 1 }}>
-                                        {isSaving ? <RefreshCw size={16} className="spin" /> : 'Generar Informe'}
+                                    <button onClick={handleSaveReport} disabled={isSaving} className="flex-[2] h-[44px] rounded-[12px] bg-[linear-gradient(135deg,_#3b82f6_0%,_#2563eb_100%)] border-none text-white flex items-center justify-center gap-[0.5rem] text-[0.88rem] font-[800] cursor-pointer box-shadow-[0_4px_15px_rgba(59,130,246,0.4)] transition-all hover:brightness-[1.1] active:scale-98" style={{ opacity: isSaving ? 0.7 : 1 }}>
+                                        {isSaving ? (
+                                            <div className="relative flex items-center justify-center">
+                                                <div className="w-[18px] h-[18px] rounded-full border border-white/30 border-t-white animate-spin mr-[0.5rem]" />
+                                                <span>Guardando...</span>
+                                            </div>
+                                        ) : 'Generar Informe'}
                                     </button>
                                 </div>
                             </div>
-          }                 </div>
-          }
+                        }
+                    </div>
+                }
             </div>
             <canvas ref={canvasRef} className="hidden" />
-        </div>);
-
+        </div>
+  );
 }
