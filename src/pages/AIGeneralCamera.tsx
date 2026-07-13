@@ -14,7 +14,7 @@ import PremiumHeader from '../components/PremiumHeader';
 import { getErrorMessage } from '../utils/errorUtils';
 
 export default function AIGeneralCamera(): React.ReactElement | null {
-  const { isPro } = usePaywall();
+  const { isPro, loading } = usePaywall();
   const navigate = useNavigate();
   const { syncCollection } = useSync();
   useDocumentTitle('Detección de Riesgos IA');
@@ -34,12 +34,20 @@ export default function AIGeneralCamera(): React.ReactElement | null {
   };
 
   useEffect(() => {
+    if (!loading && !isPro) {
+      window.dispatchEvent(new CustomEvent('show-paywall'));
+      navigate('/');
+    }
+  }, [isPro, loading, navigate]);
+
+  useEffect(() => {
+    if (loading || !isPro) return;
     window.scrollTo(0, 0);
     startCamera();
     return () => {
       stopStream();
     };
-  }, [facingMode]);
+  }, [facingMode, isPro, loading]);
 
   const stopStream = () => {
     if (streamRef.current) {
@@ -405,6 +413,16 @@ export default function AIGeneralCamera(): React.ReactElement | null {
     navigate('/ai-report');
   };
 
+
+  if (loading) {
+    return (
+      <div className="container flex items-center justify-center min-h-[50vh]">
+        <div className="text-slate-500 font-bold">Cargando permisos...</div>
+      </div>
+    );
+  }
+
+  if (!isPro) return null;
 
   return (
     <div className="container pb-[2rem] pt-[1rem] relative min-h-[100vh] flex flex-col gap-[1rem] bg-[var(--color-bg)]">

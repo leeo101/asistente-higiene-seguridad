@@ -11,6 +11,7 @@ import { downloadCSV } from '../services/exportCsv';
 import ShareModal from '../components/ShareModal';
 import AiReportPdfGenerator from '../components/AiReportPdfGenerator';
 import PremiumHeader from '../components/PremiumHeader';
+import { usePaywall } from '../hooks/usePaywall';
 
 function DeleteConfirm({ onConfirm, onCancel }: any) {
   return (
@@ -26,6 +27,7 @@ function DeleteConfirm({ onConfirm, onCancel }: any) {
 }
 
 export default function AICameraManager(): React.ReactElement | null {
+  const { isPro, loading } = usePaywall();
   const navigate = useNavigate();
   const { syncCollection, syncPulse } = useSync();
   const { currentUser } = useAuth();
@@ -36,6 +38,14 @@ export default function AICameraManager(): React.ReactElement | null {
   const [shareItem, setShareItem] = useState(null);
 
   useEffect(() => {
+    if (!loading && !isPro) {
+      window.dispatchEvent(new CustomEvent('show-paywall'));
+      navigate('/');
+    }
+  }, [isPro, loading, navigate]);
+
+  useEffect(() => {
+    if (loading || !isPro) return;
     window.scrollTo(0, 0);
     const raw = localStorage.getItem('ai_camera_history');
     if (!raw) return;
@@ -113,6 +123,16 @@ export default function AICameraManager(): React.ReactElement | null {
       empresa: 'Empresa', ubicacion: 'Ubicación', fecha: 'Fecha', resultado: 'Resultado'
     });
   };
+
+  if (loading) {
+    return (
+      <div className="container flex items-center justify-center min-h-[50vh]">
+        <div className="text-slate-500 font-bold">Cargando permisos...</div>
+      </div>
+    );
+  }
+
+  if (!isPro) return null;
 
   return (
     <div className="container max-w-[900px] pb-[5rem]">

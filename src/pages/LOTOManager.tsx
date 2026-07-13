@@ -369,7 +369,7 @@ export default function LOTOManager(): React.ReactElement | null {
           icon={<Lock />} /> :
 
 
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {filteredProcedures.map((procedure) =>
           <ProcedureCard
             key={procedure.id}
@@ -498,85 +498,84 @@ function TabButton({ active, onClick, icon, label, count, badge }: any) {
 
 function ProcedureCard({ procedure, statusConfig, onStart, onComplete, onView, onEdit, onShare, onDelete }) {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center gap-4 transition-all shadow-sm hover:shadow-md border border-slate-200 dark:border-slate-700 border-left-width-[4px]" style={{ borderLeftColor: statusConfig.color }}>
-            {/* Icono de estado */}
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: `${statusConfig.color}15` }}>
-                <Lock size={28} color={statusConfig.color} strokeWidth={2.5} />
+    <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 flex flex-col justify-between gap-4 transition-all shadow-sm hover:shadow-md border border-slate-200 dark:border-slate-700 relative overflow-hidden" style={{ borderTop: `4px solid ${statusConfig.color}` }}>
+            {/* Header: Status and Icon */}
+            <div className="flex items-center justify-between gap-2">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${statusConfig.color}15` }}>
+                    <Lock size={20} color={statusConfig.color} strokeWidth={2.5} />
+                </div>
+                <span className="px-2.5 py-0.5 rounded-full text-[0.65rem] font-extrabold uppercase shrink-0" style={{ background: statusConfig.bg, color: statusConfig.color }}>
+                    {statusConfig.label}
+                </span>
             </div>
 
-            {/* Información */}
+            {/* Content */}
             <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 mb-2 flex-wrap md:flex-nowrap">
-                    <h3 className="m-0 text-lg font-extrabold text-slate-800 dark:text-slate-100 whitespace-nowrap overflow-hidden text-ellipsis">
-                        {procedure.equipmentName}
-                    </h3>
-                    <span className="px-3 py-1 rounded-full text-[0.7rem] font-extrabold uppercase shrink-0" style={{ background: statusConfig.bg, color: statusConfig.color }}>
-                        {statusConfig.label}
-                    </span>
-                </div>
-                <div className="flex flex-wrap gap-4 text-sm color-slate-500 dark:text-slate-400 font-medium">
-                    <span className="flex items-center gap-1.5">
-                        <Settings size={14} />
+                <h3 className="m-0 text-base font-black leading-snug whitespace-nowrap overflow-hidden text-ellipsis mb-2 text-black dark:text-white">
+                    {procedure.equipmentName}
+                </h3>
+                
+                <div className="flex flex-col gap-1.5 text-xs font-bold" style={{ color: 'var(--color-text)' }}>
+                    <span className="flex items-center gap-1.5" style={{ color: 'var(--color-text)' }}>
+                        <Settings size={13} className="text-slate-700 dark:text-slate-300" />
                         {procedure.location || 'Sin ubicación'}
                     </span>
-                    <span className="flex items-center gap-1.5">
-                        <Zap size={14} />
+                    <span className="flex items-center gap-1.5" style={{ color: 'var(--color-text)' }}>
+                        <Zap size={13} className="text-slate-700 dark:text-slate-300" />
                         {procedure.energyTypes?.length || 0} energías
                     </span>
-                    <span className="flex items-center gap-1.5">
-                        <Calendar size={14} />
+                    <span className="flex items-center gap-1.5" style={{ color: 'var(--color-text)' }}>
+                        <Calendar size={13} className="text-slate-700 dark:text-slate-300" />
                         {new Date(procedure.createdAt).toLocaleDateString('es-AR')}
                     </span>
                 </div>
             </div>
 
-            {/* Acciones */}
-            <div className="flex gap-2 flex-wrap">
+            {/* Actions at the bottom */}
+            <div className="flex gap-2 justify-end items-center pt-3 border-t border-slate-100 dark:border-slate-700/50">
                 {procedure.status === 'pending' &&
-        <button
-          onClick={onStart}
-          className="px-3 py-2.5 bg-green-600 hover:bg-green-700 text-white border-none rounded-lg cursor-pointer font-bold text-xs transition-colors"
-          title="Iniciar LOTO">
-          
-                        <Lock size={18} />
-                    </button>
-        }
+                <button
+                  onClick={onStart}
+                  style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }}
+                  className="p-2 rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
+                  title="Iniciar LOTO">
+                                <Lock size={15} />
+                            </button>
+                }
                 {procedure.status === 'active' &&
-        <button
-          onClick={onComplete}
-          className="px-3 py-2.5 bg-blue-600 hover:bg-blue-700 text-white border-none rounded-lg cursor-pointer font-bold text-xs transition-colors"
-          title="Completar LOTO">
-          
-                        <CheckCircle2 size={18} />
-                    </button>
-        }
                 <button
-          onClick={onEdit}
-          className="px-3 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-blue-600 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700"
-          title="Editar Procedimiento">
-          
-                    <Edit3 size={18} />
+                  onClick={onComplete}
+                  style={{ backgroundColor: '#3b82f6', color: '#ffffff', border: 'none' }}
+                  className="p-2 rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
+                  title="Completar LOTO">
+                                <CheckCircle2 size={15} />
+                            </button>
+                }
+                <button
+                  onClick={onEdit}
+                  style={{ backgroundColor: '#3b82f6', color: '#ffffff', border: 'none' }}
+                  className="p-2 rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
+                  title="Editar Procedimiento">
+                            <Edit3 size={15} />
                 </button>
                 <button
-          onClick={onShare}
-          className="px-3 py-2.5 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 rounded-lg cursor-pointer transition-colors hover:bg-green-100 dark:hover:bg-green-900/50"
-          title="Compartir PDF">
-          
-                    <Share2 size={18} />
+                  onClick={onShare}
+                  style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }}
+                  className="p-2 rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
+                  title="Compartir PDF">
+                            <Share2 size={15} />
                 </button>
                 <button
-          onClick={onDelete}
-          className="px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-red-500 rounded-lg cursor-pointer transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200"
-          title="Eliminar">
-          
-                    <Trash2 size={18} />
+                  onClick={onDelete}
+                  style={{ backgroundColor: '#ef4444', color: '#ffffff', border: 'none' }}
+                  className="p-2 rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
+                  title="Eliminar">
+                            <Trash2 size={15} />
                 </button>
             </div>
-        </div>);
-
+        </div>
+  );
 }
-
-
 
 function ActiveLOTOList({ activeLOTOs, onComplete, onView }) {
   if (activeLOTOs.length === 0) {
@@ -586,57 +585,71 @@ function ActiveLOTOList({ activeLOTOs, onComplete, onView }) {
         description="Todos los procedimientos están completados o no hay ninguno iniciado actualmente."
         icon={<CheckCircle2 />}
         color="#16a34a" />);
-
-
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {activeLOTOs.map((loto) =>
-      <div key={loto.id} className="bg-green-50 dark:bg-green-900/10 border-2 border-green-500 rounded-xl p-5">
-                    <div className="flex flex-col md:flex-row md:items-center gap-4">
-                        <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-emerald-600 rounded-2xl flex items-center justify-center text-white shrink-0 animate-pulse">
-                            <Lock size={32} strokeWidth={2.5} />
+      <div key={loto.id} className="bg-white dark:bg-slate-800 border-2 border-green-500 rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-sm hover:shadow-md relative overflow-hidden">
+                    {/* Header: Title & pulsating status */}
+                    <div className="flex items-center justify-between gap-2">
+                        <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center text-white shrink-0 animate-pulse">
+                            <Lock size={20} strokeWidth={2.5} />
                         </div>
-                        <div className="flex-1">
-                            <h3 className="m-0 text-xl font-black text-slate-800 dark:text-slate-100">
-                                {loto.equipmentName}
-                            </h3>
-                            <p className="m-0 mt-1 text-slate-500 dark:text-slate-400 text-sm">
-                                {loto.location} • Iniciado: {new Date(loto.startedAt).toLocaleString()}
-                            </p>
-                            <div className="flex gap-2 mt-2 flex-wrap">
-                                {loto.energyTypes?.map((et) => {
-                const energyType = ENERGY_TYPES.find((e) => e.id === et);
-                return (
-                  <span key={et} className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1" style={{ background: `${energyType?.color}20`, color: energyType?.color }}>
-                                            <span>{energyType?.icon}</span>
-                                            {energyType?.name}
-                                        </span>);
+                        <span className="px-2.5 py-0.5 rounded-full text-[0.65rem] font-extrabold uppercase shrink-0 bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300">
+                            LOTO ACTIVO
+                        </span>
+                    </div>
 
-              })}
-                            </div>
-                        </div>
-                        <div className="flex gap-2 flex-wrap">
-                            <button
-              onClick={() => onView(loto)}
-              className="px-3 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors flex items-center">
-              
-                                <Eye size={18} />
-                            </button>
-                            <button
-              onClick={() => onComplete(loto.id)}
-              className="px-4 py-2.5 bg-gradient-to-br from-green-600 to-emerald-600 text-white border-none rounded-lg cursor-pointer font-bold flex items-center gap-2 hover:opacity-90 transition-opacity">
-              
-                                <CheckCircle2 size={18} className="mr-[0.35rem]" />
-                                Completar
-                            </button>
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                        <h3 className="m-0 text-base font-black leading-snug whitespace-nowrap overflow-hidden text-ellipsis mb-2 text-black dark:text-white">
+                            {loto.equipmentName}
+                        </h3>
+                        <p className="m-0 text-xs font-bold flex flex-col gap-1" style={{ color: 'var(--color-text)' }}>
+                            <span className="flex items-center gap-1.5" style={{ color: 'var(--color-text)' }}>
+                                <Settings size={13} className="text-slate-700 dark:text-slate-300" />
+                                {loto.location}
+                            </span>
+                            <span className="flex items-center gap-1.5" style={{ color: 'var(--color-text)' }}>
+                                <Calendar size={13} className="text-slate-700 dark:text-slate-300" />
+                                Iniciado: {new Date(loto.startedAt).toLocaleString('es-AR')}
+                            </span>
+                        </p>
+                        <div className="flex gap-1.5 mt-3 flex-wrap">
+                            {loto.energyTypes?.map((et) => {
+                                const energyType = ENERGY_TYPES.find((e) => e.id === et);
+                                return (
+                                    <span key={et} className="px-2 py-0.5 rounded-full text-[0.65rem] font-extrabold flex items-center gap-0.5" style={{ background: `${energyType?.color}15`, color: energyType?.color }}>
+                                        <span>{energyType?.icon}</span>
+                                        {energyType?.name}
+                                    </span>
+                                );
+                            })}
                         </div>
                     </div>
-                </div>
-      )}
-        </div>);
 
+                    {/* Actions */}
+                    <div className="flex gap-2 justify-end items-center pt-3 border-t border-slate-100 dark:border-slate-700/50">
+                        <button
+                          onClick={() => onView(loto)}
+                          style={{ backgroundColor: '#3b82f6', color: '#ffffff', border: 'none' }}
+                          className="p-2 rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
+                          title="Ver Detalles">
+                            <Eye size={15} />
+                        </button>
+                        <button
+                          onClick={() => onComplete(loto.id)}
+                          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }}
+                          className="p-2 rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
+                          title="Completar LOTO">
+                            <CheckCircle2 size={15} />
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+  );
 }
 
 function EnergyTypesPanel({ stats, ENERGY_TYPES }) {

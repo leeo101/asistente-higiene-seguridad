@@ -25,6 +25,7 @@ import ShareModal from '../components/ShareModal';
 import AiAdvisorPdfGenerator from '../components/AiAdvisorPdfGenerator';
 import { downloadCSV } from '../services/exportCsv';
 import { getErrorMessage } from '../utils/errorUtils';
+import { usePaywall } from '../hooks/usePaywall';
 
 function DeleteConfirm({ onConfirm, onCancel }: any) {
   return (
@@ -141,6 +142,7 @@ const QUICK_PROMPTS = [
 
 
 export default function AIChatAdvisor(): React.ReactElement | null {
+  const { isPro, loading: loadingPaywall } = usePaywall();
   useDocumentTitle('Asesor IA - H&S');
   const navigate = useNavigate();
   const location = useLocation();
@@ -162,10 +164,18 @@ export default function AIChatAdvisor(): React.ReactElement | null {
   const currentUser = auth.currentUser;
 
   useEffect(() => {
+    if (!loadingPaywall && !isPro) {
+      window.dispatchEvent(new CustomEvent('show-paywall'));
+      navigate('/');
+    }
+  }, [isPro, loadingPaywall, navigate]);
+
+  useEffect(() => {
+    if (loadingPaywall || !isPro) return;
     const isNew = location.pathname.includes('/nueva');
     setShowForm(isNew);
     window.scrollTo(0, 0);
-  }, [location.pathname]);
+  }, [location.pathname, isPro, loadingPaywall]);
 
   useEffect(() => {
     try {
@@ -627,6 +637,16 @@ export default function AIChatAdvisor(): React.ReactElement | null {
     const query = searchTerm.toLowerCase();
     return (e.task || '').toLowerCase().includes(query);
   });
+
+  if (loadingPaywall) {
+    return (
+      <div className="container flex items-center justify-center min-h-[50vh]">
+        <div className="text-slate-500 font-bold">Cargando permisos...</div>
+      </div>
+    );
+  }
+
+  if (!isPro) return null;
 
   return (
     <div className="container max-w-[1200px] pb-[12rem]">

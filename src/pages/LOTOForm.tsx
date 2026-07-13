@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Lock, Save, Eye, CheckCircle2, Printer, Share2, Pencil, Trash2 } from 'lucide-react';
+import { ArrowLeft, Lock, Save, Eye, CheckCircle2, Printer, Share2, Pencil, Trash2, Check } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
@@ -246,13 +246,13 @@ export default function LOTOForm(): React.ReactElement | null {
 
   return (
     <div className="min-h-[100vh] bg-[var(--color-background)] pb-[8rem] pt-24">
-      <ModuleFormLayout>
+      <ModuleFormLayout className="no-print">
         <ModuleFormToolbar
             title={isEdit ? 'Editar LOTO' : 'Nuevo LOTO'}
             subtitle="Procedimiento de Bloqueo y Etiquetado"
             icon={<Lock size={36} color="#ffffff" />}
         />
-        <ModuleFormDocument id="pdf-content">
+        <ModuleFormDocument>
             <ModuleFormSection title="Datos Generales del Procedimiento" icon={<Lock size={20} />}>
                 <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr' }} className="grid gap-[1.5rem]">
                     <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
@@ -455,12 +455,26 @@ export default function LOTOForm(): React.ReactElement | null {
                         <button
                             onClick={() => setProcedure({ ...procedure, zeroEnergyVerification: { ...procedure.zeroEnergyVerification, tested: !procedure.zeroEnergyVerification.tested } })}
                             style={{
-                                border: `3px solid ${procedure.zeroEnergyVerification.tested ? 'var(--color-success)' : 'var(--color-text-muted)'}`,
-                                background: procedure.zeroEnergyVerification.tested ? 'var(--color-success)' : 'transparent',
-                                boxShadow: procedure.zeroEnergyVerification.tested ? '0 0 20px rgba(16, 185, 129, 0.4)' : 'none'
-                            }} className="w-[60px] h-[60px] rounded-[50%] flex items-center justify-center cursor-pointer transition-[all_0.3s] flex-shrink-[0]">
-                            
-                            {procedure.zeroEnergyVerification.tested ? <CheckCircle2 size={32} color="#fff" /> : <div className="w-[20px] h-[20px] rounded-[50%] border-[2px_solid_var(--color-text-muted)]"></div>}
+                                width: '60px',
+                                height: '60px',
+                                borderRadius: '50%',
+                                border: `3px solid ${procedure.zeroEnergyVerification.tested ? '#10b981' : 'var(--color-text-muted)'}`,
+                                background: procedure.zeroEnergyVerification.tested ? '#10b981' : 'transparent',
+                                boxShadow: procedure.zeroEnergyVerification.tested ? '0 0 20px rgba(16, 185, 129, 0.4)' : 'none',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s',
+                                flexShrink: 0
+                            }}
+                            className="no-btn-override"
+                        >
+                            {procedure.zeroEnergyVerification.tested ? (
+                                <CheckCircle2 size={32} color="#ffffff" />
+                            ) : (
+                                <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid var(--color-text-muted)' }}></div>
+                            )}
                         </button>
                         <div>
                             <h4 style={{ color: procedure.zeroEnergyVerification.tested ? 'var(--color-success)' : 'var(--color-text)' }} className="m-[0_0_0.5rem_0] text-[1.2rem] font-[900]">
@@ -509,38 +523,57 @@ export default function LOTOForm(): React.ReactElement | null {
                         { key: 'personnelClear', label: '¿Todo el personal se encuentra fuera de las zonas de peligro?' },
                         { key: 'locksRemoved', label: '¿Se han removido de forma segura los candados y etiquetas?' },
                         { key: 'authorizedRestart', label: '¿El reinicio del equipo está plenamente autorizado?' }
-                    ].map((item) => (
-                        <div
-                            key={item.key}
-                            style={{
-                                background: procedure.restorationChecklist?.[item.key] ? 'rgba(16, 185, 129, 0.05)' : 'var(--color-surface)',
-                                border: `1px solid ${procedure.restorationChecklist?.[item.key] ? 'var(--color-success)' : 'var(--color-border)'}`
-                            }}
-                            className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all hover:border-slate-500"
-                            onClick={() => {
-                                setProcedure((prev: any) => ({
-                                    ...prev,
-                                    restorationChecklist: {
-                                        ...(prev.restorationChecklist || {}),
-                                        [item.key]: !(prev.restorationChecklist?.[item.key])
-                                    }
-                                }));
-                            }}
-                        >
+                    ].map((item) => {
+                        const isChecked = !!procedure.restorationChecklist?.[item.key];
+                        return (
                             <div
+                                key={item.key}
                                 style={{
-                                    border: `2px solid ${procedure.restorationChecklist?.[item.key] ? 'var(--color-success)' : 'var(--color-text-muted)'}`,
-                                    background: procedure.restorationChecklist?.[item.key] ? 'var(--color-success)' : 'transparent',
+                                    background: isChecked ? 'rgba(16, 185, 129, 0.08)' : 'var(--color-surface)',
+                                    border: isChecked ? '1px solid #10b981' : '1px solid var(--color-border)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '12px',
+                                    padding: '16px',
+                                    borderRadius: '12px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
                                 }}
-                                className="w-5 h-5 rounded flex items-center justify-center transition-all shrink-0"
+                                onClick={() => {
+                                    setProcedure((prev: any) => ({
+                                        ...prev,
+                                        restorationChecklist: {
+                                            ...(prev.restorationChecklist || {}),
+                                            [item.key]: !prev.restorationChecklist?.[item.key]
+                                        }
+                                    }));
+                                }}
                             >
-                                {procedure.restorationChecklist?.[item.key] && <CheckCircle2 size={12} color="#fff" />}
+                                <div
+                                    style={{
+                                        width: '22px',
+                                        height: '22px',
+                                        borderRadius: '6px',
+                                        border: `2px solid ${isChecked ? '#10b981' : '#94a3b8'}`,
+                                        background: isChecked ? '#10b981' : 'transparent',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        transition: 'all 0.2s',
+                                        flexShrink: 0
+                                    }}
+                                >
+                                    {isChecked && <Check size={14} color="#ffffff" strokeWidth={3} />}
+                                </div>
+                                <span 
+                                    style={{ color: 'var(--color-text)' }}
+                                    className="text-sm font-semibold select-none"
+                                >
+                                    {item.label}
+                                </span>
                             </div>
-                            <span className="text-sm font-semibold text-slate-300 select-none">
-                                {item.label}
-                            </span>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </ModuleFormSection>
 

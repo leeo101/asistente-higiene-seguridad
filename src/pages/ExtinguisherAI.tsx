@@ -66,14 +66,22 @@ const formatType = (tipo: string) => {
 };
 
 export default function ExtinguisherAI() {
-  const { isPro } = usePaywall();
+  const { isPro, loading } = usePaywall();
   const navigate = useNavigate();
   useDocumentTitle('Reconocimiento de Extintores IA');
   const { syncCollection } = useSync();
 
   useEffect(() => {
+    if (!loading && !isPro) {
+      window.dispatchEvent(new CustomEvent('show-paywall'));
+      navigate('/');
+    }
+  }, [isPro, loading, navigate]);
+
+  useEffect(() => {
+    if (loading || !isPro) return;
     window.scrollTo(0, 0);
-  }, []);
+  }, [isPro, loading]);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -134,13 +142,14 @@ export default function ExtinguisherAI() {
   };
 
   useEffect(() => {
+    if (loading || !isPro) return;
     if (isCameraVisible) {
       startCamera();
     } else {
       stopStream();
     }
     return () => stopStream();
-  }, [facingMode, isCameraVisible]);
+  }, [facingMode, isCameraVisible, isPro, loading]);
 
   const stopStream = () => {
     if (streamRef.current) {
@@ -319,6 +328,16 @@ export default function ExtinguisherAI() {
   const compliance = total > 0 ? Math.round(isVigente / total * 100) : 0;
 
   const extintorData = analysisResult?.type ? EXTINTOR_INFO[analysisResult.type] : null;
+
+  if (loading) {
+    return (
+      <div className="container flex items-center justify-center min-h-[50vh]">
+        <div className="text-slate-500 font-bold">Cargando permisos...</div>
+      </div>
+    );
+  }
+
+  if (!isPro) return null;
 
   return (
     <div className="container max-w-[800px] pb-[4rem] min-h-[100vh] flex flex-col">

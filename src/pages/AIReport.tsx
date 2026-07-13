@@ -11,7 +11,7 @@ import { toast } from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 
 export default function AIReport(): React.ReactElement | null {
-  const { requirePro } = usePaywall();
+  const { requirePro, isPro, loading } = usePaywall();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [data, setData] = useState(null);
@@ -27,6 +27,14 @@ export default function AIReport(): React.ReactElement | null {
   });
 
   useEffect(() => {
+    if (!loading && !isPro) {
+      window.dispatchEvent(new CustomEvent('show-paywall'));
+      navigate('/');
+    }
+  }, [isPro, loading, navigate]);
+
+  useEffect(() => {
+    if (loading || !isPro) return;
     const current = localStorage.getItem('current_ai_inspection');
     const prof = localStorage.getItem('personalData');
     const sig = localStorage.getItem('signatureStampData');
@@ -39,7 +47,17 @@ export default function AIReport(): React.ReactElement | null {
     }
     if (prof) setProfile(JSON.parse(prof));
     if (sig) setSignature(JSON.parse(sig));
-  }, []);
+  }, [isPro, loading]);
+
+  if (loading) {
+    return (
+      <div className="container flex items-center justify-center min-h-[50vh]">
+        <div className="text-slate-500 font-bold">Cargando permisos...</div>
+      </div>
+    );
+  }
+
+  if (!isPro) return null;
 
   if (!data) return <div className="container">Cargando...</div>;
 
