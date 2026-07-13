@@ -158,6 +158,7 @@ const authLimiter = rateLimit({
     message: { error: 'Demasiados intentos. Por seguridad, espera 15 minutos.' },
     standardHeaders: true,
     legacyHeaders: false,
+    validate: { ip: false },
     keyGenerator: (req) => req.body?.email || req.ip
 });
 
@@ -168,6 +169,7 @@ const aiLimiter = rateLimit({
     message: { error: 'Has excedido el límite de peticiones a la IA. Espera un minuto.' },
     standardHeaders: true,
     legacyHeaders: false,
+    validate: { ip: false },
     keyGenerator: (req) => {
         // Use verified UID from Firebase token (set by verifyFirebaseToken middleware).
         // This cannot be spoofed by the client unlike req.body.uid.
@@ -182,6 +184,7 @@ const emailLimiter = rateLimit({
     message: { error: 'Demasiados emails solicitados. Espera 15 minutos.' },
     standardHeaders: true,
     legacyHeaders: false,
+    validate: { ip: false },
     keyGenerator: (req) => req.body?.email || req.ip
 });
 

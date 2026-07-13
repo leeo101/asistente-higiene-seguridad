@@ -83,18 +83,22 @@ export default function LOTOPdf({ data }: {data: any;}): React.ReactElement | nu
                 </div>
 
                 {/* Info Grid */}
-                <div className="grid grid-template-columns-[1.5fr_1fr] gap-[0] border-[1.5px_solid_#000] mb-[1.5rem]">
+                <div className="grid grid-template-columns-[1.5fr_1fr_1fr] gap-[0] border-[1.5px_solid_#000] mb-[1.5rem]">
                     <div className="p-[0.5rem] border-right-[1.5px_solid_#000] border-bottom-[1px_solid_#000]">
                         <span className="text-[0.6rem] font-[900] block">EQUIPO / MÁQUINA</span>
-                        <span className="font-[700]">{data.equipmentName || 'N/A'}</span>
+                        <span className="font-[700]">{data.equipmentName || 'N/A'} {data.equipmentTag ? `(${data.equipmentTag})` : ''}</span>
+                    </div>
+                    <div className="p-[0.5rem] border-right-[1.5px_solid_#000] border-bottom-[1px_solid_#000]">
+                        <span className="text-[0.6rem] font-[900] block">TIPO BLOQUEO</span>
+                        <span className="font-[700]">{data.lockoutType === 'group' ? `Grupal (Caja: ${data.lockBoxNumber || 'N/A'})` : 'Individual'}</span>
                     </div>
                     <div className="p-[0.5rem] border-bottom-[1px_solid_#000]">
                         <span className="text-[0.6rem] font-[900] block">FECHA</span>
                         <span className="font-[700]">{data.createdAt ? new Date(data.createdAt).toLocaleDateString('es-AR') : 'N/A'}</span>
                     </div>
-                    <div className="p-[0.5rem] border-right-[1.5px_solid_#000]">
-                        <span className="text-[0.6rem] font-[900] block">UBICACIÓN</span>
-                        <span className="font-[700]">{data.location || 'No especificada'}</span>
+                    <div className="p-[0.5rem] border-right-[1.5px_solid_#000]" style={{ gridColumn: 'span 2', borderRight: '1.5px solid #000' }}>
+                        <span className="text-[0.6rem] font-[900] block">UBICACIÓN / DEPARTAMENTO</span>
+                        <span className="font-[700]">{data.location || 'No especificada'}{data.department ? ` - Depto: ${data.department}` : ''}</span>
                     </div>
                     <div className="p-[0.5rem]">
                         <span className="text-[0.6rem] font-[900] block">ID PROCEDIMIENTO</span>
@@ -137,6 +141,41 @@ export default function LOTOPdf({ data }: {data: any;}): React.ReactElement | nu
                     </div>
                 </div>
 
+                {/* Isolation Points List */}
+                {data.isolationPointsList?.length > 0 && (
+                    <div className="mb-[1.5rem]">
+                        <h3 className="text-[0.9rem] font-[900] bg-[#1e293b] text-[#fff] p-[0.5rem] mb-[0.5rem]">
+                            PUNTOS DE AISLAMIENTO ESPECÍFICOS
+                        </h3>
+                        <table className="w-full text-left border-collapse border border-slate-300 text-[8pt]" style={{ border: '1px solid #cbd5e1' }}>
+                            <thead>
+                                <tr className="bg-slate-100 border-b border-slate-300">
+                                    <th className="p-[4px_8px] border-r border-slate-300 font-[900] w-1/4" style={{ borderRight: '1px solid #cbd5e1', padding: '6px' }}>Punto</th>
+                                    <th className="p-[4px_8px] border-r border-slate-300 font-[900] w-1/5" style={{ borderRight: '1px solid #cbd5e1', padding: '6px' }}>Energía</th>
+                                    <th className="p-[4px_8px] border-r border-slate-300 font-[900] w-1/5" style={{ borderRight: '1px solid #cbd5e1', padding: '6px' }}>Dispositivo</th>
+                                    <th className="p-[4px_8px] border-r border-slate-300 font-[900] w-1/5" style={{ borderRight: '1px solid #cbd5e1', padding: '6px' }}>Ubicación</th>
+                                    <th className="p-[4px_8px] font-[900] w-1/6 text-center" style={{ padding: '6px' }}>¿Verificado?</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {data.isolationPointsList.map((point: any, idx: number) => {
+                                    const e = ENERGY_MAP[point.energyType as keyof typeof ENERGY_MAP] || { name: point.energyType, icon: '⚡' };
+                                    const dev = DEVICE_MAP[point.device as keyof typeof DEVICE_MAP] || { name: point.device, icon: '🔒' };
+                                    return (
+                                        <tr key={idx} className="border-b border-slate-300" style={{ borderBottom: '1px solid #cbd5e1' }}>
+                                            <td className="p-[4px_8px] border-r border-slate-300 font-[750]" style={{ borderRight: '1px solid #cbd5e1', padding: '6px' }}>{point.name || 'N/A'}</td>
+                                            <td className="p-[4px_8px] border-r border-slate-300" style={{ borderRight: '1px solid #cbd5e1', padding: '6px' }}>{e.icon} {e.name}</td>
+                                            <td className="p-[4px_8px] border-r border-slate-300" style={{ borderRight: '1px solid #cbd5e1', padding: '6px' }}>{dev.icon} {dev.name}</td>
+                                            <td className="p-[4px_8px] border-r border-slate-300" style={{ borderRight: '1px solid #cbd5e1', padding: '6px' }}>{point.location || 'N/A'}</td>
+                                            <td className="p-[4px_8px] text-center font-[900] text-emerald-700" style={{ padding: '6px' }}>{point.verified ? 'SÍ' : 'NO'}</td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
                 {/* Verification & Warnings */}
                 <div className="grid grid-template-columns-[1fr_1fr] gap-[1rem] mb-[1.5rem]">
                     <div className="border-[1px_solid_#fbd38d] bg-[#fffaf0] rounded-[6px] p-[0.8rem]">
@@ -144,7 +183,23 @@ export default function LOTOPdf({ data }: {data: any;}): React.ReactElement | nu
                             <Lock size={18} />
                             <span className="font-[900] text-[0.85rem]">VERIFICACIÓN DE ENERGÍA CERO</span>
                         </div>
-                        <p className="m-[0] text-[0.8rem]">{data.verificationSteps || 'Se han verificado todos los puntos de aislamiento y se procedió al intento de arranque para confirmar ausencia de energía residual.'}</p>
+                        <p className="m-[0] text-[0.8rem]">
+                            {data.zeroEnergyVerification?.tested ? (
+                                <span>
+                                    CONFIRMADA mediante método: {
+                                        data.zeroEnergyVerification.method === 'try_start' ? 'Intento de Arranque Local' :
+                                        data.zeroEnergyVerification.method === 'tester' ? 'Medición con Instrumento' :
+                                        data.zeroEnergyVerification.method === 'gauge' ? 'Verificación de Presión' :
+                                        data.zeroEnergyVerification.method === 'visual' ? 'Inspección Visual' : 'Método especificado'
+                                    }.
+                                </span>
+                            ) : (
+                                <span>No se ha registrado verificación formal de energía cero.</span>
+                            )}
+                        </p>
+                        {data.isolationPoints && (
+                            <p className="m-[0.5rem_0_0_0] text-[0.75rem] text-slate-600"><strong>Notas:</strong> {data.isolationPoints}</p>
+                        )}
                     </div>
                     <div className="border-[1px_solid_#feb2b2] bg-[#fff5f5] rounded-[6px] p-[0.8rem]">
                         <div className="flex items-center gap-[0.5rem] mb-[0.5rem] text-[#c53030]">
@@ -154,6 +209,24 @@ export default function LOTOPdf({ data }: {data: any;}): React.ReactElement | nu
                         <p className="m-[0] text-[0.8rem] font-[700]">PROHIBIDO RETIRAR BLOQUEOS SIN AUTORIZACIÓN DEL RESPONSABLE DEL TRABAJO.</p>
                     </div>
                 </div>
+
+                {/* Restoration Checklist */}
+                {data.restorationChecklist && (
+                    <div className="mb-[1.5rem] border-[1px_solid_#cbd5e1] rounded-[6px] p-[0.8rem] bg-slate-50/30">
+                        <div className="flex items-center gap-[0.5rem] mb-[0.5rem] text-slate-700">
+                            <span className="font-[900] text-[0.85rem] uppercase">Desbloqueo y Restablecimiento (Retiro de Bloqueos)</span>
+                        </div>
+                        <div className="grid grid-template-columns-[1fr_1fr] gap-[4px_12px] text-[8.5pt]">
+                            <div>[ {data.restorationChecklist.guardsReinstalled ? 'X' : ' ' } ] Protecciones y guardas reinstaladas</div>
+                            <div>[ {data.restorationChecklist.toolsRemoved ? 'X' : ' ' } ] Herramientas y materiales retirados</div>
+                            <div>[ {data.restorationChecklist.personnelClear ? 'X' : ' ' } ] Todo el personal fuera del área de peligro</div>
+                            <div>[ {data.restorationChecklist.locksRemoved ? 'X' : ' ' } ] Candados y etiquetas de bloqueo retirados</div>
+                            <div className="grid-column-span-2" style={{ gridColumn: 'span 2', fontWeight: 'bold' }}>
+                                [ {data.restorationChecklist.authorizedRestart ? 'X' : ' ' } ] Re-energización y reinicio plenamente AUTORIZADO
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Final Signatures */}
                 <PdfSignatures

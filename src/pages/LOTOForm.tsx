@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Lock, Save, Eye, CheckCircle2, Printer, Share2, Pencil } from 'lucide-react';
+import { ArrowLeft, Lock, Save, Eye, CheckCircle2, Printer, Share2, Pencil, Trash2 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
@@ -62,6 +62,9 @@ export default function LOTOForm(): React.ReactElement | null {
   useDocumentTitle(isEdit ? 'Editar Procedimiento LOTO' : 'Nuevo Procedimiento LOTO');
   const [procedure, setProcedure] = useState<any>({
     equipmentName: '',
+    equipmentTag: '',
+    lockoutType: 'individual',
+    lockBoxNumber: '',
     location: '',
     department: '',
     energyTypes: [],
@@ -69,10 +72,18 @@ export default function LOTOForm(): React.ReactElement | null {
     supervisor: '',
     observations: '',
     isolationPoints: '',
+    isolationPointsList: [],
     zeroEnergyVerification: {
       tested: false,
       method: 'try_start',
       result: 'safe'
+    },
+    restorationChecklist: {
+      guardsReinstalled: false,
+      toolsRemoved: false,
+      personnelClear: false,
+      locksRemoved: false,
+      authorizedRestart: false
     },
     signature: '',
     operatorSignature: '',
@@ -104,7 +115,18 @@ export default function LOTOForm(): React.ReactElement | null {
         operatorSignature: ed.operatorSignature || '',
         supervisorSignature: ed.supervisorSignature || ed.signature || '',
         signature: ed.signature || ed.supervisorSignature || '',
-        showSignatures: ed.showSignatures || { operator: true, professional: true, supervisor: true }
+        showSignatures: ed.showSignatures || { operator: true, professional: true, supervisor: true },
+        equipmentTag: ed.equipmentTag || '',
+        lockoutType: ed.lockoutType || 'individual',
+        lockBoxNumber: ed.lockBoxNumber || '',
+        isolationPointsList: ed.isolationPointsList || [],
+        restorationChecklist: ed.restorationChecklist || {
+          guardsReinstalled: false,
+          toolsRemoved: false,
+          personnelClear: false,
+          locksRemoved: false,
+          authorizedRestart: false
+        }
       });
       setIsEdit(true);
     }
@@ -157,6 +179,32 @@ export default function LOTOForm(): React.ReactElement | null {
     setProcedure({ ...procedure, lotoDevices: updated });
   };
 
+  const addIsolationPoint = () => {
+    setProcedure((prev: any) => ({
+      ...prev,
+      isolationPointsList: [
+        ...(prev.isolationPointsList || []),
+        { id: Date.now(), name: '', energyType: 'electrical', device: 'padlock', location: '', verified: false }
+      ]
+    }));
+  };
+
+  const removeIsolationPoint = (id: number) => {
+    setProcedure((prev: any) => ({
+      ...prev,
+      isolationPointsList: (prev.isolationPointsList || []).filter((p: any) => p.id !== id)
+    }));
+  };
+
+  const updateIsolationPoint = (id: number, field: string, value: any) => {
+    setProcedure((prev: any) => ({
+      ...prev,
+      isolationPointsList: (prev.isolationPointsList || []).map((p: any) =>
+        p.id === id ? { ...p, [field]: value } : p
+      )
+    }));
+  };
+
   const handleSave = () => {
     if (!procedure.equipmentName) {
       toast.error('Por favor complete el nombre del equipo');
@@ -206,11 +254,28 @@ export default function LOTOForm(): React.ReactElement | null {
         />
         <ModuleFormDocument id="pdf-content">
             <ModuleFormSection title="Datos Generales del Procedimiento" icon={<Lock size={20} />}>
-                <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem]">
+                <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr' }} className="grid gap-[1.5rem]">
                     <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
                         <label className="block mb-2 text-sm font-semibold text-slate-400">Nombre del Equipo *</label>
                         <input type="text" value={procedure.equipmentName} onChange={(e) => setProcedure({ ...procedure, equipmentName: e.target.value })} className="input-professional" placeholder="Ej: Compresor Principal" />
                     </div>
+                    <div>
+                        <label className="block mb-2 text-sm font-semibold text-slate-400">Código / Tag del Equipo</label>
+                        <input type="text" value={procedure.equipmentTag} onChange={(e) => setProcedure({ ...procedure, equipmentTag: e.target.value })} className="input-professional" placeholder="Ej: COMP-01" />
+                    </div>
+                    <div>
+                        <label className="block mb-2 text-sm font-semibold text-slate-400">Tipo de Bloqueo</label>
+                        <select value={procedure.lockoutType || 'individual'} onChange={(e) => setProcedure({ ...procedure, lockoutType: e.target.value })} style={inputStyle}>
+                            <option value="individual">Individual</option>
+                            <option value="group">Grupal (Caja de Bloqueo)</option>
+                        </select>
+                    </div>
+                    {procedure.lockoutType === 'group' && (
+                        <div>
+                            <label className="block mb-2 text-sm font-semibold text-slate-400">Nº de Caja de Bloqueo</label>
+                            <input type="text" value={procedure.lockBoxNumber} onChange={(e) => setProcedure({ ...procedure, lockBoxNumber: e.target.value })} className="input-professional" placeholder="Ej: LBOX-04" />
+                        </div>
+                    )}
                     <div>
                         <label className="block mb-2 text-sm font-semibold text-slate-400">Ubicación</label>
                         <input type="text" value={procedure.location} onChange={(e) => setProcedure({ ...procedure, location: e.target.value })} className="input-professional" placeholder="Ej: Sala de Máquinas" />
@@ -219,7 +284,7 @@ export default function LOTOForm(): React.ReactElement | null {
                         <label className="block mb-2 text-sm font-semibold text-slate-400">Departamento</label>
                         <input type="text" value={procedure.department} onChange={(e) => setProcedure({ ...procedure, department: e.target.value })} className="input-professional" placeholder="Ej: Mantenimiento" />
                     </div>
-                    <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
+                    <div style={isMobile ? {} : { gridColumn: 'span 3' }}>
                         <label className="block mb-2 text-sm font-semibold text-slate-400">Supervisor / Responsable</label>
                         <input type="text" value={procedure.supervisor} onChange={(e) => setProcedure({ ...procedure, supervisor: e.target.value })} className="input-professional" placeholder="Nombre completo" />
                     </div>
@@ -273,13 +338,112 @@ export default function LOTOForm(): React.ReactElement | null {
             </ModuleFormSection>
 
             <ModuleFormSection title="Puntos de Aislamiento Específicos" icon={<Eye size={20} />}>
-                <label className="block mb-2 text-sm font-semibold text-slate-400">Puntos de Aislamiento Específicos</label>
-                <input
-                    type="text"
-                    value={procedure.isolationPoints}
-                    onChange={(e) => setProcedure({ ...procedure, isolationPoints: e.target.value })}
-                    className="input-professional"
-                    placeholder="Ej: Interruptor Principal Q1, Válvula Entrada Vapor V-01" />
+                <p className="text-sm text-slate-400 mb-4">
+                    Registre detalladamente cada punto donde se aplicará un bloqueo para aislar las energías.
+                </p>
+                <div className="overflow-x-auto w-full mb-4">
+                    <table className="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr className="border-b border-slate-700">
+                                <th className="pb-2 text-xs font-bold text-slate-400 uppercase w-1/4">Punto / Válvula / Interruptor</th>
+                                <th className="pb-2 text-xs font-bold text-slate-400 uppercase w-1/5">Tipo Energía</th>
+                                <th className="pb-2 text-xs font-bold text-slate-400 uppercase w-1/5">Dispositivo</th>
+                                <th className="pb-2 text-xs font-bold text-slate-400 uppercase w-1/5">Ubicación</th>
+                                <th className="pb-2 text-xs font-bold text-slate-400 uppercase w-1/12 text-center">¿Verificado?</th>
+                                <th className="pb-2 text-xs font-bold text-slate-400 uppercase w-1/12 text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {(procedure.isolationPointsList || []).map((point: any) => (
+                                <tr key={point.id} className="border-b border-slate-800 hover:bg-slate-900/10">
+                                    <td className="py-2 pr-2">
+                                        <input
+                                            type="text"
+                                            value={point.name}
+                                            onChange={(e) => updateIsolationPoint(point.id, 'name', e.target.value)}
+                                            className="input-professional py-1 text-sm"
+                                            placeholder="Ej: Interruptor Q1"
+                                        />
+                                    </td>
+                                    <td className="py-2 pr-2">
+                                        <select
+                                            value={point.energyType}
+                                            onChange={(e) => updateIsolationPoint(point.id, 'energyType', e.target.value)}
+                                            className="input-professional py-1 text-sm bg-slate-900"
+                                            style={{ padding: '0.25rem 0.5rem' }}
+                                        >
+                                            {ENERGY_TYPES.map(e => (
+                                                <option key={e.id} value={e.id}>{e.icon} {e.name}</option>
+                                            ))}
+                                        </select>
+                                    </td>
+                                    <td className="py-2 pr-2">
+                                        <select
+                                            value={point.device}
+                                            onChange={(e) => updateIsolationPoint(point.id, 'device', e.target.value)}
+                                            className="input-professional py-1 text-sm bg-slate-900"
+                                            style={{ padding: '0.25rem 0.5rem' }}
+                                        >
+                                            {LOTO_DEVICES.map(d => (
+                                                <option key={d.id} value={d.id}>{d.icon} {d.name}</option>
+                                            ))}
+                                        </select>
+                                    </td>
+                                    <td className="py-2 pr-2">
+                                        <input
+                                            type="text"
+                                            value={point.location}
+                                            onChange={(e) => updateIsolationPoint(point.id, 'location', e.target.value)}
+                                            className="input-professional py-1 text-sm"
+                                            placeholder="Ej: Lateral derecho"
+                                        />
+                                    </td>
+                                    <td className="py-2 text-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={point.verified}
+                                            onChange={(e) => updateIsolationPoint(point.id, 'verified', e.target.checked)}
+                                            className="w-4 h-4 cursor-pointer accent-emerald-500"
+                                        />
+                                    </td>
+                                    <td className="py-2 text-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => removeIsolationPoint(point.id)}
+                                            className="p-1 text-red-500 hover:text-red-750 bg-transparent border-none cursor-pointer"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                            {(procedure.isolationPointsList || []).length === 0 && (
+                                <tr>
+                                    <td colSpan={6} className="py-4 text-center text-slate-500 text-sm">
+                                        No se han agregado puntos de aislamiento todavía.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                <button
+                    type="button"
+                    onClick={addIsolationPoint}
+                    className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 rounded-xl font-semibold text-xs cursor-pointer transition-colors"
+                >
+                    + Agregar Punto de Aislamiento
+                </button>
+                <div className="mt-4">
+                    <label className="block mb-2 text-sm font-semibold text-slate-400">Notas adicionales de los puntos de aislamiento</label>
+                    <input
+                        type="text"
+                        value={procedure.isolationPoints}
+                        onChange={(e) => setProcedure({ ...procedure, isolationPoints: e.target.value })}
+                        className="input-professional"
+                        placeholder="Ej: Otros puntos secundarios o notas de acceso"
+                    />
+                </div>
             </ModuleFormSection>
 
             <ModuleFormSection title="Paso 3: Energía Cero" icon={<CheckCircle2 size={20} />}>
@@ -332,6 +496,52 @@ export default function LOTOForm(): React.ReactElement | null {
                     onChange={(e) => setProcedure({ ...procedure, observations: e.target.value })}
                     style={{ ...inputStyle }}
                     placeholder="1. Detener equipo... 2. Bloquear interruptor Q1... 3. Verificar energía cero..." className="min-h-[100px] pt-[0.75rem]" />
+            </ModuleFormSection>
+
+            <ModuleFormSection title="Paso 4: Desbloqueo y Restablecimiento" icon={<CheckCircle2 size={20} />}>
+                <p className="text-sm text-slate-400 mb-4">
+                    Lista de verificación obligatoria antes de retirar los bloqueos y energizar el equipo nuevamente.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                        { key: 'guardsReinstalled', label: '¿Se han reinstalado todas las guardas y protecciones?' },
+                        { key: 'toolsRemoved', label: '¿Se han retirado todas las herramientas y materiales?' },
+                        { key: 'personnelClear', label: '¿Todo el personal se encuentra fuera de las zonas de peligro?' },
+                        { key: 'locksRemoved', label: '¿Se han removido de forma segura los candados y etiquetas?' },
+                        { key: 'authorizedRestart', label: '¿El reinicio del equipo está plenamente autorizado?' }
+                    ].map((item) => (
+                        <div
+                            key={item.key}
+                            style={{
+                                background: procedure.restorationChecklist?.[item.key] ? 'rgba(16, 185, 129, 0.05)' : 'var(--color-surface)',
+                                border: `1px solid ${procedure.restorationChecklist?.[item.key] ? 'var(--color-success)' : 'var(--color-border)'}`
+                            }}
+                            className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all hover:border-slate-500"
+                            onClick={() => {
+                                setProcedure((prev: any) => ({
+                                    ...prev,
+                                    restorationChecklist: {
+                                        ...(prev.restorationChecklist || {}),
+                                        [item.key]: !(prev.restorationChecklist?.[item.key])
+                                    }
+                                }));
+                            }}
+                        >
+                            <div
+                                style={{
+                                    border: `2px solid ${procedure.restorationChecklist?.[item.key] ? 'var(--color-success)' : 'var(--color-text-muted)'}`,
+                                    background: procedure.restorationChecklist?.[item.key] ? 'var(--color-success)' : 'transparent',
+                                }}
+                                className="w-5 h-5 rounded flex items-center justify-center transition-all shrink-0"
+                            >
+                                {procedure.restorationChecklist?.[item.key] && <CheckCircle2 size={12} color="#fff" />}
+                            </div>
+                            <span className="text-sm font-semibold text-slate-300 select-none">
+                                {item.label}
+                            </span>
+                        </div>
+                    ))}
+                </div>
             </ModuleFormSection>
 
             <ModuleFormSection title="Firmas y Autorizaciones LOTO" icon={<Pencil size={20} />}>
@@ -433,7 +643,7 @@ export default function LOTOForm(): React.ReactElement | null {
       </ModuleFormLayout>
 
       <ModuleActionBar actions={[
-          { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'secondary', onClick: () => requirePro(() => window.print()) },
+          { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'warning', onClick: () => requirePro(() => window.print()) },
           { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) },
           { id: 'save', label: 'GUARDAR PROCEDIMIENTO', icon: <Save size={18} />, variant: 'primary', onClick: (e: any) => { e.preventDefault(); requirePro(handleSave); } }
       ]} />
