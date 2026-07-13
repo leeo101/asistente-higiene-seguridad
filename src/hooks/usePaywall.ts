@@ -2,8 +2,19 @@ import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
-import { ADMIN_EMAILS, PRO_EMAILS } from '../config';
 
+/**
+ * SEGURIDAD: El acceso Pro/Admin se verifica EXCLUSIVAMENTE mediante
+ * Firebase Custom Claims (JWT del lado servidor).
+ * NO se usan emails hardcodeados ni localStorage para determinar acceso.
+ *
+ * Para otorgar acceso Pro a un usuario, el backend (Cloud Function / Admin SDK)
+ * debe ejecutar:
+ *   admin.auth().setCustomUserClaims(uid, { isPro: true })
+ *
+ * Para otorgar acceso Admin:
+ *   admin.auth().setCustomUserClaims(uid, { isPro: true, isAdmin: true })
+ */
 export function usePaywall() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -11,27 +22,32 @@ export function usePaywall() {
   const [internalPulse, setInternalPulse] = useState(0);
 
   const [isProClaim, setIsProClaim] = useState<boolean>(false);
+  const [isAdminClaim, setIsAdminClaim] = useState<boolean>(false);
   const [loadingClaims, setLoadingClaims] = useState(true);
 
-  // SECURITY FIX: Verify isPro via server-side JWT claims, ignore localStorage
+  // Verificar isPro e isAdmin via server-side JWT claims (fuente de verdad segura)
   useEffect(() => {
     if (currentUser) {
-      currentUser.getIdTokenResult()
+      // force: true refresca el token desde el servidor, ignorando caché local
+      currentUser.getIdTokenResult(true)
         .then((idTokenResult) => {
           setIsProClaim(!!idTokenResult.claims.isPro);
+          setIsAdminClaim(!!idTokenResult.claims.isAdmin);
         })
         .catch((err) => {
-          console.error("Error fetching token claims", err);
+          console.error('[Paywall] Error al verificar claims del token:', err);
           setIsProClaim(false);
+          setIsAdminClaim(false);
         })
         .finally(() => setLoadingClaims(false));
     } else {
       setIsProClaim(false);
+      setIsAdminClaim(false);
       setLoadingClaims(false);
     }
   }, [currentUser]);
 
-  // Listen to storage only for daysRemaining calculations
+  // Escuchar cambios en subscriptionData solo para calcular daysRemaining
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'subscriptionData' || e.key === 'personalData') {
@@ -42,37 +58,12 @@ export function usePaywall() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  const isAdmin = useMemo(() => {
-    if (!currentUser) return false;
-    const email = currentUser.email?.toLowerCase() || '';
-    // SECURITY: Only trust server-verified Firebase email, NO localStorage fallback
-    return ADMIN_EMAILS.some(e => e.toLowerCase() === email);
-  }, [currentUser]);
-
-  const isHardcodedPro = useMemo(() => {
-    if (!currentUser) return false;
-    const email = currentUser.email?.toLowerCase() || '';
-    return PRO_EMAILS.some(e => e.toLowerCase() === email);
-  }, [currentUser]);
-
-  const isLocalActive = useMemo(() => {
-    try {
-      const subData = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
-      if (subData.status === 'active') {
-        const expiry = parseInt(subData.expiry || '0', 10);
-        if (!expiry || Date.now() < expiry) return true;
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  }, [syncPulse, internalPulse]);
-
-  // Solo confiamos en el token (backend) o emails hardcodeados, NO en localStorage por seguridad.
-  const isPro = isAdmin || isHardcodedPro || isProClaim;
+  // isPro e isAdmin vienen únicamente del JWT verificado por Firebase
+  const isAdmin = isAdminClaim;
+  const isPro = isAdminClaim || isProClaim;
 
   const daysRemaining = useMemo(() => {
-    if (!isPro && !isLocalActive) return 0;
+    if (!isPro) return 0;
     if (isAdmin) return Infinity;
     try {
       const subData = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
@@ -82,7 +73,7 @@ export function usePaywall() {
     } catch {
       return 0;
     }
-  }, [isAdmin, isPro, isLocalActive, syncPulse, internalPulse]);
+  }, [isAdmin, isPro, syncPulse, internalPulse]);
 
   const status = isPro ? 'active' : 'none';
   const isActive = isPro;
@@ -103,6 +94,7 @@ export function usePaywall() {
   return {
     requirePro,
     isPro,
+    isAdmin,
     daysRemaining,
     status,
     isActive,

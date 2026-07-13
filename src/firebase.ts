@@ -9,58 +9,65 @@ import {
 import { initializeAppCheck, ReCaptchaV3Provider, AppCheck } from "firebase/app-check";
 import { getMessaging, Messaging, isSupported } from "firebase/messaging";
 
-// Configuración de Firebase
-interface FirebaseConfig {
-  apiKey: string;
-  authDomain: string;
-  projectId: string;
-  storageBucket: string;
-  messagingSenderId: string;
-  appId: string;
-  measurementId: string;
+// ─── Validación de variables de entorno ──────────────────────────────────────
+// Todas las claves deben venir desde .env (VITE_*), NUNCA hardcodeadas.
+const requiredEnvVars = [
+  'VITE_FIREBASE_API_KEY',
+  'VITE_FIREBASE_AUTH_DOMAIN',
+  'VITE_FIREBASE_PROJECT_ID',
+  'VITE_FIREBASE_STORAGE_BUCKET',
+  'VITE_FIREBASE_MESSAGING_SENDER_ID',
+  'VITE_FIREBASE_APP_ID',
+] as const;
+
+for (const key of requiredEnvVars) {
+  if (!import.meta.env[key]) {
+    console.error(`[Firebase] Variable de entorno faltante: ${key}`);
+  }
 }
 
-const firebaseConfig: FirebaseConfig = {
-  apiKey: "AIzaSyBzm6eZVk6WdfTJ8--4s6JWH47ytA9i0Mk",
-  authDomain: "asistentehs-b594e.firebaseapp.com",
-  projectId: "asistentehs-b594e",
-  storageBucket: "asistentehs-b594e.firebasestorage.app",
-  messagingSenderId: "598244038733",
-  appId: "1:598244038733:web:76e8d22d2432afbefea404",
-  measurementId: "G-FJMEVTXGW7"
+// ─── Configuración de Firebase (desde .env) ───────────────────────────────
+const firebaseConfig = {
+  apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId:             import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId:     import.meta.env.VITE_FIREBASE_MEASUREMENT_ID, // opcional
 };
 
 // Inicializar Firebase App
 const app = initializeApp(firebaseConfig);
 
-// ==========================================
-// FIREBASE APP CHECK - Protección de API Key
-// ==========================================
-// Inicializar App Check con reCAPTCHA v3 para verificar que las peticiones
-// vienen realmente de tu app y no de scripts maliciosos
-// NOTA: App Check es opcional en desarrollo - la app funciona sin él
+// ─── Firebase App Check ──────────────────────────────────────────────────────
+// Protege la API contra accesos no autorizados con reCAPTCHA v3.
+// Solo activa en producción (no en localhost).
 if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-  try {
-    initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider('6LfoT4ssAAAAAB2E7DDBo7FVr8mPVhrjWreWHCSY'),
-      isTokenAutoRefreshEnabled: true
-    });
-    console.log('[App Check] Inicializado correctamente con reCAPTCHA v3');
-  } catch (error) {
-    console.warn(
-      '[App Check] Error al inicializar (la app continuará sin App Check):',
-      (error as Error).message
-    );
+  const recaptchaKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+  if (recaptchaKey) {
+    try {
+      initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(recaptchaKey),
+        isTokenAutoRefreshEnabled: true
+      });
+      console.log('[App Check] Inicializado con reCAPTCHA v3');
+    } catch (error) {
+      console.warn('[App Check] Error al inicializar:', (error as Error).message);
+    }
+  } else {
+    console.warn('[App Check] VITE_RECAPTCHA_SITE_KEY no definida — App Check desactivado');
   }
 } else {
-  console.log('[App Check] Skip en localhost - usando Firebase sin App Check');
+  console.log('[App Check] Skip en localhost');
 }
 
-// Exportar instancias de Firebase
+// ─── Exportar instancias ──────────────────────────────────────────────────────
 export const auth: Auth = getAuth(app);
 export const db: Firestore = getFirestore(app);
 export const storage: FirebaseStorage = getStorage(app);
 
+// ─── Firebase Cloud Messaging (opcional) ─────────────────────────────────────
 let messagingInstance: Messaging | null = null;
 export const getMessagingInstance = async (): Promise<Messaging | null> => {
   if (messagingInstance) return messagingInstance;
@@ -72,18 +79,12 @@ export const getMessagingInstance = async (): Promise<Messaging | null> => {
   return null;
 };
 
-// Habilitar persistencia offline para que Firestore encole escrituras
-// y permita lecturas al no tener internet
+// ─── Persistencia offline ────────────────────────────────────────────────────
+// Permite que Firestore encole escrituras y permita lecturas sin internet.
 enableMultiTabIndexedDbPersistence(db).catch((err) => {
   if (err.code === 'failed-precondition') {
-    // Múltiples pestañas abiertas, la persistencia solo funciona en una.
-    console.warn(
-      "Firebase persistence: Multiple tabs open, persistence disabled in this tab."
-    );
+    console.warn('[Firestore] Múltiples pestañas abiertas — persistencia desactivada en esta pestaña.');
   } else if (err.code === 'unimplemented') {
-    // El navegador actual no soporta todas las funciones requeridas
-    console.warn(
-      "Firebase persistence: Browser doesn't support indexedDB persistence."
-    );
+    console.warn('[Firestore] El navegador no soporta persistencia IndexedDB.');
   }
 });

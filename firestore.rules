@@ -1,37 +1,55 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Reglas de seguridad mejoradas para evitar abuso de almacenamiento
+
+    // =========================================================================
+    // REGLAS DE SEGURIDAD — Asistente HYS
+    // Principio: negar todo por defecto, permitir solo lo explícitamente necesario.
+    // =========================================================================
+
+    // ── Datos de usuario ──────────────────────────────────────────────────────
+    // Cada usuario solo puede leer/escribir su propia carpeta /users/{uid}/**
     match /users/{uid}/{document=**} {
+      // Lectura: solo el propio usuario autenticado
       allow read: if request.auth != null && request.auth.uid == uid;
-      
-      // Permitir escritura si es el dueño y el payload no es masivo (menos de 150 campos)
-      // Nota: subscriptionData se deniega en una regla más específica abajo.
-      allow write: if request.auth != null 
-                   && request.auth.uid == uid 
-                   && request.resource.data.keys().size() < 150;
+
+      // Escritura: solo el propio usuario, con límites de tamaño para prevenir abuso
+      allow write: if request.auth != null
+                   && request.auth.uid == uid
+                   && request.resource.data.keys().size() < 150
+                   && request.resource.size() < 500 * 1024; // máx 500 KB por documento
     }
-    
-    // PAYWALL SECURITY: Prevent users from writing to their own subscriptionData
+
+    // ── Subscripción (PAYWALL) ─────────────────────────────────────────────────
+    // Solo el backend (Admin SDK) puede escribir subscriptionData.
+    // Los clientes solo pueden leer su propio estado de suscripción.
     match /users/{uid}/data/subscriptionData {
-      allow read: if request.auth != null && request.auth.uid == uid;
-      allow write: if false; // Only backend admin SDK can write this
+      allow read:  if request.auth != null && request.auth.uid == uid;
+      allow write: if false; // Solo Admin SDK (Cloud Functions)
     }
-    
-    // registration_requests is managed via Backend API only
-    // Esta colección contiene PII y pagos en proceso, debe estar sellada al público.
+
+    // ── Solicitudes de registro ──────────────────────────────────────────────
+    // Contiene PII y datos de pago en proceso. Solo el backend puede acceder.
     match /registration_requests/{docId} {
       allow read, write: if false;
     }
-    
-    // SECURITY: Password reset codes are written/read only by Admin SDK (Cloud Functions)
-    // Clients must NEVER be able to read or write their own reset codes
+
+    // ── Códigos de reseteo de contraseña ─────────────────────────────────────
+    // Solo el Admin SDK (Cloud Functions) genera y valida estos códigos.
+    // Los clientes no pueden leer ni escribir sus propios códigos.
     match /passwordResetCodes/{uid} {
       allow read, write: if false;
     }
-    
-    // Default deny for all other paths para evitar colecciones no intencionadas
+
+    // ── Colecciones públicas de solo lectura ──────────────────────────────────
+    // Si en el futuro necesitás datos públicos (ej. normativas), agregarlos aquí:
+    // match /public/{document=**} {
+    //   allow read: if true;
+    //   allow write: if false;
+    // }
+
+    // ── Deny-all por defecto ──────────────────────────────────────────────────
+    // Todo acceso a colecciones no definidas explícitamente queda bloqueado.
     match /{path=**} {
       allow read, write: if false;
     }

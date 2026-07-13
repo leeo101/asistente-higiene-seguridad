@@ -1,6 +1,12 @@
 import { useNavigate, useLocation, NavigateFunction, Location } from 'react-router-dom';
-import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
-import { User, Lock, LogIn, Mail, ArrowLeft, CheckCircle2, AlertCircle, ShieldCheck, CreditCard, Award, GraduationCap, Phone, MapPin, Smartphone, ExternalLink, Eye, EyeOff, LucideIcon } from 'lucide-react';
+import React, { useEffect, useState, useRef, ChangeEvent, FormEvent } from 'react';
+import { User, Lock, LogIn, Mail, ArrowLeft, CheckCircle2, AlertCircle, ShieldCheck, CreditCard, Award, GraduationCap, Phone, MapPin, Smartphone, ExternalLink, Eye, EyeOff, Shield, LucideIcon } from 'lucide-react';
+
+// ─── Brute-force protection constants ────────────────────────────────────────
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 5 * 60 * 1000; // 5 minutos
+const ATTEMPTS_KEY = 'login_attempts';
+const LOCKOUT_KEY = 'login_lockout_until';
 import { User as FirebaseUser } from 'firebase/auth';
 import { useAuth } from '../contexts/AuthContext';
 import { API_BASE_URL } from '../config';
@@ -44,6 +50,54 @@ export default function Login(): React.ReactElement {
   const { login, signup, signInWithGoogle, currentUser } = useAuth();
   const navigate: NavigateFunction = useNavigate();
   const location: Location = useLocation();
+
+  // ─── Brute-force protection state ──────────────────────────────────────────
+  const [loginAttempts, setLoginAttempts] = useState<number>(() => {
+    return parseInt(sessionStorage.getItem(ATTEMPTS_KEY) || '0', 10);
+  });
+  const [lockoutUntil, setLockoutUntil] = useState<number>(() => {
+    return parseInt(sessionStorage.getItem(LOCKOUT_KEY) || '0', 10);
+  });
+  const [lockoutSecondsLeft, setLockoutSecondsLeft] = useState<number>(0);
+  const lockoutTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Countdown timer para el bloqueo
+  useEffect(() => {
+    const updateCountdown = () => {
+      const remaining = Math.ceil((lockoutUntil - Date.now()) / 1000);
+      if (remaining > 0) {
+        setLockoutSecondsLeft(remaining);
+      } else {
+        setLockoutSecondsLeft(0);
+        if (lockoutTimerRef.current) clearInterval(lockoutTimerRef.current);
+      }
+    };
+    if (lockoutUntil > Date.now()) {
+      updateCountdown();
+      lockoutTimerRef.current = setInterval(updateCountdown, 1000);
+    }
+    return () => { if (lockoutTimerRef.current) clearInterval(lockoutTimerRef.current); };
+  }, [lockoutUntil]);
+
+  const isLockedOut = lockoutUntil > Date.now() && lockoutSecondsLeft > 0;
+
+  const recordFailedAttempt = () => {
+    const newAttempts = loginAttempts + 1;
+    setLoginAttempts(newAttempts);
+    sessionStorage.setItem(ATTEMPTS_KEY, String(newAttempts));
+    if (newAttempts >= MAX_ATTEMPTS) {
+      const until = Date.now() + LOCKOUT_DURATION_MS;
+      setLockoutUntil(until);
+      sessionStorage.setItem(LOCKOUT_KEY, String(until));
+    }
+  };
+
+  const clearAttempts = () => {
+    setLoginAttempts(0);
+    setLockoutUntil(0);
+    sessionStorage.removeItem(ATTEMPTS_KEY);
+    sessionStorage.removeItem(LOCKOUT_KEY);
+  };
 
   // Form states
   const [name, setName] = useState<string>('');
@@ -99,12 +153,30 @@ export default function Login(): React.ReactElement {
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+
+    // Verificar bloqueo por intentos fallidos
+    if (isLockedOut) {
+      const mins = Math.ceil(lockoutSecondsLeft / 60);
+      setStatus({ type: 'error', message: `Cuenta bloqueada temporalmente. Intentá en ${lockoutSecondsLeft}s.` });
+      return;
+    }
+
     setStatus({ type: 'loading', message: 'Iniciando sesión...' });
     try {
       await login(email, password);
+      clearAttempts(); // Limpiar contadores en login exitoso
       navigate('/');
-    } catch (error) {
-      setStatus({ type: 'error', message: 'Correo o contraseña incorrectos.' });
+    } catch (error: any) {
+      recordFailedAttempt();
+      const remaining = MAX_ATTEMPTS - (loginAttempts + 1);
+      if (loginAttempts + 1 >= MAX_ATTEMPTS) {
+        setStatus({ type: 'error', message: `Demasiados intentos fallidos. Cuenta bloqueada por 5 minutos.` });
+      } else {
+        setStatus({
+          type: 'error',
+          message: `Correo o contraseña incorrectos. Te quedan ${remaining} intento${remaining !== 1 ? 's' : ''}.`
+        });
+      }
     }
   };
 
@@ -421,6 +493,52 @@ export default function Login(): React.ReactElement {
             <p className="text-[var(--color-text-muted)] mb-[2rem]">Inicia sesión para continuar</p>
 
             <form onSubmit={handleLogin} className="text-left">
+              {/* Lockout banner */}
+              {isLockedOut && (
+                <div style={{
+                  background: 'rgba(239,68,68,0.08)',
+                  border: '1px solid rgba(239,68,68,0.3)',
+                  borderRadius: '12px',
+                  padding: '1rem',
+                  marginBottom: '1.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem'
+                }}>
+                  <Shield size={22} color="#ef4444" style={{ flexShrink: 0 }} />
+                  <div>
+                    <div style={{ color: '#ef4444', fontWeight: 800, fontSize: '0.9rem' }}>
+                      Cuenta bloqueada temporalmente
+                    </div>
+                    <div style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.2rem' }}>
+                      Demasiados intentos fallidos. Podés volver a intentar en{' '}
+                      <strong style={{ color: '#ef4444' }}>
+                        {Math.floor(lockoutSecondsLeft / 60)}:{String(lockoutSecondsLeft % 60).padStart(2, '0')}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Attempt indicator */}
+              {!isLockedOut && loginAttempts > 0 && loginAttempts < MAX_ATTEMPTS && (
+                <div style={{
+                  background: 'rgba(245,158,11,0.08)',
+                  border: '1px solid rgba(245,158,11,0.25)',
+                  borderRadius: '8px',
+                  padding: '0.5rem 0.75rem',
+                  marginBottom: '0.75rem',
+                  fontSize: '0.78rem',
+                  color: '#b45309',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}>
+                  <AlertCircle size={14} />
+                  {MAX_ATTEMPTS - loginAttempts} intento{MAX_ATTEMPTS - loginAttempts !== 1 ? 's' : ''} restante{MAX_ATTEMPTS - loginAttempts !== 1 ? 's' : ''} antes del bloqueo
+                </div>
+              )}
+
               <div className="mb-6">
                 <label htmlFor="email">Correo Electrónico</label>
                 <div className="relative w-[100%]">
@@ -456,44 +574,29 @@ export default function Login(): React.ReactElement {
 
 
 
-
-
-
-
-
-
-
-
-                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-[14px] top-[50%] transform-[translateY(-50%)] bg-[none] border-none cursor-pointer text-[#64748b] flex items-center p-[0]">
-                  
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-[14px] top-[50%] transform-[translateY(-50%)] bg-[none] border-none cursor-pointer text-[#64748b] flex items-center p-[0]">
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </div>
 
               {status.message &&
-            <div style={{
-
-
-
-
-              background: status.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
-              color: status.type === 'error' ? '#ef4444' : 'var(--color-text-muted)'
-
-
-
-            }} className="p-[0.8rem] rounded-[8px] text-[0.9rem] mb-[1rem] flex items-center gap-[0.5rem]">
+                <div style={{
+                  background: status.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
+                  color: status.type === 'error' ? '#ef4444' : 'var(--color-text-muted)'
+                }} className="p-[0.8rem] rounded-[8px] text-[0.9rem] mb-[1rem] flex items-center gap-[0.5rem]">
                   {status.type === 'error' && <AlertCircle size={18} />}
                   {status.message}
                 </div>
-            }
+              }
 
-              <button type="submit" className="btn-glass-primary" disabled={status.type === 'loading'}>
-                {status.type === 'loading' ? 'Cargando...' : 'Ingresar'}
+              <button type="submit" className="btn-glass-primary" disabled={status.type === 'loading' || isLockedOut} style={isLockedOut ? { opacity: 0.5, cursor: 'not-allowed' } : {}}>
+                {isLockedOut ? `Bloqueado (${Math.floor(lockoutSecondsLeft / 60)}:${String(lockoutSecondsLeft % 60).padStart(2, '0')})` : status.type === 'loading' ? 'Cargando...' : 'Ingresar'}
               </button>
             </form>
 
             {/* Google Sign-In */}
+
             <div className="flex items-center gap-[1rem] m-[1.5rem_0] text-[var(--color-text-muted)] text-[0.85rem]">
 
 
