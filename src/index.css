@@ -4880,3 +4880,9 @@ html.pdf-export-mode, body.pdf-export-mode {
     display: none !important;
   }
 }
+
+
+/* Global utility to hide inputs or elements styled with className="none" */
+.none {
+  display: none !important;
+}

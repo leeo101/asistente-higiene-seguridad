@@ -227,7 +227,7 @@ export default function LOTOManager(): React.ReactElement | null {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 pb-24 pt-4 md:pt-8 min-h-screen">
+    <div className="w-full max-w-7xl mx-auto px-4 pb-24 pt-24 md:pt-28 min-h-screen">
             <ShareModal
         isOpen={!!shareItem}
         open={!!shareItem}
@@ -255,10 +255,20 @@ export default function LOTOManager(): React.ReactElement | null {
 
             <div className="mb-8 flex gap-4 flex-wrap mt-6">
                 <button
-          onClick={() => navigate('/loto/new')}
-          className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white border-none rounded-xl font-bold text-base flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/30 transition-all">
-          
-                    <Plus size={20} strokeWidth={2.5} />
+                    onClick={() => navigate('/loto/new')}
+                    className="px-6 py-3 text-white rounded-xl font-bold text-base flex items-center gap-2 cursor-pointer transition-all hover:opacity-90"
+                    style={{
+                      backgroundColor: '#10b981',
+                      color: '#ffffff',
+                      border: 'none',
+                      boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
+                      minHeight: '48px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}
+                >
+                    <Plus size={20} strokeWidth={2.5} color="#ffffff" />
                     Nuevo Procedimiento LOTO
                 </button>
             </div>
@@ -432,20 +442,35 @@ export default function LOTOManager(): React.ReactElement | null {
 // Componentes Auxiliares
 function StatCard({ icon, label, value, color, gradient }) {
   return (
-    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 relative overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-            <div className="absolute -top-5 -right-5 w-20 h-20 rounded-full opacity-10" style={{ background: gradient }} />
-            <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white" style={{ background: gradient, boxShadow: `0 4px 15px ${color}40` }}>
-                    {React.cloneElement(icon, { color: '#ffffff', size: 24 })}
-                </div>
-            </div>
-            <div className="text-3xl font-black text-slate-800 dark:text-slate-100 leading-none">
-                {value}
-            </div>
-            <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mt-2">
-                {label}
-            </div>
-        </div>);
+    <div 
+      style={{ 
+        backgroundColor: 'var(--color-surface, #ffffff)', 
+        border: `2px solid ${color}40`,
+        boxShadow: `0 4px 18px ${color}08`,
+        borderRadius: '16px',
+        padding: '1.25rem',
+        position: 'relative',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.5rem',
+        transition: 'all 0.2s ease'
+      }} 
+      className="card hover:translate-y-[-2px] hover:shadow-md"
+    >
+      <div className="absolute -top-5 -right-5 w-20 h-20 rounded-full opacity-5" style={{ background: gradient }} />
+      <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white" style={{ background: gradient, boxShadow: `0 4px 15px ${color}30` }}>
+              {React.cloneElement(icon, { color: '#ffffff', size: 24 })}
+          </div>
+      </div>
+      <div style={{ color: 'var(--color-text, #0f172a)' }} className="text-3xl font-black leading-none mt-2">
+          {value}
+      </div>
+      <div style={{ color: 'var(--color-text-muted, #64748b)' }} className="text-xs font-bold uppercase tracking-wider">
+          {label}
+      </div>
+    </div>);
 
 }
 

@@ -75,7 +75,7 @@ export default function LOTOPage(): React.ReactElement | null {
   };
 
   return (
-    <div style={{ paddingBottom: isMobile ? '80px' : '2rem' }} className="min-h-[100vh] bg-[var(--color-background)]">
+    <div style={{ paddingBottom: isMobile ? '80px' : '2rem' }} className="min-h-[100vh] bg-[var(--color-background)] pt-24">
             {/* Header */}
             <div style={{
 
@@ -97,8 +97,22 @@ export default function LOTOPage(): React.ReactElement | null {
                             OSHA 1910.147 • {stats.active} activos
                         </p>
                     </div>
-                    <button onClick={() => navigate('/loto/new')} className="btn-primary w-[auto] m-[0] p-[0.75rem_1.25rem] items-center gap-[0.5rem]" style={{ display: isMobile ? 'none' : 'flex' }}>
-                        <Plus size={20} strokeWidth={2.5} />
+                    <button 
+                      onClick={() => navigate('/loto/new')} 
+                      className="w-[auto] m-[0] p-[0.75rem_1.25rem] items-center gap-[0.5rem] cursor-pointer hover:opacity-90 transition-opacity" 
+                      style={{ 
+                        display: isMobile ? 'none' : 'flex',
+                        backgroundColor: '#10b981',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '12px',
+                        fontWeight: 850,
+                        fontSize: '0.85rem',
+                        minHeight: '44px',
+                        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)'
+                      }}
+                    >
+                        <Plus size={20} strokeWidth={2.5} color="#ffffff" />
                         Nuevo Procedimiento
                     </button>
                 </div>
@@ -120,8 +134,20 @@ export default function LOTOPage(): React.ReactElement | null {
                         <Search size={18} color="var(--color-text-muted)" className="absolute left-4 top-1/2 -translate-y-1/2" />
                         <input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.75rem_1rem_0.75rem_2.5rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.95rem]" />
                     </div>
-                    <button onClick={() => navigate('/loto/new')} className="btn-primary w-[auto] m-[0] p-[0_1rem] flex items-center justify-center">
-                        <Plus size={20} />
+                    <button 
+                      onClick={() => navigate('/loto/new')} 
+                      className="w-[auto] m-[0] p-[0_1rem] flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+                      style={{
+                        backgroundColor: '#10b981',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '12px',
+                        minHeight: '44px',
+                        width: '44px',
+                        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)'
+                      }}
+                    >
+                        <Plus size={20} color="#ffffff" />
                     </button>
                 </div>
         }
@@ -188,15 +214,38 @@ export default function LOTOPage(): React.ReactElement | null {
 }
 
 function StatCard({ label, value, color, icon }: any) {
+  const borderSoft = `${color}40`; // 25% opacity
+  
   return (
-    <div className="card p-[1.25rem] bg-[var(--gradient-card)] border-[1px_solid_var(--glass-border-subtle)] flex items-center gap-[1rem]">
-            <div style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }} className="w-[48px] h-[48px] rounded-[var(--radius-lg)] flex items-center justify-center text-[#fff]">{icon}</div>
-            <div>
-                <div className="text-[0.85rem] font-[600] text-[var(--color-text-muted)]">{label}</div>
-                <div className="text-[2rem] font-[900] text-[var(--color-text)] line-height-[1]">{value}</div>
-            </div>
-        </div>);
-
+    <div 
+      style={{ 
+        backgroundColor: 'var(--color-surface, #ffffff)', 
+        border: `2px solid ${borderSoft}`,
+        boxShadow: `0 4px 18px ${color}08`,
+        borderRadius: '16px',
+        padding: '1.25rem',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '1rem',
+        transition: 'all 0.2s ease'
+      }} 
+      className="card hover:translate-y-[-2px] hover:shadow-md"
+    >
+      <div 
+        style={{ 
+          background: `linear-gradient(135deg, ${color}, ${color}cc)`,
+          boxShadow: `0 8px 16px ${color}20`
+        }} 
+        className="w-[48px] h-[48px] rounded-[12px] flex items-center justify-center text-[#fff] shrink-0"
+      >
+        {icon}
+      </div>
+      <div>
+        <div style={{ color: 'var(--color-text-muted, #64748b)' }} className="text-[0.8rem] font-[800] uppercase tracking-wider">{label}</div>
+        <div style={{ color: 'var(--color-text, #0f172a)' }} className="text-[2.2rem] font-[900] leading-none mt-1">{value}</div>
+      </div>
+    </div>
+  );
 }
 
 function ProcedureCard({ procedure, statusConfig, onStart, onComplete, onView, onDelete, isMobile }: any) {

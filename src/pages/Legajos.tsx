@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, FileText, Download, Trash2, Edit, AlertCircle, Building2, Search, Filter, CheckCircle2, Clock, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { Plus, FileText, Download, Trash2, Edit, AlertCircle, Building2, Search, Filter, CheckCircle2, Clock, AlertTriangle, ArrowLeft, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
 import { db } from '../firebase';
@@ -217,20 +217,78 @@ export default function Legajos() {
           }
       </div>
 
-      {showQRModal &&
-        <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl w-full max-w-[400px] text-center">
-                <h3 className="m-0 mb-4 font-extrabold text-slate-900 dark:text-slate-100">Acceso al Portal</h3>
-                <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm">Los trabajadores pueden escanear este código para acceder a su portal de aptitudes médicas y capacitaciones.</p>
-                <div className="bg-slate-100 dark:bg-slate-700 p-6 rounded-xl inline-block mb-6">
-                    <QRCodeSVG value={`${window.location.origin}/worker-portal`} size={200} />
-                </div>
-                <button onClick={() => setShowQRModal(false)} className="w-full py-3 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 rounded-lg font-bold cursor-pointer transition-colors">
-                    Cerrar
-                </button>
+      {showQRModal && (
+        <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-[var(--color-surface,#ffffff)] dark:bg-slate-900 rounded-[28px] p-8 max-w-[400px] w-full text-center relative border border-slate-200/60 dark:border-slate-800/60 shadow-2xl">
+            {/* Botón de cruz (X) para cerrar en la esquina superior derecha */}
+            <button 
+              onClick={() => setShowQRModal(false)} 
+              className="absolute top-4 right-4 p-2 rounded-full border-none bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors cursor-pointer"
+              title="Cerrar"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Icono decorativo del Portal */}
+            <div style={{
+                background: 'rgba(59, 130, 246, 0.08)',
+                color: '#2563eb',
+                border: '2px solid rgba(59, 130, 246, 0.15)'
+            }} className="w-[70px] h-[70px] rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-3xl">📱</span>
             </div>
+
+            {/* Título de alto contraste con color sólido */}
+            <h3 className="m-0 mb-3 text-2xl font-black text-[var(--color-text,#0f172a)]">
+              Portal del Trabajador
+            </h3>
+            
+            {/* Descripción legible */}
+            <p className="text-[var(--color-text-muted,#475569)] mb-6 text-sm font-medium leading-relaxed">
+              Los trabajadores pueden escanear este código QR para acceder a su legajo digital de aptitudes médicas y capacitaciones desde cualquier celular.
+            </p>
+
+            {/* Contenedor de código QR de alto contraste (fondo blanco puro) */}
+            <div className="bg-white p-6 rounded-2xl inline-flex items-center justify-center mb-6 shadow-[inset_0_2px_8px_rgba(0,0,0,0.06)] border border-slate-200/50">
+              <QRCodeSVG 
+                value={`${window.location.origin}/worker-portal`} 
+                size={180}
+                fgColor="#0f172a" 
+                bgColor="#ffffff"
+                includeMargin={true}
+              />
+            </div>
+
+            {/* Botón de acción destacado y coloreado (azul) con sombra y animación hover */}
+            <button 
+              onClick={() => setShowQRModal(false)}
+              style={{
+                background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                boxShadow: '0 8px 20px rgba(37, 99, 235, 0.3)',
+                color: '#ffffff',
+                border: 'none',
+                width: '100%',
+                padding: '0.9rem',
+                borderRadius: '14px',
+                fontWeight: '800',
+                fontSize: '0.95rem',
+                cursor: 'pointer',
+                transition: 'all 0.18s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 12px 24px rgba(37, 99, 235, 0.45)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = '';
+                e.currentTarget.style.boxShadow = '0 8px 20px rgba(37, 99, 235, 0.3)';
+              }}
+            >
+              Cerrar Portal
+            </button>
+          </div>
         </div>
-        }
+      )}
 
       {!hasAccess &&
         <div className="bg-gradient-to-br from-amber-500/10 to-orange-600/10 border border-amber-500/20 rounded-2xl p-6 flex gap-4 items-start mb-8">
@@ -368,22 +426,62 @@ export default function Legajos() {
               <div className="flex gap-2 border-t border-slate-200 dark:border-slate-700 pt-4" onClick={(e) => e.stopPropagation()}>
                 <button
                     onClick={() => navigate(`/legajos/editar/${legajo.id}`)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-xl font-bold text-xs cursor-pointer hover:bg-blue-500/20 transition-colors">
-                    
-                  <Edit size={15} /> Editar
+                    className="flex-1 cursor-pointer hover:opacity-90 transition-opacity"
+                    style={{
+                      backgroundColor: '#2563eb',
+                      color: '#ffffff',
+                      border: 'none',
+                      minHeight: '36px',
+                      height: '36px',
+                      padding: '0 12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      borderRadius: '12px',
+                      fontSize: '0.75rem',
+                      fontWeight: 800
+                    }}>
+                  <Edit size={15} color="#ffffff" /> <span className="text-white">Editar</span>
                 </button>
                 <button
                     onClick={(e) => handleGeneratePDF(e, legajo)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-xl font-bold text-xs cursor-pointer hover:bg-emerald-500/20 transition-colors">
-                    
-                  <Download size={15} /> PDF
+                    className="flex-1 cursor-pointer hover:opacity-90 transition-opacity"
+                    style={{
+                      backgroundColor: '#10b981',
+                      color: '#ffffff',
+                      border: 'none',
+                      minHeight: '36px',
+                      height: '36px',
+                      padding: '0 12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      borderRadius: '12px',
+                      fontSize: '0.75rem',
+                      fontWeight: 800
+                    }}>
+                  <Download size={15} color="#ffffff" /> <span className="text-white">PDF</span>
                 </button>
                 <button
                     onClick={() => handleDelete(legajo.id)}
-                    className="px-3 py-2 bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 rounded-xl cursor-pointer hover:bg-red-500/20 transition-colors"
-                    title="Eliminar">
-                    
-                  <Trash2 size={15} />
+                    className="cursor-pointer hover:opacity-90 transition-opacity"
+                    title="Eliminar"
+                    style={{
+                      backgroundColor: '#dc2626',
+                      color: '#ffffff',
+                      border: 'none',
+                      minHeight: '36px',
+                      height: '36px',
+                      width: '36px',
+                      padding: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: '12px'
+                    }}>
+                  <Trash2 size={15} color="#ffffff" />
                 </button>
               </div>
             </motion.div>);

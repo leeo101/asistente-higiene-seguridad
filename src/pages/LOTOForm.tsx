@@ -197,7 +197,7 @@ export default function LOTOForm(): React.ReactElement | null {
   };
 
   return (
-    <div className="min-h-[100vh] bg-[var(--color-background)] pb-[8rem]">
+    <div className="min-h-[100vh] bg-[var(--color-background)] pb-[8rem] pt-24">
       <ModuleFormLayout>
         <ModuleFormToolbar
             title={isEdit ? 'Editar LOTO' : 'Nuevo LOTO'}

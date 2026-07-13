@@ -6,7 +6,7 @@ import { db } from '../firebase';
 import { doc, setDoc, getDoc, serverTimestamp, collection } from 'firebase/firestore';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
-import { Printer, Share2, Camera, X } from 'lucide-react';
+import { Printer, Share2, Camera, X, Trash2 } from 'lucide-react';
 import {
   Building2,
   PenTool,
@@ -77,6 +77,9 @@ const DEFAULT_FORM_DATA = {
     redHidrantes: false,
     brigadaEmergencia: false,
     planoEvacuacion: false,
+    lucesEmergencia: false,
+    rociadores: false,
+    alarmaManual: false,
     adjuntos: [] as string[]
   },
   epp: {
@@ -102,6 +105,14 @@ const DEFAULT_FORM_DATA = {
     estresTermicoFecha: '', estresTermicoApto: true, estresTermicoValor: '', estresTermicoLimite: '', estresTermicoEmpresa: '', estresTermicoProtocolo: '',
     ventilacionFecha: '', ventilacionApto: true, ventilacionValor: '', ventilacionLimite: '', ventilacionEmpresa: '', ventilacionProtocolo: '',
     contaminantesFecha: '', contaminantesApto: true, contaminantesValor: '', contaminantesLimite: '', contaminantesEmpresa: '', contaminantesProtocolo: '',
+    estudios: [
+      { id: 'iluminacion', nombre: 'Iluminación en Puestos (Res. 84/12)', fecha: '', valor: '', limite: '', protocolo: '', empresa: '', apto: true, unidad: 'lux' },
+      { id: 'ruido', nombre: 'Nivel de Ruido Ocupacional (Res. 85/12)', fecha: '', valor: '', limite: '', protocolo: '', empresa: '', apto: true, unidad: 'dB(A)' },
+      { id: 'puestaTierra', nombre: 'Puesta a Tierra y Continuidad (Res. 900/15)', fecha: '', valor: '', limite: '', protocolo: '', empresa: '', apto: true, unidad: 'Ohms' },
+      { id: 'estresTermico', nombre: 'Estrés Térmico / Carga Térmica (Res. 295/03)', fecha: '', valor: '', limite: '', protocolo: '', empresa: '', apto: true, unidad: '°TGBH' },
+      { id: 'ventilacion', nombre: 'Ventilación y Renovación de Aire (Dec. 351/79)', fecha: '', valor: '', limite: '', protocolo: '', empresa: '', apto: true, unidad: 'Ren/h' },
+      { id: 'contaminantes', nombre: 'Contaminantes Químicos en Aire (Res. 295/03)', fecha: '', valor: '', limite: '', protocolo: '', empresa: '', apto: true, unidad: 'mg/m³' }
+    ] as any[],
     adjuntos: [] as string[]
   },
   instalaciones: {
@@ -271,12 +282,24 @@ export default function LegajoForm() {
       if (docSnap.exists()) {
         const data = docSnap.data();
         // Deep merge: spread defaults first, then stored data on top
+        const loadedAmbiente = { ...DEFAULT_FORM_DATA.ambiente, ...(data.ambiente || {}) };
+        if (!loadedAmbiente.estudios || loadedAmbiente.estudios.length === 0) {
+          loadedAmbiente.estudios = [
+            { id: 'iluminacion', nombre: 'Iluminación en Puestos (Res. 84/12)', fecha: loadedAmbiente.iluminacionFecha || '', valor: data.ambiente?.iluminacionValor || '', limite: data.ambiente?.iluminacionLimite || '', protocolo: data.ambiente?.iluminacionProtocolo || '', empresa: data.ambiente?.iluminacionEmpresa || '', apto: loadedAmbiente.iluminacionApto !== false, unidad: 'lux' },
+            { id: 'ruido', nombre: 'Nivel de Ruido Ocupacional (Res. 85/12)', fecha: loadedAmbiente.ruidoFecha || '', valor: data.ambiente?.ruidoValor || '', limite: data.ambiente?.ruidoLimite || '', protocolo: data.ambiente?.ruidoProtocolo || '', empresa: data.ambiente?.ruidoEmpresa || '', apto: loadedAmbiente.ruidoApto !== false, unidad: 'dB(A)' },
+            { id: 'puestaTierra', nombre: 'Puesta a Tierra y Continuidad (Res. 900/15)', fecha: loadedAmbiente.puestaTierraFecha || '', valor: data.ambiente?.puestaTierraValor || '', limite: data.ambiente?.puestaTierraLimite || '', protocolo: data.ambiente?.puestaTierraProtocolo || '', empresa: data.ambiente?.puestaTierraEmpresa || '', apto: loadedAmbiente.puestaTierraApto !== false, unidad: 'Ohms' },
+            { id: 'estresTermico', nombre: 'Estrés Térmico / Carga Térmica (Res. 295/03)', fecha: loadedAmbiente.estresTermicoFecha || '', valor: data.ambiente?.estresTermicoValor || '', limite: data.ambiente?.estresTermicoLimite || '', protocolo: data.ambiente?.estresTermicoProtocolo || '', empresa: data.ambiente?.estresTermicoEmpresa || '', apto: loadedAmbiente.estresTermicoApto !== false, unidad: '°TGBH' },
+            { id: 'ventilacion', nombre: 'Ventilación y Renovación de Aire (Dec. 351/79)', fecha: loadedAmbiente.ventilacionFecha || '', valor: data.ambiente?.ventilacionValor || '', limite: data.ambiente?.ventilacionLimite || '', protocolo: data.ambiente?.ventilacionProtocolo || '', empresa: data.ambiente?.ventilacionEmpresa || '', apto: loadedAmbiente.ventilacionApto !== false, unidad: 'Ren/h' },
+            { id: 'contaminantes', nombre: 'Contaminantes Químicos en Aire (Res. 295/03)', fecha: loadedAmbiente.contaminantesFecha || '', valor: data.ambiente?.contaminantesValor || '', limite: data.ambiente?.contaminantesLimite || '', protocolo: data.ambiente?.contaminantesProtocolo || '', empresa: data.ambiente?.contaminantesEmpresa || '', apto: loadedAmbiente.contaminantesApto !== false, unidad: 'mg/m³' }
+          ];
+        }
+
         setFormData({
           empresa: { ...DEFAULT_FORM_DATA.empresa, ...(data.empresa || {}) },
           riesgos: { ...DEFAULT_FORM_DATA.riesgos, ...(data.riesgos || {}) },
           incendio: { ...DEFAULT_FORM_DATA.incendio, ...(data.incendio || {}) },
           epp: { ...DEFAULT_FORM_DATA.epp, ...(data.epp || {}) },
-          ambiente: { ...DEFAULT_FORM_DATA.ambiente, ...(data.ambiente || {}) },
+          ambiente: loadedAmbiente,
           firmas: { ...DEFAULT_FORM_DATA.firmas, ...(data.firmas || {}) },
           instalaciones: { ...DEFAULT_FORM_DATA.instalaciones, ...(data.instalaciones || {}) },
           orden: { ...DEFAULT_FORM_DATA.orden, ...(data.orden || {}) }
@@ -338,32 +361,102 @@ export default function LegajoForm() {
   };
 
   const handleChange = (section: keyof typeof formData, field: string, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [section]: {
+    setFormData((prev) => {
+      let updatedSection = {
         ...prev[section],
         [field]: value
+      };
+      
+      // Sincronizar dinámicamente el arreglo 'estudios' con propiedades planas de medio ambiente
+      if (section === 'ambiente' && field === 'estudios') {
+        const studies = value;
+        const map = {
+          iluminacion: 'iluminacion',
+          ruido: 'ruido',
+          puestaTierra: 'puestaTierra',
+          estresTermico: 'estresTermico',
+          ventilacion: 'ventilacion',
+          contaminantes: 'contaminantes'
+        };
+        for (const study of studies) {
+          if (study.id in map) {
+            const prefix = study.id;
+            updatedSection[`${prefix}Apto`] = study.apto !== false;
+            updatedSection[`${prefix}Fecha`] = study.fecha || '';
+            updatedSection[`${prefix}Valor`] = study.valor || '';
+            updatedSection[`${prefix}Limite`] = study.limite || '';
+            updatedSection[`${prefix}Empresa`] = study.empresa || '';
+            updatedSection[`${prefix}Protocolo`] = study.protocolo || '';
+          }
+        }
       }
-    }));
+
+      return {
+        ...prev,
+        [section]: updatedSection
+      };
+    });
+  };
+
+  const handleSyncTrainings = () => {
+    const companyName = formData.empresa.razonSocial;
+    if (!companyName || companyName.trim() === '') {
+      alert("⚠️ Por favor, ingresa primero la Razón Social en la pestaña 'Empresa' para poder realizar la sincronización.");
+      return;
+    }
+
+    const history = JSON.parse(localStorage.getItem('training_history') || '[]');
+    if (history.length === 0) {
+      alert("💡 No hay capacitaciones registradas en el historial general del sistema. Crea capacitaciones en el Módulo de Capacitaciones primero.");
+      return;
+    }
+
+    const cleanName = (name) => {
+      if (!name) return '';
+      return name.toLowerCase()
+                 .replace(/\s+/g, ' ')
+                 .replace(/(s\.a\.|srl|s\.r\.l\.|s\.a|sa)/g, '')
+                 .replace(/[.,\/#!$%\^&\*;:{}=\-_~()]/g, '') // Backtick removed to prevent template string issue
+                 .trim();
+    };
+
+    const cleanCompany = cleanName(companyName);
+    const matches = history.filter((h) => {
+      const cleanH = cleanName(h.empresa);
+      return cleanH && cleanCompany && (cleanH.includes(cleanCompany) || cleanCompany.includes(cleanH));
+    });
+
+    if (matches.length > 0) {
+      const topics = Array.from(new Set(matches.map((h) => {
+        const dateStr = h.fecha ? ` (${new Date(h.fecha + 'T12:00:00Z').toLocaleDateString('es-AR')})` : '';
+        return `${h.tema}${dateStr}`;
+      }))).join(' | ');
+      
+      handleChange('epp', 'capacitacionRealizada', topics);
+      alert(`✅ ¡Sincronización exitosa! Se encontraron e importaron ${matches.length} capacitaciones para esta empresa.`);
+    } else {
+      const registeredCompanies = Array.from(new Set(history.map((h) => h.empresa))).join(', ');
+      alert(`❌ No se encontraron capacitaciones asociadas a la Razón Social: "${companyName}".\n\nVerifica que coincida con las empresas registradas en tu historial: ${registeredCompanies || 'ninguna'}.`);
+    }
   };
 
   /* helpers for adjuntos */
-  const addAdjunto = (section: 'riesgos' | 'incendio' | 'epp' | 'ambiente', base64: string) => {
+  const addAdjunto = (section: 'riesgos' | 'incendio' | 'epp' | 'ambiente' | 'instalaciones' | 'orden', base64: string) => {
     setFormData((prev) => ({
       ...prev,
       [section]: {
-        ...prev[section],
-        adjuntos: [...(prev[section].adjuntos || []), base64]
+        ...(prev[section] as any),
+        adjuntos: [...((prev[section] as any).adjuntos || []), base64]
       }
     }));
   };
 
-  const removeAdjunto = (section: 'riesgos' | 'incendio' | 'epp' | 'ambiente', index: number) => {
+  const removeAdjunto = (section: 'riesgos' | 'incendio' | 'epp' | 'ambiente' | 'instalaciones' | 'orden', index: number) => {
     setFormData((prev) => ({
       ...prev,
       [section]: {
-        ...prev[section],
-        adjuntos: (prev[section].adjuntos || []).filter((_: any, i: number) => i !== index)
+        ...(prev[section] as any),
+        adjuntos: ((prev[section] as any).adjuntos || []).filter((_: any, i: number) => i !== index)
       }
     }));
   };
@@ -373,13 +466,12 @@ export default function LegajoForm() {
 
 
   return (
-    <div className="pt-24 pb-20 min-h-screen bg-slate-50 dark:bg-slate-900">
-      <div className="print-only fixed left-0 top-0 opacity-0 pointer-events-none">
-          <div id="pdf-content">
-              <LegajoPdf data={{ ...formData, professionalName: currentUser?.displayName || 'Profesional H&S' }} />
-          </div>
+    <>
+      <div className="print-only" id="pdf-content">
+        <LegajoPdf data={{ ...formData, professionalName: currentUser?.displayName || 'Profesional H&S' }} />
       </div>
-      <main className="px-4 py-8 max-w-[1000px] mx-auto flex flex-col gap-6">
+      <div className="no-print pt-24 pb-20 min-h-screen bg-slate-50 dark:bg-slate-900">
+        <main className="px-4 py-8 max-w-[1000px] mx-auto flex flex-col gap-6">
         <PremiumHeader
           title={id ? 'Editar Legajo Técnico' : 'Nuevo Legajo Técnico'}
           subtitle="Decreto 351/79"
@@ -404,7 +496,7 @@ export default function LegajoForm() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className="flex flex-col items-center gap-1 py-2.5 px-3 rounded-lg font-semibold text-xs whitespace-nowrap flex-1 cursor-pointer transition-all relative" style={{ border: isActive ? `1px solid ${tab.color}33` : '1px solid transparent', background: isActive ? tab.color + '18' : 'transparent', color: isActive ? tab.color : '#64748b' }}>
+                className="flex flex-col items-center gap-1 py-2.5 px-3 rounded-lg font-extrabold text-xs whitespace-nowrap flex-1 cursor-pointer transition-all relative text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white" style={{ border: isActive ? `1px solid ${tab.color}33` : '1px solid transparent', background: isActive ? tab.color + '18' : 'transparent', color: isActive ? tab.color : undefined }}>
                 
               <div className="flex items-center gap-1.5">
                 <Icon className="w-4 h-4" style={{ color: isActive ? tab.color : '#94a3b8' }} />
@@ -432,13 +524,13 @@ export default function LegajoForm() {
                   <Building2 size={22} color="#fff" />
               </div>
               <div>
-                  <h2 className="m-0 text-xl font-extrabold text-slate-800 dark:text-slate-100">Datos del Establecimiento</h2>
-                  <p className="m-0 text-sm text-slate-500 dark:text-slate-400">Información general de la empresa</p>
+                  <h2 className="m-0 text-xl font-extrabold text-[var(--color-text,#0f172a)]">Datos del Establecimiento</h2>
+                  <p className="m-0 text-sm text-[var(--color-text-muted,#475569)]">Información general de la empresa</p>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Razón Social</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Razón Social</label>
                 <input
                   type="text"
                   value={formData.empresa.razonSocial}
@@ -447,7 +539,7 @@ export default function LegajoForm() {
                   placeholder="Ej: Metalúrgica San Martín S.A." />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">CUIT</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">CUIT</label>
                 <input
                   type="text"
                   value={formData.empresa.cuit}
@@ -456,7 +548,7 @@ export default function LegajoForm() {
                   placeholder="30-12345678-9" />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-1">Domicilio Completo</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Domicilio Completo</label>
                 <input
                   type="text"
                   value={formData.empresa.domicilio}
@@ -465,67 +557,67 @@ export default function LegajoForm() {
                   placeholder="Calle, Número, Piso, Dpto" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Localidad</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Localidad</label>
                 <input type="text" value={formData.empresa.localidad} onChange={(e) => handleChange('empresa', 'localidad', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Provincia</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Provincia</label>
                 <input type="text" value={formData.empresa.provincia} onChange={(e) => handleChange('empresa', 'provincia', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Código Postal</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Código Postal</label>
                 <input type="text" value={formData.empresa.codigoPostal} onChange={(e) => handleChange('empresa', 'codigoPostal', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Teléfono</label>
                 <input type="tel" value={formData.empresa.telefono} onChange={(e) => handleChange('empresa', 'telefono', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Email</label>
                 <input type="email" value={formData.empresa.email} onChange={(e) => handleChange('empresa', 'email', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Actividad Principal</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Actividad Principal</label>
                 <input type="text" value={formData.empresa.actividad} onChange={(e) => handleChange('empresa', 'actividad', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Código CIIU (Actividad ART)</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Código CIIU (Actividad ART)</label>
                 <input type="text" value={formData.empresa.ciiu} onChange={(e) => handleChange('empresa', 'ciiu', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Nº Establecimiento SRT</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Nº Establecimiento SRT</label>
                 <input type="text" value={formData.empresa.srt} onChange={(e) => handleChange('empresa', 'srt', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Aseguradora (ART)</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Aseguradora (ART)</label>
                 <input type="text" value={formData.empresa.art} onChange={(e) => handleChange('empresa', 'art', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Póliza ART</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Póliza ART</label>
                 <input type="text" value={formData.empresa.polizaArt} onChange={(e) => handleChange('empresa', 'polizaArt', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Cantidad de Empleados</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Cantidad de Empleados</label>
                 <input type="number" value={formData.empresa.cantidadEmpleados} onChange={(e) => handleChange('empresa', 'cantidadEmpleados', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Cantidad de Mujeres</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Cantidad de Mujeres</label>
                 <input type="number" value={formData.empresa.cantidadMujeres} onChange={(e) => handleChange('empresa', 'cantidadMujeres', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Cantidad de Menores</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Cantidad de Menores</label>
                 <input type="number" value={formData.empresa.cantidadMenores} onChange={(e) => handleChange('empresa', 'cantidadMenores', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Superficie (m²)</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Superficie (m²)</label>
                 <input type="number" value={formData.empresa.superficie} onChange={(e) => handleChange('empresa', 'superficie', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Horarios de Trabajo</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Horarios de Trabajo</label>
                 <input type="text" value={formData.empresa.horariosTrabajo} onChange={(e) => handleChange('empresa', 'horariosTrabajo', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Modalidad de Turno</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Modalidad de Turno</label>
                 <select value={formData.empresa.modalidadTurno} onChange={(e) => handleChange('empresa', 'modalidadTurno', e.target.value)} className="input-professional">
                   <option value="">Seleccione...</option>
                   <option value="Diurno">Diurno</option>
@@ -535,19 +627,19 @@ export default function LegajoForm() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Fecha Inicio de Actividad</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Fecha Inicio de Actividad</label>
                 <input type="date" value={formData.empresa.fechaInicioActividad} onChange={(e) => handleChange('empresa', 'fechaInicioActividad', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Representante Legal</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Representante Legal</label>
                 <input type="text" value={formData.empresa.representanteLegal} onChange={(e) => handleChange('empresa', 'representanteLegal', e.target.value)} className="input-professional" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Responsable de Seguridad</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Responsable de Seguridad</label>
                 <input type="text" value={formData.empresa.responsableSeguridad} onChange={(e) => handleChange('empresa', 'responsableSeguridad', e.target.value)} className="input-professional" />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-1">Matrícula del Responsable</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Matrícula del Responsable</label>
                 <input type="text" value={formData.empresa.matriculaResponsable} onChange={(e) => handleChange('empresa', 'matriculaResponsable', e.target.value)} className="input-professional" />
               </div>
             </div>
@@ -563,8 +655,8 @@ export default function LegajoForm() {
                   <AlertTriangle size={22} color="#fff" />
               </div>
               <div>
-                  <h2 className="m-0 text-xl font-extrabold text-slate-800 dark:text-slate-100">Matriz de Riesgos</h2>
-                  <p className="m-0 text-sm text-slate-500 dark:text-slate-400">Identificación, evaluación y control</p>
+                  <h2 className="m-0 text-xl font-extrabold text-[var(--color-text,#0f172a)]">Matriz de Riesgos</h2>
+                  <p className="m-0 text-sm text-[var(--color-text-muted,#475569)]">Identificación, evaluación y control</p>
               </div>
             </div>
             
@@ -576,10 +668,13 @@ export default function LegajoForm() {
                   <button 
                     type="button" 
                     onClick={() => {
-                      const newMatriz = [...(formData.riesgos.matriz || []), { id: Date.now().toString(), tipo: '', descripcion: '', probabilidad: '', consecuencia: '', nivel: '', expuestos: '', puesto: '', medida: '', plazo: '' }];
+                      const newMatriz = [...(formData.riesgos.matriz || []), { id: Date.now().toString(), tipo: '', descripcion: '', probabilidad: '', consecuencia: '', nivel: '', expuestos: '', puesto: '', medida: '', plazo: '', responsable: '', estado: 'Pendiente' }];
                       handleChange('riesgos', 'matriz', newMatriz);
                     }}
-                    className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition-colors"
+                    className="px-4 py-2 text-white rounded-xl text-xs font-extrabold cursor-pointer border-none shadow-md transition-all"
+                    style={{ backgroundColor: '#dc2626' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
                   >
                     + Agregar Riesgo
                   </button>
@@ -605,23 +700,29 @@ export default function LegajoForm() {
                     }
                     handleChange('riesgos', 'matriz', newMatriz);
                   };
-
+                  
                   return (
-                    <div key={riesgo.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mb-4 shadow-sm relative">
-                      <button 
-                        type="button"
-                        onClick={() => {
-                          const newMatriz = formData.riesgos.matriz.filter((_: any, i: number) => i !== index);
-                          handleChange('riesgos', 'matriz', newMatriz);
-                        }}
-                        className="absolute top-3 right-3 text-red-500 hover:text-red-700 p-1"
-                      >
-                        <X size={18} />
-                      </button>
+                    <div key={riesgo.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mb-4 shadow-sm">
+                      {/* Header de la Tarjeta de Riesgo */}
+                      <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">
+                        <span className="text-xs font-extrabold text-red-600 uppercase tracking-wider flex items-center gap-1.5">
+                          ⚠️ Riesgo Relevado N° {index + 1}
+                        </span>
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            const newMatriz = formData.riesgos.matriz.filter((_: any, i: number) => i !== index);
+                            handleChange('riesgos', 'matriz', newMatriz);
+                          }}
+                          className="px-3 py-1.5 text-white bg-red-600 hover:bg-red-700 rounded-lg text-[0.7rem] font-bold flex items-center gap-1.5 cursor-pointer border-none shadow-sm transition-colors"
+                        >
+                          <Trash2 size={13} /> Eliminar
+                        </button>
+                      </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <div>
-                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Tipo</label>
+                          <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-200 mb-1 uppercase">Tipo</label>
                           <select value={riesgo.tipo} onChange={e => updateRiesgo('tipo', e.target.value)} className="input-professional py-2">
                             <option value="">Seleccionar...</option>
                             <option value="Físico">Físico</option>
@@ -637,22 +738,22 @@ export default function LegajoForm() {
                           </select>
                         </div>
                         <div className="md:col-span-2">
-                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Descripción del Peligro</label>
+                          <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-200 mb-1 uppercase">Descripción del Peligro</label>
                           <input type="text" value={riesgo.descripcion} onChange={e => updateRiesgo('descripcion', e.target.value)} className="input-professional py-2" placeholder="Ej: Contacto con partes móviles de la máquina..." />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
                         <div className="md:col-span-2">
-                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Puesto / Sector</label>
+                          <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-200 mb-1 uppercase">Puesto / Sector</label>
                           <input type="text" value={riesgo.puesto} onChange={e => updateRiesgo('puesto', e.target.value)} className="input-professional py-2" />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Expuestos</label>
+                          <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-200 mb-1 uppercase">Expuestos</label>
                           <input type="number" value={riesgo.expuestos} onChange={e => updateRiesgo('expuestos', e.target.value)} className="input-professional py-2" />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Probabilidad</label>
+                          <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-200 mb-1 uppercase">Probabilidad</label>
                           <select value={riesgo.probabilidad} onChange={e => updateRiesgo('probabilidad', e.target.value)} className="input-professional py-2">
                             <option value="">...</option>
                             <option value="Baja">Baja (1)</option>
@@ -661,7 +762,7 @@ export default function LegajoForm() {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Consecuencia</label>
+                          <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-200 mb-1 uppercase">Consecuencia</label>
                           <select value={riesgo.consecuencia} onChange={e => updateRiesgo('consecuencia', e.target.value)} className="input-professional py-2">
                             <option value="">...</option>
                             <option value="Leve">Leve (1)</option>
@@ -672,17 +773,32 @@ export default function LegajoForm() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                         <div className="md:col-span-2">
-                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Medida de Control Propuesta</label>
+                          <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-200 mb-1 uppercase">Medida de Control Propuesta</label>
                           <input type="text" value={riesgo.medida} onChange={e => updateRiesgo('medida', e.target.value)} className="input-professional py-2" placeholder="Ej: Colocación de resguardos físicos" />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Plazo Corrección</label>
-                          <input type="date" value={riesgo.plazo} onChange={e => updateRiesgo('plazo', e.target.value)} className="input-professional py-2" />
+                          <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-200 mb-1 uppercase">Responsable Control</label>
+                          <input type="text" value={riesgo.responsable} onChange={e => updateRiesgo('responsable', e.target.value)} className="input-professional py-2" placeholder="Ej: Mant. / Prevencionista" />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Nivel Riesgo</label>
+                          <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-200 mb-1 uppercase">Plazo Corrección</label>
+                          <input type="date" value={riesgo.plazo} onChange={e => updateRiesgo('plazo', e.target.value)} className="input-professional py-2" />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                          <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-200 mb-1 uppercase">Estado Medida</label>
+                          <select value={riesgo.estado || 'Pendiente'} onChange={e => updateRiesgo('estado', e.target.value)} className="input-professional py-2">
+                            <option value="Pendiente">⏳ Pendiente</option>
+                            <option value="En Proceso">⚙️ En Proceso</option>
+                            <option value="Completado">✅ Completado</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-200 mb-1 uppercase">Nivel Riesgo Inicial</label>
                           <div className={`w-full text-center font-bold py-2 px-3 rounded-lg border ${riesgo.nivel === 'Crítico' ? 'bg-red-100 text-red-800 border-red-300' : riesgo.nivel === 'Alto' ? 'bg-orange-100 text-orange-800 border-orange-300' : riesgo.nivel === 'Medio' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' : riesgo.nivel === 'Bajo' ? 'bg-green-100 text-green-800 border-green-300' : 'bg-slate-100 text-slate-500 border-slate-300'}`}>
                             {riesgo.nivel || '-'}
                           </div>
@@ -697,12 +813,12 @@ export default function LegajoForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Medidas Preventivas Generales (Histórico)</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Medidas Preventivas Generales (Histórico)</label>
                 <textarea rows={3} value={formData.riesgos.medidasPreventivas} onChange={(e) => handleChange('riesgos', 'medidasPreventivas', e.target.value)} className="input-professional" placeholder="Medidas a nivel planta..." />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Nivel de Riesgo General</label>
+                  <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Nivel de Riesgo General</label>
                   <select value={formData.riesgos.nivelRiesgo} onChange={(e) => handleChange('riesgos', 'nivelRiesgo', e.target.value)} className="input-professional">
                     <option value="">Seleccione...</option>
                     <option value="Bajo">Bajo</option>
@@ -713,7 +829,7 @@ export default function LegajoForm() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Observaciones</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Observaciones</label>
                 <textarea rows={3} value={formData.riesgos.observaciones} onChange={(e) => handleChange('riesgos', 'observaciones', e.target.value)} className="input-professional" />
               </div>
             </div>
@@ -734,13 +850,13 @@ export default function LegajoForm() {
                   <Flame size={22} color="#fff" />
               </div>
               <div>
-                  <h2 className="m-0 text-xl font-extrabold text-slate-800 dark:text-slate-100">Protección Contra Incendios</h2>
-                  <p className="m-0 text-sm text-slate-500 dark:text-slate-400">Estudio de carga de fuego y sistemas</p>
+                  <h2 className="m-0 text-xl font-extrabold text-[var(--color-text,#0f172a)]">Protección Contra Incendios</h2>
+                  <p className="m-0 text-sm text-[var(--color-text-muted,#475569)]">Estudio de carga de fuego y sistemas</p>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Carga de Fuego Calculada (Mcal/m²)</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Carga de Fuego Calculada (Mcal/m²)</label>
                 <input
                   type="text"
                   value={formData.incendio.cargaFuego}
@@ -749,7 +865,7 @@ export default function LegajoForm() {
                 
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Riesgo de Incendio (R1 a R7)</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Riesgo de Incendio (R1 a R7)</label>
                 <select
                   value={formData.incendio.riesgoIncendio}
                   onChange={(e) => handleChange('incendio', 'riesgoIncendio', e.target.value)}
@@ -766,7 +882,7 @@ export default function LegajoForm() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Cantidad Total de Extintores</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Cantidad Total de Extintores</label>
                 <input
                   type="number"
                   value={formData.incendio.cantidadExtintores}
@@ -775,7 +891,7 @@ export default function LegajoForm() {
                 
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de Extintores</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Tipo de Extintores</label>
                 <input
                   type="text"
                   value={formData.incendio.tipoExtintores}
@@ -785,7 +901,7 @@ export default function LegajoForm() {
                 
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Fecha Último Simulacro</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Fecha Último Simulacro</label>
                 <input
                   type="date"
                   value={formData.incendio.fechaSimulacro}
@@ -795,29 +911,54 @@ export default function LegajoForm() {
               </div>
             </div>
 
-            <div className="mt-4">
-              <p className="block text-sm font-medium text-slate-700 mb-3">Sistemas de Protección</p>
-              <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.incendio.planEvacuacion} onChange={(e) => handleChange('incendio', 'planEvacuacion', e.target.checked)} className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm">Plan de Evacuación</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.incendio.sistemaDeteccion} onChange={(e) => handleChange('incendio', 'sistemaDeteccion', e.target.checked)} className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm">Sistema de Detección</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.incendio.redHidrantes} onChange={(e) => handleChange('incendio', 'redHidrantes', e.target.checked)} className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm">Red de Hidrantes</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.incendio.brigadaEmergencia} onChange={(e) => handleChange('incendio', 'brigadaEmergencia', e.target.checked)} className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm">Brigada de Emergencia</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.incendio.planoEvacuacion} onChange={(e) => handleChange('incendio', 'planoEvacuacion', e.target.checked)} className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm">Plano de Evacuación</span>
-                </label>
+            <div className="mt-6">
+              <p className="block text-sm font-extrabold text-[var(--color-text,#0f172a)] mb-4">Sistemas de Protección Contra Incendios</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { id: 'planEvacuacion', label: 'Plan de Evacuación', icon: '📋', desc: 'Protocolo de escape y roles de emergencia' },
+                  { id: 'sistemaDeteccion', label: 'Sistema de Detección', icon: '🚨', desc: 'Detectores de humo, calor o gas' },
+                  { id: 'redHidrantes', label: 'Red de Hidrantes', icon: '💧', desc: 'Bocas de incendio y mangueras' },
+                  { id: 'brigadaEmergencia', label: 'Brigada de Emergencia', icon: '🧑‍🚒', desc: 'Personal capacitado para respuesta' },
+                  { id: 'planoEvacuacion', label: 'Plano de Evacuación', icon: '🗺️', desc: 'Croquis de salidas expuestos' },
+                  { id: 'lucesEmergencia', label: 'Luces de Emergencia', icon: '💡', desc: 'Equipos autónomos en vías de escape' },
+                  { id: 'rociadores', label: 'Rociadores Automáticos', icon: '🌧️', desc: 'Lluvia automática contra fuego (Sprinklers)' },
+                  { id: 'alarmaManual', label: 'Pulsadores de Alarma', icon: '🔔', desc: 'Activadores manuales para alerta general' }
+                ].map((sys) => {
+                  const checked = !!(formData.incendio as any)[sys.id];
+                  return (
+                    <div
+                      key={sys.id}
+                      onClick={() => handleChange('incendio', sys.id, !checked)}
+                      className={`flex items-start gap-4 p-4 rounded-2xl border-2 transition-all cursor-pointer select-none shadow-sm hover:shadow-md ${
+                        checked 
+                          ? 'border-orange-500 bg-orange-50/40 dark:bg-orange-950/20' 
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-600'
+                      }`}
+                    >
+                      <span className="text-2xl mt-0.5">{sys.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-extrabold text-[var(--color-text,#0f172a)] m-0 leading-tight">
+                          {sys.label}
+                        </p>
+                        <p className="text-xs text-[var(--color-text-muted,#475569)] m-0 mt-1 leading-normal font-medium">
+                          {sys.desc}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-center pt-0.5">
+                        {checked ? (
+                          <div 
+                            className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-black shadow-sm"
+                            style={{ backgroundColor: '#f97316' }}
+                          >
+                            ✓
+                          </div>
+                        ) : (
+                          <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-transparent" />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
             <AdjuntosSection
@@ -837,89 +978,91 @@ export default function LegajoForm() {
                   <ShieldCheck size={22} color="#fff" />
               </div>
               <div>
-                  <h2 className="m-0 text-xl font-extrabold text-slate-800 dark:text-slate-100">EPP y Capacitaciones</h2>
-                  <p className="m-0 text-sm text-slate-500 dark:text-slate-400">Entrega de elementos e instrucción</p>
+                  <h2 className="m-0 text-xl font-extrabold text-[var(--color-text,#0f172a)]">EPP y Capacitaciones</h2>
+                  <p className="m-0 text-sm text-[var(--color-text-muted,#475569)]">Entrega de elementos e instrucción</p>
               </div>
             </div>
             
             <div>
-              <p className="block text-sm font-medium text-slate-700 mb-3">Elementos de Protección Personal (Res 299/11)</p>
-              <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.ropaTrabajo} onChange={(e) => handleChange('epp', 'ropaTrabajo', e.target.checked)} className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm">Ropa de Trabajo</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.calzadoSeguridad} onChange={(e) => handleChange('epp', 'calzadoSeguridad', e.target.checked)} className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm">Calzado de Seguridad</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.proteccionOcular} onChange={(e) => handleChange('epp', 'proteccionOcular', e.target.checked)} className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm">Protección Ocular</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.proteccionAuditiva} onChange={(e) => handleChange('epp', 'proteccionAuditiva', e.target.checked)} className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm">Protección Auditiva</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.proteccionRespiratoria} onChange={(e) => handleChange('epp', 'proteccionRespiratoria', e.target.checked)} className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm">Protección Respiratoria</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.cascoSeguridad} onChange={(e) => handleChange('epp', 'cascoSeguridad', e.target.checked)} className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm">Casco de Seguridad</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.guantesSeguridad} onChange={(e) => handleChange('epp', 'guantesSeguridad', e.target.checked)} className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm">Guantes de Seguridad</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.arnesSeguridad} onChange={(e) => handleChange('epp', 'arnesSeguridad', e.target.checked)} className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm">Arnés de Seguridad</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.proteccionFacial} onChange={(e) => handleChange('epp', 'proteccionFacial', e.target.checked)} className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm">Protección Facial</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.epp.chalecoReflectivo} onChange={(e) => handleChange('epp', 'chalecoReflectivo', e.target.checked)} className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm">Chaleco Reflectivo</span>
-                </label>
+              <p className="block text-sm font-extrabold text-[var(--color-text,#0f172a)] mb-4">Elementos de Protección Personal (Res 299/11)</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { id: 'ropaTrabajo', label: 'Ropa de Trabajo', icon: '👕', desc: 'Camisa y pantalón de grafa o mameluco' },
+                  { id: 'calzadoSeguridad', label: 'Calzado de Seguridad', icon: '🥾', desc: 'Calzado con puntera de acero o dieléctrico' },
+                  { id: 'proteccionOcular', label: 'Protección Ocular', icon: '🥽', desc: 'Gafas de seguridad o antiparras protectoras' },
+                  { id: 'proteccionAuditiva', label: 'Protección Auditiva', icon: '🎧', desc: 'Protectores de copa o endoaurales' },
+                  { id: 'proteccionRespiratoria', label: 'Protección Respiratoria', icon: '😷', desc: 'Semimáscara contra polvos, gases o vapores' },
+                  { id: 'cascoSeguridad', label: 'Casco de Seguridad', icon: '🪖', desc: 'Casco de protección industrial homologado' },
+                  { id: 'guantesSeguridad', label: 'Guantes de Seguridad', icon: '🧤', desc: 'Guantes de cuero, nitrilo, moteados o cabritilla' },
+                  { id: 'arnesSeguridad', label: 'Arnés de Seguridad', icon: '🎗️', desc: 'Arnés anticaídas completo para alturas' },
+                  { id: 'proteccionFacial', label: 'Protección Facial', icon: '🛡️', desc: 'Pantalla facial contra proyecciones o chispas' },
+                  { id: 'chalecoReflectivo', label: 'Chaleco Reflectivo', icon: '🦺', desc: 'Chaleco de alta visibilidad con bandas' }
+                ].map((epp) => {
+                  const checked = !!(formData.epp as any)[epp.id];
+                  return (
+                    <div
+                      key={epp.id}
+                      onClick={() => handleChange('epp', epp.id, !checked)}
+                      className={`flex items-start gap-4 p-4 rounded-2xl border-2 transition-all cursor-pointer select-none shadow-sm hover:shadow-md ${
+                        checked 
+                          ? 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20' 
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-600'
+                      }`}
+                    >
+                      <span className="text-2xl mt-0.5">{epp.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-extrabold text-[var(--color-text,#0f172a)] m-0 leading-tight">
+                          {epp.label}
+                        </p>
+                        <p className="text-xs text-[var(--color-text-muted,#475569)] m-0 mt-1 leading-normal font-medium">
+                          {epp.desc}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-center pt-0.5">
+                        {checked ? (
+                          <div 
+                            className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-black shadow-sm"
+                            style={{ backgroundColor: '#10b981' }}
+                          >
+                            ✓
+                          </div>
+                        ) : (
+                          <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-transparent" />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <div className="flex justify-between items-center mb-1">
-                    <label className="block text-sm font-medium text-slate-700">Capacitación Realizada (Temas)</label>
-                    <button
+                <label className="block text-sm font-extrabold text-[var(--color-text,#0f172a)] mb-1">
+                  Capacitación Realizada (Temas)
+                </label>
+                <div className="flex gap-2 items-stretch">
+                  <textarea
+                    rows={2}
+                    value={formData.epp.capacitacionRealizada}
+                    onChange={(e) => handleChange('epp', 'capacitacionRealizada', e.target.value)}
+                    className="input-professional m-0 flex-1"
+                    placeholder="Uso de extintores - 15/05/2024"
+                  />
+                  <button
                     type="button"
-                    onClick={() => {
-                      const history = JSON.parse(localStorage.getItem('training_history') || '[]');
-                      const match = history.filter((h: any) => h.empresa?.toLowerCase().trim() === formData.empresa.razonSocial?.toLowerCase().trim());
-                      if (match.length > 0) {
-                        const temas = match.map((h: any) => h.tema).join(' | ');
-                        handleChange('epp', 'capacitacionRealizada', temas);
-                        alert(`Sincronizado: ${match.length} capacitaciones encontradas.`);
-                      } else {
-                        alert("No se encontraron capacitaciones para esta empresa.");
-                      }
-                    }}
-                    className="text-xs text-blue-600 dark:text-blue-400 bg-transparent border-none cursor-pointer font-semibold hover:underline">
-                    
-                        Sincronizar Módulo Capacitaciones
-                    </button>
+                    onClick={handleSyncTrainings}
+                    className="px-4 py-2 text-white font-extrabold text-xs cursor-pointer border-none shadow-md transition-all flex items-center justify-center gap-1.5 rounded-xl"
+                    style={{ backgroundColor: '#10b981', minHeight: 'auto' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+                  >
+                    🔄 Sincronizar
+                  </button>
                 </div>
-                <textarea
-                  rows={2}
-                  value={formData.epp.capacitacionRealizada}
-                  onChange={(e) => handleChange('epp', 'capacitacionRealizada', e.target.value)}
-                  className="input-professional"
-                  placeholder="Uso de extintores - 15/05/2024" />
-                
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Próxima Capacitación Programada</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Próxima Capacitación Programada</label>
                 <textarea
                   rows={2}
                   value={formData.epp.proximaCapacitacion}
@@ -929,7 +1072,7 @@ export default function LegajoForm() {
                 
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-1">Plan Anual de Capacitación</label>
+                <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Plan Anual de Capacitación</label>
                 <textarea
                   rows={4}
                   value={formData.epp.planAnualCapacitacion}
@@ -957,8 +1100,8 @@ export default function LegajoForm() {
                   <PenTool size={22} color="#fff" />
               </div>
               <div>
-                  <h2 className="m-0 text-xl font-extrabold text-slate-800 dark:text-slate-100">Firmas del Documento</h2>
-                  <p className="m-0 text-sm text-slate-500 dark:text-slate-400">Certificación del legajo técnico</p>
+                  <h2 className="m-0 text-xl font-extrabold text-[var(--color-text,#0f172a)]">Firmas del Documento</h2>
+                  <p className="m-0 text-sm text-[var(--color-text-muted,#475569)]">Certificación del legajo técnico</p>
               </div>
             </div>
             
@@ -1019,174 +1162,201 @@ export default function LegajoForm() {
                   <Wind size={22} color="#fff" />
               </div>
               <div>
-                  <h2 className="m-0 text-xl font-extrabold text-slate-800 dark:text-slate-100">Estudios de Medio Ambiente</h2>
-                  <p className="m-0 text-sm text-slate-500 dark:text-slate-400">Resolución 905/15</p>
+                  <h2 className="m-0 text-xl font-extrabold text-[var(--color-text,#0f172a)]">Estudios de Medio Ambiente</h2>
+                  <p className="m-0 text-sm text-[var(--color-text-muted,#475569)]">Resolución 905/15</p>
               </div>
             </div>
             
-            <div className="space-y-4">
-              {/* Iluminación */}
-              <div className="flex flex-col md:flex-row md:items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                <div className="flex-1">
-                  <label className="block text-sm font-bold text-slate-700 mb-1">Medición de Iluminación (Res 84/12)</label>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-sm">¿Apto s/Ley?</span>
-                    <select
-                      value={formData.ambiente.iluminacionApto ? "si" : "no"}
-                      onChange={(e) => handleChange('ambiente', 'iluminacionApto', e.target.value === 'si')}
-                      className="p-1 text-sm border border-slate-300 rounded">
-                      
-                      <option value="si">SÍ, CUMPLE</option>
-                      <option value="no">NO CUMPLE</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-500 mb-1">Fecha de Medición</label>
-                  <input
-                    type="date"
-                    value={formData.ambiente.iluminacionFecha}
-                    onChange={(e) => handleChange('ambiente', 'iluminacionFecha', e.target.value)}
-                    className="p-2 border border-slate-300 rounded-lg" />
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-4">
+                {(formData.ambiente.estudios || []).map((est, index) => {
+                  const handleUpdateField = (field, val) => {
+                    const newEstudios = [...(formData.ambiente.estudios || [])];
+                    newEstudios[index] = { ...newEstudios[index], [field]: val };
+                    handleChange('ambiente', 'estudios', newEstudios);
+                  };
+
+                  const handleRemove = () => {
+                    const newEstudios = (formData.ambiente.estudios || []).filter((_, i) => i !== index);
+                    handleChange('ambiente', 'estudios', newEstudios);
+                  };
+
+                  // Colores temáticos específicos para cada tipo de estudio
+                  const colors: Record<string, string> = {
+                    iluminacion: '#f59e0b',    // Amber
+                    ruido: '#6366f1',          // Indigo
+                    puestaTierra: '#8b5cf6',   // Violet
+                    estresTermico: '#f97316',  // Orange
+                    ventilacion: '#0d9488',    // Teal
+                    contaminantes: '#f43f5e'   // Rose
+                  };
                   
-                </div>
+                  const emojis: Record<string, string> = {
+                    iluminacion: '💡',
+                    ruido: '🎧',
+                    puestaTierra: '⚡',
+                    estresTermico: '🌡️',
+                    ventilacion: '💨',
+                    contaminantes: '🧪'
+                  };
+
+                  const color = colors[est.id] || '#0d9488';
+                  const emoji = emojis[est.id] || '📊';
+
+                  return (
+                    <div 
+                      key={index} 
+                      className="bg-white dark:bg-slate-900 rounded-[24px] p-6 border border-slate-200 dark:border-slate-800 border-l-[8px] shadow-sm transition-all relative flex flex-col gap-4 hover:shadow-md"
+                      style={{ borderLeftColor: color }}
+                    >
+                      {/* Cabecera del Estudio */}
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <div className="flex-1 w-full flex items-center gap-3">
+                          <div 
+                            className="w-10 h-10 rounded-xl flex items-center justify-center text-lg font-black shrink-0"
+                            style={{ backgroundColor: `${color}18`, color: color }}
+                          >
+                            {emoji}
+                          </div>
+                          <input
+                            type="text"
+                            value={est.nombre}
+                            onChange={(e) => handleUpdateField('nombre', e.target.value)}
+                            className="bg-transparent border-none text-base font-extrabold text-[var(--color-text,#0f172a)] focus:ring-0 focus:outline-none w-full p-0 m-0 cursor-text"
+                            placeholder="Nombre del estudio o medición..."
+                          />
+                        </div>
+                        <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                          {/* Toggle Apto / No Apto con estilos en línea infalibles */}
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateField('apto', !est.apto)}
+                            className="text-xs font-black uppercase text-white flex items-center justify-center gap-1"
+                            style={{ 
+                              backgroundColor: est.apto ? '#10b981' : '#ef4444',
+                              color: '#ffffff',
+                              border: 'none',
+                              padding: '8px 16px',
+                              minHeight: '38px',
+                              height: '38px',
+                              borderRadius: '12px',
+                              cursor: 'pointer',
+                              boxShadow: est.apto ? '0 4px 12px rgba(16, 185, 129, 0.25)' : '0 4px 12px rgba(239, 68, 68, 0.25)'
+                            }}
+                          >
+                            {est.apto ? '✓ Cumple' : '✕ No Cumple'}
+                          </button>
+                          
+                          {/* Botón Eliminar con color rojo e icono de advertencia sólidos */}
+                          <button
+                            type="button"
+                            onClick={handleRemove}
+                            className="cursor-pointer transition-all flex items-center justify-center"
+                            style={{
+                              backgroundColor: '#dc2626',
+                              color: '#ffffff',
+                              border: 'none',
+                              padding: '0px',
+                              minHeight: '38px',
+                              height: '38px',
+                              width: '38px',
+                              borderRadius: '12px',
+                              boxShadow: '0 4px 12px rgba(220, 38, 38, 0.25)'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+                            title="Eliminar Estudio"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Grilla de Datos */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Columna 1: Fecha */}
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-xs font-extrabold text-[var(--color-text-muted,#475569)] uppercase">Fecha de Medición</label>
+                          <input
+                            type="date"
+                            value={est.fecha}
+                            onChange={(e) => handleUpdateField('fecha', e.target.value)}
+                            className="input-professional m-0 w-full"
+                          />
+                        </div>
+
+                        {/* Columna 2: Valor, Límite y Unidad */}
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-xs font-extrabold text-[var(--color-text-muted,#475569)] uppercase">Mediciones (Valor / Límite)</label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={est.valor}
+                              onChange={(e) => handleUpdateField('valor', e.target.value)}
+                              className="input-professional m-0 w-full text-center"
+                              placeholder="Medido"
+                            />
+                            <span className="text-slate-400 text-sm">/</span>
+                            <input
+                              type="text"
+                              value={est.limite}
+                              onChange={(e) => handleUpdateField('limite', e.target.value)}
+                              className="input-professional m-0 w-full text-center"
+                              placeholder="Límite"
+                            />
+                            <input
+                              type="text"
+                              value={est.unidad}
+                              onChange={(e) => handleUpdateField('unidad', e.target.value)}
+                              className="input-professional m-0 w-[60px] text-center font-extrabold bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                              placeholder="Unid."
+                            />
+                          </div>
+                        </div>
+
+                        {/* Columna 3: Protocolo y Ejecutor */}
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-xs font-extrabold text-[var(--color-text-muted,#475569)] uppercase">Protocolo y Ejecutor</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={est.protocolo}
+                              onChange={(e) => handleUpdateField('protocolo', e.target.value)}
+                              className="input-professional m-0 w-full"
+                              placeholder="Nº Protocolo"
+                            />
+                            <input
+                              type="text"
+                              value={est.empresa}
+                              onChange={(e) => handleUpdateField('empresa', e.target.value)}
+                              className="input-professional m-0 w-full"
+                              placeholder="Ejecutor / Lab."
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
-              {/* Ruido */}
-              <div className="flex flex-col md:flex-row md:items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                <div className="flex-1">
-                  <label className="block text-sm font-bold text-slate-700 mb-1">Medición de Ruido (Res 85/12)</label>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-sm">¿Apto s/Ley?</span>
-                    <select
-                      value={formData.ambiente.ruidoApto ? "si" : "no"}
-                      onChange={(e) => handleChange('ambiente', 'ruidoApto', e.target.value === 'si')}
-                      className="p-1 text-sm border border-slate-300 rounded">
-                      
-                      <option value="si">SÍ, CUMPLE</option>
-                      <option value="no">NO CUMPLE</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-500 mb-1">Fecha de Medición</label>
-                  <input
-                    type="date"
-                    value={formData.ambiente.ruidoFecha}
-                    onChange={(e) => handleChange('ambiente', 'ruidoFecha', e.target.value)}
-                    className="p-2 border border-slate-300 rounded-lg" />
-                  
-                </div>
-              </div>
-
-               {/* PAT */}
-               <div className="flex flex-col md:flex-row md:items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                <div className="flex-1">
-                  <label className="block text-sm font-bold text-slate-700 mb-1">Puesta a Tierra (Res 900/15)</label>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-sm">¿Apto s/Ley?</span>
-                    <select
-                      value={formData.ambiente.puestaTierraApto ? "si" : "no"}
-                      onChange={(e) => handleChange('ambiente', 'puestaTierraApto', e.target.value === 'si')}
-                      className="p-1 text-sm border border-slate-300 rounded">
-                      
-                      <option value="si">SÍ, CUMPLE</option>
-                      <option value="no">NO CUMPLE</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-500 mb-1">Fecha de Medición</label>
-                  <input
-                    type="date"
-                    value={formData.ambiente.puestaTierraFecha}
-                    onChange={(e) => handleChange('ambiente', 'puestaTierraFecha', e.target.value)}
-                    className="p-2 border border-slate-300 rounded-lg" />
-                  
-                </div>
-              </div>
-
-              {/* Estrés Térmico */}
-              <div className="flex flex-col md:flex-row md:items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                <div className="flex-1">
-                  <label className="block text-sm font-bold text-slate-700 mb-1">Estrés Térmico (Res 295/03)</label>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-sm">¿Apto s/Ley?</span>
-                    <select
-                      value={formData.ambiente.estresTermicoApto ? "si" : "no"}
-                      onChange={(e) => handleChange('ambiente', 'estresTermicoApto', e.target.value === 'si')}
-                      className="p-1 text-sm border border-slate-300 rounded">
-                      
-                      <option value="si">SÍ, CUMPLE</option>
-                      <option value="no">NO CUMPLE</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-500 mb-1">Fecha de Medición</label>
-                  <input
-                    type="date"
-                    value={formData.ambiente.estresTermicoFecha}
-                    onChange={(e) => handleChange('ambiente', 'estresTermicoFecha', e.target.value)}
-                    className="p-2 border border-slate-300 rounded-lg" />
-                  
-                </div>
-              </div>
-
-              {/* Ventilación */}
-              <div className="flex flex-col md:flex-row md:items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                <div className="flex-1">
-                  <label className="block text-sm font-bold text-slate-700 mb-1">Ventilación (Cap. 11 Dec 351/79)</label>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-sm">¿Apto s/Ley?</span>
-                    <select
-                      value={formData.ambiente.ventilacionApto ? "si" : "no"}
-                      onChange={(e) => handleChange('ambiente', 'ventilacionApto', e.target.value === 'si')}
-                      className="p-1 text-sm border border-slate-300 rounded">
-                      
-                      <option value="si">SÍ, CUMPLE</option>
-                      <option value="no">NO CUMPLE</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-500 mb-1">Fecha de Medición</label>
-                  <input
-                    type="date"
-                    value={formData.ambiente.ventilacionFecha}
-                    onChange={(e) => handleChange('ambiente', 'ventilacionFecha', e.target.value)}
-                    className="p-2 border border-slate-300 rounded-lg" />
-                  
-                </div>
-              </div>
-
-              {/* Contaminantes Químicos */}
-              <div className="flex flex-col md:flex-row md:items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                <div className="flex-1">
-                  <label className="block text-sm font-bold text-slate-700 mb-1">Contaminantes Químicos (Res 295/03)</label>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-sm">¿Apto s/Ley?</span>
-                    <select
-                      value={formData.ambiente.contaminantesApto ? "si" : "no"}
-                      onChange={(e) => handleChange('ambiente', 'contaminantesApto', e.target.value === 'si')}
-                      className="p-1 text-sm border border-slate-300 rounded">
-                      
-                      <option value="si">SÍ, CUMPLE</option>
-                      <option value="no">NO CUMPLE</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-500 mb-1">Fecha de Medición</label>
-                  <input
-                    type="date"
-                    value={formData.ambiente.contaminantesFecha}
-                    onChange={(e) => handleChange('ambiente', 'contaminantesFecha', e.target.value)}
-                    className="p-2 border border-slate-300 rounded-lg" />
-                  
-                </div>
-              </div>
-
+              {/* Botón para agregar nuevo estudio */}
+              <button
+                type="button"
+                onClick={() => {
+                  const newEstudios = [
+                    ...(formData.ambiente.estudios || []),
+                    { id: Date.now().toString(), nombre: 'Nueva Medición / Estudio', fecha: '', valor: '', limite: '', protocolo: '', empresa: '', apto: true, unidad: '' }
+                  ];
+                  handleChange('ambiente', 'estudios', newEstudios);
+                }}
+                className="w-full py-4 text-white rounded-[16px] text-sm font-extrabold cursor-pointer border-none shadow-md transition-all flex items-center justify-center gap-2"
+                style={{ backgroundColor: '#0d9488' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0f766e'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0d9488'}
+              >
+                ➕ Agregar Nuevo Estudio Ambiental
+              </button>
             </div>
             <AdjuntosSection
               adjuntos={formData.ambiente.adjuntos || []}
@@ -1197,8 +1367,381 @@ export default function LegajoForm() {
           </div>
           }
 
-        {/* ═══ Navigation Buttons ═══ */}
-        <div className="flex justify-center items-center gap-6 mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+        {/* ═══ INSTALACIONES TAB ═══ */}
+        {activeTab === 'instalaciones' &&
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center gap-4 mb-8 pb-4 border-b border-slate-200 dark:border-slate-700">
+              <div className="w-11 h-11 bg-gradient-to-br from-cyan-600 to-cyan-700 rounded-xl flex items-center justify-center shadow-[0_4px_15px_rgba(8,145,178,0.3)]">
+                  <AlertTriangle size={22} color="#fff" />
+              </div>
+              <div>
+                  <h2 className="m-0 text-xl font-extrabold text-[var(--color-text,#0f172a)]">Instalaciones y Máquinas</h2>
+                  <p className="m-0 text-sm text-[var(--color-text-muted,#475569)]">Condiciones de seguridad edilicia y electromecánica (Dec. 351/79)</p>
+              </div>
+            </div>
+
+            {/* Grupo 1: Eléctricas */}
+            <div className="flex flex-col gap-4">
+              <p className="block text-sm font-extrabold text-[var(--color-text,#0f172a)] mb-1">1. Instalaciones Eléctricas (Cap. 14)</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { id: 'tablerosElectricos', label: 'Tableros Eléctricos con Frente Muerto', icon: '🗄️', desc: 'Frentes protegidos y señalizados contra contactos directos' },
+                  { id: 'proteccionDiferencial', label: 'Protecciones Diferenciales y Térmicas', icon: '⚡', desc: 'Disyuntores y llaves térmicas operativas' },
+                  { id: 'patVerificada', label: 'Puesta a Tierra Conectada', icon: '🔌', desc: 'Conexión verificada a jabalina de puesta a tierra' },
+                  { id: 'certificadoElectricista', label: 'Certificado de Electricista Matriculado', icon: '📜', desc: 'Protocolo de medición de PAT s/Res. 900/15 firmado' }
+                ].map((item) => {
+                  const checked = !!(formData.instalaciones as any)[item.id];
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => handleChange('instalaciones', item.id, !checked)}
+                      className={`flex items-start gap-4 p-4 rounded-2xl border-2 transition-all cursor-pointer select-none shadow-sm hover:shadow-md ${
+                        checked 
+                          ? 'border-cyan-500 bg-cyan-50/40 dark:bg-cyan-950/20' 
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-600'
+                      }`}
+                    >
+                      <span className="text-2xl mt-0.5">{item.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-extrabold text-[var(--color-text,#0f172a)] m-0 leading-tight">
+                          {item.label}
+                        </p>
+                        <p className="text-xs text-[var(--color-text-muted,#475569)] m-0 mt-1 leading-normal font-medium">
+                          {item.desc}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-center pt-0.5">
+                        {checked ? (
+                          <div 
+                            className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-black shadow-sm"
+                            style={{ backgroundColor: '#0891b2' }}
+                          >
+                            ✓
+                          </div>
+                        ) : (
+                          <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-transparent" />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Input de Estado General del Cableado */}
+            <div className="flex flex-col gap-1.5">
+              <label className="block text-sm font-extrabold text-[var(--color-text,#0f172a)] mb-1">Estado General del Cableado</label>
+              <textarea
+                rows={2}
+                value={formData.instalaciones.estadoCableado}
+                onChange={(e) => handleChange('instalaciones', 'estadoCableado', e.target.value)}
+                className="input-professional"
+                placeholder="Describe el estado de los conductores, canalizaciones, cable canal y tendidos aéreos..."
+              />
+            </div>
+
+            {/* Grupo 2: Máquinas */}
+            <div className="flex flex-col gap-4">
+              <p className="block text-sm font-extrabold text-[var(--color-text,#0f172a)] mb-1">2. Máquinas y Herramientas (Caps. 15 y 16)</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { id: 'guardasProteccion', label: 'Guardas y Resguardos de Seguridad', icon: '🛡️', desc: 'Protecciones físicas sobre partes móviles y poleas' },
+                  { id: 'parosEmergencia', label: 'Paros de Emergencia Operativos', icon: '🛑', desc: 'Pulsadores de parada rápida accesibles en áreas operativas' },
+                  { id: 'mantenimientoPreventivo', label: 'Mantenimiento Preventivo Registrado', icon: '🔧', desc: 'Programa de mantenimiento periódico activo' },
+                  { id: 'hojasSeguridad', label: 'Instructivos / Hojas de Seguridad', icon: '📋', desc: 'Hojas de seguridad expuestas y legibles en máquinas' }
+                ].map((item) => {
+                  const checked = !!(formData.instalaciones as any)[item.id];
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => handleChange('instalaciones', item.id, !checked)}
+                      className={`flex items-start gap-4 p-4 rounded-2xl border-2 transition-all cursor-pointer select-none shadow-sm hover:shadow-md ${
+                        checked 
+                          ? 'border-cyan-500 bg-cyan-50/40 dark:bg-cyan-950/20' 
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-600'
+                      }`}
+                    >
+                      <span className="text-2xl mt-0.5">{item.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-extrabold text-[var(--color-text,#0f172a)] m-0 leading-tight">
+                          {item.label}
+                        </p>
+                        <p className="text-xs text-[var(--color-text-muted,#475569)] m-0 mt-1 leading-normal font-medium">
+                          {item.desc}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-center pt-0.5">
+                        {checked ? (
+                          <div 
+                            className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-black shadow-sm"
+                            style={{ backgroundColor: '#0891b2' }}
+                          >
+                            ✓
+                          </div>
+                        ) : (
+                          <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-transparent" />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Grupo 3: Gas */}
+            <div className="flex flex-col gap-4">
+              <p className="block text-sm font-extrabold text-[var(--color-text,#0f172a)] mb-1">3. Gas y Aparatos a Presión</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { id: 'gasHabilitacion', label: 'Instalación de Gas Aprobada', icon: '🔥', desc: 'Instalaciones habilitadas por distribuidora o matriculado' },
+                  { id: 'gasValvulas', label: 'Válvulas de Corte Rápido y Acceso', icon: '🔑', desc: 'Llaves de corte claramente identificadas' },
+                  { id: 'gasDetector', label: 'Detectores de Fugas / CO', icon: '🔔', desc: 'Equipos activos de detección de monóxido o gas' },
+                  { id: 'gasEnargas', label: 'Aparatos a Presión s/Norma (Compresores)', icon: '🎈', desc: 'Compresores y calderas habilitados con pruebas hidráulicas' }
+                ].map((item) => {
+                  const checked = !!(formData.instalaciones as any)[item.id];
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => handleChange('instalaciones', item.id, !checked)}
+                      className={`flex items-start gap-4 p-4 rounded-2xl border-2 transition-all cursor-pointer select-none shadow-sm hover:shadow-md ${
+                        checked 
+                          ? 'border-cyan-500 bg-cyan-50/40 dark:bg-cyan-950/20' 
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-600'
+                      }`}
+                    >
+                      <span className="text-2xl mt-0.5">{item.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-extrabold text-[var(--color-text,#0f172a)] m-0 leading-tight">
+                          {item.label}
+                        </p>
+                        <p className="text-xs text-[var(--color-text-muted,#475569)] m-0 mt-1 leading-normal font-medium">
+                          {item.desc}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-center pt-0.5">
+                        {checked ? (
+                          <div 
+                            className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-black shadow-sm"
+                            style={{ backgroundColor: '#0891b2' }}
+                          >
+                            ✓
+                          </div>
+                        ) : (
+                          <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-transparent" />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <AdjuntosSection
+              adjuntos={formData.instalaciones.adjuntos || []}
+              onAdd={(b64) => addAdjunto('instalaciones', b64)}
+              onRemove={(i) => removeAdjunto('instalaciones', i)}
+              accentColor="#0891b2" />
+          </div>
+        }
+
+        {/* ═══ ORDEN Y SEÑALIZACIÓN TAB ═══ */}
+        {activeTab === 'orden' &&
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center gap-4 mb-8 pb-4 border-b border-slate-200 dark:border-slate-700">
+              <div className="w-11 h-11 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-[0_4px_15px_rgba(79,70,229,0.3)]">
+                  <ShieldCheck size={22} color="#fff" />
+              </div>
+              <div>
+                  <h2 className="m-0 text-xl font-extrabold text-[var(--color-text,#0f172a)]">Orden, Limpieza y Señalización</h2>
+                  <p className="m-0 text-sm text-[var(--color-text-muted,#475569)]">Condiciones generales de los ambientes laborales (IRAM 10005)</p>
+              </div>
+            </div>
+
+            {/* Grupo 1: Orden */}
+            <div className="flex flex-col gap-4">
+              <p className="block text-sm font-extrabold text-[var(--color-text,#0f172a)] mb-1">1. Orden y Circulación</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { id: 'pasajesLibres', label: 'Pasajes y Vías de Circulación Libres', icon: '🚪', desc: 'Pasillos libres de obstáculos con ancho reglamentario' },
+                  { id: 'almacenamientoDelimitado', label: 'Estiba y Almacenamiento Delimitados', icon: '📦', desc: 'Sectores de almacenamiento demarcados en piso' },
+                  { id: 'gestionResiduos', label: 'Gestión y Clasificación de Residuos', icon: '🗑️', desc: 'Contenedores rotulados y sector de disposición transitoria' }
+                ].map((item) => {
+                  const checked = !!(formData.orden as any)[item.id];
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => handleChange('orden', item.id, !checked)}
+                      className={`flex items-start gap-4 p-4 rounded-2xl border-2 transition-all cursor-pointer select-none shadow-sm hover:shadow-md ${
+                        checked 
+                          ? 'border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/20' 
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-600'
+                      }`}
+                    >
+                      <span className="text-2xl mt-0.5">{item.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-extrabold text-[var(--color-text,#0f172a)] m-0 leading-tight">
+                          {item.label}
+                        </p>
+                        <p className="text-xs text-[var(--color-text-muted,#475569)] m-0 mt-1 leading-normal font-medium">
+                          {item.desc}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-center pt-0.5">
+                        {checked ? (
+                          <div 
+                            className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-black shadow-sm"
+                            style={{ backgroundColor: '#4f46e5' }}
+                          >
+                            ✓
+                          </div>
+                        ) : (
+                          <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-transparent" />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Grupo 2: Señalización */}
+            <div className="flex flex-col gap-4">
+              <p className="block text-sm font-extrabold text-[var(--color-text,#0f172a)] mb-1">2. Señalización (IRAM 10005)</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { id: 'iram10005', label: 'Cartelería s/Norma IRAM 10005', icon: '🚸', desc: 'Señales de advertencia, obligación y prohibición colocadas' },
+                  { id: 'senalizacionEscape', label: 'Vías de Escape y Salidas Demarcadas', icon: '🏃', desc: 'Señalamiento fotoluminiscente y flechas de salida de emergencia' },
+                  { id: 'zonasPeligrosas', label: 'Zonas de Peligro Demarcadas en Piso', icon: '⚠️', desc: 'Pintura de seguridad (amarilla/negra) en obstáculos o desniveles' }
+                ].map((item) => {
+                  const checked = !!(formData.orden as any)[item.id];
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => handleChange('orden', item.id, !checked)}
+                      className={`flex items-start gap-4 p-4 rounded-2xl border-2 transition-all cursor-pointer select-none shadow-sm hover:shadow-md ${
+                        checked 
+                          ? 'border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/20' 
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-600'
+                      }`}
+                    >
+                      <span className="text-2xl mt-0.5">{item.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-extrabold text-[var(--color-text,#0f172a)] m-0 leading-tight">
+                          {item.label}
+                        </p>
+                        <p className="text-xs text-[var(--color-text-muted,#475569)] m-0 mt-1 leading-normal font-medium">
+                          {item.desc}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-center pt-0.5">
+                        {checked ? (
+                          <div 
+                            className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-black shadow-sm"
+                            style={{ backgroundColor: '#4f46e5' }}
+                          >
+                            ✓
+                          </div>
+                        ) : (
+                          <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-transparent" />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Grupo 3: Primeros auxilios */}
+            <div className="flex flex-col gap-4">
+              <p className="block text-sm font-extrabold text-[var(--color-text,#0f172a)] mb-1">3. Servicios y Primeros Auxilios</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { id: 'vestuarios', label: 'Baños y Vestuarios Adecuados', icon: '🚿', desc: 'Sanitarios higiénicos con capacidad según dotación' },
+                  { id: 'comedor', label: 'Comedor Habilitado y Aislado', icon: '🍽️', desc: 'Espacio limpio para refrigerio del personal' },
+                  { id: 'botiquinCompleto', label: 'Botiquín de Primeros Auxilios Equipado', icon: '🏥', desc: 'Insumos básicos de curación completos y vigentes' }
+                ].map((item) => {
+                  const checked = !!(formData.orden as any)[item.id];
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => handleChange('orden', item.id, !checked)}
+                      className={`flex items-start gap-4 p-4 rounded-2xl border-2 transition-all cursor-pointer select-none shadow-sm hover:shadow-md ${
+                        checked 
+                          ? 'border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/20' 
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-600'
+                      }`}
+                    >
+                      <span className="text-2xl mt-0.5">{item.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-extrabold text-[var(--color-text,#0f172a)] m-0 leading-tight">
+                          {item.label}
+                        </p>
+                        <p className="text-xs text-[var(--color-text-muted,#475569)] m-0 mt-1 leading-normal font-medium">
+                          {item.desc}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-center pt-0.5">
+                        {checked ? (
+                          <div 
+                            className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-black shadow-sm"
+                            style={{ backgroundColor: '#4f46e5' }}
+                          >
+                            ✓
+                          </div>
+                        ) : (
+                          <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-transparent" />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Datos específicos */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="block text-sm font-extrabold text-[var(--color-text,#0f172a)] mb-1">Cantidad de Sanitarios / Duchas</label>
+                <input
+                  type="text"
+                  value={formData.orden.sanitariosCantidad}
+                  onChange={(e) => handleChange('orden', 'sanitariosCantidad', e.target.value)}
+                  className="input-professional"
+                  placeholder="Ej: 3 inodoros, 2 duchas"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="block text-sm font-extrabold text-[var(--color-text,#0f172a)] mb-1">Responsable Primeros Auxilios</label>
+                <input
+                  type="text"
+                  value={formData.orden.responsablePrimerosAuxilios}
+                  onChange={(e) => handleChange('orden', 'responsablePrimerosAuxilios', e.target.value)}
+                  className="input-professional"
+                  placeholder="Nombre o puesto del encargado"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="block text-sm font-extrabold text-[var(--color-text,#0f172a)] mb-1">Distancia a Centro Asistencial (km)</label>
+                <input
+                  type="text"
+                  value={formData.orden.distanciaCentroAsistencial}
+                  onChange={(e) => handleChange('orden', 'distanciaCentroAsistencial', e.target.value)}
+                  className="input-professional"
+                  placeholder="Ej: 2.5"
+                />
+              </div>
+            </div>
+
+            <AdjuntosSection
+              adjuntos={formData.orden.adjuntos || []}
+              onAdd={(b64) => addAdjunto('orden', b64)}
+              onRemove={(i) => removeAdjunto('orden', i)}
+              accentColor="#4f46e5" />
+          </div>
+        }
+
+        {/* ═══ Navigation & Action Buttons ═══ */}
+        <div className="flex flex-wrap justify-center items-center gap-4 mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -1207,90 +1750,113 @@ export default function LegajoForm() {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             disabled={TABS.findIndex(t => t.id === activeTab) === 0}
-            className="px-6 py-2.5 rounded-xl text-white text-sm font-extrabold transition-all border-none flex items-center gap-2 shadow-lg shadow-slate-400/30 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-            style={{ backgroundColor: '#64748b' }}
+            className="px-6 py-2.5 rounded-xl text-sm font-extrabold transition-all border-none flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-lg shadow-slate-900/10"
+            style={{ 
+              backgroundColor: '#1e293b', 
+              color: '#ffffff',
+              border: 'none',
+              minHeight: '44px'
+            }}
             onMouseEnter={(e) => {
               if (!e.currentTarget.disabled) {
                 e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.backgroundColor = '#475569';
+                e.currentTarget.style.backgroundColor = '#0f172a';
               }
             }}
             onMouseLeave={(e) => {
               if (!e.currentTarget.disabled) {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.backgroundColor = '#64748b';
+                e.currentTarget.style.backgroundColor = '#1e293b';
               }
             }}
           >
-            <ArrowLeft size={16} /> Atrás
+            <ArrowLeft size={16} style={{ color: '#ffffff' }} /> Atrás
           </button>
           
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              const idx = TABS.findIndex(t => t.id === activeTab);
-              if (idx < TABS.length - 1) setActiveTab(TABS[idx + 1].id);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            disabled={TABS.findIndex(t => t.id === activeTab) === TABS.length - 1}
-            className="px-6 py-2.5 rounded-xl text-white text-sm font-extrabold transition-all border-none flex items-center gap-2 shadow-lg shadow-blue-500/30 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-            style={{ backgroundColor: '#3b82f6' }}
-            onMouseEnter={(e) => {
-              if (!e.currentTarget.disabled) {
+          {activeTab !== 'firmas' ? (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                const idx = TABS.findIndex(t => t.id === activeTab);
+                if (idx < TABS.length - 1) setActiveTab(TABS[idx + 1].id);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="px-6 py-2.5 rounded-xl text-sm font-extrabold transition-all border-none flex items-center gap-2 cursor-pointer shadow-lg shadow-blue-500/20"
+              style={{ 
+                backgroundColor: '#3b82f6', 
+                color: '#ffffff',
+                border: 'none',
+                minHeight: '44px'
+              }}
+              onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-2px)';
                 e.currentTarget.style.backgroundColor = '#2563eb';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!e.currentTarget.disabled) {
+              }}
+              onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.backgroundColor = '#3b82f6';
-              }
-            }}
-          >
-            Siguiente <ArrowLeft size={16} className="rotate-180" />
-          </button>
+              }}
+            >
+              Siguiente <ArrowLeft size={16} className="rotate-180" style={{ color: '#ffffff' }} />
+            </button>
+          ) : (
+            <>
+              {id && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleGeneratePDF();
+                  }}
+                  className="px-6 py-2.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all text-white border-none cursor-pointer shadow-lg shadow-orange-500/20"
+                  style={{ 
+                    backgroundColor: '#f97316',
+                    color: '#ffffff',
+                    border: 'none',
+                    minHeight: '44px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.backgroundColor = '#ea580c';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.backgroundColor = '#f97316';
+                  }}
+                >
+                  <Printer size={18} style={{ color: '#ffffff' }} /> IMPRIMIR PDF
+                </button>
+              )}
+
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  requirePro(handleSave);
+                }}
+                className="px-6 py-2.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all text-white border-none cursor-pointer shadow-lg shadow-emerald-500/20"
+                style={{ 
+                  backgroundColor: '#10b981',
+                  color: '#ffffff',
+                  border: 'none',
+                  minHeight: '44px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.backgroundColor = '#059669';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.backgroundColor = '#10b981';
+                }}
+              >
+                <Save size={18} style={{ color: '#ffffff' }} /> GUARDAR LEGAJO
+              </button>
+            </>
+          )}
         </div>
 
       </div>
 
       </main>
-      {activeTab === 'firmas' && (
-      <div className="no-print floating-action-bar flex flex-col sm:flex-row gap-3 w-full max-w-full px-4 sm:px-0">
-          {id &&
-        <button
-          onClick={handleGeneratePDF}
-          className="flex-1 w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2 transition-all text-white border-none"
-          style={{ backgroundColor: '#f97316' }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.backgroundColor = '#ea580c';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.backgroundColor = '#f97316';
-          }}>
-          
-                <Printer size={18} /> IMPRIMIR PDF
-            </button>
-        }
-          <button
-          onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-          className="flex-1 w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-green-500/30 flex items-center justify-center gap-2 transition-all text-white border-none"
-          style={{ backgroundColor: '#22c55e' }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.backgroundColor = '#16a34a';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.backgroundColor = '#22c55e';
-          }}>
-          
-              <Save size={18} /> GUARDAR LEGAJO
-          </button>
-      </div>
-      )}
-    </div>);
-
+    </div>
+  </>);
 }
