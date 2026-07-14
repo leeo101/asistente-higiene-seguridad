@@ -27,6 +27,23 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         throw new Error(`Elemento con id '${elementId}' no encontrado.`);
     }
 
+    // ─── Dimensiones A4 exactas ───────────────────────────────────────────────
+    // A4 portrait = 210×297mm, landscape = 297×210mm
+    // Margen de 10mm en los 4 lados → área útil portrait = 190mm, landscape = 277mm
+    // Renderizamos al doble de resolución (scale=2) para nitidez:
+    //   portrait:  190mm × 3.7795px/mm × 2 ≈ 1436px
+    //   landscape: 277mm × 3.7795px/mm × 2 ≈ 2094px
+    const MARGIN_MM = 10;
+    const MM_TO_PX = 3.7795275591; // 96dpi
+    const BASE_SCALE = 2;
+
+    const portraitUsableMM  = 210 - MARGIN_MM * 2;  // 190mm
+    const landscapeUsableMM = 297 - MARGIN_MM * 2;  // 277mm
+
+    const targetWidth = isLandscape
+        ? Math.round(landscapeUsableMM * MM_TO_PX * BASE_SCALE)  // ≈2094px
+        : Math.round(portraitUsableMM  * MM_TO_PX * BASE_SCALE); // ≈1436px
+
     // Contenedor off-screen: visible para html2canvas pero fuera del viewport del usuario
     const offscreenContainer = document.createElement('div');
     offscreenContainer.setAttribute('data-pdf-offscreen', 'true');
@@ -34,9 +51,9 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     offscreenContainer.style.cssText = [
         'position: absolute',
         'left: -9999px',
-        'top: -99999px',   // Push far UP (vertical) — does NOT create horizontal scroll
+        'top: -99999px',
         'z-index: -9999',
-        'width: ' + (isLandscape ? '1600px' : '1200px'),
+        `width: ${targetWidth}px`,
         'height: auto',
         'overflow: visible',
         'visibility: visible',
@@ -55,12 +72,12 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     clone.classList.remove('ats-pdf-offscreen'); // Evitar que herede el -99999px !important
     clone.classList.remove('active-portal-print');
 
-    const targetWidth = isLandscape ? 1600 : 1200;
-
-    // Forzar estilos en el clon para renderizado correcto (A4 width)
+    // El clon ocupa exactamente el ancho útil del PDF — sin padding propio.
+    // Los márgenes de página los agrega jsPDF; el clon no debe tener relleno extra
+    // para que el contenido llene el 100% del área disponible.
     clone.style.cssText += [
-        '; width: ' + targetWidth + 'px !important',
-        'max-width: ' + targetWidth + 'px !important',
+        `; width: ${targetWidth}px !important`,
+        `max-width: ${targetWidth}px !important`,
         'height: auto !important', // Permitir que expanda todo lo necesario
         'min-height: 0 !important',
         'display: block !important',
@@ -74,7 +91,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         'border-radius: 0',
         'box-sizing: border-box !important',
         'margin: 0 !important',
-        'padding: 10px 20px',
+        'padding: 0 !important',
         'opacity: 1 !important',
         'visibility: visible !important'
     ].join('; ');
@@ -127,23 +144,19 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         // El límite máximo seguro de área para un canvas en iOS/Safari móvil es ~16.777.216 píxeles.
         // Superar este límite causa recortes (canvas en blanco, solo 1 hoja) o crashes de memoria.
         const MAX_CANVAS_AREA = 15000000; // Un poco menos de 16M para margen de seguridad
-        const widthPx = isLandscape ? 1600 : 1200;
         const totalHeight = Math.max(clone.scrollHeight, clone.clientHeight);
-        const totalArea = widthPx * totalHeight;
+        const totalArea = targetWidth * totalHeight;
         
         // Calculamos la escala máxima permitida matemáticamente para no exceder el límite
         const maxSafeScale = Math.sqrt(MAX_CANVAS_AREA / totalArea);
         
-        // En desktop usamos scale 2 (máxima calidad). En móvil, empezamos con 1.5 o bajamos si es muy largo.
-        let dynamicScale = isMobileCanvas ? Math.min(1.5, maxSafeScale) : Math.min(2, maxSafeScale);
-        
-        // NUNCA superar maxSafeScale o el canvas se cortará en iOS.
-        // Si el reporte es kilométrico, el scale será < 1, perdiendo algo de nitidez pero asegurando que no se corte.
-        dynamicScale = Math.min(dynamicScale, maxSafeScale);
-
+        // html2canvas scale=1 porque ya renderizamos el clon al doble de tamaño (BASE_SCALE=2).
+        // En móvil bajamos a 0.75 para no exceder el límite de canvas.
+        let dynamicScale = isMobileCanvas ? Math.min(0.75, maxSafeScale) : Math.min(1, maxSafeScale);
+        dynamicScale = Math.max(0.25, Math.min(dynamicScale, maxSafeScale));
 
         const opt = {
-            margin: [10, 8, 15, 8], // Top: 10mm, Right: 8mm, Bottom: 15mm, Left: 8mm (márgenes agregados)
+            margin: MARGIN_MM,  // 10mm uniform margin — coincide con la fórmula del targetWidth
             filename: 'documento.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
@@ -151,8 +164,8 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                 useCORS: true, 
                 allowTaint: false, 
                 logging: false,
-                windowWidth: isLandscape ? 1600 : 1280, // Punto dulce intermedio para escalar
-                width: isLandscape ? 1600 : 1280,
+                windowWidth: targetWidth,   // Debe coincidir exactamente con el ancho del clon
+                width: targetWidth,
                 x: 0,
                 y: 0,
                 scrollX: 0,
