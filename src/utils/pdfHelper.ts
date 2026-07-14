@@ -127,6 +127,35 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     document.documentElement.classList.add('pdf-export-mode');
     document.body.classList.add('pdf-export-mode');
 
+    // Inyectar CSS global en el clon para garantizar saltos limpios en TODOS los módulos:
+    // - tr nunca se corta por la mitad (page-break-inside: avoid)
+    // - thead se repite en cada página nueva
+    // - Evitar que secciones grandes con avoid-break bloqueen el flujo de paginación
+    const injectStyle = document.createElement('style');
+    injectStyle.textContent = `
+        tr, .row-unit { page-break-inside: avoid !important; break-inside: avoid !important; }
+        thead { display: table-header-group !important; }
+        tfoot { display: table-footer-group !important; }
+        table { page-break-inside: auto !important; break-inside: auto !important; }
+        tbody { page-break-inside: auto !important; break-inside: auto !important; }
+        .pdf-section { page-break-inside: auto !important; break-inside: auto !important; }
+    `;
+    clone.insertBefore(injectStyle, clone.firstChild);
+
+    // Eliminar page-break-inside:avoid de contenedores grandes (divs, sections)
+    // para que puedan dividirse entre páginas. Solo las filas (tr) deben ser indivisibles.
+    clone.querySelectorAll('div, section, article').forEach((el: Element) => {
+        const htmlEl = el as HTMLElement;
+        const cs = window.getComputedStyle(htmlEl);
+        if (cs.pageBreakInside === 'avoid' || cs.breakInside === 'avoid') {
+            // Solo quitar el avoid de contenedores con altura > 200px (son secciones grandes)
+            if (htmlEl.offsetHeight > 200) {
+                htmlEl.style.setProperty('page-break-inside', 'auto', 'important');
+                htmlEl.style.setProperty('break-inside', 'auto', 'important');
+            }
+        }
+    });
+
     try {
         await waitForImages(clone);
         // Dar tiempo al navegador para pintar el clon antes de capturar
@@ -173,7 +202,10 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                 windowHeight: totalHeight
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
-            pagebreak: { mode: ['css', 'legacy'], avoid: '.avoid-break' }
+            // avoid: apunta a filas de tabla y elementos marcados como indivisibles.
+            // NO ponemos secciones/divs grandes aquí para que puedan dividirse entre páginas.
+            // El salto ocurre entre filas, nunca DENTRO de una fila.
+            pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.avoid-break', '.page-break-inside-avoid'] }
         };
 
         // [WORKAROUND] html2canvas no soporta oklch() generado por Tailwind v4.
