@@ -446,17 +446,28 @@ export default function RiskMapGenerator(): React.ReactElement | null {
   };
 
   // ─── Toolbar buttons ──────────────────────────────────────────────────────
-  const toolBtnStyle = (active, color = 'var(--color-primary)') => ({
-    padding: '6px 10px', borderRadius: 7, border: '1px solid var(--color-border)',
-    background: active ? color : 'var(--color-surface)',
+  const toolBtnStyle = (active: boolean, color = '#3b82f6') => ({
+    padding: '7px 11px',
+    borderRadius: 10,
+    border: active ? `1.5px solid ${color}` : '1.5px solid var(--color-border)',
+    background: active
+      ? `linear-gradient(135deg, ${color} 0%, ${color}cc 100%)`
+      : 'var(--color-surface)',
     color: active ? '#fff' : 'var(--color-text)',
-    cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700,
-    display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.15s'
+    cursor: 'pointer',
+    fontSize: '0.72rem',
+    fontWeight: 700,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 5,
+    transition: 'all 0.18s',
+    boxShadow: active ? `0 2px 8px ${color}44` : 'none',
+    transform: 'scale(1)',
   });
 
-  const gridBg = isBlueprintMode ?
-  'linear-gradient(to right,#1e293b 1px,transparent 1px),linear-gradient(to bottom,#1e293b 1px,transparent 1px)' :
-  'linear-gradient(to right,#cbd5e1 1px,transparent 1px),linear-gradient(to bottom,#cbd5e1 1px,transparent 1px)';
+  const gridBg = isBlueprintMode
+    ? 'linear-gradient(to right,#334155 1px,transparent 1px),linear-gradient(to bottom,#334155 1px,transparent 1px)'
+    : 'linear-gradient(to right,#cbd5e1 1px,transparent 1px),linear-gradient(to bottom,#cbd5e1 1px,transparent 1px)';
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
@@ -589,17 +600,26 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                 <div className="flex gap-[1rem] min-h-[680px] flex-wrap w-[100%]">
 
                     {/* ── LEFT SIDEBAR ── */}
-                    <div className="card flex-auto min-w-[250px] max-w-full p-0 flex flex-col overflow-hidden m-0">
-                        {/* Tab bar */}
-                        <div className="flex border-b border-slate-200 dark:border-slate-700">
-                            {[['icons', '🔴 Íconos'], ['layers', '☰ Capas'], ['help', '❓ Ayuda']].map(([id, label]) =>
+                    <div className="card flex-auto min-w-[250px] max-w-full p-0 flex flex-col overflow-hidden m-0" style={{ background: 'var(--color-surface)' }}>
+                        {/* Tab bar — modern pill style */}
+                        <div className="flex p-2 gap-1" style={{ background: 'var(--color-background)', borderBottom: '1px solid var(--color-border)' }}>
+                            {([['icons', '🎨 Íconos'], ['layers', '☰ Capas'], ['help', '❓ Ayuda']] as [string, string][]).map(([id, label]) =>
               <button key={id} onClick={() => setActiveLeftTab(id)}
               style={{
-
-                background: activeLeftTab === id ? 'var(--color-surface)' : 'var(--color-background)',
-                color: activeLeftTab === id ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                borderBottom: activeLeftTab === id ? '2px solid var(--color-primary)' : '2px solid transparent'
-              }} className="flex-[1] p-[0.6rem_0.3rem] text-[0.68rem] font-[800] border-none cursor-pointer">
+                flex: 1,
+                padding: '6px 4px',
+                fontSize: '0.67rem',
+                fontWeight: 800,
+                borderRadius: 8,
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.18s',
+                background: activeLeftTab === id
+                  ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
+                  : 'transparent',
+                color: activeLeftTab === id ? '#fff' : 'var(--color-text-muted)',
+                boxShadow: activeLeftTab === id ? '0 2px 8px rgba(59,130,246,0.35)' : 'none',
+              }}>
                                     {label}
                                 </button>
               )}
@@ -608,74 +628,171 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                         <div className="flex-1 overflow-y-auto">
                             {/* ── ICONS TAB ── */}
                             {activeLeftTab === 'icons' &&
-              <div className="p-3 flex flex-col gap-4">
-                                    {/* Pro Settings */}
-                                    <div className="bg-[var(--color-background)] p-[0.75rem] rounded-[10] border-[1px_solid_var(--color-border)]">
-                                        <div className="text-[0.65rem] font-[800] uppercase text-[var(--color-primary)] mb-[0.6rem]">Ajustes PRO</div>
-                                        <div className="flex flex-col gap-[0.6rem]">
+              <div className="p-3 flex flex-col gap-3">
+
+                                    {/* Pro Settings — glassmorphism card */}
+                                    <div style={{
+                                      background: 'linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(59,130,246,0.05) 100%)',
+                                      border: '1.5px solid rgba(99,102,241,0.2)',
+                                      borderRadius: 12,
+                                      padding: '10px 12px',
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                                          <div style={{
+                                            background: 'linear-gradient(135deg, #6366f1, #3b82f6)',
+                                            borderRadius: 6,
+                                            width: 20, height: 20,
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            fontSize: 11
+                                          }}>⚙️</div>
+                                          <span style={{ fontSize: '0.67rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6366f1' }}>Ajustes PRO</span>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                            {/* Estilo de línea — pill toggle */}
                                             <div>
-                                                <div className="text-[0.65rem] font-[700] mb-[0.3rem]">Estilo de Línea</div>
-                                                <div className="flex gap-[2]">
-                                                    <button onClick={() => setLineStyle('solid')} style={toolBtnStyle(lineStyle === 'solid')}>Sólida</button>
-                                                    <button onClick={() => setLineStyle('dashed')} style={toolBtnStyle(lineStyle === 'dashed')}>Punteada</button>
+                                                <div style={{ fontSize: '0.65rem', fontWeight: 700, marginBottom: 6, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Estilo de Línea</div>
+                                                <div style={{ display: 'flex', gap: 4, background: 'var(--color-background)', borderRadius: 10, padding: 3 }}>
+                                                    {[['solid', 'Sólida', '─'], ['dashed', 'Punteada', '╌']].map(([val, lbl, sym]) => (
+                                                      <button key={val} onClick={() => setLineStyle(val)}
+                                                        style={{
+                                                          flex: 1, padding: '5px 6px',
+                                                          borderRadius: 8, border: 'none', cursor: 'pointer',
+                                                          fontSize: '0.7rem', fontWeight: 700,
+                                                          transition: 'all 0.18s',
+                                                          background: lineStyle === val ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : 'transparent',
+                                                          color: lineStyle === val ? '#fff' : 'var(--color-text-muted)',
+                                                          boxShadow: lineStyle === val ? '0 2px 6px rgba(59,130,246,0.3)' : 'none',
+                                                        }}>{sym} {lbl}</button>
+                                                    ))}
                                                 </div>
                                             </div>
-                                            <label className="flex items-center gap-[0.4rem] cursor-pointer text-[0.7rem] font-[600]">
-                                                <input type="checkbox" checked={isBlueprintMode} onChange={(e) => setIsBlueprintMode(e.target.checked)} /> Modo Blueprint
-                                            </label>
-                                            <label className="flex items-center gap-[0.4rem] cursor-pointer text-[0.7rem] font-[600]">
-                                                <input type="checkbox" checked={showDimensions} onChange={(e) => setShowDimensions(e.target.checked)} /> Dimensiones en vivo
-                                            </label>
+
+                                            {/* Toggle switches modernos */}
+                                            {[
+                                              { label: '🗺 Modo Blueprint', value: isBlueprintMode, onChange: (v: boolean) => setIsBlueprintMode(v) },
+                                              { label: '📐 Dimensiones en vivo', value: showDimensions, onChange: (v: boolean) => setShowDimensions(v) },
+                                            ].map(({ label, value, onChange }) => (
+                                              <div key={label} onClick={() => onChange(!value)}
+                                                style={{
+                                                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                                  cursor: 'pointer', padding: '6px 8px',
+                                                  borderRadius: 8,
+                                                  background: value ? 'rgba(59,130,246,0.08)' : 'transparent',
+                                                  border: value ? '1px solid rgba(59,130,246,0.25)' : '1px solid transparent',
+                                                  transition: 'all 0.2s',
+                                                }}>
+                                                  <span style={{ fontSize: '0.7rem', fontWeight: 700, color: value ? 'var(--color-text)' : 'var(--color-text-muted)' }}>{label}</span>
+                                                  {/* Toggle pill */}
+                                                  <div style={{
+                                                    width: 34, height: 18, borderRadius: 999,
+                                                    background: value ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : 'var(--color-border)',
+                                                    position: 'relative', transition: 'all 0.22s',
+                                                    flexShrink: 0,
+                                                    boxShadow: value ? '0 2px 6px rgba(59,130,246,0.4)' : 'none',
+                                                  }}>
+                                                    <div style={{
+                                                      position: 'absolute', top: 2, left: value ? 18 : 2,
+                                                      width: 14, height: 14, borderRadius: '50%',
+                                                      background: '#fff',
+                                                      transition: 'all 0.22s',
+                                                      boxShadow: '0 1px 4px rgba(0,0,0,0.25)',
+                                                    }} />
+                                                  </div>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
 
-                                    {/* Tools */}
-                                    <div className="bg-[var(--color-background)] p-[0.75rem] rounded-[10] border-[1px_solid_var(--color-border)]">
-                                        <div className="text-[0.65rem] font-[800] uppercase text-[var(--color-primary)] mb-[0.6rem]">Herramientas</div>
-                                        <div className="grid grid-cols-2 gap-1">
-                                            <button onClick={() => setSelectedTool('select')} style={toolBtnStyle(selectedTool === 'select')} title="Selección (S)"><MousePointer2 size={13} /> Selec.</button>
-                                            <button onClick={() => setSelectedTool('pan')} style={toolBtnStyle(selectedTool === 'pan')} title="Paneo (H)"><Move size={13} /> Paneo</button>
-                                            <button onClick={() => setSelectedTool('LINE')} style={toolBtnStyle(selectedTool === 'LINE', '#374151')} title="Línea/Pared">╱ Línea</button>
-                                            <button onClick={() => setSelectedTool('RECTANGLE')} style={toolBtnStyle(selectedTool === 'RECTANGLE', '#374151')} title="Rectángulo">▭ Rect.</button>
-                                            <button onClick={() => setSelectedTool('CIRCLE')} style={toolBtnStyle(selectedTool === 'CIRCLE', '#374151')} title="Círculo/Elipse">○ Círculo</button>
-                                            <button onClick={() => {setSelectedTool('POLYLINE');setPolylinePoints([]);}} style={toolBtnStyle(selectedTool === 'POLYLINE', '#374151')} title="Polilínea (Esc para terminar)">⟍ Polilínea</button>
+                                    {/* Tools — improved grid */}
+                                    <div style={{
+                                      background: 'var(--color-background)',
+                                      border: '1.5px solid var(--color-border)',
+                                      borderRadius: 12,
+                                      padding: '10px 12px',
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                                          <div style={{
+                                            background: 'linear-gradient(135deg, #374151, #1f2937)',
+                                            borderRadius: 6, width: 20, height: 20,
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11
+                                          }}>🛠</div>
+                                          <span style={{ fontSize: '0.67rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)' }}>Herramientas</span>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-1.5">
+                                            <button onClick={() => setSelectedTool('select')} style={toolBtnStyle(selectedTool === 'select', '#3b82f6')} title="Selección (S)"><MousePointer2 size={13} /> Selec.</button>
+                                            <button onClick={() => setSelectedTool('pan')} style={toolBtnStyle(selectedTool === 'pan', '#0284c7')} title="Paneo (H)"><Move size={13} /> Paneo</button>
+                                            <button onClick={() => setSelectedTool('LINE')} style={toolBtnStyle(selectedTool === 'LINE', '#475569')} title="Línea/Pared">╱ Línea</button>
+                                            <button onClick={() => setSelectedTool('RECTANGLE')} style={toolBtnStyle(selectedTool === 'RECTANGLE', '#475569')} title="Rectángulo">▭ Rect.</button>
+                                            <button onClick={() => setSelectedTool('CIRCLE')} style={toolBtnStyle(selectedTool === 'CIRCLE', '#475569')} title="Círculo/Elipse">○ Círculo</button>
+                                            <button onClick={() => {setSelectedTool('POLYLINE');setPolylinePoints([]);}} style={toolBtnStyle(selectedTool === 'POLYLINE', '#475569')} title="Polilínea">⟍ Polilínea</button>
                                             <button onClick={() => setSelectedTool('ARROW_LINE')} style={toolBtnStyle(selectedTool === 'ARROW_LINE', '#2563eb')} title="Ruta de Escape">→ Flecha</button>
-                                            <button onClick={() => setSelectedTool('TEXT_LABEL')} style={toolBtnStyle(selectedTool === 'TEXT_LABEL', '#4f46e5')} title="Texto">T Texto</button>
+                                            <button onClick={() => setSelectedTool('TEXT_LABEL')} style={toolBtnStyle(selectedTool === 'TEXT_LABEL', '#7c3aed')} title="Texto">T Texto</button>
                                         </div>
                                         {selectedTool === 'POLYLINE' && polylinePoints.length > 0 &&
-                  <div className="mt-[0.5rem] text-[0.7rem] text-[var(--color-text-muted)] bg-[rgba(59,130,246,0.08)] p-[6px_8px] rounded-[6]">
+                  <div style={{ marginTop: 8, fontSize: '0.7rem', color: '#3b82f6', background: 'rgba(59,130,246,0.08)', padding: '6px 8px', borderRadius: 8, border: '1px solid rgba(59,130,246,0.2)' }}>
                                                 ✏️ {polylinePoints.length} nodo(s) — doble clic o Esc para terminar
                                             </div>
                   }
                                     </div>
 
-                                    {/* Icon Library */}
-                                    {Object.entries(categories).map(([cat, icons]) =>
-                <div key={cat}>
-                                            <div className="text-[0.65rem] font-[800] uppercase text-[var(--color-text-muted)] mb-[0.4rem]">{cat}</div>
-                                            <div className="grid grid-cols-5 gap-1">
+                                    {/* Icon Library — improved with colored badge */}
+                                    {Object.entries(categories).map(([cat, icons]) => {
+                                      const catColors: Record<string, string> = {
+                                        'Estructura': '#475569',
+                                        'Rutas': '#2563eb',
+                                        'Fuego (Rojos)': '#dc2626',
+                                        'Riesgos (Amarillos)': '#d97706',
+                                        'Escape (Verdes)': '#16a34a',
+                                      };
+                                      const catColor = catColors[cat] || '#64748b';
+                                      return (
+                <div key={cat} style={{ marginBottom: 2 }}>
+                                            <div style={{
+                                              fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase',
+                                              letterSpacing: '0.07em', marginBottom: 6,
+                                              display: 'flex', alignItems: 'center', gap: 5,
+                                            }}>
+                                              <div style={{ width: 8, height: 8, borderRadius: '50%', background: catColor, flexShrink: 0 }} />
+                                              <span style={{ color: catColor }}>{cat}</span>
+                                            </div>
+                                            <div className="grid grid-cols-5 gap-1.5">
                                                 {icons.map((icon) =>
                     <button key={icon.id} onClick={() => setSelectedTool(icon.id)} title={icon.label}
                     style={{
-
-                      border: selectedTool === icon.id ? `2px solid ${icon.color}` : '1px solid var(--color-border)',
-                      background: selectedTool === icon.id ? `${icon.color}18` : 'transparent'
-                    }} className="p-[0.4rem] rounded-[7] aspect-ratio-[1] flex items-center justify-center cursor-pointer transition-[all_0.15s]">
-                                                        <div style={{ color: icon.color }} dangerouslySetInnerHTML={{ __html: icon.svg }} className="w-[20] h-[20]" />
+                      border: selectedTool === icon.id ? `2px solid ${icon.color}` : '1.5px solid var(--color-border)',
+                      background: selectedTool === icon.id ? `${icon.color}22` : 'var(--color-background)',
+                      borderRadius: 8,
+                      padding: '6px',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                      aspectRatio: '1',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      boxShadow: selectedTool === icon.id ? `0 2px 8px ${icon.color}44` : 'none',
+                      transform: selectedTool === icon.id ? 'scale(1.08)' : 'scale(1)',
+                    }}>
+                                                        <div style={{ color: icon.color, width: 20, height: 20 }} dangerouslySetInnerHTML={{ __html: icon.svg }} />
                                                     </button>
                     )}
                                             </div>
                                         </div>
-                )}
+                      );
+                    })}
 
                                     {/* Keyboard hints */}
-                                    <div className="bg-[var(--color-background)] p-[0.6rem_0.75rem] rounded-[8] border-[1px_solid_var(--color-border)] text-[0.68rem] text-[var(--color-text-muted)] line-height-[1.7]">
-                                        <strong>Atajos:</strong><br />
-                                        S — Seleccionar &nbsp;|&nbsp; H — Paneo<br />
+                                    <div style={{
+                                      background: 'var(--color-background)',
+                                      border: '1.5px solid var(--color-border)',
+                                      borderRadius: 10,
+                                      padding: '8px 10px',
+                                      fontSize: '0.67rem',
+                                      color: 'var(--color-text-muted)',
+                                      lineHeight: 1.75,
+                                    }}>
+                                        <div style={{ fontWeight: 800, marginBottom: 3, color: 'var(--color-text)' }}>⌨️ Atajos de teclado</div>
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>S — Seleccionar | H — Paneo</span><br />
                                         Ctrl+Z / Ctrl+Y — Deshacer/Rehacer<br />
                                         Shift — Líneas rectas (Ortho)<br />
-                                        R — Rotar &nbsp;|&nbsp; Supr — Borrar<br />
-                                        Rueda — Zoom
+                                        R — Rotar | Supr — Borrar | Rueda — Zoom
                                     </div>
                                 </div>
               }
@@ -750,9 +867,9 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                         <div className="card flex-[1] overflow-[hidden] relative p-[0] min-h-[500] touch-action-[none]"
             ref={containerRef}
             style={{
-              background: isBlueprintMode ? '#0f172a' : '#e2e8f0',
-              cursor: selectedTool === 'pan' ? 'grab' : selectedTool === 'select' ? 'default' : 'crosshair'
-
+              background: isBlueprintMode ? '#0f172a' : '#f1f5f9',
+              cursor: selectedTool === 'pan' ? 'grab' : selectedTool === 'select' ? 'default' : 'crosshair',
+              boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.08)',
             }}
             onPointerMove={handleCanvasMouseMove}
             onPointerUp={handleCanvasMouseUp}
@@ -764,11 +881,11 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                             {/* Infinite canvas */}
                             <div data-canvas-area
               style={{
-
                 transform: `scale(${zoom})`,
-                backgroundColor: isBlueprintMode ? '#0f172a' : '#e2e8f0',
-                backgroundImage: gridBg
-              }} className="w-[4000] h-[4000] absolute transform-origin-[0_0] background-size-[20px_20px]">
+                backgroundColor: isBlueprintMode ? '#0f172a' : '#f1f5f9',
+                backgroundImage: gridBg,
+                backgroundSize: '20px 20px',
+              }} className="w-[4000] h-[4000] absolute transform-origin-[0_0]">
 
                                 {backgroundImage &&
                 <img src={backgroundImage} alt="Fondo" style={{
