@@ -185,9 +185,9 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                 </div>
 
                                                 {/* Compact Table */}
-                                                <table className="table-layout-[fixed] word-break-[break-word] overflow-wrap-[break-word] w-[100%] border-collapse-[collapse] text-[9pt] mt-[5px]">
+                                                <table className="table-fixed w-full border-collapse break-words text-[9pt] mt-[5px]">
                                                     <thead>
-                                                        <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] bg-slate-100 dark:bg-slate-800/50 border-bottom-[2px_solid_#cbd5e1]">
+                                                        <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] bg-slate-100 dark:bg-slate-800/50 border-b-2 border-slate-300">
                                                             <th className="p-[8px] text-center font-[900] text-slate-800 dark:text-slate-200 w-[10%]">Nº / CHAPA</th>
                                                             <th className="p-[8px] text-left font-[900] text-slate-800 dark:text-slate-200">TIPO / CAP.</th>
                                                             <th className="p-[8px] text-left font-[900] text-slate-800 dark:text-slate-200">F. FABRICACIÓN</th>

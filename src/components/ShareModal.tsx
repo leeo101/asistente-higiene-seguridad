@@ -19,6 +19,7 @@ interface ShareModalProps {
   elementIdToPrint?: string;
   fileName?: string;
   autoPrint?: boolean;
+  isLandscape?: boolean;
 }
 
 export default function ShareModal({
@@ -30,7 +31,8 @@ export default function ShareModal({
   text,
   elementIdToPrint,
   fileName: propFileName,
-  autoPrint
+  autoPrint,
+  isLandscape = false
 }: ShareModalProps) {
   const { isPro } = usePaywall();
   const displayOpen = isOpen !== undefined ? isOpen : open;
@@ -115,7 +117,7 @@ export default function ShareModal({
         // Pequeno delay para ui
         await new Promise((resolve) => setTimeout(resolve, 80));
 
-        const pdfBlob = await generatePdfBlob(elementIdToPrint);
+        const pdfBlob = await generatePdfBlob(elementIdToPrint, isLandscape);
         const base64Data = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onerror = reject;
@@ -184,7 +186,7 @@ export default function ShareModal({
       await new Promise((resolve) => setTimeout(resolve, 300));
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
-      const pdfBlob = await generatePdfBlob(elementIdToPrint);
+      const pdfBlob = await generatePdfBlob(elementIdToPrint, isLandscape);
 
       const safeName = propFileName ?
       propFileName.endsWith('.pdf') ? propFileName : `${propFileName}.pdf` :

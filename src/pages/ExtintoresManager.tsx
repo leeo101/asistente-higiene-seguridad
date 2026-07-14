@@ -796,6 +796,7 @@ export default function ExtintoresManager() {
         text={shareItem ? Array.isArray(shareItem) ? `🧯 Inventario de Extintores\n📊 Total: ${shareItem.length}` : `📋 Ficha de Extintor\n🔥 Chapa: ${shareItem.numero}\n📍 Ubicación: ${shareItem.ubicacion}` : ''}
         rawMessage={''}
         elementIdToPrint="pdf-content"
+        isLandscape={Array.isArray(shareItem) && shareItem.length > 15}
         fileName={Array.isArray(shareItem) ? `Inventario_Extintores_${filterEmpresa || 'Completo'}.pdf` : `Ficha_Extintor_${shareItem?.numero || 'Reporte'}.pdf`} />
 
             {/* PDF Portal: siempre montado cuando shareItem está activo para que html2canvas lo encuentre */}
@@ -808,7 +809,7 @@ export default function ExtintoresManager() {
             position: 'absolute',
             left: '-9999px',
             top: '-99999px',
-            width: '210mm',
+            width: (Array.isArray(shareItem) && shareItem.length > 15) ? '297mm' : '210mm',
             height: 'auto',
             overflow: 'visible',
             opacity: 1,
@@ -837,7 +838,7 @@ export default function ExtintoresManager() {
             position: 'absolute',
             left: '-9999px',
             top: '-99999px',
-            width: '210mm',
+            width: (Array.isArray(printItem) && printItem.length > 15) ? '297mm' : '210mm',
             height: 'auto',
             overflow: 'visible',
             opacity: 1,
