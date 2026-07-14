@@ -2741,7 +2741,7 @@ button[aria-label*="Atrás"],
     margin-top: -45%;
   }
 
-  body.not-pro-user .app-container > *:not(::before):not(::after) {
+  body.not-pro-user .app-container > * {
     display: none !important;
   }
 }
