@@ -269,38 +269,27 @@ export default function FloatingAssistant() {
             {isOpen &&
       <div
         style={{
-
-
           ...(isMobile ? {
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 'calc(100vw - 2rem)'
+            bottom: '0',
+            left: '0',
+            width: '100vw',
+            transform: 'none'
           } : {
             bottom: 'calc(2rem + 5rem)',
             right: '2rem',
             width: '360px'
           })
-
-
-
         }} className="fixed z-[10000] pointer-events-[none] flex flex-col">
         
                     <div
           ref={menuRef}
           className="assistant-panel-anim w-[100%] pointer-events-[all] flex flex-col p-[1.4rem] overflow-[hidden] bg-[var(--color-surface)] box-shadow-[var(--shadow-lg),_0_0_40px_rgba(59,130,246,0.08)] border-[1px_solid_var(--color-border)] rounded-[24px]"
           style={{
-
-            maxHeight: isMobile ? 'calc(100vh - 8rem)' : 'calc(100vh - 10rem)'
-
-
-
-
-
-
-
-
-
+            maxHeight: isMobile ? '82vh' : 'calc(100vh - 10rem)',
+            height: isMobile ? '82vh' : '540px',
+            borderRadius: isMobile ? '24px 24px 0 0' : '24px',
+            borderBottom: isMobile ? 'none' : '1px solid var(--color-border)',
+            boxSizing: 'border-box'
           }}>
           
                     {/* Header */}
@@ -419,7 +408,7 @@ export default function FloatingAssistant() {
 
                     {/* Content Area */}
                     <div
-            className="hide-scrollbar flex-[1] overflow-y-[auto] p-[2px]">
+            className={`hide-scrollbar flex-[1] p-[2px] flex flex-col ${activeTab !== 'chat' ? 'overflow-y-[auto]' : 'overflow-[hidden]'}`}>
 
             
                         {activeTab === 'id' ?
@@ -553,7 +542,7 @@ export default function FloatingAssistant() {
               }
                             </div> :
 
-            <div className="flex flex-col h-[100%] overflow-[hidden]">
+            <div className="flex flex-col flex-1 h-full overflow-hidden">
                                 <div className="hide-scrollbar flex-[1] overflow-y-[auto] mb-[0.8rem] flex flex-col gap-[1.2rem] pr-[4px] pb-[1rem]">
                                     {messages.map((m, idx) =>
                 <div key={idx} style={{ alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start' }} className="flex gap-[0.5rem] max-w-[88%] animation-[fadeIn_0.3s_ease]">
