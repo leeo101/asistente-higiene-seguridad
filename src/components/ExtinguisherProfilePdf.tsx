@@ -145,7 +145,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
             <div className="flex-[1] flex justify-center">
                 <div
           id="pdf-content"
-          className="pdf-container card print-area w-[100%] max-w-[210mm] flex flex-col bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box]"
+          className="pdf-container card print-area w-full max-w-[210mm] flex flex-col bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box]"
           ref={componentRef}>
 
 
@@ -214,9 +214,9 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                     <div className="flex gap-[20px] mb-[15px] avoid-break">
                         <div className="w-[150px] shrink-0">
                             {data.foto ?
-              <img src={data.foto} alt="Extintor" className="w-[100%] h-[160px] object-cover rounded-[8px] border-[2px] border-solid border-[#cbd5e1]" /> :
+              <img src={data.foto} alt="Extintor" className="w-full h-[160px] object-cover rounded-[8px] border-[2px] border-solid border-[#cbd5e1]" /> :
 
-              <div className="w-[100%] h-[160px] bg-slate-100 dark:bg-slate-800/50 rounded-[8px] border-[2px] border-dashed border-[#cbd5e1] flex items-center justify-center">
+              <div className="w-full h-[160px] bg-slate-100 dark:bg-slate-800/50 rounded-[8px] border-[2px] border-dashed border-[#cbd5e1] flex items-center justify-center">
                                     <Flame size={48} color="#94a3b8" />
                                 </div>
               }
@@ -405,7 +405,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                     </div>
 
                     {/* Firmas */}
-                    <div className="avoid-break w-[100%] mt-[15px] pt-[10px] block">
+                    <div className="avoid-break w-full mt-[15px] pt-[10px] block">
                         <PdfSignatures
           data={data}
           box1={data.showSignatures?.operator ? {
