@@ -50,6 +50,12 @@ export default function RiskMapGenerator(): React.ReactElement | null {
     window.scrollTo(0, 0);
   }, []);
 
+  // ─── Canvas state ───────────────────────────────────────────────────────
+  const [elements, setElements] = useState<any[]>(editData?.elements || []);
+  const [backgroundImage, setBackgroundImage] = useState<string | null>(editData?.backgroundImage || null);
+  const [history, setHistory] = useState<any[][]>([editData?.elements || []]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+
   // ─── Editor state ───────────────────────────────────────────────────────
   const [selectedTool, setSelectedTool] = useState('select');
   const [selectedElementId, setSelectedElementId] = useState(null);
