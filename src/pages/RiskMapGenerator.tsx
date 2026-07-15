@@ -50,12 +50,6 @@ export default function RiskMapGenerator(): React.ReactElement | null {
     window.scrollTo(0, 0);
   }, []);
 
-  // ─── Canvas state ───────────────────────────────────────────────────────
-  const [elements, setElements] = useState(editData?.elements || []);
-  const [backgroundImage, setBackgroundImage] = useState(editData?.backgroundImage || null);
-  const [history, setHistory] = useState([editData?.elements || []]);
-  const [historyIndex, setHistoryIndex] = useState(0);
-
   // ─── Editor state ───────────────────────────────────────────────────────
   const [selectedTool, setSelectedTool] = useState('select');
   const [selectedElementId, setSelectedElementId] = useState(null);
@@ -72,6 +66,11 @@ export default function RiskMapGenerator(): React.ReactElement | null {
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [showShareModal, setShowShareModal] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+  // ─── Panning state ───────────────────────────────────────────────────────
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
 
   // ─── View settings ──────────────────────────────────────────────────────
   const [lineStyle, setLineStyle] = useState('solid');
@@ -104,7 +103,10 @@ export default function RiskMapGenerator(): React.ReactElement | null {
       clientX = e.touches[0].clientX;
       clientY = e.touches[0].clientY;
     }
-    return { x: snap((clientX - rect.left) / zoom), y: snap((clientY - rect.top) / zoom) };
+    // Restamos el panOffset de la coordenada del puntero para que dibuje exactamente donde apunta
+    const x = (clientX - rect.left - panOffset.x) / zoom;
+    const y = (clientY - rect.top - panOffset.y) / zoom;
+    return { x: snap(x), y: snap(y) };
   };
 
   const addToHistory = (newEls) => {
@@ -175,6 +177,14 @@ export default function RiskMapGenerator(): React.ReactElement | null {
   // ─── Mouse handlers ──────────────────────────────────────────────────────
   const handleCanvasMouseDown = (e) => {
     const { x, y } = getCoords(e);
+
+    // Si la herramienta activa es 'pan' o es el botón del medio, paneamos
+    if (selectedTool === 'pan' || e.button === 1) {
+      setIsPanning(true);
+      setPanStart({ x: e.clientX, y: e.clientY });
+      return;
+    }
+
     const drawTools = ['ARROW_LINE', 'LINE', 'RECTANGLE', 'CIRCLE'];
     if (drawTools.includes(selectedTool)) {
       setDrawingShape({ type: selectedTool, startX: x, startY: y, endX: x, endY: y });
@@ -200,6 +210,14 @@ export default function RiskMapGenerator(): React.ReactElement | null {
   };
 
   const handleCanvasMouseMove = (e) => {
+    if (isPanning) {
+      const dx = e.clientX - panStart.x;
+      const dy = e.clientY - panStart.y;
+      setPanOffset((p) => ({ x: p.x + dx, y: p.y + dy }));
+      setPanStart({ x: e.clientX, y: e.clientY });
+      return;
+    }
+
     let { x, y } = getCoords(e);
     setCursorPos({ x: Math.round(x), y: Math.round(y) });
 
@@ -225,6 +243,11 @@ export default function RiskMapGenerator(): React.ReactElement | null {
   };
 
   const handleCanvasMouseUp = () => {
+    if (isPanning) {
+      setIsPanning(false);
+      return;
+    }
+
     if (drawingShape) {
       const dx = drawingShape.endX - drawingShape.startX;
       const dy = drawingShape.endY - drawingShape.startY;
@@ -298,6 +321,13 @@ export default function RiskMapGenerator(): React.ReactElement | null {
       setPolylinePreview(null);
       setSelectedTool('select');
       return;
+    }
+  };
+
+  const handleLineStyleChange = (style: string) => {
+    setLineStyle(style);
+    if (selectedElementId) {
+      handleUpdateSelected({ lineStyle: style });
     }
   };
 
@@ -467,7 +497,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
 
   const gridBg = isBlueprintMode
     ? 'linear-gradient(to right,#334155 1px,transparent 1px),linear-gradient(to bottom,#334155 1px,transparent 1px)'
-    : 'linear-gradient(to right,#cbd5e1 1px,transparent 1px),linear-gradient(to bottom,#cbd5e1 1px,transparent 1px)';
+    : 'linear-gradient(to right,#e2e8f0 1px,transparent 1px),linear-gradient(to bottom,#e2e8f0 1px,transparent 1px)';
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
@@ -492,37 +522,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
         iconEmoji="🗑️" />
       
 
-            {/* Floating actions */}
-            <div className="no-print floating-action-bar flex flex-wrap gap-2 justify-center">
-                <button
-                  onClick={(e) => {e.preventDefault();requirePro(() => handleSave());}}
-                  style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 4px 15px rgba(16,185,129,0.3)' }}
-                  className="glow-button hover-lift px-5 py-2.5 border-none rounded-xl text-white flex items-center gap-2 font-bold text-sm cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all"
-                >
-                    <Save size={16} /> GUARDAR
-                </button>
-                <button
-                  onClick={() => requirePro(() => setShowShareModal(true))}
-                  style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 4px 15px rgba(16,185,129,0.3)' }}
-                  className="glow-button hover-lift px-5 py-2.5 border-none rounded-xl text-white flex items-center gap-2 font-bold text-sm cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all"
-                >
-                    <Share2 size={16} /> COMPARTIR
-                </button>
-                <button
-                  onClick={() => requirePro(() => window.print())}
-                  style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 4px 15px rgba(16,185,129,0.3)' }}
-                  className="glow-button hover-lift px-5 py-2.5 border-none rounded-xl text-white flex items-center gap-2 font-bold text-sm cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all"
-                >
-                    <Printer size={16} /> IMPRIMIR
-                </button>
-                <button
-                  onClick={handleExportPNG}
-                  style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 4px 15px rgba(16,185,129,0.3)' }}
-                  className="glow-button hover-lift px-5 py-2.5 border-none rounded-xl text-white flex items-center gap-2 font-bold text-sm cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all"
-                >
-                    <Download size={16} /> PNG
-                </button>
-            </div>
+
 
             <div className="no-print flex flex-col gap-6">
                 <PremiumHeader
@@ -653,7 +653,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                                                 <div style={{ fontSize: '0.65rem', fontWeight: 700, marginBottom: 6, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Estilo de Línea</div>
                                                 <div style={{ display: 'flex', gap: 4, background: 'var(--color-background)', borderRadius: 10, padding: 3 }}>
                                                     {[['solid', 'Sólida', '─'], ['dashed', 'Punteada', '╌']].map(([val, lbl, sym]) => (
-                                                      <button key={val} onClick={() => setLineStyle(val)}
+                                                      <button key={val} onClick={() => handleLineStyleChange(val)}
                                                         style={{
                                                           flex: 1, padding: '5px 6px',
                                                           borderRadius: 8, border: 'none', cursor: 'pointer',
@@ -1018,6 +1018,38 @@ export default function RiskMapGenerator(): React.ReactElement | null {
               onDelete={handleDeleteSelected}
               onDuplicate={handleDuplicateSelected} />
                     </div>
+                </div>
+
+                {/* Botonera de acciones inline — sin sobreponerse al lienzo de dibujo */}
+                <div className="flex flex-wrap gap-3 justify-center mt-6 py-4 border-t border-slate-200 dark:border-slate-800 w-full">
+                    <button
+                      onClick={(e) => {e.preventDefault();requirePro(() => handleSave());}}
+                      style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 4px 12px rgba(16,185,129,0.2)', minWidth: '120px' }}
+                      className="glow-button hover-lift px-6 py-3 border-none rounded-xl text-white flex items-center justify-center gap-2 font-bold text-sm cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                    >
+                        <Save size={16} /> GUARDAR
+                    </button>
+                    <button
+                      onClick={() => requirePro(() => setShowShareModal(true))}
+                      style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', boxShadow: '0 4px 12px rgba(59,130,246,0.2)', minWidth: '120px' }}
+                      className="glow-button hover-lift px-6 py-3 border-none rounded-xl text-white flex items-center justify-center gap-2 font-bold text-sm cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                    >
+                        <Share2 size={16} /> COMPARTIR
+                    </button>
+                    <button
+                      onClick={() => requirePro(() => window.print())}
+                      style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)', boxShadow: '0 4px 12px rgba(139,92,246,0.2)', minWidth: '120px' }}
+                      className="glow-button hover-lift px-6 py-3 border-none rounded-xl text-white flex items-center justify-center gap-2 font-bold text-sm cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                    >
+                        <Printer size={16} /> IMPRIMIR
+                    </button>
+                    <button
+                      onClick={handleExportPNG}
+                      style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', boxShadow: '0 4px 12px rgba(245,158,11,0.2)', minWidth: '120px' }}
+                      className="glow-button hover-lift px-6 py-3 border-none rounded-xl text-white flex items-center justify-center gap-2 font-bold text-sm cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                    >
+                        <Download size={16} /> PNG
+                    </button>
                 </div>
             </div>
 
