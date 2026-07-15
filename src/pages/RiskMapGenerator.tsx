@@ -358,7 +358,12 @@ export default function RiskMapGenerator(): React.ReactElement | null {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => setBackgroundImage(ev.target.result);
+    reader.onload = (ev) => {
+      const res = ev.target?.result;
+      if (typeof res === 'string') {
+        setBackgroundImage(res);
+      }
+    };
     reader.readAsDataURL(file);
   };
 
