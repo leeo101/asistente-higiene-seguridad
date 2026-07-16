@@ -1,13 +1,14 @@
 import { Resend } from 'resend';
+import { setCorsHeaders } from './_cors.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
+    // 🔐 Enable secure CORS configuration
+    const corsOk = setCorsHeaders(req, res);
+    if (!corsOk) return;
+
     if (req.method === 'OPTIONS') {
-        res.setHeader('Access-Control-Allow-Credentials', true)
-        res.setHeader('Access-Control-Allow-Origin', '*')
-        res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST')
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
         return res.status(200).end();
     }
 

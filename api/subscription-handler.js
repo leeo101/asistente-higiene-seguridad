@@ -1,16 +1,15 @@
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 import { Resend } from 'resend';
 import { getGoogleAccessToken } from './_googleAuth.js';
+import { setCorsHeaders } from './_cors.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 
 export default async function handler(req, res) {
-    // Enable CORS
-    res.setHeader('Access-Control-Allow-Credentials', true)
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    // 🔐 Enable secure CORS configuration
+    const corsOk = setCorsHeaders(req, res);
+    if (!corsOk) return;
 
     if (req.method === 'OPTIONS') {
         res.status(200).end()

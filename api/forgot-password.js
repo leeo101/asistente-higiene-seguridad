@@ -1,13 +1,14 @@
 import { Resend } from 'resend';
+import { setCorsHeaders } from './_cors.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
+    // 🔐 Enable secure CORS configuration
+    const corsOk = setCorsHeaders(req, res);
+    if (!corsOk) return;
+
     if (req.method === 'OPTIONS') {
-        res.setHeader('Access-Control-Allow-Credentials', true);
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
         return res.status(200).end();
     }
 
@@ -17,6 +18,9 @@ export default async function handler(req, res) {
 
     try {
         const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ error: 'El correo electrónico es requerido.' });
+        }
 
         if (!process.env.VITE_FIREBASE_API_KEY) {
             throw new Error("Missing VITE_FIREBASE_API_KEY env var.");
@@ -39,7 +43,10 @@ export default async function handler(req, res) {
             
             if (!response.ok) {
                 if (data.error && data.error.message === 'EMAIL_NOT_FOUND') {
-                    return res.status(404).json({ error: "No existe ninguna cuenta registrada con este correo electrónico." });
+                    // 🛡️ Prevent User Enumeration by returning a generic 200 success response
+                    return res.status(200).json({
+                        message: 'Si el correo ingresado se encuentra registrado, recibirás un enlace.'
+                    });
                 }
                 throw new Error(data.error ? data.error.message : 'Unknown Identity Toolkit Error');
             }
@@ -99,7 +106,7 @@ export default async function handler(req, res) {
         if (error) throw error;
 
         return res.status(200).json({
-            message: 'Correo enviado. Revisa tu bandeja de entrada.'
+            message: 'Si el correo ingresado se encuentra registrado, recibirás un enlace.'
         });
 
     } catch (error) {

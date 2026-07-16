@@ -105,9 +105,20 @@ export async function verifyToken(req, res) {
 
     let decodedToken;
     try {
-        // We skip strict audience/issuer validation here because the user token comes from our own app,
-        // but verifying the RS256 signature against Google's cert ensures it's a valid Firebase token.
-        decodedToken = jwt.verify(idToken, cert, { algorithms: ['RS256'] });
+        const verifyOptions = { algorithms: ['RS256'] };
+        if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+            try {
+                const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+                const projectId = serviceAccount.project_id;
+                if (projectId) {
+                    verifyOptions.audience = projectId;
+                    verifyOptions.issuer = `https://securetoken.google.com/${projectId}`;
+                }
+            } catch (e) {
+                console.error('[AUTH] Error parsing FIREBASE_SERVICE_ACCOUNT_KEY for token validation:', e.message);
+            }
+        }
+        decodedToken = jwt.verify(idToken, cert, verifyOptions);
     } catch (error) {
         console.error('[AUTH] Token verification failed:', error.message);
         res.status(403).json({ error: 'Token expirado o inválido.' });

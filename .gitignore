@@ -79,3 +79,4 @@ error.txt
 error-*.txt
 git_log_out.txt
 models.json
+scratch/

@@ -1360,16 +1360,3 @@ import('./cron.js').then(module => {
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
 });
-
-app.post('/api/send-expiry-email', async (req, res) => {
-    const { email, name, notifications } = req.body;
-    if (!email || !notifications || notifications.length === 0) return res.status(400).json({ error: 'Faltan datos' });
-    try {
-        let html = '<div style="font-family: Arial; padding: 20px;"><h2 style="color: #ef4444;">?? Alertas de Vencimiento</h2><p>Hola ' + (name || '') + ',</p><p>Te informamos sobre los siguientes vencimientos cr�ticos:</p><table style="width: 100%; border-collapse: collapse;"><thead><tr style="background: #f8fafc;"><th style="padding: 10px; text-align: left;">Tipo</th><th style="padding: 10px; text-align: left;">Elemento</th><th style="padding: 10px; text-align: left;">Estado</th></tr></thead><tbody>';
-        notifications.forEach(n => { html += '<tr><td style="padding: 10px; border-bottom: 1px solid #ddd;">' + n.type.toUpperCase() + '</td><td style="padding: 10px; border-bottom: 1px solid #ddd;">' + n.label + '</td><td style="padding: 10px; border-bottom: 1px solid #ddd; color: ' + (n.isExpired ? '#ef4444' : '#f59e0b') + '">' + (n.isExpired ? 'Vencido hace ' + Math.abs(n.daysLeft) + ' d�as' : 'Vence en ' + n.daysLeft + ' d�as') + '</td></tr>'; });
-        html += '</tbody></table><p style="margin-top: 30px;"><a href="https://asistentehs.com" style="background: #3b82f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Ingresar al Sistema</a></p></div>';
-        if (process.env.RESEND_API_KEY) { await resend.emails.send({ from: 'Asistente HYS <soporte@asistentehs.com>', to: email, subject: '?? Tienes ' + notifications.length + ' alertas de vencimiento', html }); } else { console.log('Sin RESEND_API_KEY, correo simulado', html); }
-        res.status(200).json({ success: true });
-    } catch (e) { console.error('Error email:', e); res.status(500).json({ error: 'Server error' }); }
-});
-

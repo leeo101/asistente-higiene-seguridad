@@ -1,11 +1,12 @@
+import { setCorsHeaders } from './_cors.js';
+
 // Note: This needs to share state with forgot-password if it's purely in-memory.
 // In a serverless environment like Vercel, this usually requires a DB like Redis or Mongo.
 // Since we don't have one set up, we will accept any valid-looking token for the mock.
 export default async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Credentials', true)
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    // 🔐 Enable secure CORS configuration
+    const corsOk = setCorsHeaders(req, res);
+    if (!corsOk) return;
 
     if (req.method === 'OPTIONS') {
         res.status(200).end()
