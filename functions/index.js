@@ -248,6 +248,17 @@ Devolvé tu análisis en formato JSON estricto con la siguiente estructura:
 exports.emergencyChat = onRequest((req, res) => {
     return cors(req, res, async () => {
         try {
+            // SECURITY: Require authenticated user
+            const authHeader = req.headers.authorization || '';
+            if (!authHeader.startsWith('Bearer ')) {
+                return res.status(401).json({ error: 'No autorizado' });
+            }
+            try {
+                await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
+            } catch (e) {
+                return res.status(401).json({ error: 'Token inválido' });
+            }
+
             const { message, context, companyContext } = req.body;
             if (!message) return res.status(400).json({ error: 'Mensaje requerido' });
 
@@ -712,6 +723,17 @@ exports.weeklySummaryEmail = onSchedule("0 9 * * 1", async (event) => { // Every
 exports.analyzeGeneralRisks = onRequest({ timeoutSeconds: 300, memory: "1GiB" }, (req, res) => {
     return cors(req, res, async () => {
         try {
+            // SECURITY: Require authenticated user
+            const authHeader = req.headers.authorization || '';
+            if (!authHeader.startsWith('Bearer ')) {
+                return res.status(401).json({ error: 'No autorizado' });
+            }
+            try {
+                await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
+            } catch (e) {
+                return res.status(401).json({ error: 'Token inválido' });
+            }
+
             const { image } = req.body;
             if (!image) return res.status(400).json({ error: 'No se envió imagen' });
 
@@ -766,6 +788,17 @@ IMPORTANTE: box_2d contiene coordenadas normalizadas (0 a 1000). ymin, xmin, yma
 exports.analyzeExtinguisher = onRequest({ timeoutSeconds: 300, memory: "1GiB" }, (req, res) => {
     return cors(req, res, async () => {
         try {
+            // SECURITY: Require authenticated user
+            const authHeader = req.headers.authorization || '';
+            if (!authHeader.startsWith('Bearer ')) {
+                return res.status(401).json({ error: 'No autorizado' });
+            }
+            try {
+                await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
+            } catch (e) {
+                return res.status(401).json({ error: 'Token inválido' });
+            }
+
             const { image } = req.body;
             if (!image) return res.status(400).json({ error: 'No se envió imagen' });
 
