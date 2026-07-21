@@ -3,12 +3,15 @@ import { createPortal } from 'react-dom';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import {
   Flame, Plus, Search, MapPin, QrCode, ArrowLeft, ShieldCheck, Activity, CheckCircle,
-  Calendar, Edit3, Trash2, Printer, AlertTriangle, CheckCircle2, Camera, Share2, Pencil, Download, FileSpreadsheet, CalendarDays, History, UploadCloud, DownloadCloud, Info, Save, Settings, ChevronDown } from
+  Calendar, Edit3, Trash2, Printer, AlertTriangle, CheckCircle2, Camera, Share2, Pencil, Download, FileSpreadsheet, CalendarDays, History, UploadCloud, DownloadCloud, Info, Save, Settings, ChevronDown, Sparkles } from
 'lucide-react';
 import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
+import { auth } from '../firebase';
+import { API_BASE_URL } from '../config';
+import { getErrorMessage } from '../utils/errorUtils';
 import QRCode from 'qrcode';
 import toast from 'react-hot-toast';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -77,6 +80,73 @@ export default function ExtintoresManager() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState<any | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const [isScanningMarbete, setIsScanningMarbete] = useState(false);
+  const marbeteCameraRef = useRef<HTMLInputElement>(null);
+
+  const handleMarbeteScan = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    requirePro(async () => {
+      setIsScanningMarbete(true);
+      const loadingToast = toast.loading('Procesando marbete con IA...');
+
+      try {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = async () => {
+          const base64 = reader.result as string;
+          const token = await auth.currentUser?.getIdToken(true);
+          const response = await fetch(`${API_BASE_URL}/api/analyze-extinguisher`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ image: base64 })
+          });
+
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error || 'Error al analizar la imagen');
+          }
+
+          const data = await response.json();
+          if (!data.extinguisherDetected) {
+            throw new Error('No se detectó un extintor en la imagen.');
+          }
+
+          let mappedAgent = formData.tipo;
+          if (data.type === 'ABC') mappedAgent = 'ABC (PQS)';
+          else if (data.type === 'CO2') mappedAgent = 'BC(CO2)';
+          else if (data.type) mappedAgent = data.type;
+
+          setFormData((prev) => ({
+            ...prev,
+            tipo: mappedAgent,
+            capacidad: data.capacity ? (data.capacity.includes('kg') ? data.capacity : `${data.capacity} kg`) : prev.capacidad,
+            vencimientoRecarga: data.lastCheck || prev.vencimientoRecarga,
+            vencimientoPH: data.phDate || prev.vencimientoPH,
+            estadoFisico: data.status === 'vigente' ? 'Operativo' : 'Revisión',
+            foto: base64
+          }));
+
+          toast.success('Ficha del extintor autocompletada con IA ✨', { id: loadingToast });
+        };
+        reader.onerror = () => {
+          throw new Error('Error al leer el archivo');
+        };
+      } catch (error) {
+        console.error('OCR error:', error);
+        toast.error(`Error al analizar: ${getErrorMessage(error)}`, { id: loadingToast });
+      } finally {
+        setIsScanningMarbete(false);
+      }
+    });
+
+    if (e.target) e.target.value = '';
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -256,6 +326,13 @@ export default function ExtintoresManager() {
       }
     }
   }, [searchParams, extintores, showForm, editingId]);
+
+  useEffect(() => {
+    const q = searchParams.get('q') || searchParams.get('search');
+    if (q) {
+      setSearchTerm(q);
+    }
+  }, [searchParams]);
 
   const saveToStorage = async (data) => {
     localStorage.setItem('extinguishers_inventory', JSON.stringify(data));
@@ -975,6 +1052,21 @@ export default function ExtintoresManager() {
                         />
                     
                     <ModuleFormDocument id="extinguisher-form">
+                        <div className="no-print mb-6 p-4 bg-gradient-to-r from-sky-500/10 to-indigo-500/10 rounded-2xl border border-sky-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-sky-500/20 text-sky-600 dark:text-sky-400 rounded-xl">
+                                    <Sparkles size={24} className="animate-pulse" />
+                                </div>
+                                <div>
+                                    <h4 className="m-0 font-extrabold text-slate-800 dark:text-slate-200">Autocompletado Rápido con IA</h4>
+                                    <p className="m-0 text-xs text-slate-500">Subí una foto del marbete/etiqueta para completar automáticamente tipo, capacidad y vencimientos.</p>
+                                </div>
+                            </div>
+                            <label className="shrink-0 px-5 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-sm rounded-xl cursor-pointer shadow-[0_4px_12px_rgba(2,132,199,0.3)] transition-transform hover:-translate-y-0.5 flex items-center gap-2">
+                                <Camera size={18} /> Escanear Etiqueta
+                                <input type="file" accept="image/*" capture="environment" ref={marbeteCameraRef} onChange={handleMarbeteScan} className="hidden" />
+                            </label>
+                        </div>
                         <ModuleFormSection title="Datos Generales" icon={<Info size={20} />}>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                             <div>

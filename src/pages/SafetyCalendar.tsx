@@ -81,7 +81,7 @@ function loadAutoSyncEvents() {
       }
     });
 
-    const drills = JSON.parse(localStorage.getItem('ehs_drills_db') || '[]');
+    const drills = JSON.parse(localStorage.getItem('drills_history') || '[]');
     drills.forEach((dr: any) => {
       if (dr.date) {
         auto.push({

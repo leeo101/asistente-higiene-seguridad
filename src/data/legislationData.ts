@@ -252,6 +252,26 @@ export const legislationData = {
             isNew: true
         },
         {
+            id: 'res-srt-28-2026',
+            title: 'Res. SRT 28/2026',
+            subtitle: 'Riesgos Psicosociales en el Trabajo',
+            description: '⚠️ VIGENTE DESDE JUNIO 2026. Guía técnica para la evaluación, prevención e intervención frente a riesgos psicosociales (estrés, burnout, acoso laboral) alineada a la norma internacional ISO 45003.',
+            url: 'https://www.argentina.gob.ar/srt/normativa',
+            category: 'Resolución SRT',
+            level: 'national',
+            isNew: true
+        },
+        {
+            id: 'res-srt-45-2026',
+            title: 'Res. SRT 45/2026',
+            subtitle: 'Declaración Jurada de Riesgos',
+            description: '⚠️ VIGENTE DESDE JULIO 2026. Actualiza el formulario y procedimiento de presentación anual de la Declaración Jurada de Riesgos del Trabajo y de la Ficha Técnica de Empresa ante las ART.',
+            url: 'https://www.argentina.gob.ar/srt/normativa',
+            category: 'Resolución SRT',
+            level: 'national',
+            isNew: true
+        },
+        {
             id: 'ley-27802',
             title: 'Ley 27.802',
             subtitle: 'Modernización Laboral',
@@ -608,7 +628,10 @@ export const getCountryNormativa = (country) => {
             ergo: 'Res. SRT 886/15',
             thermal: 'Res. SRT 30/2023',
             thermalOld: 'Res. SRT 295/03 (derogada)',
-            general: 'Ley 19.587'
+            general: 'Ley 19.587',
+            psicosocial: 'Res. SRT 28/2026',
+            saludMental: 'Res. SRT 8/2026',
+            epp: 'Res. SIyC 18/25 / Res. SRT 299/11'
         },
         chile: {
             fire: 'DS 594 Art. 44',

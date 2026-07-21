@@ -18,12 +18,9 @@ export default function GlobalQRScanner({ onClose }: {onClose: () => void;}) {
       (decodedText) => {
         setScanResult(decodedText);
         scanner.clear();
-        // Handle the routing here based on payload. Example payload: app://asset/extinguisher/123
         if (decodedText.startsWith('app://asset/extinguisher/')) {
           const extId = decodedText.split('/').pop();
-          // Just an example action: we could route it to the extinguisher detail, but the main page is /extinguishers
-          // Wait, currently extinguisher doesn't have a detail page by ID, it lives in a modal. Let's just navigate to /extinguishers for now, and ideally search it.
-          navigate('/extinguishers?search=' + extId);
+          navigate('/extintores?edit=' + extId);
           onClose();
         } else {
           // Navigate if it's a URL or log it

@@ -132,58 +132,59 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
               flex: boxes.length === 1 ? '0 0 280px' : '1 1 0',
               margin: boxes.length === 1 ? '0 auto' : '0',
               border: `1px solid ${borderCol}`,
-              background: bgCol
-
-
-
-
-
-
-            }} className="rounded-[6px] p-[0.8rem] text-center min-width-[220px] max-w-[280px] box-sizing-[border-box]">
+              background: bgCol,
+              boxShadow: isPro 
+                ? '0 4px 12px -2px rgba(16,185,129,0.08), 0 2px 4px -1px rgba(16,185,129,0.03)'
+                : '0 4px 6px -1px rgba(0,0,0,0.04), 0 2px 4px -1px rgba(0,0,0,0.02)',
+              borderRadius: isPro ? '12px' : '8px',
+              position: 'relative',
+              overflow: 'hidden'
+            }} className="p-[1rem] text-center min-width-[220px] max-w-[280px] box-sizing-[border-box]">
+                            {isPro && (
+                                <div style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    height: '3px',
+                                    background: '#10b981'
+                                }} />
+                            )}
                             {/* Signature / Stamp image row */}
                                     <div style={{
-
-
-
-
-                borderBottom: `1px solid ${lineCol}`
-
-
-
-
-
-
-
-              }} className="min-h-[60px] h-[auto] w-[100%] text-center pb-[0.5rem] mb-[0.5rem] box-sizing-[border-box] overflow-[hidden] flex justify-center items-center">
+                                        borderBottom: `1px dashed ${lineCol}`
+                                    }} className="min-h-[65px] h-[auto] w-[100%] text-center pb-[0.6rem] mb-[0.6rem] box-sizing-[border-box] overflow-[hidden] flex justify-center items-center">
                                         {box.signatureUrl && box.signatureUrl.length > 20 &&
-                <img
-                  src={box.signatureUrl}
-                  alt="Firma"
-                  style={{
-                    maxWidth: box.stampUrl && box.stampUrl.length > 20 ? '48%' : '100%',
-                    objectPosition: 'center',
-                    objectFit: 'contain'
-                  }} className="h-[45px] w-[auto]" />
-                }
+                                            <img
+                                              src={box.signatureUrl}
+                                              alt="Firma"
+                                              style={{
+                                                maxWidth: box.stampUrl && box.stampUrl.length > 20 ? '48%' : '100%',
+                                                objectPosition: 'center',
+                                                objectFit: 'contain'
+                                              }} className="h-[48px] w-[auto]" />
+                                        }
                                         {box.stampUrl && box.stampUrl.length > 20 &&
-                <img
-                  src={box.stampUrl}
-                  alt="Sello"
-                  style={{
-                    maxWidth: box.signatureUrl && box.signatureUrl.length > 20 ? '48%' : '100%',
-                    objectPosition: 'center',
-                    objectFit: 'contain'
-                  }} className="h-[45px] w-[auto]" />
-                }
+                                            <img
+                                              src={box.stampUrl}
+                                              alt="Sello"
+                                              style={{
+                                                maxWidth: box.signatureUrl && box.signatureUrl.length > 20 ? '48%' : '100%',
+                                                objectPosition: 'center',
+                                                objectFit: 'contain'
+                                              }} className="h-[48px] w-[auto]" />
+                                        }
                                         {(!box.signatureUrl || box.signatureUrl.length <= 20) && (!box.stampUrl || box.stampUrl.length <= 20) &&
-                <div className="h-[60px] w-[100%]"></div>
-                }
+                                            <div className="h-[60px] w-[100%] flex items-center justify-center text-[0.55rem] text-slate-300 font-bold uppercase tracking-widest">
+                                                Firma Pendiente
+                                            </div>
+                                        }
                                     </div>
-                                    <p style={{ color: textCol }} className="m-[0] font-[700] text-[0.7rem] uppercase word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">{box.title}</p>
-                                    <p style={{ color: subTextCol, fontWeight: isPro ? 600 : 400 }} className="m-[4px_0_0_0] text-[0.6rem] word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">{box.subtitle}</p>
+                                    <p style={{ color: textCol, letterSpacing: '0.02em' }} className="m-[0] font-[800] text-[0.72rem] uppercase word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">{box.title}</p>
+                                    <p style={{ color: subTextCol, fontWeight: isPro ? 700 : 500 }} className="m-[4px_0_0_0] text-[0.62rem] word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">{box.subtitle}</p>
                                     {box.license &&
-              <p className="m-[4px_0_0_0] text-[0.55rem] text-[#16a34a] word-break-[break-word]">Mat.: {box.license}</p>
-              }
+                                        <p className="m-[4px_0_0_0] text-[0.58rem] text-[#16a34a] font-bold word-break-[break-word] tracking-wide">Mat. N° {box.license}</p>
+                                    }
                                     {box.customContent}
                                 </div>);
 

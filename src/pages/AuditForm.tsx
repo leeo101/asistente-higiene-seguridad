@@ -222,8 +222,11 @@ export default function AuditForm(): React.ReactElement | null {
         { id: 1, question: '¿Cuenta con Seguro de Vida Obligatorio?', legal: 'Ley 16.600', status: 'na', observation: '' },
         { id: 2, question: '¿Se exhibe el Afiche de la ART?', legal: 'Res. SRT 70/97', status: 'na', observation: '' },
         { id: 3, question: '¿Cuenta con Registro de Entrega de EPP?', legal: 'Res. SRT 299/11', status: 'na', observation: '' },
-        { id: 4, question: '¿Están señalizadas las salidas de emergencia?', legal: 'Ley 19.587 Cap 18', status: 'na', observation: '' },
-        { id: 5, question: '¿Extintores con carga vigente?', legal: 'DPS 351/79', status: 'na', observation: '' }]
+        { id: 4, question: '¿Los EPP cuentan con la certificación y marcado AR con trazabilidad QR?', legal: 'Res. SIyC 18/25', status: 'na', observation: '' },
+        { id: 5, question: '¿Se realiza la evaluación y prevención de factores de riesgo psicosocial en el trabajo (estrés, burnout)?', legal: 'Res. SRT 28/2026', status: 'na', observation: '' },
+        { id: 6, question: '¿Se encuentra presentada la Declaración Jurada de Riesgos anual ante la ART?', legal: 'Res. SRT 45/2026', status: 'na', observation: '' },
+        { id: 7, question: '¿Están señalizadas las salidas de emergencia?', legal: 'Ley 19.587 Cap 18', status: 'na', observation: '' },
+        { id: 8, question: '¿Los extintores poseen carga vigente, oblea y marbete reglamentarios?', legal: 'Dec. 351/79 Anexo VII', status: 'na', observation: '' }]
 
       }));
     }

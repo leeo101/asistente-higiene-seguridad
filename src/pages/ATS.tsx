@@ -6,7 +6,8 @@ import {
   ShieldCheck, Building2, User, Calendar,
   CheckCircle2, AlertCircle, HelpCircle, Pencil, Info, Share2, Sparkles, Loader2,
   MapPin, FileText, Search, QrCode, Download, ClipboardList,
-  HardHat, Ear, Search as SearchIcon, Eye as EyeIcon, Edit3 as EditIcon, Trash2 as TrashIcon, Camera as CameraIcon, CheckCircle2 as CheckIcon, ShieldAlert, Zap, Thermometer, Wind as WindIcon, Activity
+  HardHat, Ear, Search as SearchIcon, Eye as EyeIcon, Edit3 as EditIcon, Trash2 as TrashIcon, Camera as CameraIcon, CheckCircle2 as CheckIcon, ShieldAlert, Zap, Thermometer, Wind as WindIcon, Activity,
+  Mic, MicOff
 } from 'lucide-react';
 import { DataTable } from '../components/DataTable';
 import { downloadCSV } from '../services/exportCsv';
@@ -163,6 +164,50 @@ export default function ATS(): React.ReactElement | null {
   const [aiTaskInput, setAiTaskInput] = useState('');
   const [isAdModalOpen, setIsAdModalOpen] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const [isListeningVoice, setIsListeningVoice] = useState(false);
+
+  const handleVoiceDictation = () => {
+    requirePro(() => {
+      // @ts-ignore
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        toast.error('Tu navegador no soporta reconocimiento de voz.');
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'es-AR';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        setIsListeningVoice(true);
+        toast('Escuchando dictado... (Hablá ahora)', { icon: '🎙️' });
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setIsListeningVoice(false);
+        setFormData((prev) => ({
+          ...prev,
+          tarea: prev.tarea ? prev.tarea + ' ' + transcript : transcript
+        }));
+        toast.success('Dictado completado');
+      };
+
+      recognition.onerror = () => {
+        setIsListeningVoice(false);
+        toast.error('Error al escuchar. Intentá de nuevo.');
+      };
+
+      recognition.onend = () => {
+        setIsListeningVoice(false);
+      };
+
+      recognition.start();
+    });
+  };
 
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
@@ -820,12 +865,27 @@ export default function ATS(): React.ReactElement | null {
                                         <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2">
                                             <FileText size={14} /> DESCRIPCIÓN DE LA TAREA
                                         </label>
-                                        <input
-                                            type="text"
-                                            value={formData.tarea}
-                                            onChange={(e) => setFormData({ ...formData, tarea: e.target.value })}
-                                            className="module-form-input"
-                                        />
+                                        <div className="relative flex items-center w-full">
+                                            <input
+                                                type="text"
+                                                value={formData.tarea}
+                                                onChange={(e) => setFormData({ ...formData, tarea: e.target.value })}
+                                                className="module-form-input pr-12 w-full"
+                                                placeholder="Ej: Pintado de fachada exterior..."
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={handleVoiceDictation}
+                                                className={`absolute right-2 p-2 rounded-lg border-none cursor-pointer transition-all ${
+                                                    isListeningVoice 
+                                                        ? 'bg-red-500 text-white animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]' 
+                                                        : 'bg-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                                                }`}
+                                                title="Completar con Voz"
+                                            >
+                                                {isListeningVoice ? <MicOff size={16} /> : <Mic size={16} />}
+                                            </button>
+                                        </div>
                                     </div>
                                     <div className="flex flex-col gap-2 lg:col-span-2">
                                         <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2">

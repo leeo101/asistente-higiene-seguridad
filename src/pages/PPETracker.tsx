@@ -221,12 +221,12 @@ export default function PPETracker(): React.ReactElement | null {
                 </div>
                 <div className="flex-1">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <span className="text-[0.72rem] font-black uppercase text-blue-600 tracking-wide">🆕 Res. SIyC 18/25 — Vigente desde Feb 2025</span>
+                        <span className="text-[0.72rem] font-black uppercase text-blue-600 tracking-wide">🛡️ Res. SIyC 18/25 — PLENA VIGENCIA EN 2026</span>
                     </div>
                     <p className="m-0 text-[0.78rem] text-slate-500 dark:text-slate-400 leading-relaxed">
-                        Los EPP comercializados en Argentina ahora deben contar con el <strong className="text-slate-800 dark:text-slate-200">Marcado "AR" ✓✓ + Código QR de trazabilidad</strong>.
-                        Se aceptan certificaciones <strong className="text-slate-800 dark:text-slate-200">ISO, EN, ANSI, NIOSH, NFPA, IEC</strong> (ya no solo IRAM).
-                        El uso obligatorio en planta sigue rigiendo por Res. SRT 299/11.
+                        Los EPP comercializados en Argentina deben contar con el <strong className="text-slate-800 dark:text-slate-200">Marcado "AR" ✓✓ + Código QR de trazabilidad</strong>.
+                        Se aceptan certificaciones internacionales bajo normas <strong className="text-slate-800 dark:text-slate-200">ISO, EN, ANSI, NIOSH, NFPA, IEC</strong> (además de IRAM).
+                        El uso obligatorio y el registro de entrega en planta sigue rigiendo por la <strong className="text-slate-800 dark:text-slate-200">Res. SRT 299/11</strong>.
                     </p>
                 </div>
             </div>

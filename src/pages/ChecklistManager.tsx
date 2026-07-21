@@ -193,7 +193,10 @@ const DEFAULT_TEMPLATES = {
     'Los EPP entregados cuentan con código QR de trazabilidad legible (Res. SIyC 18/25)',
     'Se verifican los certificados médicos de "Apto Calor" (Res. SRT 30/2023)',
     'Monitoreo de estrés térmico con mediciones VLA y VLE actualizadas',
-    'Los protocolos ergonómicos contemplan Res. SRT 7/2026 y Res. 886/15']
+    'Los protocolos ergonómicos contemplan Res. SRT 7/2026 y Res. 886/15',
+    'Se encuentra presentada la Declaración Jurada de Riesgos del Trabajo anual ante la ART (Res. SRT 45/2026)',
+    'Se realiza la evaluación, prevención e intervención de riesgos psicosociales y salud mental (Res. SRT 28/2026 y 8/2026)',
+    'Se encuentra adecuado el procedimiento de recolección de pruebas ante Comisiones Médicas (Res. SRT 5/2026 y 7/2026)']
 
   },
   'general_audit': {
@@ -324,6 +327,12 @@ const NORMS_BY_COUNTRY = {
   { id: 'res295', name: 'Res. SRT 295/03 - Espacios Confinados / Contaminantes', category: 'SRT' },
   { id: 'res101', name: 'Res. SRT 101/17 - Soldadura', category: 'SRT' },
   { id: 'res594', name: 'Res. SRT 594/15 - Agentes Químicos', category: 'SRT' },
+  { id: 'res_srt_45_2026', name: 'Res. SRT 45/2026 - Declaración Jurada de Riesgos', category: 'SRT' },
+  { id: 'res_srt_28_2026', name: 'Res. SRT 28/2026 - Prevención de Riesgos Psicosociales', category: 'SRT' },
+  { id: 'res_srt_8_2026', name: 'Res. SRT 8/2026 - Protocolo de Salud Mental', category: 'SRT' },
+  { id: 'res_srt_7_2026', name: 'Res. SRT 7/2026 - Valoración del Daño Corporal', category: 'SRT' },
+  { id: 'res_srt_30_2023', name: 'Res. SRT 30/23 - Estrés por Calor', category: 'SRT' },
+  { id: 'res_siyc_18_25', name: 'Res. SIyC 18/25 - Certificación y Marcado AR en EPP', category: 'Nacional' },
   { id: 'art_reglamento', name: 'Reglamento Interno de ART', category: 'ART' }],
 
   chile: [

@@ -13,12 +13,13 @@ import {
   Tent, Drop as Droplets, SpeakerHigh, Flask, MagnifyingGlass, TrendUp as TrendingUp, Truck, Crane, Timer, Sparkle } from
 '@phosphor-icons/react';
 import { User as FirebaseUser } from 'firebase/auth';
+import { collection, getDocs } from 'firebase/firestore';
 import { getCountryNormativa } from '../data/legislationData';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
 import { API_BASE_URL } from '../config';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
 import AnimatedPage from '../components/AnimatedPage';
 import AdBanner from '../components/AdBanner';
 import StarryBackground from '../components/StarryBackground';
@@ -401,15 +402,20 @@ export default function Home(): React.ReactElement {
           }
         }
 
+        const token = await auth.currentUser?.getIdToken(true);
         const response = await fetch(`${API_BASE_URL}/api/daily-insight`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
         });
         if (response.ok) {
           const data = await response.json();
-          if (data && data.insight) {
-            setDailyInsight(data.insight);
-            localStorage.setItem('daily_insight_cache', JSON.stringify({ date: today, data: data.insight }));
+          const insightObj = data.insight || (data.title && data.content ? data : null);
+          if (insightObj) {
+            setDailyInsight(insightObj);
+            localStorage.setItem('daily_insight_cache', JSON.stringify({ date: today, data: insightObj }));
             return;
           }
         }
@@ -432,19 +438,21 @@ export default function Home(): React.ReactElement {
         '/work-permit': 'work_permits_history',
         '/accident-investigation': 'accident_history',
         '/extintores': 'extinguishers_inventory',
-        '/capa': 'capa_history',
-        '/audit': 'audit_history',
-        '/confined-space': 'confined_space_history',
+        '/capa': 'ehs_capa_db',
+        '/audit': 'ehs_audits_db',
+        '/confined-space': 'confined_space_permits_db',
         '/thermal-stress': 'thermal_history',
-        '/noise-assessment': 'noise_history',
-        '/chemical-safety': 'chemical_safety_history',
+        '/noise-assessment': 'noise_assessments_db',
+        '/chemical-safety': 'chemical_safety_db',
         '/drills': 'drills_history',
         '/stop-cards': 'stop_cards_history',
-        '/working-at-height': 'working_height_history',
-        '/lifting-form': 'lifting_history',
-        '/fleet-form': 'fleet_history',
+        '/working-at-height': 'working_height_permits_db',
+        '/lifting-form': 'lifting_plans_db',
+        '/fleet-form': 'fleet_inspections_db',
         '/training-management': 'training_history',
-        '/legajos': 'legajos_history'
+        '/toolbox-talk': 'ehs_toolbox_talks',
+        '/evacuation-history': 'evacuation_simulator_db',
+        '/medical': 'ehs_medical_db'
       };
       const counts: Record<string, number> = {};
       for (const [route, key] of Object.entries(routeToKey)) {
@@ -455,7 +463,19 @@ export default function Home(): React.ReactElement {
           counts[route] = 0;
         }
       }
+      counts['/legajos'] = 0;
       setModuleCounts(counts);
+
+      if (currentUser) {
+        getDocs(collection(db, 'users', currentUser.uid, 'legajos'))
+          .then((snapshot) => {
+            setModuleCounts((prev) => ({
+              ...prev,
+              '/legajos': snapshot.size
+            }));
+          })
+          .catch((err) => console.error("Error counting legajos:", err));
+      }
     };
 
     loadStats();
@@ -620,6 +640,15 @@ export default function Home(): React.ReactElement {
         <div className="p-[clamp(8rem,_10vw,_9rem)_1.2rem_2rem] bg-[var(--color-hero-bg)] border-bottom-[1px_solid_var(--color-border)] relative overflow-[hidden]">
           <StarryBackground />
           <div className="relative z-[1] max-w-[1200px] m-[0_auto]">
+            <style>{`
+              @keyframes pulse-glow {
+                0%, 100% { filter: drop-shadow(0 0 2px var(--score-glow-color, rgba(16,185,129,0.2))); }
+                50% { filter: drop-shadow(0 0 10px var(--score-glow-color, rgba(16,185,129,0.45))); }
+              }
+              .gauge-fill-glow {
+                animation: pulse-glow 2.5s infinite ease-in-out;
+              }
+            `}</style>
             <div className="stagger-item animation-delay-[0.1s]">
               <div style={{ backdropFilter: isMobile ? 'none' : 'blur(8px)' }} className="display-[inline-flex] items-center gap-[0.5rem] p-[0.4rem_0.8rem] bg-[rgba(59,130,246,0.15)] border-[1px_solid_rgba(59,130,246,0.3)] rounded-[100px] mb-[2rem]">
                 <Shield size={14} color="#60a5fa" weight="bold" />
@@ -726,7 +755,7 @@ export default function Home(): React.ReactElement {
                   const scoreLabel = score >= 80 ? 'Excelente' : score >= 50 ? 'En Progreso' : score === 0 ? 'Sin datos' : 'Atención';
                   return (
                     <div className="flex-[1] flex flex-row items-center justify-center gap-[1rem] relative z-[1]">
-                      <div className="relative inline-flex items-center justify-center">
+                      <div style={{ '--score-glow-color': scoreColor } as React.CSSProperties} className="relative inline-flex items-center justify-center gauge-fill-glow">
                         <svg width="80" height="80" viewBox="0 0 120 120">
                           <circle className="gauge-track" cx="60" cy="60" r="45" strokeWidth="8" />
                           <circle

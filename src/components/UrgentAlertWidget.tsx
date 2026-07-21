@@ -24,16 +24,17 @@ function getAlerts(): Alert[] {
   };
 
   // EPP Tracker
-  const ppe = safeParse('ppe_tracker_items');
+  const ppe = safeParse('ppe_items');
   ppe.forEach((item: any) => {
-    if (!item.expiryDate) return;
-    const exp = new Date(item.expiryDate).getTime();
-    const daysLeft = Math.ceil((exp - now) / 86400000);
+    if (!item.purchaseDate || !item.lifeMonths) return;
+    const expiry = new Date(item.purchaseDate);
+    expiry.setMonth(expiry.getMonth() + Number(item.lifeMonths));
+    const daysLeft = Math.ceil((expiry.getTime() - now) / 86400000);
     if (daysLeft <= 30) {
       alerts.push({
         id: `ppe-${item.id}`,
-        label: item.name || 'EPP sin nombre',
-        detail: `EPP — ${item.workerName || 'Sin asignar'}`,
+        label: item.type || 'EPP',
+        detail: `EPP — Asignado a: ${item.responsible || 'Sin asignar'}`,
         daysLeft,
         isExpired: daysLeft < 0,
         url: '/ppe-tracker',
@@ -44,23 +45,41 @@ function getAlerts(): Alert[] {
   });
 
   // Extintores
-  const ext = safeParse('extinguishers_data');
+  const ext = safeParse('extinguishers_inventory');
   ext.forEach((item: any) => {
-    if (!item.nextInspection && !item.expiryDate) return;
-    const dateStr = item.nextInspection || item.expiryDate;
-    const exp = new Date(dateStr).getTime();
-    const daysLeft = Math.ceil((exp - now) / 86400000);
-    if (daysLeft <= 30) {
-      alerts.push({
-        id: `ext-${item.id || item.codigo}`,
-        label: item.codigo || item.location || 'Extintor',
-        detail: `Matafuego — ${item.location || item.sector || ''}`,
-        daysLeft,
-        isExpired: daysLeft < 0,
-        url: '/extintores',
-        icon: <Fire weight="duotone" size={22} />,
-        color: '#ef4444'
-      });
+    const rechargeDate = item.vencimientoRecarga ? new Date(item.vencimientoRecarga + 'T12:00:00Z') : null;
+    if (rechargeDate) {
+      rechargeDate.setFullYear(rechargeDate.getFullYear() + 1);
+      const daysLeft = Math.ceil((rechargeDate.getTime() - now) / 86400000);
+      if (daysLeft <= 30) {
+        alerts.push({
+          id: `ext-recarga-${item.id}`,
+          label: `Extintor #${item.numero} (${item.tipo})`,
+          detail: `Vencimiento Recarga — ${item.ubicacion || ''}`,
+          daysLeft,
+          isExpired: daysLeft < 0,
+          url: '/extintores',
+          icon: <Fire weight="duotone" size={22} />,
+          color: '#ef4444'
+        });
+      }
+    }
+    const phDate = item.vencimientoPH ? new Date(item.vencimientoPH + 'T12:00:00Z') : null;
+    if (phDate) {
+      phDate.setFullYear(phDate.getFullYear() + 5);
+      const daysLeft = Math.ceil((phDate.getTime() - now) / 86400000);
+      if (daysLeft <= 30) {
+        alerts.push({
+          id: `ext-ph-${item.id}`,
+          label: `Extintor #${item.numero} (${item.tipo})`,
+          detail: `Vencimiento Prueba Hidráulica — ${item.ubicacion || ''}`,
+          daysLeft,
+          isExpired: daysLeft < 0,
+          url: '/extintores',
+          icon: <Fire weight="duotone" size={22} />,
+          color: '#ef4444'
+        });
+      }
     }
   });
 

@@ -131,7 +131,7 @@ const NEWS_BY_COUNTRY = {
 
 export default function NewsWidget() {
   const savedData = localStorage.getItem('personalData');
-  const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+  const userCountry = (savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina').toLowerCase().trim();
   const NEWS_ITEMS = NEWS_BY_COUNTRY[userCountry] || NEWS_BY_COUNTRY.generic;
 
   const [currentIndex, setCurrentIndex] = useState(0);

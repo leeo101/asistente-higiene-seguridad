@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Plus, Download, Search, AlertTriangle, FileText, ChevronRight, X, User, Briefcase, Activity, Calendar, FileQuestion, Users, FileSignature, CheckCircle2, Shield, Save, Building2, TreeDeciduous, ShieldAlert, Zap, Box, Wind, Droplets, ArrowUpCircle, Truck, Pencil, Share2, Trash2, QrCode, Camera, MapPin, Sparkles, UserPlus, ListPlus, ChevronLeft, Printer } from 'lucide-react';
+import { ArrowLeft, Plus, Download, Search, AlertTriangle, FileText, ChevronRight, X, User, Briefcase, Activity, Calendar, FileQuestion, Users, FileSignature, CheckCircle2, Shield, Save, Building2, TreeDeciduous, ShieldAlert, Zap, Box, Wind, Droplets, ArrowUpCircle, Truck, Pencil, Share2, Trash2, QrCode, Camera, MapPin, Sparkles, UserPlus, ListPlus, ChevronLeft, Printer, Mic, MicOff } from 'lucide-react';
 import PremiumHeader from '../components/PremiumHeader';
 import { usePaywall } from '../hooks/usePaywall';
 import ShareModal from '../components/ShareModal';
@@ -188,6 +188,50 @@ export default function AccidentInvestigation(): React.ReactElement | null {
   });
 
   const [professional, setProfessional] = useState<any>({ name: '', license: '', signature: null, stamp: null });
+  
+  const [isListeningVoice, setIsListeningVoice] = useState(false);
+
+  const handleVoiceDictation = () => {
+    requirePro(() => {
+      // @ts-ignore
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        toast.error('Tu navegador no soporta reconocimiento de voz.');
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'es-AR';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        setIsListeningVoice(true);
+        toast('Escuchando dictado... (Hablá ahora)', { icon: '🎙️' });
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setIsListeningVoice(false);
+        setFormData((prev: any) => ({
+          ...prev,
+          descripcionHecho: prev.descripcionHecho ? prev.descripcionHecho + ' ' + transcript : transcript
+        }));
+        toast.success('Dictado completado');
+      };
+
+      recognition.onerror = () => {
+        setIsListeningVoice(false);
+        toast.error('Error al escuchar. Intentá de nuevo.');
+      };
+
+      recognition.onend = () => {
+        setIsListeningVoice(false);
+      };
+
+      recognition.start();
+    });
+  };
 
   const loadHistory = () => {
     const h = JSON.parse(localStorage.getItem('accident_history') || '[]');
@@ -616,12 +660,26 @@ export default function AccidentInvestigation(): React.ReactElement | null {
           <div className="flex flex-col gap-6">
                             <div>
                                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Descripción detallada del Hecho (¿Qué pasó?)</label>
-                                <textarea
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm min-h-[120px] resize-y"
-                placeholder="Relato detallado de cómo ocurrió el accidente, basado en los testimonios y evidencias iniciales..."
-                value={formData.descripcionHecho}
-                onChange={(e) => handleInputChange('descripcionHecho', e.target.value)} />
-              
+                                <div className="relative flex items-center w-full">
+                                    <textarea
+                                        className="w-full px-4 py-3 pr-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm min-h-[120px] resize-y"
+                                        placeholder="Relato detallado de cómo ocurrió el accidente, basado en los testimonios y evidencias iniciales..."
+                                        value={formData.descripcionHecho}
+                                        onChange={(e) => handleInputChange('descripcionHecho', e.target.value)}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleVoiceDictation}
+                                        className={`absolute right-3 bottom-3 p-2.5 rounded-lg border-none cursor-pointer transition-all ${
+                                            isListeningVoice 
+                                                ? 'bg-red-500 text-white animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]' 
+                                                : 'bg-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-200/50'
+                                        }`}
+                                        title="Dictar con Voz"
+                                    >
+                                        {isListeningVoice ? <MicOff size={16} /> : <Mic size={16} />}
+                                    </button>
+                                </div>
                             </div>
 
                             <AdjuntosSection
