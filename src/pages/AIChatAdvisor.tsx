@@ -741,8 +741,8 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                 onChange={(e) => setTask(e.target.value)}
                 disabled={loading}
                 style={{ opacity: loading ? 0.7 : 1 }}
-                className="w-[100%] min-h-[140px] p-[1.5rem] pr-[5rem] rounded-[16px] border-[2px] border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-text)] text-[1.05rem] resize-y transition-all focus:border-[#10b981] focus:ring-[4px] focus:ring-[#10b981]/20 outline-none" />
-              
+                className="w-full min-h-[140px] p-[1.2rem] pr-[4.5rem] rounded-[16px] border-[2px] border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-text)] text-[1rem] resize-y transition-all focus:border-[#10b981] focus:ring-4 focus:ring-[#10b981]/20 outline-none leading-relaxed" />
+
                         <button
                 type="button"
                 onClick={toggleListening}
@@ -751,52 +751,43 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                   background: isListening ? '#ef4444' : 'rgba(16,185,129,0.15)',
                   color: isListening ? 'white' : '#047857',
                   cursor: loading ? 'not-allowed' : 'pointer',
-                  boxShadow: isListening ? '0 0 20px rgba(239, 68, 68, 0.5)' : '0 2px 8px rgba(0,0,0,0.05)',
+                  boxShadow: isListening ? '0 0 16px rgba(239,68,68,0.5)' : '0 2px 6px rgba(0,0,0,0.06)',
                   animation: isListening ? 'pulse 1.5s infinite' : 'none'
                 }}
-                title={isListening ? 'Escuchando...' : 'Dictar por voz'} className="absolute right-[1rem] top-[1rem] border-[1px_solid_rgba(16,185,129,0.3)] rounded-[50%] w-[54px] h-[54px] flex items-center justify-center p-[0] transition-[all_0.3s_ease] z-[10] hover:scale-[1.05] hover:bg-[rgba(16,185,129,0.25)]">
-                
-                            {isListening ? <MicOff size={32} /> : <Mic size={32} />}
+                title={isListening ? 'Escuchando...' : 'Dictar por voz'}
+                className="absolute right-[0.75rem] top-[0.75rem] border border-[rgba(16,185,129,0.3)] rounded-full w-[42px] h-[42px] flex items-center justify-center p-0 transition-all duration-300 z-10 hover:scale-105 hover:bg-[rgba(16,185,129,0.25)]">
+                            {isListening ? <MicOff size={20} /> : <Mic size={20} />}
                         </button>
                     </div>
 
                     {/* Quick Prompts (Chips) */}
-                    {!task && !loading &&
-            <div className="flex flex-wrap gap-[0.6rem] mt-[-0.5rem]">
-                            <span className="text-[0.8rem] text-[var(--color-text-muted)] flex items-center gap-[0.3rem] w-[100%]">
-                                <Zap size={14} color="#eab308" /> Sugerencias rápidas:
-                            </span>
-                            {QUICK_PROMPTS.map((prompt, idx) =>
-              <button
-                key={idx}
-                type="button"
-                onClick={() => setTask(prompt)}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.background = 'var(--color-primary-light)';
-                  e.currentTarget.style.borderColor = 'var(--color-primary)';
-                  e.currentTarget.style.color = 'var(--color-primary)';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.background = 'var(--color-background)';
-                  e.currentTarget.style.borderColor = 'var(--color-border)';
-                  e.currentTarget.style.color = 'var(--color-text)';
-                }} className="bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[20px] p-[0.4rem_0.8rem] text-[0.8rem] text-[var(--color-text)] cursor-pointer transition-[all_0.2s]">
-                
-                                    {prompt}
-                                </button>
-              )}
-                        </div>
-            }
+                    {!task && !loading && (
+                      <div className="flex flex-wrap gap-[0.5rem] items-center">
+                        <span className="text-[0.78rem] text-[var(--color-text-muted)] flex items-center gap-[0.3rem] font-[600]">
+                          <Zap size={13} color="#eab308" /> Sugerencias:
+                        </span>
+                        {QUICK_PROMPTS.map((prompt, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setTask(prompt)}
+                            className="bg-[var(--color-background)] border border-[var(--color-border)] rounded-full px-[0.75rem] py-[0.35rem] text-[0.78rem] text-[var(--color-text)] cursor-pointer transition-all hover:border-[#10b981] hover:text-[#047857] hover:bg-[rgba(16,185,129,0.07)]"
+                          >
+                            {prompt}
+                          </button>
+                        ))}
+                      </div>
+                    )}
 
-                    <div className="display-[inline-flex] items-center gap-[0.5rem] text-[#059669] text-[0.8rem] font-[700] bg-[rgba(5,150,105,0.1)] px-[1rem] py-[0.6rem] rounded-[8px] align-self-[center] border-[1px] border-[rgba(5,150,105,0.2)]">
-                        <Database size={15} /> Optimizando con el contexto reciente de tu dispositivo
+                    <div className="flex items-center gap-[0.5rem] text-[#059669] text-[0.78rem] font-[600] bg-[rgba(5,150,105,0.08)] px-[0.9rem] py-[0.55rem] rounded-[8px] border border-[rgba(5,150,105,0.18)] w-fit">
+                      <Database size={13} /> Optimizando con el contexto reciente de tu dispositivo
                     </div>
 
                     <button
               type="submit"
               disabled={loading || !task.trim()}
-              className="flex items-center justify-center gap-[0.6rem] mt-[1rem] mx-[auto] py-[0.85rem] px-[2.5rem] text-[1.1rem] font-[800] rounded-[12px] transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:transform-none w-[fit-content]"
-              style={{ background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)', boxShadow: '0 6px 20px rgba(16,185,129,0.4)', color: '#ffffff' }}>
+              className="flex items-center justify-center gap-[0.6rem] py-[0.9rem] px-[2.5rem] text-[1rem] font-[800] rounded-[12px] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:transform-none w-full sm:w-fit sm:self-center"
+              style={{ background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)', boxShadow: '0 4px 16px rgba(16,185,129,0.35)', color: '#ffffff' }}>
                         {loading ?
               <>
                                 <Loader2 size={22} className="animate-spin" />
