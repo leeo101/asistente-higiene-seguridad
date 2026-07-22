@@ -436,23 +436,27 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
         aria-label="Buscar"
         title="Buscar (Ctrl+K)"
         style={{
-          background: isDashboard ? 'rgba(255, 255, 255, 0.05)' : 'var(--color-background)',
-          border: isDashboard ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid var(--color-border)',
+          background: isDashboard ? 'rgba(255, 255, 255, 0.08)' : 'var(--color-background)',
+          border: isDashboard ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid var(--color-border)',
           borderRadius: '12px',
-          width: '42px',
           height: '42px',
-          padding: '0',
+          padding: '0 0.8rem',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          color: isDashboard ? 'rgba(255, 255, 255, 0.7)' : 'var(--color-text-muted)',
+          gap: '0.6rem',
+          color: isDashboard ? 'rgba(255, 255, 255, 0.8)' : 'var(--color-text-muted)',
           flexShrink: 0,
           boxShadow: isDashboard ? 'none' : 'var(--shadow-sm)',
           transition: 'all var(--transition-base)'
         }}
+        className="hover:scale-[1.02] active:scale-[0.98]"
       >
-        <Search weight="bold" size={22} />
+        <Search weight="bold" size={20} />
+        <span className="hide-on-mobile text-[0.82rem] font-[600] opacity-80">Buscar…</span>
+        <kbd className="hide-on-mobile ml-1 px-1.5 py-0.5 text-[0.65rem] font-[800] rounded-md bg-[rgba(255,255,255,0.12)] text-[var(--color-text-muted)] border border-[rgba(255,255,255,0.15)] shadow-xs">
+          Ctrl K
+        </kbd>
       </button>
       <HeaderNotifications />
       <CloudStatusIndicator />

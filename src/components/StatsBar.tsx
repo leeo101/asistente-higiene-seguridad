@@ -119,7 +119,7 @@ export default function StatsBar() {
   return (
     <div className="mb-[2rem]">
             {/* Month summary */}
-            <div className="flex items-center justify-space-between mb-[1rem] flex-wrap gap-[0.5rem]">
+            <div className="flex items-center justify-between mb-[1rem] flex-wrap gap-[0.5rem]">
                 <h2 className="m-[0] text-[1.05rem] font-[800] text-[var(--color-text)]">
                     📊 Actividad del mes
                 </h2>
@@ -164,7 +164,7 @@ export default function StatsBar() {
                 </div>
 
                 <div className="bg-[rgba(255,255,255,0.03)] border-[1px_solid_var(--color-border)] rounded-[20px] p-[1.2rem] flex flex-col justify-center">
-                    <div className="flex justify-space-between items-center mb-[0.5rem]">
+                    <div className="flex justify-between items-center mb-[0.5rem]">
                         <span className="text-[0.8rem] font-[700] text-[var(--color-text-muted)]">Carga de Trabajo</span>
                         <div className="flex flex-col items-end">
                             <span className="text-[0.8rem] font-[800] text-[var(--color-primary)]">{totalThisMonth} docs</span>
@@ -198,7 +198,7 @@ export default function StatsBar() {
                         </div>
                         {stat.key === 'ai_camera_history' && stat.compliance !== null && stat.compliance !== undefined &&
           <div style={{ borderTop: `1px solid ${stat.color}33` }} className="mt-[0.6rem] pt-[0.6rem]">
-                                <div style={{ color: stat.color }} className="flex justify-space-between text-[0.6rem] font-[800] mb-[0.2rem]">
+                                <div style={{ color: stat.color }} className="flex justify-between text-[0.6rem] font-[800] mb-[0.2rem]">
                                     <span>Cumplimiento de EPP</span>
                                     <span>{stat.compliance}%</span>
                                 </div>

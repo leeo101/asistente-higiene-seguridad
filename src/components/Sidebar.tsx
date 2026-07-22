@@ -2,7 +2,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import {
   X, User, House, GearSix, ClockCounterClockwise, SignOut, CalendarBlank,
-  ChatText, ShieldCheck, ChartPieSlice,
+  ChatText, ShieldCheck, ChartPieSlice, DeviceMobile,
   Users, Crown, Image as ImageIconPh, ChartBar,
   CloudSlash, CloudArrowUp, CloudCheck, Plant, Moon, Sun } from
 '@phosphor-icons/react';
@@ -315,6 +315,17 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
               </div>
             </Link>
           }
+
+          <button
+            onClick={() => {
+              onClose();
+              window.dispatchEvent(new CustomEvent('show-pwa-install'));
+            }}
+            className="w-full mb-3 p-3 rounded-2xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-500 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95"
+          >
+            <DeviceMobile weight="bold" size={18} />
+            <span>Instalar App (PWA)</span>
+          </button>
 
           <AdBanner placement="sidebar" />
 

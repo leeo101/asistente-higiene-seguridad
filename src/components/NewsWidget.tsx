@@ -147,7 +147,7 @@ export default function NewsWidget() {
 
   return (
     <div className="mt-[2rem]">
-            <div className="flex justify-space-between items-center mb-[1rem] p-[0_0.5rem]">
+            <div className="flex justify-between items-center mb-[1rem] px-2">
                 <h3 className="text-[1.1rem] font-[900] m-[0] letter-spacing-[-0.5px] flex items-center gap-[0.5rem]">
                     <BellRing size={20} color="#f59e0b" /> Novedades Normativas
                 </h3>

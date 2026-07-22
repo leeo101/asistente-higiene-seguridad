@@ -257,10 +257,58 @@ export default function FloatingAssistant() {
   { label: 'Investigación', icon: <BarChart3 size={18} />, color: '#ef4444', path: '/accident-investigation' }];
 
 
-  const aiTips = [
-  "Recordá verificar la vigencia de los matafuegos hoy.",
-  "Detecté un aumento en trabajos en altura esta semana.",
-  "Tu nivel de cumplimiento subió un 5% ¡Bien hecho!"];
+  const getContextualTips = () => {
+    const path = location.pathname;
+    if (path.includes('/ats')) {
+      return [
+        "Sugerir riesgos para trabajo en altura",
+        "Medidas preventivas para excavaciones",
+        "EPP obligatorio en zonas operativas"
+      ];
+    }
+    if (path.includes('/loto')) {
+      return [
+        "Verificación de energía cero",
+        "Pasos para colocación de candados",
+        "Procedimiento de desbloqueo seguro"
+      ];
+    }
+    if (path.includes('/fire-load')) {
+      return [
+        "Poder calorífico por tipo de material",
+        "Resistencia al fuego requerida (F30/F60)",
+        "Distribución de extintores según superficie"
+      ];
+    }
+    if (path.includes('/working-at-height')) {
+      return [
+        "Puntos de anclaje normados (22 KN)",
+        "Inspección previa de arnés de seguridad",
+        "Checklist para montaje de andamios"
+      ];
+    }
+    if (path.includes('/confined-space')) {
+      return [
+        "Medición de atmósfera (Oxígeno y LEL)",
+        "Vigía en exterior y comunicación",
+        "Plan de rescate para espacio confinado"
+      ];
+    }
+    if (path.includes('/extintores') || path.includes('/extinguisher')) {
+      return [
+        "Presión del manómetro en rango verde",
+        "Control de tarjeta de inspección",
+        "Distancia máxima de recorrido"
+      ];
+    }
+    return [
+      "Recordá verificar la vigencia de los matafuegos hoy",
+      "Resumen semanal de siniestralidad",
+      "Consultar marco legal local vigente"
+    ];
+  };
+
+  const aiTips = getContextualTips();
 
 
   return (
@@ -293,7 +341,7 @@ export default function FloatingAssistant() {
           }}>
           
                     {/* Header */}
-                    <div className="flex items-center justify-space-between mb-[1.2rem] p-[0_0.2rem]">
+                    <div className="flex items-center justify-between mb-[1.2rem] px-1">
                         <div className="flex items-center gap-[0.9rem]">
                                 <div className="w-[48px] h-[48px] bg-[white] rounded-[14px] flex items-center justify-center border-[1px_solid_rgba(59,_130,_246,_0.1)] box-shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
 
@@ -342,8 +390,8 @@ export default function FloatingAssistant() {
 
 
             
-                        <div className="flex justify-space-between items-center mb-[0.7rem]">
-                            <span className="text-[0.72rem] font-[800] text-[var(--color-primary)] letter-spacing-[0.3px]">NIVEL DE CUMPLIMIENTO</span>
+                        <div className="flex justify-between items-center mb-[0.7rem]">
+                            <span style={{ letterSpacing: '0.3px' }} className="text-[0.72rem] font-[800] text-[var(--color-primary)]">NIVEL DE CUMPLIMIENTO</span>
                             <span className="text-[0.95rem] font-[900] text-[var(--color-primary)]">{safetyScore}%</span>
                         </div>
                         <div className="h-[8px] bg-[rgba(0,0,0,0.06)] rounded-[10px] overflow-[hidden]">
@@ -357,58 +405,27 @@ export default function FloatingAssistant() {
                         </div>
                     </div>
 
-                    {/* Tabs Control - Improved for equal width and no cut-offs */}
-                    <div className="flex gap-[0.5rem] mb-[1.2rem] p-[2px] bg-[rgba(0,0,0,0.02)] rounded-[14px]">
-                        <button
-              onClick={() => setActiveTab('actions')}
-              style={{
-
-                background: activeTab === 'actions' ? 'white' : 'transparent',
-                color: activeTab === 'actions' ? 'var(--color-primary)' : 'var(--color-text-muted)',
-
-                boxShadow: activeTab === 'actions' ? '0 4px 12px rgba(0,0,0,0.08)' : 'none',
-                fontWeight: activeTab === 'actions' ? 800 : 600
-
-
-              }} className="flex-[1] p-[0.6rem_0] text-[0.75rem] rounded-[12px] border-none transition-[all_0.2s_ease] cursor-pointer">
-              
-                            Acciones
-                        </button>
-                        <button
-              onClick={() => setActiveTab('chat')}
-              style={{
-
-                background: activeTab === 'chat' ? 'white' : 'transparent',
-                color: activeTab === 'chat' ? 'var(--color-primary)' : 'var(--color-text-muted)',
-
-                boxShadow: activeTab === 'chat' ? '0 4px 12px rgba(0,0,0,0.08)' : 'none',
-                fontWeight: activeTab === 'chat' ? 800 : 600
-
-
-              }} className="flex-[1] p-[0.6rem_0] text-[0.75rem] rounded-[12px] border-none transition-[all_0.2s_ease] cursor-pointer">
-              
-                            Chat
-                        </button>
-                        <button
-              onClick={() => setActiveTab('id')}
-              style={{
-
-                background: activeTab === 'id' ? 'white' : 'transparent',
-                color: activeTab === 'id' ? 'var(--color-primary)' : 'var(--color-text-muted)',
-
-                boxShadow: activeTab === 'id' ? '0 4px 12px rgba(0,0,0,0.08)' : 'none',
-                fontWeight: activeTab === 'id' ? 800 : 600
-
-
-              }} className="flex-[1] p-[0.6rem_0] text-[0.75rem] rounded-[12px] border-none transition-[all_0.2s_ease] cursor-pointer">
-              
-                            H&S ID
-                        </button>
+                    {/* Tabs Control */}
+                    <div className="flex gap-1 mb-[1.2rem] p-[3px] bg-[rgba(0,0,0,0.04)] dark:bg-[rgba(255,255,255,0.04)] rounded-[14px]">
+                        {(['actions', 'chat', 'id'] as const).map((tab) => (
+                          <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            style={{
+                              background: activeTab === tab ? 'var(--color-surface)' : 'transparent',
+                              color: activeTab === tab ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                              boxShadow: activeTab === tab ? '0 2px 8px rgba(0,0,0,0.12)' : 'none',
+                              fontWeight: activeTab === tab ? 800 : 600,
+                            }}
+                            className="flex-1 py-[0.55rem] text-[0.75rem] rounded-[11px] border-none transition-all duration-200 cursor-pointer">
+                            {tab === 'actions' ? 'Acciones' : tab === 'chat' ? 'Chat' : 'H&S ID'}
+                          </button>
+                        ))}
                     </div>
 
                     {/* Content Area */}
                     <div
-            className={`hide-scrollbar flex-[1] p-[2px] flex flex-col ${activeTab !== 'chat' ? 'overflow-y-[auto]' : 'overflow-[hidden]'}`}>
+            className={`hide-scrollbar flex-1 min-h-0 flex flex-col ${activeTab !== 'chat' ? 'overflow-y-auto' : 'overflow-hidden'}`}>
 
             
                         {activeTab === 'id' ?
@@ -425,11 +442,11 @@ export default function FloatingAssistant() {
 
                 
                                     {/* Chip & Logo */}
-                                    <div className="flex justify-space-between items-start mb-[1.5rem]">
-                                        <div className="w-[40px] h-[30px] bg-[linear-gradient(135deg,_#fcd34d_0%,_#fbbf24_100%)] rounded-[6px] opacity-[0.8]"></div>
+                                    <div className="flex justify-between items-start mb-[1.5rem]">
+                                        <div className="w-[40px] h-[30px] bg-[linear-gradient(135deg,_#fcd34d_0%,_#fbbf24_100%)] rounded-[6px] opacity-80"></div>
                                         <div className="text-right">
-                                            <div className="text-[0.55rem] font-[900] opacity-[0.6] letter-spacing-[1px]">H&S IDENTIFICATION</div>
-                                            <img src="/logo.png" alt="Logo" className="h-[18px] mt-[4px] filter-[brightness(0)_invert(1)]" />
+                                            <div style={{ letterSpacing: '1px' }} className="text-[0.55rem] font-[900] opacity-60">H&S IDENTIFICATION</div>
+                                            <img src="/logo.png" alt="Logo" className="h-[18px] mt-[4px]" style={{ filter: 'brightness(0) invert(1)' }} />
                                         </div>
                                     </div>
 
@@ -468,7 +485,7 @@ export default function FloatingAssistant() {
                                     </div>
 
                                     {/* QR & Number */}
-                                    <div className="flex justify-space-between items-end border-top-[1px_solid_rgba(255,255,255,0.1)] pt-[1rem]">
+                                    <div className="flex justify-between items-end pt-[1rem]" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                                         <div className="min-width-[0]">
                                             <div className="text-[0.5rem] opacity-[0.5] mb-[2px]">NÚMERO DE LICENCIA</div>
                                             <div className="text-[0.6rem] opacity-[0.8] font-family-[monospace] letter-spacing-[1px]">
@@ -542,8 +559,8 @@ export default function FloatingAssistant() {
               }
                             </div> :
 
-            <div className="flex flex-col flex-1 h-full overflow-hidden">
-                                <div className="hide-scrollbar flex-[1] overflow-y-[auto] mb-[0.8rem] flex flex-col gap-[1.2rem] pr-[4px] pb-[1rem]">
+            <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+                                <div className="hide-scrollbar flex-1 min-h-0 overflow-y-auto mb-[0.8rem] flex flex-col gap-[1.2rem] pr-[4px] pb-[1rem]">
                                     {messages.map((m, idx) =>
                 <div key={idx} style={{ alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start' }} className="flex gap-[0.5rem] max-w-[88%] animation-[fadeIn_0.3s_ease]">
                                             {m.role === 'ai' &&
@@ -588,80 +605,42 @@ export default function FloatingAssistant() {
                 )}
                                 </div>
 
-                                <form onSubmit={handleSendMessage} className="mb-[1rem] relative">
-                                    <div className="flex items-center gap-[0.4rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[20px] p-[6px_8px] transition-[all_0.3s_ease] box-shadow-[var(--shadow-sm)]">
-
-
-
-
-
-
-
-
-
-                  
+                                <form onSubmit={handleSendMessage} className="mb-[0.6rem]">
+                                    <div
+                                      className="flex items-center gap-1 rounded-[18px] px-2 py-[5px] transition-all"
+                                      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
                                         <input
-                    type="text"
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    placeholder={isTyping ? "La IA está pensando..." : "Preguntale algo a la IA..."}
-
-
-
-
-
-
-
-
-
-
-                    disabled={isTyping} className="flex-[1] p-[0.6rem_0.5rem] border-none bg-[transparent] text-[var(--color-text)] text-[0.9rem] outline-[none] mb-[0]" />
-                  
-                                        <div className="flex gap-[4px] items-center">
+                                            type="text"
+                                            value={chatInput}
+                                            onChange={(e) => setChatInput(e.target.value)}
+                                            placeholder={isTyping ? 'La IA está pensando...' : 'Preguntale algo a la IA...'}
+                                            disabled={isTyping}
+                                            className="flex-1 py-[0.5rem] px-[0.4rem] border-none bg-transparent text-[var(--color-text)] text-[0.88rem] outline-none" />
+                                        <div className="flex items-center gap-[3px] flex-shrink-0">
                                             <button
-                      type="button"
-                      onClick={handleWeeklyReport}
-                      title="Reporte Semanal IA"
-
-
-
-
-
-
-
-                      onMouseOver={(e) => {e.currentTarget.style.background = 'rgba(59,130,246,0.1)';e.currentTarget.style.color = 'var(--color-primary)';}}
-                      onMouseOut={(e) => {e.currentTarget.style.background = 'transparent';e.currentTarget.style.color = 'var(--color-text-muted)';}} className="bg-[transparent] border-none rounded-[12px] w-[36px] h-[36px] flex items-center justify-center text-[var(--color-text-muted)] cursor-pointer p-[0] transition-[all_0.2s_ease]">
-                      
-                                                <BarChart3 size={18} />
+                                                type="button" onClick={handleWeeklyReport} title="Reporte Semanal IA"
+                                                onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(59,130,246,0.1)'; e.currentTarget.style.color = 'var(--color-primary)'; }}
+                                                onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--color-text-muted)'; }}
+                                                className="bg-transparent border-none rounded-[10px] w-[32px] h-[32px] flex items-center justify-center text-[var(--color-text-muted)] cursor-pointer p-0 transition-all">
+                                                <BarChart3 size={16} />
                                             </button>
                                             <button
-                      type="button"
-                      onClick={handleVoiceDictation}
-                      style={{
-                        background: isListening ? '#ef4444' : 'transparent',
-
-
-                        color: isListening ? 'white' : 'var(--color-text-muted)'
-
-                      }}
-                      onMouseOver={(e) => {if (!isListening) {e.currentTarget.style.background = 'rgba(59,130,246,0.1)';e.currentTarget.style.color = 'var(--color-primary)';}}}
-                      onMouseOut={(e) => {if (!isListening) {e.currentTarget.style.background = 'transparent';e.currentTarget.style.color = 'var(--color-text-muted)';}}} className="border-none rounded-[12px] w-[36px] h-[36px] flex items-center justify-center cursor-pointer p-[0] transition-[all_0.2s_ease]">
-                      
-                                                {isListening ? <Activity size={22} className="animate-pulse" /> : <Volume2 size={22} />}
+                                                type="button" onClick={handleVoiceDictation}
+                                                style={{ background: isListening ? '#ef4444' : 'transparent', color: isListening ? 'white' : 'var(--color-text-muted)' }}
+                                                onMouseOver={(e) => { if (!isListening) { e.currentTarget.style.background = 'rgba(59,130,246,0.1)'; e.currentTarget.style.color = 'var(--color-primary)'; } }}
+                                                onMouseOut={(e) => { if (!isListening) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--color-text-muted)'; } }}
+                                                className="border-none rounded-[10px] w-[32px] h-[32px] flex items-center justify-center cursor-pointer p-0 transition-all">
+                                                {isListening ? <Activity size={18} className="animate-pulse" /> : <Volume2 size={18} />}
                                             </button>
                                             <button
-                      type="submit"
-                      disabled={!chatInput.trim() || isTyping}
-                      style={{
-
-
-
-                        opacity: !chatInput.trim() || isTyping ? 0.5 : 1,
-                        boxShadow: !chatInput.trim() || isTyping ? 'none' : '0 4px 12px rgba(59, 130, 246, 0.4)',
-                        transform: !chatInput.trim() || isTyping ? 'scale(0.95)' : 'scale(1)'
-                      }} className="bg-[var(--gradient-premium)] border-none rounded-[14px] w-[46px] h-[46px] flex items-center justify-center text-[white] cursor-pointer transition-[all_0.3s_ease] p-[0]">
-                      
-                                                <Send size={22} strokeWidth={2.5} className="ml-[2px]" />
+                                                type="submit" disabled={!chatInput.trim() || isTyping}
+                                                style={{
+                                                    opacity: !chatInput.trim() || isTyping ? 0.5 : 1,
+                                                    boxShadow: !chatInput.trim() || isTyping ? 'none' : '0 4px 10px rgba(59,130,246,0.4)',
+                                                    transform: !chatInput.trim() || isTyping ? 'scale(0.92)' : 'scale(1)'
+                                                }}
+                                                className="bg-[var(--gradient-premium)] border-none rounded-[12px] w-[36px] h-[36px] flex items-center justify-center text-white cursor-pointer transition-all p-0">
+                                                <Send size={18} strokeWidth={2.5} className="ml-[1px]" />
                                             </button>
                                         </div>
                                     </div>
