@@ -73,26 +73,36 @@ export default defineConfig({
       },
       includeAssets: ['favicon.ico', 'favicon-16.png', 'favicon-32.png', 'logo.png'],
       manifest: {
-        name: 'Asistente H&S',
+        id: '/',
+        name: 'Asistente de Higiene y Seguridad',
         short_name: 'Asistente HYS',
-        description: 'Gestión Inteligente de Higiene y Seguridad',
+        description: 'Herramientas inteligentes para profesionales de Higiene y Seguridad',
         theme_color: '#1e3a8a',
-        background_color: '#ffffff',
+        background_color: '#0f172a',
         display: 'standalone',
+        display_override: ['standalone', 'minimal-ui'],
+        start_url: '/',
+        scope: '/',
         icons: [
           {
-            src: 'logo.png',
+            src: '/logo.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
           },
           {
-            src: 'logo.png',
+            src: '/logo.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'
+          },
+          {
+            src: '/favicon-180.png',
+            sizes: '180x180',
+            type: 'image/png',
+            purpose: 'any'
           }
-        ],
-        offline_page: '/offline.html'
+        ]
       }
     })
   ],
