@@ -7,8 +7,8 @@
   "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
-  "background_color": "#0f172a",
-  "theme_color": "#1e3a8a",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "lang": "es-AR",
   "dir": "ltr",
   "orientation": "portrait-primary",
@@ -19,19 +19,25 @@
   ],
   "icons": [
     {
-      "src": "/logo.png",
+      "src": "/pwa-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo.png",
+      "src": "/pwa-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/favicon-180.png",
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
@@ -45,7 +51,7 @@
       "url": "/ats",
       "icons": [
         {
-          "src": "/logo.png",
+          "src": "/pwa-192x192.png",
           "sizes": "192x192",
           "type": "image/png"
         }
@@ -58,7 +64,7 @@
       "url": "/fire-load",
       "icons": [
         {
-          "src": "/logo.png",
+          "src": "/pwa-192x192.png",
           "sizes": "192x192",
           "type": "image/png"
         }
@@ -71,7 +77,7 @@
       "url": "/ai-advisor",
       "icons": [
         {
-          "src": "/logo.png",
+          "src": "/pwa-192x192.png",
           "sizes": "192x192",
           "type": "image/png"
         }
