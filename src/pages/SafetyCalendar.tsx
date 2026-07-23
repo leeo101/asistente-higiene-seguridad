@@ -252,28 +252,35 @@ export default function SafetyCalendar(): React.ReactElement | null {
 
                 <div className="flex items-center gap-[0.6rem] flex-wrap">
                     {/* View switcher */}
-                    <div className="flex bg-[var(--color-surface)] rounded-[10px] p-[3px] border-[1px_solid_var(--color-border)]">
+                    <div className="flex bg-[var(--color-surface)] rounded-[12px] p-[3px] border-[1px_solid_var(--color-border)] shadow-sm">
                         {(['month', 'list'] as const).map((v) =>
-            <button key={v} onClick={() => setView(v)} style={{ background: view === v ? 'var(--color-primary)' : 'transparent', color: view === v ? '#fff' : 'var(--color-text-muted)' }} className="p-[0.4rem_0.8rem] border-none rounded-[8px] cursor-pointer font-[700] text-[0.78rem] transition-[all_0.15s] flex items-center gap-[0.3rem]">
+                            <button
+                                key={v}
+                                onClick={() => setView(v)}
+                                style={{
+                                    background: view === v ? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)' : 'transparent',
+                                    color: view === v ? '#ffffff' : 'var(--color-text-muted)',
+                                    boxShadow: view === v ? '0 3px 10px rgba(37,99,235,0.35)' : 'none'
+                                }}
+                                className="p-[0.45rem_0.9rem] border-none rounded-[9px] cursor-pointer font-[800] text-[0.78rem] transition-all flex items-center gap-[0.35rem]">
                                 {v === 'month' ? <CalendarDays size={15} /> : <List size={15} />}
                                 <span className="hidden sm:inline">{v === 'month' ? 'Mes' : 'Lista'}</span>
                             </button>
-            )}
+                        )}
                     </div>
 
                     {/* Month nav */}
-                    <div className="flex items-center gap-[0.3rem] bg-[var(--color-surface)] p-[3px] rounded-[10px] border-[1px_solid_var(--color-border)]">
-                        <button onClick={prevMonth} style={navBtnStyle}><ChevronLeft size={18} /></button>
-                        <button onClick={goToday} style={{ ...navBtnStyle }} className="text-[0.78rem] font-[800] p-[0.4rem_0.8rem] white-space-[nowrap]">HOY</button>
-                        <button onClick={nextMonth} style={navBtnStyle}><ChevronRight size={18} /></button>
+                    <div className="flex items-center gap-[0.35rem] bg-[var(--color-surface)] p-[3px] rounded-[12px] border-[1px_solid_var(--color-border)] shadow-sm">
+                        <button onClick={prevMonth} className="p-[0.45rem_0.65rem] bg-[rgba(59,130,246,0.12)] text-[#2563eb] border-none rounded-[8px] cursor-pointer font-bold transition-all hover:bg-[rgba(59,130,246,0.22)] flex items-center justify-center"><ChevronLeft size={18} /></button>
+                        <button onClick={goToday} className="text-[0.78rem] font-[900] p-[0.45rem_0.9rem] bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-none rounded-[8px] cursor-pointer shadow-sm hover:scale-105 transition-all whitespace-nowrap">HOY</button>
+                        <button onClick={nextMonth} className="p-[0.45rem_0.65rem] bg-[rgba(59,130,246,0.12)] text-[#2563eb] border-none rounded-[8px] cursor-pointer font-bold transition-all hover:bg-[rgba(59,130,246,0.22)] flex items-center justify-center"><ChevronRight size={18} /></button>
                     </div>
 
                     {/* Add */}
                     <button
-            onClick={() => {setNewEvent({ title: '', date: today.toISOString().split('T')[0], time: '09:00', type: 'Inspection', description: '' });setIsAdding(true);}} className="flex items-center gap-[0.5rem] p-[0.55rem_1rem] bg-[var(--color-primary)] text-[#fff] border-none rounded-[10px] font-[800] text-[0.82rem] cursor-pointer box-shadow-[0_4px_12px_rgba(59,130,246,0.35)] letter-spacing-[0.02em] white-space-[nowrap] flex-shrink-[0]">
-
-            
-                        <Plus size={17} /> <span className="hidden sm:inline">NUEVO EVENTO</span><span className="sm:hidden">+</span>
+                        onClick={() => {setNewEvent({ title: '', date: today.toISOString().split('T')[0], time: '09:00', type: 'Inspection', description: '' });setIsAdding(true);}}
+                        className="flex items-center gap-[0.5rem] p-[0.55rem_1.1rem] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-none rounded-[12px] font-[900] text-[0.82rem] cursor-pointer shadow-md shadow-blue-500/30 whitespace-nowrap flex-shrink-0 transition-transform active:scale-95">
+                        <Plus size={18} strokeWidth={2.5} /> <span className="hidden sm:inline">NUEVO EVENTO</span><span className="sm:hidden">+ Evento</span>
                     </button>
                 </div>
             </div>
@@ -307,21 +314,21 @@ export default function SafetyCalendar(): React.ReactElement | null {
                         {view === 'month' ?
             <>
                                 {/* Day labels */}
-                                <div className="grid grid-template-columns-[repeat(7,_1fr)] border-bottom-[1px_solid_var(--color-border)] bg-[var(--color-surface)] border-top-left-radius-[12px] border-top-right-radius-[12px]">
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', width: '100%' }} className="border-b border-[var(--color-border)] bg-[var(--color-surface)]">
                                     {DAYS_SHORT.map((d, i) =>
-                <div key={d} className="text-center p-[0.7rem_0.2rem] text-[0.68rem] font-[800] text-[var(--color-text-muted)] uppercase letter-spacing-[0.04em]">
+                                        <div key={d} className="text-center p-[0.7rem_0.2rem] text-[0.68rem] font-[800] text-[var(--color-text-muted)] uppercase letter-spacing-[0.04em]">
                                             <span className="hidden sm:block">{d}</span>
                                             <span className="sm:hidden">{DAYS_MIN[i]}</span>
                                         </div>
-                )}
+                                    )}
                                 </div>
 
                                 {/* Cells */}
-                                <div className="grid grid-template-columns-[repeat(7,_minmax(0,1fr))]">
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', width: '100%' }} className="w-full">
                                     {/* Empty leading cells */}
                                     {Array.from({ length: startDay }).map((_, i) =>
-                <div key={`e-${i}`} className="min-h-[clamp(60px,_12vw,_100px)] border-right-[1px_solid_var(--color-border)] border-bottom-[1px_solid_var(--color-border)] bg-[var(--color-background)] opacity-[0.4]" />
-                )}
+                                        <div key={`e-${i}`} className="min-h-[clamp(50px,_8vw,_80px)] border-r border-b border-[var(--color-border)] bg-[var(--color-background)] opacity-40" />
+                                    )}
 
                                     {/* Day cells */}
                                     {Array.from({ length: totalDays }, (_, i) => i + 1).map((day) => {
@@ -351,7 +358,7 @@ export default function SafetyCalendar(): React.ReactElement | null {
                         outline: isSelected ? '2px solid var(--color-primary)' : 'none'
 
 
-                      }} className="min-h-[clamp(60px,_12vw,_100px)] border-right-[1px_solid_var(--color-border)] border-bottom-[1px_solid_var(--color-border)] p-[6px_4px] flex flex-col gap-[3px] transition-[all_0.15s_ease] box-sizing-[border-box] outline-offset-[-2px] relative">
+                      }} className="min-h-[clamp(50px,8vw,90px)] border-r border-b border-[var(--color-border)] p-1.5 flex flex-col gap-1 transition-colors box-border outline-offset-[-2px] relative">
                       
                                                 {/* Tooltip Popover on Hover */}
                                                 {hoveredDay === dateStr && dayEvs.length > 0 && !isSelected &&
@@ -389,20 +396,34 @@ export default function SafetyCalendar(): React.ReactElement | null {
                                                     {day}
                                                 </span>
 
-                                                {/* Events on this day */}
-                                                <div className="flex flex-col gap-[2px] overflow-[hidden] flex-[1]">
-                                                    {dayEvs.slice(0, 3).map((ev, k) =>
-                        <div key={k} style={{
-                          background: EVENT_TYPES[ev.type]?.bg || '#64748b22',
-                          color: EVENT_TYPES[ev.type]?.color || '#64748b',
-                          border: `1px solid ${EVENT_TYPES[ev.type]?.color}33`
-                        }} className="rounded-[4px] p-[1px_4px] flex items-center gap-[3px] min-width-[0]">
-                                                            <div className="hidden sm:flex flex-shrink-[0]">{EVENT_TYPES[ev.type]?.icon}</div>
-                                                            <span className="hidden sm:block text-[0.55rem] font-[800] overflow-[hidden] text-overflow-[ellipsis] white-space-[nowrap] flex-[1]">{ev.title}</span>
-                                                            <span className="sm:hidden w-[6px] h-[6px] rounded-[50%] flex-shrink-[0] block" style={{ background: EVENT_TYPES[ev.type]?.color }} />
+                                                {/* Desktop events (vertical list) */}
+                                                <div className="hidden sm:flex flex-col gap-[2px] overflow-hidden flex-1 w-full">
+                                                    {dayEvs.slice(0, 3).map((ev, k) => (
+                                                        <div key={k} style={{
+                                                          background: EVENT_TYPES[ev.type]?.bg || '#64748b22',
+                                                          color: EVENT_TYPES[ev.type]?.color || '#64748b',
+                                                          border: `1px solid ${EVENT_TYPES[ev.type]?.color}33`
+                                                        }} className="rounded-[4px] p-[1px_4px] flex items-center gap-[3px] min-w-0">
+                                                            <div className="flex-shrink-0">{EVENT_TYPES[ev.type]?.icon}</div>
+                                                            <span className="text-[0.55rem] font-[800] overflow-hidden text-ellipsis whitespace-nowrap flex-1">{ev.title}</span>
                                                         </div>
-                        )}
+                                                    ))}
                                                     {dayEvs.length > 3 && <span className="text-[0.5rem] text-[var(--color-text-muted)] font-[800] pl-[2px]">+{dayEvs.length - 3} más</span>}
+                                                </div>
+
+                                                {/* Mobile events (horizontal row - uno al lado del otro) */}
+                                                <div className="sm:hidden flex flex-row flex-wrap items-center justify-center gap-1 w-full my-auto">
+                                                    {dayEvs.slice(0, 4).map((ev, k) => (
+                                                        <span
+                                                            key={k}
+                                                            title={ev.title}
+                                                            style={{ background: EVENT_TYPES[ev.type]?.color || '#3b82f6' }}
+                                                            className="w-2.5 h-2.5 rounded-full flex-shrink-0 shadow-sm border border-white/40"
+                                                        />
+                                                    ))}
+                                                    {dayEvs.length > 4 && (
+                                                        <span className="text-[0.55rem] font-black text-blue-600 dark:text-blue-400">+{dayEvs.length - 4}</span>
+                                                    )}
                                                 </div>
                                             </div>);
 
