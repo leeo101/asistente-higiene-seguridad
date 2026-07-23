@@ -75,38 +75,48 @@ export default function HeaderNotifications() {
       <button
         onClick={() => setShowAlerts(v => !v)}
         style={{
-          background: hasAlerts
-            ? 'rgba(239,68,68,0.18)'
-            : isDashboard ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: hasAlerts ? '#ef4444' : '#f59e0b',
+          flexShrink: 0,
+          background: hasAlerts ? 'rgba(239, 68, 68, 0.15)' : isDashboard ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)',
+          width: '42px',
+          height: '42px',
+          padding: '0',
+          borderRadius: '12px',
           border: hasAlerts
-            ? '1px solid rgba(239,68,68,0.6)'
+            ? '1px solid rgba(239, 68, 68, 0.4)'
             : isDashboard ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(15,23,42,0.1)',
-          boxShadow: hasAlerts ? '0 0 14px rgba(239,68,68,0.4)' : 'none',
-          animation: hasAlerts ? 'bell-shake 3s infinite cubic-bezier(.36,.07,.19,.97) both' : 'none',
+          boxShadow: hasAlerts ? '0 0 12px rgba(239, 68, 68, 0.3)' : 'none',
+          cursor: 'pointer',
+          transition: 'all 0.3s ease',
+          position: 'relative',
         }}
         title={hasAlerts
           ? `${notifications.length} alerta${notifications.length !== 1 ? 's' : ''} de vencimiento`
           : 'Notificaciones'}
-        className="p-[0] relative flex-shrink-[0] w-[42px] h-[42px] rounded-[12px] flex items-center justify-center cursor-pointer transition-[all_0.3s_ease]"
       >
-        <style>{`
-          @keyframes bell-shake {
-            0%, 85%, 100% { transform: rotate(0deg); }
-            88%, 94% { transform: rotate(-10deg); }
-            91%, 97% { transform: rotate(10deg); }
-          }
-        `}</style>
-        <Bell weight={hasAlerts ? 'fill' : 'bold'} size={22} color={hasAlerts ? '#f87171' : '#f59e0b'} />
+        <Bell weight="bold" size={22} />
         {hasAlerts && (
           <span style={{
-            position: 'absolute', top: '-5px', right: '-5px',
+            position: 'absolute',
+            top: '-5px',
+            right: '-5px',
             background: expired.length > 0 ? '#ef4444' : '#f59e0b',
-            color: '#fff', borderRadius: '50%',
-            width: '18px', height: '18px',
-            fontSize: '0.6rem', fontWeight: 900,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: '2px solid var(--color-hero-bg, #0f172a)',
+            color: '#ffffff',
+            borderRadius: '50%',
+            width: '19px',
+            height: '19px',
+            fontSize: '0.62rem',
+            fontWeight: 900,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '2px solid #0f172a',
             boxShadow: `0 0 8px ${expired.length > 0 ? 'rgba(239,68,68,0.7)' : 'rgba(245,158,11,0.7)'}`,
+            lineHeight: 1,
+            zIndex: 10,
           }}>
             {notifications.length > 9 ? '9+' : notifications.length}
           </span>

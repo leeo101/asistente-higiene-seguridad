@@ -34,54 +34,66 @@ export function useExpiryNotifications() {
   const refresh = useCallback(() => {
     const items: ExpiryNotification[] = [];
 
+    // Helper para convertir fecha base + meses
+    const addMonths = (dateStr: string, months: number): string => {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      d.setMonth(d.getMonth() + Number(months));
+      return d.toISOString().split('T')[0];
+    };
+
     // ─── EPP ────────────────────────────────────────────
     try {
       const ppe = JSON.parse(localStorage.getItem('ppe_items') || '[]');
       ppe.forEach((item: any) => {
-        const daysLeft = getDaysLeft(item.purchaseDate, item.lifeMonths ?? 12);
-        if (daysLeft !== null && daysLeft <= 30) {
-          items.push({
-            id: `ppe-${item.id}`,
-            type: 'ppe',
-            label: item.type,
-            responsible: item.responsible,
-            daysLeft,
-            isExpired: daysLeft < 0,
-            itemId: item.id,
-          });
+        const expDate = item.vencimiento || item.expirationDate || (item.purchaseDate ? addMonths(item.purchaseDate, item.lifeMonths ?? 12) : null);
+        if (expDate) {
+          const daysLeft = getDaysLeft(expDate);
+          if (daysLeft !== null && daysLeft <= 30) {
+            items.push({
+              id: `ppe-${item.id}`,
+              type: 'ppe',
+              label: `EPP: ${item.type || item.tipo || 'Elemento'} (${item.responsible || item.trabajador || 'Personal'})`,
+              responsible: item.responsible || item.trabajador,
+              daysLeft,
+              isExpired: daysLeft <= 0,
+              itemId: item.id,
+            });
+          }
         }
       });
     } catch { /* ignore */ }
 
     // ─── Extintores ──────────────────────────────────────
     try {
-      // Sincronizado con la clave real de Extinguishers.tsx
       const extinguishers = JSON.parse(localStorage.getItem('extinguishers_inventory') || '[]');
       extinguishers.forEach((ext: any) => {
-        // Vencimiento de Carga (12 meses)
-        if (ext.ultimaCarga) {
-          const daysLeft = getDaysLeft(ext.ultimaCarga, 12);
+        // Recarga
+        const recargaExp = ext.vencimientoRecarga || ext.vencimiento || (ext.ultimaCarga ? addMonths(ext.ultimaCarga, 12) : null);
+        if (recargaExp) {
+          const daysLeft = getDaysLeft(recargaExp);
           if (daysLeft !== null && daysLeft <= 30) {
             items.push({
               id: `ext-recharge-${ext.id}`,
               type: 'extinguisher',
-              label: `Extintor #${ext.chapa} (${ext.ubicacion || 'sin ubicación'}) — Recarga`,
+              label: `Extintor N° ${ext.numero || ext.chapa || ext.id} (${ext.ubicacion || ext.sector || 'Sin ubicación'}) — Recarga`,
               daysLeft,
-              isExpired: daysLeft < 0,
+              isExpired: daysLeft <= 0,
               itemId: ext.id,
             });
           }
         }
-        // Vencimiento de Prueba Hidráulica (60 meses)
-        if (ext.ultimaPH) {
-          const daysLeft = getDaysLeft(ext.ultimaPH, 60);
+        // Prueba Hidráulica
+        const phExp = ext.vencimientoPH || (ext.ultimaPH ? addMonths(ext.ultimaPH, 60) : null);
+        if (phExp) {
+          const daysLeft = getDaysLeft(phExp);
           if (daysLeft !== null && daysLeft <= 30) {
             items.push({
               id: `ext-pressure-${ext.id}`,
               type: 'extinguisher',
-              label: `Extintor #${ext.chapa} (${ext.ubicacion || 'sin ubicación'}) — P. Hidráulica`,
+              label: `Extintor N° ${ext.numero || ext.chapa || ext.id} (${ext.ubicacion || ext.sector || 'Sin ubicación'}) — P. Hidráulica`,
               daysLeft,
-              isExpired: daysLeft < 0,
+              isExpired: daysLeft <= 0,
               itemId: ext.id,
             });
           }
@@ -93,15 +105,16 @@ export function useExpiryNotifications() {
     try {
       const contractors = JSON.parse(localStorage.getItem('contractors_data') || '[]');
       contractors.forEach((c: any) => {
-        if (c.documentExpiresAt) {
-          const daysLeft = getDaysLeft(c.documentExpiresAt);
-          if (daysLeft !== null && daysLeft <= 15) {
+        const exp = c.documentExpiresAt || c.vencimiento;
+        if (exp) {
+          const daysLeft = getDaysLeft(exp);
+          if (daysLeft !== null && daysLeft <= 30) {
             items.push({
               id: `ctr-${c.id}`,
               type: 'contractor',
-              label: `Empresa ${c.name} — Doc. Principal`,
+              label: `Contratista: ${c.name || c.empresa} — Doc. Principal`,
               daysLeft,
-              isExpired: daysLeft < 0,
+              isExpired: daysLeft <= 0,
               itemId: c.id,
             });
           }
@@ -113,28 +126,30 @@ export function useExpiryNotifications() {
     try {
       const workers = JSON.parse(localStorage.getItem('workers_data') || '[]');
       workers.forEach((w: any) => {
-        if (w.artExpiresAt) {
-          const daysLeft = getDaysLeft(w.artExpiresAt);
-          if (daysLeft !== null && daysLeft <= 15) {
+        const artExp = w.artExpiresAt || w.vencimientoART;
+        if (artExp) {
+          const daysLeft = getDaysLeft(artExp);
+          if (daysLeft !== null && daysLeft <= 30) {
             items.push({
               id: `wrk-art-${w.id}`,
               type: 'worker',
-              label: `${w.name} — Vto. ART`,
+              label: `Trabajador: ${w.name || w.nombre} — Vto. ART`,
               daysLeft,
-              isExpired: daysLeft < 0,
+              isExpired: daysLeft <= 0,
               itemId: w.id,
             });
           }
         }
-        if (w.lifeInsuranceExpiresAt) {
-          const daysLeft = getDaysLeft(w.lifeInsuranceExpiresAt);
-          if (daysLeft !== null && daysLeft <= 15) {
+        const lifeExp = w.lifeInsuranceExpiresAt || w.vencimientoSeguro;
+        if (lifeExp) {
+          const daysLeft = getDaysLeft(lifeExp);
+          if (daysLeft !== null && daysLeft <= 30) {
             items.push({
               id: `wrk-ins-${w.id}`,
               type: 'worker',
-              label: `${w.name} — Seguro de Vida`,
+              label: `Trabajador: ${w.name || w.nombre} — Seguro de Vida`,
               daysLeft,
-              isExpired: daysLeft < 0,
+              isExpired: daysLeft <= 0,
               itemId: w.id,
             });
           }
@@ -146,18 +161,21 @@ export function useExpiryNotifications() {
     try {
       const capas = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
       capas.forEach((c: any) => {
-        if (c.status !== 'Cerrada' && c.targetDate) {
-          const daysLeft = getDaysLeft(c.targetDate);
-          if (daysLeft !== null && daysLeft <= 7) {
-            items.push({
-              id: `capa-${c.id}`,
-              type: 'capa',
-              label: `CAPA: ${c.title || 'Acción Correctiva'}`,
-              responsible: c.responsible,
-              daysLeft,
-              isExpired: daysLeft < 0,
-              itemId: c.id,
-            });
+        if (c.status !== 'Cerrada') {
+          const exp = c.targetDate || c.vencimiento || c.fechaLimite;
+          if (exp) {
+            const daysLeft = getDaysLeft(exp);
+            if (daysLeft !== null && daysLeft <= 30) {
+              items.push({
+                id: `capa-${c.id}`,
+                type: 'capa',
+                label: `CAPA: ${c.title || c.titulo || 'Acción Correctiva'}`,
+                responsible: c.responsible || c.responsable,
+                daysLeft,
+                isExpired: daysLeft <= 0,
+                itemId: c.id,
+              });
+            }
           }
         }
       });
@@ -167,15 +185,16 @@ export function useExpiryNotifications() {
     try {
       const trainings = JSON.parse(localStorage.getItem('training_history') || '[]');
       trainings.forEach((t: any) => {
-        if (t.nextTrainingDate) {
-          const daysLeft = getDaysLeft(t.nextTrainingDate);
-          if (daysLeft !== null && daysLeft <= 15) {
+        const exp = t.nextTrainingDate || t.vencimiento;
+        if (exp) {
+          const daysLeft = getDaysLeft(exp);
+          if (daysLeft !== null && daysLeft <= 30) {
             items.push({
               id: `trn-${t.id}`,
               type: 'training',
-              label: `Capacitación: ${t.topic || 'Pendiente'}`,
+              label: `Capacitación: ${t.topic || t.tema || 'Pendiente'}`,
               daysLeft,
-              isExpired: daysLeft < 0,
+              isExpired: daysLeft <= 0,
               itemId: t.id,
             });
           }
@@ -187,18 +206,21 @@ export function useExpiryNotifications() {
     try {
       const audits = JSON.parse(localStorage.getItem('ehs_audits_db') || '[]');
       audits.forEach((a: any) => {
-        if (a.status === 'planned' && a.scheduledDate) {
-          const daysLeft = getDaysLeft(a.scheduledDate);
-          if (daysLeft !== null && daysLeft <= 15) {
-            items.push({
-              id: `aud-${a.id}`,
-              type: 'audit',
-              label: `Auditoría: ${a.title || 'Programada'}`,
-              responsible: a.leadAuditor,
-              daysLeft,
-              isExpired: daysLeft < 0,
-              itemId: a.id,
-            });
+        if (a.status === 'planned' || a.status === 'Pendiente') {
+          const exp = a.scheduledDate || a.fecha;
+          if (exp) {
+            const daysLeft = getDaysLeft(exp);
+            if (daysLeft !== null && daysLeft <= 30) {
+              items.push({
+                id: `aud-${a.id}`,
+                type: 'audit',
+                label: `Auditoría: ${a.title || a.titulo || 'Programada'}`,
+                responsible: a.leadAuditor || a.auditor,
+                daysLeft,
+                isExpired: daysLeft <= 0,
+                itemId: a.id,
+              });
+            }
           }
         }
       });
@@ -208,15 +230,16 @@ export function useExpiryNotifications() {
     try {
       const medical = JSON.parse(localStorage.getItem('ehs_medical_db') || '[]');
       medical.forEach((m: any) => {
-        if (m.expirationDate) {
-          const daysLeft = getDaysLeft(m.expirationDate);
+        const exp = m.expirationDate || m.vencimiento;
+        if (exp) {
+          const daysLeft = getDaysLeft(exp);
           if (daysLeft !== null && daysLeft <= 30) {
             items.push({
               id: `med-${m.id}`,
               type: 'medical',
-              label: `Aptitud Médica: ${m.workerName}`,
+              label: `Aptitud Médica: ${m.workerName || m.trabajador || 'Trabajador'}`,
               daysLeft,
-              isExpired: daysLeft < 0,
+              isExpired: daysLeft <= 0,
               itemId: m.id,
             });
           }
@@ -228,16 +251,16 @@ export function useExpiryNotifications() {
     try {
       const drills = JSON.parse(localStorage.getItem('drills_history') || '[]');
       drills.forEach((d: any) => {
-        if (d.fecha) {
-          // Asume un vencimiento anual (12 meses) desde la fecha del simulacro
-          const daysLeft = getDaysLeft(d.fecha, 12);
+        const exp = d.vencimiento || (d.fecha ? addMonths(d.fecha, 12) : null);
+        if (exp) {
+          const daysLeft = getDaysLeft(exp);
           if (daysLeft !== null && daysLeft <= 30) {
             items.push({
               id: `drill-${d.id}`,
               type: 'drill',
-              label: `Simulacro Anual: ${d.empresa || 'Empresa'}`,
+              label: `Simulacro Anual: ${d.empresa || d.sector || 'Establecimiento'}`,
               daysLeft,
-              isExpired: daysLeft < 0,
+              isExpired: daysLeft <= 0,
               itemId: d.id,
             });
           }
@@ -249,16 +272,16 @@ export function useExpiryNotifications() {
     try {
       const permits = JSON.parse(localStorage.getItem('work_permits_history') || '[]');
       permits.forEach((p: any) => {
-        if (p.endDate) {
-          const daysLeft = getDaysLeft(p.endDate);
-          // Los permisos suelen ser de corta duración, avisamos 3 días antes
-          if (daysLeft !== null && daysLeft <= 3) {
+        const exp = p.endDate || p.vencimiento || p.fechaFin;
+        if (exp) {
+          const daysLeft = getDaysLeft(exp);
+          if (daysLeft !== null && daysLeft <= 30) {
             items.push({
               id: `permit-${p.id}`,
               type: 'permit',
-              label: `Permiso PT-${String(p.id).slice(-4)} ${p.spaceName ? `(${p.spaceName})` : ''}`,
+              label: `Permiso PT-${String(p.id).slice(-4)} ${p.spaceName || p.empresa ? `(${p.spaceName || p.empresa})` : ''}`,
               daysLeft,
-              isExpired: daysLeft < 0,
+              isExpired: daysLeft <= 0,
               itemId: p.id,
             });
           }
@@ -277,24 +300,20 @@ export function useExpiryNotifications() {
   }, [refresh]);
 
   const dismiss = useCallback((id: string) => {
+    // Las notificaciones permanecen activas en la campana hasta solucionar el vencimiento real
     setDismissed(prev => {
       const next = new Set(prev);
       next.add(id);
-      localStorage.setItem('dismissed_notifications', JSON.stringify([...next]));
       return next;
     });
   }, []);
 
   const dismissAll = useCallback(() => {
+    // Almacenar sólo vista temporal en sesión activa
     const ids = notifications.map(n => n.id);
-    setDismissed(prev => {
-      const next = new Set([...prev, ...ids]);
-      localStorage.setItem('dismissed_notifications', JSON.stringify([...next]));
-      return next;
-    });
+    setDismissed(new Set(ids));
   }, [notifications]);
 
-  const visible = notifications.filter(n => !dismissed.has(n.id));
-
-  return { notifications: visible, all: notifications, dismiss, dismissAll, refresh };
+  // Las notificaciones de vencimiento real siempre se muestran en el botón de notificaciones hasta ser solucionadas
+  return { notifications, all: notifications, dismiss, dismissAll, refresh };
 }

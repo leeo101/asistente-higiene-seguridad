@@ -526,9 +526,6 @@ export default function Dashboard(): React.ReactElement {
             <div className="stagger-item animation-delay-[0.4s]">
               <div
                 className="p-6 rounded-[20px] text-white backdrop-blur-md border border-white/20 transition-all duration-300 text-center shadow-[0_10px_30px_rgba(0,0,0,0.15)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.2)] hover:-translate-y-1.5" style={{ background: CARD_GRADIENTS.purple }}>
-
-
-                
                 <div className="flex items-center justify-center gap-[0.5rem] mb-[0.8rem] opacity-[0.9]">
                   <Clock size={22} />
                   <span className="text-[0.85rem] font-[700]">Días sin Accidentes</span>
@@ -540,7 +537,7 @@ export default function Dashboard(): React.ReactElement {
             <KPICard icon={ClipboardList} title="Permisos Activos" value={kpis.activePermits} gradient={CARD_GRADIENTS.orange} delay="0.5s" />
             <KPICard icon={Eye} title="Inspecciones en el Período" value={kpis.inspectionsCompleted} gradient={CARD_GRADIENTS.cyan} delay="0.6s" />
           </>
-          }
+        }
       </div>
 
       {/* Charts */}
@@ -550,7 +547,7 @@ export default function Dashboard(): React.ReactElement {
 
         {/* Monthly Stats Chart */}
         <div className="card p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm">
-          <div className="flex items-center justify-space-between mb-[1.5rem] flex-wrap gap-[0.5rem]">
+          <div className="flex items-center justify-between mb-[1.5rem] flex-wrap gap-[0.5rem]">
             <h3 className="m-[0] text-[1.1rem] font-[800] text-[var(--color-text)]">Estadísticas</h3>
             <div className="flex gap-[0.4rem]">
               {(['week', 'month', 'quarter'] as const).map((p) =>

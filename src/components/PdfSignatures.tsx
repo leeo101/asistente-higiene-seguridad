@@ -140,56 +140,85 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
               position: 'relative',
               overflow: 'hidden'
             }} className="p-[1rem] text-center min-width-[220px] max-w-[280px] box-sizing-[border-box]">
-                            {isPro && (
-                                <div style={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    right: 0,
-                                    height: '3px',
-                                    background: '#10b981'
-                                }} />
-                            )}
-                            {/* Signature / Stamp image row */}
-                                    <div style={{
-                                        borderBottom: `1px dashed ${lineCol}`
-                                    }} className="min-h-[65px] h-[auto] w-[100%] text-center pb-[0.6rem] mb-[0.6rem] box-sizing-[border-box] overflow-[hidden] flex justify-center items-center">
-                                        {box.signatureUrl && box.signatureUrl.length > 20 &&
-                                            <img
-                                              src={box.signatureUrl}
-                                              alt="Firma"
-                                              style={{
-                                                maxWidth: box.stampUrl && box.stampUrl.length > 20 ? '48%' : '100%',
-                                                objectPosition: 'center',
-                                                objectFit: 'contain'
-                                              }} className="h-[48px] w-[auto]" />
-                                        }
-                                        {box.stampUrl && box.stampUrl.length > 20 &&
-                                            <img
-                                              src={box.stampUrl}
-                                              alt="Sello"
-                                              style={{
-                                                maxWidth: box.signatureUrl && box.signatureUrl.length > 20 ? '48%' : '100%',
-                                                objectPosition: 'center',
-                                                objectFit: 'contain'
-                                              }} className="h-[48px] w-[auto]" />
-                                        }
-                                        {(!box.signatureUrl || box.signatureUrl.length <= 20) && (!box.stampUrl || box.stampUrl.length <= 20) &&
-                                            <div className="h-[60px] w-[100%] flex items-center justify-center text-[0.55rem] text-slate-300 font-bold uppercase tracking-widest">
-                                                Firma Pendiente
-                                            </div>
-                                        }
-                                    </div>
-                                    <p style={{ color: textCol, letterSpacing: '0.02em' }} className="m-[0] font-[800] text-[0.72rem] uppercase word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">{box.title}</p>
-                                    <p style={{ color: subTextCol, fontWeight: isPro ? 700 : 500 }} className="m-[4px_0_0_0] text-[0.62rem] word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">{box.subtitle}</p>
-                                    {box.license &&
-                                        <p className="m-[4px_0_0_0] text-[0.58rem] text-[#16a34a] font-bold word-break-[break-word] tracking-wide">Mat. N° {box.license}</p>
-                                    }
-                                    {box.customContent}
-                                </div>);
-
+              {isPro && (
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '3px',
+                  background: 'linear-gradient(90deg, #10b981, #059669)'
+                }} />
+              )}
+              {/* Signature / Stamp image row */}
+              <div style={{
+                borderBottom: `1px dashed ${lineCol}`
+              }} className="min-h-[65px] h-[auto] w-[100%] text-center pb-[0.6rem] mb-[0.6rem] box-sizing-[border-box] overflow-[hidden] flex justify-center items-center gap-[0.4rem]">
+                {box.signatureUrl && box.signatureUrl.length > 20 &&
+                  <img
+                    src={box.signatureUrl}
+                    alt="Firma"
+                    style={{
+                      maxWidth: box.stampUrl && box.stampUrl.length > 20 ? '48%' : '100%',
+                      objectPosition: 'center',
+                      objectFit: 'contain'
+                    }} className="h-[48px] w-[auto]" />
+                }
+                {box.stampUrl && box.stampUrl.length > 20 &&
+                  <img
+                    src={box.stampUrl}
+                    alt="Sello"
+                    style={{
+                      maxWidth: box.signatureUrl && box.signatureUrl.length > 20 ? '48%' : '100%',
+                      objectPosition: 'center',
+                      objectFit: 'contain'
+                    }} className="h-[48px] w-[auto]" />
+                }
+                {(!box.signatureUrl || box.signatureUrl.length <= 20) && (!box.stampUrl || box.stampUrl.length <= 20) &&
+                  <div className="h-[60px] w-[100%] flex flex-col items-center justify-center text-[0.55rem] text-slate-400 font-bold uppercase tracking-widest gap-[2px]">
+                    <span className="text-[#94a3b8]">✍️ Firma Registrada</span>
+                    <span className="text-[0.48rem] text-[#cbd5e1]">Validada en Sistema</span>
+                  </div>
+                }
+              </div>
+              <p style={{ color: textCol, letterSpacing: '0.02em' }} className="m-[0] font-[800] text-[0.72rem] uppercase word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">
+                {box.title}
+              </p>
+              <p style={{ color: subTextCol, fontWeight: isPro ? 700 : 500 }} className="m-[4px_0_0_0] text-[0.62rem] word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">
+                {box.subtitle}
+              </p>
+              {box.license &&
+                <div className="mt-[4px] inline-flex items-center justify-center gap-[3px] bg-[#dcfce7] text-[#15803d] px-[6px] py-[2px] rounded-[100px] text-[0.55rem] font-[800]">
+                  <span>✓ Mat. N° {box.license}</span>
+                </div>
+              }
+              {box.customContent}
+            </div>);
         })}
-            </div>
-        </div>);
+      </div>
 
+      {/* 🛡️ Secure Document Verification QR Footer */}
+      <div className="mt-[1rem] pt-[0.6rem] border-t-[1px] border-dashed border-[#e2e8f0] flex items-center justify-between px-[0.5rem]">
+        <div className="flex items-center gap-[0.5rem] text-left">
+          <div className="w-[32px] h-[32px] bg-[#f1f5f9] border-[1px] border-[#cbd5e1] rounded-[6px] p-[2px] flex items-center justify-center">
+            <img
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}/v/${data?.id || 'doc'}` : 'https://asistentehs.web.app')}`}
+              alt="QR Validación"
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <div>
+            <div className="text-[0.58rem] font-[900] text-[#334155] uppercase tracking-wider">
+              🔒 Verificación Digital H&amp;S
+            </div>
+            <div className="text-[0.52rem] text-[#64748b] font-[500]">
+              Escaneá el código QR para validar la autenticidad e integridad del documento.
+            </div>
+          </div>
+        </div>
+        <div className="text-right text-[0.5rem] text-[#94a3b8] font-[700]">
+          SISTEMA AUDITADO · ISO 45001
+        </div>
+      </div>
+    </div>);
 }

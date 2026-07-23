@@ -278,15 +278,26 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
                         </div>
                     </div>
 
-                    <div style={{ flexDirection: isMobile ? 'column' : 'row' }} className="mt-[2.5rem] bg-[#1e293b] text-[white] p-[2rem] rounded-[16px] flex justify-space-between items-center gap-[2rem] box-shadow-[0_10px_25px_rgba(0,0,0,0.2)]">
+                    <div style={{ flexDirection: isMobile ? 'column' : 'row' }} className="mt-[2.5rem] bg-[#1e293b] text-[white] p-[2rem] rounded-[16px] flex justify-between items-center gap-[2rem] box-shadow-[0_10px_25px_rgba(0,0,0,0.2)]">
                         <div className="flex-[1] flex flex-col gap-[1rem] w-[100%]">
-                            <div className="flex justify-space-between border-bottom-[1px_solid_rgba(255,255,255,0.1)] pb-[0.5rem]">
+                            <div className="flex justify-between border-b-[1px] border-white/10 pb-[0.5rem]">
                                 <span className="text-[#94a3b8] text-[0.9rem]">Tiempo de Desplazamiento</span>
                                 <span className="font-[700]">{results.travelTime} seg</span>
                             </div>
-                            <div className="flex justify-space-between border-bottom-[1px_solid_rgba(255,255,255,0.1)] pb-[0.5rem]">
+                            <div className="flex justify-between border-b-[1px] border-white/10 pb-[0.5rem]">
                                 <span className="text-[#94a3b8] text-[0.9rem]">Tiempo de Paso por Puertas</span>
                                 <span className="font-[700]">{results.flowTime} seg</span>
+                            </div>
+                            
+                            {/* Visual Evacuation Flow Indicator */}
+                            <div className="mt-2 p-3 bg-slate-900/60 rounded-xl border border-slate-700/60">
+                              <div className="flex justify-between items-center text-xs font-bold text-slate-300 mb-1.5">
+                                <span>Flujo Teórico (NFPA 101)</span>
+                                <span className="text-emerald-400 font-mono">{(form.peopleCount / (Number(results.total) || 1)).toFixed(2)} pers/seg</span>
+                              </div>
+                              <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden relative">
+                                <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-700 animate-pulse" style={{ width: `${Math.min(100, Math.max(10, 100 - (Number(results.total) / 180) * 100))}%` }} />
+                              </div>
                             </div>
                         </div>
                         
@@ -304,7 +315,6 @@ export default function EvacuationSimulatorForm(): React.ReactElement | null {
               onChange={(e) => setForm({ ...form, observations: e.target.value })}
               style={{ ...inputStyle }}
               placeholder="El tiempo de evacuación teórico es aceptable. Se recomienda realizar simulacro práctico para validar tiempos reales." className="min-h-[100px]" />
-            
                     </div>
                 </ModuleFormSection>
                 </div>

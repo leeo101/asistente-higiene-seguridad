@@ -29,6 +29,7 @@ import PdfSignatures from '../components/PdfSignatures';
 import SignatureCanvas from '../components/SignatureCanvas';
 import { API_BASE_URL } from '../config';
 import AdModal from '../components/ads/AdModal';
+import VoiceDictationButton from '../components/VoiceDictationButton';
 import { getErrorMessage } from '../utils/errorUtils';
 import {
   ModuleFormLayout,
@@ -873,18 +874,27 @@ export default function ATS(): React.ReactElement | null {
                                                 className="module-form-input pr-12 w-full"
                                                 placeholder="Ej: Pintado de fachada exterior..."
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={handleVoiceDictation}
-                                                className={`absolute right-2 p-2 rounded-lg border-none cursor-pointer transition-all ${
-                                                    isListeningVoice 
-                                                        ? 'bg-red-500 text-white animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]' 
-                                                        : 'bg-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-100'
-                                                }`}
-                                                title="Completar con Voz"
-                                            >
-                                                {isListeningVoice ? <MicOff size={16} /> : <Mic size={16} />}
-                                            </button>
+                                            <div className="absolute right-1 top-1/2 -translate-y-1/2 z-10">
+                                                 <VoiceDictationButton
+                                                     size="sm"
+                                                     enableAI={true}
+                                                     placeholder="Dictar tarea o proyecto..."
+                                                     onTranscript={(text) => {
+                                                         setFormData(prev => ({
+                                                             ...prev,
+                                                             tarea: prev.tarea ? `${prev.tarea} ${text}` : text
+                                                         }));
+                                                     }}
+                                                     onSmartExtract={(extracted) => {
+                                                         setFormData(prev => ({
+                                                             ...prev,
+                                                             empresa: extracted.empresa || prev.empresa,
+                                                             obra: extracted.obra || prev.obra,
+                                                             tarea: extracted.tarea || prev.tarea,
+                                                         }));
+                                                     }}
+                                                 />
+                                             </div>
                                         </div>
                                     </div>
                                     <div className="flex flex-col gap-2 lg:col-span-2">

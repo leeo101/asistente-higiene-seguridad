@@ -5,7 +5,7 @@ import {
   Volume2, Search, Settings, HelpCircle, Lock,
   FileText, ShieldCheck, KeySquare, Send,
   Camera, AlertCircle, PhoneCall, HeartPulse,
-  Activity, MicOff, Contact, QrCode, CreditCard, Award } from
+  Activity, Mic, MicOff, Contact, QrCode, CreditCard, Award } from
 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -205,8 +205,8 @@ export default function FloatingAssistant() {
     if (e) e.preventDefault();
     if (!chatInput.trim() || isTyping) return;
 
-    if (!isPro && freeQueriesUsed >= 3) {
-      toast.error('Límite de consultas gratuitas alcanzado. ¡Pasate a PRO! 💎', { duration: 5000 });
+    if (!isPro) {
+      toast.error('El Asistente Virtual IA es exclusivo para suscripciones PRO 💎', { duration: 5000 });
       navigate('/subscribe');
       return;
     }
@@ -331,10 +331,10 @@ export default function FloatingAssistant() {
         
                     <div
           ref={menuRef}
-          className="assistant-panel-anim w-[100%] pointer-events-[all] flex flex-col p-[1.4rem] overflow-[hidden] bg-[var(--color-surface)] box-shadow-[var(--shadow-lg),_0_0_40px_rgba(59,130,246,0.08)] border-[1px_solid_var(--color-border)] rounded-[24px]"
+          className="assistant-panel-anim w-[100%] pointer-events-[all] flex flex-col p-[1.2rem] overflow-y-auto bg-[var(--color-surface)] box-shadow-[var(--shadow-lg),_0_0_40px_rgba(59,130,246,0.08)] border-[1px_solid_var(--color-border)] rounded-[24px]"
           style={{
-            maxHeight: isMobile ? '82vh' : 'calc(100vh - 10rem)',
-            height: isMobile ? '82vh' : '540px',
+            maxHeight: isMobile ? '88vh' : 'calc(100vh - 120px)',
+            height: isMobile ? '88vh' : '540px',
             borderRadius: isMobile ? '24px 24px 0 0' : '24px',
             borderBottom: isMobile ? 'none' : '1px solid var(--color-border)',
             boxSizing: 'border-box'
@@ -383,27 +383,17 @@ export default function FloatingAssistant() {
                     </div>
 
                     {/* Safety Score Section */}
-                    <div className="bg-[rgba(59,_130,_246,_0.04)] rounded-[18px] p-[1.1rem] mb-[1.2rem] border-[1px_solid_rgba(59,_130,_246,_0.08)]">
-
-
-
-
-
-            
-                        <div className="flex justify-between items-center mb-[0.7rem]">
+                    {activeTab !== 'chat' && (
+                      <div className="bg-[rgba(59,_130,_246,_0.04)] rounded-[18px] p-[0.9rem] mb-[1rem] border-[1px_solid_rgba(59,_130,_246,_0.08)]">
+                        <div className="flex justify-between items-center mb-[0.5rem]">
                             <span style={{ letterSpacing: '0.3px' }} className="text-[0.72rem] font-[800] text-[var(--color-primary)]">NIVEL DE CUMPLIMIENTO</span>
                             <span className="text-[0.95rem] font-[900] text-[var(--color-primary)]">{safetyScore}%</span>
                         </div>
-                        <div className="h-[8px] bg-[rgba(0,0,0,0.06)] rounded-[10px] overflow-[hidden]">
-                            <div style={{
-                width: `${safetyScore}%`
-
-
-
-
-              }} className="h-[100%] bg-[var(--gradient-premium)] rounded-[10px] transition-[width_1.2s_cubic-bezier(0.34,_1.56,_0.64,_1)]"></div>
+                        <div className="h-[7px] bg-[rgba(0,0,0,0.06)] rounded-[10px] overflow-hidden">
+                            <div style={{ width: `${safetyScore}%` }} className="h-[100%] bg-[var(--gradient-premium)] rounded-[10px] transition-[width_1.2s_cubic-bezier(0.34,_1.56,_0.64,_1)]"></div>
                         </div>
-                    </div>
+                      </div>
+                    )}
 
                     {/* Tabs Control */}
                     <div className="flex gap-1 mb-[1.2rem] p-[3px] bg-[rgba(0,0,0,0.04)] dark:bg-[rgba(255,255,255,0.04)] rounded-[14px]">
@@ -548,145 +538,116 @@ export default function FloatingAssistant() {
                                         <ChevronRight size={18} color="var(--color-text-light)" />
                                     </button>
               )}
-                                {!isPro &&
-              <div
-
-
-
-                onClick={() => navigate('/subscribe')} className="p-[1rem] bg-[rgba(59,_130,_246,_0.04)] rounded-[16px] border-[1px_dashed_rgba(59,_130,_246,_0.3)] text-center cursor-pointer">
-                                        <span className="text-[0.8rem] font-[800] text-[var(--color-primary)]">+ Desbloquear acciones PRO</span>
-                                    </div>
-              }
+                                {!isPro && (
+                                  <div
+                                    onClick={() => navigate('/subscribe')} className="p-[1rem] bg-[rgba(59,_130,_246,_0.04)] rounded-[16px] border-[1px_dashed_rgba(59,_130,_246,_0.3)] text-center cursor-pointer">
+                                    <span className="text-[0.8rem] font-[800] text-[var(--color-primary)]">+ Desbloquear acciones PRO</span>
+                                  </div>
+                                )}
                             </div> :
 
-            <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
-                                <div className="hide-scrollbar flex-1 min-h-0 overflow-y-auto mb-[0.8rem] flex flex-col gap-[1.2rem] pr-[4px] pb-[1rem]">
-                                    {messages.map((m, idx) =>
-                <div key={idx} style={{ alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start' }} className="flex gap-[0.5rem] max-w-[88%] animation-[fadeIn_0.3s_ease]">
-                                            {m.role === 'ai' &&
-                  <div className="w-[28px] h-[28px] rounded-[50%] bg-[var(--gradient-premium)] flex-shrink-[0] flex items-center justify-center box-shadow-[0_4px_10px_rgba(59,_130,_246,_0.2)]">
-                                                    <img src="/logo.png" alt="IA" className="w-[16px] h-[16px] filter-[brightness(0)_invert(1)]" />
+            <div className="flex flex-col flex-1 min-h-[320px]">
+                                <div className="hide-scrollbar flex-1 min-h-[180px] max-h-[360px] overflow-y-auto mb-[0.6rem] flex flex-col gap-[1rem] pr-[4px] pb-[0.5rem]">
+                                    {messages.map((m, idx) => (
+                                        <div key={idx} style={{ alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start' }} className="flex gap-[0.5rem] max-w-[90%] animation-[fadeIn_0.3s_ease]">
+                                            {m.role === 'ai' && (
+                                                <div className="w-[30px] h-[30px] rounded-[50%] bg-[var(--gradient-premium)] flex-shrink-0 flex items-center justify-center box-shadow-[0_4px_10px_rgba(59,_130,_246,_0.2)]">
+                                                    <img src="/logo.png" alt="IA" className="w-[18px] h-[18px] filter-[brightness(0)_invert(1)]" />
                                                 </div>
-                  }
+                                            )}
                                             <div style={{
-
-                    borderRadius: m.role === 'user' ? '20px 20px 4px 20px' : '4px 20px 20px 20px',
-                    background: m.role === 'user' ? 'var(--color-primary)' : 'var(--color-surface)',
-                    color: m.role === 'user' ? '#ffffff' : 'var(--color-text)',
-
-
-
-                    border: m.role === 'user' ? 'none' : '1px solid var(--color-border)',
-                    boxShadow: m.role === 'user' ? '0 8px 16px rgba(59, 130, 246, 0.25)' : 'var(--shadow-sm)'
-                  }} className="p-[0.85rem_1.1rem] text-[0.88rem] line-height-[1.5] white-space-[pre-wrap]">
+                                                borderRadius: m.role === 'user' ? '18px 18px 4px 18px' : '4px 18px 18px 18px',
+                                                background: m.role === 'user' ? 'var(--color-primary)' : 'var(--color-surface)',
+                                                color: m.role === 'user' ? '#ffffff' : 'var(--color-text)',
+                                                border: m.role === 'user' ? 'none' : '1px solid var(--color-border)',
+                                                boxShadow: m.role === 'user' ? '0 6px 14px rgba(59, 130, 246, 0.25)' : 'var(--shadow-sm)'
+                                            }} className="p-[0.75rem_1rem] text-[0.85rem] leading-relaxed whitespace-pre-wrap font-medium">
                                                 {m.text}
                                             </div>
                                         </div>
-                )}
-                                    {isTyping &&
-                <div className="flex gap-[0.5rem] align-self-[flex-start] max-w-[88%] animation-[fadeIn_0.3s_ease]">
-                                            <div className="w-[28px] h-[28px] rounded-[50%] bg-[var(--gradient-premium)] flex-shrink-[0] flex items-center justify-center box-shadow-[0_4px_10px_rgba(59,_130,_246,_0.2)]">
-                                                <img src="/logo.png" alt="IA" className="w-[16px] h-[16px] filter-[brightness(0)_invert(1)]" />
+                                    ))}
+                                    {isTyping && (
+                                        <div className="flex gap-[0.5rem] align-self-[flex-start] max-w-[88%] animation-[fadeIn_0.3s_ease]">
+                                            <div className="w-[30px] h-[30px] rounded-[50%] bg-[var(--gradient-premium)] flex-shrink-0 flex items-center justify-center box-shadow-[0_4px_10px_rgba(59,_130,_246,_0.2)]">
+                                                <img src="/logo.png" alt="IA" className="w-[18px] h-[18px] filter-[brightness(0)_invert(1)]" />
                                             </div>
-                                            <div className="p-[0.85rem_1.1rem] rounded-[4px_20px_20px_20px] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] flex items-center gap-[0.5rem]">
+                                            <div className="p-[0.75rem_1rem] rounded-[4px_18px_18px_18px] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] flex items-center gap-[0.5rem]">
                                                 <div className="dot-flashing transform-[scale(0.8)]"></div>
                                             </div>
                                         </div>
-                }
+                                    )}
                                     <div ref={chatEndRef} />
                                 </div>
 
-                                {/* Chips de acciones rápidas */}
-                                <div className="hide-scrollbar flex gap-[0.5rem] overflow-x-[auto] mb-[0.8rem] pb-[4px]">
-                                    {aiTips.map((tip, i) =>
-                <button key={i} onClick={() => {setChatInput(tip);}} onMouseOver={(e) => {e.currentTarget.style.borderColor = 'var(--color-primary)';e.currentTarget.style.color = 'var(--color-primary)';}} onMouseOut={(e) => {e.currentTarget.style.borderColor = 'var(--color-border)';e.currentTarget.style.color = 'var(--color-text-muted)';}} className="white-space-[nowrap] p-[0.4rem_0.8rem] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[100px] text-[0.75rem] text-[var(--color-text-muted)] cursor-pointer transition-[all_0.2s_ease]">
-                                            {tip.length > 25 ? tip.substring(0, 25) + '...' : tip}
+                                {/* Chips de sugerencias ultra compactos */}
+                                <div className="hide-scrollbar flex gap-1.5 overflow-x-auto mb-2 pb-1 flex-nowrap" style={{ WebkitOverflowScrolling: 'touch' }}>
+                                    {aiTips.map((tip, i) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => setChatInput(tip)}
+                                            className="flex-shrink-0 whitespace-nowrap px-3 py-1 bg-[var(--color-background)] border border-[var(--color-border)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] rounded-full text-[0.7rem] font-semibold text-[var(--color-text-muted)] cursor-pointer transition-all"
+                                        >
+                                            {tip}
                                         </button>
-                )}
+                                    ))}
                                 </div>
 
-                                <form onSubmit={handleSendMessage} className="mb-[0.6rem]">
+                                <form onSubmit={handleSendMessage} className="mb-2 w-full">
                                     <div
-                                      className="flex items-center gap-1 rounded-[18px] px-2 py-[5px] transition-all"
-                                      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
+                                      className="flex items-center gap-1 rounded-[12px] p-1 w-full transition-all bg-[var(--color-surface)] border border-[var(--color-border)] focus-within:border-[var(--color-primary)] focus-within:ring-2 focus-within:ring-[var(--color-primary)]/20 shadow-sm"
+                                    >
                                         <input
                                             type="text"
                                             value={chatInput}
                                             onChange={(e) => setChatInput(e.target.value)}
                                             placeholder={isTyping ? 'La IA está pensando...' : 'Preguntale algo a la IA...'}
                                             disabled={isTyping}
-                                            className="flex-1 py-[0.5rem] px-[0.4rem] border-none bg-transparent text-[var(--color-text)] text-[0.88rem] outline-none" />
-                                        <div className="flex items-center gap-[3px] flex-shrink-0">
+                                            className="flex-1 min-w-0 h-[34px] py-0 px-2 border-none bg-transparent text-[var(--color-text)] text-[0.85rem] outline-none font-medium placeholder:text-[var(--color-text-muted)]" />
+                                        <div className="flex items-center gap-1 flex-shrink-0">
                                             <button
                                                 type="button" onClick={handleWeeklyReport} title="Reporte Semanal IA"
-                                                onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(59,130,246,0.1)'; e.currentTarget.style.color = 'var(--color-primary)'; }}
-                                                onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--color-text-muted)'; }}
-                                                className="bg-transparent border-none rounded-[10px] w-[32px] h-[32px] flex items-center justify-center text-[var(--color-text-muted)] cursor-pointer p-0 transition-all">
-                                                <BarChart3 size={16} />
+                                                style={{ background: '#3b82f6' }}
+                                                className="border-none rounded-[8px] w-[34px] h-[34px] flex items-center justify-center cursor-pointer p-0 transition-transform hover:scale-105 active:scale-95 shadow-sm text-white">
+                                                <BarChart3 size={16} strokeWidth={2.5} color="#ffffff" className="w-4 h-4 text-white flex-shrink-0" style={{ width: '16px', height: '16px', minWidth: '16px', minHeight: '16px', display: 'block' }} />
                                             </button>
                                             <button
-                                                type="button" onClick={handleVoiceDictation}
-                                                style={{ background: isListening ? '#ef4444' : 'transparent', color: isListening ? 'white' : 'var(--color-text-muted)' }}
-                                                onMouseOver={(e) => { if (!isListening) { e.currentTarget.style.background = 'rgba(59,130,246,0.1)'; e.currentTarget.style.color = 'var(--color-primary)'; } }}
-                                                onMouseOut={(e) => { if (!isListening) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--color-text-muted)'; } }}
-                                                className="border-none rounded-[10px] w-[32px] h-[32px] flex items-center justify-center cursor-pointer p-0 transition-all">
-                                                {isListening ? <Activity size={18} className="animate-pulse" /> : <Volume2 size={18} />}
+                                                type="button" onClick={handleVoiceDictation} title="Dictar por Voz"
+                                                style={{ background: isListening ? '#dc2626' : '#10b981' }}
+                                                className="border-none rounded-[8px] w-[34px] h-[34px] flex items-center justify-center cursor-pointer p-0 transition-transform hover:scale-105 active:scale-95 shadow-sm text-white">
+                                                {isListening ? (
+                                                  <Activity size={16} color="#ffffff" className="animate-pulse w-4 h-4 text-white flex-shrink-0" style={{ width: '16px', height: '16px', minWidth: '16px', minHeight: '16px', display: 'block' }} />
+                                                ) : (
+                                                  <Mic size={16} strokeWidth={2.5} color="#ffffff" className="w-4 h-4 text-white flex-shrink-0" style={{ width: '16px', height: '16px', minWidth: '16px', minHeight: '16px', display: 'block' }} />
+                                                )}
                                             </button>
                                             <button
                                                 type="submit" disabled={!chatInput.trim() || isTyping}
                                                 style={{
-                                                    opacity: !chatInput.trim() || isTyping ? 0.5 : 1,
-                                                    boxShadow: !chatInput.trim() || isTyping ? 'none' : '0 4px 10px rgba(59,130,246,0.4)',
-                                                    transform: !chatInput.trim() || isTyping ? 'scale(0.92)' : 'scale(1)'
+                                                    background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                                                    opacity: !chatInput.trim() || isTyping ? 0.45 : 1,
                                                 }}
-                                                className="bg-[var(--gradient-premium)] border-none rounded-[12px] w-[36px] h-[36px] flex items-center justify-center text-white cursor-pointer transition-all p-0">
-                                                <Send size={18} strokeWidth={2.5} className="ml-[1px]" />
+                                                className="border-none rounded-[8px] w-[34px] h-[34px] flex items-center justify-center cursor-pointer transition-transform p-0 flex-shrink-0 hover:scale-105 active:scale-95 shadow-sm text-white">
+                                                <Send size={16} strokeWidth={2.5} color="#ffffff" className="w-4 h-4 text-white flex-shrink-0 ml-[1px]" style={{ width: '16px', height: '16px', minWidth: '16px', minHeight: '16px', display: 'block' }} />
                                             </button>
                                         </div>
                                     </div>
                                 </form>
-                                {!isPro &&
-              <div className="text-[0.65rem] text-center text-[var(--color-text-muted)] bg-[rgba(59,_130,_246,_0.05)] p-[0.45rem] rounded-[10px] mb-[0.6rem] font-[600]">
-                                        Consultas gratis restantes: <span className="text-[var(--color-primary)] font-[800]">{3 - freeQueriesUsed}</span>
-                                    </div>
-              }
-                                
-                                <div className="grid grid-template-columns-[1fr_1fr] gap-[0.6rem] mt-[0.2rem]">
+                                 
+                                <div className="flex gap-1.5 w-full mt-1">
                                     <button
-                  onClick={handleSOS}
-                  className="assistant-pulse-glow grid-column-[1_/_-1] p-[0.8rem] bg-[#dc2626] text-[white] rounded-[16px] border-none font-[900] text-[0.9rem] flex items-center justify-center gap-[0.6rem] cursor-pointer box-shadow-[0_8px_20px_rgba(220,_38,_38,_0.3)]">
-
-
-
-
-
-
-
-                  
-                                        <AlertCircle size={20} /> Emergencia S.O.S
+                                        onClick={handleSOS}
+                                        className="flex-1 py-1 px-1.5 bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded-md border-none font-black text-[0.68rem] flex items-center justify-center gap-1 cursor-pointer shadow-sm transition-all">
+                                        <AlertCircle size={13} color="#ffffff" className="flex-shrink-0" /> S.O.S
                                     </button>
                                     <button
-                  onClick={() => setIsScannerOpen(true)} className="p-[0.8rem_0.4rem] bg-[var(--color-surface)] text-[var(--color-text)] rounded-[16px] border-[1px_solid_var(--color-border)] font-[800] text-[0.85rem] flex items-center justify-center gap-[0.4rem] cursor-pointer box-shadow-[var(--shadow-sm)]">
-
-
-
-
-
-
-                  
-                                        <QrCode size={18} color="#3b82f6" /> Escáner
+                                        onClick={() => setIsScannerOpen(true)}
+                                        className="flex-1 py-1 px-1.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-md border-none font-extrabold text-[0.68rem] flex items-center justify-center gap-1 cursor-pointer shadow-sm transition-all">
+                                        <QrCode size={13} color="#ffffff" className="flex-shrink-0" /> Escáner
                                     </button>
                                     <button
-                  onClick={handlePhotoAnalysis} className="p-[0.8rem_0.4rem] bg-[var(--color-surface)] text-[var(--color-text)] rounded-[16px] border-[1px_solid_var(--color-border)] font-[800] text-[0.85rem] flex items-center justify-center gap-[0.4rem] cursor-pointer box-shadow-[var(--shadow-sm)] white-space-[nowrap]">
-
-
-
-
-
-
-
-                  
-                                        <Camera size={18} color="#8b5cf6" /> {isPro ? 'Visión IA' : 'Visión PRO'}
+                                        onClick={handlePhotoAnalysis}
+                                        className="flex-1 py-1 px-1.5 bg-[#7c3aed] hover:bg-[#6d28d9] text-white rounded-md border-none font-extrabold text-[0.68rem] flex items-center justify-center gap-1 cursor-pointer shadow-sm transition-all">
+                                        <Camera size={13} color="#ffffff" className="flex-shrink-0" /> {isPro ? 'Visión' : 'PRO'}
                                     </button>
                                 </div>
                             </div>
