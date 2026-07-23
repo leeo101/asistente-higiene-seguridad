@@ -9,28 +9,27 @@ import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 
 
 const valueProps = [
-{
-  icon: <Zap size={24} />,
-  title: "Velocidad con IA",
-  desc: "Redactá conclusiones técnicas y descripciones de riesgo en segundos con inteligencia artificial especializada."
-},
-{
-  icon: <Shield size={24} />,
-  title: "Cumplimiento Legal",
-  desc: "Validado para normativas de Argentina, Chile, Bolivia, Paraguay y Uruguay. Siempre actualizado."
-},
-{
-  icon: <BarChart3 size={24} />,
-  title: "Métricas Reales",
-  desc: "Visualizá el desempeño de seguridad de tus proyectos con dashboards dinámicos y reportes ejecutivos."
-},
-{
-  icon: <Globe size={24} />,
-  title: "Acceso Universal",
-  desc: "Usalo desde tu PC, Tablet o descarga la App. Funciona 100% offline en zonas sin cobertura."
-}];
-
-
+  {
+    icon: <Zap size={24} />,
+    title: "Informes en 30 Segundos",
+    desc: "Redactá ATS, evaluaciones de riesgo e informes ejecutivos 10 veces más rápido con Inteligencia Artificial."
+  },
+  {
+    icon: <Shield size={24} />,
+    title: "100% Cumplimiento Legal",
+    desc: "Validado para Ley 19.587, Dec 351/79, Resoluciones SRT e ISO 45001 en Argentina y LatAm."
+  },
+  {
+    icon: <Globe size={24} />,
+    title: "Funciona 100% Offline",
+    desc: "Usalo en el campo, obra o planta sin necesidad de señal. Se sincroniza solo cuando volvés a tener red."
+  },
+  {
+    icon: <BarChart3 size={24} />,
+    title: "PDFs con TU LOGO",
+    desc: "Generá documentos profesionales con la marca de tu consultora o empresa, listos para firmar y enviar."
+  }
+];
 
 interface MarketingLandingProps {
   onStart: () => void;
@@ -43,272 +42,257 @@ export default function MarketingLanding({ onStart }: MarketingLandingProps) {
     <div className="text-[var(--color-text)] max-w-[1200px] m-[0_auto] p-[0_1rem] relative">
       <div className="mesh-bg-1" />
       <div className="mesh-bg-2" />
+
       {/* 0. Trusted By Marquee */}
-      <section className="stagger-item p-[2rem_0] mt-[2rem] border-bottom-[1px_solid_var(--color-border)]">
-        <p className="text-center text-[0.85rem] font-[800] uppercase letter-spacing-[1px] text-[var(--color-text-muted)] mb-[1.5rem]">
-          La tecnología elegida por miles de profesionales en
+      <section className="stagger-item p-[1.5rem_0] mt-[1rem] border-b border-[var(--color-border)]">
+        <p className="text-center text-[0.8rem] font-[800] uppercase letter-spacing-[1px] text-[var(--color-text-muted)] mb-[1rem]">
+          Utilizado por profesionales en
         </p>
         
         <div className="marquee-container m-[0_auto] max-w-[1000px]">
-          <div className="marquee-content gap-[3rem]">
-            {['🏢 Constructoras', '🏗️ Proyectos Mineros', '🏭 Industria Manufacturera', '👔 Consultores H&S', '🦺 Servicios Especializados', '🚚 Empresas de Logística', '⚡ Sector Energético', '🚜 Agroindustria'].map((tag, i) =>
-            <span key={i} className="text-[1.05rem] font-[700] text-[var(--color-text)] opacity-[0.8] white-space-[nowrap] flex items-center gap-[0.5rem] p-[0.5rem_1rem] bg-[rgba(255,255,255,0.03)] rounded-[100px] border-[1px_solid_var(--color-border)]">
-
-
-
-
-
-
-
-
-
-
-
-
-              
+          <div className="marquee-content gap-[2rem]">
+            {['🏢 Constructoras', '🏗️ Obras & Minería', '🏭 Industria', '👔 Consultores H&S', '🦺 Servicios EHS', '🚚 Logística', '⚡ Energía', '🚜 Agroindustria'].map((tag, i) => (
+              <span key={i} className="text-[0.95rem] font-[700] text-[var(--color-text)] opacity-[0.85] whitespace-nowrap flex items-center gap-[0.4rem] p-[0.4rem_0.8rem] bg-[rgba(255,255,255,0.04)] rounded-[100px] border border-[var(--color-border)]">
                 {tag}
               </span>
-            )}
+            ))}
           </div>
-          {/* Duplicate for seamless looping */}
-          <div className="marquee-content gap-[3rem]">
-            {['🏢 Constructoras', '🏗️ Proyectos Mineros', '🏭 Industria Manufacturera', '👔 Consultores H&S', '🦺 Servicios Especializados', '🚚 Empresas de Logística', '⚡ Sector Energético', '🚜 Agroindustria'].map((tag, i) =>
-            <span key={i} className="text-[1.05rem] font-[700] text-[var(--color-text)] opacity-[0.8] white-space-[nowrap] flex items-center gap-[0.5rem] p-[0.5rem_1rem] bg-[rgba(255,255,255,0.03)] rounded-[100px] border-[1px_solid_var(--color-border)]">
-
-
-
-
-
-
-
-
-
-
-
-
-              
+          <div className="marquee-content gap-[2rem]">
+            {['🏢 Constructoras', '🏗️ Obras & Minería', '🏭 Industria', '👔 Consultores H&S', '🦺 Servicios EHS', '🚚 Logística', '⚡ Energía', '🚜 Agroindustria'].map((tag, i) => (
+              <span key={i} className="text-[0.95rem] font-[700] text-[var(--color-text)] opacity-[0.85] whitespace-nowrap flex items-center gap-[0.4rem] p-[0.4rem_0.8rem] bg-[rgba(255,255,255,0.04)] rounded-[100px] border border-[var(--color-border)]">
                 {tag}
               </span>
-            )}
+            ))}
           </div>
         </div>
       </section>
 
-      {/* 1. Value Props - Premium Cards */}
-      <section className="stagger-item p-[6rem_0_3rem]">
-        <div className="text-center mb-[4rem]">
-          <h2 className="text-[clamp(2rem,_5vw,_2.5rem)] font-[900] mb-[1rem] font-family-[var(--font-heading)]">
-            ¿Por qué elegir Asistente HYS?
+      {/* 1. Value Props */}
+      <section className="stagger-item p-[4rem_0_2rem]">
+        <div className="text-center mb-[3rem]">
+          <h2 className="text-[clamp(1.8rem,_4vw,_2.3rem)] font-[900] mb-[0.8rem] font-family-[var(--font-heading)]">
+            Potenciá tu trabajo diario de HyS
           </h2>
-          <p className="text-[var(--color-text-muted)] text-[1.15rem] max-w-[650px] m-[0_auto] line-height-[1.6]">
-            Nuestra IA está entrenada específicamente con la legislación vigente para darte resultados técnicos, precisos y listos para presentar.
+          <p className="text-[var(--color-text-muted)] text-[1.05rem] max-w-[580px] m-[0_auto] line-height-[1.5]">
+            Ahorrá horas de tipeo y documentación. Resultados técnicos impecables al instante.
           </p>
         </div>
 
-        <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(260px,_1fr))] gap-[2rem]">
-          {valueProps.map((prop, i) =>
-          <div key={i} className="glass-card-premium stagger-up p-[2.5rem_2rem] transition-[all_0.4s_cubic-bezier(0.16,_1,_0.3,_1)] relative overflow-[hidden]">
-
-
-
-
-            
-              <div className="absolute top-[0] left-[0] w-[100%] h-[4px] bg-[var(--gradient-premium)]" />
-              <div className="w-[60px] h-[60px] rounded-[16px] bg-[rgba(59,_130,_246,_0.1)] border-[1px_solid_rgba(59,_130,_246,_0.2)] text-[var(--color-primary)] flex items-center justify-center mb-[1.5rem] box-shadow-[0_10px_25px_rgba(59,_130,_246,_0.15)]">
-
-
-
-
-
-
-
-              
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[1.2rem]">
+          {valueProps.map((prop, i) => (
+            <div key={i} className="glass-card-premium stagger-up p-[1.8rem_1.4rem] relative overflow-hidden transition-all hover:translate-y-[-2px]">
+              <div className="absolute top-0 left-0 w-full h-[3px] bg-[var(--gradient-premium)]" />
+              <div className="w-[48px] h-[48px] rounded-[14px] bg-[rgba(59,130,246,0.1)] border border-[rgba(59,130,246,0.2)] text-[var(--color-primary)] flex items-center justify-center mb-[1.2rem] shadow-sm">
                 {prop.icon}
               </div>
-              <h3 className="text-[1.25rem] font-[800] mb-[1rem] text-[var(--color-text)]">{prop.title}</h3>
-              <p className="text-[0.95rem] text-[var(--color-text-muted)] line-height-[1.6]">{prop.desc}</p>
+              <h3 className="text-[1.1rem] font-[800] mb-[0.6rem] text-[var(--color-text)]">{prop.title}</h3>
+              <p className="text-[0.85rem] text-[var(--color-text-muted)] leading-relaxed">{prop.desc}</p>
             </div>
-          )}
+          ))}
         </div>
       </section>
 
-      {/* 2. How it Works - Timeline */}
-      <section className="stagger-item p-[5rem_0_3rem]">
-        <div className="text-center mb-[4rem]">
-          <h2 className="text-[clamp(2rem,_5vw,_2.5rem)] font-[900] mb-[1rem] font-family-[var(--font-heading)]">
-            Tu reporte listo en 3 simples pasos
+      {/* 2. How it Works */}
+      <section className="stagger-item p-[3.5rem_0_2rem]">
+        <div className="text-center mb-[3rem]">
+          <h2 className="text-[clamp(1.8rem,_4vw,_2.3rem)] font-[900] mb-[0.5rem] font-family-[var(--font-heading)]">
+            Tu informe en 3 simples pasos
           </h2>
         </div>
-        <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(280px,_1fr))] gap-[2.5rem] relative">
-
-
-          
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-[1.5rem]">
           {[
-          { step: "01", title: "Carga de Datos", desc: "Ingresá la información visual o textual del sector, tarea o riesgo a evaluar." },
-          { step: "02", title: "Procesamiento IA", desc: "Nuestra inteligencia artificial cruza los datos con normativas de H&S y propone controles." },
-          { step: "03", title: "Exportación Profesional", desc: "Descargá un PDF ejecutivo con tu logo, listo para firmar y presentar al cliente." }].
-          map((s, i) =>
-          <div key={i} className="glass-card-premium stagger-up p-[2.5rem] relative">
-
-            
-              <div className="absolute top-[-20px] left-[2.5rem] w-[40px] h-[40px] rounded-[50%] bg-[var(--gradient-premium)] text-[white] flex items-center justify-center font-[900] text-[1.1rem] box-shadow-[0_10px_20px_rgba(59,_130,_246,_0.3)]">
-
-
-
-
-
-              {s.step}</div>
-              <h3 className="text-[1.3rem] font-[800] mt-[1rem] mb-[1rem]">{s.title}</h3>
-              <p className="text-[var(--color-text-muted)] line-height-[1.6] text-[0.95rem]">{s.desc}</p>
+            { step: "01", title: "Carga o Foto", desc: "Ingresá la tarea o sacá una foto con la Cámara IA." },
+            { step: "02", title: "Diagnóstico IA", desc: "La IA analiza riesgos y genera controles normativos." },
+            { step: "03", title: "PDF & Firma", desc: "Descargá el documento con tu logo listo para enviar." }
+          ].map((s, i) => (
+            <div key={i} className="glass-card-premium stagger-up p-[1.8rem] relative rounded-[20px]">
+              <div className="absolute top-[-16px] left-[1.8rem] w-[34px] h-[34px] rounded-full bg-[var(--gradient-premium)] text-white flex items-center justify-center font-[900] text-[0.9rem] shadow-md">
+                {s.step}
+              </div>
+              <h3 className="text-[1.15rem] font-[800] mt-[0.6rem] mb-[0.6rem]">{s.title}</h3>
+              <p className="text-[var(--color-text-muted)] text-[0.85rem] leading-relaxed">{s.desc}</p>
             </div>
-          )}
+          ))}
         </div>
       </section>
 
-
-      {/* 4. Plans / Pricing */}
-      <section className="stagger-item p-[5rem_0_3rem]">
+       {/* 4. Plans / Pricing */}
+      <section className="stagger-item p-[4rem_0_3rem]">
         <div className="text-center mb-[3rem]">
           <div className="display-[inline-flex] items-center gap-[0.5rem] p-[0.4rem_1rem] bg-[rgba(59,130,246,0.1)] border-[1px_solid_rgba(59,130,246,0.2)] rounded-[100px] mb-[1.5rem]">
             <Sparkles size={14} color="#60a5fa" />
-            <span className="text-[#60a5fa] text-[0.8rem] font-[800] letter-spacing-[1px] uppercase">Dos opciones, sin sorpresas</span>
+            <span className="text-[#60a5fa] text-[0.8rem] font-[800] letter-spacing-[1px] uppercase">Planes a tu medida · Sin cargos ocultos</span>
           </div>
           <h2 className="text-[clamp(2rem,_5vw,_2.5rem)] font-[900] mb-[1rem] font-family-[var(--font-heading)]">
-            Elegí tu plan
+            Elegí tu plan y empezá hoy
           </h2>
-          <p className="text-[var(--color-text-muted)] text-[1.1rem] max-w-[560px] m-[0_auto] line-height-[1.6]">
-            Empezá gratis y pasá a PRO cuando lo necesites. Sin permanencia ni cargos ocultos.
+          <p className="text-[var(--color-text-muted)] text-[1.1rem] max-w-[650px] m-[0_auto] line-height-[1.6]">
+            Desde estudiantes hasta grandes consultoras de HyS. Cambiá o cancelá en cualquier momento.
           </p>
         </div>
 
-        <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(300px,_1fr))] gap-[2rem] max-w-[860px] m-[0_auto]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[1.5rem] max-w-[1240px] m-[0_auto]">
 
-          {/* FREE CARD */}
-          <div className="glass-card rounded-[28px] p-[2.5rem_2rem] border-[1px_solid_var(--color-border)] flex flex-col gap-[1.5rem] relative">
-
-
-
-
-
-            
+          {/* PLAN 1: GRATUITO ($0) */}
+          <div className="glass-card rounded-[24px] p-[2rem_1.5rem] border-[1px_solid_var(--color-border)] flex flex-col gap-[1.2rem] relative shadow-sm">
             <div>
-              <div className="text-[0.8rem] font-[800] uppercase letter-spacing-[1px] text-[var(--color-text-muted)] mb-[0.8rem]">Plan Gratuito</div>
-              <div className="flex items-baseline gap-[0.4rem] mb-[0.5rem]">
-                <span className="text-[3rem] font-[900] text-[var(--color-text)] line-height-[1]">USD $0</span>
-                <span className="text-[var(--color-text-muted)] text-[0.9rem]">/ siempre</span>
+              <div className="text-[0.75rem] font-[900] uppercase letter-spacing-[1px] text-[var(--color-text-muted)] mb-[0.5rem]">Plan 1: Gratuito</div>
+              <div className="flex items-baseline gap-[0.3rem] mb-[0.4rem]">
+                <span className="text-[2.5rem] font-[900] text-[var(--color-text)] leading-none">USD $0</span>
+                <span className="text-[var(--color-text-muted)] text-[0.85rem]">/ siempre</span>
               </div>
-              <p className="text-[var(--color-text-muted)] text-[0.9rem] line-height-[1.5] m-[0]">
-                Todo lo que necesitás para empezar a trabajar de forma profesional.
+              <p className="text-[var(--color-text-muted)] text-[0.82rem] line-height-[1.4] m-[0]">
+                Ideal para explorar la herramienta y realizar inspecciones iniciales.
               </p>
             </div>
 
-            <div className="border-top-[1px_solid_var(--color-border)] pt-[1.5rem] flex flex-col gap-[0.9rem] flex-[1]">
+            <div className="border-t border-[var(--color-border)] pt-[1.2rem] flex flex-col gap-[0.75rem] flex-1">
               {[
-              { label: 'Uso Ilimitado y Gratuito', desc: 'Cargá datos y generá registros sin pagar nunca' },
-              { label: 'Todos los Módulos Base', desc: 'ATS, Matrices, Carga de Fuego y Checklists' },
-              { label: 'Cámara IA On-Screen', desc: 'Vigilancia de riesgos y EPP en tiempo real' },
-              { label: 'Asesor IA (Básico)', desc: 'Resolución de dudas normativas al instante' },
-              { label: 'Visualización de Reportes', desc: 'Ver reportes completos en pantalla' },
-              { label: 'Guardado en Historial Local', desc: 'Tus registros se guardan en tu dispositivo' }].
-              map((f, i) =>
-              <div key={i} className="flex gap-[0.8rem] items-start">
-                  <CheckCircle2 size={17} color="#10b981" className="mt-[2px] flex-shrink-[0]" />
+                { label: 'Uso Ilimitado Base', desc: 'Cargá registros sin costo alguno' },
+                { label: 'Módulos Esenciales', desc: 'ATS, Matrices y Carga de Fuego' },
+                { label: 'Asesor IA Inicial', desc: 'Consultas normativas básicas' },
+                { label: 'Guardado Local', desc: 'Guardá registros en tu dispositivo' }
+              ].map((f, i) => (
+                <div key={i} className="flex gap-[0.6rem] items-start">
+                  <CheckCircle2 size={16} color="#10b981" className="mt-[2px] flex-shrink-0" />
                   <div>
-                    <div className="text-[0.9rem] font-[700] text-[var(--color-text)]">{f.label}</div>
-                    <div className="text-[0.78rem] text-[var(--color-text-muted)] line-height-[1.4]">{f.desc}</div>
+                    <div className="text-[0.85rem] font-[700] text-[var(--color-text)]">{f.label}</div>
+                    <div className="text-[0.75rem] text-[var(--color-text-muted)] line-height-[1.3]">{f.desc}</div>
                   </div>
                 </div>
-              )}
+              ))}
             </div>
 
             <button
               onClick={onStart}
-
-
-
-
-
-
-
-              onMouseOver={(e) => {e.currentTarget.style.background = 'rgba(255,255,255,0.08)';}}
-              onMouseOut={(e) => {e.currentTarget.style.background = 'rgba(255,255,255,0.04)';}} className="w-[100%] p-[1rem] rounded-[14px] border-[1px_solid_var(--color-border)] bg-[rgba(255,255,255,0.04)] text-[var(--color-text)] font-[800] text-[1rem] cursor-pointer transition-[all_0.2s]">
-              
-              Crear cuenta gratis
+              className="w-full p-[0.85rem] rounded-[12px] border border-[var(--color-border)] bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] text-[var(--color-text)] font-[800] text-[0.9rem] cursor-pointer transition-all">
+              Probar Gratis
             </button>
           </div>
 
-          {/* PRO CARD */}
-          <div className="rounded-[28px] p-[2.5rem_2rem] bg-[var(--gradient-premium)] border-[1px_solid_rgba(99,102,241,0.4)] flex flex-col gap-[1.5rem] relative overflow-[hidden] box-shadow-[0_30px_60px_rgba(59,_130,_246,_0.25)]">
-
-
-
-
-
-
-
-
-            
-            {/* Glow spots */}
-            <div className="absolute top-[-40%] right-[-20%] w-[350px] h-[350px] bg-[radial-gradient(circle,_rgba(255,255,255,0.12)_0%,_transparent_70%)] pointer-events-[none]" />
-
-            {/* Popular badge */}
-            <div className="absolute top-[1.5rem] right-[1.5rem] bg-[rgba(251,191,36,0.2)] border-[1px_solid_rgba(251,191,36,0.4)] text-[#fbbf24] p-[0.25rem_0.8rem] rounded-[100px] text-[0.72rem] font-[800] letter-spacing-[1px] uppercase">
-
-
-
-
-              
-              Más popular ✦
+          {/* PLAN 2: ESTUDIANTE ($2 USD) */}
+          <div className="glass-card rounded-[24px] p-[2rem_1.5rem] border-[1.5px_solid_rgba(16,185,129,0.4)] bg-gradient-to-b from-emerald-950/20 to-transparent flex flex-col gap-[1.2rem] relative shadow-md">
+            <div className="absolute top-[1.2rem] right-[1.2rem] bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 px-2.5 py-0.5 rounded-full text-[0.68rem] font-extrabold uppercase tracking-wider">
+              Estudiantes
             </div>
-
-            <div className="relative z-[1]">
-              <div className="text-[0.8rem] font-[800] uppercase letter-spacing-[1px] text-[rgba(255,255,255,0.6)] mb-[0.8rem]">Plan PRO</div>
-              <div className="flex items-baseline gap-[0.4rem] mb-[0.5rem]">
-                <span className="text-[3rem] font-[900] text-[white] line-height-[1]">USD $2</span>
-                <span className="text-[rgba(255,255,255,0.6)] text-[0.9rem]">/ mes</span>
+            <div>
+              <div className="text-[0.75rem] font-[900] uppercase letter-spacing-[1px] text-emerald-400 mb-[0.5rem]">Plan 2: Estudiante</div>
+              <div className="flex items-baseline gap-[0.3rem] mb-[0.4rem]">
+                <span className="text-[2.5rem] font-[900] text-white leading-none">USD $2</span>
+                <span className="text-emerald-300/70 text-[0.85rem]">/ mes</span>
               </div>
-              <p className="text-[rgba(255,255,255,0.75)] text-[0.9rem] line-height-[1.5] m-[0]">
-                Todo del plan gratuito, más historial en nube, PDF profesionales y herramientas avanzadas.
+              <p className="text-[var(--color-text-muted)] text-[0.82rem] line-height-[1.4] m-[0]">
+                Perfecto para alumnos, practicantes y técnicos que están dando sus primeros pasos.
               </p>
             </div>
 
-            <div className="border-top-[1px_solid_rgba(255,255,255,0.15)] pt-[1.5rem] flex flex-col gap-[0.9rem] flex-[1] relative z-[1]">
+            <div className="border-t border-[var(--color-border)] pt-[1.2rem] flex flex-col gap-[0.75rem] flex-1">
               {[
-              { label: 'Exportación a PDF Profesional', desc: 'Documentos listos con tu logo para el cliente' },
-              { label: 'Compartir por WhatsApp y QR', desc: 'Envío instantáneo de registros para firmas' },
-              { label: 'Sincronización en la Nube', desc: 'Recuperá tus datos desde cualquier dispositivo' },
-              { label: 'Exportación a Excel / CSV', desc: 'Generación de planillas de historial rápidas' },
-              { label: 'Módulos Críticos y Gestión', desc: 'LOTO, Altura, CAPA, Auditorías y Accidentes' },
-              { label: 'Capacitación y Charlas', desc: 'Registro de firmas y actas de instrucción' },
-              { label: 'KPIs y Estadísticas PRO', desc: 'Dashboards avanzados de seguridad (LFITR/TRIFR)' },
-              { label: 'Asesor IA Premium', desc: 'Sin límites de consultas técnicas de seguridad' }].
-              map((f, i) =>
-              <div key={i} className="flex gap-[0.8rem] items-start">
-                  <CheckCircle2 size={17} color="#86efac" className="mt-[2px] flex-shrink-[0]" />
+                { label: 'Todo lo del Plan Gratuito', desc: 'Más funciones de formación' },
+                { label: 'Exportación en PDF', desc: 'Documentos oficiales con formato limpio' },
+                { label: 'Cámara IA y Visión', desc: 'Detección automática de EPP y riesgos' },
+                { label: 'Sincronización en la Nube', desc: 'Respaldo seguro de tus trabajos' }
+              ].map((f, i) => (
+                <div key={i} className="flex gap-[0.6rem] items-start">
+                  <CheckCircle2 size={16} color="#10b981" className="mt-[2px] flex-shrink-0" />
                   <div>
-                    <div className="text-[0.9rem] font-[700] text-[white]">{f.label}</div>
-                    <div className="text-[0.78rem] text-[rgba(255,255,255,0.6)] line-height-[1.4]">{f.desc}</div>
+                    <div className="text-[0.85rem] font-[700] text-[var(--color-text)]">{f.label}</div>
+                    <div className="text-[0.75rem] text-[var(--color-text-muted)] line-height-[1.3]">{f.desc}</div>
                   </div>
                 </div>
-              )}
+              ))}
             </div>
 
             <button
               onClick={onStart}
-              className="hover-lift w-[100%] p-[1rem] rounded-[14px] border-none bg-[white] text-[#1e3a8a] font-[900] text-[1rem] cursor-pointer box-shadow-[0_10px_30px_rgba(0,0,0,0.2)] transition-[all_0.2s] relative z-[1] flex items-center justify-center gap-[0.6rem]">
-
-
-
-
-
-
-
-
-
-              
-              <Sparkles size={18} /> Crear cuenta y ver planes PRO
+              className="w-full p-[0.85rem] rounded-[12px] border-none bg-emerald-600 hover:bg-emerald-700 text-white font-[900] text-[0.9rem] cursor-pointer shadow-md transition-all">
+              Elegir Estudiante
             </button>
           </div>
+
+          {/* PLAN 3: PROFESIONAL ($6 USD) - MÁS POPULAR */}
+          <div className="rounded-[24px] p-[2rem_1.5rem] bg-[var(--gradient-premium)] border-[1.5px_solid_rgba(99,102,241,0.5)] flex flex-col gap-[1.2rem] relative overflow-hidden shadow-xl shadow-blue-500/20 scale-[1.02]">
+            <div className="absolute top-[-30%] right-[-20%] w-[250px] h-[250px] bg-[radial-gradient(circle,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none" />
+            <div className="absolute top-[1.2rem] right-[1.2rem] bg-amber-400/20 border border-amber-400/40 text-amber-300 px-2.5 py-0.5 rounded-full text-[0.68rem] font-black uppercase tracking-wider">
+              Más Popular ✦
+            </div>
+
+            <div className="relative z-10">
+              <div className="text-[0.75rem] font-[900] uppercase letter-spacing-[1px] text-blue-200 mb-[0.5rem]">Plan 3: Profesional</div>
+              <div className="flex items-baseline gap-[0.3rem] mb-[0.4rem]">
+                <span className="text-[2.5rem] font-[900] text-white leading-none">USD $6</span>
+                <span className="text-blue-200/80 text-[0.85rem]">/ mes</span>
+              </div>
+              <p className="text-blue-100/80 text-[0.82rem] line-height-[1.4] m-[0]">
+                Para Licenciados, Técnicos e Ingenieros que asesoran empresas activamente.
+              </p>
+            </div>
+
+            <div className="border-t border-white/15 pt-[1.2rem] flex flex-col gap-[0.75rem] flex-1 relative z-10">
+              {[
+                { label: 'PDFs Personalizados', desc: 'Tu logo institucional en reportes' },
+                { label: 'Asesor IA Ilimitado', desc: 'Consultas normativas sin restricciones' },
+                { label: 'Módulos Críticos Avanzados', desc: 'LOTO, Altura, Confinados y Auditorías' },
+                { label: 'Firma Digital y QR', desc: 'Envío directo por WhatsApp al cliente' },
+                { label: 'Exportación a Excel / CSV', desc: 'Generación de historial rápido' }
+              ].map((f, i) => (
+                <div key={i} className="flex gap-[0.6rem] items-start">
+                  <CheckCircle2 size={16} color="#86efac" className="mt-[2px] flex-shrink-0" />
+                  <div>
+                    <div className="text-[0.85rem] font-[700] text-white">{f.label}</div>
+                    <div className="text-[0.75rem] text-blue-100/70 line-height-[1.3]">{f.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={onStart}
+              className="w-full p-[0.85rem] rounded-[12px] border-none bg-white text-blue-900 font-[900] text-[0.9rem] cursor-pointer shadow-lg hover:bg-blue-50 transition-all relative z-10 flex items-center justify-center gap-1.5">
+              <Sparkles size={16} /> Probar Profesional
+            </button>
+          </div>
+
+          {/* PLAN 4: EMPRESA / CONSULTORA ($25 USD) */}
+          <div className="glass-card rounded-[24px] p-[2rem_1.5rem] border-[1.5px_solid_rgba(168,85,247,0.4)] bg-gradient-to-b from-purple-950/20 to-transparent flex flex-col gap-[1.2rem] relative shadow-lg">
+            <div className="absolute top-[1.2rem] right-[1.2rem] bg-purple-500/20 border border-purple-500/40 text-purple-300 px-2.5 py-0.5 rounded-full text-[0.68rem] font-extrabold uppercase tracking-wider">
+              Empresas 🏢
+            </div>
+            <div>
+              <div className="text-[0.75rem] font-[900] uppercase letter-spacing-[1px] text-purple-300 mb-[0.5rem]">Plan 4: Empresa / Consultora</div>
+              <div className="flex items-baseline gap-[0.3rem] mb-[0.4rem]">
+                <span className="text-[2.5rem] font-[900] text-white leading-none">USD $25</span>
+                <span className="text-purple-300/70 text-[0.85rem]">/ mes</span>
+              </div>
+              <p className="text-[var(--color-text-muted)] text-[0.82rem] line-height-[1.4] m-[0]">
+                Para Servicios de HyS externos, consultoras y gestión de múltiples establecimientos.
+              </p>
+            </div>
+
+            <div className="border-t border-[var(--color-border)] pt-[1.2rem] flex flex-col gap-[0.75rem] flex-1">
+              {[
+                { label: 'Multi-Usuario y Equipo', desc: 'Acceso para todo tu personal técnico' },
+                { label: 'Gestión Multi-Cliente', desc: 'Carpetas separadas por empresa' },
+                { label: 'Dashboards KPIs (LFITR/TRIFR)', desc: 'Métricas de seguridad ejecutivas' },
+                { label: 'Soporte Prioritario 24/7', desc: 'Atención directa para tu consultora' }
+              ].map((f, i) => (
+                <div key={i} className="flex gap-[0.6rem] items-start">
+                  <CheckCircle2 size={16} color="#c084fc" className="mt-[2px] flex-shrink-0" />
+                  <div>
+                    <div className="text-[0.85rem] font-[700] text-[var(--color-text)]">{f.label}</div>
+                    <div className="text-[0.75rem] text-[var(--color-text-muted)] line-height-[1.3]">{f.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={onStart}
+              className="w-full p-[0.85rem] rounded-[12px] border border-purple-500/50 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-[900] text-[0.9rem] cursor-pointer shadow-md transition-all">
+              Elegir Empresa
+            </button>
+          </div>
+
         </div>
       </section>
 
