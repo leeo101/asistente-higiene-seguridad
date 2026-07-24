@@ -208,7 +208,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                 Documento de Trazabilidad e Inventario
                             </p>
                         </div>
-                        <CompanyLogo className="h-[50px] w-auto object-contain max-w-[150px]" />
+                        <CompanyLogo style={{ maxHeight: '48px', maxWidth: '140px', objectFit: 'contain' }} />
                     </div>
 
                     <div className="flex gap-[20px] mb-[15px] avoid-break">

@@ -76,30 +76,35 @@ export default function CompanyLogo({ style = {}, className = '' }: CompanyLogoP
     <>
       <style>
         {`
-        @media print {
-          .shared-company-logo {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            color-adjust: exact !important;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-          }
+        .shared-company-logo {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+          display: block !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          max-width: 140px !important;
+          max-height: 48px !important;
+          width: auto !important;
+          height: auto !important;
+          object-fit: contain !important;
         }
         `}
       </style>
       <img
         src={companyLogo}
         alt="Logo de empresa"
-        className={`shared-company-logo  h-[45px] w-[auto] object-fit-[contain] max-w-[150px] ${className}`}
+        className={`shared-company-logo object-contain ${className}`}
         style={{
-
-
-
-
+          maxHeight: '48px',
+          maxWidth: '140px',
+          width: 'auto',
+          height: 'auto',
+          objectFit: 'contain',
+          display: 'block',
           ...style
-        }} />
-      
-    </>);
-
+        }}
+      />
+    </>
+  );
 }

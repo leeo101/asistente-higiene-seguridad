@@ -121,15 +121,12 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                 Planilla de Control de Extintores
                             </h1>
                             <p className="m-[0] text-[10pt] text-slate-600 dark:text-slate-400 flex items-center gap-[1rem]">
-                                <span><Calendar size={14} className="display-[inline] vertical-align-[middle]" /> Fecha: {new Date().toLocaleDateString('es-AR')}</span>
-                                <span><Flame size={14} className="display-[inline] vertical-align-[middle]" /> Equipos: {stats.total}</span>
+                                <span><Calendar size={14} className="inline align-middle mr-1" /> Fecha: {new Date().toLocaleDateString('es-AR')}</span>
+                                <span><Flame size={14} className="inline align-middle mr-1" /> Equipos: {stats.total}</span>
                                 {stats.vencidos > 0 && <span className="text-red-600 dark:text-red-400 font-[bold]">({stats.vencidos} Vencidos)</span>}
                             </p>
                         </div>
-                        <CompanyLogo className="h-[45px] w-[auto] object-fit-[contain] max-w-[140px]" />
-
-
-            
+                        <CompanyLogo style={{ maxHeight: '45px', maxWidth: '140px', objectFit: 'contain' }} />
                     </div>
 
                     <div className="block">
