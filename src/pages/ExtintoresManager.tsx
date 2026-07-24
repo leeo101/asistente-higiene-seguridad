@@ -444,11 +444,18 @@ export default function ExtintoresManager() {
     setPrintItem(filtered);
 
     setTimeout(() => {
+      const element = document.getElementById('pdf-content');
+      if (element) {
+        document.body.classList.add('printing-isolated');
+        element.classList.add('isolated-print-target');
+      }
       window.print();
       setTimeout(() => {
+        document.body.classList.remove('printing-isolated');
+        if (element) element.classList.remove('isolated-print-target');
         setPrintItem(null);
-      }, 10000);
-    }, 500);
+      }, 1000);
+    }, 400);
   };
 
   const handleExportExcel = async () => {

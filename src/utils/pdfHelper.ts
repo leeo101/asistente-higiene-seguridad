@@ -32,17 +32,9 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         // Permite que la UI del navegador dibuje el spinner/toast antes de bloquear el hilo principal con Canvas
         await new Promise(resolve => setTimeout(resolve, 50));
 
-        // ─── Dimensiones A4 exactas ───────────────────────────────────────────────
-        const MARGIN_MM = 10;
+        // ─── Dimensiones A4 exactas (CSS 1:1 @ 96 DPI) ───────────────────────────
         const MM_TO_PX = 3.7795275591; // 96dpi
-        const BASE_SCALE = 2;
-
-        const portraitUsableMM  = 210 - MARGIN_MM * 2;  // 190mm
-        const landscapeUsableMM = 297 - MARGIN_MM * 2;  // 277mm
-
-        const targetWidth = isLandscape
-            ? Math.round(landscapeUsableMM * MM_TO_PX * BASE_SCALE)  // ≈2094px
-            : Math.round(portraitUsableMM  * MM_TO_PX * BASE_SCALE); // ≈1436px
+        const targetWidth = isLandscape ? Math.round(297 * MM_TO_PX) : Math.round(210 * MM_TO_PX); // ≈1123px (landscape) / ≈794px (portrait)
 
         // Contenedor off-screen: visible para html2canvas pero fuera del viewport del usuario
         const offscreenContainer = document.createElement('div');
@@ -228,11 +220,11 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
             
             const maxSafeScale = Math.sqrt(MAX_CANVAS_AREA / totalArea);
             
-            let dynamicScale = isMobileCanvas ? Math.min(0.75, maxSafeScale) : Math.min(1, maxSafeScale);
-            dynamicScale = Math.max(0.25, Math.min(dynamicScale, maxSafeScale));
+            let dynamicScale = isMobileCanvas ? Math.min(1.5, maxSafeScale) : Math.min(2, maxSafeScale);
+            dynamicScale = Math.max(1, Math.min(dynamicScale, maxSafeScale));
 
             const opt = {
-                margin: MARGIN_MM,
+                margin: [5, 5, 5, 5],
                 filename: 'documento.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { 

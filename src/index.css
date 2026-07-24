@@ -1556,7 +1556,6 @@ button[aria-label*="Atrás"],
   border: none !important;
   padding: 10mm !important;
   background: white !important;
-  width: 210mm !important;
   margin: 0 auto !important;
 }
 
@@ -1692,7 +1691,7 @@ button[aria-label*="Atrás"],
     max-height: none !important;
   }
 
-  body.printing-isolated :not(:has(.isolated-print-target)):not(.isolated-print-target):not(.isolated-print-target *) {
+  body.printing-isolated :not(style):not(script):not(link):not(meta):not(:has(.isolated-print-target)):not(.isolated-print-target):not(.isolated-print-target *) {
     display: none !important;
   }
 
