@@ -260,7 +260,13 @@ export default function HeaderNotifications() {
                       cursor: 'pointer',
                       transition: 'opacity 0.2s',
                     }}
-                    onClick={() => { navigate(meta.url); setShowAlerts(false); }}
+                    onClick={() => { 
+                      const targetUrl = n.itemId 
+                        ? (meta.url.includes('?') ? `${meta.url}&edit=${n.itemId}` : `${meta.url}?edit=${n.itemId}`) 
+                        : meta.url;
+                      navigate(targetUrl, { state: { editId: n.itemId } }); 
+                      setShowAlerts(false); 
+                    }}
                     title={`Ir a ${meta.label}`}
                   >
                     <span style={{ fontSize: '1rem', lineHeight: 1, flexShrink: 0 }}>{meta.emoji}</span>

@@ -316,16 +316,16 @@ export default function ExtintoresManager() {
   }, []);
 
   useEffect(() => {
-    const editId = searchParams.get('edit');
-    if (editId && extintores.length > 0 && !showForm && !editingId) {
-      const extToEdit = extintores.find((e) => e.id === editId);
-      if (extToEdit) {
-        setFormData(extToEdit);
-        setEditingId(editId);
+    const editId = searchParams.get('edit') || searchParams.get('id') || (location.state as any)?.editId;
+    if (editId && extintores.length > 0) {
+      const extToEdit = extintores.find((e: any) => String(e.id) === String(editId) || String(e.numero) === String(editId));
+      if (extToEdit && (!showForm || editingId !== extToEdit.id)) {
+        setFormData({ ...extToEdit });
+        setEditingId(extToEdit.id);
         setShowForm(true);
       }
     }
-  }, [searchParams, extintores, showForm, editingId]);
+  }, [searchParams, location.state, extintores, showForm, editingId]);
 
   useEffect(() => {
     const q = searchParams.get('q') || searchParams.get('search');

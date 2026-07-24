@@ -58,7 +58,7 @@ function getAlerts(): Alert[] {
           detail: `Vencimiento Recarga — ${item.ubicacion || ''}`,
           daysLeft,
           isExpired: daysLeft < 0,
-          url: '/extintores',
+          url: `/extintores?edit=${item.id}`,
           icon: <Fire weight="duotone" size={22} />,
           color: '#ef4444'
         });
@@ -75,7 +75,7 @@ function getAlerts(): Alert[] {
           detail: `Vencimiento Prueba Hidráulica — ${item.ubicacion || ''}`,
           daysLeft,
           isExpired: daysLeft < 0,
-          url: '/extintores',
+          url: `/extintores?edit=${item.id}`,
           icon: <Fire weight="duotone" size={22} />,
           color: '#ef4444'
         });
