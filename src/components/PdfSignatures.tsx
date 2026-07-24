@@ -101,25 +101,9 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
   if (boxes.length === 0) return null;
 
     return (
-    <div className="avoid-break w-[100%] page-break-inside-[avoid] break-inside-[avoid] block mt-[0.5rem] border-top-[2px_dashed_#cbd5e1] pt-[1rem] pb-[1rem] text-center">
-
-
-
-
-
-
-
-
-
-      
-            <div className="flex justify-center items-start w-[100%] gap-[1rem]">
-
-
-
-
-
-        
-                {boxes.map((box, idx) => {
+    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break break-inside-avoid w-[100%] block mt-[0.5rem] border-top-[2px_dashed_#cbd5e1] pt-[1rem] pb-[1rem] text-center">
+      <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break break-inside-avoid flex justify-center items-start w-[100%] gap-[1rem]">
+        {boxes.map((box, idx) => {
           const isPro = box.isProfessional;
           const borderCol = isPro ? '#bbf7d0' : '#e2e8f0';
           const bgCol = isPro ? '#f0fdf4' : '#f8fafc';
@@ -129,6 +113,8 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
 
           return (
             <div key={idx} style={{
+              breakInside: 'avoid',
+              pageBreakInside: 'avoid',
               flex: boxes.length === 1 ? '0 0 280px' : '1 1 0',
               margin: boxes.length === 1 ? '0 auto' : '0',
               border: `1px solid ${borderCol}`,
@@ -139,7 +125,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
               borderRadius: isPro ? '12px' : '8px',
               position: 'relative',
               overflow: 'hidden'
-            }} className="p-[1rem] text-center min-width-[220px] max-w-[280px] box-sizing-[border-box]">
+            }} className="avoid-break break-inside-avoid p-[1rem] text-center min-width-[220px] max-w-[280px] box-sizing-[border-box]">
               {isPro && (
                 <div style={{
                   position: 'absolute',

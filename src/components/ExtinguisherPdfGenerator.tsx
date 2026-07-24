@@ -284,11 +284,11 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                     </div>
                     {/* Add Signatures here */}
                     {showSignatures && (showSignatures.operator || showSignatures.professional || showSignatures.supervisor) &&
-          <div className="mt-[20px] page-break-inside-[avoid]">
+                        <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="mt-[20px] avoid-break break-inside-avoid">
                             <PdfSignatures data={{ showSignatures, operatorSignature: globalSignatures?.operatorSignature, supervisorSignature: globalSignatures?.supervisorSignature }} />
-            <PdfBrandingFooter />
+                            <PdfBrandingFooter />
                         </div>
-          }
+                    }
                 </div>
             </div>
         </div>);

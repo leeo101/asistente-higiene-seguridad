@@ -405,7 +405,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                     </div>
 
                     {/* Firmas */}
-                    <div className="avoid-break w-full mt-[15px] pt-[10px] block">
+                    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break break-inside-avoid w-full mt-[15px] pt-[10px] block">
                         <PdfSignatures
           data={data}
           box1={data.showSignatures?.operator ? {
