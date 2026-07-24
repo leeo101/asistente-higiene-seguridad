@@ -94,7 +94,22 @@ export default async function handler(req, res) {
         }
 
         try {
-            const { userId, email } = req.body;
+            const { userId, email, planId } = req.body || {};
+
+            let amount = 6.00;
+            let planTitle = 'Asistente H&S – Plan Profesional';
+
+            if (planId === 'student') {
+                amount = 2.00;
+                planTitle = 'Asistente H&S – Plan Estudiante';
+            } else if (planId === 'enterprise') {
+                amount = 25.00;
+                planTitle = 'Asistente H&S – Plan Empresa';
+            } else if (planId === 'pro') {
+                amount = 6.00;
+                planTitle = 'Asistente H&S – Plan Profesional';
+            }
+
             const preference = new Preference(client);
 
             const protocol = req.headers['x-forwarded-proto'] || 'http';
@@ -105,11 +120,11 @@ export default async function handler(req, res) {
                 body: {
                     items: [
                         {
-                            id: 'pro_subscription',
-                            title: 'Asistente HYS – Versión PRO',
-                            description: 'Acceso completo: informes, PDF, compartir, Cámara IA y más. Suscripción mensual.',
+                            id: planId || 'pro_subscription',
+                            title: planTitle,
+                            description: `Acceso completo al ${planTitle}. Suscripción mensual.`,
                             quantity: 1,
-                            unit_price: 2.00,
+                            unit_price: amount,
                             currency_id: 'USD',
                         }
                     ],
@@ -121,7 +136,7 @@ export default async function handler(req, res) {
                     external_reference: userId || 'guest',
                     notification_url: `${baseUrl}/api/mercadopago-webhook`,
                     auto_return: 'approved',
-                    statement_descriptor: 'ASISTENTE HY&S PRO',
+                    statement_descriptor: 'ASISTENTE HY&S',
                 }
             });
 

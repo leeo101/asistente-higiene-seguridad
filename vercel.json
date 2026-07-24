@@ -38,6 +38,14 @@
     ],
     "rewrites": [
         {
+            "source": "/api/create-stripe-subscription",
+            "destination": "/api/create-stripe-subscription.js"
+        },
+        {
+            "source": "/api/verify-payment",
+            "destination": "/api/verify-payment.js"
+        },
+        {
             "source": "/api/create-subscription",
             "destination": "/api/subscription-handler.js"
         },

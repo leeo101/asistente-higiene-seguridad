@@ -6,8 +6,11 @@ import helmet from 'helmet';
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { Resend } from 'resend';
+import Stripe from 'stripe';
 
 dotenv.config();
+
+const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
 
 // Validate critical environment variables
 function validateEnv() {
@@ -307,20 +310,35 @@ const validateStringInput = (field, maxLength = 1000) => {
 };
 
 
-// Payment endpoint - moderate limiter
+// Payment endpoint - Mercado Pago
 app.post('/api/create-subscription', adminLimiter, async (req, res) => {
     try {
-        console.log('API Request received for payment creation');
+        const { planId } = req.body || {};
+        let amount = 6.00;
+        let planTitle = 'Asistente H&S – Plan Profesional';
+
+        if (planId === 'student') {
+            amount = 2.00;
+            planTitle = 'Asistente H&S – Plan Estudiante';
+        } else if (planId === 'enterprise') {
+            amount = 25.00;
+            planTitle = 'Asistente H&S – Plan Empresa';
+        } else if (planId === 'pro') {
+            amount = 6.00;
+            planTitle = 'Asistente H&S – Plan Profesional';
+        }
+
+        console.log(`API Request received for MP payment: ${planTitle} ($${amount} USD)`);
         const preference = new Preference(client);
 
         const response = await preference.create({
             body: {
                 items: [
                     {
-                        id: 'premium-sub',
-                        title: 'Suscripción Mensual Asistente HS Premium',
+                        id: planId || 'premium-sub',
+                        title: planTitle,
                         quantity: 1,
-                        unit_price: 2,
+                        unit_price: amount,
                         currency_id: 'USD'
                     }
                 ],
@@ -342,26 +360,101 @@ app.post('/api/create-subscription', adminLimiter, async (req, res) => {
     }
 });
 
-// ==========================================
-
-// Payment verification endpoint
-app.post('/api/verify-payment', verifyFirebaseToken, validateStringInput('payment_id', 100), async (req, res) => {
+// Payment endpoint - Stripe Internacional
+app.post('/api/create-stripe-subscription', adminLimiter, async (req, res) => {
     try {
-        const { payment_id } = req.body;
-        if (!payment_id) return res.status(400).json({ error: 'Missing payment_id' });
-        const payment = new Payment(client);
-        const paymentInfo = await payment.get({ id: payment_id });
-        if (paymentInfo.status === 'approved') {
-            const uid = req.user.uid;
-            
-            await admin.auth().setCustomUserClaims(uid, { isPro: true });
-            const oneMonthFromNow = Date.now() + 30 * 24 * 60 * 60 * 1000;
-            await admin.firestore().collection('users').doc(uid).collection('data').doc('subscriptionData').set({ status: 'active', expiry: oneMonthFromNow.toString() });
-            return res.json({ success: true, isPro: true });
+        const { userId, email, planId = 'pro' } = req.body;
+        
+        let unitAmount = 600; // $6 USD default
+        let planTitle = 'Plan Profesional - Asistente HyS';
+
+        if (planId === 'student') {
+            unitAmount = 200; // $2 USD
+            planTitle = 'Plan Estudiante - Asistente HyS';
+        } else if (planId === 'enterprise') {
+            unitAmount = 2500; // $25 USD
+            planTitle = 'Plan Empresa / Consultora - Asistente HyS';
+        }
+
+        if (stripe) {
+            const session = await stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items: [
+                    {
+                        price_data: {
+                            currency: 'usd',
+                            product_data: {
+                                name: planTitle,
+                                description: 'Acceso completo a la plataforma Asistente H&S'
+                            },
+                            unit_amount: unitAmount,
+                            recurring: { interval: 'month' }
+                        },
+                        quantity: 1,
+                    },
+                ],
+                mode: 'subscription',
+                success_url: `https://asistentehs-b594e.web.app/subscribe?status=approved&provider=stripe&session_id={CHECKOUT_SESSION_ID}`,
+                cancel_url: `https://asistentehs-b594e.web.app/subscribe`,
+                client_reference_id: userId,
+                customer_email: email,
+            });
+
+            return res.json({ url: session.url });
         } else {
-            return res.status(400).json({ error: 'Payment not approved' });
+            // Fallback if STRIPE_SECRET_KEY is not configured yet on server env
+            const fallbackUrl = process.env.STRIPE_PAYMENT_LINK || 'https://buy.stripe.com/test_subscription';
+            return res.json({ url: fallbackUrl });
         }
     } catch (error) {
+        console.error('Error creando sesión de Stripe:', error);
+        res.status(500).json({ error: 'Error al generar checkout de Stripe.' });
+    }
+});
+
+// ==========================================
+
+// Payment verification endpoint (Mercado Pago & Stripe)
+app.post('/api/verify-payment', verifyFirebaseToken, async (req, res) => {
+    try {
+        const { payment_id, session_id } = req.body;
+        
+        // Stripe verification
+        if (session_id && stripe) {
+            const session = await stripe.checkout.sessions.retrieve(session_id);
+            if (session.payment_status === 'paid' || session.status === 'complete') {
+                const uid = req.user.uid;
+                await admin.auth().setCustomUserClaims(uid, { isPro: true });
+                const oneMonthFromNow = Date.now() + 30 * 24 * 60 * 60 * 1000;
+                await admin.firestore().collection('users').doc(uid).collection('data').doc('subscriptionData').set({
+                    status: 'active',
+                    expiry: oneMonthFromNow.toString(),
+                    provider: 'stripe'
+                });
+                return res.json({ success: true, isPro: true });
+            }
+        }
+
+        // Mercado Pago verification
+        if (payment_id) {
+            const payment = new Payment(client);
+            const paymentInfo = await payment.get({ id: payment_id });
+            if (paymentInfo.status === 'approved') {
+                const uid = req.user.uid;
+                await admin.auth().setCustomUserClaims(uid, { isPro: true });
+                const oneMonthFromNow = Date.now() + 30 * 24 * 60 * 60 * 1000;
+                await admin.firestore().collection('users').doc(uid).collection('data').doc('subscriptionData').set({
+                    status: 'active',
+                    expiry: oneMonthFromNow.toString(),
+                    provider: 'mercadopago'
+                });
+                return res.json({ success: true, isPro: true });
+            }
+        }
+
+        return res.status(400).json({ error: 'Pago no aprobado.' });
+    } catch (error) {
+        console.error('Verify payment error:', error);
         return res.status(500).json({ error: 'Error al verificar el pago.' });
     }
 });

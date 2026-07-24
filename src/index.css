@@ -99,14 +99,28 @@
   --color-hero-subtext: rgba(255, 255, 255, 0.8);
   --color-hero-accent: #3B82F6;
 
-  color-scheme: light;
+  color-scheme: dark;
   color: var(--color-text);
-  background-color: var(--color-background);
+  background-color: #020617;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  background-color: #020617 !important;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #020617 !important;
+  overflow-x: clip;
 }
 
 /* Custom Slim Scrollbar */
@@ -3992,18 +4006,18 @@ input, textarea, [contenteditable="true"] {
    ========================================================================== */
 @media (max-width: 768px) {
     html, body {
-        width: 100vw;
+        width: 100%;
         max-width: 100%;
     }
     #root, .app-container {
-        overflow-x: hidden !important; 
-        width: 100vw;
+        overflow-x: visible !important; 
+        width: 100%;
         max-width: 100%;
     }
     .main-content {
         padding: 0.5rem !important; 
         width: 100% !important;
-        overflow-x: hidden;
+        overflow-x: visible !important;
     }
     .card, .glass-card, .glass-panel, .glass-card-premium {
         padding: 1rem !important;

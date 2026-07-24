@@ -99,9 +99,11 @@ export default function Login(): React.ReactElement {
     sessionStorage.removeItem(LOCKOUT_KEY);
   };
 
-  // Form states
+  const [rememberMe, setRememberMe] = useState<boolean>(() => {
+    return localStorage.getItem('remember_user') === 'true' || localStorage.getItem('remembered_email') !== null;
+  });
   const [name, setName] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
+  const [email, setEmail] = useState<string>(() => localStorage.getItem('remembered_email') || '');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [dni, setDni] = useState<string>('');
@@ -164,6 +166,13 @@ export default function Login(): React.ReactElement {
     setStatus({ type: 'loading', message: 'Iniciando sesión...' });
     try {
       await login(email, password);
+      if (rememberMe) {
+        localStorage.setItem('remembered_email', email);
+        localStorage.setItem('remember_user', 'true');
+      } else {
+        localStorage.removeItem('remembered_email');
+        localStorage.removeItem('remember_user');
+      }
       clearAttempts(); // Limpiar contadores en login exitoso
       navigate('/');
     } catch (error: any) {
@@ -569,15 +578,30 @@ export default function Login(): React.ReactElement {
                   required className="pl-[40px] pr-[40px]" />
                 
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
-
-
-
-
-
                   aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-[14px] top-[50%] transform-[translateY(-50%)] bg-[none] border-none cursor-pointer text-[#64748b] flex items-center p-[0]">
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+              </div>
+
+              {/* Recordar usuario y Olvidé contraseña */}
+              <div className="flex items-center justify-between mb-6 text-sm">
+                <label className="flex items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-200 font-semibold select-none mb-0 text-[0.9rem]">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600"
+                  />
+                  <span>Recordar usuario</span>
+                </label>
+
+                <button
+                  type="button"
+                  onClick={() => setView('forgot')}
+                  className="text-blue-600 dark:text-blue-400 hover:underline font-bold bg-transparent border-none cursor-pointer text-[0.85rem] p-0">
+                  ¿Olvidaste tu contraseña?
+                </button>
               </div>
 
               {status.message &&

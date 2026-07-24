@@ -540,23 +540,24 @@ export default function Home(): React.ReactElement {
     <div className="page-transition pb-[4rem]">
 
       {!currentUser &&
-        <div className="fixed top-[0] left-[0] right-[0] z-[8000] flex justify-space-between items-center p-[0.8rem_1.2rem] bg-[rgba(2,_6,_23,_0.85)] backdrop-filter-[blur(12px)] webkit-backdrop-filter-[blur(12px)] border-bottom-[1px_solid_rgba(255,255,255,0.05)]">
-          <div className="flex items-center gap-[0.5rem] font-[800] text-[1.2rem] text-[white] letter-spacing-[-0.5px]">
-            <ShieldCheck weight="duotone" size={24} color="#60a5fa" />
-            <span style={{ display: isMobile ? 'none' : 'inline' }}>Asistente H&S</span>
-          </div>
-          <div className="flex gap-[0.5rem] items-center">
-            <button
-              onClick={() => navigate('/login')}
-              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-              onMouseOut={(e) => e.currentTarget.style.background = 'transparent'} className="bg-[transparent] border-[1px_solid_rgba(255,255,255,0.1)] text-[white] font-[600] p-[0.5rem_1rem] rounded-[8px] cursor-pointer transition-[all_0.2s]">
-              Iniciar sesión
-            </button>
-            <button
-              onClick={() => navigate('/login', { state: { view: 'register' } })}
-              className="glow-button p-[0.5rem_1rem] text-[0.95rem] rounded-[8px]">
-              Registrarse
-            </button>
+        <div className="fixed top-0 left-0 right-0 z-[8000] w-full bg-[#020617]/90 backdrop-blur-md border-b border-white/10 px-4 sm:px-8 py-3">
+          <div className="max-w-[1400px] mx-auto flex items-center justify-between w-full">
+            <div className="flex items-center gap-2 font-black text-lg sm:text-xl text-white tracking-tight cursor-pointer" onClick={() => navigate('/')}>
+              <ShieldCheck weight="duotone" size={26} color="#60a5fa" />
+              <span>Asistente H&S</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate('/login')}
+                className="bg-white/5 hover:bg-white/15 border border-white/15 text-white font-bold px-4 py-2 rounded-xl text-sm transition-all cursor-pointer">
+                Iniciar sesión
+              </button>
+              <button
+                onClick={() => navigate('/login', { state: { view: 'register' } })}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-lg shadow-blue-500/25 transition-all cursor-pointer border-none">
+                Registrarse
+              </button>
+            </div>
           </div>
         </div>
         }
@@ -565,7 +566,7 @@ export default function Home(): React.ReactElement {
 
       {!currentUser ?
         <div
-          className="home-hero-banner p-[clamp(8rem,_12vw,_10rem)_1.2rem_6rem] relative overflow-[hidden] mb-[0] border-bottom-[1px_solid_rgba(255,255,255,0.05)] w-[100%] box-sizing-[border-box] bg-[radial-gradient(circle_at_top_right,_#1e3a8a,_#020617)]"
+          className="home-hero-banner pt-28 pb-20 px-4 sm:px-8 relative mb-0 border-b border-white/10 w-full box-border bg-[#020617] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-950/60 via-[#020617] to-[#020617]"
           onMouseMove={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
             e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
@@ -574,7 +575,7 @@ export default function Home(): React.ReactElement {
           <div className="glow-cursor absolute top-[var(--mouse-y,_0)] left-[var(--mouse-x,_0)] w-[600px] h-[600px] bg-[radial-gradient(circle,_rgba(168,85,247,0.15)_0%,_rgba(0,0,0,0)_50%)] transform-[translate(-50%,_-50%)] pointer-events-[none] z-[0] transition-[opacity_0.3s_ease]" />
 
           <StarryBackground />
-          <div style={{ gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: isMobile ? '2rem' : '4rem' }} className="relative z-[1] max-w-[1200px] m-[0_auto] grid items-center">
+          <div style={{ gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: isMobile ? '2rem' : '4rem' }} className="relative z-[1] max-w-[1400px] m-[0_auto] grid items-center w-full">
             <div className="stagger-item animation-delay-[0.1s]" style={{ textAlign: isMobile ? 'center' : 'left' }}>
               <div className="display-[inline-flex] items-center gap-[0.6rem] p-[0.5rem_1rem] bg-[rgba(59,_130,_246,_0.1)] border-[1px_solid_rgba(59,_130,_246,_0.2)] rounded-[100px] mb-[2rem]">
                 <ShieldCheck size={16} color="#60a5fa" />
