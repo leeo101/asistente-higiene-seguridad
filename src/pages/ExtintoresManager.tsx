@@ -879,7 +879,7 @@ export default function ExtintoresManager() {
             {/* PDF Portal: siempre montado cuando shareItem está activo para que html2canvas lo encuentre */}
             {shareItem && createPortal(
         <div
-          id="pdf-content"
+          id="pdf-portal-container"
           className="ats-pdf-offscreen active-portal-print"
           aria-hidden="true"
           style={{
