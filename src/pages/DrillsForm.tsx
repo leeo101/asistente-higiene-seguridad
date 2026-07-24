@@ -206,7 +206,18 @@ export default function Drills(): React.ReactElement | null {
   };
 
   const handleSave = () => doSave();
-  const handlePrint = () => requirePro(() => window.print());
+  const handlePrint = () => requirePro(() => {
+    const el = document.getElementById('pdf-content');
+    if (el) {
+      document.body.classList.add('printing-isolated');
+      el.classList.add('isolated-print-target');
+    }
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove('printing-isolated');
+      if (el) el.classList.remove('isolated-print-target');
+    }, 1000);
+  });
 
   const formatDisplayTime = (totalSecs) => {
     const m = Math.floor(totalSecs / 60);
