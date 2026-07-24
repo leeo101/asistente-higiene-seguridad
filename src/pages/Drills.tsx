@@ -199,7 +199,7 @@ export default function DrillsHistory(): React.ReactElement | null {
 
   return (
     <AnimatedPage>
-      <div className="container max-w-6xl mx-auto pt-6 pb-24 px-4 w-full">
+      <div className="container max-w-6xl mx-auto pt-8 md:pt-12 pb-24 px-4 w-full">
         
         {/* Modal Confirmación Borrado */}
         {deleteTarget && (
@@ -262,7 +262,13 @@ export default function DrillsHistory(): React.ReactElement | null {
             <div className="flex gap-3 flex-wrap">
               <button
                 onClick={() => navigate('/drills/new')}
-                className="flex items-center gap-2.5 py-3.5 px-6 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-white border-none rounded-2xl font-black cursor-pointer shadow-xl shadow-amber-500/30 transition-all hover:scale-105 active:scale-95 text-sm"
+                style={{
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  boxShadow: '0 10px 25px -5px rgba(217, 119, 6, 0.5)'
+                }}
+                className="flex items-center gap-2.5 py-3.5 px-6 rounded-2xl font-black cursor-pointer transition-all hover:scale-105 active:scale-95 text-sm shadow-xl"
               >
                 <Plus size={20} weight="bold" />
                 Nuevo Simulacro

@@ -237,7 +237,7 @@ export default function Drills(): React.ReactElement | null {
           elementIdToPrint="pdf-content"
           fileName={`Simulacro_${formData.empresa || 'Registro'}.pdf`} />
         
-                <div className="no-print mb-8">
+                <div className="no-print pt-6 md:pt-10 mb-8">
                     <ModuleFormToolbar
             title={editData ? 'Editar Acta de Simulacro' : 'Registro de Simulacro'}
             subtitle="Gestión de Simulacros y Evacuación"
