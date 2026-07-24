@@ -37,12 +37,56 @@
     ],
     "rewrites": [
         {
+            "source": "/api/ai-advisor",
+            "destination": "/api/ai.js"
+        },
+        {
+            "source": "/api/ai-ats-generator",
+            "destination": "/api/ai.js"
+        },
+        {
+            "source": "/api/ai-legal-summary",
+            "destination": "/api/ai.js"
+        },
+        {
+            "source": "/api/ai-report-conclusion",
+            "destination": "/api/ai.js"
+        },
+        {
+            "source": "/api/analyze-extinguisher",
+            "destination": "/api/ai.js"
+        },
+        {
+            "source": "/api/analyze-general-risks",
+            "destination": "/api/ai.js"
+        },
+        {
+            "source": "/api/analyze-image",
+            "destination": "/api/ai.js"
+        },
+        {
+            "source": "/api/daily-insight",
+            "destination": "/api/ai.js"
+        },
+        {
+            "source": "/api/forgot-password",
+            "destination": "/api/auth.js"
+        },
+        {
+            "source": "/api/send-password-changed-email",
+            "destination": "/api/auth.js"
+        },
+        {
+            "source": "/api/welcome-email",
+            "destination": "/api/auth.js"
+        },
+        {
             "source": "/api/create-stripe-subscription",
-            "destination": "/api/create-stripe-subscription.js"
+            "destination": "/api/subscription-handler.js"
         },
         {
             "source": "/api/verify-payment",
-            "destination": "/api/verify-payment.js"
+            "destination": "/api/subscription-handler.js"
         },
         {
             "source": "/api/create-subscription",

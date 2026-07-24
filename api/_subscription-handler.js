@@ -1,0 +1,196 @@
+import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
+import { Resend } from 'resend';
+import { getGoogleAccessToken } from './_googleAuth.js';
+import { setCorsHeaders } from './_cors.js';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
+
+export default async function handler(req, res) {
+    // 🔐 Enable secure CORS configuration
+    const corsOk = setCorsHeaders(req, res);
+    if (!corsOk) return;
+
+    if (req.method === 'OPTIONS') {
+        res.status(200).end()
+        return
+    }
+
+    const { query } = req;
+    const topic = query.topic || query.type;
+    const webhookId = query.id || (req.body && req.body.data && req.body.data.id);
+
+    // DISTINGUISH BETWEEN WEBHOOK AND CREATE PREFERENCE
+    if (webhookId || topic) {
+        // --- WEBHOOK LOGIC ---
+        try {
+            console.log(`Webhook received: Topic=${topic}, ID=${webhookId}`);
+
+            if (topic === 'payment' || topic === 'payment.created' || topic === 'payment.updated') {
+                const payment = new Payment(client);
+                const paymentData = await payment.get({ id: webhookId });
+
+                if (paymentData.status === 'approved') {
+                    const userId = paymentData.external_reference;
+                    console.log(`Payment approved for user: ${userId}`);
+
+                    if (userId && userId !== 'guest') {
+                        const projectId = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY).project_id;
+                        const accessToken = await getGoogleAccessToken();
+                        const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}/data/subscriptionData`;
+                        
+                        // 1. Get current subscription data
+                        const userDocRes = await fetch(firestoreUrl, { 
+                            headers: { Authorization: `Bearer ${accessToken}` } 
+                        });
+                        
+                        let currentExpiry = 0;
+                        if (userDocRes.ok) {
+                            const docData = await userDocRes.json();
+                            if (docData.fields && docData.fields.expiry && docData.fields.expiry.stringValue) {
+                                currentExpiry = parseInt(docData.fields.expiry.stringValue, 10);
+                            }
+                        }
+
+                        // 2. Calculate new expiry
+                        const baseDate = (currentExpiry && currentExpiry > Date.now()) ? new Date(currentExpiry) : new Date();
+                        baseDate.setMonth(baseDate.getMonth() + 1);
+                        const newExpiry = String(baseDate.getTime());
+
+                        // 3. Update subscription data via REST
+                        const patchUrl = `${firestoreUrl}?updateMask.fieldPaths=status&updateMask.fieldPaths=expiry&updateMask.fieldPaths=updatedAt&updateMask.fieldPaths=lastPaymentId`;
+                        const payload = {
+                            fields: {
+                                status: { stringValue: 'active' },
+                                expiry: { stringValue: newExpiry },
+                                updatedAt: { integerValue: String(Date.now()) },
+                                lastPaymentId: { stringValue: String(webhookId) }
+                            }
+                        };
+
+                        await fetch(patchUrl, {
+                            method: 'PATCH',
+                            headers: {
+                                'Authorization': `Bearer ${accessToken}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        console.log(`User ${userId} updated to PRO until ${new Date(parseInt(newExpiry, 10)).toLocaleDateString()}`);
+                    }
+                }
+            }
+            return res.status(200).send('OK');
+        } catch (error) {
+            console.error('Webhook error:', error);
+            // Mercado Pago expects a 200/201 even on errors sometimes to stop retrying if it's a code error
+            return res.status(200).send('Error processed');
+        }
+    } else {
+        // --- CREATE PREFERENCE LOGIC ---
+        if (req.method !== 'POST') {
+            return res.status(405).json({ error: 'Method Not Allowed' });
+        }
+
+        try {
+            const { userId, email, planId } = req.body || {};
+
+            let amount = 6.00;
+            let planTitle = 'Asistente H&S – Plan Profesional';
+
+            if (planId === 'student') {
+                amount = 2.00;
+                planTitle = 'Asistente H&S – Plan Estudiante';
+            } else if (planId === 'enterprise') {
+                amount = 25.00;
+                planTitle = 'Asistente H&S – Plan Empresa';
+            } else if (planId === 'pro') {
+                amount = 6.00;
+                planTitle = 'Asistente H&S – Plan Profesional';
+            }
+
+            const preference = new Preference(client);
+
+            const protocol = req.headers['x-forwarded-proto'] || 'http';
+            const host = req.headers['host'];
+            const baseUrl = `${protocol}://${host}`;
+
+            const result = await preference.create({
+                body: {
+                    items: [
+                        {
+                            id: planId || 'pro_subscription',
+                            title: planTitle,
+                            description: `Acceso completo al ${planTitle}. Suscripción mensual.`,
+                            quantity: 1,
+                            unit_price: amount,
+                            currency_id: 'USD',
+                        }
+                    ],
+                    back_urls: {
+                        success: `${baseUrl}/subscribe?status=approved`,
+                        failure: `${baseUrl}/subscribe?status=failed`,
+                        pending: `${baseUrl}/subscribe?status=pending`
+                    },
+                    external_reference: userId || 'guest',
+                    notification_url: `${baseUrl}/api/mercadopago-webhook`,
+                    auto_return: 'approved',
+                    statement_descriptor: 'ASISTENTE HY&S',
+                }
+            });
+
+            if (email) {
+                try {
+                    await resend.emails.send({
+                        from: 'Asistente HYS <soporte@asistentehs.com>',
+                        to: email,
+                        subject: '¡Casi eres PRO! - Asistente HYS',
+                        html: `
+                            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border-radius: 16px; overflow: hidden; background-color: #f8fafc; border: 1px solid #e2e8f0;">
+                                <div style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); padding: 40px 20px; text-align: center;">
+                                    <img src="https://asistentehs.com/logo.png" alt="Asistente HYS" style="width: 80px; height: auto; margin-bottom: 20px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">
+                                    <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">Asistente H&S PRO</h1>
+                                </div>
+                                <div style="padding: 40px 30px; background-color: #ffffff;">
+                                    <h2 style="color: #0f172a; margin-top: 0; font-size: 20px; font-weight: 700;">¡Hola!</h2>
+                                    <p style="color: #475569; line-height: 1.6; font-size: 16px;">
+                                        Hemos notado que has iniciado el proceso para activar tu versión <strong>PRO</strong> del Asistente de Higiene y Seguridad. ¡Excelente decisión!
+                                    </p>
+                                    <div style="background-color: #f1f5f9; padding: 25px; border-radius: 12px; margin: 30px 0; border: 1px solid #e2e8f0;">
+                                        <h3 style="color: #1e3a8a; margin-top: 0; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Beneficios que te esperan:</h3>
+                                        <ul style="color: #475569; margin: 15px 0 0; padding-left: 20px; line-height: 1.8;">
+                                            <li>Generación de informes ilimitados.</li>
+                                            <li>Cámara IA para detección de riesgos avanzada.</li>
+                                            <li>Descarga de PDFs profesionales con tu firma.</li>
+                                            <li>Soporte prioritario.</li>
+                                        </ul>
+                                    </div>
+                                    <p style="color: #475569; line-height: 1.6; font-size: 16px; text-align: center;">
+                                        Si cerraste la ventana de pago, puedes volver a intentarlo haciendo clic en el siguiente botón:
+                                    </p>
+                                    <div style="text-align: center; margin: 30px 0;">
+                                        <a href="${baseUrl}/subscribe" style="display: inline-block; padding: 16px 32px; background-color: #10b981; color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);">Finalizar Suscripción</a>
+                                    </div>
+                                    <p style="color: #94a3b8; font-size: 14px; line-height: 1.5; border-top: 1px solid #f1f5f9; padding-top: 25px; margin-top: 35px;">
+                                        Si ya completaste el pago, tu cuenta se activará automáticamente en unos momentos.<br>
+                                        ¡Gracias por confiar en nosotros!
+                                    </p>
+                                </div>
+                                <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+                                    <p style="color: #64748b; font-size: 12px; margin: 0;">© 2026 Asistente de Higiene y Seguridad.</p>
+                                </div>
+                            </div>
+                        `
+                    });
+                } catch (err) {
+                    console.error("Error sending subscription notification:", err);
+                }
+            }
+            return res.status(200).json({ id: result.id, init_point: result.init_point });
+        } catch (error) {
+            console.error("MP Error:", error);
+            return res.status(500).json({ error: 'Error al crear la preferencia', details: error.message });
+        }
+    }
+}
