@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "concurrently -n \"API,VITE\" -c \"blue,green\" \"node server\" \"vite\"",
     "start": "node server",
-    "build": "vite build",
+    "build": "cross-env NODE_OPTIONS=--max-old-space-size=4096 vite build",
     "preview": "vite preview",
     "analyze": "cross-env ANALYZE=true vite build",
     "test": "vitest",
