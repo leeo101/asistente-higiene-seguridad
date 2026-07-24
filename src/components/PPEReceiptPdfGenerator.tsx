@@ -23,7 +23,7 @@ export default function PPEReceiptPdfGenerator({ items = [] }: {items?: any[];})
                 {/* Header Res 299/11 */}
                 <div className="flex justify-space-between items-center mb-[15px]">
                     <div className="w-[150px]">
-                        <CompanyLogo className="max-height-[60px] max-w-[100%] object-fit-[contain]" />
+                        <CompanyLogo style={{ maxHeight: '48px', maxWidth: '140px', objectFit: 'contain' }} />
                     </div>
                     <div className="text-center flex-[1]">
                         <h2 className="m-[0] text-[11pt] font-[bold]">CONSTANCIA DE ENTREGA DE ROPA DE TRABAJO Y</h2>

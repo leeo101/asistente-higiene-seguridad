@@ -61,7 +61,7 @@ export default function ProfessionalReportPdfGenerator({ currentReport, customId
                 </div>
                 <div className="flex flex-col items-end gap-[1rem]">
                     <div className="h-[65px] flex items-center">
-                        <CompanyLogo className="max-height-[100%] max-w-[160px] object-fit-[contain]" />
+                        <CompanyLogo style={{ maxHeight: '48px', maxWidth: '140px', objectFit: 'contain' }} />
                     </div>
                     <div className="text-right">
                         <p className="m-[0] font-[900] text-[1.1rem] text-[#0f172a] letter-spacing-[1px]">PROFESIONAL HYS</p>
@@ -117,7 +117,7 @@ export default function ProfessionalReportPdfGenerator({ currentReport, customId
                     <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(250px,_1fr))] gap-[1rem]">
                         {report.photos.map((photo: any, index: number) => (
                             <div key={photo.id || index} className="border-[1px_solid_#e2e8f0] rounded-[12px] overflow-hidden bg-[#f8fafc] p-[0.5rem] avoid-break break-inside-[avoid]">
-                                <img src={photo.url} alt="Evidencia" className="w-[100%] h-[200px] object-fit-[cover] rounded-[8px] border-[1px_solid_#cbd5e1]" />
+                                <img src={photo.url} alt="Evidencia" className="w-[100%] h-[200px] rounded-[8px] border-[1px_solid_#cbd5e1]" style={{ objectFit: 'cover' }} />
                                 {photo.description && (
                                     <p className="m-[0.8rem_0_0.3rem_0] text-[0.85rem] text-[#475569] text-center font-[600]">{photo.description}</p>
                                 )}

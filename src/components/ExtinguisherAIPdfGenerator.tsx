@@ -119,7 +119,7 @@ export default function ExtinguisherAIPdfGenerator({ item }: {item: any;}): Reac
                     </div>
                     
                     <div className="ml-[20px] flex-shrink-[0]">
-                        <CompanyLogo className="h-[50px] max-w-[150px] bg-white dark:bg-slate-800 p-[8px] rounded-[8px]" />
+                        <CompanyLogo style={{ maxHeight: '48px', maxWidth: '140px', objectFit: 'contain' }} className="bg-white dark:bg-slate-800 p-[8px] rounded-[8px]" />
                     </div>
                 </div>
 
@@ -138,7 +138,7 @@ export default function ExtinguisherAIPdfGenerator({ item }: {item: any;}): Reac
 
               
                             {item.image ?
-              <img src={item.image} alt="Extintor Capturado" className="w-[100%] h-[auto] rounded-[8px] object-fit-[contain] max-height-[400px]" /> :
+              <img src={item.image} alt="Extintor Capturado" className="w-full h-auto rounded-[8px] object-contain" style={{ maxHeight: '350px', objectFit: 'contain' }} /> :
 
               <div className="text-[#94a3b8] text-[9pt] text-center">Sin imagen disponible</div>
               }
@@ -228,7 +228,7 @@ export default function ExtinguisherAIPdfGenerator({ item }: {item: any;}): Reac
           
                         <div className="text-center w-[250px]">
                             {item.signature ?
-            <img src={item.signature} alt="Firma Inspector" className="h-[80px] object-fit-[contain] mb-[0.5rem] border-bottom-[1px_solid_#cbd5e1]" /> :
+             <img src={item.signature} alt="Firma Inspector" className="h-[80px] object-contain mb-[0.5rem] border-bottom-[1px_solid_#cbd5e1]" style={{ maxHeight: '80px', objectFit: 'contain' }} /> :
 
             <div className="h-[80px] border-bottom-[1px_solid_#cbd5e1] mb-[0.5rem]"></div>
             }

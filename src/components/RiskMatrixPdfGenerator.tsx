@@ -63,7 +63,7 @@ export default function RiskMatrixPdfGenerator({ data }: {data: any;}): React.Re
                         <h1 className="m-[0] font-[900] text-[2rem] text-[#1e293b] letter-spacing-[-0.02em] uppercase">MATRIZ DE RIESGOS</h1>
                     </div>
                     <div className="flex flex-col items-end gap-[0.5rem]">
-                        <CompanyLogo className="h-[45px] w-[auto] object-fit-[contain] max-w-[140px]" />
+                        <CompanyLogo style={{ maxHeight: '45px', maxWidth: '140px', objectFit: 'contain' }} />
 
 
 

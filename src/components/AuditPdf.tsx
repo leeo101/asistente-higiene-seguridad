@@ -79,7 +79,7 @@ export default function AuditPdf({ data }: {data: any;}): React.ReactElement | n
                     </div>
 
                     <div className="flex-[1] text-right flex flex-col items-end gap-[0.5rem]">
-                        <CompanyLogo className="h-[38px] w-[auto] object-fit-[contain] max-w-[120px]" />
+                        <CompanyLogo style={{ maxHeight: '38px', maxWidth: '120px', objectFit: 'contain' }} />
 
             
                     </div>

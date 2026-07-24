@@ -51,7 +51,7 @@ export default function FleetPdfGenerator({ data, checklistItems }: {data: any;c
                         </div>
                     </div>
                     <div className="bg-[white] p-[10px] rounded-[8px]">
-                        <CompanyLogo className="h-[50px] max-w-[150px] object-fit-[contain]" />
+                        <CompanyLogo style={{ maxHeight: '48px', maxWidth: '140px', objectFit: 'contain' }} />
                     </div>
                 </div>
 

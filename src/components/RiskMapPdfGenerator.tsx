@@ -233,6 +233,7 @@ export default function RiskMapPdfGenerator({
 
                       }} className="absolute text-[18px] font-[800] white-space-[nowrap] bg-[rgba(255,255,255,0.7)] p-[2px_6px] rounded-[4px] z-[10]">
                       
+                      
                                             {el.text}
                                         </div>);
 
@@ -246,13 +247,12 @@ export default function RiskMapPdfGenerator({
                         {/* Legend */}
                         <div className="border-[1px_solid_#1e293b] p-[8px] text-[9pt]">
                             <strong className="block mb-[6px] border-bottom-[1px_solid_#e2e8f0] pb-[2px]">REFERENCIAS (Norma ISO 7010 / IRAM)</strong>
-                            <div className="flex flex-wrap gap-[8px_12px]">
-                                {legendIcons.map((icon) =>
-                <div key={icon.id} className="flex items-center gap-[4px]">
+                            <div className="flex flex-wrap gap-[8px_12px]">                                {legendIcons.map((icon) => (
+                                    <div key={icon.id} className="flex items-center gap-[4px]">
                                         <div style={{ border: `1px solid ${icon.color}`, color: icon.color }} dangerouslySetInnerHTML={{ __html: icon.svg }} className="w-[16px] h-[16px] flex-shrink-[0]" />
                                         <span>{icon.label}</span>
                                     </div>
-                )}
+                                ))}
                                 {legendIcons.length === 0 && <span className="text-[#64748b]">No se han utilizado pictogramas normalizados en este plano.</span>}
                             </div>
                         </div>
@@ -260,12 +260,9 @@ export default function RiskMapPdfGenerator({
                         {/* Rótulo Oficial */}
                         <div className="border-[2px_solid_#1e293b] flex flex-col text-[8pt] bg-[#f8fafc]">
                             <div style={{
-
-
-                background: isEvacuation ? '#16a34a' : 'transparent',
-                color: isEvacuation ? '#ffffff' : 'inherit'
-
-              }} className="p-[4px_6px] flex items-center gap-[6px] font-[bold] border-bottom-[1px_solid_#1e293b]">
+                                background: isEvacuation ? '#16a34a' : 'transparent',
+                                color: isEvacuation ? '#ffffff' : 'inherit'
+                            }} className="p-[4px_6px] flex items-center gap-[6px] font-[bold] border-bottom-[1px_solid_#1e293b]">
                                 <MapIcon size={14} color={isEvacuation ? '#ffffff' : 'currentColor'} />
                                 {isEvacuation ? 'DIAGRAMA DE EVACUACIÓN' : 'MAPA DE RIESGOS INTEGRAL'}
                             </div>
@@ -275,25 +272,21 @@ export default function RiskMapPdfGenerator({
                                 <div><strong>Fecha:</strong> {mapData?.fecha ? new Date(mapData.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : 'N/A'}</div>
                             </div>
                             <div className="p-[4px_6px] border-top-[1px_solid_#1e293b] flex justify-center bg-[white]">
-                                <CompanyLogo className="max-height-[35px] max-w-[100%] object-fit-[contain]" />
-
-                
+                                <CompanyLogo style={{ maxHeight: '35px', maxWidth: '140px', objectFit: 'contain' }} />
                             </div>
-                             <div className="border-top-[1px_solid_#1e293b] p-[4px_6px] text-center bg-[#ffffff] min-h-[45px] flex flex-col items-center justify-center">
-                                 {actSignature ?
-                <img src={actSignature} alt="Firma Profesional" className="max-height-[35px] object-fit-[contain]" /> :
-
-                <div className="h-[20px]"></div>
-                }
-                                 <div className="border-top-[1px_dashed_#94a3b8] pt-[2px] w-[100%]">
-                                     <strong className="text-[7pt]">{actName || 'Firma Profesional RyS'}</strong>
-                                 </div>
-                             </div>
+                            <div className="border-top-[1px_solid_#1e293b] p-[4px_6px] text-center bg-[#ffffff] min-h-[45px] flex flex-col items-center justify-center">
+                                {actSignature ?
+                                    <img src={actSignature} alt="Firma Profesional" className="max-h-[35px] object-contain" style={{ maxHeight: '35px', objectFit: 'contain' }} /> :
+                                    <div className="h-[20px]"></div>
+                                }
+                                <div className="border-top-[1px_dashed_#94a3b8] pt-[2px] w-[100%]">
+                                    <strong className="text-[7pt]">{actName || 'Firma Profesional RyS'}</strong>
+                                </div>
+                            </div>
                         </div>
-
                     </div>
                 </div>
             </div>
-        </div>);
-
+        </div>
+    );
 }

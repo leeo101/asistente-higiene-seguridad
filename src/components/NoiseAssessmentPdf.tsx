@@ -71,7 +71,7 @@ export default function NoiseAssessmentPdf({ data }: {data: any;}): React.ReactE
                         <h1 className="m-[0] text-[1.6rem] font-[900]">PLANILLA DE MEDICIÓN DE RUIDO</h1>
                         <p className="m-[0] text-[0.9rem] font-[700] text-[#666]">CONFORME A RES. SRT 85/12</p>
                     </div>
-                    <CompanyLogo className="h-[50px] max-w-[150px] object-fit-[contain]" />
+                    <CompanyLogo style={{ maxHeight: '48px', maxWidth: '140px', objectFit: 'contain' }} />
                 </div>
 
                 {/* Main Results */}

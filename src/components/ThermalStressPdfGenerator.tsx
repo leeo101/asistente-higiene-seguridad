@@ -160,7 +160,7 @@ export default function ThermalStressPdfGenerator({ data, onBack = () => window.
                     </div>
                     
                     <div className="ml-[20px] flex-shrink-[0]">
-                        <CompanyLogo className="h-[50px] max-w-[150px] bg-[#ffffff] p-[8px] rounded-[8px]" />
+                        <CompanyLogo style={{ maxHeight: '48px', maxWidth: '140px', objectFit: 'contain' }} className="bg-[#ffffff] p-[8px] rounded-[8px]" />
                     </div>
                 </div>
 

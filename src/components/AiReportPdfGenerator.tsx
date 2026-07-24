@@ -64,7 +64,7 @@ export default function AiReportPdfGenerator({ item }: {item: any;}): React.Reac
                     </div>
                     <div className="flex flex-col items-end gap-[1rem]">
                         <div className="h-[65px] flex items-center">
-                            <CompanyLogo className="h-[100%] w-[auto] max-w-[150px] object-fit-[contain]" />
+                            <CompanyLogo style={{ maxHeight: '48px', maxWidth: '140px', objectFit: 'contain' }} />
                         </div>
                         <div className="text-[9pt] text-[#64748b] font-[700] bg-[#f1f5f9] p-[0.3rem_0.8rem] rounded-full">
                             Fecha: {new Date(data.date).toLocaleDateString('es-AR')}
@@ -98,9 +98,9 @@ export default function AiReportPdfGenerator({ item }: {item: any;}): React.Reac
 
                 {/* Evidence Photo */}
                 <div className="mb-[2rem] text-center">
-                    <div className="w-[100%] max-w-[350px] h-[250px] rounded-[8px] border-[1px_solid_#cbd5e1] m-[0_auto] bg-[#f1f5f9] flex items-center justify-center">
+                    <div className="w-[100%] max-w-[350px] h-[250px] rounded-[8px] border-[1px_solid_#cbd5e1] m-[0_auto] bg-[#f1f5f9] flex items-center justify-center overflow-hidden">
                         {data.image ?
-            <img src={data.image} alt="Evidencia" className="w-[100%] h-[100%] object-fit-[contain]" /> :
+            <img src={data.image} alt="Evidencia" className="w-full h-full object-contain" style={{ maxHeight: '250px', objectFit: 'contain' }} /> :
 
             <div className="text-[#64748b] text-[9pt] p-[1rem] text-center">
                                 <Info size={24} className="m-[0_auto_0.5rem_auto] text-[#94a3b8]" />

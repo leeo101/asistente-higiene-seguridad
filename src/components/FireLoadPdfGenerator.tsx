@@ -77,7 +77,7 @@ export default function FireLoadPdfGenerator({ data }: {data: any;}): React.Reac
                 <p className="m-[0] text-[12pt] font-[800] text-orange-500">CÁLCULO Y RESULTADOS</p>
             </div>
             <div className="flex flex-col items-end gap-[0.5rem]">
-                <CompanyLogo className="h-[45px] w-auto object-contain max-w-[150px]" />
+                <CompanyLogo style={{ maxHeight: '45px', maxWidth: '140px', objectFit: 'contain' }} />
                 <div className="text-right mt-1">
                     <div className="text-[8pt] font-[800] text-slate-500">SISTEMA DE GESTIÓN HYS</div>
                     <div className="font-[800] text-slate-800 text-[9pt]">{countryNorms.fire}</div>

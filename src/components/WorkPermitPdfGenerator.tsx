@@ -83,7 +83,7 @@ export default function WorkPermitPdfGenerator({ data, id = "pdf-content" }: {da
                         <p className="m-[0] text-[1.1rem] font-[700] text-[#666]">{selectedTypeLabel.toUpperCase()}</p>
                     </div>
                     <div className="flex flex-col items-end gap-[0.5rem]">
-                        <CompanyLogo className="h-[45px] w-[auto] object-fit-[contain] max-w-[140px]" />
+                        <CompanyLogo style={{ maxHeight: '45px', maxWidth: '140px', objectFit: 'contain' }} />
 
 
 

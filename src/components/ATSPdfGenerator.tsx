@@ -283,7 +283,7 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
               </div>
             </div>
             <div className="text-right min-width-[100px]">
-              <CompanyLogo className="h-[32px] max-w-[110px] ml-[auto]" />
+              <CompanyLogo style={{ maxHeight: '35px', maxWidth: '110px', objectFit: 'contain' }} />
               <div className="mt-[0.3rem] text-[6.5pt] font-[800] text-[#94a3b8] uppercase">
                 Ref. {docId}
               </div>

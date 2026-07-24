@@ -77,7 +77,7 @@ export default function DrillPdfGenerator({ report, onBack, isHeadless = false }
                                 <span className="flex items-center gap-[0.3rem]"><strong>Fecha:</strong> {report?.fecha ? new Date(report.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : 'N/A'}</span>
                             </div>
                         </div>
-                        <CompanyLogo className="h-[45px] w-[auto] object-fit-[contain] max-w-[140px] ml-[20px]" />
+                        <CompanyLogo style={{ maxHeight: '45px', maxWidth: '140px', objectFit: 'contain' }} />
 
 
 

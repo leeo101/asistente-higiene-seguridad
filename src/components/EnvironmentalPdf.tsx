@@ -126,7 +126,7 @@ export default function EnvironmentalPdf({ data, id = "pdf-content" }: {data: an
                         <p className="m-[0.2rem_0_0] text-[0.8rem] font-[800] text-[#3b82f6] uppercase letter-spacing-[0.05em]">SISTEMA DE GESTIÓN ISO 14001 • LEY 19.587</p>
                     </div>
                     <div className="text-right flex flex-col items-end gap-[0.2rem]">
-                        <CompanyLogo className="h-[40px] max-w-[140px]" />
+                        <CompanyLogo style={{ maxHeight: '40px', maxWidth: '140px', objectFit: 'contain' }} />
                         <div className="text-[0.55rem] font-[900] text-[#94a3b8] letter-spacing-[0.05em] uppercase">Doc. Controlado</div>
                     </div>
                 </div>

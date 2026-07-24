@@ -90,12 +90,6 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
 
 
 
-
-
-
-
-
-      
             <style type="text/css" media="print">
                 {`
                     @page { size: A4 portrait; margin: 10mm; }
@@ -125,52 +119,13 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
                 </div>
 
                 <div className="flex-[1] text-right flex flex-col items-end gap-[0.5rem]">
-                    <CompanyLogo className="h-[38px] w-[auto] object-fit-[contain] max-w-[120px]" />
-                </div>
-            </div>
-
-            {/* Tema + Metadatos */}
-            <div className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1.2rem] w-[100%]">
-                <div className="p-[0.9rem_1.2rem] bg-[#eff6ff] border-bottom-[1px_solid_#bfdbfe]">
-                    <span className="text-[0.6rem] font-[800] text-[#0052CC] uppercase letter-spacing-[0.05em] flex items-center gap-[0.4rem]">
-                        <MessageSquare size={13} /> TEMA DE LA CHARLA
-                    </span>
-                    <div className="font-[900] text-[1.25rem] text-[#0f172a] mt-[0.3rem]">{data.tema || '-'}</div>
-                </div>
-
-                <div className="grid grid-template-columns-[repeat(3,_1fr)] bg-[#ffffff]">
-                    <div className="p-[0.7rem_1rem] border-right-[1px_solid_#e2e8f0]">
-                        <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Calendar size={11} /> FECHA</span>
-                        <div className="font-[700] text-[0.85rem] text-[#1e293b] mt-[0.15rem]">{data.fecha ? new Date(data.fecha + 'T12:00').toLocaleDateString('es-AR') : '-'}</div>
-                    </div>
-                    <div className="p-[0.7rem_1rem] border-right-[1px_solid_#e2e8f0]">
-                        <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Building2 size={11} /> EMPRESA</span>
-                        <div className="font-[700] text-[0.85rem] text-[#1e293b] mt-[0.15rem]">{data.empresa || '-'}</div>
-                    </div>
-                    <div className="p-[0.7rem_1rem]">
-                        <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><MapPin size={11} /> ÁREA / SECTOR</span>
-                        <div className="font-[700] text-[0.85rem] text-[#1e293b] mt-[0.15rem]">{data.area || '-'}</div>
-                    </div>
-                </div>
-                <div className="grid grid-template-columns-[2fr_1fr_1fr] border-top-[1px_solid_#e2e8f0] bg-[#f8fafc]">
-                    <div className="p-[0.7rem_1rem] border-right-[1px_solid_#e2e8f0]">
-                        <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><User size={11} /> RESPONSABLE DE LA CHARLA</span>
-                        <div className="font-[700] text-[0.85rem] text-[#1e293b] mt-[0.15rem]">{data.responsable || '-'}</div>
-                    </div>
-                    <div className="p-[0.7rem_1rem] border-right-[1px_solid_#e2e8f0]">
-                        <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Briefcase size={11} /> CARGO</span>
-                        <div className="font-[700] text-[0.85rem] text-[#1e293b] mt-[0.15rem]">{data.cargoResponsable || '-'}</div>
-                    </div>
-                    <div className="p-[0.7rem_1rem]">
-                        <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Users size={11} /> ASISTENTES</span>
-                        <div className="font-[900] text-[0.85rem] text-[#0052CC] mt-[0.15rem]">{validAttendees.length} personas | {signedCount} firmaron</div>
-                    </div>
+                    <CompanyLogo style={{ maxHeight: '38px', maxWidth: '120px', objectFit: 'contain' }} />
                 </div>
             </div>
 
             {/* Desarrollo */}
-            {data.desarrollo &&
-      <div className="mb-[1rem] border-[1px_solid_#cbd5e1] rounded-[6px]">
+            {data.desarrollo && (
+                <div className="mb-[1rem] border-[1px_solid_#cbd5e1] rounded-[6px]">
                     <div className="p-[0.5rem_1rem] bg-[#f1f5f9] border-bottom-[1px_solid_#cbd5e1]">
                         <span className="text-[0.6rem] font-[900] text-[#334155] uppercase">DESARROLLO / PUNTOS TRATADOS</span>
                     </div>
@@ -178,7 +133,7 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
                         {data.desarrollo}
                     </div>
                 </div>
-      }
+            )}
 
             {/* Tabla de Asistentes */}
             <div className="mb-[1rem]">
@@ -192,8 +147,8 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
                         </tr>
                     </thead>
                     <tbody>
-                        {filledAttendees.map((att, idx) =>
-            <tr className="avoid-break page-break-inside-[avoid]" key={idx} style={{ background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
+                        {filledAttendees.map((att, idx) => (
+                            <tr className="avoid-break page-break-inside-[avoid]" key={idx} style={{ background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
                                 <td className="border-[1px_solid_#cbd5e1] p-[0.55rem_0.4rem] text-center text-[#94a3b8] font-[700]">{idx + 1}</td>
                                 <td className="border-[1px_solid_#cbd5e1] p-[0.55rem_0.8rem] font-[700] text-[#1e293b]">{att.nombre}</td>
                                 <td className="border-[1px_solid_#cbd5e1] p-[0.55rem_0.8rem] text-center text-[#334155]">{att.dni}</td>
@@ -201,7 +156,7 @@ export default function ToolboxTalkPdfGenerator({ data, professional }: Props) {
                                     {att.firma ? <span className="text-[#10b981] font-[900] text-[0.75rem]">✓ FIRMÓ</span> : ''}
                                 </td>
                             </tr>
-            )}
+                        ))}
                     </tbody>
                 </table>
             </div>

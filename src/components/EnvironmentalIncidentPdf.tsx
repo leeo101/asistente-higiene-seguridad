@@ -175,7 +175,7 @@ export default function EnvironmentalIncidentPdf({ report, onBack, isHeadless = 
                             <div className="grid grid-template-columns-[repeat(3,_1fr)] gap-[0.5rem]">
                                 {report.photos.map((photo: string, i: number) =>
               <div key={i} className="aspect-ratio-[4/3] bg-[#f1f5f9] rounded-[4px] overflow-[hidden] border-[1px_solid_#e2e8f0]">
-                                        <img src={photo} alt={`Evidencia ${i + 1}`} className="w-[100%] h-[100%] object-fit-[cover]" />
+                                        <img src={photo} alt={`Evidencia ${i + 1}`} className="w-full h-full object-cover" style={{ objectFit: 'cover' }} />
                                     </div>
               )}
                             </div>

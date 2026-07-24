@@ -125,7 +125,7 @@ export default function LegajoPdf({ data }: { data: any; }): React.ReactElement 
         <div className="grid grid-template-columns-[repeat(auto-fill,_minmax(140px,_1fr))] gap-[10px]">
           {adjuntos.map((img: string, i: number) => (
             <div key={i} className="aspect-ratio-[1] rounded-[12px] overflow-[hidden] border-[1px_solid_#e2e8f0] bg-[#f8fafc]">
-              <img src={img} alt="" className="w-[100%] h-[100%] object-fit-[cover]" />
+              <img src={img} alt="" className="w-full h-full object-cover" style={{ objectFit: 'cover' }} />
             </div>
           ))}
         </div>

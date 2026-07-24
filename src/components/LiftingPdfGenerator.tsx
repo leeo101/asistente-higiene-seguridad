@@ -90,7 +90,7 @@ export default function LiftingPdfGenerator({ data }: {data: any;}): React.React
                     </div>
                     
                     <div className="ml-[20px] flex-shrink-[0] text-right flex flex-col items-end gap-[0.4rem]">
-                        <CompanyLogo className="h-[45px] w-[auto] object-fit-[contain] max-w-[140px] bg-[#ffffff] p-[8px] rounded-[8px] box-shadow-[0_4px_6px_rgba(0,0,0,0.1)]" />
+                        <CompanyLogo style={{ maxHeight: '45px', maxWidth: '140px', objectFit: 'contain' }} className="bg-[#ffffff] p-[8px] rounded-[8px] box-shadow-[0_4px_6px_rgba(0,0,0,0.1)]" />
 
 
 

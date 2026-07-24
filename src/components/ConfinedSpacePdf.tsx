@@ -106,7 +106,7 @@ export default function ConfinedSpacePdf({ data }: {data: any;}): React.ReactEle
                     </div>
 
                     <div className="flex-[1] text-right flex flex-col items-end gap-[0.5rem]">
-                        <CompanyLogo className="h-[38px] w-[auto] object-fit-[contain] max-w-[120px]" />
+                        <CompanyLogo style={{ maxHeight: '38px', maxWidth: '120px', objectFit: 'contain' }} />
                     </div>
                 </div>
 

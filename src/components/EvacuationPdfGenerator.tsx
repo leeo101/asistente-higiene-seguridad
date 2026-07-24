@@ -49,7 +49,7 @@ export default function EvacuationPdfGenerator({ data }: {data: any;}): React.Re
                         </div>
                     </div>
                     <div className="bg-[white] p-[10px] rounded-[8px]">
-                        <CompanyLogo className="h-[50px] max-w-[150px] object-fit-[contain]" />
+                        <CompanyLogo style={{ maxHeight: '48px', maxWidth: '140px', objectFit: 'contain' }} />
                     </div>
                 </div>
 

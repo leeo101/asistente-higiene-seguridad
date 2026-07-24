@@ -107,7 +107,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                         </div>
 
                         <div className="flex-[1] text-right flex flex-col items-end gap-[0.5rem]">
-                            <CompanyLogo className="h-[38px] w-[auto] object-fit-[contain] max-w-[120px]" />
+                            <CompanyLogo style={{ maxHeight: '38px', maxWidth: '120px', objectFit: 'contain' }} />
 
               
                         </div>
@@ -171,8 +171,8 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                                     <td className="border-[1px_solid_#cbd5e1] p-[0.6rem_0.8rem] text-center text-[#334155]">{asist.dni}</td>
                                     <td className="border-[1px_solid_#cbd5e1] p-[0.6rem_0.8rem] text-[#334155]">{asist.puesto}</td>
                                     <td className="border-[1px_solid_#cbd5e1] p-[0.6rem_0.8rem] text-center font-[800] text-[#0f172a]">{asist.nota || '-'}</td>
-                                    <td className="border-[1px_solid_#cbd5e1] p-[0.2rem_0.8rem] text-center vertical-align-[middle]">
-                                        {asist.firma ? <img src={asist.firma} alt="Firma" className="max-height-[30px] max-w-[100%] object-fit-[contain]" /> : ''}
+                                    <td className="border-[1px_solid_#cbd5e1] p-[0.2rem_0.8rem] text-center align-middle">
+                                        {asist.firma ? <img src={asist.firma} alt="Firma" style={{ maxHeight: '30px', maxWidth: '100%', objectFit: 'contain' }} /> : ''}
                                     </td>
                                 </tr>
               )}

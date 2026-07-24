@@ -141,7 +141,7 @@ export default function ChecklistPdfGenerator({
         </div>
 
         <div className="flex-[1] text-right flex flex-col items-end gap-[0.4rem]">
-          <CompanyLogo className="h-[38px] w-[auto] object-fit-[contain] max-w-[120px]" />
+          <CompanyLogo style={{ maxHeight: '38px', maxWidth: '120px', objectFit: 'contain' }} />
           {inspInfo.serial && (
             <div className="text-right">
               <div className="text-[0.55rem] font-[900] text-[#94a3b8] uppercase letter-spacing-[0.1em]">DOC N°</div>
@@ -341,7 +341,7 @@ export default function ChecklistPdfGenerator({
                         {item.photos && item.photos.length > 0 && (
                           <div className="flex gap-[0.3rem] flex-wrap mt-[0.2rem]">
                             {item.photos.map((photo: string, pIdx: number) => (
-                              <img key={pIdx} src={photo} alt={`Evidencia ${pIdx + 1}`} className="w-[40px] h-[40px] object-fit-[cover] rounded-[4px] border-[1px_solid_#cbd5e1]" />
+                              <img key={pIdx} src={photo} alt={`Evidencia ${pIdx + 1}`} className="w-[40px] h-[40px] object-cover rounded-[4px] border-[1px_solid_#cbd5e1]" style={{ width: '40px', height: '40px', objectFit: 'cover' }} />
                             ))}
                           </div>
                         )}

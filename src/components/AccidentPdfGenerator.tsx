@@ -111,7 +111,7 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
                         </div>
 
                         <div className="flex-[1] text-right flex flex-col items-end gap-[0.5rem]">
-                            <CompanyLogo className="h-[38px] w-[auto] object-fit-[contain] max-w-[120px]" />
+                            <CompanyLogo style={{ maxHeight: '38px', maxWidth: '120px', objectFit: 'contain' }} />
                             <div style={{ background: sev.bg, border: `1px solid ${sev.border}` }} className="rounded-[6px] p-[0.25rem_0.6rem] text-[0.6rem] font-[800] text-[#64748b] text-center">
                                 <div className="text-[#475569]">Ref: INV-{report?.id?.toString().slice(-6) || '000000'}</div>
                                 <div className="text-[#94a3b8]">Generado: {new Date().toLocaleDateString('es-AR')}</div>

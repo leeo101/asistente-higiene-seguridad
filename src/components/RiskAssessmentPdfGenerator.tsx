@@ -70,7 +70,7 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }: {assessme
                         </div>
                     </div>
                     <div className="flex flex-col items-end gap-[0.5rem]">
-                        <CompanyLogo className="h-[45px] w-[auto] object-fit-[contain] max-w-[140px]" />
+                        <CompanyLogo style={{ maxHeight: '45px', maxWidth: '140px', objectFit: 'contain' }} />
 
 
 

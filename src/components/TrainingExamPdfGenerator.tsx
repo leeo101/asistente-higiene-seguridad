@@ -70,29 +70,36 @@ export default function TrainingExamPdfGenerator({ data }: {data: any;}): React.
             {/* Preguntas */}
             <div className="mb-[3rem]">
                 <h3 className="text-[1rem] text-[#0f172a] mb-[1.5rem] border-bottom-[1px_solid_#cbd5e1] pb-[0.5rem]">Desarrollo del Examen</h3>
-                {preguntas.length > 0 ?
-        preguntas.map((p: any, idx: number) =>
-        <div key={idx} className="mb-[2rem]">
-                            <p className="font-[700] m-[0_0_1rem_0] text-[0.95rem]">{idx + 1}. {p.texto}</p>
-                            <div className="border-bottom-[1px_solid_#cbd5e1] mb-[1.5rem]"></div>
-                            <div className="border-bottom-[1px_solid_#cbd5e1] mb-[1.5rem]"></div>
-                            <div className="border-bottom-[1px_solid_#cbd5e1]"></div>
+                {data.questions?.length > 0 ? (
+                    data.questions.map((q: any, i: number) => (
+                        <div key={i} className="mb-[1rem] p-[0.8rem] border-[1px_solid_#e2e8f0] rounded-[6px] page-break-inside-[avoid]">
+                            <p className="m-[0_0_0.5rem_0] font-[700] text-[#0f172a] text-[0.85rem]">
+                                {i + 1}. {q.question}
+                            </p>
+                            <div className="pl-[1rem] grid grid-template-columns-[1fr] gap-[0.3rem]">
+                                {q.options?.map((opt: string, optIdx: number) => (
+                                    <div key={optIdx} className="flex items-center gap-[0.5rem] text-[0.8rem]">
+                                        <div className="w-[12px] h-[12px] border-[1px_solid_#0f172a] rounded-[50%]" />
+                                        <span>{opt}</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-        ) :
-
-        <div className="mb-[2rem]">
-                        <p className="font-[700] m-[0_0_1rem_0]">1. </p>
+                    ))
+                ) : (
+                    <div className="mb-[2rem]">
+                        <p className="font-[700] m-[0_0_1rem_0] text-[0.95rem]">1. </p>
                         <div className="border-bottom-[1px_solid_#cbd5e1] mb-[1.5rem]"></div>
                         <div className="border-bottom-[1px_solid_#cbd5e1] mb-[1.5rem]"></div>
                     </div>
-        }
+                )}
             </div>
 
-            {/* Firma Alumno e Instructor */}
-            <div className="flex justify-space-between mt-[4rem]">
+            {/* Firmas y Resultado */}
+            <div className="flex justify-space-between items-end mt-[3rem] pt-[1rem] relative">
                 <div className="w-[40%] text-center">
                     <div className="border-top-[1px_solid_#0f172a] pt-[0.5rem]">
-                        <p className="m-[0] font-[700] text-[0.8rem]">Firma del Evaluado</p>
+                        <p className="m-[0] font-[700] text-[0.8rem]">Firma del Alumno</p>
                     </div>
                 </div>
                 <div className="w-[40%] text-center">
@@ -100,14 +107,14 @@ export default function TrainingExamPdfGenerator({ data }: {data: any;}): React.
                         <p className="m-[0] font-[700] text-[0.8rem]">Firma del Instructor</p>
                     </div>
                     <div className="absolute transform-[translateY(-120%)_translateX(20%)] opacity-[0.8]">
-                        {data.signature && <img src={data.signature} alt="Firma" className="max-height-[60px]" />}
-                        {data.professionalStamp && <img src={data.professionalStamp} alt="Sello" className="max-height-[60px] ml-[10px]" />}
+                        {data.signature && <img src={data.signature} alt="Firma" style={{ maxHeight: '60px', objectFit: 'contain' }} />}
+                        {data.professionalStamp && <img src={data.professionalStamp} alt="Sello" style={{ maxHeight: '60px', objectFit: 'contain' }} className="ml-[10px]" />}
                     </div>
                 </div>
             </div>
             
             <div className="mt-[3rem]">
-                <div className="border-[2px_solid_#0f172a] display-[inline-flex] items-end p-[0.5rem_1rem]">
+                <div className="border-[2px_solid_#0f172a] inline-flex items-end p-[0.5rem_1rem]">
                     <span className="font-[800] text-[1.1rem] line-height-[1]">NOTA / RESULTADO: </span>
                     <span className="inline-block w-[100px] border-bottom-[1px_solid_#0f172a] ml-[0.5rem]"></span>
                 </div>
