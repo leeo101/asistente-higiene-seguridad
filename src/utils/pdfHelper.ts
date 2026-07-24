@@ -95,7 +95,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
 
         function convertColor(val: string): string {
             if (!val || typeof val !== 'string') return val;
-            if (!val.includes('oklch') && !val.includes('color(srgb')) return val;
+            if (!val.includes('oklch') && !val.includes('oklab') && !val.includes('color(srgb')) return val;
             
             if (colorCache.has(val)) return colorCache.get(val)!;
 
@@ -105,7 +105,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                     colorCtx.fillStyle = '#000000';
                     colorCtx.fillStyle = finalVal;
                     const res = colorCtx.fillStyle;
-                    if (res && res !== '#000000' && !res.includes('oklch')) {
+                    if (res && res !== '#000000' && !res.includes('oklch') && !res.includes('oklab')) {
                         finalVal = res;
                     }
                 } catch (e) {}
@@ -122,13 +122,13 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                 }
             }
 
-            if (finalVal.includes('oklch')) {
-                const match = finalVal.match(/oklch\(\s*([0-9.]+)/);
+            if (finalVal.includes('oklch') || finalVal.includes('oklab')) {
+                const match = finalVal.match(/(?:oklch|oklab)\(\s*([0-9.]+)/);
                 if (match) {
                     const l = parseFloat(match[1]);
-                    finalVal = l > 0.8 ? 'rgb(255, 255, 255)' : l < 0.4 ? 'rgb(0, 0, 0)' : 'rgb(128, 128, 128)';
+                    finalVal = l > 0.8 ? 'rgb(255, 255, 255)' : l < 0.4 ? 'rgb(0, 0, 0)' : 'rgb(100, 116, 139)';
                 } else {
-                    finalVal = 'rgb(0, 0, 0)';
+                    finalVal = 'rgb(15, 23, 42)';
                 }
             }
 
@@ -140,8 +140,8 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         const allChildren = clone.querySelectorAll('*');
         allChildren.forEach((el: Element) => {
             const htmlEl = el as HTMLElement;
-            if (htmlEl.style && htmlEl.style.cssText && (htmlEl.style.cssText.includes('oklch') || htmlEl.style.cssText.includes('color(srgb'))) {
-                htmlEl.style.cssText = htmlEl.style.cssText.replace(/oklch\([^)]+\)|color\(srgb[^)]+\)/g, (m) => convertColor(m));
+            if (htmlEl.style && htmlEl.style.cssText && (htmlEl.style.cssText.includes('oklch') || htmlEl.style.cssText.includes('oklab') || htmlEl.style.cssText.includes('color(srgb'))) {
+                htmlEl.style.cssText = htmlEl.style.cssText.replace(/oklch\([^)]+\)|oklab\([^)]+\)|color\(srgb[^)]+\)/g, (m) => convertColor(m));
             }
             const style = window.getComputedStyle(htmlEl);
             if (style.overflow === 'hidden' || style.overflow === 'auto' || style.overflowY === 'auto' || style.overflowY === 'scroll') {
@@ -196,7 +196,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                 get(target: any, prop: string) {
                     if (prop === 'getPropertyValue') return getProp;
                     const val = target[prop];
-                    if (typeof val === 'string' && (val.includes('oklch') || val.includes('color(srgb'))) {
+                    if (typeof val === 'string' && (val.includes('oklch') || val.includes('oklab') || val.includes('color(srgb'))) {
                         return convertColor(val);
                     }
                     return typeof val === 'function' ? val.bind(target) : val;
