@@ -504,23 +504,25 @@ exports.checkExpirationsJob = onSchedule("every day 08:00", async (event) => {
             if (extDoc.exists) {
                 const items = extDoc.data().items || [];
                 for (const ext of items) {
-                    if (ext.ultimaCarga) {
-                        const daysLeft = getDaysLeft(ext.ultimaCarga, 12);
+                    const recargaRaw = ext.vencimientoRecarga || ext.ultimaCarga;
+                    if (recargaRaw) {
+                        const daysLeft = getDaysLeft(recargaRaw, 12);
                         if (daysLeft === 0 || daysLeft === 7) {
                             notificationsToSend.push({
                                 title: daysLeft === 0 ? "¡Extintor Vencido!" : "Extintor próximo a vencer",
-                                body: `El extintor #${ext.chapa} (${ext.ubicacion || 'sin ubicación'}) ${daysLeft === 0 ? 'venció HOY' : 'vence en 7 días'} (Recarga).`,
-                                url: "/extinguishers"
+                                body: `El extintor #${ext.numero || ext.chapa || ext.id} (${ext.ubicacion || 'sin ubicación'}) ${daysLeft === 0 ? 'venció HOY' : 'vence en 7 días'} (Recarga).`,
+                                url: "/extintores"
                             });
                         }
                     }
-                    if (ext.ultimaPH) {
-                        const daysLeft = getDaysLeft(ext.ultimaPH, 60);
+                    const phRaw = ext.vencimientoPH || ext.ultimaPH;
+                    if (phRaw) {
+                        const daysLeft = getDaysLeft(phRaw, 60);
                         if (daysLeft === 0 || daysLeft === 7) {
                             notificationsToSend.push({
                                 title: daysLeft === 0 ? "¡Extintor Vencido!" : "Extintor próximo a vencer",
-                                body: `El extintor #${ext.chapa} (${ext.ubicacion || 'sin ubicación'}) ${daysLeft === 0 ? 'venció HOY' : 'vence en 7 días'} (P. Hidráulica).`,
-                                url: "/extinguishers"
+                                body: `El extintor #${ext.numero || ext.chapa || ext.id} (${ext.ubicacion || 'sin ubicación'}) ${daysLeft === 0 ? 'venció HOY' : 'vence en 7 días'} (P. Hidráulica).`,
+                                url: "/extintores"
                             });
                         }
                     }

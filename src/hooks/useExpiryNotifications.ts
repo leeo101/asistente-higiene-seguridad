@@ -12,7 +12,7 @@ export interface ExpiryNotification {
 
 function getDaysLeft(dateStr: string, lifespanMonths?: number): number | null {
   if (!dateStr) return null;
-  const base = new Date(dateStr);
+  const base = new Date(dateStr.includes('T') ? dateStr : dateStr + 'T12:00:00Z');
   if (isNaN(base.getTime())) return null;
   if (lifespanMonths) {
     base.setMonth(base.getMonth() + Number(lifespanMonths));
@@ -36,7 +36,7 @@ export function useExpiryNotifications() {
 
     // Helper para convertir fecha base + meses
     const addMonths = (dateStr: string, months: number): string => {
-      const d = new Date(dateStr);
+      const d = new Date(dateStr.includes('T') ? dateStr : dateStr + 'T12:00:00Z');
       if (isNaN(d.getTime())) return dateStr;
       d.setMonth(d.getMonth() + Number(months));
       return d.toISOString().split('T')[0];
@@ -64,38 +64,69 @@ export function useExpiryNotifications() {
       });
     } catch { /* ignore */ }
 
-    // ─── Extintores ──────────────────────────────────────
+    // ─── Extintores (Cálculo exacto: +1 año Recarga, +5 años PH) ──────────────────
     try {
       const extinguishers = JSON.parse(localStorage.getItem('extinguishers_inventory') || '[]');
       extinguishers.forEach((ext: any) => {
-        // Recarga
-        const recargaExp = ext.vencimientoRecarga || ext.vencimiento || (ext.ultimaCarga ? addMonths(ext.ultimaCarga, 12) : null);
-        if (recargaExp) {
-          const daysLeft = getDaysLeft(recargaExp);
-          if (daysLeft !== null && daysLeft <= 30) {
-            items.push({
-              id: `ext-recharge-${ext.id}`,
-              type: 'extinguisher',
-              label: `Extintor N° ${ext.numero || ext.chapa || ext.id} (${ext.ubicacion || ext.sector || 'Sin ubicación'}) — Recarga`,
-              daysLeft,
-              isExpired: daysLeft <= 0,
-              itemId: ext.id,
-            });
+        const numStr = ext.numero || ext.chapa || ext.id || 'S/N';
+        const ubStr = ext.ubicacion || ext.sector || 'Sin ubicación';
+
+        // 1. Recarga: Sumar 1 año a la fecha de última recarga
+        const recargaRaw = ext.vencimientoRecarga || ext.ultimaCarga;
+        if (recargaRaw) {
+          const dRec = new Date(recargaRaw.includes('T') ? recargaRaw : recargaRaw + 'T12:00:00Z');
+          if (!isNaN(dRec.getTime())) {
+            dRec.setFullYear(dRec.getFullYear() + 1);
+            const daysLeft = Math.ceil((dRec.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+            if (daysLeft <= 30) {
+              items.push({
+                id: `ext-recharge-${ext.id}`,
+                type: 'extinguisher',
+                label: `Extintor N° ${numStr} (${ubStr}) — Recarga`,
+                daysLeft,
+                isExpired: daysLeft <= 0,
+                itemId: ext.id,
+              });
+            }
           }
         }
-        // Prueba Hidráulica
-        const phExp = ext.vencimientoPH || (ext.ultimaPH ? addMonths(ext.ultimaPH, 60) : null);
-        if (phExp) {
-          const daysLeft = getDaysLeft(phExp);
-          if (daysLeft !== null && daysLeft <= 30) {
-            items.push({
-              id: `ext-pressure-${ext.id}`,
-              type: 'extinguisher',
-              label: `Extintor N° ${ext.numero || ext.chapa || ext.id} (${ext.ubicacion || ext.sector || 'Sin ubicación'}) — P. Hidráulica`,
-              daysLeft,
-              isExpired: daysLeft <= 0,
-              itemId: ext.id,
-            });
+
+        // 2. Prueba Hidráulica: Sumar 5 años a la fecha de última PH
+        const phRaw = ext.vencimientoPH || ext.ultimaPH;
+        if (phRaw) {
+          const dPH = new Date(phRaw.includes('T') ? phRaw : phRaw + 'T12:00:00Z');
+          if (!isNaN(dPH.getTime())) {
+            dPH.setFullYear(dPH.getFullYear() + 5);
+            const daysLeft = Math.ceil((dPH.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+            if (daysLeft <= 30) {
+              items.push({
+                id: `ext-pressure-${ext.id}`,
+                type: 'extinguisher',
+                label: `Extintor N° ${numStr} (${ubStr}) — P. Hidráulica`,
+                daysLeft,
+                isExpired: daysLeft <= 0,
+                itemId: ext.id,
+              });
+            }
+          }
+        }
+
+        // 3. Vida útil (20 años desde la fecha de fabricación)
+        if (ext.fechaFabricacion) {
+          const dFab = new Date(ext.fechaFabricacion.includes('T') ? ext.fechaFabricacion : ext.fechaFabricacion + 'T12:00:00Z');
+          if (!isNaN(dFab.getTime())) {
+            dFab.setFullYear(dFab.getFullYear() + 20);
+            const daysLeft = Math.ceil((dFab.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+            if (daysLeft <= 30) {
+              items.push({
+                id: `ext-lifespan-${ext.id}`,
+                type: 'extinguisher',
+                label: `Extintor N° ${numStr} (${ubStr}) — Vida Útil (20 años)`,
+                daysLeft,
+                isExpired: daysLeft <= 0,
+                itemId: ext.id,
+              });
+            }
           }
         }
       });
@@ -294,26 +325,39 @@ export function useExpiryNotifications() {
 
   useEffect(() => {
     refresh();
-    // Re-check every 5 minutes
     const interval = setInterval(refresh, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [refresh]);
 
   const dismiss = useCallback((id: string) => {
-    // Las notificaciones permanecen activas en la campana hasta solucionar el vencimiento real
-    setDismissed(prev => {
+    setDismissed((prev) => {
       const next = new Set(prev);
       next.add(id);
+      try {
+        localStorage.setItem('dismissed_notifications', JSON.stringify(Array.from(next)));
+      } catch { /* ignore */ }
       return next;
     });
   }, []);
 
   const dismissAll = useCallback(() => {
-    // Almacenar sólo vista temporal en sesión activa
-    const ids = notifications.map(n => n.id);
-    setDismissed(new Set(ids));
+    setDismissed((prev) => {
+      const next = new Set(prev);
+      notifications.forEach((n) => next.add(n.id));
+      try {
+        localStorage.setItem('dismissed_notifications', JSON.stringify(Array.from(next)));
+      } catch { /* ignore */ }
+      return next;
+    });
   }, [notifications]);
 
-  // Las notificaciones de vencimiento real siempre se muestran en el botón de notificaciones hasta ser solucionadas
-  return { notifications, all: notifications, dismiss, dismissAll, refresh };
+  const activeNotifications = notifications.filter((n) => !dismissed.has(n.id));
+
+  return {
+    notifications: activeNotifications,
+    all: notifications,
+    dismiss,
+    dismissAll,
+    refresh
+  };
 }
