@@ -36,6 +36,7 @@ export default function ExtintoresManager() {
   const { requirePro } = usePaywall();
 
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const { syncCollection } = useSync();
 
