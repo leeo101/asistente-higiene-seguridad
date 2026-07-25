@@ -341,19 +341,19 @@ export default function ExtinguisherAI() {
 
   return (
     <div className="container max-w-[800px] pb-[4rem] min-h-[100vh] flex flex-col">
-            {deleteTarget &&
-      <div className="fixed inset-[0] bg-[rgba(0,0,0,0.5)] z-[1000] flex items-center justify-center backdrop-filter-[blur(4px)]">
-                    <div className="card max-w-[320px] text-center p-[2rem]">
-                        <Trash2 size={48} className="text-[#ef4444] mb-[1rem]" />
-                        <h3>¿Eliminar inspección?</h3>
-                        <p className="text-[0.9rem] text-[var(--color-text-muted)]">Esta acción no se puede deshacer.</p>
-                        <div className="flex gap-[1rem] mt-[1.5rem]">
-                            <button onClick={() => setDeleteTarget(null)} className="flex-[1] p-[0.8rem] rounded-[12px] bg-[var(--color-background)] border-none cursor-pointer font-[700]">Cancelar</button>
-                            <button onClick={confirmDelete} className="flex-[1] p-[0.8rem] rounded-[12px] bg-red-500 hover:bg-red-600 text-[white] border-none cursor-pointer font-[700]">Eliminar</button>
-                        </div>
-                    </div>
+            {deleteTarget && (
+              <div className="fixed inset-[0] bg-[rgba(0,0,0,0.5)] z-[1000] flex items-center justify-center backdrop-filter-[blur(4px)]">
+                <div className="card max-w-[320px] text-center p-[2rem]">
+                  <Trash2 size={48} className="text-[#ef4444] mb-[1rem]" />
+                  <h3>¿Eliminar inspección?</h3>
+                  <p className="text-[0.9rem] text-[var(--color-text-muted)]">Esta acción no se puede deshacer.</p>
+                  <div className="flex gap-[1rem] mt-[1.5rem]">
+                    <button onClick={() => setDeleteTarget(null)} className="flex-[1] p-[0.8rem] rounded-[12px] bg-[var(--color-background)] border-none cursor-pointer font-[700]">Cancelar</button>
+                    <button onClick={confirmDelete} className="flex-[1] p-[0.8rem] rounded-[12px] bg-red-500 hover:bg-red-600 text-[white] border-none cursor-pointer font-[700]">Eliminar</button>
+                  </div>
                 </div>
-      }
+              </div>
+            )}
 
             <ShareModal
         isOpen={!!shareItem}
@@ -362,11 +362,11 @@ export default function ExtinguisherAI() {
         title={`Inspección IA - Extintor ${shareItem?.type || ''}`}
         text={shareItem ? `📸 Inspección de Extintor con IA\n🧯 Tipo: ${shareItem.type || 'N/A'}\n🛡️ Estado: ${shareItem.status === 'vigente' ? '✅ Vigente' : '⚠️ Vencido'}` : ''}
         rawMessage={shareItem ? `📸 Inspección de Extintor con IA\n🧯 Tipo: ${shareItem.type || 'N/A'}\n🛡️ Estado: ${shareItem.status === 'vigente' ? '✅ Vigente' : '⚠️ Vencido'}` : ''}
-        elementIdToPrint="pdf-content"
+        elementIdToPrint="pdf-content-ext-ai"
         fileName={`Inspeccion_Extintor_IA_${shareItem?.type || 'Sin_Tipo'}.pdf`} />
       
 
-            <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+            <div id="pdf-content-ext-ai" className="ats-pdf-offscreen" aria-hidden="true" style={{ position: 'absolute', left: '-9999px', top: '-99999px', width: '210mm', height: 'auto', overflow: 'visible', opacity: 1, pointerEvents: 'none', zIndex: -9999, background: '#ffffff' }}>
                 {shareItem && <ExtinguisherAIPdfGenerator item={shareItem} />}
             </div>
 
@@ -395,38 +395,47 @@ export default function ExtinguisherAI() {
                     </div>
 
                     {/* Stats panel */}
-                    {total > 0 &&
-        <div className="mb-8">
-                            <div className="grid grid-template-columns-[repeat(3,_1fr)] gap-[0.7rem] mb-[1rem]">
-                                <div className="bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[12px] p-[0.75rem_1rem] text-center">
-                                    <div className="text-[1.5rem] font-[900] text-[#ef4444]">{total}</div>
-                                    <div className="text-[0.68rem] text-[var(--color-text-muted)] font-[700]">INSPECCIONES</div>
-                                </div>
-                                <div className="bg-[rgba(16,185,129,0.08)] border-[1px_solid_rgba(16,185,129,0.2)] rounded-[12px] p-[0.75rem_1rem] text-center">
-                                    <div className="text-[1.5rem] font-[900] text-[#10b981]">{compliance}%</div>
-                                    <div className="text-[0.68rem] text-[var(--color-text-muted)] font-[700]">VIGENTES</div>
-                                </div>
-                                <div style={{ background: isVencido > 0 ? 'rgba(245,158,11,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${isVencido > 0 ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)'}` }} className="rounded-[12px] p-[0.75rem_1rem] text-center">
-                                    <div style={{ color: isVencido > 0 ? '#f59e0b' : '#10b981' }} className="text-[1.5rem] font-[900]">{isVencido}</div>
-                                    <div className="text-[0.68rem] text-[var(--color-text-muted)] font-[700]">VENCIDOS</div>
-                                </div>
-                            </div>
+                    {total > 0 && (
+                      <div className="mb-8">
+                        <div className="grid grid-template-columns-[repeat(3,_1fr)] gap-[0.7rem] mb-[1rem]">
+                          <div className="bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[12px] p-[0.75rem_1rem] text-center">
+                            <div className="text-[1.5rem] font-[900] text-[#ef4444]">{total}</div>
+                            <div className="text-[0.68rem] text-[var(--color-text-muted)] font-[700]">INSPECCIONES</div>
+                          </div>
+                          <div className="bg-[rgba(16,185,129,0.08)] border-[1px_solid_rgba(16,185,129,0.2)] rounded-[12px] p-[0.75rem_1rem] text-center">
+                            <div className="text-[1.5rem] font-[900] text-[#10b981]">{compliance}%</div>
+                            <div className="text-[0.68rem] text-[var(--color-text-muted)] font-[700]">VIGENTES</div>
+                          </div>
+                          <div style={{ background: isVencido > 0 ? 'rgba(245,158,11,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${isVencido > 0 ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)'}` }} className="rounded-[12px] p-[0.75rem_1rem] text-center">
+                            <div style={{ color: isVencido > 0 ? '#f59e0b' : '#10b981' }} className="text-[1.5rem] font-[900]">{isVencido}</div>
+                            <div className="text-[0.68rem] text-[var(--color-text-muted)] font-[700]">VENCIDOS</div>
+                          </div>
                         </div>
-        }
+                      </div>
+                    )}
 
-                    <div className="relative mb-[1.5rem]">
-                        <Search size={18} className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)] text-[var(--color-text-muted)]" />
+                    <div className="relative mb-[1.5rem] h-[46px]">
+                        <Search 
+                          size={18} 
+                          className="text-[var(--color-text-muted)] pointer-events-none z-10" 
+                          style={{ 
+                            position: 'absolute', 
+                            left: '1rem', 
+                            top: 0, 
+                            bottom: 0, 
+                            marginTop: 'auto', 
+                            marginBottom: 'auto', 
+                            display: 'block' 
+                          }} 
+                        />
                         <input
-            type="text"
-            placeholder="Buscar por tipo o estado..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.8rem_1rem_0.8rem_2.8rem] rounded-[12px] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.95rem]" />
-
-
-
-
-
-          
+                          type="text"
+                          placeholder="Buscar por tipo o estado..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)} 
+                          style={{ width: '100%', height: '46px', paddingLeft: '3rem', paddingRight: '1rem', outline: 'none', boxSizing: 'border-box' }}
+                          className="rounded-[12px] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.95rem] font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all" 
+                        />
                     </div>
 
                     <div className="flex flex-col gap-4">

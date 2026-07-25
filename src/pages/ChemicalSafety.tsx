@@ -237,11 +237,11 @@ export default function ChemicalSafety(): React.ReactElement | null {
         title={`Ficha SGA - ${(shareItem as any)?.name || ''}`}
         text={shareItem ? `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${(shareItem as any).name}\n🆔 CAS: ${(shareItem as any).casNumber || '-'}\n📅 Fecha: ${new Date((shareItem as any).createdAt || Date.now()).toLocaleDateString('es-AR')}` : ''}
         rawMessage={shareItem ? `🧪 Ficha Técnica de Seguridad (SGA)\n🏷️ Producto: ${(shareItem as any).name}\n🆔 CAS: ${(shareItem as any).casNumber || '-'}\n📅 Fecha: ${new Date((shareItem as any).createdAt || Date.now()).toLocaleDateString('es-AR')}` : ''}
-        elementIdToPrint="pdf-content"
+        elementIdToPrint="pdf-content-chemical"
         fileName={`SGA_${(shareItem as any)?.name || 'Producto'}.pdf`} />
       
 
-            <div className="fixed left-[0] opacity-[0.01] top-[0] pointer-events-[none]">
+            <div id="pdf-content-chemical" className="fixed left-[0] opacity-[0.01] top-[0] pointer-events-[none]">
                 {shareItem && <ChemicalSafetyPdf data={shareItem} />}
             </div>
             {/* Header Premium */}
@@ -301,21 +301,29 @@ export default function ChemicalSafety(): React.ReactElement | null {
 
             {/* Search & Filters */}
             <div className="flex gap-4 mb-6 flex-wrap">
-                <div className="flex-1 min-w-[280px] relative">
-                    <Search
-            size={20}
-            color="var(--color-text-muted)"
-            className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-          
+                <div className="flex-1 min-w-[280px] relative h-[50px]">
+                    <Search 
+                      size={20} 
+                      color="var(--color-text-muted)" 
+                      style={{ 
+                        position: 'absolute', 
+                        left: '1.2rem', 
+                        top: 0, 
+                        bottom: 0, 
+                        marginTop: 'auto', 
+                        marginBottom: 'auto', 
+                        display: 'block' 
+                      }} 
+                      className="pointer-events-none z-10" 
+                    />
                     <input
-            type="text"
-            placeholder="Buscar por nombre, CAS, proveedor..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-[0.95rem] font-medium outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
-
-
-          
+                      type="text"
+                      placeholder="Buscar por nombre, CAS, proveedor..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      style={{ width: '100%', height: '50px', paddingLeft: '3.5rem', paddingRight: '1rem', boxSizing: 'border-box', outline: 'none' }}
+                      className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-[0.95rem] font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm" 
+                    />
                 </div>
 
                 <select

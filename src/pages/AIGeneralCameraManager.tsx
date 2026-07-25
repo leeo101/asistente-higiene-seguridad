@@ -178,52 +178,58 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
                 </div>
       }
 
-            <div className="relative mb-[1.5rem]">
-                <Search size={18} className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)] text-[var(--color-text-muted)]" />
+            <div className="relative mb-6 h-[50px]">
+                <Search 
+                  size={20} 
+                  style={{ 
+                    position: 'absolute', 
+                    left: '1.2rem', 
+                    top: 0, 
+                    bottom: 0, 
+                    marginTop: 'auto', 
+                    marginBottom: 'auto', 
+                    color: 'var(--color-text-muted)', 
+                    display: 'block' 
+                  }} 
+                  className="pointer-events-none z-10" 
+                />
                 <input
-          type="text"
-          placeholder="Buscar por empresa o ubicación..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[1rem_1rem_1rem_2.8rem] rounded-[16px] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.95rem]" />
-
-
-
-
-
-        
+                  type="text"
+                  placeholder="Buscar por empresa o ubicación..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)} 
+                  style={{ width: '100%', height: '50px', paddingLeft: '3.2rem', paddingRight: '1rem', borderRadius: '16px', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface)', fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-text)', boxSizing: 'border-box', outline: 'none' }}
+                  className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors shadow-sm"
+                />
             </div>
 
             <div className="flex flex-col gap-4">
                 {filtered.length > 0 ?
-        filtered.map((item) =>
-        <div key={item.id} className="card p-[1.5rem] rounded-[16px]">
-                            <div className="flex justify-space-between items-start mb-[1rem] flex-wrap gap-[1rem]">
-                                <div className="flex items-center gap-[1rem] flex-[1] min-width-[0]">
-                                    <div className="w-[48px] h-[48px] bg-[rgba(59,130,246,0.1)] rounded-[12px] flex items-center justify-center text-[#3b82f6]">
-                                        <ShieldAlert size={24} />
-                                    </div>
-                                    <div>
-                                        <h3 className="m-[0] text-[1.1rem] font-[800] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">{item.company || 'Empresa sin nombre'}</h3>
-                                        <div className="flex items-center gap-[0.4rem] text-[0.85rem] text-[var(--color-text-muted)] mt-[0.3rem]">
-                                            <Calendar size={14} /> {new Date(item.date).toLocaleDateString('es-AR')} — <Building2 size={14} /> {item.location}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style={{
+        filtered.map((item) => (
+          <div key={item.id} className="card p-[1.5rem] rounded-[16px]">
+            <div className="flex justify-between items-start mb-[1rem] flex-wrap gap-[1rem]">
+                <div className="flex items-center gap-[1rem] flex-[1] min-w-0">
+                    <div className="w-[48px] h-[48px] bg-[rgba(59,130,246,0.1)] rounded-[12px] flex items-center justify-center text-[#3b82f6]">
+                        <ShieldAlert size={24} />
+                    </div>
+                    <div>
+                        <h3 className="m-[0] text-[1.1rem] font-[800] whitespace-nowrap overflow-hidden text-ellipsis">{item.company || 'Empresa sin nombre'}</h3>
+                        <div className="flex items-center gap-[0.4rem] text-[0.85rem] text-[var(--color-text-muted)] mt-[0.3rem]">
+                            <Calendar size={14} /> {new Date(item.date).toLocaleDateString('es-AR')} — <Building2 size={14} /> {item.location}
+                        </div>
+                    </div>
+                </div>
+                <div style={{
+                    background: item.findingsCount > 0 ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)',
+                    color: item.findingsCount > 0 ? '#ef4444' : '#10b981'
+                }} className="flex items-center gap-[0.4rem] text-[0.8rem] font-[800] p-[0.4rem_0.8rem] rounded-[100px] flex-shrink-0">
+                    <Info size={16} />
+                    {item.findingsCount > 0 ? `${item.findingsCount} Hallazgos` : 'Limpio'}
+                </div>
+            </div>
 
-
-
-              background: item.findingsCount > 0 ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)',
-              color: item.findingsCount > 0 ? '#ef4444' : '#10b981'
-
-            }} className="flex items-center gap-[0.4rem] text-[0.8rem] font-[800] p-[0.4rem_0.8rem] rounded-[100px] flex-shrink-[0]">
-                                    <Info size={16} />
-                                    {item.findingsCount > 0 ? `${item.findingsCount} Hallazgos` : 'Limpio'}
-                                </div>
-                            </div>
-
-                            <div className="flex gap-[0.8rem] mt-[1.5rem] border-top-[1px_solid_var(--color-border)] pt-[1.5rem] flex-wrap">
-                                <button
+            <div className="flex gap-[0.8rem] mt-[1.5rem] border-top-[1px_solid_var(--color-border)] pt-[1.5rem] flex-wrap">
+                <button
               onClick={() => {
                 const fullReportKey = `ai_report_full_${item.id}`;
                 const savedFull = localStorage.getItem(fullReportKey);
@@ -266,7 +272,7 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
                                 </button>
                             </div>
                         </div>
-        ) :
+                    ) ) :
 
         <div className="text-center p-[4rem_1rem] text-[var(--color-text-muted)] bg-[var(--color-surface)] rounded-[16px] border-[1px_dashed_var(--color-border)]">
                         <ShieldAlert size={48} className="opacity-[0.2] mb-[1rem]" />

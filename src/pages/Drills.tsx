@@ -236,11 +236,11 @@ export default function DrillsHistory(): React.ReactElement | null {
           title={`Simulacro - ${shareItem?.empresa || ''}`} 
           text={shareItem ? `🔔 Acta de Simulacro\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⏱️ Tiempo: ${shareItem.tiempoVisual}` : ''} 
           rawMessage={shareItem ? `🔔 Acta de Simulacro\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⏱️ Tiempo: ${shareItem.tiempoVisual}` : ''} 
-          elementIdToPrint="pdf-content" 
+          elementIdToPrint="pdf-content-drills" 
           fileName={`Simulacro_${shareItem?.empresa || 'acta'}.pdf`} 
         />
 
-        <div className="absolute left-0 opacity-0 top-[-9999px] pointer-events-none">
+        <div id="pdf-content-drills" className="absolute left-0 opacity-0 top-[-9999px] pointer-events-none">
           {shareItem && <DrillPdfGenerator report={shareItem} isHeadless={true} />}
         </div>
 

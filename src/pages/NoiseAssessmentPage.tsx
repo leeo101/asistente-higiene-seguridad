@@ -88,13 +88,6 @@ export default function NoiseAssessmentPage(): React.ReactElement | null {
 
       }} className="bg-[var(--color-surface)] border-bottom-[1px_solid_var(--color-border)] sticky top-[0] z-[100] backdrop-filter-[blur(20px)]">
                 <div className="flex items-center gap-[1rem] max-w-[1400px] m-[0_auto]">
-
-
-
-
-
-          
-                    <></>
                     <div className="flex-[1]">
                         <h1 style={{ fontSize: isMobile ? '1.25rem' : '1.5rem' }} className="m-[0] font-[900]">
                             <Volume2 size={isMobile ? 20 : 24} className="display-[inline] mr-[0.5rem] vertical-align-[middle]" />
@@ -105,17 +98,10 @@ export default function NoiseAssessmentPage(): React.ReactElement | null {
                         </p>
                     </div>
                     <button
-            onClick={() => navigate('/noise-assessment/new')}
-            className="btn-primary w-[auto] m-[0] p-[0.75rem_1.25rem] items-center gap-[0.5rem]"
-            style={{
-
-
-
-              display: isMobile ? 'none' : 'flex'
-
-
-            }}>
-            
+                      onClick={() => navigate('/noise-assessment/new')}
+                      className="btn-primary w-[auto] m-[0] p-[0.75rem_1.25rem] items-center gap-[0.5rem]"
+                      style={{ display: isMobile ? 'none' : 'flex' }}
+                    >
                         <Plus size={20} strokeWidth={2.5} />
                         Nueva Medición
                     </button>
@@ -124,65 +110,46 @@ export default function NoiseAssessmentPage(): React.ReactElement | null {
 
             {/* Stats Cards */}
             <div style={{ marginTop: isMobile ? '1rem' : '1.5rem' }}>
-            <div style={{
-
-          gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
-
-          padding: isMobile ? '1rem' : '1.5rem'
-
-
-        }} className="grid gap-[1rem] max-w-[1400px] m-[0_auto]">
+              <div style={{ gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', padding: isMobile ? '1rem' : '1.5rem' }} className="grid gap-[1rem] max-w-[1400px] m-[0_auto]">
                 <StatCard label="Total" value={stats.total} color="#3B82F6" icon={<Activity size={20} />} />
                 <StatCard label="Críticas" value={stats.critical} color="#dc2626" icon={<AlertTriangle size={20} />} />
                 <StatCard label="Promedio dB" value={stats.avgLevel} color="#8b5cf6" icon={<Volume2 size={20} />} />
+              </div>
+
+              {/* Search & Add Button Mobile */}
+              {isMobile && (
+                <div className="p-[0_1rem_1rem] flex gap-[0.75rem]">
+                  <div className="flex-[1] relative min-w-0 h-[42px]">
+                    <Search 
+                      size={18} 
+                      color="var(--color-text-muted)" 
+                      className="pointer-events-none z-10" 
+                      style={{ 
+                        position: 'absolute', 
+                        left: '0.85rem', 
+                        top: 0, 
+                        bottom: 0, 
+                        marginTop: 'auto', 
+                        marginBottom: 'auto', 
+                        display: 'block' 
+                      }} 
+                    />
+                    <input
+                      type="text"
+                      placeholder="Buscar..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)} 
+                      style={{ width: '100%', height: '42px', paddingLeft: '2.5rem', paddingRight: '1rem', outline: 'none', boxSizing: 'border-box' }}
+                      className="rounded-[var(--radius-lg)] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.95rem]" 
+                    />
+                  </div>
+                  <button onClick={() => navigate('/noise-assessment/new')} className="btn-primary w-[auto] m-[0] p-[0_1rem] flex items-center justify-center"><Plus size={20} /></button>
+                </div>
+              )}
             </div>
 
-            {/* Search & Add Button Mobile */}
-            {isMobile &&
-        <div className="p-[0_1rem_1rem] flex gap-[0.75rem]">
-                    <div className="flex-[1] relative">
-                        <Search size={18} color="var(--color-text-muted)" className="absolute left-4 top-1/2 -translate-y-1/2" />
-                        <input
-              type="text"
-              placeholder="Buscar..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.75rem_1rem_0.75rem_2.5rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.95rem]" />
-
-
-
-
-
-
-
-
-            
-                    </div>
-                    <button
-            onClick={() => navigate('/noise-assessment/new')}
-            className="btn-primary w-[auto] m-[0] p-[0_1rem] flex items-center justify-center">
-
-
-
-
-
-
-
-
-            
-                        <Plus size={20} />
-                    </button>
-                </div>
-        }
-
             {/* Measurements List */}
-            <div style={{
-          padding: isMobile ? '0 1rem' : '0 1.5rem'
-
-
-
-
-
-        }} className="max-w-[1400px] m-[0_auto] flex flex-col gap-[0.75rem]">
+            <div style={{ padding: isMobile ? '0 1rem' : '0 1.5rem' }} className="max-w-[1400px] m-[0_auto] flex flex-col gap-[0.75rem]">
                 {filteredMeasurements.length === 0 ?
           <EmptyStateIllustrated
             title="Sin Mediciones de Ruido"

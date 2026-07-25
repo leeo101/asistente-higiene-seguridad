@@ -725,14 +725,27 @@ export default function MedicalAptitudes() {
           <div className="mt-8 space-y-4">
             <div className="flex flex-row items-center justify-between gap-3">
               {/* Input de Busqueda */}
-              <div className="relative flex-1 max-w-xs">
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              <div className="relative flex-1 max-w-xs h-[38px]">
+                <Search 
+                  size={16} 
+                  className="text-slate-400 pointer-events-none z-10" 
+                  style={{ 
+                    position: 'absolute', 
+                    left: '0.75rem', 
+                    top: 0, 
+                    bottom: 0, 
+                    marginTop: 'auto', 
+                    marginBottom: 'auto', 
+                    display: 'block' 
+                  }} 
+                />
                 <input 
                   type="text" 
                   placeholder="Buscar trabajador o DNI..." 
                   value={searchTerm} 
                   onChange={(e) => setSearchTerm(e.target.value)} 
-                  className="w-full h-9 pl-9 pr-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg outline-none text-xs font-semibold text-slate-900 dark:text-white shadow-sm" 
+                  style={{ paddingLeft: '2.25rem', paddingRight: '0.75rem', height: '38px', width: '100%', boxSizing: 'border-box', outline: 'none' }}
+                  className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all" 
                 />
               </div>
 

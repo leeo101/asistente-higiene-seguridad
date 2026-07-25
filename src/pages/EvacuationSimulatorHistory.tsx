@@ -75,12 +75,6 @@ export default function EvacuationSimulatorHistory(): React.ReactElement | null 
 
 
 
-
-
-
-
-
-                
                                 <Plus size={20} strokeWidth={3} />
                                 Nueva Simulación
                             </button>
@@ -88,32 +82,38 @@ export default function EvacuationSimulatorHistory(): React.ReactElement | null 
                     </div>
                 </div>
 
-                <div className="relative mb-[2rem] max-w-[400px]">
-                    <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <div className="relative mb-[2rem] max-w-[400px] h-[50px]">
+                    <Search 
+                      size={20} 
+                      className="text-slate-400 pointer-events-none z-10" 
+                      style={{ 
+                        position: 'absolute', 
+                        left: '1.2rem', 
+                        top: 0, 
+                        bottom: 0, 
+                        marginTop: 'auto', 
+                        marginBottom: 'auto', 
+                        display: 'block' 
+                      }} 
+                    />
                     <input
-            type="text"
-            placeholder="Buscar por sector o evaluador..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.8rem_1rem_0.8rem_2.8rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] box-sizing-[border-box]" />
-
-
-
-
-
-
-
-
-
-          
+                      type="text"
+                      placeholder="Buscar por sector o evaluador..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)} 
+                      style={{ width: '100%', height: '50px', paddingLeft: '3.5rem', paddingRight: '1rem', boxSizing: 'border-box', outline: 'none' }}
+                      className="rounded-[var(--radius-lg)] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm" 
+                    />
                 </div>
 
                 <div className="grid grid-template-columns-[repeat(auto-fill,_minmax(300px,_1fr))] gap-[1.5rem]">
-                    {filteredSimulations.length === 0 ?
-          <div className="grid-column-[1_/_-1] text-center p-[4rem_2rem] bg-[var(--color-surface)] rounded-[var(--radius-xl)] border-[1px_dashed_var(--color-border)]">
+                    {filteredSimulations.length === 0 ? (
+                        <div className="grid-column-[1_/_-1] text-center p-[4rem_2rem] bg-[var(--color-surface)] rounded-[var(--radius-xl)] border-[1px_dashed_var(--color-border)]">
                             <Timer size={48} className="text-[var(--color-text-light)] mb-[1rem]" />
                             <h3 className="m-[0_0_0.5rem_0]">No hay simulaciones</h3>
                             <p className="m-[0] text-[var(--color-text-muted)]">Realice la primera simulación teórica de evacuación.</p>
-                        </div> :
+                        </div>
+                    ) :
 
           filteredSimulations.map((form: any) =>
           <div

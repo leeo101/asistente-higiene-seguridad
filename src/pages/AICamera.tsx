@@ -390,64 +390,128 @@ export default function AICamera(): React.ReactElement | null {
   if (!isPro) return null;
 
   return (
-    <div className="container pb-[2rem] pt-[1rem] relative min-h-[100vh] flex flex-col gap-[1rem] bg-[var(--color-bg)]">
-            {/* Header Moderno con Botón Volver */}
-            <div className="flex items-center justify-between p-[0.8rem_1rem] z-[10] bg-[rgba(30,41,59,0.75)] backdrop-blur-md rounded-[20px] border border-[rgba(255,255,255,0.08)] shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
-                <button 
-                  onClick={() => navigate(-1)} 
-                  className="flex items-center justify-center w-[40px] h-[40px] rounded-[12px] bg-slate-800/80 hover:bg-slate-700/80 text-white border border-white/10 cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg z-[100]"
-                >
-                    <ArrowLeft size={20} className="text-white/80" />
-                </button>
-                <div className="flex flex-col items-center">
-                    <h1 className="m-[0] text-[1.1rem] font-[800] text-[var(--color-text)]">Escaneo EPP</h1>
-                    <span className="text-[0.7rem] font-[700] text-[#10b981] uppercase tracking-[1px]">Inteligencia Artificial</span>
-                </div>
-                <div className="w-[40px] h-[40px]" /> {/* Spacer for centering */}
+    <div className="container pb-[2rem] pt-6 md:pt-10 relative min-h-[100vh] flex flex-col gap-4 bg-[var(--color-bg)]">
+      {/* Header Moderno con Botón Volver Destacado */}
+      <div 
+        style={{ zIndex: 100 }}
+        className="flex items-center justify-between p-3 px-4 bg-slate-900/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-xl"
+      >
+        <button 
+          onClick={() => navigate(-1)} 
+          style={{
+            background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            color: '#ffffff',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.4)',
+            cursor: 'pointer'
+          }}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs transition-all hover:scale-105 active:scale-95"
+          title="Volver al Historial"
+        >
+          <ArrowLeft size={18} className="text-cyan-400" />
+          <span>VOLVER</span>
+        </button>
+        <div className="flex flex-col items-center">
+          <h1 className="m-0 text-base font-black text-white flex items-center gap-1.5">
+            <Camera size={18} className="text-cyan-400" /> Escaneo EPP
+          </h1>
+          <span className="text-[0.65rem] font-black text-cyan-400 uppercase tracking-widest flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" /> Visión Artificial EHS
+          </span>
+        </div>
+        <div className="w-20" />
+      </div>
+
+      {/* Contenedor de Cámara Moderno */}
+      <div className="flex-1 relative min-h-[70vh] rounded-3xl overflow-hidden bg-black border border-white/10 shadow-2xl">
+        {!capturedImage ? (
+          <>
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline 
+              className="absolute inset-0 w-full h-full object-cover" 
+            />
+
+            {/* Botón flotante de respaldo Volver en esquina superior izquierda del área de video */}
+            <button 
+              onClick={() => navigate(-1)} 
+              style={{
+                position: 'absolute',
+                top: '1rem',
+                left: '1rem',
+                zIndex: 50,
+                background: 'rgba(15, 23, 42, 0.85)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                color: '#ffffff',
+                boxShadow: '0 8px 20px rgba(0,0,0,0.5)',
+                cursor: 'pointer'
+              }}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-2xl font-black text-xs hover:scale-105 active:scale-95 transition-all"
+              title="Volver al Historial"
+            >
+              <ArrowLeft size={18} className="text-cyan-400" />
+              <span>VOLVER</span>
+            </button>
+
+            {/* HUD Status Pill */}
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 px-3.5 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-cyan-500/30 text-cyan-300 text-xs font-bold flex items-center gap-2 shadow-lg">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>IA LISTA · Detección de EPP</span>
             </div>
 
-            {/* Contenedor de Cámara Moderno */}
-            <div className="flex-[1] relative min-h-[72vh] rounded-[32px] overflow-[hidden] bg-[#000000] border-[1px_solid_rgba(255,255,255,0.1)] box-shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
-                {!capturedImage ?
-        <>
-                        <video
-            ref={videoRef}
-            autoPlay
-            playsInline className="absolute top-[0] left-[0] w-[100%] h-[100%] object-fit-[cover]" />
+            {/* Cuadro de Enfoque con Láser Animado */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] h-[60%] rounded-3xl border border-cyan-500/30 pointer-events-none overflow-hidden">
+              {/* Esquinas de enfoque */}
+              <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-cyan-400 rounded-tl-xl shadow-[0_0_10px_#22d3ee]" />
+              <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-cyan-400 rounded-tr-xl shadow-[0_0_10px_#22d3ee]" />
+              <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-cyan-400 rounded-bl-xl shadow-[0_0_10px_#22d3ee]" />
+              <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-cyan-400 rounded-br-xl shadow-[0_0_10px_#22d3ee]" />
+              
+              {/* Línea Láser Animada */}
+              <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#22d3ee] animate-pulse" style={{ animationDuration: '2s' }} />
+            </div>
 
-          
-                        <div className="absolute top-[50%] left-[50%] transform-[translate(-50%,_-50%)] border-[2px_dashed_rgba(255,255,255,0.3)] w-[70%] h-[60%] rounded-[24px] pointer-events-[none]">
-                            {/* Esquinas de enfoque */}
-                            <div className="absolute top-[-2px] left-[-2px] w-[20px] h-[20px] border-t-[3px] border-l-[3px] border-white rounded-tl-[12px]" />
-                            <div className="absolute top-[-2px] right-[-2px] w-[20px] h-[20px] border-t-[3px] border-r-[3px] border-white rounded-tr-[12px]" />
-                            <div className="absolute bottom-[-2px] left-[-2px] w-[20px] h-[20px] border-b-[3px] border-l-[3px] border-white rounded-bl-[12px]" />
-                            <div className="absolute bottom-[-2px] right-[-2px] w-[20px] h-[20px] border-b-[3px] border-r-[3px] border-white rounded-br-[12px]" />
-                        </div>
+            {/* Controles de cámara superior con Glassmorphism */}
+            <div className="absolute top-4 right-4 flex flex-col gap-3 z-20">
+              <button 
+                onClick={toggleTorch} 
+                className={`w-12 h-12 rounded-2xl backdrop-blur-md flex items-center justify-center cursor-pointer transition-all duration-300 ${
+                  torchOn 
+                    ? 'bg-amber-500/30 border border-amber-400 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.4)]' 
+                    : 'bg-slate-900/60 border border-white/20 text-white hover:bg-slate-800/80'
+                }`}
+                title="Linterna / Flash"
+              >
+                {torchOn ? <Zap size={22} fill="currentColor" /> : <ZapOff size={22} />}
+              </button>
 
-                        {/* Controles de cámara superior con Glassmorphism */}
-                        <div className="absolute top-[1.5rem] right-[1.5rem] flex flex-col gap-[1rem] z-[20]">
-                            <button onClick={toggleTorch} className={`w-[48px] h-[48px] rounded-[16px] backdrop-filter-[blur(12px)] flex items-center justify-center cursor-pointer transition-all duration-300 ${torchOn ? 'bg-[rgba(250,204,21,0.2)] border-[1px_solid_rgba(250,204,21,0.5)] text-[#facc15] box-shadow-[0_0_20px_rgba(250,204,21,0.3)]' : 'bg-[rgba(255,255,255,0.15)] border-[1px_solid_rgba(255,255,255,0.2)] text-white hover:bg-[rgba(255,255,255,0.25)]'}`}>
-                                {torchOn ? <Zap size={22} fill="currentColor" /> : <ZapOff size={22} />}
-                            </button>
-                            <button onClick={switchCamera} className="w-[48px] h-[48px] rounded-[16px] bg-[rgba(255,255,255,0.15)] backdrop-filter-[blur(12px)] border-[1px_solid_rgba(255,255,255,0.2)] text-white flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-[rgba(255,255,255,0.25)] hover:rotate-[180deg]">
-                                <FlipHorizontal size={22} />
-                            </button>
-                        </div>
+              <button 
+                onClick={switchCamera} 
+                className="w-12 h-12 rounded-2xl bg-slate-900/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-slate-800/80 hover:rotate-180"
+                title="Cambiar Cámara"
+              >
+                <FlipHorizontal size={22} />
+              </button>
+            </div>
 
-                        {/* Botón de Captura Elegante y Transparente */}
-                        <div className="absolute bottom-[2.5rem] left-[0] w-[100%] flex justify-center z-[20]">
-                            <button
-                              onClick={handleCapture}
-                              className="group relative w-[84px] h-[84px] rounded-full bg-white/10 backdrop-blur-md cursor-pointer flex items-center justify-center border-2 border-white/40 transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.15)]"
-                              style={{ outline: 'none' }}
-                            >
-                                <div className="absolute inset-0 rounded-full border-2 border-white/60 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500"></div>
-                                <div className="w-[60px] h-[60px] rounded-full bg-white/20 border border-white/80 group-hover:bg-white/40 transition-all duration-300 flex items-center justify-center">
-                                    <Camera className="text-white opacity-80" size={24} />
-                                </div>
-                            </button>
-                        </div>
-                    </> :
+            {/* Botón de Captura Elegante */}
+            <div className="absolute bottom-8 left-0 w-full flex justify-center z-20">
+              <button
+                onClick={handleCapture}
+                className="group relative w-20 h-20 rounded-full bg-cyan-500/20 backdrop-blur-md cursor-pointer flex items-center justify-center border-2 border-cyan-400/60 transition-all duration-300 hover:scale-110 active:scale-95 shadow-[0_0_30px_rgba(34,211,238,0.4)]"
+                style={{ outline: 'none' }}
+                title="Escanear EPP con IA"
+              >
+                <div className="absolute inset-0 rounded-full border-2 border-cyan-400 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-500 animate-ping" />
+                <div className="w-14 h-14 rounded-full bg-cyan-500/40 border-2 border-white group-hover:bg-cyan-400 transition-all duration-300 flex items-center justify-center shadow-inner">
+                  <Camera className="text-white" size={26} />
+                </div>
+              </button>
+            </div>
+          </>
+        ) : (
 
         <div className="relative w-[100%] h-[100%]">
                         <img src={capturedImage} alt="Captured" className="w-[100%] h-[100%] object-fit-[cover]" />
@@ -524,7 +588,7 @@ export default function AICamera(): React.ReactElement | null {
                             </div>
                         }
                     </div>
-                }
+                )}
             </div>
             <canvas ref={canvasRef} className="hidden" />
         </div>

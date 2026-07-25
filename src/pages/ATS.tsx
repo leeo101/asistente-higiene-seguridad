@@ -417,52 +417,64 @@ export default function ATS(): React.ReactElement | null {
     }
   }, []);
 
-  const updateChecklist = (id, field, value) => {
-    const newList = formData.checklist.map((item) =>
-    item.id === id ? { ...item, [field]: value } : item
-    );
-    setFormData({ ...formData, checklist: newList });
+  const updateChecklist = (id: any, field: string, value: any) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      checklist: (prev.checklist || []).map((item: any) =>
+        String(item.id) === String(id) ? { ...item, [field]: value } : item
+      )
+    }));
   };
 
-  const addQuestion = (categoria) => {
-    const newId = Math.max(0, ...formData.checklist.map((i) => i.id)) + 1;
-    const newQuestion = { id: newId, categoria, pregunta: 'Nueva Pregunta', estado: 'Cumple', observaciones: '' };
-    setFormData({ ...formData, checklist: [...formData.checklist, newQuestion] });
-  };
-
-  const removeQuestion = (id) => {
-    setFormData({
-      ...formData,
-      checklist: formData.checklist.filter((item) => item.id !== id)
+  const addQuestion = (categoria: string) => {
+    setFormData((prev: any) => {
+      const currentList = prev.checklist || [];
+      const newId = Date.now() + Math.floor(Math.random() * 1000);
+      const newQuestion = { id: newId, categoria, pregunta: 'Nueva Pregunta de Seguridad', estado: 'Cumple', observaciones: '' };
+      return { ...prev, checklist: [...currentList, newQuestion] };
     });
   };
 
-  const updateTask = (id, field, value) => {
-    const newTasks = formData.tareas.map((t) =>
-    t.id === id ? { ...t, [field]: value } : t
-    );
-    setFormData({ ...formData, tareas: newTasks });
+  const removeQuestion = (id: any) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      checklist: (prev.checklist || []).filter((item: any) => String(item.id) !== String(id))
+    }));
+  };
+
+  const updateTask = (id: any, field: string, value: any) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      tareas: (prev.tareas || []).map((t: any) =>
+        String(t.id) === String(id) ? { ...t, [field]: value } : t
+      )
+    }));
   };
 
   const addTask = () => {
-    const newId = Math.max(0, ...formData.tareas.map((t) => t.id)) + 1;
-    const newTask = { id: newId, paso: '', riesgo: '', control: '', nivelRiesgo: 'Bajo', realizado: false };
-    setFormData({ ...formData, tareas: [...formData.tareas, newTask] });
-  };
-
-  const removeTask = (id) => {
-    setFormData({
-      ...formData,
-      tareas: formData.tareas.filter((t) => t.id !== id)
+    setFormData((prev: any) => {
+      const currentTasks = prev.tareas || [];
+      const newId = Date.now() + Math.floor(Math.random() * 1000);
+      const newTask = { id: newId, paso: '', riesgo: '', control: '', nivelRiesgo: 'Bajo', realizado: false };
+      return { ...prev, tareas: [...currentTasks, newTask] };
     });
   };
 
-  const updateCategoryName = (oldName, newName) => {
+  const removeTask = (id: any) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      tareas: (prev.tareas || []).filter((t: any) => String(t.id) !== String(id))
+    }));
+  };
+
+  const updateCategoryName = (oldName: string, newName: string) => {
     if (!newName.trim() || oldName === newName) return;
-    const newList = formData.checklist.map((item) =>
-    item.categoria === oldName ? { ...item, categoria: newName } : item
-    );
-    setFormData({ ...formData, checklist: newList });
+    setFormData((prev: any) => ({
+      ...prev,
+      checklist: (prev.checklist || []).map((item: any) =>
+        item.categoria === oldName ? { ...item, categoria: newName } : item
+      )
+    }));
   };
 
   const handleSave = async () => {
@@ -633,90 +645,178 @@ export default function ATS(): React.ReactElement | null {
         onClose={() => setIsAdModalOpen(false)}
         adSlot="ats-popup" />
       
-            <div className="container w-full max-w-[1200px] pb-48">
-                {/* Breadcrumbs de navegación */}
-                <Breadcrumbs />
+      <div className="container w-full max-w-[1200px] pt-8 md:pt-12 pb-48 px-4 mx-auto">
+        {/* Breadcrumbs de navegación */}
+        <Breadcrumbs />
 
-                <PremiumHeader onBack={showForm ? () => {setShowForm(false);} : undefined}
-        title="Generador de ATS"
-        subtitle="Identificación y control de riesgos para tareas críticas"
-        icon={<ShieldCheck size={36} />} />
-        
+        <PremiumHeader 
+          onBack={showForm ? () => { setShowForm(false); } : undefined}
+          title="Generador de ATS"
+          subtitle="Identificación y control de riesgos para tareas críticas"
+          icon={<ClipboardList size={36} color="#ffffff" />}
+          color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+        />
 
-                {!showForm ?
-        <>
-                        
-                        {/* KPIs */}
-                        <div className="no-print grid grid-cols-1 md:grid-cols-3 gap-[1rem] mb-[2rem]">
-                            <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
-                                <div className="bg-blue-100 text-blue-600 p-[1rem] rounded-[12px]"><ShieldCheck size={28} /></div>
-                                <div>
-                                    <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">ATS Generados</div>
-                                    <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{history.length}</div>
-                                </div>
-                            </div>
-                            <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
-                                <div className="bg-amber-100 text-amber-600 p-[1rem] rounded-[12px]"><ShieldAlert size={28} /></div>
-                                <div>
-                                    <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">Riesgo Alto (Total)</div>
-                                    <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{history.filter(h => h.tareas?.some(t => t.nivelRiesgo === 'Alto')).length}</div>
-                                </div>
-                            </div>
-                            <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
-                                <div className="bg-green-100 text-green-600 p-[1rem] rounded-[12px]"><CheckCircle2 size={28} /></div>
-                                <div>
-                                    <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">ATS Última Semana</div>
-                                    <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{history.filter(h => new Date(h.fecha) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}</div>
-                                </div>
-                            </div>
-                        </div>
+        {!showForm ? (
+          <>
+            {/* KPIs */}
+            <div className="no-print grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 mt-6">
+              <div 
+                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                className="p-5 rounded-2xl shadow-sm flex items-center gap-4"
+              >
+                <div 
+                  style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}
+                  className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                >
+                  <ClipboardList size={26} />
+                </div>
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-wider block" style={{ color: 'var(--color-text-muted)' }}>ATS Registrados</div>
+                  <div className="text-2xl font-black" style={{ color: '#f59e0b' }}>{history.length} <span className="text-xs font-normal" style={{ color: 'var(--color-text-muted)' }}>documentos</span></div>
+                </div>
+              </div>
 
-                        <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap items-stretch bg-[var(--color-surface,_#fff)] p-[1.5rem] rounded-[24px] box-shadow-[0_10px_40px_rgba(0,0,0,0.04)] border-[1px_solid_rgba(0,0,0,0.05)]">
-                            <div className="flex-[1_1_250px] relative">
-                                <Search size={22} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-                                <input
-                type="text"
-                placeholder="Buscar por empresa, obra o responsable..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onFocus={(e) => {e.currentTarget.style.border = '2px solid #3b82f6';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = '0 0 0 4px rgba(59,130,246,0.1)';}}
-                onBlur={(e) => {e.currentTarget.style.border = '2px solid transparent';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = 'none';}}
-                style={{ width: '100%', height: '100%', minHeight: '3.5rem', padding: '0.75rem 1rem 0.75rem 3.5rem', borderRadius: '1rem', border: '2px solid transparent', backgroundColor: 'rgba(241, 245, 249, 0.5)', fontSize: '1rem', outline: 'none', transition: 'all 0.3s', fontWeight: 500, color: 'var(--color-text)' }} />
-                            </div>
-                            
-                            <div className="flex gap-[0.5rem]">
-                                <button
+              <div 
+                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                className="p-5 rounded-2xl shadow-sm flex items-center gap-4"
+              >
+                <div 
+                  style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444' }}
+                  className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                >
+                  <ShieldAlert size={26} />
+                </div>
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-wider block" style={{ color: 'var(--color-text-muted)' }}>Tareas de Riesgo Alto</div>
+                  <div className="text-2xl font-black" style={{ color: '#ef4444' }}>
+                    {history.filter((h: any) => h.tareas?.some((t: any) => t.nivelRiesgo === 'Alto')).length} <span className="text-xs font-normal" style={{ color: 'var(--color-text-muted)' }}>críticos</span>
+                  </div>
+                </div>
+              </div>
+
+              <div 
+                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                className="p-5 rounded-2xl shadow-sm flex items-center gap-4"
+              >
+                <div 
+                  style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' }}
+                  className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                >
+                  <Activity size={26} />
+                </div>
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-wider block" style={{ color: 'var(--color-text-muted)' }}>Última Semana</div>
+                  <div className="text-2xl font-black" style={{ color: '#3b82f6' }}>
+                    {history.filter((h: any) => new Date(h.fecha) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length} <span className="text-xs font-normal" style={{ color: 'var(--color-text-muted)' }}>recientes</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Bar & Search Input */}
+            <div 
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+              className="mb-6 p-4 md:p-6 rounded-2xl shadow-sm flex gap-4 flex-wrap items-center justify-between"
+            >
+              <div className="flex-1 min-w-[260px] relative h-[50px]">
+                <Search 
+                  size={20} 
+                  style={{ 
+                    position: 'absolute', 
+                    left: '1rem', 
+                    top: 0, 
+                    bottom: 0, 
+                    marginTop: 'auto', 
+                    marginBottom: 'auto', 
+                    color: '#10b981', 
+                    display: 'block' 
+                  }} 
+                  className="pointer-events-none z-10" 
+                />
+                <input
+                  type="text"
+                  placeholder="Buscar por empresa, obra o responsable..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{ 
+                    width: '100%', 
+                    height: '50px',
+                    paddingLeft: '3rem',
+                    paddingRight: '1rem',
+                    fontSize: '0.95rem', 
+                    outline: 'none', 
+                    fontWeight: 600, 
+                    color: 'var(--color-text)',
+                    boxSizing: 'border-box'
+                  }} 
+                  className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors shadow-sm"
+                />
+              </div>
+              
+              <div className="flex gap-3 flex-wrap">
+                <button
                   onClick={() => {
                     setFormData({
                       id: '', empresa: '', cuit: '', obra: '', tarea: '', fecha: new Date().toISOString().split('T')[0], capatazNombre: '', operatorSignature: '', capatazSignature: '', checklist: defaultChecklist, tareas: [{ id: 1, paso: 'Preparación de área', riesgo: 'Caídas', control: 'Delimitación', nivelRiesgo: 'Medio', realizado: true }, { id: 2, paso: 'Ejecución de tarea', riesgo: 'Golpes', control: 'Uso de EPP', nivelRiesgo: 'Bajo', realizado: false }], epps: [], fotos: []
                     });
                     navigate('/ats/nuevo');
                   }}
-                  onMouseOver={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 12px 25px rgba(16,185,129,0.4)';}}
-                  onMouseOut={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.3)';}}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '0 1.5rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(16,185,129,0.3)', whiteSpace: 'nowrap', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', height: '100%', minHeight: '3.5rem' }}>
-                                    <Plus size={22} strokeWidth={2.5} /> Nuevo ATS
-                                </button>
-                                
-                                {history.length > 0 &&
-                                    <button
-                                        onClick={handleExportCSV}
-                                        onMouseOver={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 12px 25px rgba(59,130,246,0.4)';}}
-                                        onMouseOut={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = '0 8px 20px rgba(59,130,246,0.3)';}}
-                                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0 1.5rem', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#ffffff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(59,130,246,0.3)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', height: '100%', minHeight: '3.5rem' }}>
-                                        <Download size={20} strokeWidth={2.5} /> Excel
-                                    </button>
-                                }
-                            </div>
-                        </div>
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    gap: '0.6rem', 
+                    padding: '0.8rem 1.6rem', 
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
+                    color: '#ffffff', 
+                    fontWeight: 800, 
+                    borderRadius: '1rem', 
+                    border: 'none', 
+                    cursor: 'pointer', 
+                    boxShadow: '0 8px 20px rgba(16,185,129,0.35)', 
+                    whiteSpace: 'nowrap', 
+                    fontSize: '0.9rem'
+                  }}
+                  className="hover:scale-105 active:scale-95 transition-all"
+                >
+                  <Plus size={20} strokeWidth={2.5} /> Nuevo ATS
+                </button>
+                
+                {history.length > 0 && (
+                  <button
+                    onClick={handleExportCSV}
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      gap: '0.5rem', 
+                      padding: '0.8rem 1.4rem', 
+                      background: 'linear-gradient(135deg, #3b82f6, #2563eb)', 
+                      color: '#ffffff', 
+                      fontWeight: 800, 
+                      borderRadius: '1rem', 
+                      border: 'none', 
+                      cursor: 'pointer', 
+                      boxShadow: '0 8px 20px rgba(59,130,246,0.35)', 
+                      fontSize: '0.9rem'
+                    }}
+                    className="hover:scale-105 active:scale-95 transition-all"
+                  >
+                    <Download size={18} strokeWidth={2.5} /> Exportar Excel
+                  </button>
+                )}
+              </div>
+            </div>
 
-                        <DataTable
-            data={filteredHistory}
-            columns={columns}
-            searchPlaceholder="Buscar..."
-            hideHeader={true}
-            emptyMessage="No se encontraron registros de ATS."
-            emptyIcon={<ClipboardList size={48} />} />
+            <DataTable
+              data={filteredHistory}
+              columns={columns}
+              searchPlaceholder="Buscar..."
+              hideHeader={true}
+              emptyMessage="No se encontraron registros de ATS."
+              emptyIcon={<ClipboardList size={48} />} 
+            />
           
 
                         {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} onClose={() => setQrTarget(null)} />}
@@ -747,9 +847,9 @@ export default function ATS(): React.ReactElement | null {
                         <div className="ats-pdf-offscreen">
                             <ATSPdfGenerator atsData={shareItem} />
                         </div>
-                    </> :
-
-        <>
+          </>
+        ) : (
+          <>
 
 
                 <ShareModal
@@ -863,22 +963,37 @@ export default function ATS(): React.ReactElement | null {
                                         />
                                     </div>
                                     <div className="flex flex-col gap-2 lg:col-span-3">
-                                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2">
-                                            <FileText size={14} /> DESCRIPCIÓN DE LA TAREA
+                                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center justify-between flex-wrap gap-1">
+                                            <span className="flex items-center gap-2">
+                                                <FileText size={14} style={{ color: '#10b981' }} /> DESCRIPCIÓN DE LA TAREA
+                                            </span>
+                                            <span className="text-[0.65rem] font-extrabold flex items-center gap-1" style={{ color: '#10b981' }}>
+                                                <Mic size={12} className="animate-pulse" /> Dictado por Voz Activo
+                                            </span>
                                         </label>
                                         <div className="relative flex items-center w-full">
                                             <input
                                                 type="text"
                                                 value={formData.tarea}
                                                 onChange={(e) => setFormData({ ...formData, tarea: e.target.value })}
-                                                className="module-form-input pr-12 w-full"
+                                                className="module-form-input w-full font-bold"
+                                                style={{ paddingRight: '4.8rem' }}
                                                 placeholder="Ej: Pintado de fachada exterior..."
                                             />
-                                            <div className="absolute right-1 top-1/2 -translate-y-1/2 z-10">
+                                            <div 
+                                              style={{ 
+                                                position: 'absolute', 
+                                                right: '0.5rem', 
+                                                top: '50%', 
+                                                transform: 'translateY(-50%)', 
+                                                zIndex: 20 
+                                              }}
+                                              className="flex items-center gap-1"
+                                            >
                                                  <VoiceDictationButton
                                                      size="sm"
                                                      enableAI={true}
-                                                     placeholder="Dictar tarea o proyecto..."
+                                                     placeholder="Dictar tarea por voz..."
                                                      onTranscript={(text) => {
                                                          setFormData(prev => ({
                                                              ...prev,
@@ -1221,36 +1336,37 @@ export default function ATS(): React.ReactElement | null {
                                         </div>
 
                                         <span
-                      contentEditable
-                      suppressContentEditableWarning
-                      onBlur={(e) => updateCategoryName(cat, e.target.innerText)}
-
-                      className="hover:bg-slate-100 dark:hover:bg-slate-800 px-2 py-0.5 rounded cursor-edit outline-[none]">
-                      
+                                          contentEditable
+                                          suppressContentEditableWarning
+                                          onBlur={(e) => updateCategoryName(cat, e.target.innerText)}
+                                          className="hover:bg-emerald-500/10 focus:bg-emerald-500/10 px-2 py-0.5 rounded cursor-edit outline-none transition-colors"
+                                          style={{ color: 'var(--color-text)' }}
+                                        >
                                             {cat}
                                         </span>
                                     </h4>
                                     <button
-                    className="no-print p-[0.5rem_1rem] text-[#ffffff] border-none rounded-[10px] font-[800] text-[0.7rem] cursor-pointer box-shadow-[0_4px_10px_rgba(16,185,129,_0.2)] transition-[all_0.2s]"
-                    onClick={() => addQuestion(cat)}
-                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
-                    onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
-                    onMouseOut={(e) => e.currentTarget.style.transform = 'none'}>
-                    
+                                      className="no-print p-[0.5rem_1rem] text-[#ffffff] border-none rounded-[10px] font-[800] text-[0.7rem] cursor-pointer box-shadow-[0_4px_10px_rgba(16,185,129,_0.2)] transition-[all_0.2s]"
+                                      onClick={() => addQuestion(cat)}
+                                      style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+                                      onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
+                                      onMouseOut={(e) => e.currentTarget.style.transform = 'none'}
+                                    >
                                         + AGREGAR
                                     </button>
                                 </div>
 
                                 <div className="flex flex-col gap-3">
-                                    {formData.checklist.filter((i) => i.categoria === cat).map((item) =>
-                  <div key={item.id} className="group p-4 bg-[var(--color-background)] rounded-xl border border-[var(--color-border)] hover:border-blue-400 dark:hover:border-blue-500 transition-all hover:shadow-sm">
+                                    {formData.checklist.filter((i) => i.categoria === cat).map((item) => (
+                                      <div key={item.id} className="group p-4 bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] hover:border-emerald-500/50 transition-all hover:shadow-sm">
                                             {/* Question text */}
                                             <div
-                      contentEditable
-                      suppressContentEditableWarning
-                      onBlur={(e) => updateChecklist(item.id, 'pregunta', e.target.innerText)}
-                      className="font-bold text-[var(--color-text)] text-[0.95rem] outline-none border-b border-dashed border-transparent focus:border-[var(--color-primary)] leading-tight mb-2 cursor-edit hover:bg-slate-100 dark:hover:bg-slate-800 px-1 py-0.5 rounded">
-                      
+                                              contentEditable
+                                              suppressContentEditableWarning
+                                              onBlur={(e) => updateChecklist(item.id, 'pregunta', e.target.innerText)}
+                                              className="font-bold text-[0.95rem] outline-none border-b border-dashed border-transparent focus:border-emerald-500 leading-tight mb-2 cursor-edit hover:bg-emerald-500/10 focus:bg-emerald-500/10 px-2 py-1 rounded transition-colors"
+                                              style={{ color: 'var(--color-text)' }}
+                                            >
                                                 {item.pregunta}
                                             </div>
 
@@ -1273,21 +1389,140 @@ export default function ATS(): React.ReactElement | null {
                                             </div>
 
                                             {/* Bottom row: status buttons + delete */}
-                                            <div className="no-print flex items-center justify-space-between gap-[0.5rem] mt-[0.8rem]">
-                                                <div className="ats-status-group">
-                                                    <button onClick={() => updateChecklist(item.id, 'estado', 'Cumple')} className={`flex-1 p-2 rounded-lg font-bold text-xs ${item.estado === 'Cumple' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-500'}`}>SI</button>
-                                                    <button onClick={() => updateChecklist(item.id, 'estado', 'No Cumple')} className={`flex-1 p-2 rounded-lg font-bold text-xs ${item.estado === 'No Cumple' ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-500'}`}>NO</button>
-                                                    <button onClick={() => updateChecklist(item.id, 'estado', 'N/A')} className={`flex-1 p-2 rounded-lg font-bold text-xs ${item.estado === 'N/A' ? 'bg-slate-500 text-white' : 'bg-slate-100 text-slate-500'}`}>N/A</button>
+                                            {(() => {
+                                              const isSI = item.estado === 'Cumple' || item.estado === 'SI';
+                                              const isNO = item.estado === 'No Cumple' || item.estado === 'NO';
+                                              const isNA = item.estado === 'N/A' || item.estado === 'NA';
+
+                                              return (
+                                                <div className="no-print flex items-center justify-between gap-2 mt-2 flex-wrap">
+                                                  <div className="flex items-center gap-1.5">
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => updateChecklist(item.id, 'estado', 'Cumple')}
+                                                      style={{
+                                                        background: isSI ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'rgba(16, 185, 129, 0.12)',
+                                                        color: isSI ? '#ffffff' : '#059669',
+                                                        border: isSI ? 'none' : '1px solid rgba(16, 185, 129, 0.3)',
+                                                        boxShadow: isSI ? '0 2px 6px rgba(16,185,129,0.3)' : 'none',
+                                                        height: '26px',
+                                                        padding: '0 10px',
+                                                        fontSize: '0.72rem',
+                                                        fontWeight: 800,
+                                                        borderRadius: '6px',
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        gap: '4px',
+                                                        cursor: 'pointer',
+                                                        minWidth: '50px',
+                                                      }}
+                                                      className="hover:scale-105 active:scale-95 transition-transform"
+                                                    >
+                                                      {isSI && <CheckCircle2 size={11} />} SI
+                                                    </button>
+                                                    
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => updateChecklist(item.id, 'estado', 'No Cumple')}
+                                                      style={{
+                                                        background: isNO ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'rgba(239, 68, 68, 0.12)',
+                                                        color: isNO ? '#ffffff' : '#dc2626',
+                                                        border: isNO ? 'none' : '1px solid rgba(239, 68, 68, 0.3)',
+                                                        boxShadow: isNO ? '0 2px 6px rgba(239,68,68,0.3)' : 'none',
+                                                        height: '26px',
+                                                        padding: '0 10px',
+                                                        fontSize: '0.72rem',
+                                                        fontWeight: 800,
+                                                        borderRadius: '6px',
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        gap: '4px',
+                                                        cursor: 'pointer',
+                                                        minWidth: '50px',
+                                                      }}
+                                                      className="hover:scale-105 active:scale-95 transition-transform"
+                                                    >
+                                                      {isNO && <AlertCircle size={11} />} NO
+                                                    </button>
+
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => updateChecklist(item.id, 'estado', 'N/A')}
+                                                      style={{
+                                                        background: isNA ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)' : 'rgba(100, 116, 139, 0.12)',
+                                                        color: isNA ? '#ffffff' : '#475569',
+                                                        border: isNA ? 'none' : '1px solid rgba(100, 116, 139, 0.3)',
+                                                        boxShadow: isNA ? '0 2px 6px rgba(100,116,139,0.3)' : 'none',
+                                                        height: '26px',
+                                                        padding: '0 10px',
+                                                        fontSize: '0.72rem',
+                                                        fontWeight: 800,
+                                                        borderRadius: '6px',
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        gap: '4px',
+                                                        cursor: 'pointer',
+                                                        minWidth: '50px',
+                                                      }}
+                                                      className="hover:scale-105 active:scale-95 transition-transform"
+                                                    >
+                                                      {isNA && <HelpCircle size={11} />} N/A
+                                                    </button>
+                                                  </div>
+
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => removeQuestion(item.id)}
+                                                    title="Eliminar pregunta"
+                                                    style={{ 
+                                                      backgroundColor: '#ef4444', 
+                                                      color: '#ffffff', 
+                                                      height: '26px', 
+                                                      width: '26px', 
+                                                      minWidth: '26px',
+                                                      minHeight: '26px',
+                                                      borderRadius: '6px',
+                                                      display: 'inline-flex',
+                                                      alignItems: 'center',
+                                                      justifyContent: 'center',
+                                                      border: 'none',
+                                                      boxShadow: '0 2px 6px rgba(239, 68, 68, 0.4)',
+                                                      cursor: 'pointer',
+                                                    }}
+                                                    className="hover:scale-105 active:scale-95 transition-transform shrink-0"
+                                                  >
+                                                    <svg 
+                                                      width="14" 
+                                                      height="14" 
+                                                      viewBox="0 0 24 24" 
+                                                      fill="none" 
+                                                      stroke="#ffffff" 
+                                                      strokeWidth="2.5" 
+                                                      strokeLinecap="round" 
+                                                      strokeLinejoin="round" 
+                                                      style={{ 
+                                                        width: '14px', 
+                                                        height: '14px', 
+                                                        minWidth: '14px', 
+                                                        minHeight: '14px', 
+                                                        stroke: '#ffffff', 
+                                                        color: '#ffffff', 
+                                                        display: 'block' 
+                                                      }}
+                                                    >
+                                                      <path d="M3 6h18" />
+                                                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                                      <line x1="10" y1="11" x2="10" y2="17" />
+                                                      <line x1="14" y1="11" x2="14" y2="17" />
+                                                    </svg>
+                                                  </button>
                                                 </div>
-                                                <button
-                        onClick={() => removeQuestion(item.id)}
-                        title="Eliminar" 
-                        style={{ backgroundColor: '#fee2e2', color: '#ef4444' }}
-                        className="border-[1px_solid_rgba(239,68,68,0.1)] rounded-[8px] cursor-pointer p-[0.4rem] flex items-center transition-colors hover:bg-red-200">
-                        
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
+                                              );
+                                            })()}
                                             {/* Vista de Impresión Reforzada */}
                                             <div className="checklist-print-box hidden print:flex gap-1 flex-shrink-[0]">
                                                 {['SI', 'NO', 'NA'].map((label) => {
@@ -1316,7 +1551,7 @@ export default function ATS(): React.ReactElement | null {
                       })}
                                             </div>
                                         </div>
-                  )}
+                                    ))}
                                 </div>
                             </div>
               )}
@@ -1458,7 +1693,7 @@ export default function ATS(): React.ReactElement | null {
                 </ModuleFormDocument>
                 </ModuleFormLayout>
                 </>
-        }
+              )}
             </div>
             {/* ─── Modal IA Mágica ─── */}
             {

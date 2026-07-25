@@ -450,19 +450,29 @@ export default function ToolboxTalk(): React.ReactElement {
               
                                 <Plus size={20} /> Nueva Charla
                             </button>
-                            <div className="flex-[1_1_100%] min-width-[0]" style={{ position: 'relative' }}>
-                                <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
-                                    <Search size={20} />
-                                </div>
+                            <div className="flex-[1_1_100%] min-w-0 relative h-[50px]">
+                                <Search 
+                                  size={20} 
+                                  className="pointer-events-none z-10" 
+                                  style={{ 
+                                    position: 'absolute', 
+                                    left: '1.2rem', 
+                                    top: 0, 
+                                    bottom: 0, 
+                                    marginTop: 'auto', 
+                                    marginBottom: 'auto', 
+                                    color: '#94a3b8', 
+                                    display: 'block' 
+                                  }} 
+                                />
                                 <input
-                type="text"
-                placeholder="Buscar por tema, área o responsable..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ width: '100%', padding: '12px 16px 12px 48px', borderRadius: '16px', border: '2px solid var(--color-border)', backgroundColor: 'var(--color-background)', color: 'var(--color-text)', outline: 'none' }}
-                className="transition-all shadow-sm" />
-
-              
+                                  type="text"
+                                  placeholder="Buscar por tema, área o responsable..."
+                                  value={searchTerm}
+                                  onChange={(e) => setSearchTerm(e.target.value)}
+                                  style={{ width: '100%', height: '50px', paddingLeft: '3.5rem', paddingRight: '1rem', borderRadius: '16px', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface)', color: 'var(--color-text)', outline: 'none', boxSizing: 'border-box' }}
+                                  className="transition-all shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-medium text-sm" 
+                                />
                             </div>
                             {talks.length > 0 &&
             <button onClick={handleExportCSV} className="flex-[0_1_auto] flex items-center gap-[0.4rem] bg-[var(--color-primary)] border-none rounded-[16px] p-[1rem_1.5rem] text-[1rem] font-[800] cursor-pointer text-[#ffffff] box-shadow-[0_4px_15px_rgba(0,0,0,0.1)]">

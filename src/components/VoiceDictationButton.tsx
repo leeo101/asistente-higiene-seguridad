@@ -166,7 +166,65 @@ export default function VoiceDictationButton({
     lg: 'w-12 h-12 rounded-2xl text-base',
   }[size];
 
-  const iconSizes = { sm: 14, md: 18, lg: 22 }[size];
+  const iconSizes = { sm: 16, md: 18, lg: 22 }[size];
+
+  const getButtonStyle = (): React.CSSProperties => {
+    const dim = size === 'sm' ? '34px' : size === 'lg' ? '46px' : '40px';
+    const rad = size === 'sm' ? '8px' : '12px';
+
+    if (isListening) {
+      return {
+        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+        color: '#ffffff',
+        border: '1px solid #fca5a5',
+        boxShadow: '0 4px 15px rgba(239, 68, 68, 0.5)',
+        width: dim,
+        height: dim,
+        minWidth: dim,
+        minHeight: dim,
+        borderRadius: rad,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        outline: 'none',
+      };
+    }
+    if (isProcessingAI) {
+      return {
+        background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
+        color: '#ffffff',
+        border: '1px solid #c4b5fd',
+        boxShadow: '0 4px 15px rgba(139, 92, 246, 0.4)',
+        width: dim,
+        height: dim,
+        minWidth: dim,
+        minHeight: dim,
+        borderRadius: rad,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'wait',
+        outline: 'none',
+      };
+    }
+    return {
+      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+      color: '#ffffff',
+      border: '1px solid #6ee7b7',
+      boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)',
+      width: dim,
+      height: dim,
+      minWidth: dim,
+      minHeight: dim,
+      borderRadius: rad,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: 'pointer',
+      outline: 'none',
+    };
+  };
 
   return (
     <div className={`relative inline-flex items-center ${className}`}>
@@ -174,25 +232,44 @@ export default function VoiceDictationButton({
         type="button"
         onClick={toggleListening}
         disabled={isProcessingAI}
-        title={isListening ? 'Detener dictado' : placeholder}
-        className={`relative flex items-center justify-center transition-all duration-300 cursor-pointer outline-none border ${buttonSizeClasses} ${
-          isListening
-            ? 'bg-red-500 text-white border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.5)] animate-pulse'
-            : isProcessingAI
-            ? 'bg-purple-500/20 text-purple-400 border-purple-500/30 cursor-wait'
-            : 'bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border-slate-700 hover:border-slate-600 shadow-sm'
-        }`}
+        title={isListening ? 'Detener dictado' : 'Dictar por voz 🎙️'}
+        style={getButtonStyle()}
+        className="hover:scale-105 active:scale-95 transition-transform"
       >
         {isProcessingAI ? (
-          <Loader2 size={iconSizes} className="animate-spin text-purple-400" />
+          <Loader2 size={iconSizes} color="#ffffff" className="animate-spin" style={{ stroke: '#ffffff', color: '#ffffff' }} />
         ) : isListening ? (
-          <MicOff size={iconSizes} className="animate-bounce" />
+          <MicOff size={iconSizes} color="#ffffff" className="animate-bounce" style={{ stroke: '#ffffff', color: '#ffffff' }} />
         ) : (
-          <Mic size={iconSizes} className="transition-transform group-hover:scale-110" />
+          <div className="flex items-center justify-center">
+            <svg 
+              width={iconSizes} 
+              height={iconSizes} 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="#ffffff" 
+              strokeWidth="2.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              style={{ 
+                width: `${iconSizes}px`, 
+                height: `${iconSizes}px`, 
+                minWidth: `${iconSizes}px`, 
+                minHeight: `${iconSizes}px`, 
+                stroke: '#ffffff', 
+                color: '#ffffff', 
+                display: 'block' 
+              }}
+            >
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+              <line x1="12" y1="19" x2="12" y2="22" />
+            </svg>
+          </div>
         )}
 
         {enableAI && !isListening && !isProcessingAI && (
-          <Sparkles size={10} className="absolute -top-1 -right-1 text-amber-400 fill-amber-400" />
+          <Sparkles size={11} color="#fde047" style={{ position: 'absolute', top: '-3px', right: '-3px', stroke: '#fde047', fill: '#fde047' }} />
         )}
       </button>
     </div>

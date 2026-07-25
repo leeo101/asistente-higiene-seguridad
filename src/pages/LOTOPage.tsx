@@ -128,12 +128,32 @@ export default function LOTOPage(): React.ReactElement | null {
             </div>
 
             {/* Search & Add Mobile */}
-            {isMobile &&
-        <div className="p-[0_1rem_1rem] flex gap-[0.75rem]">
-                    <div className="flex-[1] relative">
-                        <Search size={18} color="var(--color-text-muted)" className="absolute left-4 top-1/2 -translate-y-1/2" />
-                        <input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.75rem_1rem_0.75rem_2.5rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.95rem]" />
-                    </div>
+            {isMobile && (
+              <div className="p-[0_1rem_1rem] flex gap-[0.75rem]">
+                <div className="flex-[1] relative min-w-0 h-[44px]">
+                  <Search 
+                    size={18} 
+                    color="var(--color-text-muted)" 
+                    className="pointer-events-none z-10" 
+                    style={{ 
+                      position: 'absolute', 
+                      left: '0.85rem', 
+                      top: 0, 
+                      bottom: 0, 
+                      marginTop: 'auto', 
+                      marginBottom: 'auto', 
+                      display: 'block' 
+                    }} 
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Buscar..." 
+                    value={searchTerm} 
+                    onChange={(e) => setSearchTerm(e.target.value)} 
+                    style={{ width: '100%', height: '44px', paddingLeft: '2.5rem', paddingRight: '1rem', outline: 'none', boxSizing: 'border-box' }}
+                    className="rounded-[var(--radius-lg)] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.95rem]" 
+                  />
+                </div>
                     <button 
                       onClick={() => navigate('/loto/new')} 
                       className="w-[auto] m-[0] p-[0_1rem] flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"

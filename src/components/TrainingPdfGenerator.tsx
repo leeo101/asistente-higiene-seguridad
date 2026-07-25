@@ -4,7 +4,7 @@ import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
 
-export default function TrainingPdfGenerator({ data, onBack = () => window.history.back(), isHeadless = false }: {data: any;onBack?: () => void;isHeadless?: boolean;}): React.ReactElement | null {
+export default function TrainingPdfGenerator({ data, onBack = () => window.history.back(), isHeadless = false, id = 'pdf-content' }: {data: any;onBack?: () => void;isHeadless?: boolean;id?: string;}): React.ReactElement | null {
   const training = data;
   const componentRef = useRef<HTMLDivElement>(null);
 
@@ -43,7 +43,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
   } catch (e) {}
 
   return (
-    <div className="container pb-[3rem] min-h-[100vh] flex flex-col">
+    <div className={isHeadless ? 'container h-auto flex flex-col' : 'container pb-[3rem] min-h-[100vh] flex flex-col'}>
             {/* Header controls (not printed) */}
             <div className="no-print flex items-center justify-space-between mb-[1.5rem] z-[10] flex-wrap gap-[1rem]">
                 <div className="flex items-center gap-[1rem]">
@@ -62,7 +62,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
             {/* Printable Document Area */}
             <div className="flex-[1] flex justify-center overflow-x-[auto]">
                 <div
-          id="pdf-content"
+          id={id}
           className="pdf-container print-area p-[12mm_15mm] bg-[#ffffff] text-[#1e293b] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[9pt] font-family-[Helvetica,_Arial,_sans-serif] border-top-[12px_solid_#2563eb]"
           ref={componentRef}
           style={{

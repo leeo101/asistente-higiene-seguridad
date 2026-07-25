@@ -2851,8 +2851,9 @@ svg.ph-duotone [opacity="0.2"] {
   user-select: none !important;
 }
 
-/* Solo mostrar el offscreen que contiene el elemento marcado para imprimir */
-body.printing-isolated .ats-pdf-offscreen:has(.isolated-print-target) {
+/* Solo mostrar el offscreen que contiene el elemento marcado para imprimir o es el elemento marcado */
+body.printing-isolated .ats-pdf-offscreen:has(.isolated-print-target),
+body.printing-isolated .ats-pdf-offscreen.isolated-print-target {
   position: static !important;
   left: auto !important;
   opacity: 1 !important;
@@ -2862,10 +2863,11 @@ body.printing-isolated .ats-pdf-offscreen:has(.isolated-print-target) {
   min-height: 0 !important;
   height: auto !important;
   display: block !important;
+  visibility: visible !important;
 }
 
-/* Ocultar todos los otros offscreen que NO contienen el target marcado */
-body.printing-isolated .ats-pdf-offscreen:not(:has(.isolated-print-target)) {
+/* Ocultar todos los otros offscreen que NO contienen el target marcado ni son el target marcado */
+body.printing-isolated .ats-pdf-offscreen:not(:has(.isolated-print-target)):not(.isolated-print-target) {
   display: none !important;
   visibility: hidden !important;
 }

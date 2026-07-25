@@ -76,16 +76,28 @@ export default function Ergonomics(): React.ReactElement | null {
             </div>
 
             {/* Search */}
-            <div className="relative mb-8">
-                <Search size={20} className="absolute text-slate-400 pointer-events-none" style={{ left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+            <div className="relative mb-8 h-[52px]">
+                <Search 
+                  size={20} 
+                  className="text-slate-400 pointer-events-none z-10" 
+                  style={{ 
+                    position: 'absolute', 
+                    left: '1.2rem', 
+                    top: 0, 
+                    bottom: 0, 
+                    marginTop: 'auto', 
+                    marginBottom: 'auto', 
+                    display: 'block' 
+                  }} 
+                />
                 <input
-          type="text"
-          placeholder="Buscar por empresa, sector o puesto..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ paddingLeft: '3rem', backgroundColor: 'var(--color-surface)', color: 'var(--color-text)', borderColor: 'var(--color-border)' }}
-          className="w-full py-4 pr-4 rounded-2xl border-2 text-base outline-none shadow-sm focus:border-emerald-500 transition-colors" />
-        
+                  type="text"
+                  placeholder="Buscar por empresa, sector o puesto..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{ width: '100%', height: '52px', paddingLeft: '3.5rem', paddingRight: '1rem', backgroundColor: 'var(--color-surface)', color: 'var(--color-text)', borderColor: 'var(--color-border)', boxSizing: 'border-box', outline: 'none' }}
+                  className="rounded-2xl border-2 text-base shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors font-medium" 
+                />
             </div>
 
             {/* History List */}

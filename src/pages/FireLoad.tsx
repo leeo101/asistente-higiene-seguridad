@@ -514,18 +514,28 @@ return (
                     </div>
                     <div className="my-6 flex flex-wrap gap-4 items-center">
                         <></>
-                        <div className="flex-1 min-w-[250px] relative">
-                            <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 flex items-center justify-center" style={{ left: '16px' }}>
-                                <Search size={18} />
-                            </div>
+                        <div className="flex-1 min-w-[250px] relative h-[48px]">
+                            <Search 
+                              size={18} 
+                              className="text-slate-400 pointer-events-none z-10" 
+                              style={{ 
+                                position: 'absolute', 
+                                left: '1rem', 
+                                top: 0, 
+                                bottom: 0, 
+                                marginTop: 'auto', 
+                                marginBottom: 'auto', 
+                                display: 'block' 
+                              }} 
+                            />
                             <input
-              type="text"
-              placeholder="Buscar por empresa o sector..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ paddingLeft: '44px' }}
-              className="w-full pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
-            
+                              type="text"
+                              placeholder="Buscar por empresa o sector..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              style={{ width: '100%', height: '48px', paddingLeft: '3rem', paddingRight: '1rem', outline: 'none', boxSizing: 'border-box' }}
+                              className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm" 
+                            />
                         </div>
                         <select
             value={filterEmpresa}

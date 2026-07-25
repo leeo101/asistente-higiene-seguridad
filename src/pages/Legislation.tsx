@@ -261,38 +261,44 @@ export default function Legislation(): React.ReactElement | null {
               )}
                                 </select>
                             </div>
-          }
+            }
                     </div>
         }
             </div>
 
-            <div className="relative mb-[2rem]">
-                <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+            <div className="relative mb-[2rem] h-[50px]">
+                <Search 
+                  size={20} 
+                  className="text-slate-400 pointer-events-none z-10" 
+                  style={{ 
+                    position: 'absolute', 
+                    left: '1.2rem', 
+                    top: 0, 
+                    bottom: 0, 
+                    marginTop: 'auto', 
+                    marginBottom: 'auto', 
+                    display: 'block' 
+                  }} 
+                />
                 <input
-          type="text"
-          placeholder="Buscar ley, decreto o palabra clave..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)} className="pl-[3rem] m-[0]" />
-
-        
+                  type="text"
+                  placeholder="Buscar ley, decreto o palabra clave..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)} 
+                  style={{ width: '100%', height: '50px', paddingLeft: '3.5rem', paddingRight: '1rem', boxSizing: 'border-box', outline: 'none' }}
+                  className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm" 
+                />
             </div>
 
             <div className="flex flex-col gap-4">
-                {sortedDocs.map((doc) =>
-        <div key={doc.id} className="card p-[1.2rem]">
-                        <div className="flex justify-space-between items-start mb-[0.8rem]">
+                {sortedDocs.map((doc) => (
+                    <div key={doc.id} className="card p-[1.2rem]">
+                        <div className="flex justify-between items-start mb-[0.8rem]">
                             <div>
                                 <span style={{
-
-
-
-
-
-                background: doc.category === 'Leyes' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-                color: doc.category === 'Leyes' ? 'var(--color-primary)' : '#10b981'
-
-
-              }} className="text-[0.7rem] font-[800] uppercase p-[0.2rem_0.6rem] rounded-[50px] mb-[0.5rem] inline-block">
+                                    background: doc.category === 'Leyes' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                                    color: doc.category === 'Leyes' ? 'var(--color-primary)' : '#10b981'
+                                }} className="text-[0.7rem] font-[800] uppercase p-[0.2rem_0.6rem] rounded-[50px] mb-[0.5rem] inline-block">
                                     {doc.category}
                                 </span>
                                 <div className="flex items-center gap-[0.8rem]">
@@ -438,7 +444,7 @@ export default function Legislation(): React.ReactElement | null {
                             </div>
           }
                     </div>
-        )}
+        ))}
 
                 {filteredDocs.length === 0 &&
         <div className="text-center p-[3rem] opacity-[0.5]">

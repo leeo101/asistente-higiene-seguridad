@@ -927,15 +927,27 @@ export default function ChecklistManager(): React.ReactElement | null {
             
                             <Plus size={20} /> Nuevo Checklist
                         </button>
-                        <div className="flex-[1_1_300px] h-[54px] flex items-center bg-[var(--color-surface)] border-[2px_solid_var(--color-border)] rounded-[16px] px-[1rem] shadow-[0_4px_20px_rgba(0,0,0,0.05)] focus-within:border-[var(--color-primary)] focus-within:shadow-[0_0_0_4px_rgba(37,99,235,0.1)] transition-all">
-                            <Search size={20} className="text-[var(--color-text-muted)] flex-shrink-0 mr-[0.5rem]" />
+                        <div className="flex-[1_1_300px] relative h-[54px]">
+                            <Search 
+                              size={20} 
+                              className="text-[var(--color-text-muted)] pointer-events-none z-10" 
+                              style={{ 
+                                position: 'absolute', 
+                                left: '1.2rem', 
+                                top: 0, 
+                                bottom: 0, 
+                                marginTop: 'auto', 
+                                marginBottom: 'auto', 
+                                display: 'block' 
+                              }} 
+                            />
                             <input
                               type="text"
                               placeholder="Buscar por equipo, empresa o serial..."
                               value={searchTerm}
                               onChange={(e) => setSearchTerm(e.target.value)} 
-                              className="w-full h-full bg-transparent text-[var(--color-text)] text-[1rem] !border-none !outline-none !ring-0 !shadow-none m-0" 
-                              style={{ border: 'none', boxShadow: 'none' }}
+                              style={{ width: '100%', height: '54px', paddingLeft: '3.5rem', paddingRight: '1rem', outline: 'none', boxSizing: 'border-box' }}
+                              className="rounded-[16px] border-[2px_solid_var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[1rem] font-medium focus:border-[var(--color-primary)] transition-all shadow-[0_4px_20px_rgba(0,0,0,0.05)]" 
                             />
                         </div>
                         <div className="flex-[0_1_250px]">

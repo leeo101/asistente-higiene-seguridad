@@ -284,11 +284,11 @@ export default function ConfinedSpace(): React.ReactElement | null {
         title={`Espacio Confinado - ${shareItem?.spaceName || ''}`}
         text={shareItem ? `🕳️ Permiso Ingreso Espacio Confinado\n🆔 Espacio: ${shareItem.spaceName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString('es-AR')}` : ''}
         rawMessage={shareItem ? `🕳️ Permiso Ingreso Espacio Confinado\n🆔 Espacio: ${shareItem.spaceName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString('es-AR')}` : ''}
-        elementIdToPrint="pdf-content"
+        elementIdToPrint="pdf-content-confined"
         fileName={`Espacio_Confinado_${shareItem?.spaceName || 'Sin_Nombre'}.pdf`} />
       
 
-            <div className="fixed left-[0] opacity-[0.01] top-[0] pointer-events-[none]">
+            <div id="pdf-content-confined" className="fixed left-[0] opacity-[0.01] top-[0] pointer-events-[none]">
                 {shareItem && <ConfinedSpacePdf data={shareItem} />}
             </div>
 
@@ -400,41 +400,34 @@ export default function ConfinedSpace(): React.ReactElement | null {
 
 
           
-                        <div className="flex-[1] min-width-[280px] relative">
-                            <Search
-              size={20}
-              color="var(--color-text-muted)" className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)] pointer-events-[none]" />
-
-
-
-
-
-
-
-            
+                        <div className="flex-[1] min-w-[280px] relative h-[50px]">
+                            <Search 
+                              size={20} 
+                              color="var(--color-text-muted)" 
+                              style={{ 
+                                position: 'absolute', 
+                                left: '1.2rem', 
+                                top: 0, 
+                                bottom: 0, 
+                                marginTop: 'auto', 
+                                marginBottom: 'auto', 
+                                display: 'block' 
+                              }} 
+                              className="pointer-events-none z-10" 
+                            />
                             <input
-              type="text"
-              placeholder="Buscar por espacio, ubicación..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] py-[0.85rem] pr-[1rem] pl-[2.8rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.95rem] font-[500] outline-[none] focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" />
-
-
-
-
-
-
-
-
-
-
-
-            
+                              type="text"
+                              placeholder="Buscar por espacio, ubicación..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              style={{ width: '100%', height: '50px', paddingLeft: '3.5rem', paddingRight: '1rem', boxSizing: 'border-box', outline: 'none' }}
+                              className="rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.95rem] font-[500] focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors shadow-sm" 
+                            />
                         </div>
 
                         <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)} className="p-[0.85rem_1.25rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.9rem] font-[600] outline-[none] cursor-pointer">
-
 
 
 

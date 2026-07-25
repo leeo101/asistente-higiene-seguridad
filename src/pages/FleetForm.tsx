@@ -276,16 +276,29 @@ export default function FleetForm(): React.ReactElement | null {
                                 <Plus size={22} strokeWidth={2.5} /> Nueva Inspección
                             </button>
                         </div>
-                        <div className="relative w-full">
-                            <Search size={22} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                        <div className="relative w-full h-[56px]">
+                            <Search 
+                              size={22} 
+                              style={{ 
+                                position: 'absolute', 
+                                left: '1.25rem', 
+                                top: 0, 
+                                bottom: 0, 
+                                marginTop: 'auto', 
+                                marginBottom: 'auto', 
+                                color: '#94a3b8', 
+                                display: 'block' 
+                              }} 
+                              className="pointer-events-none z-10" 
+                            />
                             <input
-                type="text"
-                placeholder="Buscar por patente o conductor..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onFocus={(e) => {e.currentTarget.style.border = '2px solid #3b82f6';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = '0 0 0 4px rgba(59,130,246,0.1)';}}
-                onBlur={(e) => {e.currentTarget.style.border = '2px solid transparent';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = 'none';}}
-                style={{ width: '100%', height: '100%', minHeight: '3.5rem', padding: '0.75rem 1rem 0.75rem 3.5rem', borderRadius: '1rem', border: '2px solid transparent', backgroundColor: 'rgba(241, 245, 249, 0.5)', fontSize: '1rem', outline: 'none', transition: 'all 0.3s', fontWeight: 500, color: 'var(--color-text)' }} />
+                              type="text"
+                              placeholder="Buscar por patente o conductor..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              style={{ width: '100%', height: '56px', paddingLeft: '3.8rem', paddingRight: '1rem', borderRadius: '1rem', fontSize: '1rem', outline: 'none', fontWeight: 500, color: 'var(--color-text)', boxSizing: 'border-box' }}
+                              className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors shadow-sm"
+                            />
                         </div>
                     </div>
 

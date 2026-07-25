@@ -165,11 +165,11 @@ export default function EnvironmentalIncidents() {
           title="Incidente Ambiental"
           text={`Incidente ${shareItem?.id} - ${shareItem?.type}`}
           rawMessage={`Incidente ${shareItem?.id} - ${shareItem?.type}`}
-          elementIdToPrint="pdf-content-hidden"
+          elementIdToPrint="pdf-content-env-inc"
           fileName={`Incidente_${shareItem?.id || 'Env'}.pdf`} />
         
                 
-                <div className="ats-pdf-offscreen">
+                <div id="pdf-content-env-inc" className="ats-pdf-offscreen">
                     {shareItem && <EnvironmentalIncidentPdf report={shareItem} />}
                 </div>
 
@@ -233,15 +233,28 @@ export default function EnvironmentalIncidents() {
                     </div>
                 </div>
 
-                <div className="mb-6 relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                <div className="mb-6 relative h-[50px]">
+                    <Search 
+                      className="text-slate-400 pointer-events-none z-10" 
+                      size={20} 
+                      style={{ 
+                        position: 'absolute', 
+                        left: '1.2rem', 
+                        top: 0, 
+                        bottom: 0, 
+                        marginTop: 'auto', 
+                        marginBottom: 'auto', 
+                        display: 'block' 
+                      }} 
+                    />
                     <input
-            type="text"
-            placeholder="Buscar incidentes por ubicación, tipo o ID..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none" />
-          
+                      type="text"
+                      placeholder="Buscar incidentes por ubicación, tipo o ID..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      style={{ width: '100%', height: '50px', paddingLeft: '3.5rem', paddingRight: '1rem', boxSizing: 'border-box', outline: 'none' }}
+                      className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all shadow-sm" 
+                    />
                 </div>
 
                 {filteredIncidents.length === 0 ?

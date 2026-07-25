@@ -125,24 +125,26 @@ export default function HeaderNotifications() {
 
       {/* ── Dropdown panel ──────────────────────────────────────────────── */}
       {showAlerts && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '54px',
-            right: '0',
-            width: '320px',
-            borderRadius: '18px',
-            padding: '1rem',
-            background: 'rgba(8,14,30,0.95)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255,255,255,0.09)',
-            boxShadow: '0 30px 60px rgba(0,0,0,0.5)',
-            zIndex: 100,
-            maxHeight: '480px',
-            overflowY: 'auto',
-          }}
-        >
+        <>
+          {/* Backdrop for mobile */}
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[990] sm:hidden"
+            onClick={() => setShowAlerts(false)}
+          />
+          <div
+            className="fixed sm:absolute top-[70px] sm:top-[54px] left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 w-[calc(100vw-32px)] sm:w-[360px] max-w-[400px] z-[1000]"
+            style={{
+              borderRadius: '20px',
+              padding: '1rem',
+              background: 'rgba(8,14,30,0.96)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              boxShadow: '0 30px 60px rgba(0,0,0,0.6)',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+            }}
+          >
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
             <span style={{ fontSize: '0.75rem', fontWeight: 900, color: 'rgba(255,255,255,0.85)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
@@ -327,6 +329,7 @@ export default function HeaderNotifications() {
             </div>
           )}
         </div>
+        </>
       )}
     </div>
   );

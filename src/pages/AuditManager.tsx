@@ -291,11 +291,11 @@ export default function AuditManager(): React.ReactElement | null {
         title={`Informe Auditoría - ${shareItem?.auditTitle || shareItem?.title || ''}`}
         text={shareItem ? `📋 Informe de Auditoría EHS\n📌 Título: ${shareItem.auditTitle || shareItem.title}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${shareItem.date || shareItem.scheduledDate}` : ''}
         rawMessage={shareItem ? `📋 Informe de Auditoría EHS\n📌 Título: ${shareItem.auditTitle || shareItem.title}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${shareItem.date || shareItem.scheduledDate}` : ''}
-        elementIdToPrint="pdf-content"
+        elementIdToPrint="pdf-content-audit"
         fileName={`Auditoria_${(shareItem?.auditTitle || shareItem?.title || 'Reporte').replace(/\s+/g, '_')}.pdf`} />
       
 
-            <div className="fixed left-[0] opacity-[0] top-[0] pointer-events-[none]">
+            <div id="pdf-content-audit" className="fixed left-[0] opacity-[0] top-[0] pointer-events-[none]">
                 {shareItem && <AuditPdf data={shareItem} />}
             </div>
 
@@ -427,20 +427,29 @@ export default function AuditManager(): React.ReactElement | null {
                     {/* Search & Filters */}
                     <div className="flex gap-[1rem] mb-[1.5rem] flex-wrap">
           
-                        <div className="flex-[1] min-width-[280px] relative">
-                            <Search
-              size={20}
-              style={{ position: 'absolute', left: '1rem', top: 0, bottom: 0, margin: 'auto', height: '20px', pointerEvents: 'none' }}
-              color="var(--color-text-muted)" />
-            
+                        <div className="flex-[1] min-w-[280px] relative h-[50px]">
+                            <Search 
+                              size={20} 
+                              style={{ 
+                                position: 'absolute', 
+                                left: '1.2rem', 
+                                top: 0, 
+                                bottom: 0, 
+                                marginTop: 'auto', 
+                                marginBottom: 'auto', 
+                                color: 'var(--color-text-muted)', 
+                                display: 'block' 
+                              }} 
+                              className="pointer-events-none z-10" 
+                            />
                             <input
-              type="text"
-              placeholder="Buscar por título, auditor, ubicación..."
-              value={searchTerm}
-              onChange={(e: any) => setSearchTerm(e.target.value)}
-              style={{ paddingLeft: '2.75rem' }}
-              className="input-professional w-[100%] py-[0.85rem] pr-[1rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.95rem] font-[500] outline-[none]" />
-            
+                              type="text"
+                              placeholder="Buscar por título, auditor, ubicación..."
+                              value={searchTerm}
+                              onChange={(e: any) => setSearchTerm(e.target.value)}
+                              style={{ width: '100%', height: '50px', paddingLeft: '3.5rem', paddingRight: '1rem', boxSizing: 'border-box', outline: 'none' }}
+                              className="input-professional rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.95rem] font-[500] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all" 
+                            />
                         </div>
 
                         <select

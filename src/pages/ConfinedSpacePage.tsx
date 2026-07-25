@@ -44,7 +44,6 @@ export default function ConfinedSpacePage(): React.ReactElement | null {
     <div style={{ paddingBottom: isMobile ? '80px' : '2rem' }} className="min-h-[100vh] bg-[var(--color-background)]">
             <div style={{ padding: isMobile ? '1rem' : '1.5rem' }} className="bg-[var(--color-surface)] border-bottom-[1px_solid_var(--color-border)] sticky top-[0] z-[100] backdrop-filter-[blur(20px)]">
                 <div className="flex items-center gap-[1rem] max-w-[1400px] m-[0_auto]">
-                    <></>
                     <div className="flex-[1]">
                         <h1 style={{ fontSize: isMobile ? '1.25rem' : '1.5rem' }} className="m-[0] font-[900]"><Tent size={isMobile ? 20 : 24} className="display-[inline] mr-[0.5rem] vertical-align-[middle]" />Espacios Confinados</h1>
                         <p className="m-[0.25rem_0_0_0] text-[0.85rem] text-[var(--color-text-muted)]">OSHA 1910.146 • {stats.active} activos</p>
@@ -63,9 +62,11 @@ export default function ConfinedSpacePage(): React.ReactElement | null {
 
             {isMobile &&
         <div className="p-[0_1rem_1rem] flex gap-[0.75rem]">
-                    <div className="flex-[1] relative">
-                        <Search size={18} color="var(--color-text-muted)" className="absolute left-4 top-1/2 -translate-y-1/2" />
-                        <input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.75rem_1rem_0.75rem_2.5rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.95rem]" />
+                    <div className="flex-[1] relative min-w-0">
+                        <div style={{ position: 'absolute', left: '0.85rem', top: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', zIndex: 10 }}>
+                          <Search size={18} color="var(--color-text-muted)" style={{ display: 'block' }} />
+                        </div>
+                        <input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', height: '42px', paddingLeft: '2.5rem', paddingRight: '1rem', boxSizing: 'border-box', outline: 'none' }} className="rounded-[var(--radius-lg)] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.95rem]" />
                     </div>
                     <button onClick={() => navigate('/confined-space/new')} className="btn-primary w-[auto] m-[0] p-[0_1rem] flex items-center justify-center"><Plus size={20} /></button>
                 </div>

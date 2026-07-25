@@ -49,6 +49,7 @@ export default function ExtintoresManager() {
   const [showQrModal, setShowQrModal] = useState(false);
   const [shareItem, setShareItem] = useState<any | null>(null);
   const [printItem, setPrintItem] = useState<any | null>(null);
+  const [viewingPdf, setViewingPdf] = useState<any | null>(null);
 
   const [globalShowSignatures, setGlobalShowSignatures] = useState({ operator: false, professional: true, supervisor: false });
   const [globalSignaturesData, setGlobalSignaturesData] = useState({ operatorSignature: '', supervisorSignature: '' });
@@ -440,11 +441,33 @@ export default function ExtintoresManager() {
     return matchesSearch && matchesEmpresa;
   });
 
+  // Vista de previsualización PDF a pantalla completa (individual)
+  if (viewingPdf) {
+    return <ExtinguisherProfilePdf data={viewingPdf} onBack={() => setViewingPdf(null)} />;
+  }
+
   const handlePrintPdf = () => {
     setPrintItem(filtered);
 
     setTimeout(() => {
-      const element = document.getElementById('pdf-content');
+      const element = document.getElementById('pdf-content-print');
+      if (element) {
+        document.body.classList.add('printing-isolated');
+        element.classList.add('isolated-print-target');
+      }
+      window.print();
+      setTimeout(() => {
+        document.body.classList.remove('printing-isolated');
+        if (element) element.classList.remove('isolated-print-target');
+        setPrintItem(null);
+      }, 1000);
+    }, 400);
+  };
+
+  const handlePrintIndividualForm = (itemData: any) => {
+    setPrintItem(itemData);
+    setTimeout(() => {
+      const element = document.getElementById('pdf-content-print');
       if (element) {
         document.body.classList.add('printing-isolated');
         element.classList.add('isolated-print-target');
@@ -879,67 +902,65 @@ export default function ExtintoresManager() {
         title={Array.isArray(shareItem) ? "Inventario de Extintores" : `Ficha Técnica - Extintor #${shareItem?.numero}`}
         text={shareItem ? Array.isArray(shareItem) ? `🧯 Inventario de Extintores\n📊 Total: ${shareItem.length}` : `📋 Ficha de Extintor\n🔥 Chapa: ${shareItem.numero}\n📍 Ubicación: ${shareItem.ubicacion}` : ''}
         rawMessage={''}
-        elementIdToPrint="pdf-content"
+        elementIdToPrint="pdf-portal-container"
         isLandscape={Array.isArray(shareItem) && shareItem.length > 15}
         fileName={Array.isArray(shareItem) ? `Inventario_Extintores_${filterEmpresa || 'Completo'}.pdf` : `Ficha_Extintor_${shareItem?.numero || 'Reporte'}.pdf`} />
 
-            {/* PDF Portal: siempre montado cuando shareItem está activo para que html2canvas lo encuentre */}
-            {shareItem && createPortal(
-        <div
-          id="pdf-portal-container"
-          className="ats-pdf-offscreen active-portal-print"
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            left: '-9999px',
-            top: '-99999px',
-            width: (Array.isArray(shareItem) && shareItem.length > 15) ? '297mm' : '210mm',
-            height: 'auto',
-            overflow: 'visible',
-            opacity: 1,
-            pointerEvents: 'none',
-            zIndex: -9999,
-            background: '#ffffff'
-          }}>
-          {shareItem && !Array.isArray(shareItem)
-            ? <ExtinguisherProfilePdf data={shareItem} isHeadless={true} />
-            : <ExtinguisherPdfGenerator
-                extinguishers={Array.isArray(shareItem) ? shareItem : []}
-                showSignatures={globalShowSignatures}
-                globalSignatures={globalSignaturesData} />
-          }
-        </div>,
-        document.body
-      )}
+            {/* PDF offscreen para compartir — siempre en DOM, contenido condicional */}
+            <div
+              id="pdf-portal-container"
+              className="ats-pdf-offscreen"
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                left: '-9999px',
+                top: '-99999px',
+                width: (Array.isArray(shareItem) && shareItem.length > 15) ? '297mm' : '210mm',
+                height: 'auto',
+                overflow: 'visible',
+                opacity: 1,
+                pointerEvents: 'none',
+                zIndex: -9999,
+                background: '#ffffff'
+              }}>
+              {shareItem && !Array.isArray(shareItem)
+                ? <ExtinguisherProfilePdf data={shareItem} isHeadless={true} />
+                : shareItem && Array.isArray(shareItem)
+                  ? <ExtinguisherPdfGenerator
+                      extinguishers={shareItem}
+                      showSignatures={globalShowSignatures}
+                      globalSignatures={globalSignaturesData} />
+                  : null
+              }
+            </div>
 
-            {/* Print portal separado: solo para window.print() */}
-            {printItem && createPortal(
-        <div
-          id="pdf-content-print"
-          className="ats-pdf-offscreen active-portal-print"
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            left: '-9999px',
-            top: '-99999px',
-            width: (Array.isArray(printItem) && printItem.length > 15) ? '297mm' : '210mm',
-            height: 'auto',
-            overflow: 'visible',
-            opacity: 1,
-            pointerEvents: 'none',
-            zIndex: -9999,
-            background: '#ffffff'
-          }}>
-          {printItem && !Array.isArray(printItem)
-            ? <ExtinguisherProfilePdf data={printItem} isHeadless={true} />
-            : <ExtinguisherPdfGenerator
-                extinguishers={Array.isArray(printItem) ? printItem : []}
-                showSignatures={globalShowSignatures}
-                globalSignatures={globalSignaturesData} />
-          }
-        </div>,
-        document.body
-      )}
+            {/* Print portal — siempre en DOM, contenido condicional */}
+            <div
+              id="pdf-content-print"
+              className="ats-pdf-offscreen"
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                left: '-9999px',
+                top: '-99999px',
+                width: (Array.isArray(printItem) && printItem.length > 15) ? '297mm' : '210mm',
+                height: 'auto',
+                overflow: 'visible',
+                opacity: 1,
+                pointerEvents: 'none',
+                zIndex: -9999,
+                background: '#ffffff'
+              }}>
+              {printItem && !Array.isArray(printItem)
+                ? <ExtinguisherProfilePdf data={printItem} isHeadless={true} />
+                : printItem && Array.isArray(printItem)
+                  ? <ExtinguisherPdfGenerator
+                      extinguishers={printItem}
+                      showSignatures={globalShowSignatures}
+                      globalSignatures={globalSignaturesData} />
+                  : null
+              }
+            </div>
 
             {showCalendar && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -1158,13 +1179,7 @@ export default function ExtintoresManager() {
                             </div>
 
                             <div className="flex gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap justify-end">
-                                <button type="button" onClick={() => {
-                                  setPrintItem(formData);
-                                  setTimeout(() => {
-                                    window.print();
-                                    setTimeout(() => setPrintItem(null), 10000);
-                                  }, 600);
-                                }} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md" style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }}>
+                                <button type="button" onClick={() => handlePrintIndividualForm(formData)} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md" style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }}>
                                     <Printer size={18} /> Generar PDF
                                 </button>
                                 <button type="button" onClick={() => {setShareItem(formData);}} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md" style={{ backgroundColor: '#8b5cf6', color: '#ffffff', border: 'none' }}>
@@ -1181,17 +1196,29 @@ export default function ExtintoresManager() {
 
       <>
                     <div className="mb-[2rem] flex gap-[1rem] flex-wrap items-stretch bg-[var(--color-surface,_#fff)] p-[1.5rem] rounded-[24px] box-shadow-[0_10px_40px_rgba(0,0,0,0.04)] border-[1px_solid_rgba(0,0,0,0.05)]">
-                        <div className="flex-[1_1_250px] relative">
-                            <Search size={22} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                        <div className="flex-[1_1_250px] relative h-[52px]">
+                            <Search 
+                              size={20} 
+                              style={{ 
+                                position: 'absolute', 
+                                left: '1.2rem', 
+                                top: 0, 
+                                bottom: 0, 
+                                marginTop: 'auto', 
+                                marginBottom: 'auto', 
+                                color: '#94a3b8', 
+                                display: 'block' 
+                              }} 
+                              className="pointer-events-none z-10" 
+                            />
                             <input
-              type="text"
-              placeholder="Buscar por Nº, tipo o ubicación..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onFocus={(e) => {e.currentTarget.style.border = '2px solid #3b82f6';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = '0 0 0 4px rgba(59,130,246,0.1)';}}
-              onBlur={(e) => {e.currentTarget.style.border = '2px solid transparent';e.currentTarget.style.backgroundColor = 'transparent';e.currentTarget.style.boxShadow = 'none';}} 
-              style={{ width: '100%', height: '100%', minHeight: '3.5rem', padding: '0.75rem 1rem 0.75rem 3.5rem', borderRadius: '1rem', border: '2px solid transparent', backgroundColor: 'rgba(241, 245, 249, 0.5)', fontSize: '1rem', outline: 'none', transition: 'all 0.3s', fontWeight: 500, color: '#334155' }} />
-            
+                              type="text"
+                              placeholder="Buscar por Nº, tipo o ubicación..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              style={{ width: '100%', height: '52px', paddingLeft: '3.5rem', paddingRight: '1rem', borderRadius: '1rem', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface)', fontSize: '0.95rem', outline: 'none', fontWeight: 600, color: 'var(--color-text)', boxSizing: 'border-box' }}
+                              className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors shadow-sm"
+                            />
                         </div>
                         <div className="flex-[1_1_250px] relative">
                             <select

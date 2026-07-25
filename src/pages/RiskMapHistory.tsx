@@ -127,14 +127,28 @@ export default function RiskMapHistory(): React.ReactElement | null {
                 </button>
             </div>
 
-            <div className="relative mb-[2rem]">
-                <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+            <div className="relative mb-[2rem] h-[50px]">
+                <Search 
+                  size={20} 
+                  className="text-slate-400 pointer-events-none z-10" 
+                  style={{ 
+                    position: 'absolute', 
+                    left: '1rem', 
+                    top: 0, 
+                    bottom: 0, 
+                    marginTop: 'auto', 
+                    marginBottom: 'auto', 
+                    display: 'block' 
+                  }} 
+                />
                 <input
-            type="text"
-            placeholder="Buscar por empresa o sector..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} className="w-full py-3 pr-4 pl-12 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-sm" />
-
+                  type="text"
+                  placeholder="Buscar por empresa o sector..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)} 
+                  style={{ width: '100%', height: '50px', paddingLeft: '3.2rem', paddingRight: '1rem', outline: 'none', boxSizing: 'border-box' }}
+                  className="rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm font-medium" 
+                />
             </div>
 
             <div className="flex flex-col gap-4">

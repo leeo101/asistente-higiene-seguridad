@@ -671,15 +671,29 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             
                             <Plus size={20} /> Nueva Consulta
                         </button>
-                        <div className="flex-[1_1_300px] flex items-center border-[2px] border-slate-200 dark:border-slate-700 rounded-[12px] bg-white dark:bg-slate-900 px-[1rem] focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all shadow-sm" style={{ zIndex: 10, position: 'relative' }}>
-                            <Search size={20} className="mr-[0.5rem] flex-shrink-0" style={{ color: '#64748b' }} />
+                        <div className="flex-[1_1_300px] relative h-[50px]">
+                            <Search 
+                              size={20} 
+                              className="pointer-events-none z-10" 
+                              style={{ 
+                                position: 'absolute', 
+                                left: '1rem', 
+                                top: 0, 
+                                bottom: 0, 
+                                marginTop: 'auto', 
+                                marginBottom: 'auto', 
+                                color: '#64748b', 
+                                display: 'block' 
+                              }} 
+                            />
                             <input
-              type="text"
-              placeholder="Buscar en consultas..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} className="w-full py-3 bg-transparent border-none outline-none text-slate-800 dark:text-slate-200 m-0" />
-
-            
+                              type="text"
+                              placeholder="Buscar en consultas..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)} 
+                              style={{ width: '100%', height: '50px', paddingLeft: '3rem', paddingRight: '1rem', outline: 'none', boxSizing: 'border-box' }}
+                              className="rounded-[12px] border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm" 
+                            />
                         </div>
                         {history.length > 0 &&
           <button onClick={handleExportCSV} className="flex-[0_1_auto] flex items-center gap-[0.4rem] bg-[var(--color-primary)] border-none rounded-[16px] p-[1rem_1.5rem] text-[1rem] font-[800] cursor-pointer text-[#ffffff] box-shadow-[0_4px_15px_rgba(0,0,0,0.1)]">

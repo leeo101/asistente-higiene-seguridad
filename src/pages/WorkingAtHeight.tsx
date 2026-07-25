@@ -355,53 +355,39 @@ export default function WorkingAtHeight(): React.ReactElement | null {
                 </button>
             </div>
 
-
             {/* Content by Tab */}
             {activeTab === 'permits' &&
       <>
                     {/* Search & Filters */}
                     <div className="flex gap-[1rem] mb-[1.5rem] flex-wrap">
-
-
-
-
-          
-                        <div className="flex-[1] min-width-[280px] relative">
-                            <Search
-              size={20}
-              color="var(--color-text-muted)" className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)] pointer-events-[none]" />
-
-
-
-
-
-
-
-            
+                        <div className="flex-[1] min-w-[280px] relative h-[50px]">
+                            <Search 
+                              size={20} 
+                              color="var(--color-text-muted)" 
+                              style={{ 
+                                position: 'absolute', 
+                                left: '1.2rem', 
+                                top: 0, 
+                                bottom: 0, 
+                                marginTop: 'auto', 
+                                marginBottom: 'auto', 
+                                display: 'block' 
+                              }} 
+                              className="pointer-events-none z-10" 
+                            />
                             <input
-              type="text"
-              placeholder="Buscar por trabajador, ubicación..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.85rem_1rem_0.85rem_3rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.95rem] font-[500] outline-[none]" />
-
-
-
-
-
-
-
-
-
-
-
-            
+                              type="text"
+                              placeholder="Buscar por trabajador, ubicación..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              style={{ width: '100%', height: '50px', paddingLeft: '3.5rem', paddingRight: '1rem', boxSizing: 'border-box', outline: 'none' }}
+                              className="rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.95rem] font-[500] focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all shadow-sm" 
+                            />
                         </div>
 
                         <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)} className="p-[0.85rem_1.25rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.9rem] font-[600] outline-[none] cursor-pointer">
-
-
 
 
 

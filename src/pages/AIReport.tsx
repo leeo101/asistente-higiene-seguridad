@@ -61,11 +61,22 @@ export default function AIReport(): React.ReactElement | null {
 
   if (!data) return <div className="container">Cargando...</div>;
 
-  const handlePrint = () => requirePro(() => window.print());
+  const handlePrint = () => requirePro(() => {
+    const el = document.getElementById('pdf-content');
+    if (el) {
+      document.body.classList.add('printing-isolated');
+      el.classList.add('isolated-print-target');
+    }
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove('printing-isolated');
+      if (el) el.classList.remove('isolated-print-target');
+    }, 1000);
+  });
 
   return (
-    <div className="container max-w-[1000px]">
-            <ShareModal
+    <div className="container max-w-5xl mx-auto pt-6 md:pt-10 pb-24 px-4">
+      <ShareModal
         isOpen={showShare}
         open={showShare}
         onClose={() => setShowShare(false)}
@@ -73,13 +84,14 @@ export default function AIReport(): React.ReactElement | null {
         text={`🤖 INFORME DE INSPECCIÓN IA\n\n🏗️ Empresa: ${company}\n📍 Ubicación: ${location}\n📅 Fecha: ${data ? new Date(data.date).toLocaleString() : ''}\n⚠️ Estado: ${data?.analysis?.ppeComplete ? '✅ EPP Completo' : '⚠️ Falta EPP / Peligro'}\n\nGenerado con Asistente HYS`}
         rawMessage={`🤖 INFORME DE INSPECCIÓN IA\n\n🏗️ Empresa: ${company}\n📍 Ubicación: ${location}\n📅 Fecha: ${data ? new Date(data.date).toLocaleString() : ''}\n⚠️ Estado: ${data?.analysis?.ppeComplete ? '✅ EPP Completo' : '⚠️ Falta EPP / Peligro'}\n\nGenerado con Asistente HYS`}
         elementIdToPrint="pdf-content"
-        fileName={`Informe_IA_${company?.replace(/\s+/g, '_') || 'Sin_Nombre'}.pdf`} />
+        fileName={`Informe_IA_${company?.replace(/\s+/g, '_') || 'Sin_Nombre'}.pdf`} 
+      />
       
-            <div className="no-print flex justify-between items-center mb-[2.5rem] mt-[1rem]">
-                <button onClick={() => navigate(-1)} className="flex items-center gap-[0.5rem] bg-[linear-gradient(135deg,_#3b82f6_0%,_#2563eb_100%)] text-white border-none p-[0.7rem_1.5rem] rounded-[100px] font-[900] text-[0.85rem] transition-all duration-300 hover:scale-[1.05] hover:box-shadow-[0_6px_20px_rgba(59,130,246,0.5)] box-shadow-[0_4px_15px_rgba(59,130,246,0.3)] cursor-pointer">
-                    <ArrowLeft size={18} className="text-white" /> VOLVER AL HISTORIAL
-                </button>
-            </div>
+      <div className="no-print flex justify-between items-center mb-8">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-none py-3 px-6 rounded-2xl font-black text-xs transition-all shadow-lg shadow-blue-500/25 cursor-pointer hover:scale-105 active:scale-95">
+          <ArrowLeft size={18} className="text-white" /> VOLVER AL HISTORIAL
+        </button>
+      </div>
 
             <div id="pdf-content" className="card report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0 p-[3rem] min-h-[29.7cm] h-[auto] bg-[#ffffff] text-[#1e293b] box-shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] relative">
 

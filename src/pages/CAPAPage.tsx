@@ -46,7 +46,17 @@ export default function CAPAPage(): React.ReactElement | null {
                 <StatCard label="Críticas" value={stats.critical} color="#dc2626" icon={<AlertTriangle size={isMobile ? 18 : 20} />} isMobile={isMobile} />
                 <StatCard label="Completadas" value={stats.completed} color="#16a34a" icon={<CheckCircle2 size={isMobile ? 18 : 20} />} isMobile={isMobile} />
             </div>
-            {isMobile && <div className="p-[0_1rem_1rem] flex gap-[0.75rem]"><div className="flex-[1] relative min-width-[0]"><Search size={16} color="var(--color-text-muted)" className="absolute left-[0.75rem] top-[50%] transform-[translateY(-50%)]" /><input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.65rem_0.75rem_0.65rem_2.25rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.85rem] box-sizing-[border-box]" /></div><button onClick={() => navigate('/capa/new')} className="btn-primary w-[auto] m-[0] p-[0_0.85rem] flex items-center justify-center flex-shrink-[0]"><Plus size={18} /></button></div>}
+            {isMobile && (
+              <div className="p-[0_1rem_1rem] flex gap-[0.75rem]">
+                <div className="flex-[1] relative min-w-0">
+                  <div style={{ position: 'absolute', left: '0.75rem', top: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', zIndex: 10 }}>
+                    <Search size={16} color="var(--color-text-muted)" style={{ display: 'block' }} />
+                  </div>
+                  <input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', height: '40px', paddingLeft: '2.5rem', paddingRight: '0.75rem', boxSizing: 'border-box', outline: 'none' }} className="rounded-[var(--radius-lg)] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[0.85rem]" />
+                </div>
+                <button onClick={() => navigate('/capa/new')} className="btn-primary w-[auto] m-[0] p-[0_0.85rem] flex items-center justify-center flex-shrink-[0]"><Plus size={18} /></button>
+              </div>
+            )}
             <div style={{ padding: isMobile ? '0 1rem' : '0 1.5rem' }} className="max-w-[1400px] m-[0_auto] flex flex-col gap-[0.75rem]">
                 {filtered.length === 0 ?
           <EmptyStateIllustrated

@@ -235,11 +235,11 @@ export default function LOTOManager(): React.ReactElement | null {
         title={`Procedimiento LOTO - ${shareItem?.equipmentName || ''}`}
         text={shareItem ? `🔒 Procedimiento LOTO\n⚙️ Equipo: ${shareItem.equipmentName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString('es-AR')}` : ''}
         rawMessage={shareItem ? `🔒 Procedimiento LOTO\n⚙️ Equipo: ${shareItem.equipmentName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString('es-AR')}` : ''}
-        elementIdToPrint="pdf-content"
+        elementIdToPrint="pdf-content-loto"
         fileName={`LOTO_${shareItem?.equipmentName || 'Procedimiento'}.pdf`} />
       
 
-            <div className="fixed left-[0] opacity-[0.01] top-[0] pointer-events-[none]">
+            <div id="pdf-content-loto" className="fixed left-[0] opacity-[0.01] top-[0] pointer-events-[none]">
                 {shareItem && <LOTOPdf data={shareItem} />}
             </div>
             <PremiumHeader
@@ -334,19 +334,29 @@ export default function LOTOManager(): React.ReactElement | null {
       <>
                     {/* Search & Filters */}
                     <div className="flex gap-4 mb-6 flex-wrap">
-                        <div className="flex-1 min-w-[280px] relative">
-                            <Search
-              size={20}
-              color="var(--color-text-muted)"
-              className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-            
+                        <div className="flex-1 min-w-[280px] relative h-[50px]">
+                            <Search 
+                              size={20} 
+                              color="var(--color-text-muted)" 
+                              style={{ 
+                                position: 'absolute', 
+                                left: '1.2rem', 
+                                top: 0, 
+                                bottom: 0, 
+                                marginTop: 'auto', 
+                                marginBottom: 'auto', 
+                                display: 'block' 
+                              }} 
+                              className="pointer-events-none z-10" 
+                            />
                             <input
-              type="text"
-              placeholder="Buscar por equipo, ubicación, departamento..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors" />
-            
+                              type="text"
+                              placeholder="Buscar por equipo, ubicación, departamento..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              style={{ width: '100%', height: '50px', paddingLeft: '3.5rem', paddingRight: '1rem', boxSizing: 'border-box', outline: 'none' }}
+                              className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm" 
+                            />
                         </div>
 
                         <select

@@ -312,15 +312,28 @@ export default function Legajos() {
       {/* Search & Filter Bar */}
       {legajos.length > 0 &&
         <div className="flex gap-4 mb-6 flex-wrap">
-              <div className="flex-[1_1_300px] relative">
-                  <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <div className="flex-[1_1_300px] relative h-[50px]">
+                  <Search 
+                    size={20} 
+                    className="text-slate-400 pointer-events-none z-10" 
+                    style={{ 
+                      position: 'absolute', 
+                      left: '1.2rem', 
+                      top: 0, 
+                      bottom: 0, 
+                      marginTop: 'auto', 
+                      marginBottom: 'auto', 
+                      display: 'block' 
+                    }} 
+                  />
                   <input
-              type="text"
-              placeholder="Buscar por empresa o CUIT..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full py-3 pr-4 pl-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500" />
-            
+                    type="text"
+                    placeholder="Buscar por empresa o CUIT..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{ width: '100%', height: '50px', paddingLeft: '3.5rem', paddingRight: '1rem', boxSizing: 'border-box', outline: 'none' }}
+                    className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-medium text-slate-800 dark:text-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm" 
+                  />
               </div>
               <select
             value={statusFilter}

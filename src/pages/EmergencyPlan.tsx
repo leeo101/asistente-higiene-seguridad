@@ -181,9 +181,28 @@ export default function EmergencyPlan() {
 
         <div className="mt-8">
                         <div className="flex justify-space-between mb-[1.5rem]">
-                            <div style={{ width: isMobile ? '100%' : '300px' }} className="relative">
-                                <Search size={18} className="absolute left-[1rem] top-[50%] transform-[translateY(-50%)] text-[#64748b]" />
-                                <input type="text" placeholder="Buscar plan..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-[100%] p-[0.75rem_1rem_0.75rem_2.5rem] rounded-[8px] border-[1px_solid_var(--color-border)]" />
+                            <div style={{ width: isMobile ? '100%' : '300px' }} className="relative h-[50px]">
+                                <Search 
+                                  size={20} 
+                                  className="text-[#64748b] pointer-events-none z-10" 
+                                  style={{ 
+                                    position: 'absolute', 
+                                    left: '1.2rem', 
+                                    top: 0, 
+                                    bottom: 0, 
+                                    marginTop: 'auto', 
+                                    marginBottom: 'auto', 
+                                    display: 'block' 
+                                  }} 
+                                />
+                                <input
+                                  type="text"
+                                  placeholder="Buscar plan..."
+                                  value={searchTerm}
+                                  onChange={(e) => setSearchTerm(e.target.value)}
+                                  style={{ width: '100%', height: '50px', paddingLeft: '3.5rem', paddingRight: '1rem', boxSizing: 'border-box', outline: 'none' }}
+                                  className="rounded-[8px] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm" 
+                                />
                             </div>
                             {!isMobile &&
             <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-[0.5rem]">

@@ -141,13 +141,29 @@ export function DataTable<T extends Record<string, any>>({
           flexDirection: isMobile ? 'column' : 'row',
           alignItems: isMobile ? 'stretch' : 'center'
         }} className="flex justify-space-between border-bottom-[1px_solid_var(--color-border)] gap-[1rem] bg-[rgba(255,_255,_255,_0.02)]">
-          <div style={{ maxWidth: isMobile ? 'none' : '400px' }} className="relative flex-[1_1_auto]">
-            <Search size={18} color="var(--color-text-muted)" className="absolute left-4 top-1/2 -translate-y-1/2" />
+          <div style={{ maxWidth: isMobile ? 'none' : '400px' }} className="relative flex-[1_1_auto] h-[42px]">
+            <Search 
+              size={18} 
+              color="var(--color-text-muted)" 
+              className="pointer-events-none z-10" 
+              style={{ 
+                position: 'absolute', 
+                left: '0.85rem', 
+                top: 0, 
+                bottom: 0, 
+                marginTop: 'auto', 
+                marginBottom: 'auto', 
+                display: 'block' 
+              }} 
+            />
             <input
               type="text"
               placeholder={searchPlaceholder}
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} className="w-full py-2.5 pr-4 pl-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm" />
+              onChange={(e) => setSearchTerm(e.target.value)} 
+              style={{ width: '100%', height: '42px', paddingLeft: '2.6rem', paddingRight: '1rem', boxSizing: 'border-box', outline: 'none' }}
+              className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm" 
+            />
           </div>
           <div style={{
             justifyContent: isMobile ? 'flex-end' : 'flex-start'
