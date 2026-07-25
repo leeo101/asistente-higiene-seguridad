@@ -451,7 +451,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
           } : null}
           box2={data.showSignatures?.professional !== false ? {
             title: 'INSPECTOR / PROFESIONAL',
-            subtitle: (actName || 'Profesional HSE').toUpperCase(),
+            subtitle: (latestInspection?.inspector || actName || 'Profesional HSE').toUpperCase(),
             signatureUrl: actSignature || null,
             stampUrl: actStamp || null,
             isProfessional: true,

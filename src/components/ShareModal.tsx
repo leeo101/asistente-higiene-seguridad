@@ -286,10 +286,66 @@ export default function ShareModal({
       return;
     }
 
-    if (!elementIdToPrint) return;
+    if (!elementIdToPrint) {
+      toast.error("No se ha especificado el contenido a descargar.");
+      return;
+    }
 
-    // Trigger PDF generation via the same logic as native share, which falls back to download on desktop
-    handleNativeShare('Descargar');
+    setIsGenerating(true);
+    toast.loading('Generando PDF...', { id: 'pdf-gen' });
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+      const pdfBlob = await generatePdfBlob(elementIdToPrint, isLandscape);
+
+      const safeName = propFileName ?
+        (propFileName.endsWith('.pdf') ? propFileName : `${propFileName}.pdf`) :
+        `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
+
+      if (Capacitor.isNativePlatform()) {
+        try {
+          const base64Data = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onerror = reject;
+            reader.onload = () => resolve(reader.result as string);
+            reader.readAsDataURL(pdfBlob);
+          });
+          const base64String = base64Data.split(',')[1];
+
+          await Filesystem.writeFile({
+            path: safeName,
+            data: base64String,
+            directory: Directory.Cache
+          });
+
+          toast.success('¡PDF descargado con éxito!', { id: 'pdf-gen' });
+          onClose();
+        } catch (nativeErr) {
+          console.error("Error al guardar archivo nativo:", nativeErr);
+          toast.error('Error al guardar el archivo PDF.', { id: 'pdf-gen' });
+        }
+        return;
+      }
+
+      // Web direct download (both mobile and desktop browsers)
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = safeName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+      toast.success('¡PDF descargado con éxito!', { id: 'pdf-gen' });
+      onClose();
+    } catch (error: any) {
+      console.error("Error generating/downloading PDF:", error);
+      toast.error(`Error: ${error?.message || 'Error al descargar PDF'}`, { id: 'pdf-gen', duration: 5000 });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const options = [

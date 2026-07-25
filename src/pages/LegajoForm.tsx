@@ -416,7 +416,7 @@ export default function LegajoForm() {
       return name.toLowerCase()
                  .replace(/\s+/g, ' ')
                  .replace(/(s\.a\.|srl|s\.r\.l\.|s\.a|sa)/g, '')
-                 .replace(/[.,\/#!$%\^&\*;:{}=\-_~()]/g, '') // Backtick removed to prevent template string issue
+                 .replace(/[.,/#!$%^&*;:{}=\-_~()]/g, '') // Backtick removed to prevent template string issue
                  .trim();
     };
 

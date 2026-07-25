@@ -1010,8 +1010,8 @@ export default function ChecklistManager(): React.ReactElement | null {
           open={showShare}
           onClose={() => setShowShare(false)}
           title={`Checklist – ${companyInfo?.name || ''}`}
-          text={`📋 Checklist de Inspecciónn🏗️ Empresa: ${companyInfo?.name || '-'}n📍 Ubicación: ${companyInfo?.address || '-'}n👷 Responsable: ${companyInfo?.responsable || '-'}nnGenerado con Asistente H&S`}
-          rawMessage={`📋 Checklist de Inspecciónn🏗️ Empresa: ${companyInfo?.name || '-'}n📍 Ubicación: ${companyInfo?.address || '-'}n👷 Responsable: ${companyInfo?.responsable || '-'}nnGenerado con Asistente H&S`}
+          text={`📋 Checklist de Inspección\n🏗️ Empresa: ${companyInfo?.name || '-'}\n📍 Ubicación: ${companyInfo?.address || '-'}\n👷 Responsable: ${companyInfo?.responsable || '-'}\n\nGenerado con Asistente H&S`}
+          rawMessage={`📋 Checklist de Inspección\n🏗️ Empresa: ${companyInfo?.name || '-'}\n📍 Ubicación: ${companyInfo?.address || '-'}\n👷 Responsable: ${companyInfo?.responsable || '-'}\n\nGenerado con Asistente H&S`}
           elementIdToPrint="pdf-content-editor"
           fileName={`Checklist_${companyInfo?.name || 'Reporte'}.pdf`} />
         
