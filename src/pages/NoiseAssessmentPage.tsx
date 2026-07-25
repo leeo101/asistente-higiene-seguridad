@@ -171,8 +171,6 @@ export default function NoiseAssessmentPage(): React.ReactElement | null {
           }
             </div>
 
-            </div>
-
             {selectedMeasurement &&
       <DetailModal
         measurement={selectedMeasurement}

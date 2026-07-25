@@ -170,7 +170,7 @@ export default function LOTOPage(): React.ReactElement | null {
                         <Plus size={20} color="#ffffff" />
                     </button>
                 </div>
-        }
+            )}
 
             {/* Procedures List */}
             <div style={{ padding: isMobile ? '0 1rem' : '0 1.5rem' }} className="max-w-[1400px] m-[0_auto] flex flex-col gap-[0.75rem]">
