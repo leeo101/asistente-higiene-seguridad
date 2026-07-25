@@ -85,30 +85,39 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
     }
   } catch (e) {}
 
-  let latestInspection = null;
-  try {
-    const historyRaw = localStorage.getItem('extintores_history');
-    if (historyRaw) {
-      const history = JSON.parse(historyRaw);
-      latestInspection = history.find((h) => String(h.extintorId) === String(data.id)) || null;
-    }
-    if (!latestInspection && data.inspections && data.inspections.length > 0) {
-      const last = data.inspections[data.inspections.length - 1];
-      latestInspection = {
-        fecha: last.fechaVisita ? last.fechaVisita + 'T12:00:00Z' : new Date().toISOString(),
-        inspector: '-',
-        resultado: last.resultado === 'C' ? 'APROBADO' : 'RECHAZADO',
-        items: [
-        { text: 'Manómetro (presión operable)', status: last.controles?.manometro || 'C', observacion: '' },
-        { text: 'Acceso sin obstrucciones', status: last.controles?.acceso || 'C', observacion: '' },
-        { text: 'Señalización reglamentaria', status: last.controles?.senalizacion || 'C', observacion: '' },
-        { text: 'Manguera y boquilla', status: last.controles?.manguera || 'C', observacion: '' },
-        { text: 'Estado físico del cilindro', status: last.controles?.cilindro || 'C', observacion: '' }],
-
-        observaciones: last.observacion || ''
-      };
-    }
-  } catch (e) {}
+  let latestInspection = data?.selectedInspection || null;
+  if (!latestInspection) {
+    try {
+      const historyRaw = localStorage.getItem('extintores_history');
+      if (historyRaw) {
+        const history = JSON.parse(historyRaw);
+        const matches = history.filter((h: any) =>
+          String(h.extintorId) === String(data.id) ||
+          String(h.extintorNum) === String(data.numero || data.chapa)
+        );
+        if (matches.length > 0) {
+          matches.sort((a: any, b: any) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+          latestInspection = matches[0];
+        }
+      }
+      if (!latestInspection && data.inspections && data.inspections.length > 0) {
+        const last = data.inspections[data.inspections.length - 1];
+        latestInspection = {
+          fecha: last.fechaVisita ? last.fechaVisita + 'T12:00:00Z' : new Date().toISOString(),
+          inspector: '-',
+          resultado: last.resultado === 'C' ? 'APROBADO' : 'RECHAZADO',
+          items: [
+            { text: 'Manómetro (presión operable)', status: last.controles?.manometro || 'C', notes: '' },
+            { text: 'Acceso sin obstrucciones', status: last.controles?.acceso || 'C', notes: '' },
+            { text: 'Señalización reglamentaria', status: last.controles?.senalizacion || 'C', notes: '' },
+            { text: 'Manguera y boquilla', status: last.controles?.manguera || 'C', notes: '' },
+            { text: 'Estado físico del cilindro', status: last.controles?.cilindro || 'C', notes: '' }
+          ],
+          observaciones: last.observacion || ''
+        };
+      }
+    } catch (e) {}
+  }
 
   return (
     <div id="extinguisher-profile-wrap" className="container pb-[3rem] min-h-[100vh] flex flex-col">
@@ -156,7 +165,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
 
 
 
-                    <style type="text/css" media="print">
+                    <style type="text/css">
                         {`
                             @page { size: A4 portrait; margin: 10mm; }
                             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -166,14 +175,15 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                 margin: 0 !important; 
                                 padding: 10mm !important; 
                                 width: 100% !important; 
-                                max-width: none !important; /* Vital para que llene el ancho virtual de html2canvas */
+                                max-width: none !important;
                                 border: none !important;
                                 min-height: 0 !important;
                                 height: auto !important;
                                 display: block !important;
+                                overflow: visible !important;
                             }
                             #extinguisher-profile-wrap, #pdf-content {
-                                font-size: 0.75rem !important; /* Usamos tamaño de fuente menor puro en vez de scale para no romper el PDF */
+                                font-size: 0.75rem !important;
                                 width: 100% !important;
                                 padding: 0 !important;
                                 padding-bottom: 0 !important;
@@ -181,13 +191,26 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                 height: auto !important;
                                 margin: 0 !important;
                                 display: block !important;
+                                overflow: visible !important;
+                            }
+                            #pdf-content td, #pdf-content th {
+                                padding: 4px 6px !important;
+                                font-size: 8.5pt !important;
+                                line-height: 1.3 !important;
+                                box-sizing: border-box !important;
+                            }
+                            .pdf-export-mode #pdf-content td, .pdf-export-mode #pdf-content th {
+                                padding: 4px 6px !important;
+                                font-size: 8.5pt !important;
+                            }
+                            .pdf-export-mode #pdf-content {
+                                overflow: visible !important;
                             }
                             #extinguisher-profile-wrap > div {
                                 flex: none !important;
                                 display: block !important;
                                 min-height: 0 !important;
                             }
-                            /* Forzar page breaks limpios */
                             .avoid-break {
                                 page-break-inside: avoid !important;
                                 break-inside: avoid !important;
@@ -325,44 +348,56 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                              </div> :
             null}
                         <div className="mb-[10px]">
-                        {latestInspection &&
-              <div style={{ marginTop: data.ultimaInspeccion && !latestInspection ? '10px' : '0' }}>
-                            <div className="flex justify-between mb-[6px] text-[9pt] bg-slate-50 dark:bg-slate-800/50 p-[6px] rounded-[8px] border border-slate-200">
-                                <div><strong className="text-slate-500">Fecha:</strong> <span className="font-extrabold">{new Date(latestInspection.fecha).toLocaleDateString('es-AR')}</span></div>
-                                <div><strong className="text-slate-500">Inspector:</strong> <span className="font-extrabold">{latestInspection.inspector || '-'}</span></div>
-                                <div><strong className="text-slate-500">Resultado de inspección:</strong> <span className="inline-block w-[100px] border-b border-slate-500 ml-[5px]"></span></div>
-                            </div>
-                            
-                            <table className="w-full border-collapse table-fixed break-words text-[8.5pt] font-sans mt-2">
-                                <thead>
-                                    <tr className="avoid-break break-inside-avoid bg-slate-100 dark:bg-slate-800/50">
-                                        <th className="border border-slate-300 p-1 text-left w-[60%]">Ítem a Verificar</th>
-                                        <th className="border border-slate-300 p-1 text-center w-[15%]">Estado</th>
-                                        <th className="border border-slate-300 p-1 text-left w-[25%]">Observación</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {latestInspection.items?.map((item, idx) =>
-                                        <tr key={idx} className="avoid-break break-inside-avoid" style={{ background: idx % 2 === 1 ? '#f8fafc' : '#ffffff' }}>
-                                            <td className="border border-slate-300 p-1 text-slate-700 dark:text-slate-300 font-semibold">
-                                                {item.text}
-                                            </td>
-                                            <td style={{ color: item.status === 'OK' ? '#10b981' : item.status === 'NC' ? '#ef4444' : '#64748b' }} className="border border-slate-300 p-1 text-center font-black">
-                                                {item.status || 'N/A'}
-                                            </td>
-                                            <td className="border border-slate-300 p-1 text-slate-500 italic">
-                                                {item.observacion && item.observacion.trim().length > 0 ? item.observacion : 'Sin observación'}
-                                            </td>
-                                        </tr>
-                    )}
-                                </tbody>
-                            </table>
-                            {latestInspection.observaciones &&
-                <div className="mt-[10px] text-[9pt] bg-[#fffbeb] p-[10px] rounded-[8px] border-[1px_solid_#fde68a] text-[#92400e] avoid-break">
-                                    <strong className="block mb-[4px]">Observaciones Generales:</strong>
-                                    {latestInspection.observaciones}
+                        {latestInspection && (
+                            <div>
+                                <div className="flex justify-between mb-[6px] text-[9pt] bg-slate-50 dark:bg-slate-800/50 p-[6px] rounded-[8px] border border-slate-200">
+                                    <div><strong className="text-slate-500">Fecha:</strong> <span className="font-extrabold">{new Date(latestInspection.fecha).toLocaleDateString('es-AR')}</span></div>
+                                    <div><strong className="text-slate-500">Inspector:</strong> <span className="font-extrabold">{latestInspection.inspector || '-'}</span></div>
+                                    <div><strong className="text-slate-500">Resultado:</strong> <span className={`font-black ml-1 ${latestInspection.resultado === 'APROBADO' || latestInspection.resultado === 'C' ? 'text-emerald-600' : 'text-red-600'}`}>{latestInspection.resultado || 'COMPLETADO'}</span></div>
                                 </div>
-                }
+                                
+                                <table className="w-full border-collapse break-words text-[8.5pt] font-sans mt-2">
+                                    <thead>
+                                        <tr className="avoid-break break-inside-avoid bg-slate-100 dark:bg-slate-800/50">
+                                            <th className="border border-slate-300 p-1 text-left w-[50%]">Ítem a Verificar</th>
+                                            <th className="border border-slate-300 p-1 text-center w-[20%]">Estado</th>
+                                            <th className="border border-slate-300 p-1 text-left w-[30%]">Observación</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {latestInspection.items?.map((item: any, idx: number) => {
+                                            const isOk = item.status === 'C' || item.status === 'OK' || item.status === 'APROBADO';
+                                            const isFail = item.status === 'NC' || item.status === 'RECHAZADO';
+                                            const statusColor = isOk ? '#10b981' : isFail ? '#ef4444' : '#64748b';
+                                            const statusLabel = isOk ? 'CONFORME (C)' : isFail ? 'NO CONFORME (NC)' : item.status || 'N/A';
+                                            const obsText = (item.notes && item.notes.trim().length > 0)
+                                                ? item.notes
+                                                : (item.observacion && item.observacion.trim().length > 0)
+                                                    ? item.observacion
+                                                    : 'Sin observación';
+
+                                            return (
+                                                <tr key={idx} className="avoid-break break-inside-avoid" style={{ background: idx % 2 === 1 ? '#f8fafc' : '#ffffff' }}>
+                                                    <td className="border border-slate-300 p-1 text-slate-800 dark:text-slate-200 font-semibold break-words whitespace-normal">
+                                                        {item.text}
+                                                    </td>
+                                                    <td style={{ color: statusColor }} className="border border-slate-300 p-1 text-center font-black whitespace-nowrap">
+                                                        {statusLabel}
+                                                    </td>
+                                                    <td className="border border-slate-300 p-1 text-slate-600 italic break-words whitespace-normal">
+                                                        {obsText}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                                {latestInspection.observaciones &&
+                                    <div className="mt-[10px] text-[9pt] bg-[#fffbeb] p-[10px] rounded-[8px] border-[1px_solid_#fde68a] text-[#92400e] avoid-break">
+                                        <strong className="block mb-[4px]">Observaciones Generales:</strong>
+                                        {latestInspection.observaciones}
+                                    </div>
+                                }
 
                             {/* FOTOS DE INSPECCIÓN */}
                             {(latestInspection.fotos && latestInspection.fotos.length > 0 || latestInspection.items && latestInspection.items.some((i) => i.photos && i.photos.length > 0)) &&
@@ -400,7 +435,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                 }
 
                             </div>
-              }
+              )}
                         </div>
                     </div>
 

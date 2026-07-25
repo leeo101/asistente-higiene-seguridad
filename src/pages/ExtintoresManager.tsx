@@ -1030,29 +1030,111 @@ export default function ExtintoresManager() {
             {showHistoryModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
                     <div className="w-full max-w-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl flex flex-col max-h-[90vh] animate-fade-in">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-black text-slate-800 dark:text-slate-100 flex items-center gap-2"><History size={24} className="text-blue-500" /> Historial de Inspecciones</h2>
-                            <button onClick={() => setShowHistoryModal(null)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors border-none cursor-pointer">✕</button>
+                        <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-200 dark:border-slate-700 flex-wrap gap-3">
+                            <div>
+                                <h2 className="text-xl font-black text-slate-800 dark:text-slate-100 flex items-center gap-2 m-0">
+                                    <History size={24} className="text-blue-500" /> Historial de Inspecciones
+                                </h2>
+                                <p className="text-xs text-slate-500 font-semibold m-0 mt-1">
+                                    Matafuego #{showHistoryModal.numero || showHistoryModal.chapa || ''} — {showHistoryModal.tipo || ''} ({showHistoryModal.ubicacion || ''})
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button 
+                                    onClick={() => handlePrintIndividualForm(showHistoryModal)}
+                                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-extrabold text-xs flex items-center gap-1.5 shadow-sm cursor-pointer border-none transition-transform hover:-translate-y-0.5"
+                                    title="Imprimir Ficha Técnica de Extintor"
+                                >
+                                    <Printer size={16} /> Imprimir Ficha
+                                </button>
+                                <button 
+                                    onClick={() => setShareItem(showHistoryModal)}
+                                    className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-extrabold text-xs flex items-center gap-1.5 shadow-sm cursor-pointer border-none transition-transform hover:-translate-y-0.5"
+                                    title="Compartir Ficha en PDF"
+                                >
+                                    <Share2 size={16} /> Compartir
+                                </button>
+                                <button 
+                                    onClick={() => setShowHistoryModal(null)} 
+                                    className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors border-none cursor-pointer"
+                                >
+                                    ✕
+                                </button>
+                            </div>
                         </div>
-                        <div className="overflow-y-auto flex-1">
+                        <div className="overflow-y-auto flex-1 pr-1 custom-scrollbar">
                             {(() => {
                                 const historyRaw = localStorage.getItem('extintores_history');
-                                let pastInspections = [];
+                                let pastInspections: any[] = [];
                                 if (historyRaw) {
-                                    pastInspections = JSON.parse(historyRaw).filter((h: any) => String(h.extintorId) === String(showHistoryModal.id));
+                                    pastInspections = JSON.parse(historyRaw).filter((h: any) => 
+                                        String(h.extintorId) === String(showHistoryModal.id) ||
+                                        String(h.extintorNum) === String(showHistoryModal.numero || showHistoryModal.chapa)
+                                    );
                                     pastInspections.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
                                 }
-                                if (pastInspections.length === 0) return <div className="text-center p-8 text-slate-500 font-bold">No hay inspecciones registradas.</div>;
-                                return pastInspections.map((insp: any, i: number) => (
-                                    <div key={i} className="mb-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-                                        <div className="flex justify-between items-center mb-3">
-                                            <span className="font-bold text-sm text-slate-800 dark:text-slate-200">{new Date(insp.fecha).toLocaleDateString('es-AR')}</span>
-                                            <span className={`text-xs font-black px-2 py-1 rounded-lg ${insp.resultado === 'Aprobado' || insp.resultado === 'C' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>{insp.resultado?.toUpperCase() || 'COMPLETADO'}</span>
+                                if (pastInspections.length === 0) return <div className="text-center p-8 text-slate-500 font-bold">No hay inspecciones registradas para este matafuego.</div>;
+                                return pastInspections.map((insp: any, i: number) => {
+                                    const isApproved = insp.resultado === 'Aprobado' || insp.resultado === 'APROBADO' || insp.resultado === 'C';
+                                    const nonConformItems = insp.items ? insp.items.filter((it: any) => it.status === 'NC' || it.status === 'RECHAZADO') : [];
+
+                                    return (
+                                        <div key={i} className="mb-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col gap-3">
+                                            <div className="flex justify-between items-center flex-wrap gap-2">
+                                                <div className="flex items-center gap-2">
+                                                    <Calendar size={16} className="text-blue-500" />
+                                                    <span className="font-extrabold text-sm text-slate-800 dark:text-slate-200">
+                                                        {new Date(insp.fecha).toLocaleDateString('es-AR')}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-xs font-black px-2.5 py-1 rounded-lg ${isApproved ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'}`}>
+                                                        {isApproved ? 'APROBADO' : 'RECHAZADO'}
+                                                    </span>
+                                                    <button 
+                                                        onClick={() => handlePrintIndividualForm({ ...showHistoryModal, selectedInspection: insp })}
+                                                        className="px-2.5 py-1 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-bold text-xs flex items-center gap-1 cursor-pointer border-none transition-transform hover:-translate-y-0.5"
+                                                        title="Imprimir PDF de esta inspección"
+                                                    >
+                                                        <Printer size={13} /> Imprimir PDF
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => setShareItem({ ...showHistoryModal, selectedInspection: insp })}
+                                                        className="px-2.5 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold text-xs flex items-center gap-1 cursor-pointer border-none transition-transform hover:-translate-y-0.5"
+                                                        title="Compartir PDF de esta inspección"
+                                                    >
+                                                        <Share2 size={13} /> Compartir
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <p className="text-xs text-slate-600 dark:text-slate-400 m-0">
+                                                <span className="font-bold">Inspector:</span> {insp.inspector || 'Sin registrar'}
+                                            </p>
+
+                                            {nonConformItems.length > 0 && (
+                                                <div className="p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                                                    <span className="text-xs font-bold text-red-700 dark:text-red-300 block mb-1">
+                                                        ⚠️ Ítems No Conformes ({nonConformItems.length}):
+                                                    </span>
+                                                    <ul className="m-0 pl-4 text-xs text-red-600 dark:text-red-400">
+                                                        {nonConformItems.map((nc: any, ncIdx: number) => (
+                                                            <li key={ncIdx}>
+                                                                <strong>{nc.text}</strong> {nc.notes ? `(${nc.notes})` : ''}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+
+                                            {insp.observaciones && (
+                                                <p className="text-xs text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 p-2.5 rounded-xl m-0 font-medium border border-amber-200 dark:border-amber-800">
+                                                    <strong>Obs:</strong> {insp.observaciones}
+                                                </p>
+                                            )}
                                         </div>
-                                        <p className="text-sm text-slate-600 m-0"><span className="font-bold">Inspector:</span> {insp.inspector || 'N/A'}</p>
-                                        {insp.observaciones && <p className="text-sm text-amber-700 bg-amber-50 p-2 rounded-lg mt-2 font-medium">Obs: {insp.observaciones}</p>}
-                                    </div>
-                                ));
+                                    );
+                                });
                             })()}
                         </div>
                     </div>
