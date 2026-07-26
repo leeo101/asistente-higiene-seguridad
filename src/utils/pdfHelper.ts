@@ -167,7 +167,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
 
         const injectStyle = document.createElement('style');
         injectStyle.textContent = `
-            tr, .row-unit { page-break-inside: avoid !important; break-inside: avoid !important; }
+            tr, .row-unit, .avoid-break-strictly { page-break-inside: avoid !important; break-inside: avoid !important; }
             thead { display: table-header-group !important; }
             tfoot { display: table-footer-group !important; }
             table { page-break-inside: auto !important; break-inside: auto !important; }
@@ -178,9 +178,12 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
 
         clone.querySelectorAll('div, section, article').forEach((el: Element) => {
             const htmlEl = el as HTMLElement;
+            if (htmlEl.classList.contains('avoid-break-strictly') || htmlEl.closest('.avoid-break-strictly')) {
+                return;
+            }
             const cs = window.getComputedStyle(htmlEl);
             if (cs.pageBreakInside === 'avoid' || cs.breakInside === 'avoid') {
-                if (htmlEl.offsetHeight > 200) {
+                if (htmlEl.offsetHeight > 550) {
                     htmlEl.style.setProperty('page-break-inside', 'auto', 'important');
                     htmlEl.style.setProperty('break-inside', 'auto', 'important');
                 }
@@ -224,7 +227,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
             dynamicScale = Math.max(1, Math.min(dynamicScale, maxSafeScale));
 
             const opt = {
-                margin: [5, 5, 5, 5],
+                margin: [4, 6, 4, 6],
                 filename: 'documento.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { 
@@ -240,7 +243,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                     scrollY: 0
                 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
-                pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.avoid-break', '.page-break-inside-avoid'] }
+                pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.avoid-break', '.avoid-break-strictly', '.page-break-inside-avoid'] }
             };
 
             const worker = html2pdf().set(opt as any).from(clone).toPdf();

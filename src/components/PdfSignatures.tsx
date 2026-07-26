@@ -101,8 +101,8 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
   if (boxes.length === 0) return null;
 
   return (
-    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break break-inside-avoid w-[100%] block mt-[0.3rem] border-top-[2px_dashed_#cbd5e1] pt-[0.5rem] pb-[0.3rem] text-center">
-      <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break break-inside-avoid flex justify-center items-start w-[100%] gap-[0.75rem]">
+    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break avoid-break-strictly break-inside-avoid w-[100%] block mt-[0.5rem] border-t-[2px_dashed_#cbd5e1] pt-[0.5rem] pb-[0.3rem] text-center">
+      <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break avoid-break-strictly break-inside-avoid flex justify-center items-start w-[100%] gap-[0.75rem]">
         {boxes.map((box, idx) => {
           const isPro = box.isProfessional;
           const borderCol = isPro ? '#bbf7d0' : '#e2e8f0';
@@ -174,8 +174,8 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                 {box.subtitle}
               </p>
               {box.license &&
-                <div className="mt-[3px] inline-flex items-center justify-center gap-[3px] bg-[#dcfce7] text-[#15803d] px-[5px] py-[1px] rounded-[100px] text-[0.52rem] font-[800]">
-                  <span>✓ Mat. N° {box.license}</span>
+                <div style={{ display: 'block', textAlign: 'center', marginTop: '5px', padding: '3px 8px', background: '#16a34a', color: '#ffffff', borderRadius: '5px', fontSize: '9pt', fontWeight: 900, letterSpacing: '0.03em' }}>
+                  Mat. Nº&nbsp;{box.license}
                 </div>
               }
               {box.customContent}

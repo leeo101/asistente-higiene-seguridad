@@ -173,18 +173,19 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
             <div className="flex-[1] flex justify-center">
                 <div
           id="pdf-content"
-          className="pdf-container card print-area w-full max-w-[210mm] flex flex-col bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box]"
+          className="pdf-container card print-area w-full max-w-[210mm] block bg-white text-slate-900 box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box]"
+          style={{ padding: '4mm 10mm 10mm 10mm' }}
           ref={componentRef}>
 
                     <style type="text/css">
                         {`
                             @page { size: A4 portrait; margin: 6mm; }
-                            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: #ffffff !important; }
                             .no-print { display: none !important; }
                             .print-area { 
                                 box-shadow: none !important; 
                                 margin: 0 !important; 
-                                padding: 6mm !important; 
+                                padding: 0 !important; 
                                 width: 100% !important; 
                                 max-width: none !important;
                                 border: none !important;
@@ -192,37 +193,52 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                 height: auto !important;
                                 display: block !important;
                                 overflow: visible !important;
+                                background: #ffffff !important;
+                                color: #0f172a !important;
                             }
                             #extinguisher-profile-wrap, #pdf-content {
-                                font-size: 0.75rem !important;
+                                font-size: 0.85rem !important;
                                 width: 100% !important;
-                                padding: 0 !important;
-                                padding-bottom: 0 !important;
                                 min-height: 0 !important;
                                 height: auto !important;
                                 margin: 0 !important;
                                 display: block !important;
                                 overflow: visible !important;
+                                background: #ffffff !important;
+                                color: #0f172a !important;
                             }
                             #pdf-content td, #pdf-content th {
-                                padding: 3px 5px !important;
-                                font-size: 8pt !important;
-                                line-height: 1.2 !important;
+                                padding: 6px 10px !important;
+                                font-size: 9.5pt !important;
+                                line-height: 1.35 !important;
                                 box-sizing: border-box !important;
+                                color: #0f172a !important;
                             }
                             .pdf-export-mode #pdf-content td, .pdf-export-mode #pdf-content th {
-                                padding: 3px 5px !important;
-                                font-size: 8pt !important;
+                                padding: 6px 10px !important;
+                                font-size: 9.5pt !important;
+                                color: #0f172a !important;
                             }
                             .pdf-export-mode #pdf-content {
                                 overflow: visible !important;
+                                background: #ffffff !important;
+                                padding: 0 !important;
+                                display: block !important;
                             }
                             #extinguisher-profile-wrap > div {
                                 flex: none !important;
                                 display: block !important;
                                 min-height: 0 !important;
                             }
+                            tr {
+                                page-break-inside: avoid !important;
+                                break-inside: avoid !important;
+                            }
                             .avoid-break {
+                                page-break-inside: avoid !important;
+                                break-inside: avoid !important;
+                            }
+                            .avoid-break-strictly {
                                 page-break-inside: avoid !important;
                                 break-inside: avoid !important;
                             }
@@ -233,136 +249,136 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         `}
                     </style>
 
-                    <div className="border-b-[2px] border-slate-800 pb-[6px] mb-[10px] flex justify-between items-center avoid-break">
+                    <div className="border-b-[2.5px] border-slate-900 pb-[8px] mb-[12px] flex justify-between items-center avoid-break">
                         <div>
-                            <h1 className="m-[0_0_2px_0] text-[16pt] text-slate-800 dark:text-slate-200 font-[900] uppercase">
+                            <h1 className="m-[0_0_3px_0] text-[18pt] text-slate-900 font-[900] uppercase tracking-tight">
                                 Ficha Técnica de Extintor
                             </h1>
-                            <p className="m-[0] text-[10pt] text-slate-600 dark:text-slate-400 font-[600]">
+                            <p className="m-[0] text-[10pt] text-slate-600 font-[700]">
                                 Documento de Trazabilidad e Inventario
                             </p>
                         </div>
-                        <CompanyLogo style={{ maxHeight: '42px', maxWidth: '130px', objectFit: 'contain' }} />
+                        <CompanyLogo style={{ maxHeight: '44px', maxWidth: '140px', objectFit: 'contain' }} />
                     </div>
 
-                    <div className="flex gap-[12px] mb-[10px] avoid-break">
-                        <div className="w-[120px] shrink-0">
+                    <div className="flex gap-[14px] mb-[12px] avoid-break">
+                        <div className="w-[125px] shrink-0">
                             {data.foto ?
-              <img src={data.foto} alt="Extintor" className="w-full h-[125px] object-cover rounded-[8px] border-[2px] border-solid border-[#cbd5e1]" /> :
+              <img src={data.foto} alt="Extintor" className="w-full h-[135px] object-cover rounded-[8px] border-[2px] border-solid border-[#94a3b8]" /> :
 
-              <div className="w-full h-[125px] bg-slate-100 dark:bg-slate-800/50 rounded-[8px] border-[2px] border-dashed border-[#cbd5e1] flex items-center justify-center">
-                                    <Flame size={40} color="#94a3b8" />
+              <div className="w-full h-[135px] bg-slate-100 rounded-[8px] border-[2px] border-dashed border-[#cbd5e1] flex items-center justify-center">
+                                    <Flame size={42} color="#64748b" />
                                 </div>
               }
                         </div>
 
                         <div className="flex-1">
-                            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 rounded-[8px] p-[6px]">
-                                <h3 className="m-[0_0_6px_0] text-[10pt] text-slate-800 dark:text-slate-200 flex items-center gap-[6px] border-b border-slate-300 pb-[3px] font-[800]">
-                                    <Hash size={14} color="#3b82f6" /> Identificación del Equipo
+                            <div className="bg-slate-50 border-[1.5px] border-slate-300 rounded-[8px] p-[10px_14px]">
+                                <h3 className="m-[0_0_8px_0] text-[11pt] text-slate-900 flex items-center gap-[6px] border-b border-slate-300 pb-[4px] font-[900]">
+                                    <Hash size={16} color="#2563eb" /> Identificación del Equipo
                                 </h3>
                                 
-                                <div className="grid grid-cols-2 gap-[4px] break-words">
+                                <div className="grid grid-cols-2 gap-[6px] break-words">
                                     <div>
-                                        <div className="text-[7.5pt] text-[#64748b] font-[700] uppercase">Nº Chapa / Interno</div>
-                                        <div className="text-[9.5pt] font-[900] text-slate-800 dark:text-slate-200">{data.numero || '-'}</div>
+                                        <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Nº Chapa / Interno</div>
+                                        <div className="text-[10.5pt] font-[900] text-slate-900">{data.numero || '-'}</div>
                                     </div>
                                     <div>
-                                        <div className="text-[7.5pt] text-[#64748b] font-[700] uppercase">Tipo y Capacidad</div>
-                                        <div className="text-[9.5pt] font-[700] text-slate-800 dark:text-slate-200">{formatType(data.tipo)} - {data.capacidad}</div>
+                                        <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Tipo y Capacidad</div>
+                                        <div className="text-[10.5pt] font-[900] text-slate-900">{formatType(data.tipo)} - {data.capacidad}</div>
                                     </div>
                                     <div>
-                                        <div className="text-[7.5pt] text-[#64748b] font-[700] uppercase">Ubicación</div>
-                                        <div className="text-[9.5pt] font-[700] text-slate-800 dark:text-slate-200 flex items-center gap-[4px]">
-                                            <MapPin size={12} color="#dc2626" /> {data.ubicacion || '-'}
+                                        <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Ubicación</div>
+                                        <div className="text-[10pt] font-[800] text-slate-900 flex items-center gap-[4px]">
+                                            <MapPin size={13} color="#dc2626" /> {data.ubicacion || '-'}
                                         </div>
                                     </div>
                                     <div>
-                                        <div className="text-[7.5pt] text-[#64748b] font-[700] uppercase">Empresa / Cliente</div>
-                                        <div className="text-[9.5pt] font-[700] text-slate-800 dark:text-slate-200">{data.empresa || '-'}</div>
+                                        <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Empresa / Cliente</div>
+                                        <div className="text-[10pt] font-[800] text-slate-900">{data.empresa || '-'}</div>
                                     </div>
                                     <div>
-                                        <div className="text-[7.5pt] text-[#64748b] font-[700] uppercase">Marca / Fabricante</div>
-                                        <div className="text-[9.5pt] font-[700] text-slate-800 dark:text-slate-200">{data.marca || 'Sin especificar'}</div>
+                                        <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Marca / Fabricante</div>
+                                        <div className="text-[10pt] font-[800] text-slate-900">{data.marca || 'Sin especificar'}</div>
                                     </div>
                                     <div>
-                                        <div className="text-[7.5pt] text-[#64748b] font-[700] uppercase">Sello IRAM / OPDS</div>
-                                        <div className="text-[9.5pt] font-[700] text-slate-800 dark:text-slate-200">{data.selloIRAM || '-'}</div>
+                                        <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Sello IRAM / OPDS</div>
+                                        <div className="text-[10pt] font-[800] text-slate-900">{data.selloIRAM || '-'}</div>
                                     </div>
-                                    <div>
-                                        <div className="text-[7.5pt] text-[#64748b] font-[700] uppercase">Nº Serie (Tubo)</div>
-                                        <div className="text-[9.5pt] font-[700] text-slate-800 dark:text-slate-200">{data.numeroSerie || '-'}</div>
+                                    <div className="col-span-2">
+                                        <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Nº Serie (Tubo)</div>
+                                        <div className="text-[10pt] font-[800] text-slate-900">{data.numeroSerie || '-'}</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="mb-[8px] avoid-break">
-                        <h3 className="m-[0_0_6px_0] text-[10pt] text-slate-800 dark:text-slate-200 flex items-center gap-[6px] border-b-[2px] border-slate-800 pb-[3px] font-[800]">
-                            <Calendar size={14} color="#f59e0b" /> Control de Vencimientos
+                    <div className="mb-[12px] avoid-break">
+                        <h3 className="m-[0_0_8px_0] text-[11pt] text-slate-900 flex items-center gap-[6px] border-b-[2px] border-slate-900 pb-[4px] font-[900]">
+                            <Calendar size={16} color="#d97706" /> Control de Vencimientos
                         </h3>
                         
-                        <table className="w-full border-collapse table-fixed break-words text-[8.5pt] font-sans">
+                        <table className="w-full border-collapse table-fixed break-words text-[9.5pt] font-sans">
                             <thead>
-                                <tr className="avoid-break break-inside-avoid bg-slate-100 dark:bg-slate-800/50">
-                                    <th className="border border-slate-300 p-1 text-left w-[25%] font-extrabold">Vencimiento Recarga</th>
-                                    <th className="border border-slate-300 p-1 text-left w-[25%] font-extrabold">Vencimiento P.H. (5 Años)</th>
-                                    <th className="border border-slate-300 p-1 text-left w-[25%] font-extrabold">Fecha Fabricación</th>
-                                    <th className="border border-slate-300 p-1 text-left w-[25%] font-extrabold">Vida Útil (20 Años)</th>
+                                <tr className="avoid-break avoid-break-strictly break-inside-avoid bg-slate-100">
+                                    <th className="border border-slate-300 p-2 text-left w-[25%] font-[900] text-slate-900">Vencimiento Recarga</th>
+                                    <th className="border border-slate-300 p-2 text-left w-[25%] font-[900] text-slate-900">Vencimiento P.H. (5 Años)</th>
+                                    <th className="border border-slate-300 p-2 text-left w-[25%] font-[900] text-slate-900">Fecha Fabricación</th>
+                                    <th className="border border-slate-300 p-2 text-left w-[25%] font-[900] text-slate-900">Vida Útil (20 Años)</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr className="avoid-break break-inside-avoid">
-                                    <td className="border border-slate-300 p-1">
-                                        <div className="text-[9pt] font-[900]">{recargaStatus.expirationDate || '-'}</div>
-                                        <div style={{ color: recargaStatus.color }} className="font-[800] mt-[1px] text-[7.5pt]">{recargaStatus.text}</div>
+                                <tr className="avoid-break avoid-break-strictly break-inside-avoid">
+                                    <td className="border border-slate-300 p-2">
+                                        <div className="text-[10pt] font-[900] text-slate-900">{recargaStatus.expirationDate || '-'}</div>
+                                        <div style={{ color: recargaStatus.color }} className="font-[900] mt-[2px] text-[8.5pt]">{recargaStatus.text}</div>
                                     </td>
-                                    <td className="border border-slate-300 p-1">
-                                        <div className="text-[9pt] font-black">{phStatus.expirationDate ? phStatus.expirationDate : '-'}</div>
-                                        <div style={{ color: phStatus.color }} className="font-extrabold mt-[1px] text-[7.5pt]">{phStatus.text}</div>
+                                    <td className="border border-slate-300 p-2">
+                                        <div className="text-[10pt] font-[900] text-slate-900">{phStatus.expirationDate ? phStatus.expirationDate : '-'}</div>
+                                        <div style={{ color: phStatus.color }} className="font-[900] mt-[2px] text-[8.5pt]">{phStatus.text}</div>
                                     </td>
-                                    <td className="border border-slate-300 p-1">
-                                        <div className="text-[9pt] font-black">{data.fechaFabricacion ? new Date(data.fechaFabricacion).toLocaleDateString('es-AR') : '-'}</div>
+                                    <td className="border border-slate-300 p-2">
+                                        <div className="text-[10pt] font-[900] text-slate-900">{data.fechaFabricacion ? new Date(data.fechaFabricacion).toLocaleDateString('es-AR') : '-'}</div>
                                     </td>
-                                    <td className="border border-slate-300 p-1">
-                                        <div className="text-[9pt] font-black">{lifespanStatus.expirationDate || '-'}</div>
+                                    <td className="border border-slate-300 p-2">
+                                        <div className="text-[10pt] font-[900] text-slate-900">{lifespanStatus.expirationDate || '-'}</div>
                                         {lifespanStatus &&
-                                        <div style={{ color: lifespanStatus.color }} className="font-extrabold mt-[1px] text-[7.5pt]">{lifespanStatus.text}</div>
-                    }
+                                        <div style={{ color: lifespanStatus.color }} className="font-[900] mt-[2px] text-[8.5pt]">{lifespanStatus.text}</div>
+                                        }
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <div className="mb-[8px] avoid-break">
-                        <h3 className="m-[0_0_6px_0] text-[10pt] text-slate-800 dark:text-slate-200 flex items-center gap-[6px] border-b-[2px] border-slate-800 pb-[3px] font-[800]">
-                            <ShieldCheck size={14} color="#10b981" /> Registro de Control e Inspección
+                    <div className="mb-[12px]">
+                        <h3 className="m-[0_0_8px_0] text-[11pt] text-slate-900 flex items-center gap-[6px] border-b-[2px] border-slate-900 pb-[4px] font-[900] avoid-break">
+                            <ShieldCheck size={16} color="#059669" /> Registro de Control e Inspección
                         </h3>
                         
                         <div>
                         {latestInspection && (
                             <div>
-                                <div className="flex justify-between mb-[4px] text-[8.5pt] bg-slate-50 dark:bg-slate-800/50 p-[4px_8px] rounded-[6px] border border-slate-200">
-                                    <div><strong className="text-slate-500">Fecha:</strong> <span className="font-extrabold">{new Date(latestInspection.fecha).toLocaleDateString('es-AR')}</span></div>
-                                    <div><strong className="text-slate-500">Inspector:</strong> <span className="font-extrabold">{latestInspection.inspector || '-'}</span></div>
-                                    <div><strong className="text-slate-500">Resultado:</strong> <span className={`font-black ml-1 ${latestInspection.resultado === 'APROBADO' || latestInspection.resultado === 'C' ? 'text-emerald-600' : 'text-red-600'}`}>{latestInspection.resultado || 'COMPLETADO'}</span></div>
+                                <div className="flex justify-between mb-[8px] text-[9.5pt] bg-slate-50 p-[6px_10px] rounded-[6px] border border-slate-300 avoid-break">
+                                    <div><strong className="text-slate-600">Fecha:</strong> <span className="font-[900] text-slate-900">{new Date(latestInspection.fecha).toLocaleDateString('es-AR')}</span></div>
+                                    <div><strong className="text-slate-600">Inspector:</strong> <span className="font-[900] text-slate-900">{latestInspection.inspector || '-'}</span></div>
+                                    <div><strong className="text-slate-600">Resultado:</strong> <span className={`font-[900] ml-1 ${latestInspection.resultado === 'APROBADO' || latestInspection.resultado === 'C' ? 'text-emerald-700' : 'text-red-700'}`}>{latestInspection.resultado || 'COMPLETADO'}</span></div>
                                 </div>
                                 
-                                <table className="w-full border-collapse break-words text-[8pt] font-sans mt-1">
+                                <table className="w-full border-collapse break-words text-[9.5pt] font-sans mt-2">
                                     <thead>
-                                        <tr className="avoid-break break-inside-avoid bg-slate-100 dark:bg-slate-800/50">
-                                            <th className="border border-slate-300 p-1 text-left w-[48%]">Ítem a Verificar</th>
-                                            <th className="border border-slate-300 p-1 text-center w-[22%]">Estado</th>
-                                            <th className="border border-slate-300 p-1 text-left w-[30%]">Observación</th>
+                                        <tr className="avoid-break avoid-break-strictly break-inside-avoid bg-slate-100" style={{ pageBreakInside: 'avoid' }}>
+                                            <th className="border border-slate-300 p-2 text-left w-[46%] font-[900] text-slate-900">Ítem a Verificar</th>
+                                            <th className="border border-slate-300 p-2 text-center w-[24%] font-[900] text-slate-900">Estado</th>
+                                            <th className="border border-slate-300 p-2 text-left w-[30%] font-[900] text-slate-900">Observación</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {latestInspection.items?.map((item: any, idx: number) => {
                                             const isOk = item.status === 'C' || item.status === 'OK' || item.status === 'APROBADO';
                                             const isFail = item.status === 'NC' || item.status === 'RECHAZADO';
-                                            const statusColor = isOk ? '#10b981' : isFail ? '#ef4444' : '#64748b';
+                                            const statusColor = isOk ? '#059669' : isFail ? '#dc2626' : '#475569';
                                             const statusLabel = isOk ? 'CONFORME (C)' : isFail ? 'NO CONFORME (NC)' : item.status || 'N/A';
                                             const obsText = (item.notes && item.notes.trim().length > 0)
                                                 ? item.notes
@@ -371,14 +387,14 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                                     : 'Sin observación';
 
                                             return (
-                                                <tr key={idx} className="avoid-break break-inside-avoid" style={{ background: idx % 2 === 1 ? '#f8fafc' : '#ffffff' }}>
-                                                    <td className="border border-slate-300 p-1 text-slate-800 dark:text-slate-200 font-semibold break-words whitespace-normal">
+                                                <tr key={idx} className="avoid-break avoid-break-strictly break-inside-avoid" style={{ background: idx % 2 === 1 ? '#f8fafc' : '#ffffff', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+                                                    <td className="border border-slate-300 p-2 text-slate-900 font-bold break-words whitespace-normal">
                                                         {item.text}
                                                     </td>
-                                                    <td style={{ color: statusColor }} className="border border-slate-300 p-1 text-center font-black whitespace-nowrap">
+                                                    <td style={{ color: statusColor }} className="border border-slate-300 p-2 text-center font-[900] whitespace-nowrap">
                                                         {statusLabel}
                                                     </td>
-                                                    <td className="border border-slate-300 p-1 text-slate-600 italic break-words whitespace-normal">
+                                                    <td className="border border-slate-300 p-2 text-slate-700 italic break-words whitespace-normal">
                                                         {obsText}
                                                     </td>
                                                 </tr>
@@ -386,55 +402,52 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                         })}
                                     </tbody>
                                 </table>
+
                                 {latestInspection.observaciones &&
-                                    <div className="mt-[6px] text-[8pt] bg-[#fffbeb] p-[6px_8px] rounded-[6px] border-[1px_solid_#fde68a] text-[#92400e] avoid-break">
-                                        <strong className="block mb-[2px]">Observaciones Generales:</strong>
+                                    <div className="mt-[8px] text-[9.5pt] bg-[#fffbeb] p-[8px_12px] rounded-[6px] border-[1.5px] border-[#fde68a] text-[#78350f] avoid-break avoid-break-strictly" style={{ pageBreakInside: 'avoid' }}>
+                                        <strong className="block mb-[2px] font-[900] text-[#92400e]">Observaciones Generales:</strong>
                                         {latestInspection.observaciones}
                                     </div>
                                 }
 
-                            {/* FOTOS DE INSPECCIÓN */}
-                            {(latestInspection.fotos && latestInspection.fotos.length > 0 || latestInspection.items && latestInspection.items.some((i) => i.photos && i.photos.length > 0)) &&
-                 <div className="mt-[8px] border-t-[2px] border-dashed border-slate-300 pt-[6px] avoid-break">
-                                     <h4 className="m-[0_0_6px_0] text-[9pt] text-slate-800 dark:text-slate-200 font-[800]">📸 Evidencia Fotográfica</h4>
-                                     
-                                     {/* Fotos Generales */}
-                                     {latestInspection.fotos && latestInspection.fotos.length > 0 &&
-                   <div className="mb-[6px] avoid-break">
-                                             <span className="text-[8pt] font-[700] text-[#64748b] block mb-[4px]">General:</span>
-                                             <div className="flex gap-[8px] flex-wrap">
-                                                 {latestInspection.fotos.map((foto, fIdx) =>
-                       <img key={`gen-f-${fIdx}`} src={foto} alt="Evidencia" className="w-[65px] h-[65px] object-cover rounded-[6px] border border-slate-300" />
-                       )}
-                                             </div>
-                                         </div>
-                   }
+                                {(latestInspection.fotos && latestInspection.fotos.length > 0 || latestInspection.items && latestInspection.items.some((i) => i.photos && i.photos.length > 0)) &&
+                                    <div className="mt-[10px] border-t-[1.5px] border-dashed border-slate-300 pt-[8px] avoid-break avoid-break-strictly" style={{ pageBreakInside: 'avoid' }}>
+                                        <h4 className="m-[0_0_8px_0] text-[9.5pt] text-slate-900 font-[900]">📸 Evidencia Fotográfica</h4>
+                                        
+                                        {latestInspection.fotos && latestInspection.fotos.length > 0 &&
+                                            <div className="mb-[8px] avoid-break">
+                                                <span className="text-[8.5pt] font-[800] text-[#475569] block mb-[4px]">General:</span>
+                                                <div className="flex gap-[8px] flex-wrap">
+                                                    {latestInspection.fotos.map((foto, fIdx) =>
+                                                        <img key={`gen-f-${fIdx}`} src={foto} alt="Evidencia" className="w-[70px] h-[70px] object-cover rounded-[6px] border border-slate-300" />
+                                                    )}
+                                                </div>
+                                            </div>
+                                        }
 
-                                     {/* Fotos por Ítem */}
-                                     {latestInspection.items && latestInspection.items.some((i) => i.photos && i.photos.length > 0) &&
-                   <div className="flex gap-[10px] flex-wrap">
-                                             {latestInspection.items.filter((i) => i.photos && i.photos.length > 0).map((item, idx) =>
-                     <div key={`item-f-${idx}`} className="flex flex-col gap-[4px] avoid-break">
-                                                     <span className="text-[7.5pt] font-[700] text-slate-600 dark:text-slate-400 max-w-[100px] whitespace-nowrap overflow-hidden text-ellipsis">{item.text}</span>
-                                                     <div className="flex gap-[4px]">
-                                                         {item.photos.map((foto, pIdx) =>
-                         <img key={`ip-${idx}-${pIdx}`} src={foto} alt="Evidencia Ítem" className="w-[50px] h-[50px] object-cover rounded-[4px] border border-slate-300" />
-                         )}
-                                                     </div>
-                                                 </div>
-                     )}
-                                         </div>
-                   }
-                                 </div>
-                 }
+                                        {latestInspection.items && latestInspection.items.some((i) => i.photos && i.photos.length > 0) &&
+                                            <div className="flex gap-[10px] flex-wrap">
+                                                {latestInspection.items.filter((i) => i.photos && i.photos.length > 0).map((item, idx) =>
+                                                    <div key={`item-f-${idx}`} className="flex flex-col gap-[4px] avoid-break">
+                                                        <span className="text-[8pt] font-[800] text-slate-700 max-w-[110px] whitespace-nowrap overflow-hidden text-ellipsis">{item.text}</span>
+                                                        <div className="flex gap-[4px]">
+                                                            {item.photos.map((foto, pIdx) =>
+                                                                <img key={`ip-${idx}-${pIdx}`} src={foto} alt="Evidencia Ítem" className="w-[55px] h-[55px] object-cover rounded-[4px] border border-slate-300" />
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        }
+                                    </div>
+                                }
 
                             </div>
-               )}
+                        )}
                         </div>
                     </div>
 
-                    {/* Firmas y Pie de Página - Protegidos contra cortes de página */}
-                    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break break-inside-avoid w-full mt-[6px] pt-[4px] block">
+                    <div className="avoid-break avoid-break-strictly" style={{ breakInside: 'avoid', pageBreakInside: 'avoid', marginTop: '10px', display: 'block' }}>
                         <PdfSignatures
           data={data}
           box1={data.showSignatures?.operator ? {

@@ -5,34 +5,19 @@ import React from 'react';
  */
 export default function PdfBrandingFooter() {
     return (
-        <div className="pdf-brand-container avoid-break">
+        <div className="pdf-brand-container avoid-break avoid-break-strictly" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
             <style>{`
-                .pdf-brand-container { display: none; }
-                @media print {
-                    .pdf-brand-container {
-                        display: block !important;
-                        margin-top: 1.5rem;
-                        padding-top: 1rem;
-                        padding-bottom: 0.5rem;
-                        margin-bottom: 0.5rem;
-                        border-top: 2px solid #0f172a;
-                        page-break-inside: avoid !important;
-                        break-inside: avoid !important;
-                        background-color: #ffffff;
-                    }
-                }
-                .force-pdf-print .pdf-brand-container {
+                .pdf-brand-container {
                     display: block !important;
-                    margin-top: 1.5rem;
-                    padding-top: 1rem;
-                    padding-bottom: 0.5rem;
-                    margin-bottom: 0.5rem;
+                    margin-top: 1rem;
+                    padding-top: 0.75rem;
+                    padding-bottom: 0.4rem;
+                    margin-bottom: 0.4rem;
                     border-top: 2px solid #0f172a;
                     page-break-inside: avoid !important;
                     break-inside: avoid !important;
                     background-color: #ffffff;
                 }
-                
                 .pdf-legal-box {
                     border: 1px solid #e2e8f0;
                     border-left: 4px solid #0f172a;
