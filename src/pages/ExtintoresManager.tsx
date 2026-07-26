@@ -18,6 +18,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import ShareModal from '../components/ShareModal';
 import ExtinguisherProfilePdf from '../components/ExtinguisherProfilePdf';
+import { compressImage } from '../utils/imageCompressor';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 import { DataTable } from '../components/DataTable';
@@ -185,13 +186,14 @@ export default function ExtintoresManager() {
     } catch (e) {}
   }, []);
 
-  const handlePhotoUpload = (files) => {
-    if (!files.length) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFormData({ ...formData, foto: reader.result });
-    };
-    reader.readAsDataURL(files[0]);
+  const handlePhotoUpload = async (files) => {
+    if (!files || !files.length) return;
+    try {
+      const compressed = await compressImage(files[0]);
+      setFormData(prev => ({ ...prev, foto: compressed }));
+    } catch (e) {
+      console.warn('[ExtintoresManager] Error compressing photo:', e);
+    }
   };
 
   useEffect(() => {
@@ -1262,10 +1264,10 @@ export default function ExtintoresManager() {
                             </div>
 
                             <div className="flex gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap justify-end">
-                                <button type="button" onClick={() => handlePrintIndividualForm(formData)} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md" style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }}>
+                                <button type="button" onClick={() => handlePrintIndividualForm({ ...formData, id: formData.id || editingId || 'ext-' + Date.now() })} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md" style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }}>
                                     <Printer size={18} /> Generar PDF
                                 </button>
-                                <button type="button" onClick={() => {setShareItem(formData);}} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md" style={{ backgroundColor: '#8b5cf6', color: '#ffffff', border: 'none' }}>
+                                <button type="button" onClick={() => setShareItem({ ...formData, id: formData.id || editingId || 'ext-' + Date.now() })} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md" style={{ backgroundColor: '#8b5cf6', color: '#ffffff', border: 'none' }}>
                                     <Share2 size={18} /> Compartir
                                 </button>
                                 <button type="button" onClick={(e) => requirePro(() => handleSave(e))} className="w-full sm:w-auto p-[0.8rem_1.5rem] rounded-xl font-black cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-lg" style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#ffffff', border: 'none' }}>

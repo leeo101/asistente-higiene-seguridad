@@ -100,9 +100,9 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
 
   if (boxes.length === 0) return null;
 
-    return (
-    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break break-inside-avoid w-[100%] block mt-[0.5rem] border-top-[2px_dashed_#cbd5e1] pt-[1rem] pb-[1rem] text-center">
-      <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break break-inside-avoid flex justify-center items-start w-[100%] gap-[1rem]">
+  return (
+    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break break-inside-avoid w-[100%] block mt-[0.3rem] border-top-[2px_dashed_#cbd5e1] pt-[0.5rem] pb-[0.3rem] text-center">
+      <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break break-inside-avoid flex justify-center items-start w-[100%] gap-[0.75rem]">
         {boxes.map((box, idx) => {
           const isPro = box.isProfessional;
           const borderCol = isPro ? '#bbf7d0' : '#e2e8f0';
@@ -115,17 +115,17 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
             <div key={idx} style={{
               breakInside: 'avoid',
               pageBreakInside: 'avoid',
-              flex: boxes.length === 1 ? '0 0 280px' : '1 1 0',
+              flex: boxes.length === 1 ? '0 0 260px' : '1 1 0',
               margin: boxes.length === 1 ? '0 auto' : '0',
               border: `1px solid ${borderCol}`,
               background: bgCol,
               boxShadow: isPro 
                 ? '0 4px 12px -2px rgba(16,185,129,0.08), 0 2px 4px -1px rgba(16,185,129,0.03)'
                 : '0 4px 6px -1px rgba(0,0,0,0.04), 0 2px 4px -1px rgba(0,0,0,0.02)',
-              borderRadius: isPro ? '12px' : '8px',
+              borderRadius: isPro ? '10px' : '8px',
               position: 'relative',
               overflow: 'hidden'
-            }} className="avoid-break break-inside-avoid p-[1rem] text-center min-width-[220px] max-w-[280px] box-sizing-[border-box]">
+            }} className="avoid-break break-inside-avoid p-[0.6rem] text-center min-width-[180px] max-w-[260px] box-sizing-[border-box]">
               {isPro && (
                 <div style={{
                   position: 'absolute',
@@ -139,7 +139,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
               {/* Signature / Stamp image row */}
               <div style={{
                 borderBottom: `1px dashed ${lineCol}`
-              }} className="min-h-[65px] h-[auto] w-[100%] text-center pb-[0.6rem] mb-[0.6rem] box-sizing-[border-box] overflow-[hidden] flex justify-center items-center gap-[0.4rem]">
+              }} className="min-h-[48px] h-[auto] w-[100%] text-center pb-[0.3rem] mb-[0.3rem] box-sizing-[border-box] overflow-[hidden] flex justify-center items-center gap-[0.3rem]">
                 {box.signatureUrl && box.signatureUrl.length > 20 &&
                   <img
                     src={box.signatureUrl}
@@ -148,7 +148,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                       maxWidth: box.stampUrl && box.stampUrl.length > 20 ? '48%' : '100%',
                       objectPosition: 'center',
                       objectFit: 'contain'
-                    }} className="h-[48px] w-[auto]" />
+                    }} className="h-[40px] w-[auto]" />
                 }
                 {box.stampUrl && box.stampUrl.length > 20 &&
                   <img
@@ -158,23 +158,23 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                       maxWidth: box.signatureUrl && box.signatureUrl.length > 20 ? '48%' : '100%',
                       objectPosition: 'center',
                       objectFit: 'contain'
-                    }} className="h-[48px] w-[auto]" />
+                    }} className="h-[40px] w-[auto]" />
                 }
                 {(!box.signatureUrl || box.signatureUrl.length <= 20) && (!box.stampUrl || box.stampUrl.length <= 20) &&
-                  <div className="h-[60px] w-[100%] flex flex-col items-center justify-center text-[0.55rem] text-slate-400 font-bold uppercase tracking-widest gap-[2px]">
+                  <div className="h-[45px] w-[100%] flex flex-col items-center justify-center text-[0.52rem] text-slate-400 font-bold uppercase tracking-widest gap-[1px]">
                     <span className="text-[#94a3b8]">✍️ Firma Registrada</span>
-                    <span className="text-[0.48rem] text-[#cbd5e1]">Validada en Sistema</span>
+                    <span className="text-[0.45rem] text-[#cbd5e1]">Validada en Sistema</span>
                   </div>
                 }
               </div>
-              <p style={{ color: textCol, letterSpacing: '0.02em' }} className="m-[0] font-[800] text-[0.72rem] uppercase word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">
+              <p style={{ color: textCol, letterSpacing: '0.02em' }} className="m-[0] font-[800] text-[0.68rem] uppercase word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">
                 {box.title}
               </p>
-              <p style={{ color: subTextCol, fontWeight: isPro ? 700 : 500 }} className="m-[4px_0_0_0] text-[0.62rem] word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">
+              <p style={{ color: subTextCol, fontWeight: isPro ? 700 : 500 }} className="m-[2px_0_0_0] text-[0.6rem] word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">
                 {box.subtitle}
               </p>
               {box.license &&
-                <div className="mt-[4px] inline-flex items-center justify-center gap-[3px] bg-[#dcfce7] text-[#15803d] px-[6px] py-[2px] rounded-[100px] text-[0.55rem] font-[800]">
+                <div className="mt-[3px] inline-flex items-center justify-center gap-[3px] bg-[#dcfce7] text-[#15803d] px-[5px] py-[1px] rounded-[100px] text-[0.52rem] font-[800]">
                   <span>✓ Mat. N° {box.license}</span>
                 </div>
               }
@@ -184,9 +184,9 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
       </div>
 
       {/* 🛡️ Secure Document Verification QR Footer */}
-      <div className="mt-[1rem] pt-[0.6rem] border-t-[1px] border-dashed border-[#e2e8f0] flex items-center justify-between px-[0.5rem]">
-        <div className="flex items-center gap-[0.5rem] text-left">
-          <div className="w-[32px] h-[32px] bg-[#f1f5f9] border-[1px] border-[#cbd5e1] rounded-[6px] p-[2px] flex items-center justify-center">
+      <div className="mt-[0.5rem] pt-[0.4rem] border-t-[1px] border-dashed border-[#e2e8f0] flex items-center justify-between px-[0.5rem] avoid-break break-inside-avoid">
+        <div className="flex items-center gap-[0.4rem] text-left">
+          <div className="w-[28px] h-[28px] bg-[#f1f5f9] border-[1px] border-[#cbd5e1] rounded-[6px] p-[2px] flex items-center justify-center shrink-0">
             <img
               src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}/v/${data?.id || 'doc'}` : 'https://asistentehs.web.app')}`}
               alt="QR Validación"
@@ -194,15 +194,15 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
             />
           </div>
           <div>
-            <div className="text-[0.58rem] font-[900] text-[#334155] uppercase tracking-wider">
+            <div className="text-[0.55rem] font-[900] text-[#334155] uppercase tracking-wider">
               🔒 Verificación Digital H&amp;S
             </div>
-            <div className="text-[0.52rem] text-[#64748b] font-[500]">
-              Escaneá el código QR para validar la autenticidad e integridad del documento.
+            <div className="text-[0.5rem] text-[#64748b] font-[500]">
+              Escaneá el código QR para validar la autenticidad del documento.
             </div>
           </div>
         </div>
-        <div className="text-right text-[0.5rem] text-[#94a3b8] font-[700]">
+        <div className="text-right text-[0.48rem] text-[#94a3b8] font-[700]">
           SISTEMA AUDITADO · ISO 45001
         </div>
       </div>

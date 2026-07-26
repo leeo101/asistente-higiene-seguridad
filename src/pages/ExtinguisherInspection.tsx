@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import PremiumHeader from '../components/PremiumHeader';
+import { compressImage } from '../utils/imageCompressor';
 
 const NFPA10_CHECKLIST = [
 { id: 'c1', text: 'Ubicación correcta y asignada' },
@@ -110,15 +111,16 @@ export default function ExtinguisherInspection() {
     setChecklist(newChecklist);
   };
 
-  const handlePhoto = (index, files) => {
-    if (!files.length) return;
-    const newChecklist = [...checklist];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      newChecklist[index].photos.push(reader.result);
+  const handlePhoto = async (index, files) => {
+    if (!files || !files.length) return;
+    try {
+      const compressed = await compressImage(files[0]);
+      const newChecklist = [...checklist];
+      newChecklist[index].photos.push(compressed);
       setChecklist(newChecklist);
-    };
-    reader.readAsDataURL(files[0]);
+    } catch (e) {
+      console.warn('[ExtinguisherInspection] Error compressing photo:', e);
+    }
   };
 
   const removePhoto = (itemIndex, photoIndex) => {
@@ -127,13 +129,14 @@ export default function ExtinguisherInspection() {
     setChecklist(newChecklist);
   };
 
-  const handleGeneralPhoto = (files) => {
-    if (!files.length) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setGeneralPhotos([...generalPhotos, reader.result]);
-    };
-    reader.readAsDataURL(files[0]);
+  const handleGeneralPhoto = async (files) => {
+    if (!files || !files.length) return;
+    try {
+      const compressed = await compressImage(files[0]);
+      setGeneralPhotos(prev => [...prev, compressed]);
+    } catch (e) {
+      console.warn('[ExtinguisherInspection] Error compressing general photo:', e);
+    }
   };
 
   const removeGeneralPhoto = (index) => {

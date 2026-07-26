@@ -11,6 +11,8 @@ import toast from 'react-hot-toast';
  *   maxPhotos: number  — default 5
  *   label: string      — encabezado de sección
  */
+import { compressImage } from '../utils/imageCompressor';
+
 export interface PhotoAttachmentsProps {
   photos?: string[];
   onChange: (photos: string[]) => void;
@@ -22,7 +24,7 @@ export default function PhotoAttachments({ photos = [], onChange, maxPhotos = 5,
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null); // lightbox
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
     if (!files.length) return;
@@ -32,15 +34,8 @@ export default function PhotoAttachments({ photos = [], onChange, maxPhotos = 5,
       return;
     }
 
-    const readers = files.map((file) => new Promise<string>((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (ev) => resolve(ev.target?.result as string);
-      reader.readAsDataURL(file);
-    }));
-
-    Promise.all(readers).then((newDataUrls) => {
-      onChange([...photos, ...newDataUrls]);
-    });
+    const newCompressedDataUrls = await Promise.all(files.map((file) => compressImage(file)));
+    onChange([...photos, ...newCompressedDataUrls.filter(Boolean)]);
 
     // reset input so same file can be selected again
     e.target.value = '';
