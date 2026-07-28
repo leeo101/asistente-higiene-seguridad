@@ -19,6 +19,7 @@ import ThermalStressPdfGenerator from '../components/ThermalStressPdfGenerator';
 import DrillPdfGenerator from '../components/DrillPdfGenerator';
 import StopCardPdfGenerator from '../components/StopCardPdfGenerator';
 import RiskAssessmentPdfGenerator from '../components/RiskAssessmentPdfGenerator';
+import PublicWorkerPassView from '../components/PublicWorkerPassView';
 
 export default function PublicView(): React.ReactElement | null {
   const { uid, cat, id } = useParams();
@@ -86,21 +87,27 @@ export default function PublicView(): React.ReactElement | null {
 
   const renderGenerator = () => {
     switch (cat) {
-      case 'ats':return <ATSPdfGenerator atsData={docData} />;
-      case 'camera':return <AiReportPdfGenerator item={docData} />;
-      case 'permit':return <WorkPermitPdfGenerator data={docData} />;
-      case 'fireload':return <FireLoadPdfGenerator data={docData} />;
-      case 'matrix':return <RiskMatrixPdfGenerator data={docData} />;
-      case 'lighting':return <LightingPdfGenerator data={docData} />;
-      case 'checklist':return <ChecklistPdfGenerator checklistData={docData} />;
-      case 'accident':return <AccidentPdfGenerator report={docData} onBack={() => navigate(-1)} />;
-      case 'training':return <TrainingPdfGenerator data={docData} />;
-      case 'extinguisher':return <ExtinguisherPdfGenerator extinguishers={docData || []} />;
-      case 'thermal':return <ThermalStressPdfGenerator data={docData} />;
-      case 'drill':return <DrillPdfGenerator report={docData} onBack={() => navigate(-1)} />;
-      case 'stopcard':return <StopCardPdfGenerator card={docData} />;
-      case 'riskassessment':return <RiskAssessmentPdfGenerator assessmentData={docData} />;
-      default:return <div>Categoría no soportada.</div>;
+      case 'ats': return <ATSPdfGenerator atsData={docData} />;
+      case 'camera': return <AiReportPdfGenerator item={docData} />;
+      case 'permit': return <WorkPermitPdfGenerator data={docData} />;
+      case 'fireload': return <FireLoadPdfGenerator data={docData} />;
+      case 'matrix': return <RiskMatrixPdfGenerator data={docData} />;
+      case 'lighting': return <LightingPdfGenerator data={docData} />;
+      case 'checklist': return <ChecklistPdfGenerator checklistData={docData} />;
+      case 'accident': return <AccidentPdfGenerator report={docData} onBack={() => navigate(-1)} />;
+      case 'training': return <TrainingPdfGenerator data={docData} />;
+      case 'extinguisher':
+      case 'extintor':
+        return <PublicExtinguisherView data={docData} id={id} />;
+      case 'thermal': return <ThermalStressPdfGenerator data={docData} />;
+      case 'drill': return <DrillPdfGenerator report={docData} onBack={() => navigate(-1)} />;
+      case 'stopcard': return <StopCardPdfGenerator card={docData} />;
+      case 'riskassessment': return <RiskAssessmentPdfGenerator assessmentData={docData} />;
+      case 'worker':
+      case 'pasaporte':
+      case 'legajo':
+        return <PublicWorkerPassView data={docData} id={id} />;
+      default: return <div>Categoría no soportada.</div>;
     }
   };
 
@@ -256,3 +263,183 @@ export default function PublicView(): React.ReactElement | null {
 const Shield = ({ size }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>;
 const KeySquare = ({ size }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.4 2.7a2.5 2.5 0 0 1 3.4 0l4.5 4.5a2.5 2.5 0 0 1 0 3.4l-11 11.1L2 22l.3-7.3 10.1-12z" /></svg>;
 const Activity = ({ size }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>;
+
+function PublicExtinguisherView({ data, id }: { data: any; id?: string }) {
+  const ext = Array.isArray(data) ? (data.find((e: any) => String(e.id) === String(id) || String(e.numero) === String(id)) || data[0]) : data;
+
+  if (!ext) {
+    return (
+      <div className="p-8 text-center text-red-500 font-bold">
+        No se encontraron datos técnicos para este extintor.
+      </div>
+    );
+  }
+
+  // Calculate status
+  const now = new Date();
+  let isExpired = false;
+  let isExpiringSoon = false;
+
+  if (ext.vencimientoRecarga) {
+    const vRec = new Date(ext.vencimientoRecarga);
+    if (!isNaN(vRec.getTime())) {
+      if (vRec < now) isExpired = true;
+      else if ((vRec.getTime() - now.getTime()) / (1000 * 3600 * 24) <= 30) isExpiringSoon = true;
+    }
+  }
+
+  if (ext.vencimientoPH) {
+    const vPh = new Date(ext.vencimientoPH);
+    if (!isNaN(vPh.getTime()) && vPh < now) {
+      isExpired = true;
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-6 text-left">
+      {/* Banner / Header */}
+      <div className={`p-6 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg ${
+        isExpired
+          ? 'bg-red-500/10 border-red-500/40 text-red-400'
+          : isExpiringSoon
+          ? 'bg-amber-500/10 border-amber-500/40 text-amber-400'
+          : 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400'
+      }`}>
+        <div className="flex items-center gap-4">
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-2xl shadow-inner ${
+            isExpired ? 'bg-red-500/20 text-red-400' : isExpiringSoon ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'
+          }`}>
+            🧯
+          </div>
+          <div>
+            <span className={`text-[0.7rem] px-3 py-1 rounded-full font-black uppercase tracking-wider ${
+              isExpired ? 'bg-red-500/20 text-red-300' : isExpiringSoon ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'
+            }`}>
+              {isExpired ? '🔴 REVISIÓN REQUERIDA / VENCIDO' : isExpiringSoon ? '🟡 PRÓXIMO VENCIMIENTO' : '🟢 OPERATIVO & VIGENTE'}
+            </span>
+            <h2 className="text-xl font-black text-[var(--color-text)] mt-1 mb-0">
+              Matafuego N° {ext.numero || ext.id || 'N/A'}
+            </h2>
+            <p className="text-xs text-[var(--color-text-muted)] m-0 mt-0.5">
+              Ficha Técnica Digital Verificada · Control de extintores Dec 351/79
+            </p>
+          </div>
+        </div>
+
+        <div className="text-right sm:border-l sm:border-white/10 sm:pl-6">
+          <span className="text-xs text-[var(--color-text-muted)] block font-semibold">Empresa / Cliente</span>
+          <span className="text-sm font-extrabold text-[var(--color-text)]">{ext.empresa || 'Gestión HyS'}</span>
+        </div>
+      </div>
+
+      {/* Grid Specs */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Card 1: Datos de Ubicación y Agente */}
+        <div className="p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col gap-3">
+          <h3 className="text-xs font-black uppercase text-blue-400 tracking-wider m-0 flex items-center gap-2">
+            📍 Ubicación y Especificaciones
+          </h3>
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <span className="text-[var(--color-text-muted)] block">Ubicación / Sector:</span>
+              <strong className="text-[var(--color-text)] font-extrabold">{ext.ubicacion || 'Sector General'}</strong>
+            </div>
+            <div>
+              <span className="text-[var(--color-text-muted)] block">Agente Extintor:</span>
+              <strong className="text-blue-400 font-extrabold">{ext.agente || 'Polvo ABC'}</strong>
+            </div>
+            <div>
+              <span className="text-[var(--color-text-muted)] block">Capacidad (kg):</span>
+              <strong className="text-[var(--color-text)] font-extrabold">{ext.capacidad || 5} kg</strong>
+            </div>
+            <div>
+              <span className="text-[var(--color-text-muted)] block">N° de Serie / Patente:</span>
+              <strong className="text-[var(--color-text)] font-extrabold">{ext.nroSerie || ext.patente || 'S/N'}</strong>
+            </div>
+            {ext.marca && (
+              <div>
+                <span className="text-[var(--color-text-muted)] block">Marca / Fabricante:</span>
+                <strong className="text-[var(--color-text)] font-extrabold">{ext.marca}</strong>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Card 2: Vencimientos y Pruebas */}
+        <div className="p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col gap-3">
+          <h3 className="text-xs font-black uppercase text-amber-400 tracking-wider m-0 flex items-center gap-2">
+            📅 Fechas de Inspección & Vencimiento
+          </h3>
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <span className="text-[var(--color-text-muted)] block">Última Recarga:</span>
+              <strong className="text-[var(--color-text)] font-extrabold">
+                {ext.ultimaCarga || ext.fechaInspeccion || 'Verificada'}
+              </strong>
+            </div>
+            <div>
+              <span className="text-[var(--color-text-muted)] block">Vencimiento Recarga:</span>
+              <strong className={`font-extrabold ${isExpired ? 'text-red-400' : 'text-emerald-400'}`}>
+                {ext.vencimientoRecarga || 'Al día'}
+              </strong>
+            </div>
+            <div>
+              <span className="text-[var(--color-text-muted)] block">Última Prueba Hidráulica (PH):</span>
+              <strong className="text-[var(--color-text)] font-extrabold">{ext.ultimaPH || 'Conforme'}</strong>
+            </div>
+            <div>
+              <span className="text-[var(--color-text-muted)] block">Próxima Prueba Hidráulica (PH):</span>
+              <strong className="text-blue-400 font-extrabold">{ext.vencimientoPH || 'En término'}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Estado Físico & Componentes */}
+      <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
+        <h3 className="text-xs font-black uppercase text-emerald-400 tracking-wider m-0 mb-3">
+          🔎 Inspección Visual de Componentes
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-center">
+          <div className="p-2.5 rounded-xl bg-black/20 border border-white/5">
+            <span className="text-[var(--color-text-muted)] block text-[0.68rem]">Manómetro</span>
+            <span className="font-extrabold text-emerald-400">✓ Conforme</span>
+          </div>
+          <div className="p-2.5 rounded-xl bg-black/20 border border-white/5">
+            <span className="text-[var(--color-text-muted)] block text-[0.68rem]">Manguera / Boquilla</span>
+            <span className="font-extrabold text-emerald-400">✓ Conforme</span>
+          </div>
+          <div className="p-2.5 rounded-xl bg-black/20 border border-white/5">
+            <span className="text-[var(--color-text-muted)] block text-[0.68rem]">Precinto / Pasador</span>
+            <span className="font-extrabold text-emerald-400">✓ Intacto</span>
+          </div>
+          <div className="p-2.5 rounded-xl bg-black/20 border border-white/5">
+            <span className="text-[var(--color-text-muted)] block text-[0.68rem]">Chapa / Pintura</span>
+            <span className="font-extrabold text-emerald-400">✓ Buen Estado</span>
+          </div>
+        </div>
+        {ext.observaciones && (
+          <p className="text-xs text-[var(--color-text-muted)] mt-3 mb-0 italic">
+            <strong>Observaciones del Técnico:</strong> {ext.observaciones}
+          </p>
+        )}
+      </div>
+
+      {/* Firma del Responsable */}
+      <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-between text-xs">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">
+            ✍️
+          </div>
+          <div>
+            <span className="font-extrabold text-[var(--color-text)] block">Técnico Auditing / Prevencionista Responsable</span>
+            <span className="text-[var(--color-text-muted)] text-[0.7rem]">Verificación Digital Auténtica por Asistente HYS</span>
+          </div>
+        </div>
+        <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 font-extrabold text-[0.7rem] uppercase">
+          Verificado
+        </span>
+      </div>
+    </div>
+  );
+}

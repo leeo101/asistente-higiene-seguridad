@@ -431,54 +431,33 @@ export default function TrainingManagement(): React.ReactElement | null {
       header: 'Acciones',
       accessor: 'id',
       render: (item: any) => (
-        <div className="flex items-center gap-1.5">
-          {/* Botón Ver - Slate Oscuro */}
-          <button 
-            onClick={() => setSelectedTraining(item)} 
-            style={{ backgroundColor: '#1e293b', color: '#ffffff', border: 'none', boxShadow: '0 2px 6px rgba(30, 41, 59, 0.25)' }} 
-            className="px-3 py-1.5 rounded-lg cursor-pointer text-xs font-extrabold flex items-center gap-1 transition-transform hover:scale-105"
-          >
-            <Eye size={14} /> Ver
-          </button>
-          
-          {/* Botón Editar - Azul Vívido */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
           <button 
             onClick={() => handleEdit(item)} 
-            style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)' }} 
-            className="p-2 rounded-lg cursor-pointer flex items-center transition-transform hover:scale-105" 
-            title="Editar"
-          >
-            <Pencil size={15} />
+            title="Ver / Editar Capacitación" 
+            style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Pencil size={12} /> Editar
           </button>
-          
-          {/* Botón QR - Púrpura Vívido */}
+
           <button 
             onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/training/${item.id}?print=true`; setQrTarget({ text: url, title: `Capacitación — ${item.tema}` }); })} 
-            style={{ backgroundColor: '#7c3aed', color: '#ffffff', border: 'none', boxShadow: '0 2px 6px rgba(124, 58, 237, 0.3)' }} 
-            className="p-2 rounded-lg cursor-pointer flex items-center transition-transform hover:scale-105" 
-            title="Código QR"
-          >
-            <QrCode size={15} />
+            title="Ver Código QR" 
+            style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <QrCode size={12} /> QR
           </button>
-          
-          {/* Botón Compartir - Esmeralda Vívido */}
+
           <button 
             onClick={() => requirePro(() => setShareItem(item))} 
-            style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', boxShadow: '0 2px 6px rgba(16, 185, 129, 0.3)' }} 
-            className="p-2 rounded-lg cursor-pointer flex items-center transition-transform hover:scale-105" 
-            title="Compartir"
-          >
-            <Share2 size={15} />
+            title="Compartir Informe" 
+            style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Share2 size={12} /> Compartir
           </button>
-          
-          {/* Botón Eliminar - Rojo Vívido */}
+
           <button 
             onClick={() => setDeleteTarget(item.id)} 
-            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', boxShadow: '0 2px 6px rgba(220, 38, 38, 0.3)' }} 
-            className="p-2 rounded-lg cursor-pointer flex items-center transition-transform hover:scale-105" 
-            title="Eliminar"
-          >
-            <Trash2 size={15} />
+            title="Eliminar Registro" 
+            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Trash2 size={12} /> Eliminar
           </button>
         </div>
       )

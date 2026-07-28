@@ -284,7 +284,7 @@ const validateEmail = (req, res, next) => {
     if (!email) {
         return res.status(400).json({ error: 'El correo electrónico es requerido.' });
     }
-    const emailRegex = /^[^s@]+@[^s@]+\.[^s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         return res.status(400).json({ error: 'Formato de correo electrónico no válido.' });
     }
@@ -314,18 +314,18 @@ const validateStringInput = (field, maxLength = 1000) => {
 app.post('/api/create-subscription', adminLimiter, async (req, res) => {
     try {
         const { planId } = req.body || {};
-        let amount = 6.00;
-        let planTitle = 'Asistente H&S – Plan Profesional';
+        let amount = 2.00;
+        let planTitle = 'Asistente H&S – Plan Profesional (Acceso Total)';
 
         if (planId === 'student') {
             amount = 2.00;
             planTitle = 'Asistente H&S – Plan Estudiante';
-        } else if (planId === 'enterprise') {
-            amount = 25.00;
-            planTitle = 'Asistente H&S – Plan Empresa';
-        } else if (planId === 'pro') {
-            amount = 6.00;
-            planTitle = 'Asistente H&S – Plan Profesional';
+        } else if (planId === 'enterprise' || planId === 'consultora') {
+            amount = 2.00;
+            planTitle = 'Asistente H&S – Plan Consultora';
+        } else {
+            amount = 2.00;
+            planTitle = 'Asistente H&S – Plan Profesional (Acceso Total)';
         }
 
         console.log(`API Request received for MP payment: ${planTitle} ($${amount} USD)`);
@@ -365,15 +365,15 @@ app.post('/api/create-stripe-subscription', adminLimiter, async (req, res) => {
     try {
         const { userId, email, planId = 'pro' } = req.body;
         
-        let unitAmount = 600; // $6 USD default
-        let planTitle = 'Plan Profesional - Asistente HyS';
+        let unitAmount = 200; // $2 USD default
+        let planTitle = 'Plan Profesional (Acceso Total) - Asistente HyS';
 
         if (planId === 'student') {
             unitAmount = 200; // $2 USD
             planTitle = 'Plan Estudiante - Asistente HyS';
-        } else if (planId === 'enterprise') {
-            unitAmount = 2500; // $25 USD
-            planTitle = 'Plan Empresa / Consultora - Asistente HyS';
+        } else if (planId === 'enterprise' || planId === 'consultora') {
+            unitAmount = 200; // $2 USD
+            planTitle = 'Plan Consultora - Asistente HyS';
         }
 
         if (stripe) {
@@ -1222,7 +1222,10 @@ app.post('/api/forgot-password', authLimiter, validateEmail, async (req, res) =>
         } catch (authErr) {
             console.error("Error generating Firebase link locally:", authErr);
             if (authErr.code === 'auth/user-not-found') {
-                return res.status(404).json({ error: "No existe ninguna cuenta registrada con este correo electrónico." });
+                // 🛡️ Anti-enumeración: no revelar si el email existe o no
+                return res.json({
+                    message: 'Si el correo ingresado se encuentra registrado, recibirás un enlace de recuperación.'
+                });
             }
             return res.status(400).json({
                 error: "Error interno en el sistema de autenticación."
@@ -1234,7 +1237,7 @@ app.post('/api/forgot-password', authLimiter, validateEmail, async (req, res) =>
         const origin = req.headers.origin || 'http://localhost:5173';
         const resetLink = `${origin}/reset-password?oobCode=${oobCode}`;
 
-        console.log(`[PASSWORD RESET] Local Reset Link for ${email}: ${resetLink}`);
+        console.log(`[PASSWORD RESET] Reset link generated for ${email}. Sending email...`);
 
         const mailOptions = {
             from: { name: 'Asistente HYS', address: 'soporte@asistentehs.com' },
@@ -1250,24 +1253,16 @@ app.post('/api/forgot-password', authLimiter, validateEmail, async (req, res) =>
                     <div style="padding: 40px 30px; background-color: #ffffff;">
                         <h2 style="color: #0f172a; margin-top: 0; font-size: 20px; font-weight: 700;">Hola,</h2>
                         <p style="color: #475569; line-height: 1.6; font-size: 16px;">
-                            Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en el <strong>Asistente de Higiene y Seguridad</strong>.
+                            Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en el <strong>Asistente de Higiene y Seguridad</strong>. Hacé clic en el botón de abajo para crear una nueva contraseña de forma segura:
                         </p>
                         
-                        <div style="margin: 35px 0; text-align: center;">
-                            <p style="color: #64748b; font-size: 14px; margin-bottom: 12px; font-weight: 600; text-transform: uppercase;">Pulsa el botón de abajo para cambiar tu contraseña de forma segura:</p>
-                        </div>
-
-                        <p style="color: #475569; line-height: 1.6; font-size: 16px; text-align: center;">
-                            O si lo prefieres, puedes acceder directamente haciendo clic en el siguiente botón:
-                        </p>
-                        
-                        <div style="text-align: center; margin: 30px 0;">
+                        <div style="text-align: center; margin: 40px 0;">
                             <a href="${resetLink}" style="display: inline-block; padding: 16px 32px; background-color: #2563eb; color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);">Restablecer Contraseña</a>
                         </div>
 
                         <p style="color: #94a3b8; font-size: 14px; line-height: 1.5; border-top: 1px solid #f1f5f9; padding-top: 25px; margin-top: 35px;">
                             <strong>¿No solicitaste este cambio?</strong><br>
-                            Puedes ignorar este correo de forma segura. El enlace expirará pronto por tu seguridad.
+                            Podés ignorar este correo de forma segura. El enlace expirará en 1 hora por tu seguridad.
                         </p>
                     </div>
                     
@@ -1307,7 +1302,11 @@ app.post('/api/forgot-password', authLimiter, validateEmail, async (req, res) =>
         }
 
     } catch (error) {
-        res.status(500).json({ error: 'Error interno del servidor' });
+        // 🛡️ Anti-enumeración: nunca revelar errores internos en este endpoint
+        console.error('[PASSWORD RESET] Unexpected error:', error.message);
+        return res.json({
+            message: 'Si el correo ingresado se encuentra registrado, recibirás un enlace de recuperación.'
+        });
     }
 });
 
@@ -1370,6 +1369,76 @@ app.delete('/api/admin/requests/:id', adminLimiter, isAdmin, async (req, res) =>
     }
 });
 
+
+// Password changed notification email
+app.post('/api/send-password-changed-email', emailLimiter, validateEmail, async (req, res) => {
+    const { email, name } = req.body;
+
+    console.log(`[PASSWORD CHANGED] Sending notification to ${email}...`);
+
+    const now = new Date();
+    const timestamp = now.toLocaleString('es-AR', {
+        timeZone: 'America/Argentina/Buenos_Aires',
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+    });
+    const greeting = name ? `Hola, ${name}` : 'Hola';
+
+    try {
+        const { data: resendData, error: resendError } = await resend.emails.send({
+            from: 'Asistente HYS <soporte@asistentehs.com>',
+            to: email,
+            subject: 'Tu contraseña ha sido actualizada - Asistente HYS',
+            html: `
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border-radius: 16px; overflow: hidden; background-color: #f8fafc; border: 1px solid #e2e8f0;">
+                    <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 20px; text-align: center;">
+                        <img src="https://asistentehs.com/logo.png" alt="Asistente HYS" style="width: 80px; height: auto; margin-bottom: 20px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">Seguridad de Cuenta</h1>
+                    </div>
+                    
+                    <div style="padding: 40px 30px; background-color: #ffffff;">
+                        <h2 style="color: #0f172a; margin-top: 0; font-size: 20px; font-weight: 700;">${greeting},</h2>
+                        <p style="color: #475569; line-height: 1.6; font-size: 16px;">
+                            Te informamos que la contraseña de tu cuenta en el <strong>Asistente de Higiene y Seguridad</strong> ha sido modificada exitosamente.
+                        </p>
+                        
+                        <div style="margin: 25px 0; padding: 18px 20px; background-color: #f0fdf4; border-radius: 12px; border-left: 4px solid #10b981;">
+                            <p style="color: #334155; margin: 0; font-size: 14px;">
+                                🕐 <strong>Fecha y hora del cambio:</strong> ${timestamp} (hora Argentina)
+                            </p>
+                        </div>
+
+                        <p style="color: #475569; line-height: 1.6; font-size: 16px;">
+                            Ya podés iniciar sesión en cualquier momento utilizando tu nueva clave de acceso.
+                        </p>
+
+                        <p style="color: #94a3b8; font-size: 14px; line-height: 1.5; border-top: 1px solid #f1f5f9; padding-top: 25px; margin-top: 35px;">
+                            <strong>¿No fuiste vos quien hizo este cambio?</strong><br>
+                            Si no autorizaste esta acción, contactanos de inmediato a <a href="mailto:soporte@asistentehs.com" style="color: #2563eb; text-decoration: none;">soporte@asistentehs.com</a> para proteger tu cuenta.
+                        </p>
+                    </div>
+                    
+                    <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+                        <p style="color: #64748b; font-size: 12px; margin: 0;">
+                            © 2026 Asistente de Higiene y Seguridad. Todos los derechos reservados.
+                        </p>
+                    </div>
+                </div>
+            `
+        });
+
+        if (resendError) {
+            console.error('[PASSWORD CHANGED] Resend error:', resendError);
+            return res.json({ success: false, error: resendError.message });
+        }
+
+        console.log(`[PASSWORD CHANGED] Notification sent to ${email}. ID: ${resendData.id}`);
+        return res.json({ success: true });
+    } catch (err) {
+        console.error('[PASSWORD CHANGED] Error:', err.message);
+        return res.json({ success: false, error: err.message });
+    }
+});
 
 // Welcome email - email limiter (prevent spam)
 app.post('/api/welcome-email', emailLimiter, validateEmail, validateStringInput('name', 100), async (req, res) => {
@@ -1437,6 +1506,61 @@ app.post('/api/welcome-email', emailLimiter, validateEmail, validateStringInput(
     } catch (err) {
         console.error('[WELCOME EMAIL] Error:', err.message);
         res.json({ success: false, error: err.message, message: 'No se pudo enviar el correo, pero el registro fue exitoso.' });
+    }
+});
+
+// ==========================================
+// DELETE ACCOUNT — Limpieza completa de datos
+// ==========================================
+
+/**
+ * DELETE /api/delete-account
+ * Elimina completamente una cuenta de usuario:
+ *   1. Datos de Firestore (colección y subcolecciones)
+ *   2. Archivos de Storage (carpeta users/{uid}/)
+ *   3. Cuenta de Firebase Auth
+ *
+ * Requiere token válido de Firebase → solo el propio usuario puede eliminar su cuenta.
+ */
+app.delete('/api/delete-account', verifyFirebaseToken, async (req, res) => {
+    const uid = req.user?.uid;
+
+    if (!uid) {
+        return res.status(401).json({ error: 'No autorizado.' });
+    }
+
+    try {
+        console.log(`[DELETE ACCOUNT] Iniciando eliminación completa para uid: ${uid}`);
+
+        // 1. Eliminar datos de Firestore recursivamente
+        try {
+            const db = admin.firestore();
+            await db.recursiveDelete(db.collection('users').doc(uid));
+            console.log(`[DELETE ACCOUNT] Firestore data deleted for uid: ${uid}`);
+        } catch (firestoreErr) {
+            console.error(`[DELETE ACCOUNT] Firestore deletion error for uid ${uid}:`, firestoreErr.message);
+            // No fatal — continuar con Storage y Auth
+        }
+
+        // 2. Eliminar archivos de Storage (carpeta users/{uid}/)
+        try {
+            const bucket = admin.storage().bucket(process.env.FIREBASE_STORAGE_BUCKET);
+            await bucket.deleteFiles({ prefix: `users/${uid}/` });
+            console.log(`[DELETE ACCOUNT] Storage files deleted for uid: ${uid}`);
+        } catch (storageErr) {
+            // Si no hay archivos o el bucket no está configurado, no es fatal
+            console.warn(`[DELETE ACCOUNT] Storage deletion warning for uid ${uid}:`, storageErr.message);
+        }
+
+        // 3. Eliminar usuario de Firebase Auth (operación final)
+        await admin.auth().deleteUser(uid);
+        console.log(`[DELETE ACCOUNT] Firebase Auth user deleted: ${uid}`);
+
+        return res.json({ success: true, message: 'Cuenta eliminada completamente.' });
+
+    } catch (err) {
+        console.error(`[DELETE ACCOUNT] Critical error for uid ${uid}:`, err.message);
+        return res.status(500).json({ error: 'Error al eliminar la cuenta. Por favor contactá soporte.' });
     }
 });
 

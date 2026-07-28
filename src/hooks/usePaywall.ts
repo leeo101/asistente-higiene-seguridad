@@ -75,6 +75,26 @@ export function usePaywall() {
     }
   }, [isAdmin, isPro, syncPulse, internalPulse]);
 
+  const expiryDate = useMemo(() => {
+    try {
+      const subData = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
+      const expiry = parseInt(subData.expiry || '0', 10);
+      return expiry ? new Date(expiry) : null;
+    } catch {
+      return null;
+    }
+  }, [syncPulse, internalPulse]);
+
+  const isExpiringSoon = useMemo(() => {
+    if (isAdmin || !isPro) return false;
+    return daysRemaining > 0 && daysRemaining <= 7;
+  }, [isAdmin, isPro, daysRemaining]);
+
+  const isExpired = useMemo(() => {
+    if (isAdmin) return false;
+    return !isPro || (daysRemaining === 0 && expiryDate !== null);
+  }, [isAdmin, isPro, daysRemaining, expiryDate]);
+
   const status = isPro ? 'active' : 'none';
   const isActive = isPro;
 
@@ -96,6 +116,9 @@ export function usePaywall() {
     isPro,
     isAdmin,
     daysRemaining,
+    isExpiringSoon,
+    isExpired,
+    expiryDate,
     status,
     isActive,
     loading: loadingClaims

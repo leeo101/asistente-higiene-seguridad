@@ -17,11 +17,21 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { email } = req.body;
+        const { email, name } = req.body;
 
         if (!email) {
             return res.status(400).json({ error: 'Email requerido' });
         }
+
+        // Timestamp en hora argentina
+        const now = new Date();
+        const timestamp = now.toLocaleString('es-AR', {
+            timeZone: 'America/Argentina/Buenos_Aires',
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+
+        const greeting = name ? `Hola, ${name}` : 'Hola';
 
         const { data, error } = await resend.emails.send({
             from: 'Asistente HYS <soporte@asistentehs.com>',
@@ -35,20 +45,24 @@ export default async function handler(req, res) {
                     </div>
                     
                     <div style="padding: 40px 30px; background-color: #ffffff;">
-                        <h2 style="color: #0f172a; margin-top: 0; font-size: 20px; font-weight: 700;">Hola,</h2>
+                        <h2 style="color: #0f172a; margin-top: 0; font-size: 20px; font-weight: 700;">${greeting},</h2>
                         <p style="color: #475569; line-height: 1.6; font-size: 16px;">
-                            Te informamos que la contraseña de tu cuenta en el <strong>Asistente de Higiene y Seguridad</strong> ha sido modificada exitosamente hace unos momentos.
+                            Te informamos que la contraseña de tu cuenta en el <strong>Asistente de Higiene y Seguridad</strong> ha sido modificada exitosamente.
                         </p>
                         
-                        <div style="margin: 35px 0; padding: 20px; background-color: #f1f5f9; border-radius: 12px; border-left: 4px solid #10b981;">
-                            <p style="color: #334155; margin: 0; font-size: 15px; font-weight: 500;">
-                                Ya puedes iniciar sesión en cualquier momento utilizando tu nueva clave de acceso.
+                        <div style="margin: 25px 0; padding: 18px 20px; background-color: #f0fdf4; border-radius: 12px; border-left: 4px solid #10b981;">
+                            <p style="color: #334155; margin: 0; font-size: 14px;">
+                                🕐 <strong>Fecha y hora del cambio:</strong> ${timestamp} (hora Argentina)
                             </p>
                         </div>
 
+                        <p style="color: #475569; line-height: 1.6; font-size: 16px;">
+                            Ya podés iniciar sesión en cualquier momento utilizando tu nueva clave de acceso.
+                        </p>
+
                         <p style="color: #94a3b8; font-size: 14px; line-height: 1.5; border-top: 1px solid #f1f5f9; padding-top: 25px; margin-top: 35px;">
-                            <strong>¿No fuiste tú quien hizo este cambio?</strong><br>
-                            Si no autorizaste este cambio, por favor contáctanos de inmediato a <a href="mailto:soporte@asistentehs.com" style="color: #2563eb; text-decoration: none;">soporte@asistentehs.com</a> para proteger tu cuenta y revertir la acción.
+                            <strong>¿No fuiste vos quien hizo este cambio?</strong><br>
+                            Si no autorizaste esta acción, contactanos de inmediato a <a href="mailto:soporte@asistentehs.com" style="color: #2563eb; text-decoration: none;">soporte@asistentehs.com</a> para proteger tu cuenta.
                         </p>
                     </div>
                     

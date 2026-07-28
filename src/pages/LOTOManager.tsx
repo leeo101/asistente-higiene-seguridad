@@ -541,46 +541,30 @@ function ProcedureCard({ procedure, statusConfig, onStart, onComplete, onView, o
                 </div>
             </div>
 
-            {/* Actions at the bottom */}
-            <div className="flex gap-2 justify-end items-center pt-3 border-t border-slate-100 dark:border-slate-700/50">
-                {procedure.status === 'pending' &&
-                <button
-                  onClick={onStart}
-                  style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }}
-                  className="p-2 rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
-                  title="Iniciar LOTO">
-                                <Lock size={15} />
-                            </button>
-                }
-                {procedure.status === 'active' &&
-                <button
-                  onClick={onComplete}
-                  style={{ backgroundColor: '#3b82f6', color: '#ffffff', border: 'none' }}
-                  className="p-2 rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
-                  title="Completar LOTO">
-                                <CheckCircle2 size={15} />
-                            </button>
-                }
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }} className="pt-3 border-t border-slate-100 dark:border-slate-700/50">
                 <button
                   onClick={onEdit}
-                  style={{ backgroundColor: '#3b82f6', color: '#ffffff', border: 'none' }}
-                  className="p-2 rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
-                  title="Editar Procedimiento">
-                            <Edit3 size={15} />
+                  title="Ver / Editar Procedimiento"
+                  style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <Edit3 size={12} /> Editar
+                </button>
+                <button
+                  onClick={onView}
+                  title="Ver Detalles"
+                  style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <Eye size={12} /> Ver
                 </button>
                 <button
                   onClick={onShare}
-                  style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }}
-                  className="p-2 rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
-                  title="Compartir PDF">
-                            <Share2 size={15} />
+                  title="Compartir PDF"
+                  style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <Share2 size={12} /> Compartir
                 </button>
                 <button
                   onClick={onDelete}
-                  style={{ backgroundColor: '#ef4444', color: '#ffffff', border: 'none' }}
-                  className="p-2 rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
-                  title="Eliminar">
-                            <Trash2 size={15} />
+                  title="Eliminar Procedimiento"
+                  style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <Trash2 size={12} /> Eliminar
                 </button>
             </div>
         </div>

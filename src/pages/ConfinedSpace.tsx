@@ -782,32 +782,28 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                         </>
                     }
                     <button
-                        onClick={onView}
-                        className="p-[0.6rem] border-none rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]"
-                        style={{ backgroundColor: '#3b82f6', color: '#fff' }}
-                        title="Ver Detalles">
-                        <Eye size={18} />
+                        onClick={onEdit}
+                        title="Ver / Editar Permiso"
+                        style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <Edit3 size={12} /> Editar
                     </button>
                     <button
-                        onClick={onEdit}
-                        className="p-[0.6rem] border-none rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]"
-                        style={{ backgroundColor: '#6366f1', color: '#fff' }}
-                        title="Editar Permiso">
-                        <Edit3 size={18} />
+                        onClick={onView}
+                        title="Ver Detalles"
+                        style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <Eye size={12} /> Ver
                     </button>
                     <button
                         onClick={onShare}
-                        className="p-[0.6rem] border-none rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]"
-                        style={{ backgroundColor: '#8b5cf6', color: '#fff' }}
-                        title="Compartir PDF">
-                        <Share2 size={18} />
+                        title="Compartir PDF"
+                        style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <Share2 size={12} /> Compartir
                     </button>
                     <button
                         onClick={onDelete}
-                        className="p-[0.6rem] border-none rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-[all_var(--transition-fast)]"
-                        style={{ backgroundColor: '#ef4444', color: '#fff' }}
-                        title="Eliminar">
-                        <Trash2 size={18} />
+                        title="Eliminar Permiso"
+                        style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <Trash2 size={12} /> Eliminar
                     </button>
                 </div>
             </div>

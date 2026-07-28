@@ -108,15 +108,37 @@ export default function AccidentHistory(): React.ReactElement | null {
   {
     header: 'Acciones',
     accessor: 'id',
-    render: (item: any) =>
-    <div className="flex gap-[0.4rem]">
-                    <button onClick={() => setSelectedReport(item)} className="p-[0.4rem_0.8rem] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[8px] cursor-pointer text-[0.75rem] font-[700] text-[var(--color-text)]">Ver</button>
-                    <button onClick={() => navigate('/accident-investigation', { state: { editData: item } })} title="Editar" className="p-[0.4rem] bg-[rgba(59,130,246,0.08)] border-[1px_solid_rgba(59,130,246,0.2)] rounded-[8px] text-[#3b82f6] cursor-pointer"><PencilSimple size={15} /></button>
-                    <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/accident/${item.id}?print=true`;setQrTarget({ text: url, title: `Accidente — ${item.victimaNombre}` });})} title="QR" className="p-[0.4rem] bg-[rgba(139,92,246,0.08)] border-[1px_solid_rgba(139,92,246,0.2)] rounded-[8px] text-[#8b5cf6] cursor-pointer"><QrCode size={15} /></button>
-                    <button onClick={() => requirePro(() => setShareItem(item))} title="Compartir" className="p-[0.4rem] bg-[rgba(22,163,74,0.08)] border-[1px_solid_rgba(22,163,74,0.2)] rounded-[8px] text-[#16a34a] cursor-pointer"><Share2 size={15} /></button>
-                    <button onClick={() => setDeleteTarget(item.id)} className="p-[0.4rem] bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[8px] text-[#ef4444] cursor-pointer"><Trash size={15} /></button>
-                </div>
+    render: (item: any) => (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+        <button
+          onClick={() => navigate('/accident-investigation', { state: { editData: item } })}
+          title="Ver / Editar Informe"
+          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <PencilSimple size={12} /> Editar
+        </button>
 
+        <button
+          onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/accident/${item.id}?print=true`; setQrTarget({ text: url, title: `Accidente — ${item.victimaNombre}` }); })}
+          title="Ver Código QR"
+          style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <QrCode size={12} /> QR
+        </button>
+
+        <button
+          onClick={() => requirePro(() => setShareItem(item))}
+          title="Compartir Informe"
+          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Share2 size={12} /> Compartir
+        </button>
+
+        <button
+          onClick={() => setDeleteTarget(item.id)}
+          title="Eliminar Registro"
+          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Trash size={12} /> Eliminar
+        </button>
+      </div>
+    )
   }];
 
 

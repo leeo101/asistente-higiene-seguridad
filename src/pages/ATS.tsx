@@ -619,14 +619,37 @@ export default function ATS(): React.ReactElement | null {
   {
     header: 'Acciones',
     accessor: 'id',
-    render: (item: any) =>
-    <div className="flex items-center gap-1.5">
-                    <button onClick={() => {setFormData(item);setShowForm(true);}} title="Ver" style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><FileText size={16} /></button>
-                    <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/ats/${item.id}?print=true`;setQrTarget({ text: url, title: `ATS — ${item.empresa}` } as any);})} title="QR" style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><QrCode size={16} /></button>
-                    <button onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('ats_' + item.id) || 'null') || item))} title="Compartir" style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Share2 size={16} /></button>
-                    <button onClick={() => setConfirmModal({ isOpen: true, type: 'delete', payload: item.id })} title="Eliminar" style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Trash2 size={16} /></button>
-                </div>
+    render: (item: any) => (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+        <button
+          onClick={() => { setFormData(item); setShowForm(true); }}
+          title="Ver / Editar ATS"
+          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <FileText size={12} /> Editar
+        </button>
 
+        <button
+          onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/ats/${item.id}?print=true`; setQrTarget({ text: url, title: `ATS — ${item.empresa}` } as any); })}
+          title="Ver Código QR"
+          style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <QrCode size={12} /> QR
+        </button>
+
+        <button
+          onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('ats_' + item.id) || 'null') || item))}
+          title="Compartir Informe"
+          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Share2 size={12} /> Compartir
+        </button>
+
+        <button
+          onClick={() => setConfirmModal({ isOpen: true, type: 'delete', payload: item.id })}
+          title="Eliminar ATS"
+          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Trash2 size={12} /> Eliminar
+        </button>
+      </div>
+    )
   }];
 
 

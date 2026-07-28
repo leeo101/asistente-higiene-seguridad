@@ -1,38 +1,25 @@
 import { setCorsHeaders } from './_cors.js';
 
-// Note: This needs to share state with forgot-password if it's purely in-memory.
-// In a serverless environment like Vercel, this usually requires a DB like Redis or Mongo.
-// Since we don't have one set up, we will accept any valid-looking token for the mock.
+/**
+ * Este endpoint fue reemplazado por el flujo nativo de Firebase Auth.
+ * El restablecimiento de contraseña se hace directamente desde el cliente
+ * con confirmPasswordReset() de firebase/auth, usando el oobCode del email.
+ * 
+ * Este handler existe solo para evitar un 404 si alguien llama a esta ruta,
+ * y deja un log de auditoría claro.
+ */
 export default async function handler(req, res) {
-    // 🔐 Enable secure CORS configuration
     const corsOk = setCorsHeaders(req, res);
     if (!corsOk) return;
 
     if (req.method === 'OPTIONS') {
-        res.status(200).end()
-        return
+        return res.status(200).end();
     }
 
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method Not Allowed' });
-    }
+    console.warn('[SECURITY] Deprecated endpoint /api/reset-password called from:', req.headers.origin || req.ip);
 
-    try {
-        const { token, newPassword } = req.body;
-
-        if (!token || !newPassword) {
-            return res.status(400).json({ error: 'Faltan datos' });
-        }
-
-        // Simulate password reset logic (due to lack of persistent DB setup across Vercel lambdas)
-        if (token.length > 10) {
-            return res.status(200).json({ message: 'Contraseña actualizada exitosamente' });
-        } else {
-            return res.status(400).json({ error: 'Token inválido o expirado' });
-        }
-
-    } catch (error) {
-        console.error("Reset Error:", error);
-        return res.status(500).json({ error: 'Error al actualizar contraseña' });
-    }
+    return res.status(410).json({
+        error: 'Este endpoint fue reemplazado. El restablecimiento de contraseña se maneja directamente con Firebase Auth.',
+        code: 'ENDPOINT_DEPRECATED'
+    });
 }

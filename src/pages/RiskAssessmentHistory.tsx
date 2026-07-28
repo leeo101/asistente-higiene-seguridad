@@ -132,87 +132,59 @@ export default function RiskAssessmentHistory(): React.ReactElement | null {
                                         </span>
                                         {item.location && <span>📍 {item.location}</span>}
                                     </div>
-                                </div>
-                                <div className="text-right">
-                                    <div style={{
-
-
-
-                  background: getRiskBg(item.riskLabel),
-                  color: getRiskColor(item.riskLabel),
-
-
-
-                  border: `1px solid ${getRiskColor(item.riskLabel)}40`
-                }} className="inline-block p-[0.3rem_0.6rem] rounded-[8px] font-[800] text-[0.75rem] uppercase">
-                                        Nivel {item.riskLabel} ({item.score})
+                                            <div style={{
+                                      background: getRiskBg(item.riskLabel),
+                                      color: getRiskColor(item.riskLabel),
+                                      border: `1px solid ${getRiskColor(item.riskLabel)}40`
+                                    }} className="inline-block p-[0.3rem_0.6rem] rounded-[8px] font-[800] text-[0.75rem] uppercase">
+                                      Nivel {item.riskLabel} ({item.score})
                                     </div>
+                                  </div>
                                 </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }} className="pt-[0.8rem] border-t border-[var(--color-border)]">
+                                  <button
+                                    onClick={() => navigate('/risk', { state: { editData: item } })}
+                                    title="Ver / Editar Evaluación"
+                                    style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                    <ShieldAlert size={12} /> Editar
+                                  </button>
+
+                                  <button
+                                    onClick={() => {
+                                      requirePro(() => {
+                                        const url = `${window.location.origin}/v/${currentUser?.uid}/riskassessment/${item.id}?print=true`;
+                                        setQrTarget({ text: url, title: `IPER — ${item.name}` });
+                                      });
+                                    }}
+                                    title="Ver Código QR"
+                                    style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                    <QrCode size={12} /> QR
+                                  </button>
+
+                                  <button
+                                    onClick={() => requirePro(() => setShareItem(item))}
+                                    title="Compartir Informe"
+                                    style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                    <Share2 size={12} /> Compartir
+                                  </button>
+
+                                  <button
+                                    onClick={(e) => askDelete(e, item.id)}
+                                    title="Eliminar Registro"
+                                    style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                    <Trash2 size={12} /> Eliminar
+                                  </button>
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex gap-[0.8rem] border-top-[1px_solid_var(--color-border)] pt-[0.8rem] flex-wrap">
-                                <button
-                onClick={() => navigate('/risk', { state: { editData: item } })}
-                className="btn-secondary flex-[1] p-[0.6rem] text-[0.85rem] font-[700]">
-
-                
-                                    Editar Evaluación
-                                </button>
-                                <button
-                onClick={() => requirePro(() => setShareItem(item))}
-
-
-
-
-
-
-
-
-
-
-
-
-
-                title="Compartir Informe" className="p-[0.6rem_1rem] bg-[#dcfce7] border-[1px_solid_#86efac] rounded-[12px] text-[#16a34a] cursor-pointer flex items-center gap-[0.4rem] font-[800] text-[0.8rem]">
-                
-                                    <Share2 size={16} /> <span>WA</span>
-                                </button>
-                                <button
-                onClick={() => {
-                  requirePro(() => {
-                    const url = `${window.location.origin}/v/${currentUser?.uid}/riskassessment/${item.id}?print=true`;
-                    setQrTarget({ text: url, title: `IPER — ${item.name}` });
-                  });
-                }}
-
-                title="Generar QR" className="p-[0.6rem] bg-[rgba(139,92,246,0.06)] border-[1px_solid_rgba(139,92,246,0.18)] rounded-[12px] text-[#8b5cf6] cursor-pointer flex items-center justify-center">
-                
-                                    <QrCode size={18} />
-                                </button>
-                                <button
-                onClick={(e) => askDelete(e, item.id)}
-                title="Eliminar"
-
-
-
-
-
-
-                onMouseEnter={(e) => e.currentTarget.style.background = '#fecaca'}
-                onMouseLeave={(e) => e.currentTarget.style.background = '#fee2e2'} className="bg-[#fee2e2] border-none rounded-[12px] text-[#dc2626] cursor-pointer p-[0.6rem_0.8rem] flex items-center flex-shrink-[0] transition-[background_0.2s]">
-                
-                                    <Trash2 size={18} />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-        ) :
-        <div className="text-center p-[3rem] text-[var(--color-text-muted)]">
-                        <ShieldAlert size={48} className="opacity-[0.1] mb-[1rem]" />
-                        <p className="m-[0_0_1.5rem] font-[600]">No hay evaluaciones de riesgo registradas</p>
-                        <button onClick={() => navigate('/risk')} className="btn-primary m-[0_auto] bg-[linear-gradient(135deg,_#ef4444,_#dc2626)] border-none">Crear primera Evaluación</button>
-                    </div>
-        }
-            </div>
+        ) : (
+          <div className="text-center p-[3rem] text-[var(--color-text-muted)]">
+            <ShieldAlert size={48} className="opacity-[0.1] mb-[1rem] mx-auto" />
+            <p className="m-[0_0_1.5rem] font-[600]">No hay evaluaciones de riesgo registradas</p>
+            <button onClick={() => navigate('/risk')} className="btn-primary m-[0_auto] bg-[linear-gradient(135deg,_#ef4444,_#dc2626)] border-none">Crear primera Evaluación</button>
+          </div>
+        )}
+      </div>
             {qrTarget &&
       <QRModal
         text={qrTarget.text}

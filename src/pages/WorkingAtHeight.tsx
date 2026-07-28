@@ -650,37 +650,36 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                         </button>
                     </>
         }
-                <button
+        <button
           onClick={onEdit}
-          className="p-2 bg-slate-800 border border-slate-700 rounded-lg text-emerald-500 hover:bg-slate-700 transition-colors"
-          title="Editar Permiso">
-          
-                    <Edit3 size={18} />
-                </button>
-                <button
+          title="Ver / Editar Permiso"
+          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Edit3 size={12} /> Editar
+        </button>
+
+        <button
+          onClick={onView}
+          title="Ver Detalles"
+          style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Eye size={12} /> Ver
+        </button>
+
+        <button
           onClick={onShare}
+          title="Compartir PDF"
+          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Share2 size={12} /> Compartir
+        </button>
 
-
-
-
-
-
-
-
-
-          title="Compartir PDF" className="p-[0.6rem_0.75rem] bg-[#dcfce7] border-[1px_solid_#86efac] rounded-[var(--radius-md)] cursor-pointer text-[#16a34a] transition-[all_var(--transition-fast)]">
-          
-                    <Share2 size={18} />
-                </button>
-                <button
+        <button
           onClick={onDelete}
-          className="p-2 bg-slate-800 border border-slate-700 rounded-lg text-red-500 hover:bg-slate-700 transition-colors"
-          title="Eliminar">
-          
-                    <Trash2 size={18} />
-                </button>
-            </div>
-        </div>);
+          title="Eliminar Permiso"
+          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Trash2 size={12} /> Eliminar
+        </button>
+      </div>
+    </div>
+  );
 
 }
 

@@ -53,25 +53,48 @@ export default function SidebarUserProfile({ currentUser, userInfo, isPro, daysR
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {currentUser ? userInfo.name : 'Invitado'}
-                        {isPro && (
-                            <div
+                        {isPro ? (
+                            <Link
+                                to="/subscribe"
+                                onClick={onClose}
                                 style={{
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '0.35rem',
-                                    padding: '0.2rem 0.5rem',
-                                    background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 191, 36, 0.1))',
-                                    border: '1px solid rgba(245, 158, 11, 0.3)',
+                                    padding: '0.2rem 0.55rem',
+                                    background: daysRemaining <= 7 ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(245, 158, 11, 0.2))' : 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 191, 36, 0.1))',
+                                    border: daysRemaining <= 7 ? '1px solid rgba(245, 158, 11, 0.6)' : '1px solid rgba(245, 158, 11, 0.3)',
                                     borderRadius: '20px',
-                                    backdropFilter: 'blur(4px)'
+                                    backdropFilter: 'blur(4px)',
+                                    textDecoration: 'none'
                                 }}
-                                title={daysRemaining === Infinity ? "Plan Administrador - Acceso Total" : `Días PRO: ${daysRemaining}`}
+                                title={daysRemaining === Infinity ? "Plan Administrador - Acceso Total" : `Vence en ${daysRemaining} días. Haz clic para renovar por $2 USD`}
                             >
                                 <Crown weight="fill" size={12} color="#f59e0b" />
-                                <span style={{ fontSize: '0.6rem', color: '#fcd34d', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    {daysRemaining === Infinity ? 'Admin' : `PRO ${daysRemaining}d`}
+                                <span style={{ fontSize: '0.62rem', color: daysRemaining <= 7 ? '#fde68a' : '#fcd34d', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    {daysRemaining === Infinity ? 'Admin' : daysRemaining <= 7 ? `⚠️ Renovar $2 (${daysRemaining}d)` : `PRO ${daysRemaining}d`}
                                 </span>
-                            </div>
+                            </Link>
+                        ) : (
+                            <Link
+                                to="/subscribe"
+                                onClick={onClose}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.3rem',
+                                    padding: '0.2rem 0.55rem',
+                                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2))',
+                                    border: '1px solid rgba(59, 130, 246, 0.4)',
+                                    borderRadius: '20px',
+                                    textDecoration: 'none'
+                                }}
+                            >
+                                <Crown weight="fill" size={12} color="#60a5fa" />
+                                <span style={{ fontSize: '0.62rem', color: '#93c5fd', fontWeight: 900, textTransform: 'uppercase' }}>
+                                    Activar PRO $2
+                                </span>
+                            </Link>
                         )}
                     </div>
                     <button

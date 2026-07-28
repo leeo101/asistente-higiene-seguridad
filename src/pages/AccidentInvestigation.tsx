@@ -758,6 +758,46 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                                         <ListPlus size={16} /> Preguntar otro "¿Por qué?"
                                     </button>
               }
+
+                            {/* 🌳 Visual Diagram: Árbol de Causas (SRT Official Method) */}
+                            <div className="mt-6 p-6 rounded-2xl bg-slate-900 text-white border border-slate-700 shadow-lg">
+                              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                                <div className="flex items-center gap-2 text-emerald-400 font-extrabold text-sm uppercase tracking-wider">
+                                  <TreeDeciduous size={20} /> Diagrama de Árbol de Causas (Metodología SRT)
+                                </div>
+                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">
+                                  EN TIEMPO REAL
+                                </span>
+                              </div>
+
+                              <div className="flex flex-col items-center gap-3">
+                                {/* Accident Node */}
+                                <div className="w-full max-w-md p-3.5 rounded-xl bg-red-600/20 border border-red-500/50 text-red-200 text-center font-extrabold text-xs shadow-md">
+                                  <span className="block text-[10px] uppercase font-black text-red-400 mb-1">💥 1. HECHO PRINCIPAL / EFECTO</span>
+                                  {formData.problemaCentral || 'Descripción del Accidente'}
+                                </div>
+
+                                {/* Flow Arrows & Intermediate Causes */}
+                                {formData.porques.filter((p: string) => p.trim()).map((pq: string, idx: number) => {
+                                  const isLast = idx === formData.porques.filter((p: string) => p.trim()).length - 1;
+                                  return (
+                                    <React.Fragment key={idx}>
+                                      <div className="text-slate-500 font-black text-xs">↓ por qué ↓</div>
+                                      <div className={`w-full max-w-md p-3.5 rounded-xl border text-center font-bold text-xs shadow-md ${
+                                        isLast 
+                                          ? 'bg-blue-600/20 border-blue-500/50 text-blue-200' 
+                                          : 'bg-amber-600/20 border-amber-500/50 text-amber-200'
+                                      }`}>
+                                        <span className={`block text-[10px] uppercase font-black mb-1 ${isLast ? 'text-blue-400' : 'text-amber-400'}`}>
+                                          {isLast ? '🛠️ CAUSA RAÍZ DE GESTIÓN (SISTÉMICA)' : `🔻 CAUSA INMEDIATA N° ${idx + 1}`}
+                                        </span>
+                                        {pq}
+                                      </div>
+                                    </React.Fragment>
+                                  );
+                                })}
+                              </div>
+                            </div>
                             </div>
                         </div>
           }

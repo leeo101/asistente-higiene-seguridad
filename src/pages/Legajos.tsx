@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, FileText, Download, Trash2, Edit, AlertCircle, Building2, Search, Filter, CheckCircle2, Clock, AlertTriangle, ArrowLeft, X } from 'lucide-react';
+import { Plus, FileText, Download, Trash2, Edit, AlertCircle, Building2, Search, Filter, CheckCircle2, Clock, AlertTriangle, ArrowLeft, X, QrCode } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
 import { db } from '../firebase';
@@ -11,6 +11,7 @@ import AnimatedPage from '../components/AnimatedPage';
 import LegajoPdf from '../components/LegajoPdf';
 import PremiumHeader from '../components/PremiumHeader';
 import ConfirmModal from '../components/ConfirmModal';
+import QRModal from '../components/QRModal';
 
 interface Legajo {
   id: string;
@@ -78,6 +79,7 @@ export default function Legajos() {
   const navigate = useNavigate();
   const [printingLegajo, setPrintingLegajo] = useState<Legajo | null>(null);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
+  const [qrTarget, setQrTarget] = useState<{ text: string; title: string } | null>(null);
   const [showQRModal, setShowQRModal] = useState(false);
 
   const handleGeneratePDF = (e: React.MouseEvent, legajo: Legajo) => {
@@ -436,65 +438,33 @@ export default function Legajos() {
               </div>
 
               {/* Action buttons */}
-              <div className="flex gap-2 border-t border-slate-200 dark:border-slate-700 pt-4" onClick={(e) => e.stopPropagation()}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }} className="border-t border-slate-200 dark:border-slate-700 pt-4" onClick={(e) => e.stopPropagation()}>
                 <button
                     onClick={() => navigate(`/legajos/editar/${legajo.id}`)}
-                    className="flex-1 cursor-pointer hover:opacity-90 transition-opacity"
-                    style={{
-                      backgroundColor: '#2563eb',
-                      color: '#ffffff',
-                      border: 'none',
-                      minHeight: '36px',
-                      height: '36px',
-                      padding: '0 12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                      borderRadius: '12px',
-                      fontSize: '0.75rem',
-                      fontWeight: 800
-                    }}>
-                  <Edit size={15} color="#ffffff" /> <span className="text-white">Editar</span>
+                    title="Editar Legajo"
+                    style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <Edit size={12} /> Editar
+                </button>
+                <button
+                    onClick={() => {
+                      const url = `${window.location.origin}/v/${currentUser?.uid}/pasaporte/${legajo.id}`;
+                      setQrTarget({ text: url, title: `Pasaporte Digital H&S — ${legajo.empresa?.razonSocial || legajo.companyName || 'Legajo'}` });
+                    }}
+                    title="Ver Pasaporte QR"
+                    style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <QrCode size={12} /> Pasaporte QR
                 </button>
                 <button
                     onClick={(e) => handleGeneratePDF(e, legajo)}
-                    className="flex-1 cursor-pointer hover:opacity-90 transition-opacity"
-                    style={{
-                      backgroundColor: '#10b981',
-                      color: '#ffffff',
-                      border: 'none',
-                      minHeight: '36px',
-                      height: '36px',
-                      padding: '0 12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                      borderRadius: '12px',
-                      fontSize: '0.75rem',
-                      fontWeight: 800
-                    }}>
-                  <Download size={15} color="#ffffff" /> <span className="text-white">PDF</span>
+                    title="Exportar PDF"
+                    style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <Download size={12} /> PDF
                 </button>
                 <button
                     onClick={() => handleDelete(legajo.id)}
-                    className="cursor-pointer hover:opacity-90 transition-opacity"
-                    title="Eliminar"
-                    style={{
-                      backgroundColor: '#dc2626',
-                      color: '#ffffff',
-                      border: 'none',
-                      minHeight: '36px',
-                      height: '36px',
-                      width: '36px',
-                      padding: '0',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: '12px'
-                    }}>
-                  <Trash2 size={15} color="#ffffff" />
+                    title="Eliminar Legajo"
+                    style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <Trash2 size={12} /> Eliminar
                 </button>
               </div>
             </motion.div>);
@@ -510,7 +480,8 @@ export default function Legajos() {
           title="¿Eliminar Legajo?"
           message="Esta acción no se puede deshacer."
           iconEmoji="🗑️" />
-        
+
+      {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
     </div>
     </AnimatedPage>);
 

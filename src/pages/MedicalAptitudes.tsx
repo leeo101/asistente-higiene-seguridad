@@ -456,14 +456,40 @@ export default function MedicalAptitudes() {
               </div>
 
               <div>
-                <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Puesto / Tarea</label>
+                <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Puesto / Tarea *</label>
                 <input 
                   type="text" 
                   value={formData.jobTitle} 
                   onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })} 
                   className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-emerald-500 outline-none font-semibold text-sm text-slate-900 dark:text-white" 
-                  placeholder="Ej. Operador de Montacargas" 
+                  placeholder="Ej. Operador de Montacargas, Chofer..." 
                 />
+              </div>
+
+              {/* 🏥 Matriz Res. SRT 37/10 - Exámenes Sugeridos por Riesgo del Puesto */}
+              <div className="col-span-full p-4 rounded-2xl bg-gradient-to-r from-blue-900/10 to-indigo-900/10 border border-blue-500/20">
+                <div className="flex items-center gap-2 mb-2 font-black text-xs text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                  <Sparkles size={16} /> Guía Oficial Res. SRT 37/10 — Estudios Médicos Exigidos según Puesto
+                </div>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {[
+                    { id: 'altura', label: '🏗️ Altura (h > 2m)', studies: 'EEG, ECG, Audiometría, Agudeza Visual, Glucemia' },
+                    { id: 'chofer', label: '🚚 Chofer / Flota', studies: 'Psicotécnico, EEG, Campo Visual, Audiometría, ECG' },
+                    { id: 'electricista', label: '⚡ Riesgo Eléctrico', studies: 'ECG, EEG, Laboratorio Sangre, Evaluación Psicológica' },
+                    { id: 'clarkista', label: '🚜 Autoelevador', studies: 'Psicotécnico Maquinaria, Profundidad Visual, Audiometría' },
+                    { id: 'ruido', label: '🎧 Ruido > 85 dBA', studies: 'Audiometría Tonal Bilateral Vía Aérea/Ósea + Otoscopia' }
+                  ].map(puesto => (
+                    <div 
+                      key={puesto.id} 
+                      className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-extrabold text-slate-800 dark:text-slate-200 shadow-sm cursor-default"
+                      title={puesto.studies}>
+                      {puesto.label}
+                    </div>
+                  ))}
+                </div>
+                <p className="m-0 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                  💡 Tip: Seleccioná las habilitaciones de riesgo abajo para registrar las autorizaciones en el Legajo.
+                </p>
               </div>
 
               <div>

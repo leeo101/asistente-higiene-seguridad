@@ -169,48 +169,71 @@ export default function Subscription(): React.ReactElement | null {
     const isExpiringSoon = days > 0 && days <= 7;
 
     return (
-      <div className="p-[2rem] max-w-[600px] m-[10rem_auto] bg-[var(--color-surface)] rounded-[24px] border-[1px_solid_var(--color-border)] text-center box-shadow-[0_20px_40px_rgba(0,0,0,0.1)]">
-        <div className="w-[80px] h-[80px] bg-[rgba(16,_185,_129,_0.1)] rounded-[50%] flex items-center justify-center m-[0_auto_1.5rem] text-[#10b981]">
-          <CheckCircle2 size={40} />
+      <div className="p-[2rem] max-w-[650px] m-[5rem_auto] bg-[var(--color-surface)] rounded-[28px] border border-[var(--color-border)] text-center shadow-2xl relative overflow-hidden">
+        {/* Glow */}
+        <div className={`absolute top-0 left-0 right-0 h-[6px] ${isExpiringSoon ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-red-500' : 'bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-500'}`} />
+        
+        <div className={`w-[80px] h-[80px] rounded-full flex items-center justify-center m-[0_auto_1.2rem] shadow-lg ${isExpiringSoon ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'}`}>
+          {isExpiringSoon ? <TriangleAlert size={40} className="animate-pulse" /> : <CheckCircle2 size={40} />}
         </div>
-        <h1 className="text-[2rem] mb-[0.5rem] text-[var(--color-text)]">Suscripción Activa ✓</h1>
-        <p className="text-[var(--color-text-secondary)] mb-[1.5rem]">
-          Tienes acceso ilimitado a todas las funciones profesionales.
+
+        <h1 className="text-[2rem] font-[900] mb-[0.3rem] text-[var(--color-text)]">
+          {isExpiringSoon ? '⚠️ Tu Plan Vence Pronto' : 'Suscripción PRO Activa ✓'}
+        </h1>
+        
+        <p className="text-[var(--color-text-secondary)] mb-[1.5rem] text-[0.95rem]">
+          {isExpiringSoon
+            ? 'Renová tu membresía por $2 USD para no perder acceso a la IA y tus PDFs con logo.'
+            : 'Tenés acceso ilimitado a todas las funciones profesionales de la plataforma.'}
         </p>
 
-        <div style={{
-          background: isExpiringSoon ? 'rgba(245, 158, 11, 0.1)' : 'rgba(16,185,129,0.08)',
-          border: `1px solid ${isExpiringSoon ? '#f59e0b' : '#10b981'}`
-        }} className="p-[1.2rem] rounded-[16px] mb-[2rem]">
-          <div className="flex items-center justify-center gap-[0.5rem] mb-[0.5rem]">
-            <Calendar size={18} color={isExpiringSoon ? '#f59e0b' : '#10b981'} />
-            <span style={{ color: isExpiringSoon ? '#f59e0b' : '#10b981' }} className="font-[700]">
-              {isExpiringSoon ? '¡Vence pronto!' : 'Estado del Plan'}
+        {/* Expiration Card Poster */}
+        <div
+          style={{
+            background: isExpiringSoon ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(239, 68, 68, 0.1) 100%)' : 'rgba(16, 185, 129, 0.08)',
+            borderColor: isExpiringSoon ? '#f59e0b' : 'rgba(16, 185, 129, 0.3)'
+          }}
+          className="p-[1.4rem] rounded-[20px] mb-[1.8rem] border text-left flex flex-col gap-2 relative overflow-hidden"
+        >
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <Calendar size={20} color={isExpiringSoon ? '#f59e0b' : '#10b981'} />
+              <span style={{ color: isExpiringSoon ? '#f59e0b' : '#10b981' }} className="font-[800] text-[0.95rem]">
+                {isExpiringSoon ? '⚠️ Renovación Requerida Pronto' : '✦ Estado de Membresía PRO'}
+              </span>
+            </div>
+            <span className={`text-[0.72rem] px-2.5 py-1 rounded-full font-black uppercase tracking-wider ${isExpiringSoon ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'}`}>
+              {days === Infinity ? 'Acceso Vitalicio / Admin' : days === 0 ? 'Vence Hoy' : `${days} Días Restantes`}
             </span>
           </div>
-          {expiryDate &&
-            <p className="m-[0] text-[0.9rem] text-[var(--color-text)] font-[600]">
-              Válida hasta: {expiryDate.toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' })}
+
+          {expiryDate && (
+            <p className="m-0 text-[0.95rem] text-[var(--color-text)] font-[700] mt-1">
+              Válida hasta: <span className="text-blue-400 font-extrabold">{expiryDate.toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
             </p>
-          }
-          <p className="m-[0.5rem_0_0] text-[1.2rem] font-[900] text-[var(--color-text)]">
-            {days === Infinity ? 'Acceso Permanente' : `Quedan ${days} días`}
-            {isExpiringSoon && <Sparkles size={18} className="display-[inline] ml-[5px]" />}
-          </p>
+          )}
+
+          <div className="mt-2 pt-2 border-t border-white/10 text-xs text-[var(--color-text-muted)] flex flex-wrap gap-x-4 gap-y-1">
+            <span>✓ PDFs con tu Logo</span>
+            <span>✓ Asesor IA Ilimitado</span>
+            <span>✓ Visión EPP Fotos</span>
+            <span>✓ Todos los Módulos Críticos</span>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-4">
-          {isExpiringSoon &&
-            <button
-              onClick={() => setShowPricing(true)} className="w-[100%] p-[1rem] bg-[linear-gradient(90deg,_#3b82f6,_#8b5cf6)] text-[#ffffff] border-none rounded-[12px] font-[700] cursor-pointer flex items-center justify-center gap-[0.5rem] box-shadow-[0_4px_12px_rgba(59,_130,_246,_0.3)]">
-              Renovar Ahora <Sparkles size={18} />
-            </button>
-          }
+        {/* Buttons */}
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={() => setShowPricing(true)}
+            className="w-full p-[1.1rem] bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-none rounded-[16px] font-[900] text-[1.05rem] cursor-pointer flex items-center justify-center gap-[0.6rem] shadow-xl shadow-blue-500/25 transition-all hover:scale-[1.01] active:scale-[0.99]"
+          >
+            <Sparkles size={20} /> Renovar / Ver Planes ($2 USD) <ArrowRight size={18} />
+          </button>
 
           <button
             onClick={() => window.location.reload()}
-            className="btn-secondary w-[100%] p-[1rem] rounded-[12px] font-[800] mb-[0.8rem] text-[0.95rem]">
-            Verificar mi pago
+            className="w-full p-[0.9rem] bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] border border-[var(--color-border)] rounded-[14px] font-[800] text-[0.9rem] text-[var(--color-text)] cursor-pointer transition-all">
+            🔄 Verificar mi pago
           </button>
 
           <button
@@ -238,7 +261,7 @@ export default function Subscription(): React.ReactElement | null {
                 </div>,
                 { duration: 6000 }
               );
-            }} className="w-[100%] p-[1rem] bg-[transparent] text-[#ef4444] border-[1px_solid_#ef4444] rounded-[12px] font-[600] cursor-pointer text-[0.9rem]">
+            }} className="w-full p-[0.8rem] bg-transparent text-[#ef4444] border border-[#ef4444]/40 hover:bg-[#ef4444]/10 rounded-[14px] font-[600] cursor-pointer text-[0.85rem] transition-all">
             Cancelar Suscripción
           </button>
         </div>
@@ -248,31 +271,31 @@ export default function Subscription(): React.ReactElement | null {
 
   const plans = [
     {
+      id: 'pro',
+      name: 'Profesional PRO',
+      price: '$2',
+      period: '/ mes',
+      icon: <Crown size={20} className="text-amber-400" />,
+      desc: 'Acceso TOTAL e ilimitado a todas las herramientas e IA',
+      badge: '✦ ACCESO TOTAL ($2)'
+    },
+    {
       id: 'student',
       name: 'Estudiante',
       price: '$2',
       period: '/ mes',
       icon: <GraduationCap size={20} className="text-emerald-400" />,
-      desc: 'Alumnos, practicantes y técnicos juniors',
+      desc: 'Alumnos, practicantes y profesionales en formación',
       badge: '🎓 Estudiantes'
     },
     {
-      id: 'pro',
-      name: 'Profesional',
-      price: '$6',
-      period: '/ mes',
-      icon: <Crown size={20} className="text-amber-400" />,
-      desc: 'Licenciados, Técnicos e Ingenieros',
-      badge: '✦ MÁS POPULAR'
-    },
-    {
       id: 'enterprise',
-      name: 'Empresa',
-      price: '$25',
+      name: 'Consultora',
+      price: '$2',
       period: '/ mes',
       icon: <Building size={20} className="text-purple-400" />,
-      desc: 'Servicios HyS, Consultoras y Equipos',
-      badge: '🏢 Consultoras'
+      desc: 'Multiusuario, multi-cliente y gestión de equipos',
+      badge: '🚀 PRÓXIMAMENTE'
     }
   ];
 

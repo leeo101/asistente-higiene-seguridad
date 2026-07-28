@@ -191,7 +191,8 @@ export default function FireLoad(): React.ReactElement | null {
     maderaEquivalente: 0,
     cargaDeFuego: 0,
     rfRequerida: 'F0',
-    minMatafuegos: 0
+    minMatafuegos: 0,
+    potencialExtintor: '1A-6B:C'
   });
 
   // Actualizar riesgo cuando cambia el grupo de actividad
@@ -237,15 +238,23 @@ export default function FireLoad(): React.ReactElement | null {
         rf = 'F180+';
       }
 
-      // 5. Cálculo de Matfuegos (1 cada 200m2, mínimo 2)
-      const matafuegosCalc = Math.max(2, Math.ceil(formData.superficie / 200));
+      // 5. Cálculo de Matafuegos (1 cada 200m2, mínimo 2)
+      const matafuegosCalc = Math.max(2, Math.ceil((formData.superficie || 1) / 200));
+
+      // 6. Cálculo de Potencial Extintor Mínimo (Res. 351/79 Anexo VII cap 18)
+      let potencialA = '1A';
+      let potencialB = '6B';
+      if (qf > 15 && qf <= 30) { potencialA = '2A'; potencialB = '10B'; }
+      else if (qf > 30 && qf <= 60) { potencialA = '3A'; potencialB = '20B'; }
+      else if (qf > 60) { potencialA = '6A'; potencialB = '40B'; }
 
       setResults({
         cargaTermicaTotal: totalKcal,
         maderaEquivalente: maderaEq,
         cargaDeFuego: qf,
         rfRequerida: rf,
-        minMatafuegos: matafuegosCalc
+        minMatafuegos: matafuegosCalc,
+        potencialExtintor: `${potencialA}-${potencialB}:C`
       });
     } catch (error) {
       console.error('Error in calculation:', error);
@@ -460,32 +469,41 @@ export default function FireLoad(): React.ReactElement | null {
   {
     header: 'Acciones',
     accessor: 'id',
-    render: (item: any) =>
-    <div className="flex items-center gap-1.5">
-                    <button
-        onClick={() => {
-          setFormData(item);
-          if (item.showSignatures) setShowSignatures(item.showSignatures);
-          setShowForm(true);
-        }} title="Ver" style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform">
-                        <FileText size={16} />
-                    </button>
-                    <button
-        onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/fireload/${item.id}?print=true`;setQrTarget({ text: url, title: `Carga de Fuego — ${item.sector}` });})}
-        title="QR" style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform">
-                        <QrCode size={16} />
-                    </button>
-                    <button
-        onClick={() => requirePro(() => setShareItem(item))}
-        title="Compartir" style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform">
-                        <Share2 size={16} />
-                    </button>
-                    <button
-        onClick={(e) => {e.stopPropagation();setDeleteTarget(item.id);}} title="Eliminar" style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform">
-                        <Trash2 size={16} />
-                    </button>
-                </div>
+    render: (item: any) => (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+        <button
+          onClick={() => {
+            setFormData(item);
+            if (item.showSignatures) setShowSignatures(item.showSignatures);
+            setShowForm(true);
+          }}
+          title="Ver / Editar Carga de Fuego"
+          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <FileText size={12} /> Editar
+        </button>
 
+        <button
+          onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/fireload/${item.id}?print=true`; setQrTarget({ text: url, title: `Carga de Fuego — ${item.sector}` }); })}
+          title="Ver Código QR"
+          style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <QrCode size={12} /> QR
+        </button>
+
+        <button
+          onClick={() => requirePro(() => setShareItem(item))}
+          title="Compartir Informe"
+          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Share2 size={12} /> Compartir
+        </button>
+
+        <button
+          onClick={(e) => { e.stopPropagation(); setDeleteTarget(item.id); }}
+          title="Eliminar Carga de Fuego"
+          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Trash2 size={12} /> Eliminar
+        </button>
+      </div>
+    )
   }];
 
 return (
@@ -890,9 +908,13 @@ return (
                                     <span style={{ color: '#000000' }} className="font-extrabold text-[0.85rem]">RF Mínima Requerida</span>
                                     <span style={{ color: threat.text || '#000000' }} className="font-black text-[0.9rem] text-right ml-2">{results.rfRequerida}</span>
                                 </div>
+                                <div className="flex justify-between items-center border-b border-slate-300 pb-2">
+                                    <span style={{ color: '#000000' }} className="font-extrabold text-[0.85rem]">Potencial Extintor Mínimo (Dec 351/79)</span>
+                                    <span style={{ color: '#000000' }} className="font-black text-[0.9rem] text-right ml-2">{results.potencialExtintor || '1A-6B:C'}</span>
+                                </div>
                                 <div className="flex justify-between items-center mt-2 p-3 rounded-xl border border-slate-400" style={{ backgroundColor: 'rgba(0,0,0,0.05)' }}>
                                     <span style={{ color: '#000000' }} className="font-extrabold text-[0.9rem]">Extintores ABC Sugeridos</span>
-                                    <span style={{ color: '#000000' }} className="font-black text-[1rem] text-right ml-2">{results.minMatafuegos} u.</span>
+                                    <span style={{ color: '#000000' }} className="font-black text-[1rem] text-right ml-2">{results.minMatafuegos} u. ({results.potencialExtintor || '1A-6B:C'})</span>
                                 </div>
                             </div>
                         </div>

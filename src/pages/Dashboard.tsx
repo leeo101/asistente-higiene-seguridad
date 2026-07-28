@@ -17,6 +17,7 @@ import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
 import DailyNewsWidget from '../components/DailyNewsWidget';
 import DailyAIInsight from '../components/DailyAIInsight';
+import UnifiedAlertsHub from '../components/UnifiedAlertsHub';
 import { Heartbeat } from '@phosphor-icons/react';
 
 
@@ -434,11 +435,13 @@ export default function Dashboard(): React.ReactElement {
       </div>
       {/* ── / Header ── */}
 
+      {/* 🚨 Centro Unificado de Alertas y Vencimientos */}
+      <UnifiedAlertsHub />
+
       {/* Salud del Sistema & IA Insight */}
-      {!loading &&
+      {!loading && (
         <div className="mb-8 flex flex-col gap-6">
           <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-5'}`}>
-            
             {/* Health Score Bar */}
             <div className={`p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm flex flex-col justify-center ${isMobile ? 'col-span-1' : 'col-span-2'}`}>
               <div className="flex items-center justify-between mb-4">
@@ -471,7 +474,7 @@ export default function Dashboard(): React.ReactElement {
             </div>
           </div>
         </div>
-        }
+        )}
 
       
       {/* 🚀 Accesos Rápidos */}

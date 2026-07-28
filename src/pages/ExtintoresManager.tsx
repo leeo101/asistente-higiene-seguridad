@@ -750,16 +750,43 @@ export default function ExtintoresManager() {
       const inspBorder = isInspectedRecently ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
 
       return (
-        <div className="flex items-center gap-1.5">
-                        <button onClick={() => navigate(`/extintores/inspect/${item.id}`)} style={{ background: inspBg, border: `1px solid ${inspBorder}`, color: inspColor }} title="Inspeccionar" className="p-[0.5rem] rounded-[8px] cursor-pointer flex items-center gap-[0.3rem] font-[800] text-[0.75rem] shadow-sm hover:-translate-y-0.5 transition-transform">
-                            <ShieldCheck size={16} /> INSP
-                        </button>
-                        <button onClick={() => handleEdit(item)} title="Editar" style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Edit3 size={16} /></button>
-                        <button onClick={() => requirePro(() => generateQR(item))} title="QR" style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><QrCode size={16} /></button>
-                        <button onClick={() => requirePro(() => setShareItem(item))} title="Compartir" style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Share2 size={16} /></button>
-                        <button onClick={() => handleDelete(item.id)} title="Eliminar" style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Trash2 size={16} /></button>
-                    </div>);
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => navigate(`/extintores/inspect/${item.id}`)}
+            style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            title="Inspeccionar Extintor">
+            <ShieldCheck size={12} /> Insp
+          </button>
 
+          <button
+            onClick={() => handleEdit(item)}
+            title="Editar Extintor"
+            style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Edit3 size={12} /> Editar
+          </button>
+
+          <button
+            onClick={() => requirePro(() => generateQR(item))}
+            title="Ver Código QR"
+            style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <QrCode size={12} /> QR
+          </button>
+
+          <button
+            onClick={() => requirePro(() => setShareItem(item))}
+            title="Compartir Ficha"
+            style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Share2 size={12} /> Compartir
+          </button>
+
+          <button
+            onClick={() => handleDelete(item.id)}
+            title="Eliminar Extintor"
+            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Trash2 size={12} /> Eliminar
+          </button>
+        </div>
+      );
     }
   }];
 
@@ -1505,9 +1532,34 @@ export default function ExtintoresManager() {
                     
                     {/* The Printable A6 Template Area */}
                     <div id="printable-qr-label" className="p-6 flex flex-col items-center bg-white border-b-2 border-dashed border-slate-200 overflow-y-auto relative">
-                        <button onClick={() => setShowQrModal(false)} style={{ backgroundColor: '#fee2e2', color: '#ef4444', border: 'none' }} className="no-print absolute top-[0.5rem] right-[0.5rem] w-[32px] h-[32px] rounded-[50%] cursor-pointer flex items-center justify-center transition-colors z-10 shadow-sm font-bold">✕</button>
+                        <button
+                          onClick={() => setShowQrModal(false)}
+                          style={{
+                            position: 'absolute',
+                            top: '0.75rem',
+                            right: '0.75rem',
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '50%',
+                            backgroundColor: '#ef4444',
+                            color: '#ffffff',
+                            border: '2px solid #ffffff',
+                            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.4)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 900,
+                            fontSize: '1.1rem',
+                            zIndex: 50
+                          }}
+                          className="no-print hover:scale-110 active:scale-95 transition-all"
+                          title="Cerrar ventana"
+                        >
+                          ✕
+                        </button>
                         
-                        <div className="w-full text-center border-b-2 border-slate-800 pb-4 mb-4">
+                        <div className="w-full text-center border-b-2 border-slate-800 pb-4 mb-4 mt-2">
                             <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-1 m-0">CONTROL DE EXTINTOR</h2>
                             <h1 className="m-0 text-slate-900 font-black text-3xl">{qrData.ext.numero}</h1>
                         </div>
@@ -1545,8 +1597,8 @@ export default function ExtintoresManager() {
                     </div>
                     
                     {/* Modal Controls (Not Printable) */}
-                    <div className="no-print p-4 bg-slate-50 flex flex-col gap-2 shrink-0">
-                        <button onClick={() => window.print()} style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none' }} className="w-full p-3 rounded-xl font-black cursor-pointer flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors shadow-md">
+                    <div className="no-print p-4 bg-slate-900 border-t border-slate-800 flex flex-col gap-2 shrink-0">
+                        <button onClick={() => window.print()} style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)', color: '#ffffff', border: 'none' }} className="w-full p-3 rounded-xl font-black cursor-pointer flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-md active:scale-95">
                             <Printer size={18} /> IMPRIMIR ETIQUETA A6
                         </button>
                         <button onClick={() => {
@@ -1554,8 +1606,8 @@ export default function ExtintoresManager() {
                             a.href = qrData.url;
                             a.download = `QR_${qrData.ext.numero}.png`;
                             a.click();
-                        }} style={{ backgroundColor: '#e2e8f0', color: '#334155', border: '1px solid #cbd5e1' }} className="w-full p-3 rounded-xl font-black cursor-pointer flex items-center justify-center gap-2 hover:bg-slate-200 transition-colors shadow-sm">
-                            <QrCode size={18} /> DESCARGAR SOLO IMAGEN QR
+                        }} style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#ffffff', border: 'none' }} className="w-full p-3 rounded-xl font-black cursor-pointer flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-md active:scale-95">
+                            <QrCode size={18} /> DESCARGAR IMAGEN QR
                         </button>
                     </div>
                 </div>

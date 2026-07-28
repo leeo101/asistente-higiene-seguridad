@@ -144,53 +144,36 @@ export default function DrillsHistory(): React.ReactElement | null {
       header: 'Acciones',
       accessor: 'id',
       render: (item: any) => (
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Ver Acta */}
-          <button 
-            onClick={() => setSelectedReport(item)} 
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-extrabold shadow-md shadow-blue-500/20 cursor-pointer transition-all hover:scale-105 active:scale-95"
-            title="Ver Acta Completa"
-          >
-            <Eye size={14} weight="bold" /> Ver
-          </button>
-
-          {/* Editar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
           <button 
             onClick={() => navigate('/drills/new', { state: { editData: item } })} 
-            title="Editar Simulacro" 
-            className="flex items-center gap-1 px-2.5 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl text-xs font-bold shadow-md shadow-amber-500/20 cursor-pointer transition-all hover:scale-105 active:scale-95"
-          >
-            <PencilSimple size={14} weight="bold" /> Editar
+            title="Ver / Editar Simulacro" 
+            style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <PencilSimple size={12} weight="bold" /> Editar
           </button>
 
-          {/* QR */}
           <button 
             onClick={() => requirePro(() => {
               const url = `${window.location.origin}/v/${currentUser?.uid}/drill/${item.id}?print=true`;
               setQrTarget({ text: url, title: `Simulacro — ${item.empresa}` });
             })} 
-            title="Código QR de Validación" 
-            className="p-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-500/20 cursor-pointer transition-all hover:scale-105 active:scale-95"
-          >
-            <QrCode size={15} weight="bold" />
+            title="Ver Código QR" 
+            style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <QrCode size={12} weight="bold" /> QR
           </button>
 
-          {/* Compartir */}
           <button 
             onClick={() => requirePro(() => setShareItem(item))} 
-            title="Compartir en PDF / WhatsApp" 
-            className="flex items-center gap-1 px-2.5 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white rounded-xl text-xs font-extrabold shadow-md shadow-emerald-500/20 cursor-pointer transition-all hover:scale-105 active:scale-95"
-          >
-            <Share2 size={14} weight="bold" /> Compartir
+            title="Compartir Informe" 
+            style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Share2 size={12} weight="bold" /> Compartir
           </button>
 
-          {/* Eliminar */}
           <button 
             onClick={() => setDeleteTarget(item.id)} 
-            title="Eliminar Registro"
-            className="p-1.5 bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500 hover:text-white border border-rose-200 dark:border-rose-800 rounded-xl text-xs font-bold transition-all cursor-pointer hover:scale-105 active:scale-95"
-          >
-            <Trash size={15} weight="bold" />
+            title="Eliminar Simulacro"
+            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Trash size={12} weight="bold" /> Eliminar
           </button>
         </div>
       )

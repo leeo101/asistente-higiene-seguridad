@@ -846,29 +846,37 @@ export default function ChecklistManager(): React.ReactElement | null {
   {
     header: 'Acciones',
     accessor: 'id',
-    render: (item: any) =>
-    <div className="flex gap-[0.4rem]">
-                    <button onClick={async () => {
-                      if (item.hasStaticPdf) {
-                          toast.loading('Abriendo documento...', { id: 'load-pdf' });
-                          const blob = await getPdfBlob(item.id);
-                          toast.dismiss('load-pdf');
-                          if (blob) {
-                              const url = window.URL.createObjectURL(blob);
-                              window.open(url, '_blank');
-                              return;
-                          } else {
-                              toast.error('No se pudo cargar el PDF estático.');
-                          }
-                      }
-                      setSearchParams({ id: item.id });setShowForm(true);
-                    }} style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }} className="p-[0.5rem_0.8rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform text-[0.75rem] font-[800] flex items-center gap-[4px]"><FileText size={15} /> Ver</button>
-                    <button onClick={() => {setSearchParams({ id: item.id });setShowForm(true);}} style={{ backgroundColor: '#f59e0b', color: '#fff', border: 'none' }} title="Editar" className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Edit3 size={15} /></button>
-                    <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/checklist/${item.id}?print=true`;setQrTarget({ text: url, title: `Checklist — ${item.equipo}`, details: <><p className="m-[0_0_0.3rem]"><strong>Empresa:</strong> {item.empresa}</p><p className="m-[0_0_0.3rem]"><strong>Equipo:</strong> {item.equipo}</p><p className="m-[0]"><strong>Fecha:</strong> {new Date(item.fecha).toLocaleDateString('es-AR')}</p></> } as any);})} title="QR" style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><QrCode size={15} /></button>
-                    <button onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('checklist_' + item.id) || 'null') || item))} title="Compartir" style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Share2 size={15} /></button>
-                    <button onClick={() => setDeleteTarget(item.id)} style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Trash2 size={15} /></button>
-                </div>
+    render: (item: any) => (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+        <button
+          onClick={() => { setSearchParams({ id: item.id }); setShowForm(true); }}
+          title="Ver / Editar Checklist"
+          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <FileText size={12} /> Editar
+        </button>
 
+        <button
+          onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/checklist/${item.id}?print=true`; setQrTarget({ text: url, title: `Checklist — ${item.equipo}`, details: <><p className="m-[0_0_0.3rem]"><strong>Empresa:</strong> {item.empresa}</p><p className="m-[0_0_0.3rem]"><strong>Equipo:</strong> {item.equipo}</p><p className="m-[0]"><strong>Fecha:</strong> {new Date(item.fecha).toLocaleDateString('es-AR')}</p></> } as any); })}
+          title="Ver Código QR"
+          style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <QrCode size={12} /> QR
+        </button>
+
+        <button
+          onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('checklist_' + item.id) || 'null') || item))}
+          title="Compartir Informe"
+          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Share2 size={12} /> Compartir
+        </button>
+
+        <button
+          onClick={() => setDeleteTarget(item.id)}
+          title="Eliminar Checklist"
+          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Trash2 size={12} /> Eliminar
+        </button>
+      </div>
+    )
   }];
 
 

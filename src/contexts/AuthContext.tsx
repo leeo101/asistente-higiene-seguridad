@@ -93,14 +93,68 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async (): Promise<void> => {
     if (typeof window !== 'undefined') {
-      localStorage.clear();
+      // 🛡️ Limpiar solo datos de sesión y datos personales sensibles.
+      // NO usar localStorage.clear() porque borra también las preferencias del usuario
+      // como "recordarme" (remembered_email, remember_user).
+      const SESSION_KEYS = [
+        'personalData', 'syncQueue', 'dirtyKeys',
+        // Colecciones sincronizadas
+        'ppe_items', 'extinguishers_inventory', 'contractors_data', 'workers_data',
+        'ehs_capa_db', 'training_history', 'ats_history', 'fire_load_history',
+        'inspection_history', 'report_history', 'matrices_history', 'checklist_history',
+        'subscriptionData', 'logoData', 'signatureStampData'
+      ];
+      SESSION_KEYS.forEach(key => localStorage.removeItem(key));
+
+      // Limpiar también cualquier clave de reportes de IA
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('ai_report_') || key.startsWith('sync_'))) {
+          localStorage.removeItem(key);
+        }
+      }
     }
     await signOut(auth);
   };
 
   const deleteAccount = async (): Promise<void> => {
     if (!auth.currentUser) throw new Error('No hay usuario autenticado');
-    await deleteUser(auth.currentUser);
+
+    // Obtener token para autenticar la solicitud al servidor
+    const token = await auth.currentUser.getIdToken();
+
+    try {
+      // Llamar al endpoint del servidor que:
+      //   1. Elimina datos de Firestore recursivamente
+      //   2. Elimina archivos de Storage
+      //   3. Elimina el usuario de Firebase Auth
+      const response = await fetch('/api/delete-account', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || 'Error al eliminar la cuenta en el servidor');
+      }
+
+      // Limpiar localStorage al terminar
+      if (typeof window !== 'undefined') {
+        localStorage.clear();
+      }
+
+    } catch (err) {
+      // Si el servidor no está disponible, intentar borrado directo de Auth como fallback
+      // Los datos de Firestore/Storage quedarán huérfanos — notificar al usuario
+      console.error('[DELETE ACCOUNT] Server deletion failed, falling back to Auth-only delete:', err);
+      await deleteUser(auth.currentUser!);
+      if (typeof window !== 'undefined') {
+        localStorage.clear();
+      }
+    }
   };
 
   useEffect(() => {

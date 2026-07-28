@@ -943,66 +943,36 @@ function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus
                         <span>Acción</span>
                     </button>
         }
-                <button
+        <button
+          onClick={onEdit}
+          title="Ver / Editar CAPA"
+          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Edit3 size={12} /> Editar
+        </button>
+
+        <button
           onClick={onView}
-          style={{
-            padding: isMobile ? '0.5rem 1rem' : '0.6rem',
+          title="Ver Detalles"
+          style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Eye size={12} /> Ver
+        </button>
 
-
-
-
-
-
-
-
-            flex: isMobile ? 1 : 'none'
-
-
-          }}
-          title="Ver Detalles" className="bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[var(--radius-lg)] cursor-pointer text-[var(--color-text)] flex items-center justify-center gap-[0.5rem] font-[700]">
-          
-                    <Eye size={16} />
-                    {isMobile && 'Ver'}
-                </button>
-                <button
+        <button
           onClick={onShare}
-          style={{
-            padding: isMobile ? '0.5rem 1rem' : '0.6rem',
+          title="Compartir CAPA"
+          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Share2 size={12} /> Compartir
+        </button>
 
-
-
-
-
-
-
-
-            flex: isMobile ? 'none' : 'none'
-          }}
-          title="Compartir CAPA" className="bg-[#dcfce7] border-[1px_solid_#bbf7d0] rounded-[var(--radius-lg)] cursor-pointer text-[#16a34a] flex items-center justify-center">
-          
-                    <Share2 size={16} />
-                </button>
-                <button
+        <button
           onClick={onDelete}
-          style={{
-            padding: isMobile ? '0.5rem 1rem' : '0.6rem',
-
-
-
-
-
-
-
-
-            flex: isMobile ? 'none' : 'none'
-          }}
-          title="Eliminar" className="bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[var(--radius-lg)] cursor-pointer text-[#ef4444] flex items-center justify-center">
-          
-                    <Trash2 size={16} />
-                </button>
-            </div>
-        </div>);
-
+          title="Eliminar CAPA"
+          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Trash2 size={12} /> Eliminar
+        </button>
+      </div>
+    </div>
+  );
 }
 
 function EmptyState({ onAdd }) {

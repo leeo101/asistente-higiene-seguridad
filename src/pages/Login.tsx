@@ -215,6 +215,14 @@ export default function Login(): React.ReactElement {
       setStatus({ type: 'error', message: 'Nombre, email y contraseña son obligatorios.' });
       return;
     }
+
+    // Validar formato de email explícitamente
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setStatus({ type: 'error', message: 'El formato del correo electrónico no es válido.' });
+      return;
+    }
+
     if (!acceptedTerms) {
       setStatus({ type: 'error', message: 'Debes aceptar las Políticas de Privacidad.' });
       return;
@@ -309,10 +317,10 @@ export default function Login(): React.ReactElement {
 
       const data = await response.json();
       if (response.ok) {
+        // 🛡️ Nunca mostrar devLink en el cliente — podría exponer el oobCode en pantalla
         setStatus({
           type: 'success',
-          message: data.devLink ? 'Link generado:' : 'Enlace enviado a tu email.',
-          resetLink: data.devLink || ''
+          message: 'Si el correo está registrado, recibirás un enlace en tu bandeja de entrada.'
         });
       } else {
         setStatus({

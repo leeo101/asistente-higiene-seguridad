@@ -61,11 +61,16 @@ export default async function handler(req, res) {
             });
         }
 
-        // Parse the link to extract the oobCode, then build our custom app URL
+        // Parse the link to extract the oobCode, then build our custom app URL.
+        // Build the reset link using the request origin (validated by CORS) or the production domain.
+        // Never use req.headers.host directly — it can be spoofed.
         const urlObj = new URL(firebaseLink);
         const oobCode = urlObj.searchParams.get('oobCode');
-        const protocol = req.headers.host.includes('localhost') ? 'http' : 'https';
-        const resetLink = `${protocol}://${req.headers.host}/reset-password?oobCode=${oobCode}`;
+        const PRODUCTION_URL = 'https://asistentehs.com';
+        const requestOrigin = req.headers.origin;
+        const ALLOWED = ['https://asistentehs.com', 'https://www.asistentehs.com', 'http://localhost:5173', 'http://localhost:4173'];
+        const baseUrl = (requestOrigin && ALLOWED.includes(requestOrigin)) ? requestOrigin : PRODUCTION_URL;
+        const resetLink = `${baseUrl}/reset-password?oobCode=${oobCode}`;
 
         const { data, error } = await resend.emails.send({
             from: 'Asistente H&S <soporte@asistentehs.com>',

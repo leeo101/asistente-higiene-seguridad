@@ -36,6 +36,7 @@ interface SidebarProps {
 
 const navItems: NavItem[] = [
 { to: '/', icon: <House weight="duotone" size={20} />, label: 'Inicio', always: true },
+{ to: '/chat', icon: <ChatText weight="duotone" size={20} color="#3b82f6" />, label: 'Mensajería & Red HyS', auth: true },
 { to: '/calendar', icon: <CalendarBlank weight="duotone" size={20} />, label: 'Calendario', always: true },
 { to: '/settings', icon: <GearSix weight="duotone" size={20} />, label: 'Configuración', auth: true },
 { to: '/dashboard', icon: <ChartPieSlice weight="duotone" size={20} color="#10b981" />, label: 'Dashboard', auth: true },

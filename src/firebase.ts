@@ -2,11 +2,12 @@ import { initializeApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
 import { getStorage, FirebaseStorage } from "firebase/storage";
 import {
-  getFirestore,
-  enableMultiTabIndexedDbPersistence,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   Firestore
 } from "firebase/firestore";
-import { initializeAppCheck, ReCaptchaV3Provider, AppCheck } from "firebase/app-check";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { getMessaging, Messaging, isSupported } from "firebase/messaging";
 
 // ─── Validación de variables de entorno ──────────────────────────────────────
@@ -58,13 +59,21 @@ if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
   } else {
     console.warn('[App Check] VITE_RECAPTCHA_SITE_KEY no definida — App Check desactivado');
   }
-} else {
-  console.log('[App Check] Skip en localhost');
+  // App Check deshabilitado en desarrollo local
 }
 
 // ─── Exportar instancias ──────────────────────────────────────────────────────
 export const auth: Auth = getAuth(app);
-export const db: Firestore = getFirestore(app);
+
+// ─── Firestore con persistencia multi-pestaña (API moderna) ─────────────────
+// Reemplaza la API deprecated enableMultiTabIndexedDbPersistence().
+// initializeFirestore() DEBE llamarse antes de cualquier getFirestore() en el mismo app.
+export const db: Firestore = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager()
+  })
+});
+
 export const storage: FirebaseStorage = getStorage(app);
 
 // ─── Firebase Cloud Messaging (opcional) ─────────────────────────────────────
@@ -78,13 +87,3 @@ export const getMessagingInstance = async (): Promise<Messaging | null> => {
   }
   return null;
 };
-
-// ─── Persistencia offline ────────────────────────────────────────────────────
-// Permite que Firestore encole escrituras y permita lecturas sin internet.
-enableMultiTabIndexedDbPersistence(db).catch((err) => {
-  if (err.code === 'failed-precondition') {
-    console.warn('[Firestore] Múltiples pestañas abiertas — persistencia desactivada en esta pestaña.');
-  } else if (err.code === 'unimplemented') {
-    console.warn('[Firestore] El navegador no soporta persistencia IndexedDB.');
-  }
-});

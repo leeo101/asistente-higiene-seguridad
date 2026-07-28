@@ -20,9 +20,10 @@ export const initCronJobs = () => {
 
     console.log('[CRON] Inicializando tareas programadas (node-cron)...');
 
-    // Ejecutar todos los días a las 08:00 AM (hora del servidor)
+    // Ejecutar todos los días a las 08:00 AM hora Argentina
     cron.schedule('0 8 * * *', async () => {
         console.log('[CRON] Ejecutando revisión diaria de vencimientos generales...');
+        const MAX_EMAILS_PER_RUN = 50; // Límite de seguridad: máximo 50 correos por ciclo
         try {
             if (!admin.apps.length) {
                 console.error('[CRON] Firebase Admin no está inicializado.');
@@ -34,9 +35,32 @@ export const initCronJobs = () => {
             let notificationsSent = 0;
 
             for (const userDoc of usersSnapshot.docs) {
+                // 🛡️ Límite de seguridad: nunca enviar más de MAX_EMAILS_PER_RUN en un ciclo
+                if (notificationsSent >= MAX_EMAILS_PER_RUN) {
+                    console.warn(`[CRON] Límite de ${MAX_EMAILS_PER_RUN} emails alcanzado. Se procesarán el resto mañana.`);
+                    break;
+                }
+
                 const userData = userDoc.data();
-                const email = userData.email;
+
+                // 🛡️ Usar email verificado de Firebase Auth, no el campo de Firestore
+                // (el campo de Firestore podría estar desincronizado o ser inválido)
+                let email;
+                try {
+                    const authUser = await admin.auth().getUser(userDoc.id);
+                    email = authUser.email;
+                } catch (authErr) {
+                    console.warn(`[CRON] Usuario ${userDoc.id} no encontrado en Firebase Auth, saltando.`);
+                    continue;
+                }
+
                 if (!email) continue;
+
+                // Validar formato como capa extra de seguridad
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    console.warn(`[CRON] Email inválido para usuario ${userDoc.id}, saltando.`);
+                    continue;
+                }
 
                 const dataRef = db.collection('users').doc(userDoc.id).collection('data');
                 const alerts = [];
@@ -153,9 +177,9 @@ export const initCronJobs = () => {
                                 html: html
                             });
                             notificationsSent++;
-                            console.log(`[CRON] Correo enviado a ${email} (${alerts.length} elementos).`);
+                            console.log(`[CRON] Correo enviado a [uid:${userDoc.id}] (${alerts.length} elementos).`);
                         } catch (emailErr) {
-                            console.error(`[CRON] Error enviando correo a ${email}:`, emailErr);
+                            console.error(`[CRON] Error enviando correo a [uid:${userDoc.id}]:`, emailErr.message);
                         }
                     }
                 }
@@ -164,7 +188,7 @@ export const initCronJobs = () => {
             console.log(`[CRON] Revisión completada. Usuarios notificados: ${notificationsSent}`);
 
         } catch (error) {
-            console.error('[CRON] Error crítico ejecutando la revisión:', error);
+            console.error('[CRON] Error crítico ejecutando la revisión:', error.message);
         }
-    });
+    }, { timezone: 'America/Argentina/Buenos_Aires' });
 };

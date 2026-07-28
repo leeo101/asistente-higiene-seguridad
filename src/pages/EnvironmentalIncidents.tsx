@@ -294,18 +294,24 @@ export default function EnvironmentalIncidents() {
                                         </div>
                                     </div>
                                     
-                                    <div className="flex items-center gap-2 w-full md:w-auto">
-                                        <div className="text-sm font-bold text-slate-500 mr-2">
-                                            {inc.status}
-                                        </div>
-                                        <button onClick={() => {setCurrentIncident(inc);setFormData(inc);setView('form');}} className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" title="Editar">
-                                            <Edit3 size={18} />
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                                        <button
+                                          onClick={() => { setCurrentIncident(inc); setFormData(inc); setView('form'); }}
+                                          title="Ver / Editar Incidente"
+                                          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                          <Edit3 size={12} /> Editar
                                         </button>
-                                        <button onClick={() => setShareItem(inc)} className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors" title="Exportar PDF">
-                                            <FileText size={18} />
+                                        <button
+                                          onClick={() => setShareItem(inc)}
+                                          title="Exportar PDF"
+                                          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                          <FileText size={12} /> PDF
                                         </button>
-                                        <button onClick={() => setConfirmDelete(inc.id)} className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors" title="Eliminar">
-                                            <Trash2 size={18} />
+                                        <button
+                                          onClick={() => setConfirmDelete(inc.id)}
+                                          title="Eliminar Incidente"
+                                          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                          <Trash2 size={12} /> Eliminar
                                         </button>
                                     </div>
                                 </div>);

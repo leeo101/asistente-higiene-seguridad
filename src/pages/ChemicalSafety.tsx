@@ -570,31 +570,30 @@ function ChemicalCard({ chemical, hazardLevel, onView, onShare, onEdit, onDelete
                     <InfoField label="Vencimiento" value={chemical.expiryDate ? new Date(chemical.expiryDate).toLocaleDateString('es-AR') : '-'} />
                 </div>
 
-                <div className="flex gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }} className="pt-4 border-t border-slate-200 dark:border-slate-700">
                     <button
-            onClick={onView}
-            className="flex-1 flex items-center justify-center gap-2 p-2 text-sm bg-transparent border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors font-semibold">
-            
-                        <Eye size={16} className="mr-[0.25rem]" />
-                        Ver SDS
+                        onClick={onEdit}
+                        title="Ver / Editar Sustancia"
+                        style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <Edit3 size={12} /> Editar
                     </button>
                     <button
-            onClick={onShare}
-            className="p-2.5 bg-emerald-100 border border-emerald-300 rounded-lg cursor-pointer text-emerald-600 hover:bg-emerald-200 transition-colors">
-            
-                        <Share2 size={16} />
+                        onClick={onView}
+                        title="Ver Ficha SDS"
+                        style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <Eye size={12} /> SDS
                     </button>
                     <button
-            onClick={onEdit}
-            className="p-2.5 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer text-blue-600 dark:text-blue-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
-            
-                        <Edit3 size={16} />
+                        onClick={onShare}
+                        title="Compartir PDF"
+                        style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <Share2 size={12} /> Compartir
                     </button>
                     <button
-            onClick={onDelete}
-            className="p-2.5 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer text-red-500 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
-            
-                        <Trash2 size={16} />
+                        onClick={onDelete}
+                        title="Eliminar Sustancia"
+                        style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <Trash2 size={12} /> Eliminar
                     </button>
                 </div>
             </div>

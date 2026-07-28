@@ -24,18 +24,18 @@ export default async function handler(req, res) {
     try {
         const { userId, email, planId } = req.body || {};
 
-        let amount = 600; // default pro = $6.00
-        let planName = 'Plan Profesional';
+        let amount = 200; // $2.00 USD default
+        let planName = 'Plan Profesional (Acceso Total)';
 
         if (planId === 'student') {
             amount = 200; // $2.00
             planName = 'Plan Estudiante';
-        } else if (planId === 'enterprise') {
-            amount = 2500; // $25.00
-            planName = 'Plan Empresa';
-        } else if (planId === 'pro') {
-            amount = 600; // $6.00
-            planName = 'Plan Profesional';
+        } else if (planId === 'enterprise' || planId === 'consultora') {
+            amount = 200; // $2.00
+            planName = 'Plan Consultora';
+        } else {
+            amount = 200; // $2.00
+            planName = 'Plan Profesional (Acceso Total)';
         }
 
         const protocol = req.headers['x-forwarded-proto'] || 'https';

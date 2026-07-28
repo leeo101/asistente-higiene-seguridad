@@ -776,128 +776,42 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                         <span>Iniciar</span>
                     </button>
         }
-                {audit.status === 'in_progress' &&
-        <>
-                        <button
+        {audit.status === 'in_progress' && (
+          <button
             onClick={onAddFinding}
-            style={{
-              padding: isMobile ? '0.5rem 1rem' : '0.65rem 0.85rem',
+            style={{ backgroundColor: '#f59e0b', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            title="Agregar Hallazgo">
+            <AlertTriangle size={12} /> Hallazgo
+          </button>
+        )}
 
+        <button
+          onClick={onEdit}
+          title="Ver / Editar Auditoría"
+          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Edit3 size={12} /> Editar
+        </button>
 
-
-
-
-
-
-
-
-
-              flex: isMobile ? 1 : 'none'
-
-
-
-            }}
-            onMouseEnter={(e) => {e.currentTarget.style.background = '#d97706';}}
-            onMouseLeave={(e) => {e.currentTarget.style.background = '#f59e0b';}}
-            title="Agregar Hallazgo" className="bg-[#f59e0b] border-none rounded-[var(--radius-lg)] cursor-pointer text-[#fff] font-[800] text-[0.75rem] flex items-center justify-center gap-[0.35rem] transition-[all_0.2s] box-shadow-[0_4px_10px_rgba(245,_158,_11,_0.25)]">
-            
-                            <AlertTriangle size={15} />
-                            <span>Hallazgo</span>
-                        </button>
-                        <button
-            onClick={onComplete}
-            style={{
-              padding: isMobile ? '0.5rem 1rem' : '0.65rem 0.85rem',
-
-
-
-
-
-
-
-
-
-
-              flex: isMobile ? 1 : 'none'
-
-
-
-            }}
-            onMouseEnter={(e) => {e.currentTarget.style.background = '#15803d';}}
-            onMouseLeave={(e) => {e.currentTarget.style.background = '#16a34a';}}
-            title="Completar Auditoría" className="bg-[#16a34a] border-none rounded-[var(--radius-lg)] cursor-pointer text-[#fff] font-[800] text-[0.75rem] flex items-center justify-center gap-[0.35rem] transition-[all_0.2s] box-shadow-[0_4px_10px_rgba(22,_163,_74,_0.25)]">
-            
-                            <CheckCircle2 size={15} />
-                            <span>Cerrar</span>
-                        </button>
-                    </>
-        }
-                <button
+        <button
           onClick={onView}
-          style={{
-            padding: isMobile ? '0.5rem 1rem' : '0.65rem',
+          title="Ver Detalles"
+          style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Eye size={12} /> Ver
+        </button>
 
-
-
-
-
-
-
-
-
-            flex: isMobile ? 1 : 'none'
-
-
-          }}
-          onMouseEnter={(e) => {e.currentTarget.style.background = 'var(--color-border)';}}
-          onMouseLeave={(e) => {e.currentTarget.style.background = 'var(--color-background)';}}
-          title="Ver detalle" className="bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[var(--radius-lg)] cursor-pointer text-[var(--color-text)] transition-[all_0.2s] flex items-center justify-center gap-[0.5rem] font-[700]">
-          
-                    <Eye size={16} />
-                    {isMobile && 'Ver'}
-                </button>
-                <button
+        <button
           onClick={onShare}
-          style={{
-            padding: isMobile ? '0.5rem 1rem' : '0.65rem',
+          title="Compartir PDF"
+          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Share2 size={12} /> Compartir
+        </button>
 
-
-
-
-
-
-
-
-
-            flex: isMobile ? 1 : 'none'
-          }}
-          onMouseEnter={(e) => {e.currentTarget.style.background = '#bbf7d0';}}
-          onMouseLeave={(e) => {e.currentTarget.style.background = '#dcfce7';}}
-          title="Compartir PDF" className="bg-[#dcfce7] border-[1px_solid_#bbf7d0] rounded-[var(--radius-lg)] cursor-pointer text-[#16a34a] transition-[all_0.2s] flex items-center justify-center">
-          
-                    <Share2 size={16} />
-                </button>
-                <button
+        <button
           onClick={onDelete}
-          style={{
-            padding: isMobile ? '0.5rem 1rem' : '0.65rem',
-
-
-
-
-
-
-
-
-
-            flex: isMobile ? 'none' : 'none'
-          }}
-          onMouseEnter={(e) => {e.currentTarget.style.background = '#fef2f2';e.currentTarget.style.borderColor = '#fecaca';}}
-          onMouseLeave={(e) => {e.currentTarget.style.background = 'var(--color-background)';e.currentTarget.style.borderColor = 'var(--color-border)';}}
-          title="Eliminar" className="bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[var(--radius-lg)] cursor-pointer text-[#ef4444] transition-[all_0.2s] flex items-center justify-center">
-          
-                    <Trash2 size={16} />
-                </button>
+          title="Eliminar Auditoría"
+          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Trash2 size={12} /> Eliminar
+        </button>
             </div>
         </div>);
 

@@ -96,18 +96,18 @@ export default async function handler(req, res) {
         try {
             const { userId, email, planId } = req.body || {};
 
-            let amount = 6.00;
-            let planTitle = 'Asistente H&S – Plan Profesional';
+            let amount = 2.00;
+            let planTitle = 'Asistente H&S – Plan Profesional (Acceso Total)';
 
             if (planId === 'student') {
                 amount = 2.00;
                 planTitle = 'Asistente H&S – Plan Estudiante';
-            } else if (planId === 'enterprise') {
-                amount = 25.00;
-                planTitle = 'Asistente H&S – Plan Empresa';
-            } else if (planId === 'pro') {
-                amount = 6.00;
-                planTitle = 'Asistente H&S – Plan Profesional';
+            } else if (planId === 'enterprise' || planId === 'consultora') {
+                amount = 2.00;
+                planTitle = 'Asistente H&S – Plan Consultora';
+            } else {
+                amount = 2.00;
+                planTitle = 'Asistente H&S – Plan Profesional (Acceso Total)';
             }
 
             const preference = new Preference(client);

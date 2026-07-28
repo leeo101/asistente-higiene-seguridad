@@ -384,18 +384,18 @@ export default function PPETracker(): React.ReactElement | null {
                                             </div>
                     }
                                     </div>
-                                    <div className="flex items-center gap-2 shrink-0 self-center">
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }} className="shrink-0 self-center">
                                         <button
                                             onClick={() => handleEdit(item)}
-                                            className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400 text-white shadow-md shadow-blue-500/30 cursor-pointer transition-all duration-300 flex items-center justify-center hover:scale-110 active:scale-95 group border border-blue-400/50"
-                                            title="Editar EPP">
-                                            <Pencil size={18} color="#ffffff" strokeWidth={2.5} className="transition-transform group-hover:rotate-12" />
+                                            title="Ver / Editar EPP"
+                                            style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                            <Pencil size={12} /> Editar
                                         </button>
                                         <button
                                             onClick={() => handleDelete(item.id)}
-                                            className="p-2 rounded-lg bg-gradient-to-br from-red-500 to-rose-500 hover:from-red-400 hover:to-rose-400 text-white shadow-md shadow-red-500/30 cursor-pointer transition-all duration-300 flex items-center justify-center hover:scale-110 active:scale-95 group border border-red-400/50"
-                                            title="Eliminar EPP">
-                                            <Trash2 size={18} color="#ffffff" strokeWidth={2.5} className="transition-transform group-hover:rotate-12" />
+                                            title="Eliminar EPP"
+                                            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                            <Trash2 size={12} /> Eliminar
                                         </button>
                                     </div>
                                 </div>

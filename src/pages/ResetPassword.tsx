@@ -64,11 +64,19 @@ export default function ResetPassword(): React.ReactElement | null {
       // Apply new password to Firebase Auth
       await confirmPasswordReset(auth, oobCode, passwords.new);
 
+      // Try to get the user's name for a personalized notification email
+      const userName = auth.currentUser?.displayName || (() => {
+        try {
+          const pd = JSON.parse(localStorage.getItem('personalData') || '{}');
+          return pd.name || '';
+        } catch { return ''; }
+      })();
+
       // Notify user of successful change asynchronously
       fetch(`${API_BASE_URL}/api/send-password-changed-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email, name: userName })
       }).catch((e) => console.error("Notification failed", e));
 
       setStatus({ type: 'success', message: '¡Contraseña actualizada con éxito!' });

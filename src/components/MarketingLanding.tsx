@@ -166,30 +166,34 @@ export default function MarketingLanding({ onStart }: MarketingLandingProps) {
             </button>
           </div>
 
-          {/* PLAN 3: PROFESIONAL ($6 USD) - MÁS POPULAR */}
+          {/* PLAN 3: PROFESIONAL ($2 USD) - MÁS POPULAR & ACCESO TOTAL */}
           <div className="rounded-[24px] p-[1.8rem_1.4rem] bg-[var(--gradient-premium)] border-[1.5px] border-indigo-500/50 flex flex-col justify-between relative overflow-hidden shadow-xl shadow-blue-500/20 scale-[1.02]">
             <div className="absolute top-[-30%] right-[-20%] w-[250px] h-[250px] bg-[radial-gradient(circle,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none" />
             <div className="absolute top-[1rem] right-[1rem] bg-amber-400/20 border border-amber-400/40 text-amber-300 px-2 py-0.5 rounded-full text-[0.65rem] font-black uppercase tracking-wider">
-              Más Popular ✦
+              ✦ Acceso Total ($2 USD)
             </div>
 
             <div className="relative z-10">
-              <div className="text-[0.72rem] font-[900] uppercase tracking-wider text-blue-200 mb-[0.4rem]">Plan 3: Profesional</div>
+              <div className="text-[0.72rem] font-[900] uppercase tracking-wider text-blue-200 mb-[0.4rem]">Plan 3: Profesional PRO</div>
               <div className="flex items-baseline gap-[0.3rem] mb-[0.3rem]">
-                <span className="text-[2.2rem] font-[900] text-white leading-none">USD $6</span>
+                <span className="text-[2.2rem] font-[900] text-white leading-none">USD $2</span>
                 <span className="text-blue-200/80 text-[0.8rem]">/ mes</span>
               </div>
               <p className="text-blue-100/80 text-[0.8rem] leading-relaxed mb-4">
-                Para Licenciados, Técnicos e Ingenieros activos.
+                100% de Funciones e IA Ilimitada para Licenciados, Técnicos e Ingenieros.
               </p>
 
               <div className="border-t border-white/15 pt-[1rem] flex flex-col gap-[0.65rem]">
                 {[
-                  { label: 'PDFs con TU LOGO', desc: 'Tu marca institucional en reportes' },
-                  { label: 'Asesor IA Ilimitado', desc: 'Consultas normativas sin límites' },
-                  { label: 'Módulos Críticos', desc: 'LOTO, Altura, Confinados y Auditorías' },
-                  { label: 'Firma Digital y QR', desc: 'Envío directo por WhatsApp' },
-                  { label: 'Exportación Excel', desc: 'Reportes ejecutivos inmediatos' }
+                  { label: 'PDFs con TU LOGO', desc: 'Exportación con tu marca corporativa' },
+                  { label: 'Asesor IA & Cámara Visión', desc: 'IA ilimitada y detección de EPP/riesgos' },
+                  { label: 'Módulos Críticos Desbloqueados', desc: 'ATS, Altura, Confinados, LOTO & CAPA' },
+                  { label: 'Carga de Fuego & Extintores', desc: 'Cálculos automáticos e inspecciones' },
+                  { label: 'Checklists & Matriz IPERC', desc: 'Formularios y auditorías en terreno' },
+                  { label: 'Accidentes & Legajos Digitales', desc: 'Árbol de causas y legajos por cliente' },
+                  { label: 'Firma Digital, QR & WhatsApp', desc: 'Firma en pantalla y envío instantáneo' },
+                  { label: 'Exportación a Excel / CSV', desc: 'Descarga de planillas ejecutivas' },
+                  { label: 'Nube & Modo Offline', desc: 'Trabajá en campo sin internet' }
                 ].map((f, i) => (
                   <div key={i} className="flex gap-[0.5rem] items-start">
                     <CheckCircle2 size={15} color="#86efac" className="mt-[2px] flex-shrink-0" />
@@ -205,31 +209,31 @@ export default function MarketingLanding({ onStart }: MarketingLandingProps) {
             <button
               onClick={onStart}
               className="w-full mt-5 p-[0.8rem] rounded-[12px] border-none bg-white text-blue-900 font-[900] text-[0.85rem] cursor-pointer shadow-lg hover:bg-blue-50 transition-all relative z-10 flex items-center justify-center gap-1.5">
-              <Sparkles size={15} /> Probar Profesional
+              <Sparkles size={15} /> Activar Acceso Total ($2 USD)
             </button>
           </div>
 
-          {/* PLAN 4: EMPRESA / CONSULTORA ($25 USD) */}
+          {/* PLAN 4: CONSULTORA ($2 USD) - PRÓXIMAMENTE */}
           <div className="glass-card rounded-[24px] p-[1.8rem_1.4rem] border-[1.5px] border-purple-500/40 bg-gradient-to-b from-purple-950/20 to-transparent flex flex-col justify-between relative shadow-lg">
             <div className="absolute top-[1rem] right-[1rem] bg-purple-500/20 border border-purple-500/40 text-purple-300 px-2 py-0.5 rounded-full text-[0.65rem] font-extrabold uppercase tracking-wider">
-              Empresas 🏢
+              🚀 Próximamente
             </div>
             <div>
-              <div className="text-[0.72rem] font-[900] uppercase tracking-wider text-purple-300 mb-[0.4rem]">Plan 4: Empresa</div>
+              <div className="text-[0.72rem] font-[900] uppercase tracking-wider text-purple-300 mb-[0.4rem]">Plan 4: Consultora</div>
               <div className="flex items-baseline gap-[0.3rem] mb-[0.3rem]">
-                <span className="text-[2.2rem] font-[900] text-white leading-none">USD $25</span>
+                <span className="text-[2.2rem] font-[900] text-white leading-none">USD $2</span>
                 <span className="text-purple-300/70 text-[0.8rem]">/ mes</span>
               </div>
               <p className="text-[var(--color-text-muted)] text-[0.8rem] leading-relaxed mb-4">
-                Para Servicios HyS externos y consultoras.
+                Diseñado para Servicios HyS externos, consultoras y equipos multi-planta.
               </p>
 
               <div className="border-t border-[var(--color-border)] pt-[1rem] flex flex-col gap-[0.65rem]">
                 {[
-                  { label: 'Multi-Usuario', desc: 'Acceso para todo tu equipo técnico' },
-                  { label: 'Gestión Multi-Cliente', desc: 'Carpetas separadas por empresa' },
-                  { label: 'Dashboards KPIs EHS', desc: 'Métricas y estadísticas ejecutivas' },
-                  { label: 'Soporte Prioritario 24/7', desc: 'Atención personalizada directa' }
+                  { label: 'Gestión Multi-Usuario', desc: 'Cuentas para todo tu equipo (Próximamente)' },
+                  { label: 'Carpetas Multi-Cliente', desc: 'Legajos independientes por cliente (Próximamente)' },
+                  { label: 'Dashboard Exec. KPIs EHS', desc: 'Estadísticas globales de frecuencia y severidad (Próximamente)' },
+                  { label: 'Acceso PRO Total Incluido', desc: 'Acceso a todas las herramientas PRO activas hoy' }
                 ].map((f, i) => (
                   <div key={i} className="flex gap-[0.5rem] items-start">
                     <CheckCircle2 size={15} color="#c084fc" className="mt-[2px] flex-shrink-0" />
@@ -245,7 +249,7 @@ export default function MarketingLanding({ onStart }: MarketingLandingProps) {
             <button
               onClick={onStart}
               className="w-full mt-5 p-[0.8rem] rounded-[12px] border border-purple-500/50 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-[900] text-[0.85rem] cursor-pointer shadow-md transition-all">
-              Elegir Empresa
+              Reservar Opción Consultora
             </button>
           </div>
 

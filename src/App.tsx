@@ -17,6 +17,7 @@ import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider, useSync } from './contexts/SyncContext';
 import { Toaster, toast } from 'react-hot-toast';
+import SubscriptionRenewalBanner from './components/SubscriptionRenewalBanner';
 import { usePaywall } from './hooks/usePaywall';
 import NativePermissionRequester from './components/NativePermissionRequester';
 import AutoAdsManager from './components/ads/AutoAdsManager';
@@ -112,6 +113,7 @@ const StopCardsForm = lazyWithRetry(() => import('./pages/StopCardsForm'));
 const StopCards = lazyWithRetry(() => import('./pages/StopCards'));
 const LogoSettings = lazyWithRetry(() => import('./pages/LogoSettings'));
 const PublicView = lazyWithRetry(() => import('./pages/PublicView'));
+const ProfessionalChat = lazyWithRetry(() => import('./pages/ProfessionalChat'));
 const ExtinguisherAI = lazyWithRetry(() => import('./pages/ExtinguisherAI'));
 const ChemicalSafety = lazyWithRetry(() => import('./pages/ChemicalSafety'));
 const NoiseAssessment = lazyWithRetry(() => import('./pages/NoiseAssessment'));
@@ -541,6 +543,7 @@ function App() {
 
           <Suspense fallback={<LoadingScreen />}>
             <div className="main-content flex-1 flex flex-col page-transition">
+              <SubscriptionRenewalBanner />
               <AnimatePresence mode="wait">
                 <Routes location={location} key={location.pathname}>
                   <Route path="/login" element={<Login />} />
@@ -548,6 +551,8 @@ function App() {
                   <Route path="/subscribe" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
                   <Route path="/v/:uid/:cat/:id" element={<PublicView />} />
+                  <Route path="/chat" element={<ProtectedRoute><ProfessionalChat /></ProtectedRoute>} />
+                  <Route path="/mensajes" element={<ProtectedRoute><ProfessionalChat /></ProtectedRoute>} />
 
                   {/* Public Routes */}
                   <Route path="/" element={<Home />} />
