@@ -399,11 +399,27 @@ function DeleteConfirm({ onConfirm, onCancel }: any) {
 
 }
 
-const getChecklistStatus = (id) => {
+const getChecklistStatus = (id: string, fallbackItem?: any) => {
+  let parsed: any = null;
   const stored = localStorage.getItem(`checklist_${id}`);
-  if (!stored) return { label: 'Aprobado', color: '#10b981', bg: 'rgba(16,185,129,0.1)' };
+  if (stored) {
+    try { parsed = JSON.parse(stored); } catch {}
+  }
+  if (!parsed || (!parsed.activeSections && !parsed.items && !parsed.checks)) {
+    if (fallbackItem && (fallbackItem.activeSections || fallbackItem.items || fallbackItem.checks)) {
+      parsed = fallbackItem;
+    } else {
+      const historyRaw = localStorage.getItem('tool_checklists_history');
+      if (historyRaw) {
+        try {
+          const hist = JSON.parse(historyRaw);
+          parsed = hist.find((h: any) => h.id === id);
+        } catch {}
+      }
+    }
+  }
+  if (!parsed) return { label: 'Aprobado', color: '#10b981', bg: 'rgba(16,185,129,0.1)' };
   try {
-    const parsed = JSON.parse(stored);
     let items = parsed.items || parsed.checks || [];
     if (parsed.activeSections) {
       items = parsed.activeSections.flatMap((s: any) => s.items || []);
@@ -541,12 +557,68 @@ export default function ChecklistManager(): React.ReactElement | null {
     if (id) {
       setShowForm(true);
       setCurrentStep(1); // Jump to step 1 so they can see templates and company info
+
+      let parsed: any = null;
       const savedData = localStorage.getItem(`checklist_${id}`);
       if (savedData) {
-        const parsed = JSON.parse(savedData);
-        if (parsed.checklistTitle) setChecklistTitle(parsed.checklistTitle);
-        setCompanyInfo(parsed.companyInfo || { name: parsed.empresa || '', inspector: '', address: '', responsable: parsed.responsable || '' });
-        setInspectionInfo(parsed.inspectionInfo || { item: parsed.equipo || '', serial: parsed.serial || '', date: parsed.fecha?.split('T')[0] || new Date().toISOString().split('T')[0], expirationDate: '', extinguisherObs: '', marca: '', patente: '', horometro: '', pt: '', responsableArea: '' });
+        try { parsed = JSON.parse(savedData); } catch {}
+      }
+      if (!parsed || (!parsed.activeSections && !parsed.items && !parsed.checks)) {
+        const historyRaw = localStorage.getItem('tool_checklists_history');
+        if (historyRaw) {
+          try {
+            const hist = JSON.parse(historyRaw);
+            const found = hist.find((h: any) => h.id === id);
+            if (found) parsed = found;
+          } catch {}
+        }
+      }
+
+      if (parsed) {
+        if (parsed.checklistTitle || parsed.title) setChecklistTitle(parsed.checklistTitle || parsed.title);
+        if (parsed.companyInfo) {
+          setCompanyInfo({
+            name: parsed.companyInfo.name || parsed.empresa || '',
+            inspector: parsed.companyInfo.inspector || '',
+            address: parsed.companyInfo.address || '',
+            responsable: parsed.companyInfo.responsable || parsed.responsable || ''
+          });
+        } else {
+          setCompanyInfo({
+            name: parsed.empresa || '',
+            inspector: '',
+            address: '',
+            responsable: parsed.responsable || ''
+          });
+        }
+
+        if (parsed.inspectionInfo) {
+          setInspectionInfo({
+            item: parsed.inspectionInfo.item || parsed.equipo || '',
+            serial: parsed.inspectionInfo.serial || parsed.serial || '',
+            date: parsed.inspectionInfo.date || (parsed.fecha ? parsed.fecha.split('T')[0] : new Date().toISOString().split('T')[0]),
+            expirationDate: parsed.inspectionInfo.expirationDate || '',
+            extinguisherObs: parsed.inspectionInfo.extinguisherObs || '',
+            marca: parsed.inspectionInfo.marca || parsed.marca || '',
+            patente: parsed.inspectionInfo.patente || parsed.patente || '',
+            horometro: parsed.inspectionInfo.horometro || parsed.horometro || '',
+            pt: parsed.inspectionInfo.pt || '',
+            responsableArea: parsed.inspectionInfo.responsableArea || ''
+          });
+        } else {
+          setInspectionInfo({
+            item: parsed.equipo || '',
+            serial: parsed.serial || '',
+            date: parsed.fecha ? parsed.fecha.split('T')[0] : new Date().toISOString().split('T')[0],
+            expirationDate: '',
+            extinguisherObs: '',
+            marca: parsed.marca || '',
+            patente: parsed.patente || '',
+            horometro: parsed.horometro || '',
+            pt: '',
+            responsableArea: ''
+          });
+        }
 
         let loadedSections = parsed.activeSections;
         if (!loadedSections) {
@@ -603,9 +675,6 @@ export default function ChecklistManager(): React.ReactElement | null {
       updatedAt: new Date().toISOString()
     };
 
-    // Deep save for specific report persistence
-    localStorage.setItem(`checklist_${id}`, JSON.stringify(data));
-
     let hasStaticPdf = false;
     try {
       setIsSaving(true);
@@ -637,25 +706,28 @@ export default function ChecklistManager(): React.ReactElement | null {
       setIsSaving(false);
     }
 
-    // Sync with history list
-    const history = JSON.parse(localStorage.getItem('tool_checklists_history') || '[]');
-    const existingIndex = history.findIndex((h) => h.id === id);
-
-    const summaryData = {
-      id,
+    const fullData = {
+      ...data,
       empresa: companyInfo.name || 'Sin Empresa',
       equipo: inspectionInfo.item || 'Inspección General',
       serial: inspectionInfo.serial || 'S/N',
-      fecha: new Date().toISOString(),
+      fecha: data.updatedAt,
       title: checklistTitle,
       type: 'Checklist',
       hasStaticPdf
     };
 
+    // Deep save for specific report persistence
+    localStorage.setItem(`checklist_${id}`, JSON.stringify(fullData));
+
+    // Sync with history list
+    const history = JSON.parse(localStorage.getItem('tool_checklists_history') || '[]');
+    const existingIndex = history.findIndex((h: any) => h.id === id);
+
     if (existingIndex >= 0) {
-      history[existingIndex] = summaryData;
+      history[existingIndex] = fullData;
     } else {
-      history.unshift(summaryData);
+      history.unshift(fullData);
     }
 
     localStorage.setItem('tool_checklists_history', JSON.stringify(history));
@@ -863,7 +935,11 @@ export default function ChecklistManager(): React.ReactElement | null {
         </button>
 
         <button
-          onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('checklist_' + item.id) || 'null') || item))}
+          onClick={() => requirePro(() => {
+            let stored = localStorage.getItem('checklist_' + item.id);
+            let parsed = stored ? JSON.parse(stored) : item;
+            setShareItem(parsed);
+          })}
           title="Compartir Informe"
           style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
           <Share2 size={12} /> Compartir
@@ -1693,12 +1769,12 @@ export default function ChecklistManager(): React.ReactElement | null {
           {currentStep === totalSteps && 
               <>
                  <button onClick={() => requirePro(() => {
-                   const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, operatorSignature, signature, supervisorSignature };
+                   const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, operatorSignature, signature, supervisorSignature, equipo: inspectionInfo?.item || checklistTitle || 'Checklist', empresa: companyInfo?.name || '-', fecha: inspectionInfo?.date || new Date().toISOString() };
                    setAutoPrintShare(true);
                    setShareItem(data as any);
                  })} style={{ backgroundColor: '#1e293b', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><Printer size={16} /> IMPRIMIR</button>
                  <button onClick={() => requirePro(() => {
-                   const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, operatorSignature, signature, supervisorSignature };
+                   const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, operatorSignature, signature, supervisorSignature, equipo: inspectionInfo?.item || checklistTitle || 'Checklist', empresa: companyInfo?.name || '-', fecha: inspectionInfo?.date || new Date().toISOString() };
                    setAutoPrintShare(false);
                    setShareItem(data as any);
                  })} style={{ backgroundColor: '#3b82f6', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><Share2 size={16} /> COMPARTIR</button>
@@ -1714,11 +1790,11 @@ export default function ChecklistManager(): React.ReactElement | null {
         open={!!shareItem} 
         onClose={() => {setShareItem(null); setAutoPrintShare(false);}} 
         autoPrint={autoPrintShare} 
-        title={`Checklist - ${(shareItem as any)?.equipo || ''}`} 
-        text={shareItem ? `📋 Checklist de Seguridad\n🔧 Equipo: ${(shareItem as any).equipo}\n🏗️ Empresa: ${(shareItem as any).empresa}\n📅 Fecha: ${new Date((shareItem as any).fecha).toLocaleDateString('es-AR')}` : ''} 
+        title={`Checklist — ${(shareItem as any)?.equipo || (shareItem as any)?.checklistTitle || ''}`} 
+        text={shareItem ? `📋 Checklist de Inspección\n🔧 Equipo: ${(shareItem as any).equipo || (shareItem as any).inspectionInfo?.item || ''}\n🏗️ Empresa: ${(shareItem as any).empresa || (shareItem as any).companyInfo?.name || ''}\n📅 Fecha: ${(shareItem as any).fecha ? new Date((shareItem as any).fecha).toLocaleDateString('es-AR') : new Date().toLocaleDateString('es-AR')}` : ''} 
         rawMessage={``} 
         elementIdToPrint="pdf-content" 
-        fileName={`Checklist_${(shareItem as any)?.equipo || 'Reporte'}.pdf`} 
+        fileName={`Checklist_${(shareItem as any)?.equipo || (shareItem as any)?.checklistTitle || 'Reporte'}.pdf`} 
       />
       <div className="ats-pdf-offscreen">
         {shareItem && <ChecklistPdfGenerator checklistData={{ ...shareItem, availableNorms }} isHeadless={true} pdfElementId="pdf-content" />}

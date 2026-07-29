@@ -270,7 +270,7 @@ const categoryMap: Record<string, string> = {
   'ats': 'ats_history',
   'camera': 'ai_camera_history',
   'permit': 'work_permits_history',
-  'checklist': 'checklists_history',
+  'checklist': 'tool_checklists_history',
   'fireload': 'fireload_history',
   'matrix': 'risk_matrix_history',
   'lighting': 'lighting_history',

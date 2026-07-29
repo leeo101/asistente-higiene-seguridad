@@ -173,6 +173,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
             table { page-break-inside: auto !important; break-inside: auto !important; }
             tbody { page-break-inside: auto !important; break-inside: auto !important; }
             .pdf-section { page-break-inside: auto !important; break-inside: auto !important; }
+            .pdf-signatures-wrapper { page-break-inside: avoid !important; break-inside: avoid !important; page-break-before: auto; }
         `;
         clone.insertBefore(injectStyle, clone.firstChild);
 
@@ -216,6 +217,46 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
             offscreenContainer.getBoundingClientRect();
             clone.getBoundingClientRect();
 
+            // ─── DETECCIÓN PROGRAMÁTICA DE SALTOS DE PÁGINA ───────────────────────────
+            // Conversión de 96 DPI a mm (estándar html2pdf/jsPDF): 1 mm = 96/25.4 px ≈ 3.7795 px/mm
+            // margin: [top=4, right=6, bottom=4, left=6] mm, formato A4.
+            const PX_PER_MM = 96 / 25.4;
+            const pdfContentHeightMM = (isLandscape ? 210 : 297) - 4 - 4;   // 289mm portrait / 202mm landscape
+            const pageContentHeightPx = pdfContentHeightMM * PX_PER_MM;     // ≈ 1092.28px portrait
+
+            const cloneRect = clone.getBoundingClientRect();
+            const sigWrapper = clone.querySelector('.pdf-signatures-wrapper, .pdf-signatures-container') as HTMLElement | null;
+            if (sigWrapper) {
+                const sigRect = sigWrapper.getBoundingClientRect();
+                const sigTopPx = sigRect.top - cloneRect.top;
+                const sigHeightPx = sigRect.height;
+
+                if (sigTopPx > 0 && sigHeightPx > 0) {
+                    const pageAtTop    = Math.floor(sigTopPx / pageContentHeightPx);
+                    const pageAtBottom = Math.floor((sigTopPx + sigHeightPx - 1) / pageContentHeightPx);
+
+                    if (pageAtBottom > pageAtTop) {
+                        // Las firmas cruzan el límite de página → empujarlas a la siguiente
+                        const posInPage    = sigTopPx - pageAtTop * pageContentHeightPx;
+                        const spaceLeft    = pageContentHeightPx - posInPage;
+                        // clamp: nunca más de una página entera de espaciador
+                        const spacerHeight = Math.min(spaceLeft + 6, pageContentHeightPx - 20);
+
+                        const spacer = document.createElement('div');
+                        spacer.style.cssText = [
+                            `height: ${spacerHeight}px`,
+                            'display: block',
+                            'visibility: hidden',
+                            'width: 100%',
+                            'flex-shrink: 0'
+                        ].join('; ');
+                        sigWrapper.parentNode?.insertBefore(spacer, sigWrapper);
+                        // Esperar reflow del DOM
+                        await new Promise(resolve => requestAnimationFrame(resolve));
+                    }
+                }
+            }
+
             const isMobileCanvas = window.innerWidth < 768 || ('ontouchstart' in window);
             const MAX_CANVAS_AREA = 12000000; // 12M píxeles máx para evitar crashes de GPU
             const totalHeight = Math.max(clone.scrollHeight, clone.clientHeight);
@@ -243,7 +284,11 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                     scrollY: 0
                 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
-                pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.avoid-break', '.avoid-break-strictly', '.page-break-inside-avoid'] }
+                pagebreak: { 
+                    mode: ['avoid-all', 'css', 'legacy'], 
+                    before: ['.page-break-before', '.force-page-break'],
+                    avoid: ['tr', '.avoid-break', '.avoid-break-strictly', '.break-inside-avoid', '.pdf-signatures-wrapper', '.pdf-signatures-container'] 
+                }
             };
 
             const worker = html2pdf().set(opt as any).from(clone).toPdf();

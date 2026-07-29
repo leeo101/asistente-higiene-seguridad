@@ -101,7 +101,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
   if (boxes.length === 0) return null;
 
   return (
-    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break avoid-break-strictly break-inside-avoid w-[100%] block mt-[0.5rem] border-t-[2px_dashed_#cbd5e1] pt-[0.5rem] pb-[0.3rem] text-center">
+    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="pdf-signatures-wrapper avoid-break avoid-break-strictly break-inside-avoid w-[100%] block mt-[0.5rem] border-t-[2px_dashed_#cbd5e1] pt-[0.5rem] pb-[0.3rem] text-center">
       <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break avoid-break-strictly break-inside-avoid flex justify-center items-start w-[100%] gap-[0.75rem]">
         {boxes.map((box, idx) => {
           const isPro = box.isProfessional;
@@ -124,8 +124,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                 : '0 4px 6px -1px rgba(0,0,0,0.04), 0 2px 4px -1px rgba(0,0,0,0.02)',
               borderRadius: isPro ? '10px' : '8px',
               position: 'relative',
-              overflow: 'hidden'
-            }} className="avoid-break break-inside-avoid p-[0.6rem] text-center min-width-[180px] max-w-[260px] box-sizing-[border-box]">
+            }} className="avoid-break avoid-break-strictly break-inside-avoid p-[0.6rem] text-center min-width-[180px] max-w-[260px] box-sizing-[border-box]">
               {isPro && (
                 <div style={{
                   position: 'absolute',
