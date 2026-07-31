@@ -113,20 +113,19 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                             }
                         `}
                     </style>
-
                     {/* Header */}
-                    <div className="border-b-[3px] border-slate-800 pb-[10px] mb-[20px] flex justify-between items-start">
+                    <div className="border-b-[3px] border-slate-800 pb-[8px] mb-[12px] flex justify-between items-start">
                         <div>
-                            <h1 className="m-[0_0_5px_0] text-[18pt] text-slate-800 dark:text-slate-200 font-[900] uppercase">
+                            <h1 style={{ color: '#0f172a' }} className="m-[0_0_4px_0] text-[18pt] font-[900] uppercase">
                                 Planilla de Control de Extintores
                             </h1>
-                            <p className="m-[0] text-[10pt] text-slate-600 dark:text-slate-400 flex items-center gap-[1rem]">
+                            <p style={{ color: '#475569' }} className="m-[0] text-[9.5pt] font-[700] flex items-center gap-[1rem]">
                                 <span><Calendar size={14} className="inline align-middle mr-1" /> Fecha: {new Date().toLocaleDateString('es-AR')}</span>
                                 <span><Flame size={14} className="inline align-middle mr-1" /> Equipos: {stats.total}</span>
-                                {stats.vencidos > 0 && <span className="text-red-600 dark:text-red-400 font-[bold]">({stats.vencidos} Vencidos)</span>}
+                                {stats.vencidos > 0 && <span className="text-red-600 font-[bold]">({stats.vencidos} Vencidos)</span>}
                             </p>
                         </div>
-                        <CompanyLogo style={{ maxHeight: '45px', maxWidth: '140px', objectFit: 'contain' }} />
+                        <CompanyLogo style={{ maxHeight: '40px', maxWidth: '130px', objectFit: 'contain' }} />
                     </div>
 
                     <div className="block">
@@ -162,36 +161,32 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                 }
 
                 return (
-                  <div key={empresa} className="block mb-[25px]">
+                  <div key={empresa} className="block mb-[8px]">
                                         {chunks.map((chunk, chunkIdx) =>
-                    <div key={`${empresa}-chunk-${chunkIdx}`} className="mb-[20px] page-break-inside-[auto]">
+                    <div key={`${empresa}-chunk-${chunkIdx}`} className="mb-[6px]">
                                                 {/* Company Header */}
-                                                <div className="bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-slate-200 p-[10px_15px] rounded-[8px] flex items-center gap-[10px] border-[2px_solid_#cbd5e1] mb-[15px]">
-
-
-
-                        
-                                                    <span className="text-[12pt] font-[900]">
+                                                <div style={{ color: '#0f172a', backgroundColor: '#f8fafc', borderColor: '#cbd5e1', pageBreakInside: 'avoid', breakInside: 'avoid', pageBreakAfter: 'avoid', breakAfter: 'avoid' }} className="p-[6px_10px] rounded-[6px] flex items-center gap-[8px] border-[1.5px] mb-[4px]">
+                                                    <span style={{ color: '#0f172a' }} className="text-[10.5pt] font-[900]">
                                                         🏢 {empresa} {chunkIdx > 0 ? '(Continuación)' : ''}
                                                     </span>
                                                     {chunkIdx === 0 &&
-                        <span className="text-[9pt] bg-[#e2e8f0] text-slate-700 dark:text-slate-300 p-[2px_8px] rounded-[12px] font-[700]">
+                                                        <span style={{ backgroundColor: '#e2e8f0', color: '#334155' }} className="text-[8.5pt] p-[2px_8px] rounded-[10px] font-[700]">
                                                             {group.length} extintores
                                                         </span>
-                        }
+                                                    }
                                                 </div>
 
                                                 {/* Compact Table */}
-                                                <table className="table-fixed w-full border-collapse break-words text-[9pt] mt-[5px]">
+                                                <table className="table-fixed w-full border-collapse break-words text-[9pt] mt-[0px]" style={{ pageBreakInside: 'auto', breakInside: 'auto' }}>
                                                     <thead>
-                                                        <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] bg-slate-100 dark:bg-slate-800/50 border-b-2 border-slate-300">
-                                                            <th className="p-[8px] text-center font-[900] text-slate-800 dark:text-slate-200 w-[10%]">Nº / CHAPA</th>
-                                                            <th className="p-[8px] text-left font-[900] text-slate-800 dark:text-slate-200">TIPO / CAP.</th>
-                                                            <th className="p-[8px] text-left font-[900] text-slate-800 dark:text-slate-200">F. FABRICACIÓN</th>
-                                                            <th className="p-[8px] text-left font-[900] text-slate-800 dark:text-slate-200">UBICACIÓN</th>
-                                                            <th className="p-[8px] text-left font-[900] text-slate-800 dark:text-slate-200">VENC. CARGA</th>
-                                                            <th className="p-[8px] text-left font-[900] text-slate-800 dark:text-slate-200">VENC. PH</th>
-                                                            <th className="p-[8px] text-left font-[900] text-slate-800 dark:text-slate-200">ÚLTIMA INSP.</th>
+                                                        <tr style={{ pageBreakInside: 'avoid', breakInside: 'avoid', backgroundColor: '#f1f5f9' }}>
+                                                            <th style={{ color: '#0f172a' }} className="p-[6px_8px] text-center font-[900] w-[10%]">Nº / CHAPA</th>
+                                                            <th style={{ color: '#0f172a' }} className="p-[6px_8px] text-left font-[900]">TIPO / CAP.</th>
+                                                            <th style={{ color: '#0f172a' }} className="p-[6px_8px] text-left font-[900]">F. FABRICACIÓN</th>
+                                                            <th style={{ color: '#0f172a' }} className="p-[6px_8px] text-left font-[900]">UBICACIÓN</th>
+                                                            <th style={{ color: '#0f172a' }} className="p-[6px_8px] text-left font-[900]">VENC. CARGA</th>
+                                                            <th style={{ color: '#0f172a' }} className="p-[6px_8px] text-left font-[900]">VENC. PH</th>
+                                                            <th style={{ color: '#0f172a' }} className="p-[6px_8px] text-left font-[900]">ÚLTIMA INSP.</th>
                                                         </tr>
                                                     </thead>
                                                     {chunk.map((ext: any, idx: number) => {
@@ -226,48 +221,45 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                           const rowBg = globalIdx % 2 === 0 ? '#ffffff' : '#f8fafc';
 
                           return (
-                            <tbody key={`${empresa}-${globalIdx}`} className="avoid-break page-break-inside-[avoid]">
-                                                                    <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] border-top-[1px_solid_#e2e8f0]" style={{ background: rowBg }}>
-                                                                        <td className="p-[8px] text-center font-[900] text-slate-800 dark:text-slate-200 text-[10pt]">
-                                                                            <div className="text-[7pt] text-[#94a3b8] mb-[2px]">{globalIdx + 1}</div>
+                            <tbody key={`${empresa}-${globalIdx}`} style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+                                                                    <tr style={{ background: rowBg, pageBreakInside: 'avoid', breakInside: 'avoid', borderTop: '1px solid #e2e8f0' }}>
+                                                                        <td style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 900, color: '#0f172a', fontSize: '9.5pt' }}>
+                                                                            <div style={{ fontSize: '7pt', color: '#94a3b8', marginBottom: '2px' }}>{globalIdx + 1}</div>
                                                                             <div>{ext?.numero || ext?.chapa || '-'}</div>
                                                                         </td>
-                                                                        <td className="p-[8px] text-slate-700 dark:text-slate-300 font-[600]">{formatType(ext?.tipo)} {ext?.capacidad ? `- ${ext.capacidad}` : ''}</td>
-                                                                        <td style={{ backgroundColor: fFabBg }} className="p-[8px] text-slate-600 dark:text-slate-400 webkit-print-color-adjust-[exact] print-color-adjust-[exact]">
-                                                                            <div className="flex flex-col gap-[2px] text-[8pt]">
-                                                                                <span>Fab: <span className="font-[600]">{fabInfo.base}</span></span>
-                                                                                <span className={fabInfo.expired ? 'text-vencido' : ''} style={{ color: fFabColor, fontWeight: fabInfo.expired ? 800 : 600 }}>Vto: {fabInfo.vto}</span>
+                                                                        <td style={{ padding: '6px 8px', color: '#374151', fontWeight: 600, fontSize: '8.5pt' }}>{formatType(ext?.tipo)} {ext?.capacidad ? `- ${ext.capacidad}` : ''}</td>
+                                                                        <td style={{ padding: '6px 8px', fontSize: '8pt' }}>
+                                                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                                                                                <span style={{ color: '#475569' }}>Fab: <span style={{ fontWeight: 600 }}>{fabInfo.base}</span></span>
+                                                                                <span style={{ color: fFabColor, fontWeight: fabInfo.expired ? 800 : 600 }}>Vto: {fabInfo.vto}</span>
                                                                             </div>
                                                                         </td>
-                                                                        <td className="p-[8px] text-slate-600 dark:text-slate-400">{ext?.ubicacion || 'Sin ubicación'}</td>
-                                                                        <td style={{ backgroundColor: cargaBg }} className="p-[8px] text-slate-600 dark:text-slate-400 webkit-print-color-adjust-[exact] print-color-adjust-[exact]">
-                                                                            <div className="flex flex-col gap-[2px] text-[8pt]">
-                                                                                <span>Carga: <span className="font-[600]">{sCarga.base}</span></span>
-                                                                                <span className={sCarga.text === 'Vencido' ? 'text-vencido' : ''} style={{ color: cargaColor, fontWeight: sCarga.text === 'Vencido' ? 800 : 600 }}>Vto: {sCarga.vto}</span>
+                                                                        <td style={{ padding: '6px 8px', color: '#475569', fontSize: '8.5pt' }}>{ext?.ubicacion || 'Sin ubicación'}</td>
+                                                                        <td style={{ padding: '6px 8px', fontSize: '8pt' }}>
+                                                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                                                                                <span style={{ color: '#475569' }}>Carga: <span style={{ fontWeight: 600 }}>{sCarga.base}</span></span>
+                                                                                <span style={{ color: cargaColor, fontWeight: sCarga.text === 'Vencido' ? 800 : 600 }}>Vto: {sCarga.vto}</span>
                                                                             </div>
                                                                         </td>
-                                                                        <td style={{ backgroundColor: phBg }} className="p-[8px] text-slate-600 dark:text-slate-400 webkit-print-color-adjust-[exact] print-color-adjust-[exact]">
-                                                                            <div className="flex flex-col gap-[2px] text-[8pt]">
-                                                                                <span>PH: <span className="font-[600]">{sPH.base}</span></span>
-                                                                                <span className={sPH.text === 'Vencido' ? 'text-vencido' : ''} style={{ color: phColor, fontWeight: sPH.text === 'Vencido' ? 800 : 600 }}>Vto: {sPH.vto}</span>
+                                                                        <td style={{ padding: '6px 8px', fontSize: '8pt' }}>
+                                                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                                                                                <span style={{ color: '#475569' }}>PH: <span style={{ fontWeight: 600 }}>{sPH.base}</span></span>
+                                                                                <span style={{ color: phColor, fontWeight: sPH.text === 'Vencido' ? 800 : 600 }}>Vto: {sPH.vto}</span>
                                                                             </div>
                                                                         </td>
-                                                                        <td className="p-[8px]">
+                                                                        <td style={{ padding: '6px 8px' }}>
                                                                             {lastInspection ?
-                                  <div className="flex flex-col gap-[2px]">
-                                                                                    <span className="font-[800] text-slate-800 dark:text-slate-200 webkit-print-color-adjust-[exact] print-color-adjust-[exact]">
-                                                                                        {new Date(lastInspection.fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')} - Res: <span className="inline-block w-[30px] border-bottom-[1px_solid_#1e293b] vertical-align-[bottom] relative top-[-1px]"></span>
-                                                                                    </span>
-                                                                                </div> :
-
-                                  <span className="text-[#94a3b8] font-style-[italic]">Sin inspecciones</span>
+                                  <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '8pt' }}>
+                                                                                        {new Date(lastInspection.fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')}
+                                                                                    </span> :
+                                  <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '8pt' }}>Sin inspecciones</span>
                                   }
                                                                         </td>
                                                                     </tr>
-                                                                    <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] border-bottom-[2px_solid_#cbd5e1] h-[auto]" style={{ background: rowBg }}>
-                                                                        <td colSpan={7} className="p-[0_8px_6px_8px] h-[1px]">
-                                                                            <div style={{ border: hasObs ? '1px dashed #dc2626' : '1px dashed #94a3b8', color: hasObs ? '#dc2626' : '#334155' }} className="rounded-[4px] p-[4px_6px] text-[7.5pt] bg-white dark:bg-slate-800 webkit-print-color-adjust-[exact] print-color-adjust-[exact] min-h-[20px] h-[100%]">
-                                                                                <strong className="text-slate-800 dark:text-slate-200">Observación:</strong> <span style={{ color: hasObs ? '#dc2626' : 'inherit', WebkitTextFillColor: hasObs ? '#dc2626' : 'inherit' }} className="font-[700]">{hasObs ? lastInspection.observacion : ''}</span>
+                                                                    <tr style={{ background: rowBg, pageBreakInside: 'avoid', breakInside: 'avoid', borderBottom: '1px solid #e2e8f0' }}>
+                                                                        <td colSpan={7} style={{ padding: '0 8px 5px 8px' }}>
+                                                                            <div style={{ border: hasObs ? '1px dashed #dc2626' : '1px dashed #cbd5e1', color: hasObs ? '#dc2626' : '#475569', borderRadius: '4px', padding: '3px 6px', fontSize: '7.5pt', backgroundColor: '#ffffff', minHeight: '18px' }}>
+                                                                                <strong style={{ color: '#334155' }}>Obs:</strong> <span style={{ color: hasObs ? '#dc2626' : '#64748b', fontWeight: hasObs ? 700 : 400 }}>{hasObs ? lastInspection.observacion : ''}</span>
                                                                             </div>
                                                                         </td>
                                                                     </tr>
@@ -282,13 +274,21 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
               });
             })()}
                     </div>
-                    {/* Add Signatures here */}
-                    {showSignatures && (showSignatures.operator || showSignatures.professional || showSignatures.supervisor) &&
-                        <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="mt-[20px] avoid-break break-inside-avoid">
-                            <PdfSignatures data={{ showSignatures, operatorSignature: globalSignatures?.operatorSignature, supervisorSignature: globalSignatures?.supervisorSignature }} />
+                    {/* Signatures + Branding Footer */}
+                    {showSignatures && (showSignatures.operator || showSignatures.professional || showSignatures.supervisor) ? (
+                        <>
+                            <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid', marginTop: '12px' }}>
+                                <PdfSignatures data={{ showSignatures, operatorSignature: globalSignatures?.operatorSignature, supervisorSignature: globalSignatures?.supervisorSignature }} />
+                            </div>
+                            <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid', marginTop: '6px' }}>
+                                <PdfBrandingFooter />
+                            </div>
+                        </>
+                    ) : (
+                        <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid', marginTop: '10px' }}>
                             <PdfBrandingFooter />
                         </div>
-                    }
+                    )}
                 </div>
             </div>
         </div>);

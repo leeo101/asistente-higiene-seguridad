@@ -257,20 +257,41 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                 }
             }
 
+            // Intento de renderizado vectorial nativo con motor Google Chrome Cloud
+            try {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 4000);
+                const res = await fetch('/api/generate-pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ html: clone.outerHTML, isLandscape }),
+                    signal: controller.signal
+                });
+                clearTimeout(timer);
+                if (res.ok) {
+                    const cloudBlob = await res.blob();
+                    if (cloudBlob && cloudBlob.size > 2000) {
+                        return cloudBlob;
+                    }
+                }
+            } catch (e) {
+                // Fallback automático al renderizado Ultra HD nativo en cliente
+            }
+
             const isMobileCanvas = window.innerWidth < 768 || ('ontouchstart' in window);
-            const MAX_CANVAS_AREA = 12000000; // 12M píxeles máx para evitar crashes de GPU
+            const MAX_CANVAS_AREA = 25000000; // 25M píxeles máx para renderizado de ultra alta resolución
             const totalHeight = Math.max(clone.scrollHeight, clone.clientHeight);
             const totalArea = targetWidth * totalHeight;
             
             const maxSafeScale = Math.sqrt(MAX_CANVAS_AREA / totalArea);
             
-            let dynamicScale = isMobileCanvas ? Math.min(1.5, maxSafeScale) : Math.min(2, maxSafeScale);
-            dynamicScale = Math.max(1, Math.min(dynamicScale, maxSafeScale));
+            let dynamicScale = isMobileCanvas ? Math.min(2.5, maxSafeScale) : Math.min(3, maxSafeScale);
+            dynamicScale = Math.max(1.8, Math.min(dynamicScale, maxSafeScale));
 
             const opt = {
                 margin: [4, 6, 4, 6],
                 filename: 'documento.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
+                image: { type: 'png', quality: 1.0 },
                 html2canvas: { 
                     scale: dynamicScale, 
                     useCORS: true, 

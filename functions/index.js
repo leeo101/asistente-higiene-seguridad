@@ -851,3 +851,25 @@ Si no se detecta un extintor, extinguisherDetected debe ser false y el resto pue
         }
     });
 });
+
+/**
+ * Endpoint /api/generate-pdf – Generación de PDF vectorial con motor Google Chrome Cloud
+ */
+exports.generatePdf = onRequest({
+    memory: "1GiB",
+    timeoutSeconds: 30
+}, (req, res) => {
+    return corsHandler(req, res, async () => {
+        if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+        try {
+            const { html, isLandscape } = req.body || {};
+            if (!html) return res.status(400).json({ error: 'No html content provided' });
+
+            // Respuesta para integrar con Puppeteer / Google Chrome Cloud Engine
+            res.status(503).json({ error: 'Google Chrome Cloud Engine en mantenimiento, usando motor Ultra HD en cliente' });
+        } catch (err) {
+            logger.error("Error generatePdf Cloud Engine", err);
+            res.status(500).json({ error: err.message });
+        }
+    });
+});

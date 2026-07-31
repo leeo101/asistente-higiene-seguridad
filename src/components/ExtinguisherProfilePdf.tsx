@@ -249,19 +249,19 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         `}
                     </style>
 
-                    <div className="border-b-[2.5px] border-slate-900 pb-[8px] mb-[12px] flex justify-between items-center avoid-break">
+                    <div className="border-b-[2.5px] border-slate-900 pb-[6px] mb-[8px] flex justify-between items-center avoid-break">
                         <div>
-                            <h1 className="m-[0_0_3px_0] text-[18pt] text-slate-900 font-[900] uppercase tracking-tight">
+                            <h1 style={{ color: '#0f172a' }} className="m-[0_0_2px_0] text-[18pt] font-[900] uppercase tracking-tight">
                                 Ficha Técnica de Extintor
                             </h1>
-                            <p className="m-[0] text-[10pt] text-slate-600 font-[700]">
+                            <p style={{ color: '#475569' }} className="m-[0] text-[9.5pt] font-[700]">
                                 Documento de Trazabilidad e Inventario
                             </p>
                         </div>
-                        <CompanyLogo style={{ maxHeight: '44px', maxWidth: '140px', objectFit: 'contain' }} />
+                        <CompanyLogo style={{ maxHeight: '38px', maxWidth: '130px', objectFit: 'contain' }} />
                     </div>
 
-                    <div className="flex gap-[14px] mb-[12px] avoid-break">
+                    <div className="flex gap-[12px] mb-[8px] avoid-break">
                         <div className="w-[125px] shrink-0">
                             {data.foto ?
               <img src={data.foto} alt="Extintor" className="w-full h-[135px] object-cover rounded-[8px] border-[2px] border-solid border-[#94a3b8]" /> :
@@ -447,29 +447,33 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         </div>
                     </div>
 
-                    <div className="avoid-break avoid-break-strictly" style={{ breakInside: 'avoid', pageBreakInside: 'avoid', marginTop: '10px', display: 'block' }}>
+                    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="pdf-signatures-wrapper avoid-break avoid-break-strictly mt-[8px]">
                         <PdfSignatures
-          data={data}
-          box1={data.showSignatures?.operator ? {
-            title: 'OPERADOR',
-            subtitle: 'Responsable de sector',
-            signatureUrl: data.operatorSignature || null,
-            isProfessional: false
-          } : null}
-          box2={data.showSignatures?.professional !== false ? {
-            title: 'INSPECTOR / PROFESIONAL',
-            subtitle: (latestInspection?.inspector || actName || 'Profesional HSE').toUpperCase(),
-            signatureUrl: actSignature || null,
-            stampUrl: actStamp || null,
-            isProfessional: true,
-            license: actLic || null
-          } : null}
-          box3={data.showSignatures?.supervisor ? {
-            title: 'SUPERVISOR',
-            subtitle: 'Aprobación HSE',
-            signatureUrl: data.supervisorSignature || null,
-            isProfessional: false
-          } : null} />
+                            data={data}
+                            box1={data.showSignatures?.operator ? {
+                            title: 'OPERADOR',
+                            subtitle: 'Responsable de sector',
+                            signatureUrl: data.operatorSignature || null,
+                            isProfessional: false
+                            } : null}
+                            box2={data.showSignatures?.professional !== false ? {
+                            title: 'INSPECTOR / PROFESIONAL',
+                            subtitle: (latestInspection?.inspector || actName || 'Profesional HSE').toUpperCase(),
+                            signatureUrl: actSignature || null,
+                            stampUrl: actStamp || null,
+                            isProfessional: true,
+                            license: actLic || null
+                            } : null}
+                            box3={data.showSignatures?.supervisor ? {
+                            title: 'SUPERVISOR',
+                            subtitle: 'Aprobación HSE',
+                            signatureUrl: data.supervisorSignature || null,
+                            isProfessional: false
+                            } : null} 
+                        />
+                    </div>
+
+                    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="pdf-brand-container avoid-break avoid-break-strictly mt-[6px]">
                         <PdfBrandingFooter />
                     </div>
                 </div>
