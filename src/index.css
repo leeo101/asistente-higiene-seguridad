@@ -194,6 +194,35 @@ body {
   color-scheme: dark;
 }
 
+:root.high-contrast, :root[data-theme="high-contrast"] {
+  /* Modo Industrial de Alto Contraste - Máxima Legibilidad en Planta / Sol Directo */
+  --color-background: #000000;
+  --color-background-gradient: #000000;
+  --color-surface: #111111;
+  --color-surface-solid: #000000;
+  --color-text: #FFFFFF;
+  --color-text-muted: #FACC15;
+  --color-text-light: #E2E8F0;
+  --color-border: #FACC15;
+  --color-border-hover: #FFFFFF;
+  --color-surface-hover: #222222;
+
+  --gradient-surface: #111111;
+  --gradient-card: #000000;
+
+  --glass-bg: #000000;
+  --glass-bg-header: #000000;
+  --glass-border: #FACC15;
+  --glass-border-subtle: #FACC15;
+  --glass-shadow: 0 0 0 2px #FACC15;
+  --glass-shadow-hover: 0 0 0 3px #FFFFFF;
+  --glass-thick: #000000;
+  --glass-glow: 0 0 15px #FACC15;
+  --glass-glow-strong: 0 0 30px #FACC15;
+
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   min-width: 320px;
@@ -829,17 +858,22 @@ textarea:focus {
 
 /* Badge with border (professional status badges) */
 .badge-status {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.3rem 0.75rem;
-  border-radius: var(--radius-full);
-  font-size: 0.7rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-width: 1px;
-  border-style: solid;
-  border-color: rgba(from currentColor r g b / 0.3);
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.35rem 0.75rem !important;
+  border-radius: var(--radius-full) !important;
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  border-width: 1px !important;
+  border-style: solid !important;
 }
 
 /* Tab with underline indicator */
@@ -4730,6 +4764,10 @@ html.pdf-export-mode, body.pdf-export-mode {
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+.has-left-icon {
+  padding-left: 3.25rem !important;
+}
+
 .module-form-input:focus,
 .module-form-select:focus,
 .module-form-textarea:focus {
@@ -4893,10 +4931,55 @@ html.pdf-export-mode, body.pdf-export-mode {
 }
 
 @media print {
+  /* Ocultar la interfaz interactiva de formulario cuando hay contenido de PDF printable */
+  .module-form-layout,
   .module-form-toolbar,
   .module-wizard-footer,
-  .module-action-bar {
+  .module-action-bar,
+  .no-print,
+  nav,
+  header,
+  aside,
+  .sidebar {
     display: none !important;
+  }
+
+  /* Hacer que los contenedores de PDF sean visibles, estáticos y comiencen arriba sin hojas en blanco */
+  #pdf-content,
+  #pdf-content-audit,
+  .print-only,
+  .isolated-print-target {
+    display: block !important;
+    position: static !important;
+    left: 0 !important;
+    top: 0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Evitar saltos de página huérfanos dentro de elementos clave */
+  tr, .avoid-break, .card, .signature-block, .pdf-signatures-wrapper, .pdf-signatures-wrapper * {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  html, body, #root {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
   }
 }
 

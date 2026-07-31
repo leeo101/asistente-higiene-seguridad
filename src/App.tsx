@@ -430,7 +430,7 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
         <Menu weight="bold" size={22} />
       </button>
       <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: isDashboard ? '#ffffff' : 'var(--color-text)', flex: 1, minWidth: 0, transition: 'opacity var(--transition-fast)' }}>
-        <img src="/logo.png" alt="Logo" style={{ width: '48px', height: '48px', flexShrink: 0, objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(59, 130, 246, 0.2))' }} />
+        <img src={localStorage.getItem('companyLogo') || "/logo.png"} alt="Logo" style={{ width: '44px', height: '44px', flexShrink: 0, objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(59, 130, 246, 0.2))' }} />
         <h1 className="header-title" style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: isDashboard ? '#ffffff' : 'var(--color-text)', letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Asistente HYS</h1>
       </Link>
       <button
@@ -647,7 +647,9 @@ function App() {
 
 
                   <Route path="/extintores" element={<ProtectedRoute><ExtintoresManager /></ProtectedRoute>} />
-                  <Route path="/extintores/inspect/:id" element={<ProtectedRoute><ExtinguisherInspection /></ProtectedRoute>} />
+                  <Route path="/extintores/inspect/:id" element={<ExtinguisherInspection />} />
+                  <Route path="/verify" element={<PublicView />} />
+                  <Route path="/verify/:id" element={<PublicView />} />
                   <Route path="/thermal-stress" element={<ProtectedRoute><ThermalStress /></ProtectedRoute>} />
                   <Route path="/drills" element={<ProtectedRoute><Drills /></ProtectedRoute>} />
                   <Route path="/drills/new" element={<ProtectedRoute><DrillsForm /></ProtectedRoute>} />

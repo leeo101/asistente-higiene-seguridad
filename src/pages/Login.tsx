@@ -1,6 +1,6 @@
 import { useNavigate, useLocation, NavigateFunction, Location } from 'react-router-dom';
 import React, { useEffect, useState, useRef, ChangeEvent, FormEvent } from 'react';
-import { User, Lock, LogIn, Mail, ArrowLeft, CheckCircle2, AlertCircle, ShieldCheck, CreditCard, Award, GraduationCap, Phone, MapPin, Smartphone, ExternalLink, Eye, EyeOff, Shield, LucideIcon } from 'lucide-react';
+import { User, Lock, LogIn, Mail, ArrowLeft, CheckCircle2, AlertCircle, ShieldCheck, CreditCard, Award, GraduationCap, Phone, MapPin, Smartphone, ExternalLink, Eye, EyeOff, Shield, LucideIcon, Check } from 'lucide-react';
 
 // ─── Brute-force protection constants ────────────────────────────────────────
 const MAX_ATTEMPTS = 5;
@@ -593,21 +593,28 @@ export default function Login(): React.ReactElement {
               </div>
 
               {/* Recordar usuario y Olvidé contraseña */}
-              <div className="flex items-center justify-between mb-6 text-sm">
-                <label className="flex items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-200 font-semibold select-none mb-0 text-[0.9rem]">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600"
-                  />
-                  <span>Recordar usuario</span>
+              <div className="flex items-center justify-between mb-6 gap-2 flex-wrap">
+                <label className="flex items-center gap-2.5 cursor-pointer select-none group p-2 px-3 rounded-xl bg-slate-100/70 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 hover:border-blue-500/50 transition-all">
+                  <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                    rememberMe 
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-500/30' 
+                      : 'border-slate-300 dark:border-slate-600 bg-transparent group-hover:border-blue-400'
+                  }`}>
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="sr-only"
+                    />
+                    {rememberMe && <Check size={13} strokeWidth={3} className="text-white" />}
+                  </div>
+                  <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Recordar usuario</span>
                 </label>
 
                 <button
                   type="button"
                   onClick={() => setView('forgot')}
-                  className="text-blue-600 dark:text-blue-400 hover:underline font-bold bg-transparent border-none cursor-pointer text-[0.85rem] p-0">
+                  className="text-blue-600 dark:text-blue-400 hover:underline font-bold bg-transparent border-none cursor-pointer text-[0.85rem] p-1">
                   ¿Olvidaste tu contraseña?
                 </button>
               </div>
@@ -871,15 +878,36 @@ export default function Login(): React.ReactElement {
               </div>
 
               <div className="mb-6">
-                <label className="flex items-start gap-[0.5rem] cursor-pointer">
-                  <input
-                  type="checkbox"
-                  checked={acceptedTerms}
-                  onChange={(e) => setAcceptedTerms(e.target.checked)} className="mt-[0.2rem]" />
+                <label className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all cursor-pointer select-none ${
+                  acceptedTerms
+                    ? 'bg-emerald-500/10 border-emerald-500/50 shadow-sm shadow-emerald-500/10'
+                    : 'bg-slate-100/70 dark:bg-slate-800/50 border-slate-200/80 dark:border-slate-700/60 hover:border-blue-500/50'
+                }`}>
+                  <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                    acceptedTerms
+                      ? 'bg-emerald-500 border-emerald-500 text-white shadow-sm shadow-emerald-500/30'
+                      : 'border-slate-300 dark:border-slate-600 bg-transparent'
+                  }`}>
+                    <input
+                      type="checkbox"
+                      checked={acceptedTerms}
+                      onChange={(e) => setAcceptedTerms(e.target.checked)}
+                      className="sr-only"
+                    />
+                    {acceptedTerms && <Check size={13} strokeWidth={3} className="text-white" />}
+                  </div>
 
-                
-                  <span className="text-[0.85rem] text-[var(--color-text-muted)]">
-                    Acepto las <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[var(--color-primary)]">Políticas de Privacidad</a>
+                  <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium leading-tight">
+                    Acepto las{' '}
+                    <a
+                      href="/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-blue-600 dark:text-blue-400 font-bold hover:underline"
+                    >
+                      Políticas de Privacidad
+                    </a>
                   </span>
                 </label>
               </div>

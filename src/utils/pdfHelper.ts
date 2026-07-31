@@ -225,33 +225,33 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
             const pageContentHeightPx = pdfContentHeightMM * PX_PER_MM;     // ≈ 1092.28px portrait
 
             const cloneRect = clone.getBoundingClientRect();
-            const sigWrapper = clone.querySelector('.pdf-signatures-wrapper, .pdf-signatures-container') as HTMLElement | null;
-            if (sigWrapper) {
-                const sigRect = sigWrapper.getBoundingClientRect();
-                const sigTopPx = sigRect.top - cloneRect.top;
-                const sigHeightPx = sigRect.height;
+            const avoidElements = clone.querySelectorAll('.pdf-signatures-wrapper, .pdf-signatures-container, .pdf-brand-container, .signature-block, .avoid-break-strictly');
+            
+            for (let i = 0; i < avoidElements.length; i++) {
+                const el = avoidElements[i] as HTMLElement;
+                const rect = el.getBoundingClientRect();
+                const topPx = rect.top - cloneRect.top;
+                const heightPx = rect.height;
 
-                if (sigTopPx > 0 && sigHeightPx > 0) {
-                    const pageAtTop    = Math.floor(sigTopPx / pageContentHeightPx);
-                    const pageAtBottom = Math.floor((sigTopPx + sigHeightPx - 1) / pageContentHeightPx);
+                if (topPx > 0 && heightPx > 0 && heightPx < pageContentHeightPx) {
+                    const pageAtTop = Math.floor(topPx / pageContentHeightPx);
+                    const pageAtBottom = Math.floor((topPx + heightPx - 1) / pageContentHeightPx);
 
                     if (pageAtBottom > pageAtTop) {
-                        // Las firmas cruzan el límite de página → empujarlas a la siguiente
-                        const posInPage    = sigTopPx - pageAtTop * pageContentHeightPx;
-                        const spaceLeft    = pageContentHeightPx - posInPage;
-                        // clamp: nunca más de una página entera de espaciador
-                        const spacerHeight = Math.min(spaceLeft + 6, pageContentHeightPx - 20);
+                        // El elemento cruza la línea divisoria de la página A4 -> insertar espaciador invisible justo encima
+                        const spaceLeft = (pageAtTop + 1) * pageContentHeightPx - topPx;
+                        const spacerHeight = Math.min(spaceLeft + 8, pageContentHeightPx - 20);
 
                         const spacer = document.createElement('div');
                         spacer.style.cssText = [
-                            `height: ${spacerHeight}px`,
+                            `height: ${Math.round(spacerHeight)}px`,
                             'display: block',
                             'visibility: hidden',
                             'width: 100%',
-                            'flex-shrink: 0'
+                            'flex-shrink: 0',
+                            'clear: both'
                         ].join('; ');
-                        sigWrapper.parentNode?.insertBefore(spacer, sigWrapper);
-                        // Esperar reflow del DOM
+                        el.parentNode?.insertBefore(spacer, el);
                         await new Promise(resolve => requestAnimationFrame(resolve));
                     }
                 }

@@ -93,7 +93,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                     </style>
 
                     {/* Header Sequence */}
-                    <div className="flex flex-row justify-space-between items-start border-bottom-[3px_solid_#e2e8f0] pb-[1.2rem] mb-[1.8rem] w-[100%]">
+                    <div className="flex flex-row justify-between items-start border-bottom-[3px_solid_#e2e8f0] pb-[1.2rem] mb-[1.8rem] w-[100%]">
                         <div className="flex-[1] text-left">
                             <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.08em]">Sistema de Gestión HSE</p>
                             <p className="m-[0] font-[900] text-[0.8rem] uppercase text-[#2563eb]">Doc. Reg. Capacitación</p>
@@ -108,8 +108,6 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
 
                         <div className="flex-[1] text-right flex flex-col items-end gap-[0.5rem]">
                             <CompanyLogo style={{ maxHeight: '38px', maxWidth: '120px', objectFit: 'contain' }} />
-
-              
                         </div>
                     </div>
 
@@ -151,16 +149,16 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                         </p>
                     </div>
 
-                    {/* Tabla de Asistentes */}
+                    {/* Tabla de Asistentes / Personal Capacitado */}
                     <table className="table-layout-[fixed] word-break-[break-word] overflow-wrap-[break-word] w-[100%] border-collapse-[collapse] text-[9pt] mb-[2rem]">
                         <thead>
-                            <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] bg-[#1e293b] text-[#ffffff]">
-                                <th className="p-[0.6rem_0.4rem] w-[5%] text-center font-[800] border-[1px_solid_#0f172a]">N°</th>
-                                <th className="p-[0.6rem_0.8rem] w-[30%] text-left font-[800] border-[1px_solid_#0f172a]">Apellido y Nombres</th>
-                                <th className="p-[0.6rem_0.8rem] w-[15%] text-center font-[800] border-[1px_solid_#0f172a]">DNI / CUIL</th>
-                                <th className="p-[0.6rem_0.8rem] w-[20%] text-left font-[800] border-[1px_solid_#0f172a]">Puesto de Trabajo</th>
-                                <th className="p-[0.6rem_0.8rem] w-[15%] text-center font-[800] border-[1px_solid_#0f172a]">Nota / Eval.</th>
-                                <th className="p-[0.6rem_0.8rem] w-[15%] text-center font-[800] border-[1px_solid_#0f172a]">Firma del Asistente</th>
+                            <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] bg-[#2563eb] text-[#ffffff]">
+                                <th className="p-[0.6rem_0.4rem] w-[5%] text-center font-[800] border-[1px_solid_#1d4ed8]">N°</th>
+                                <th className="p-[0.6rem_0.8rem] w-[30%] text-left font-[800] border-[1px_solid_#1d4ed8]">Apellido y Nombres</th>
+                                <th className="p-[0.6rem_0.8rem] w-[15%] text-center font-[800] border-[1px_solid_#1d4ed8]">DNI / CUIL</th>
+                                <th className="p-[0.6rem_0.8rem] w-[20%] text-left font-[800] border-[1px_solid_#1d4ed8]">Puesto de Trabajo</th>
+                                <th className="p-[0.6rem_0.8rem] w-[15%] text-center font-[800] border-[1px_solid_#1d4ed8]">Nota / Eval.</th>
+                                <th className="p-[0.6rem_0.8rem] w-[15%] text-center font-[800] border-[1px_solid_#1d4ed8]">Firma del Asistente</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -191,31 +189,35 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                     </table>
 
                     {/* Area de Certificación final y firmas */}
-                    <PdfSignatures
-            data={training}
-            box1={training.showSignatures?.operator ? {
-              title: 'DELEGADO / ASISTENTE',
-              subtitle: 'En representación de asistentes',
-              signatureUrl: training.operatorSignature || null,
-              isProfessional: false
-            } : null}
-            box2={training.showSignatures?.professional ? {
-              title: 'INSTRUCTOR / EXPOSITOR',
-              subtitle: (actName || 'Firma de Especialista').toUpperCase(),
-              signatureUrl: training.signature || actSignature || null,
-              stampUrl: training.professionalStamp || actStamp || null,
-              isProfessional: true,
-              license: training.professionalLicense || actLic || null
-            } : null}
-            box3={training.showSignatures?.supervisor ? {
-              title: 'SUPERVISIÓN / VERIFICADOR',
-              subtitle: 'Verificación de Capacitación',
-              signatureUrl: training.supervisorSignature || null,
-              isProfessional: false
-            } : null} />
+                    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="pdf-signatures-wrapper avoid-break avoid-break-strictly mt-[1rem]">
+                        <PdfSignatures
+                            data={training}
+                            box1={training.showSignatures?.operator ? {
+                            title: 'DELEGADO / ASISTENTE',
+                            subtitle: 'En representación de asistentes',
+                            signatureUrl: training.operatorSignature || null,
+                            isProfessional: false
+                            } : null}
+                            box2={training.showSignatures?.professional ? {
+                            title: 'INSTRUCTOR / EXPOSITOR',
+                            subtitle: (actName || 'Firma de Especialista').toUpperCase(),
+                            signatureUrl: training.signature || actSignature || null,
+                            stampUrl: training.professionalStamp || actStamp || null,
+                            isProfessional: true,
+                            license: training.professionalLicense || actLic || null
+                            } : null}
+                            box3={training.showSignatures?.supervisor ? {
+                            title: 'SUPERVISIÓN / VERIFICADOR',
+                            subtitle: 'Verificación de Capacitación',
+                            signatureUrl: training.supervisorSignature || null,
+                            isProfessional: false
+                            } : null} 
+                        />
+                    </div>
           
-
-                <PdfBrandingFooter />
+                    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="pdf-brand-container avoid-break avoid-break-strictly mt-[0.5rem]">
+                        <PdfBrandingFooter />
+                    </div>
                 </div>
             </div>
         </div>);

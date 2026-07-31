@@ -35,7 +35,7 @@ export default function PaywallModal({ isOpen, onClose }: PaywallModalProps): Re
       badge: 'Base',
       badgeBg: 'rgba(255,255,255,0.1)',
       badgeColor: '#94a3b8',
-      desc: 'Formularios e inspecciones iniciales',
+      desc: 'Formularios e inspecciones iniciales sin costo',
       buttonLabel: 'Continuar Gratis',
       buttonBg: 'rgba(255,255,255,0.06)',
       buttonColor: '#94a3b8',
@@ -50,39 +50,11 @@ export default function PaywallModal({ isOpen, onClose }: PaywallModalProps): Re
       badgeBg: 'rgba(251,191,36,0.2)',
       badgeColor: '#fbbf24',
       popular: true,
-      desc: 'ACCESO TOTAL: PDFs con tu LOGO, IA Ilimitada, WhatsApp & QR',
+      desc: 'ACCESO TOTAL ($2 USD): PDFs con tu LOGO, Firma Digital, QR Público de Verificación, Asesor IA Ilimitado, Cámara Visión, Módulos Críticos (ATS, LOTO, Altura, Confinados, Carga Fuego, CAPA), WhatsApp & Nube.',
       buttonLabel: 'Activar Profesional ($2 USD)',
       buttonBg: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
       buttonColor: '#ffffff',
       icon: <Crown size={18} color="#fbbf24" weight="fill" />,
-    },
-    {
-      id: 'student',
-      name: 'Estudiante',
-      price: '$2',
-      period: '/ mes',
-      badge: '🎓 Estudiantes',
-      badgeBg: 'rgba(16,185,129,0.15)',
-      badgeColor: '#34d399',
-      desc: 'Formación profesional, PDFs limpios, Cámara IA & Nube',
-      buttonLabel: 'Elegir Estudiante ($2 USD)',
-      buttonBg: '#059669',
-      buttonColor: '#ffffff',
-      icon: <GraduationCap size={18} color="#34d399" weight="duotone" />,
-    },
-    {
-      id: 'enterprise',
-      name: 'Consultora',
-      price: '$2',
-      period: '/ mes',
-      badge: '🚀 PRÓXIMAMENTE',
-      badgeBg: 'rgba(168,85,247,0.25)',
-      badgeColor: '#e9d5ff',
-      desc: 'Multi-usuario, Multi-cliente, KPIs EHS y Equipos (Próximamente)',
-      buttonLabel: 'Reservar Consultora ($2 USD)',
-      buttonBg: 'linear-gradient(135deg, #7e22ce 0%, #4338ca 100%)',
-      buttonColor: '#ffffff',
-      icon: <Buildings size={18} color="#c084fc" weight="duotone" />,
     },
   ];
 
@@ -95,7 +67,7 @@ export default function PaywallModal({ isOpen, onClose }: PaywallModalProps): Re
       />
 
       {/* Modal Container */}
-      <div className="glass-panel relative w-full max-w-[850px] max-h-[90vh] overflow-y-auto bg-[var(--color-surface)] border border-blue-500/30 rounded-[28px] p-4 sm:p-6 shadow-2xl animation-[slideUp_0.3s_cubic-bezier(0.16,1,0.3,1)]">
+      <div className="glass-panel relative w-full max-w-[700px] max-h-[90vh] overflow-y-auto bg-[var(--color-surface)] border border-blue-500/30 rounded-[28px] p-4 sm:p-6 shadow-2xl animation-[slideUp_0.3s_cubic-bezier(0.16,1,0.3,1)]">
         
         {/* Glow */}
         <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-transparent pointer-events-none rounded-full blur-2xl" />
@@ -121,12 +93,12 @@ export default function PaywallModal({ isOpen, onClose }: PaywallModalProps): Re
             Elegí el Plan a la medida de tu gestión
           </h2>
           <p className="text-[var(--color-text-muted)] text-xs sm:text-sm max-w-[550px] mx-auto leading-relaxed">
-            Podés seguir usando la versión gratuita o pasar a un plan Pro para exportar PDFs con tu logo, sincronizar en la nube y usar IA ilimitada.
+            Podés seguir usando la versión gratuita o pasar al plan Profesional PRO para exportar PDFs con tu logo, sincronizar en la nube y usar IA ilimitada.
           </p>
         </div>
 
-        {/* 4 Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5 relative z-10">
+        {/* 2 Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5 relative z-10 max-w-[620px] mx-auto">
           {modalPlans.map((plan) => (
             <div
               key={plan.id}

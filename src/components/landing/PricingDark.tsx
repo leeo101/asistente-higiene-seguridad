@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   CheckCircle,
-  Sparkle as Sparkles,
+  ShieldCheck,
   Crown,
   Shield,
   Buildings,
@@ -49,59 +49,19 @@ const plansData = [
     buttonBg: '#ffffff',
     buttonText: '#1e3a8a',
     buttonHoverBg: '#f8fafc',
-    btnLabel: 'Activar Profesional ($2)',
+    btnLabel: 'Activar Profesional ($2 USD)',
     popular: true,
-    checkColor: '#86efac',
     features: [
-      { label: 'PDFs con TU LOGO', desc: 'Presentación ejecutiva a clientes' },
-      { label: 'Asesor IA Ilimitado', desc: 'Conclusiones técnicas en segundos' },
-      { label: 'Módulos Críticos', desc: 'LOTO, Altura, Confinados, CAPA' },
-      { label: 'Envío WhatsApp & QR', desc: 'Firma inmediata en obra o planta' },
-      { label: 'Exportar a Excel / CSV', desc: 'Planillas completas de historial' },
-    ],
-  },
-  {
-    id: 'student',
-    name: 'Plan 3: Estudiante',
-    price: 'USD $2',
-    period: '/ mes',
-    desc: 'Para alumnos, practicantes y técnicos en etapa de aprendizaje y primeras obras.',
-    icon: <GraduationCap size={20} color="#34d399" weight="duotone" />,
-    badge: { label: 'Estudiantes 🎓', bg: 'rgba(16,185,129,0.15)', border: 'rgba(16,185,129,0.3)', color: '#34d399' },
-    border: 'rgba(16,185,129,0.3)',
-    bg: 'linear-gradient(180deg, rgba(6,78,59,0.2) 0%, rgba(2,6,23,0.4) 100%)',
-    buttonBg: '#059669',
-    buttonText: '#ffffff',
-    buttonHoverBg: '#047857',
-    btnLabel: 'Elegir Estudiante',
-    checkColor: '#34d399',
-    features: [
-      { label: 'Todo del Plan Gratuito', desc: 'Más funciones para formación' },
-      { label: 'Exportación a PDF Oficial', desc: 'Formato limpio e impresiones' },
-      { label: 'Cámara IA & Visión', desc: 'Detección EPP y riesgos en fotos' },
-      { label: 'Nube & Firma Digital', desc: 'Respaldo seguro de documentos' },
-    ],
-  },
-  {
-    id: 'enterprise',
-    name: 'Plan 4: Consultora',
-    price: 'USD $2',
-    period: '/ mes',
-    desc: 'Servicios de HyS externos, consultoras y gestión avanzada de múltiples plantas.',
-    icon: <Buildings size={20} color="#c084fc" weight="duotone" />,
-    badge: { label: 'Próximamente 🚀', bg: 'rgba(168,85,247,0.18)', border: 'rgba(168,85,247,0.4)', color: '#c084fc' },
-    border: 'rgba(168,85,247,0.4)',
-    bg: 'linear-gradient(180deg, rgba(88,28,135,0.25) 0%, rgba(2,6,23,0.4) 100%)',
-    buttonBg: 'linear-gradient(135deg, #7e22ce 0%, #4338ca 100%)',
-    buttonText: '#ffffff',
-    buttonHoverBg: 'linear-gradient(135deg, #6b21a8 0%, #3730a3 100%)',
-    btnLabel: 'Reservar Consultora',
-    checkColor: '#c084fc',
-    features: [
-      { label: 'Multi-Usuario & Equipo', desc: 'Acceso para todo tu personal (Próximamente)' },
-      { label: 'Gestión Multi-Cliente', desc: 'Legajos independientes por cliente (Próximamente)' },
-      { label: 'Dashboards KPIs EHS', desc: 'Índices de Frecuencia y Severidad (Próximamente)' },
-      { label: 'Acceso PRO Hoy Mismo', desc: 'Incluye todas las funciones del Plan Pro' },
+      { label: 'PDFs con TU LOGO e Identidad', desc: 'Presentación profesional con tu marca de agua y membrete en todos los informes' },
+      { label: 'Firma Digital & QR de Validación', desc: 'Firma táctil en pantalla y verificación pública por QR para auditorías' },
+      { label: 'Asesor IA Normativo Ilimitado', desc: 'Consultas 24/7 sin límite (Dec. 351/79, SRT, NFPA, OSHA, Ley 19587/16744/29783)' },
+      { label: 'Cámara IA & Visión Computacional', desc: 'Detección automática de EPP, actos inseguros y riesgos en fotos de terreno' },
+      { label: 'Módulos Críticos Desbloqueados', desc: 'ATS, Trabajo en Altura, Espacios Confinados, LOTO (Bloqueo) & Módulo CAPA' },
+      { label: 'Carga de Fuego & Extintores', desc: 'Cálculos de calorías, masa combustible, cantidad de extintores e inventario QR' },
+      { label: 'Checklists, Matriz IPERC & Legajos', desc: 'Formularios en terreno, árbol de causas y legajos por cliente' },
+      { label: 'Envío Instantáneo a WhatsApp & Mail', desc: 'Compartí el PDF generado con el cliente o responsable con 1 solo clic' },
+      { label: 'Exportación a Excel / CSV', desc: 'Descarga planillas ejecutivas completas para análisis y auditorías' },
+      { label: 'Sincronización Nube & Modo Offline', desc: 'Cargá datos en obra sin internet y respaldá automáticamente al conectar' },
     ],
   },
 ];
@@ -143,7 +103,7 @@ export default function PricingDark({ onStart }: PricingDarkProps) {
         }}
       />
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
           <div
@@ -158,7 +118,7 @@ export default function PricingDark({ onStart }: PricingDarkProps) {
               marginBottom: '1.2rem',
             }}
           >
-            <Sparkles size={14} color="#60a5fa" weight="fill" />
+            <ShieldCheck size={15} color="#60a5fa" weight="bold" />
             <span
               style={{
                 color: '#60a5fa',
@@ -201,16 +161,16 @@ export default function PricingDark({ onStart }: PricingDarkProps) {
               lineHeight: 1.6,
             }}
           >
-            Desde estudiantes e inspectores independientes hasta consultoras EHS integrales.
+            Plan Gratuito para explorar y Plan Profesional PRO para gestión completa e ilimitada.
           </p>
         </div>
 
-        {/* 4 Cards Grid */}
+        {/* 2 Cards Grid */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '1.5rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '1.8rem',
             alignItems: 'stretch',
           }}
         >
@@ -219,7 +179,7 @@ export default function PricingDark({ onStart }: PricingDarkProps) {
               key={plan.id}
               style={{
                 borderRadius: '24px',
-                padding: '2rem 1.4rem',
+                padding: '2rem 1.6rem',
                 background: plan.bg,
                 border: `1.5px solid ${plan.border}`,
                 display: 'flex',
@@ -232,34 +192,34 @@ export default function PricingDark({ onStart }: PricingDarkProps) {
                 transition: 'transform 0.25s ease, border-color 0.25s ease',
               }}
             >
-              {/* Badge if present */}
-              {plan.badge && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '1.2rem',
-                    right: '1.2rem',
-                    background: plan.badge.bg,
-                    border: `1px solid ${plan.badge.border}`,
-                    color: plan.badge.color,
-                    padding: '0.2rem 0.65rem',
-                    borderRadius: '100px',
-                    fontSize: '0.68rem',
-                    fontWeight: 900,
-                    letterSpacing: '0.5px',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  {plan.badge.label}
-                </div>
-              )}
-
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
-                  {plan.icon}
-                  <span style={{ fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)' }}>
-                    {plan.name}
-                  </span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.8rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {plan.icon}
+                    <span style={{ fontSize: '0.85rem', fontWeight: 900, textTransform: 'uppercase', color: plan.popular ? '#60a5fa' : 'rgba(255,255,255,0.8)' }}>
+                      {plan.name}
+                    </span>
+                  </div>
+
+                  {/* Badge positioned inline in flex header (NO OVERLAP) */}
+                  {plan.badge && (
+                    <div
+                      style={{
+                        background: plan.badge.bg,
+                        border: `1px solid ${plan.badge.border}`,
+                        color: plan.badge.color,
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '100px',
+                        fontSize: '0.7rem',
+                        fontWeight: 900,
+                        letterSpacing: '0.5px',
+                        textTransform: 'uppercase',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {plan.badge.label}
+                    </div>
+                  )}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem', marginBottom: '0.4rem' }}>
                   <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'white', lineHeight: 1, fontFamily: 'var(--font-heading)' }}>
@@ -306,7 +266,7 @@ export default function PricingDark({ onStart }: PricingDarkProps) {
                   gap: '0.4rem',
                 }}
               >
-                {plan.popular && <Sparkles size={16} weight="fill" />}
+                {plan.popular && <ShieldCheck size={16} weight="bold" />}
                 {plan.btnLabel}
               </button>
             </div>

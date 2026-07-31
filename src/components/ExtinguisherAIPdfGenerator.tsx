@@ -1,6 +1,7 @@
 import React from 'react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import PdfSignatures from './PdfSignatures';
 import { Flame, Calendar, Info, CheckCircle2, AlertTriangle, Crosshair, Package } from 'lucide-react';
 
 const EXTINTOR_INFO: Record<string, {name: string;fires: string;color: string;icon: string;usage: string;}> = {
@@ -216,31 +217,12 @@ export default function ExtinguisherAIPdfGenerator({ item }: {item: any;}): Reac
                 </div>
 
                 {/* Signatures */}
-                {(item.signature || item.inspectorName) &&
-        <div className="mt-[2rem] flex justify-start gap-[4rem] pt-[2rem] border-top-[1px_solid_#e2e8f0] page-break-inside-[avoid]">
-
-
-
-
-
-
-
-          
-                        <div className="text-center w-[250px]">
-                            {item.signature ?
-             <img src={item.signature} alt="Firma Inspector" className="h-[80px] object-contain mb-[0.5rem] border-bottom-[1px_solid_#cbd5e1]" style={{ maxHeight: '80px', objectFit: 'contain' }} /> :
-
-            <div className="h-[80px] border-bottom-[1px_solid_#cbd5e1] mb-[0.5rem]"></div>
-            }
-                            <div className="text-[9pt] font-[800] text-slate-700 dark:text-slate-300 uppercase">
-                                {item.inspectorName || 'Inspector'}
-                            </div>
-                            <div className="text-[8pt] text-[#64748b]">Firma del Inspector</div>
-                        </div>
-                    </div>
-        }
+                <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="pdf-signatures-wrapper avoid-break avoid-break-strictly mt-[1.5rem]">
+                    <PdfSignatures data={item} />
+                </div>
 
                 {/* Footer */}
+                <PdfBrandingFooter />
                 <div className="text-center mt-[2rem] pt-[1rem] border-top-[1px_solid_#e2e8f0] text-[7.5pt] text-[#94a3b8] line-height-[1.6]">
 
 

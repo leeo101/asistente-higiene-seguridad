@@ -319,58 +319,70 @@ export default function ToolboxTalk(): React.ReactElement {
   };
 
   const columns = [
-  {
-    header: 'Fecha',
-    accessor: 'fecha',
-    sortable: true,
-    render: (item: ToolboxTalk) =>
-    <span className="flex items-center gap-[0.4rem] text-[var(--color-text-muted)] white-space-[nowrap]">
-                    <Calendar size={14} /> {new Date(item.fecha + 'T12:00').toLocaleDateString('es-AR')}
-                </span>
-
-  },
-  {
-    header: 'Tema',
-    accessor: 'tema',
-    sortable: true,
-    render: (item: ToolboxTalk) =>
-    <div className="flex items-center gap-[0.8rem]">
-                    <div className="bg-[rgba(0,82,204,0.1)] p-[0.5rem] rounded-[8px] text-[#0052CC]">
-                        <MessageSquare size={16} />
-                    </div>
-                    <div>
-                        <div className="font-[700] max-w-[250px] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">{item.tema || 'Sin tema'}</div>
-                        <div className="text-[0.75rem] text-[var(--color-text-muted)] mt-[2px]">{item.area} • {item.responsable}</div>
-                    </div>
-                </div>
-
-  },
-  {
-    header: 'Asistencia',
-    accessor: 'asistentes',
-    render: (item: ToolboxTalk) => {
-      const asis = item.asistentes.filter((a) => a.nombre).length;
-      const firm = item.asistentes.filter((a) => a.firma).length;
-      return (
-        <div className="flex items-center gap-[0.8rem]">
-                        <span title="Asistentes" className="flex items-center gap-[0.2rem] text-[var(--color-text-muted)]"><Users size={14} /> {asis}</span>
-                        <span style={{ color: firm === asis && asis > 0 ? '#10b981' : '#f59e0b' }} title="Firmas" className="flex items-center gap-[0.2rem]"><CheckCircle2 size={14} /> {firm}</span>
-                    </div>);
-
+    {
+      header: 'Fecha',
+      accessor: 'fecha',
+      sortable: true,
+      render: (item: ToolboxTalk) => (
+        <span style={{ color: '#000000', fontWeight: '900', fontSize: '13px', display: 'block' }}>
+          {new Date(item.fecha + 'T12:00').toLocaleDateString('es-AR')}
+        </span>
+      )
+    },
+    {
+      header: 'Tema / Área',
+      accessor: 'tema',
+      sortable: true,
+      render: (item: ToolboxTalk) => (
+        <div>
+          <div style={{ color: '#000000', fontWeight: '900', fontSize: '14px', lineHeight: '1.2' }}>{item.tema || 'Sin tema'}</div>
+          <div style={{ color: '#64748b', fontWeight: '800', fontSize: '12px', marginTop: '2px' }}>{item.area ? `${item.area} • ` : ''}Resp: {item.responsable || '-'}</div>
+        </div>
+      )
+    },
+    {
+      header: 'Asistencia y Firmas',
+      accessor: 'asistentes',
+      render: (item: ToolboxTalk) => {
+        const asis = item.asistentes.filter((a) => a.nombre).length;
+        const firm = item.asistentes.filter((a) => a.firma).length;
+        const isComplete = firm === asis && asis > 0;
+        return (
+          <div className="flex items-center gap-2">
+            <span style={{ backgroundColor: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', padding: '4px 10px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <Users size={14} /> {asis} asist.
+            </span>
+            <span style={{ backgroundColor: isComplete ? '#f0fdf4' : '#fffbeb', color: isComplete ? '#16a34a' : '#d97706', border: `1px solid ${isComplete ? '#bbf7d0' : '#fde68a'}`, padding: '4px 10px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <CheckCircle2 size={14} /> {firm} firm.
+            </span>
+          </div>
+        );
+      }
+    },
+    {
+      header: 'Acciones',
+      accessor: 'id',
+      render: (item: ToolboxTalk) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button 
+            onClick={() => handleEdit(item)} 
+            style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Edit3 size={12} /> Editar
+          </button>
+          <button 
+            onClick={() => requirePro(() => setShareItem(item))} 
+            style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Share2 size={12} /> Compartir
+          </button>
+          <button 
+            onClick={() => setDeleteTarget(item.id)} 
+            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Trash2 size={12} /> Eliminar
+          </button>
+        </div>
+      )
     }
-  },
-  {
-    header: 'Acciones',
-    accessor: 'id',
-    render: (item: ToolboxTalk) =>
-    <div className="flex gap-[0.4rem]">
-                    <button onClick={() => {handleEdit(item);}} className="p-[0.4rem_0.8rem] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[8px] cursor-pointer text-[0.75rem] font-[700] text-[var(--color-text)] flex items-center gap-[4px]"><Edit3 size={15} /> Editar</button>
-                    <button onClick={() => {requirePro(() => setShareItem(item));}} title="Compartir" className="p-[0.4rem] bg-[rgba(22,163,74,0.08)] border-[1px_solid_rgba(22,163,74,0.2)] rounded-[8px] text-[#16a34a] cursor-pointer"><Share2 size={15} /></button>
-                    <button onClick={() => setDeleteTarget(item.id)} className="p-[0.4rem] bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[8px] text-[#ef4444] cursor-pointer"><Trash2 size={15} /></button>
-                </div>
-
-  }];
-
+  ];
 
   // Dashboard stats
   const totalCharlas = talks.length;
@@ -380,11 +392,11 @@ export default function ToolboxTalk(): React.ReactElement {
 
   return (
     <>
-            <style>{printStyles}</style>
-            <div className="container no-print pb-[6rem] max-w-[900px] mx-auto">
-                <Breadcrumbs />
+      <style>{printStyles}</style>
+      <div className="container no-print pb-[6rem] max-w-[1200px] mx-auto">
+        <Breadcrumbs />
 
-                <ShareModal
+        <ShareModal
           isOpen={!!shareItem}
           open={!!shareItem}
           onClose={() => setShareItem(null)}
@@ -392,105 +404,147 @@ export default function ToolboxTalk(): React.ReactElement {
           text={shareItem ? `📋 Charla de 5 Minutos\n📅 Fecha: ${shareItem.fecha}\n👷 Responsable: ${shareItem.responsable}\n🏢 Área: ${shareItem.area}\n📌 Tema: ${shareItem.tema}\n👥 Asistentes: ${shareItem.asistentes.filter((a) => a.nombre).length}` : ''}
           rawMessage={shareItem ? `📋 Charla de 5 Minutos\n📅 Fecha: ${shareItem.fecha}\n👷 Responsable: ${shareItem.responsable}\n🏢 Área: ${shareItem.area}\n📌 Tema: ${shareItem.tema}\n👥 Asistentes: ${shareItem.asistentes.filter((a) => a.nombre).length}` : ''}
           elementIdToPrint="pdf-content"
-          fileName={`Charla_5min_${shareItem?.tema?.replace(/\s+/g, '_') || 'sin_tema'}.pdf`} />
+          fileName={`Charla_5min_${shareItem?.tema?.replace(/\s+/g, '_') || 'sin_tema'}.pdf`} 
+        />
         
-                {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+        {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
 
-                {!showForm ?
-        <div className="w-full">
-                        <div className="no-print">
-                            <PremiumHeader
-                                title="Charla de 5 Minutos"
-                                subtitle="Registro de asistentes y firma digital"
-                                icon={<MessageSquare size={36} color="#ffffff" />}
-                            />
-                        </div>
-                        <div className="p-[2rem] max-w-[1200px] m-[0_auto] flex flex-col relative">
-
-                        {/* ═══ Stats Dashboard ═══ */}
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                            <ToolboxStatCard
-              icon={<MessageSquare size={20} color="#fff" />}
-              label="Charlas Dictadas"
-              value={totalCharlas}
-              color="#8b5cf6"
-              gradient="linear-gradient(135deg, #8b5cf6, #7c3aed)" />
+        {!showForm ? (
+          <div className="w-full">
+            <div className="no-print">
+              <PremiumHeader
+                title="Charla de 5 Minutos"
+                subtitle="Registro de asistentes y firma digital"
+                icon={<MessageSquare size={36} color="#ffffff" />}
+              />
+            </div>
             
-                            <ToolboxStatCard
-              icon={<Users size={20} color="#fff" />}
-              label="Personal Capacitado"
-              value={totalAsistentes}
-              color="#10b981"
-              gradient="linear-gradient(135deg, #10b981, #059669)" />
-            
-                            <ToolboxStatCard
-              icon={<CheckCircle2 size={20} color="#fff" />}
-              label="Firmas Obtenidas"
-              value={totalFirmados}
-              color="#0052CC"
-              gradient="linear-gradient(135deg, #0052CC, #0077ff)" />
-            
-                            <ToolboxStatCard
-              icon={<Award size={20} color="#fff" />}
-              label="Tasa de Firma"
-              value={`${tasaFirma}%`}
-              color="#f59e0b"
-              gradient="linear-gradient(135deg, #f59e0b, #d97706)" />
-            
-                        </div>
-                        <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap items-center">
-                            <></>
-                            <button
-              onClick={() => {
-                setForm(emptyTalk());
-                setEditId(null);
-                setShowForm(true);
-              }} style={{ backgroundColor: '#16a34a', color: '#ffffff' }} className="flex-none px-6 py-4 rounded-[16px] font-[800] text-[1rem] cursor-pointer flex items-center gap-2 shadow-[0_4px_15px_rgba(22,163,74,0.3)] transition-all hover:-translate-y-1 whitespace-nowrap border-none">
+            <div className="p-4 sm:p-6 max-w-[1200px] mx-auto flex flex-col relative">
 
-              
-                                <Plus size={20} /> Nueva Charla
-                            </button>
-                            <div className="flex-[1_1_100%] min-w-0 relative h-[50px]">
-                                <Search 
-                                  size={20} 
-                                  className="pointer-events-none z-10" 
-                                  style={{ 
-                                    position: 'absolute', 
-                                    left: '1.2rem', 
-                                    top: 0, 
-                                    bottom: 0, 
-                                    marginTop: 'auto', 
-                                    marginBottom: 'auto', 
-                                    color: '#94a3b8', 
-                                    display: 'block' 
-                                  }} 
-                                />
-                                <input
-                                  type="text"
-                                  placeholder="Buscar por tema, área o responsable..."
-                                  value={searchTerm}
-                                  onChange={(e) => setSearchTerm(e.target.value)}
-                                  style={{ width: '100%', height: '50px', paddingLeft: '3.5rem', paddingRight: '1rem', borderRadius: '16px', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface)', color: 'var(--color-text)', outline: 'none', boxSizing: 'border-box' }}
-                                  className="transition-all shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-medium text-sm" 
-                                />
-                            </div>
-                            {talks.length > 0 &&
-            <button onClick={handleExportCSV} className="flex-[0_1_auto] flex items-center gap-[0.4rem] bg-[var(--color-primary)] border-none rounded-[16px] p-[1rem_1.5rem] text-[1rem] font-[800] cursor-pointer text-[#ffffff] box-shadow-[0_4px_15px_rgba(0,0,0,0.1)]">
-                                    <Download size={20} /> Excel
-                                </button>
-            }
-                        </div>
+              {/* Top Summary Cards (KPIs) - Estilo Aptitudes Médicas */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+                <div className="p-4 rounded-2xl border transition-all bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
+                  <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider">Charlas Dictadas</span>
+                    <MessageSquare size={20} />
+                  </div>
+                  <div className="text-2xl font-black text-slate-900 dark:text-white">{totalCharlas}</div>
+                  <span className="text-[11px] text-slate-500">Registradas en sistema</span>
+                </div>
 
-                        <DataTable
-            data={filteredTalks}
-            columns={columns}
-            searchPlaceholder="Buscar..."
-            emptyMessage="No hay charlas registradas."
-            emptyIcon={<MessageSquare size={48} />} />
-          
-                    </div>
-        </div> : 
+                <div className="p-4 rounded-2xl border transition-all bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
+                  <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider">Personal Capacitado</span>
+                    <Users size={20} />
+                  </div>
+                  <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{totalAsistentes}</div>
+                  <span className="text-[11px] text-slate-500">Trabajadores alcanzados</span>
+                </div>
 
+                <div className="p-4 rounded-2xl border transition-all bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
+                  <div className="flex items-center justify-between text-amber-600 dark:text-amber-400 mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider">Firmas Obtenidas</span>
+                    <CheckCircle2 size={20} />
+                  </div>
+                  <div className="text-2xl font-black text-amber-600 dark:text-amber-400">{totalFirmados}</div>
+                  <span className="text-[11px] text-slate-500">Registros validados</span>
+                </div>
+
+                <div className="p-4 rounded-2xl border transition-all bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
+                  <div className="flex items-center justify-between text-indigo-600 dark:text-indigo-400 mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider">Tasa de Firma</span>
+                    <Award size={20} />
+                  </div>
+                  <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400">{tasaFirma}%</div>
+                  <span className="text-[11px] text-slate-500">Cumplimiento digital</span>
+                </div>
+              </div>
+
+              {/* Barra de Búsqueda y Botón Nueva Charla al lado - Estilo Aptitudes Médicas */}
+              <div className="flex flex-row items-center justify-between gap-3 mt-6 mb-4">
+                <div className="relative flex-1 max-w-xs h-[38px]">
+                  <Search 
+                    size={16} 
+                    className="text-slate-400 pointer-events-none z-10" 
+                    style={{ 
+                      position: 'absolute', 
+                      left: '0.75rem', 
+                      top: 0, 
+                      bottom: 0, 
+                      marginTop: 'auto', 
+                      marginBottom: 'auto', 
+                      display: 'block' 
+                    }} 
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Buscar tema, área o responsable..." 
+                    value={searchTerm} 
+                    onChange={(e) => setSearchTerm(e.target.value)} 
+                    style={{ paddingLeft: '2.25rem', paddingRight: '0.75rem', height: '38px', width: '100%', boxSizing: 'border-box', outline: 'none' }}
+                    className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all" 
+                  />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {talks.length > 0 && (
+                    <button 
+                      onClick={handleExportCSV}
+                      style={{
+                        backgroundColor: '#2563eb',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '6px 14px',
+                        fontSize: '12px',
+                        fontWeight: '800',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        whiteSpace: 'nowrap',
+                        height: '34px',
+                        boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)'
+                      }}>
+                      <Download size={14} />
+                      <span>Excel</span>
+                    </button>
+                  )}
+
+                  <button 
+                    onClick={() => { setForm(emptyTalk()); setEditId(null); setShowForm(true); }} 
+                    style={{
+                      backgroundColor: '#059669',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '6px 14px',
+                      fontSize: '12px',
+                      fontWeight: '800',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      whiteSpace: 'nowrap',
+                      height: '34px',
+                      boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
+                    }}>
+                    <Plus size={14} />
+                    <span>Nueva Charla</span>
+                  </button>
+                </div>
+              </div>
+
+              <DataTable
+                data={filteredTalks}
+                columns={columns}
+                searchPlaceholder="Buscar..."
+                emptyMessage="No hay charlas registradas."
+                emptyIcon={<MessageSquare size={48} />} 
+              />
+            </div>
+          </div>
+        ) : (
         <div className="w-full">
             <ModuleFormLayout>
                 <ModuleFormToolbar
@@ -803,8 +857,8 @@ export default function ToolboxTalk(): React.ReactElement {
                     </div>
             </ModuleFormLayout>
         </div>
-        }
-            <div id="pdf-content" className="print-area fixed left-[0] top-[0] opacity-[0.01] pointer-events-[none]" style={{ zIndex: -1 }}>
+        )}
+            <div className="print-area ats-pdf-offscreen">
                 <ToolboxTalkPdfGenerator data={{ ...(shareItem || form), showSignatures: (shareItem || form).showSignatures || showSignatures }} professional={professional} />
             </div>
         </div>

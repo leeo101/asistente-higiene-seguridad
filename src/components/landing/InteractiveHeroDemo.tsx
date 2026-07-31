@@ -231,7 +231,7 @@ export default function InteractiveHeroDemo() {
             {/* Idle / ready state — only shows briefly at beginning */}
             {phase === 'typing' && inputValue === '' && (
                 <div style={{ textAlign: 'center', padding: '1.5rem 0', color: 'rgba(255,255,255,0.35)', fontSize: '0.82rem' }}>
-                    <Sparkles size={20} color="#a78bfa" weight="fill" style={{ display: 'block', margin: '0 auto 0.5rem' }} />
+                    <ShieldCheck size={22} color="#38bdf8" weight="duotone" style={{ display: 'block', margin: '0 auto 0.5rem' }} />
                     La IA detecta riesgos automáticamente
                 </div>
             )}

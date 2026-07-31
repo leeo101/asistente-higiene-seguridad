@@ -3,6 +3,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ArrowLeft, Camera, Shield, Save, Clock, User } from 'lucide-react';
+import VoiceDictationButton from '../components/VoiceDictationButton';
 
 export default function Observation(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -59,7 +60,17 @@ export default function Observation(): React.ReactElement | null {
 
             <div className="card">
                 <div className="mb-6">
-                    <label>Descripción de la Anomalía</label>
+                    <div className="flex items-center justify-between mb-2">
+                        <label className="m-0">Descripción de la Anomalía</label>
+                        <VoiceDictationButton
+                            onTranscript={(text) => setObservation(prev => ({
+                                ...prev,
+                                description: prev.description ? `${prev.description} ${text}` : text
+                            }))}
+                            placeholder="Dictar observación..."
+                            size="sm"
+                        />
+                    </div>
                     <textarea
             rows={4}
             className="no-print block w-full bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[8px] p-[0.8rem] text-[var(--color-text)] outline-[none]"

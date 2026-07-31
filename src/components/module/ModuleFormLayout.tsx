@@ -14,7 +14,7 @@ export function ModuleFormLayout({
   const width = typeof maxWidth === 'number' ? `${maxWidth}px` : maxWidth;
 
   return (
-    <div className={`w-full mx-auto px-4 sm:px-8 py-4 ${className}`.trim()} style={{ maxWidth: width }}>
+    <div className={`module-form-layout w-full mx-auto px-4 sm:px-8 pt-24 sm:pt-28 pb-16 ${className}`.trim()} style={{ maxWidth: width }}>
       {children}
     </div>
   );

@@ -395,19 +395,6 @@ const features: Feature[] = [
     MockupComponent: AISMockup,
   },
   {
-    badge: 'Documentación Profesional',
-    badgeColor: '#60a5fa',
-    title: 'PDFs de nivel corporativo con tu logo',
-    desc: 'Cada registro genera un PDF con diseño profesional, firma digital, código QR y tu logo de empresa. Listos para presentar al cliente en segundos.',
-    bullets: [
-      'Firma digital integrada con huella',
-      'Código QR único por documento',
-      'Logo y datos de empresa personalizados',
-    ],
-    accentColor: '#60a5fa',
-    MockupComponent: PDFMockup,
-  },
-  {
     badge: 'Multi-Plataforma',
     badgeColor: '#34d399',
     title: 'En la obra, desde el celular, sin internet',
@@ -479,7 +466,7 @@ function FeatureRow({ feature, index }: { feature: Feature; index: number }) {
             marginBottom: '1.2rem',
           }}
         >
-          <Sparkles size={12} color={feature.accentColor} weight="fill" />
+          <ShieldCheck size={13} color={feature.accentColor} weight="bold" />
           <span style={{ color: feature.accentColor, fontSize: '0.75rem', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase' }}>
             {feature.badge}
           </span>

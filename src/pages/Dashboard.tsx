@@ -394,7 +394,21 @@ export default function Dashboard(): React.ReactElement {
     }
   };
 
-  // Loading state is now inline (skeleton) — no full-page spinner needed
+  const [widgetConfig, setWidgetConfig] = useState(() => {
+    try {
+      const saved = localStorage.getItem('dashboard_widget_config');
+      return saved ? JSON.parse(saved) : { showAlerts: true, showInsight: true, showNews: true, showKPIs: true };
+    } catch {
+      return { showAlerts: true, showInsight: true, showNews: true, showKPIs: true };
+    }
+  });
+  const [showCustomizeModal, setShowCustomizeModal] = useState(false);
+
+  const toggleWidget = (key: string) => {
+    const updated = { ...widgetConfig, [key]: !widgetConfig[key] };
+    setWidgetConfig(updated);
+    localStorage.setItem('dashboard_widget_config', JSON.stringify(updated));
+  };
 
   return (
     <AnimatedPage>
@@ -414,6 +428,13 @@ export default function Dashboard(): React.ReactElement {
 
         {/* Action buttons */}
         <div className={`flex gap-3 ${isMobile ? 'w-full' : 'w-auto items-stretch'}`}>
+          <button
+              onClick={() => setShowCustomizeModal(true)}
+              className={`flex-1 sm:flex-none h-11 px-4 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-700 dark:text-slate-200 flex items-center justify-center gap-2 transition-all hover:bg-slate-200 dark:hover:bg-slate-700`}>
+            <Filter size={17} weight="bold" />
+            <span>Personalizar</span>
+          </button>
+
           {/* Export button */}
           <button
               onClick={() => window.print()}
@@ -435,8 +456,47 @@ export default function Dashboard(): React.ReactElement {
       </div>
       {/* ── / Header ── */}
 
+      {/* Modal de Personalización de Widgets */}
+      {showCustomizeModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Personalizar Panel</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">Selecciona las secciones visibles en tu Dashboard:</p>
+            
+            <div className="space-y-4 mb-6">
+              {[
+                { key: 'showAlerts', label: '🚨 Centro de Alertas Unificadas', desc: 'Vencimientos de extintores, aptos médicos y permisos' },
+                { key: 'showInsight', label: '🧠 Recomendaciones Inteligentes IA', desc: 'Sugerencias diarias del Asesor de Seguridad' },
+                { key: 'showNews', label: '📰 Noticias EHS y Clima', desc: 'Novedades de la industria y alertas de clima' },
+                { key: 'showKPIs', label: '📊 Tarjetas de KPIs y Métricas', desc: 'Índices de frecuencia, gravedad y accidentabilidad' }
+              ].map(({ key, label, desc }) => (
+                <label key={key} className="flex items-start gap-3 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 cursor-pointer hover:border-blue-500">
+                  <input
+                    type="checkbox"
+                    checked={widgetConfig[key]}
+                    onChange={() => toggleWidget(key)}
+                    className="mt-1 w-4 h-4 accent-blue-600 rounded"
+                  />
+                  <div>
+                    <div className="text-sm font-bold text-slate-900 dark:text-white">{label}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">{desc}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setShowCustomizeModal(false)}
+              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl"
+            >
+              Guardar Configuración
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 🚨 Centro Unificado de Alertas y Vencimientos */}
-      <UnifiedAlertsHub />
+      {widgetConfig.showAlerts && <UnifiedAlertsHub />}
 
       {/* Salud del Sistema & IA Insight */}
       {!loading && (

@@ -274,6 +274,7 @@ export default function AuditForm(): React.ReactElement | null {
   };
 
   return (
+    <>
         <ModuleFormLayout>
             <ModuleFormToolbar
         title={isEdit ? 'Editar Auditoría' : 'Nueva Auditoría EHS'}
@@ -295,10 +296,11 @@ export default function AuditForm(): React.ReactElement | null {
           }} className="grid gap-[1.25rem] bg-[rgba(248,_250,_252,_0.5)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)]">
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
                             <label className="block mb-2 text-sm font-semibold text-slate-400">Título de la Auditoría *</label>
-                            <div className="relative">
+                            <div className="relative w-full">
                                 <input
                   type="text"
-                  className={`module-form-input ${errors.includes('title') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
+                  className={`module-form-input has-left-icon ${errors.includes('title') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
+                  style={{ paddingLeft: '3.25rem' }}
                   value={audit.title}
                   onChange={(e) => {
                     setAudit({ ...audit, title: e.target.value });
@@ -306,28 +308,29 @@ export default function AuditForm(): React.ReactElement | null {
                   }}
                   placeholder="Ej: Auditoría Interna Trimestral - Planta Norte" />
                 
-                                <div style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.8rem] bg-[var(--color-primary-light)] p-[0.4rem] rounded-[8px] text-[white] flex">
+                                <div className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center pointer-events-none z-10 shadow-sm">
                                     <FileText size={16} />
                                 </div>
                             </div>
                         </div>
                         <div>
                             <label className="block mb-2 text-sm font-semibold text-slate-400">Tipo de Auditoría</label>
-                            <div className="relative">
+                            <div className="relative w-full">
                                 <select
                   value={audit.auditType}
                   onChange={(e) => setAudit({ ...audit, auditType: e.target.value })}
-                  className="module-form-input">
+                  className="module-form-input has-left-icon"
+                  style={{ paddingLeft: '3.25rem' }}>
                                     {AUDIT_TYPES.map((t) => <option key={t.id} value={t.id}>{t.icon} {t.name}</option>)}
                                 </select>
-                                <div style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.8rem] bg-[var(--color-secondary)] p-[0.4rem] rounded-[8px] text-[white] flex pointer-events-[none]">
+                                <div className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center pointer-events-none z-10 shadow-sm">
                                     <Shield size={16} />
                                 </div>
                             </div>
                         </div>
                         <div>
                             <label className="block mb-2 text-sm font-semibold text-slate-400">Fecha Planificada *</label>
-                            <div className="relative">
+                            <div className="relative w-full">
                                 <input
                   type="date"
                   value={audit.date}
@@ -335,15 +338,16 @@ export default function AuditForm(): React.ReactElement | null {
                     setAudit({ ...audit, date: e.target.value });
                     if (errors.includes('date')) setErrors(errors.filter(err => err !== 'date'));
                   }}
-                  className={`module-form-input ${errors.includes('date') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`} />
-                                <div style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.8rem] bg-[var(--color-accent)] p-[0.4rem] rounded-[8px] text-[white] flex pointer-events-[none]">
+                  className={`module-form-input has-left-icon ${errors.includes('date') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
+                  style={{ paddingLeft: '3.25rem' }} />
+                                <div className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-cyan-600 text-white flex items-center justify-center pointer-events-none z-10 shadow-sm">
                                     <Calendar size={16} />
                                 </div>
                             </div>
                         </div>
                         <div>
                             <label className="block mb-2 text-sm font-semibold text-slate-400">Auditor Líder *</label>
-                            <div className="relative">
+                            <div className="relative w-full">
                                 <input
                   type="text"
                   value={audit.auditor}
@@ -351,25 +355,27 @@ export default function AuditForm(): React.ReactElement | null {
                     setAudit({ ...audit, auditor: e.target.value });
                     if (errors.includes('auditor')) setErrors(errors.filter(err => err !== 'auditor'));
                   }}
-                  className={`module-form-input ${errors.includes('auditor') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
+                  className={`module-form-input has-left-icon ${errors.includes('auditor') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
+                  style={{ paddingLeft: '3.25rem' }}
                   placeholder="Nombre del auditor" />
                 
-                                <div style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.8rem] bg-[var(--color-warning)] p-[0.4rem] rounded-[8px] text-[white] flex pointer-events-[none]">
+                                <div className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-amber-600 text-white flex items-center justify-center pointer-events-none z-10 shadow-sm">
                                     <User size={16} />
                                 </div>
                             </div>
                         </div>
                         <div>
                             <label className="block mb-2 text-sm font-semibold text-slate-400">Ubicación / Sector</label>
-                            <div className="relative">
+                            <div className="relative w-full">
                                 <input
                   type="text"
                   value={audit.location}
                   onChange={(e) => setAudit({ ...audit, location: e.target.value })}
-                  className="module-form-input"
+                  className="module-form-input has-left-icon"
+                  style={{ paddingLeft: '3.25rem' }}
                   placeholder="Ej: Nave de Producción" />
                 
-                                <div style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.8rem] bg-[var(--color-danger)] p-[0.4rem] rounded-[8px] text-[white] flex pointer-events-[none]">
+                                <div className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-rose-600 text-white flex items-center justify-center pointer-events-none z-10 shadow-sm">
                                     <MapPin size={16} />
                                 </div>
                             </div>
@@ -461,10 +467,10 @@ export default function AuditForm(): React.ReactElement | null {
                                     </div>
 
                                     {/* Observación / Hallazgo */}
-                                    <div style={{ paddingLeft: '0.5rem' }} className="relative mt-[0.5rem] ">
+                                    <div style={{ paddingLeft: '0.5rem' }} className="relative mt-[0.5rem] flex items-center">
                                         <input
                     type="text"
-                    className="module-form-input"
+                    className="module-form-input pl-10"
                     value={item.observation}
                     onChange={(e) => {
                       const newChecklist = [...audit.checklist];
@@ -473,7 +479,7 @@ export default function AuditForm(): React.ReactElement | null {
                     }}
                     placeholder={item.status === 'no' ? "Describa detalladamente el hallazgo o desvío crítico..." : "Observaciones opcionales..."} />
                   
-                                        <FileText size={14} color="var(--color-text-light)" className="absolute left-[1.2rem] top-[1rem]" />
+                                        <FileText size={15} className="absolute left-[1.2rem] text-slate-400 pointer-events-none z-10" />
                                     </div>
                                 </div>
               )}
@@ -487,39 +493,39 @@ export default function AuditForm(): React.ReactElement | null {
                         <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem]">
                             <div>
                                 <label className="block mb-2 text-sm font-semibold text-slate-400">Participantes en el Cierre</label>
-                                <div className="relative">
+                                <div className="relative flex items-center">
                                     <input
                     type="text"
                     value={audit.closingMeeting.participants}
                     onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, participants: e.target.value } })}
-                    className="module-form-input pl-10"
+                    className="module-form-input pl-12"
                     placeholder="Nombres de los presentes" />
                   
-                                    <User size={16} color="var(--color-text-light)" style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.9rem]" />
+                                    <User size={16} className="absolute left-3 text-slate-400 pointer-events-none z-10" />
                                 </div>
                             </div>
                             <div>
                                 <label className="block mb-2 text-sm font-semibold text-slate-400">Fecha de Reunión de Cierre</label>
-                                <div className="relative">
+                                <div className="relative flex items-center">
                                     <input
                     type="date"
                     value={audit.closingMeeting.date}
                     onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, date: e.target.value } })}
-                    className="module-form-input pl-10" />
-                                    <Calendar size={16} color="var(--color-text-light)" style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.9rem] pointer-events-[none]" />
+                    className="module-form-input pl-12" />
+                                    <Calendar size={16} className="absolute left-3 text-slate-400 pointer-events-none z-10" />
                                 </div>
                             </div>
-                            <div className="grid-column-[span_2]">
+                            <div style={{ gridColumn: isMobile ? 'span 1' : 'span 2' }}>
                                 <label className="block mb-2 text-sm font-semibold text-slate-400">Conclusiones Generales</label>
                                 <div className="relative">
                                     <textarea
                     value={audit.closingMeeting.conclusions}
                     onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, conclusions: e.target.value } })}
-                    className="module-form-input pl-10"
+                    className="module-form-input pl-12 pt-3"
                     rows={4}
                     placeholder="Resumen de hallazgos críticos, fortalezas detectadas y cumplimiento general de la norma..." />
                   
-                                    <Award size={16} color="var(--color-text-light)" style={{ top: '50%', transform: 'translateY(-50%)' }} className="absolute left-[0.9rem]" />
+                                    <Award size={16} className="absolute left-3 top-3 text-slate-400 pointer-events-none z-10" />
                                 </div>
                               </div>
                     </div>
@@ -658,21 +664,21 @@ export default function AuditForm(): React.ReactElement | null {
                 { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer />, variant: 'secondary', onClick: () => requirePro(() => window.print()) }
               ]}
             />
+        </ModuleFormLayout>
 
-            <ShareModal
-        isOpen={showShareModal}
-        open={showShareModal}
-        onClose={() => setShowShareModal(false)}
-        elementIdToPrint="pdf-content"
-        title="Reporte de Auditoría"
-        rawMessage={`Reporte de Auditoría: ${audit.title}`}
-        text={`Reporte de Auditoría: ${audit.title}`}
-        fileName={`Auditoria_${audit.title || 'Sin_Nombre'}.pdf`} />
-      
+        <ShareModal
+          isOpen={showShareModal}
+          open={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          elementIdToPrint="pdf-content"
+          title="Reporte de Auditoría"
+          rawMessage={`Reporte de Auditoría: ${audit.title}`}
+          text={`Reporte de Auditoría: ${audit.title}`}
+          fileName={`Auditoria_${audit.title || 'Sin_Nombre'}.pdf`} />
 
-            <div className="print-only fixed left-[-9999px] top-[0] opacity-[0] pointer-events-[none]" id="pdf-content">
-                <AuditPdf data={{ ...audit, showSignatures, createdAt: audit.createdAt || new Date().toISOString() }} />
-            </div>
-        </ModuleFormLayout>);
+        <div className="ats-pdf-offscreen" id="pdf-content">
+            <AuditPdf data={{ ...audit, showSignatures, createdAt: audit.createdAt || new Date().toISOString() }} />
+        </div>
+    </>);
 
 }

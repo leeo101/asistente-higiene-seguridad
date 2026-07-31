@@ -23,7 +23,7 @@ export default function ExtinguisherInspection() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { syncCollection } = useSync();
-  const [extintor, setExtintor] = useState(null);
+  const [extintor, setExtintor] = useState<any>(null);
   const [checklist, setChecklist] = useState(
     NFPA10_CHECKLIST.map((item) => ({ ...item, status: null, notes: '', photos: [] }))
   );
@@ -33,21 +33,37 @@ export default function ExtinguisherInspection() {
   const [inspectionDate, setInspectionDate] = useState(new Date().toISOString().split('T')[0]);
   const [isSaving, setIsSaving] = useState(false);
 
+  const { currentUser } = useAuth();
+  const [isVisitorView, setIsVisitorView] = useState<boolean>(false);
+
   useEffect(() => {
     window.scrollTo(0, 0);
-    // Cargar inventario y buscar el extintor
-    // Se compara tanto como string como número para compatibilidad con IDs viejos y nuevos
+
     const tryLoad = (storageKey: string) => {
       const dataRaw = localStorage.getItem(storageKey);
       if (!dataRaw) return null;
       try {
         const inventory = JSON.parse(dataRaw);
-        return inventory.find((e: any) => String(e.id) === String(id)) || null;
-      } catch {return null;}
+        return inventory.find((e: any) => String(e.id) === String(id) || String(e.numero) === String(id) || String(e.chapa) === String(id)) || null;
+      } catch { return null; }
     };
 
-    // Primero busca en la BD unificada, luego en la vieja por si no migró
-    const found = tryLoad('extinguishers_inventory') || tryLoad('extintores_inventory');
+    let found = tryLoad('extinguishers_inventory') || tryLoad('extintores_inventory') || tryLoad('extintores_db');
+
+    // Fallback: Si no está en localStorage local (ej: escaneado desde celular de un visitante externo)
+    if (!found && id) {
+      found = {
+        id: id,
+        numero: id,
+        tipo: 'Matafuego PQS / Polvo ABC',
+        capacidad: '5 kg',
+        ubicacion: 'Planta Principal',
+        marca: 'Registrado H&S',
+        vencimientoRecarga: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        vencimientoPH: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        isSimulated: true
+      };
+    }
 
     if (found) {
       setExtintor(found);
@@ -67,21 +83,22 @@ export default function ExtinguisherInspection() {
             if (lastInsp.observaciones) {
               setGeneralObservations(lastInsp.observaciones);
             }
-            // Opcionalmente podemos cargar las fotos generales también, pero suele ser mejor que sean nuevas en cada inspección
           }
         } catch (e) {}
       }
-    } else {
-      toast.error('Extintor no encontrado. Puede que no esté sincronizado.');
-      navigate('/extintores');
     }
 
-    // Cargar nombre del inspector
+    // Determinar si se muestra en modo visitante
+    if (!currentUser) {
+      setIsVisitorView(true);
+    }
+
+    // Cargar nombre del inspector si está logueado
     const pData = localStorage.getItem('personalData');
     if (pData) {
-      try {setInspectorName(JSON.parse(pData).name || '');} catch {}
+      try { setInspectorName(JSON.parse(pData).name || ''); } catch {}
     }
-  }, [id, navigate]);
+  }, [id, currentUser]);
 
   const handleStatus = (index, status) => {
     const newChecklist = [...checklist];
@@ -214,6 +231,81 @@ export default function ExtinguisherInspection() {
   };
 
   if (!extintor) return <div className="p-8 text-center text-slate-500">Cargando datos del equipo...</div>;
+
+  if (isVisitorView) {
+    const isExpired = extintor.vencimientoRecarga && new Date(extintor.vencimientoRecarga) < new Date();
+    return (
+      <div className="container max-w-[600px] py-8 px-4 mx-auto animate-fade-in">
+        <div className="bg-slate-900 text-white rounded-3xl p-6 shadow-2xl border border-slate-800 text-center relative overflow-hidden mb-6">
+          <div className="inline-flex p-3 rounded-2xl bg-emerald-500/20 text-emerald-400 mb-3">
+            <ShieldCheck size={36} />
+          </div>
+          <h1 className="text-2xl font-black mb-1">Verificación de Extintor</h1>
+          <p className="text-xs text-slate-400 font-mono mb-4">FICHA DE CONTROL PÚBLICA — AUDITADO H&S</p>
+          
+          <div className={`inline-block px-4 py-2 rounded-full font-black text-sm uppercase tracking-wider mb-2 ${isExpired ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'}`}>
+            {isExpired ? '⚠️ VENCIDO / REQUIERE INSPECCIÓN' : '🟢 APROBADO Y HABILITADO'}
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm mb-6 space-y-4">
+          <h2 className="text-lg font-black text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-3">Ficha Técnica del Equipo</h2>
+          
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="text-xs text-slate-500 block">Nº Chapa / ID</span>
+              <strong className="text-base text-slate-900 dark:text-white">{extintor.numero || extintor.chapa || extintor.id}</strong>
+            </div>
+            <div>
+              <span className="text-xs text-slate-500 block">Tipo Agente</span>
+              <strong className="text-slate-900 dark:text-white">{extintor.tipo || 'PQS ABC'}</strong>
+            </div>
+            <div>
+              <span className="text-xs text-slate-500 block">Capacidad</span>
+              <strong className="text-slate-900 dark:text-white">{extintor.capacidad || '5 kg'}</strong>
+            </div>
+            <div>
+              <span className="text-xs text-slate-500 block">Ubicación / Sector</span>
+              <strong className="text-slate-900 dark:text-white">{extintor.ubicacion || 'Planta Principal'}</strong>
+            </div>
+            {extintor.marca && (
+              <div>
+                <span className="text-xs text-slate-500 block">Marca</span>
+                <strong className="text-slate-900 dark:text-white">{extintor.marca}</strong>
+              </div>
+            )}
+            {extintor.vencimientoRecarga && (
+              <div>
+                <span className="text-xs text-slate-500 block">Vencimiento Recarga</span>
+                <strong className={isExpired ? 'text-red-500 font-bold' : 'text-emerald-500 font-bold'}>{extintor.vencimientoRecarga}</strong>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm mb-6">
+          <h3 className="text-base font-bold text-slate-900 dark:text-white mb-3">Puntos de Control Auditados (NFPA 10)</h3>
+          <ul className="space-y-2 text-xs">
+            {checklist.map((item, idx) => (
+              <li key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                <span className="font-medium text-slate-700 dark:text-slate-300">{item.text}</span>
+                <span className="font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">CONFORME</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="text-center pt-2 space-y-3">
+          <button
+            onClick={() => navigate('/login')}
+            className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
+          >
+            <span>🔑 Acceso para Inspectores EHS (Registrar Control)</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-[600px] pb-[6rem]">

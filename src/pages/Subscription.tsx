@@ -277,25 +277,7 @@ export default function Subscription(): React.ReactElement | null {
       period: '/ mes',
       icon: <Crown size={20} className="text-amber-400" />,
       desc: 'Acceso TOTAL e ilimitado a todas las herramientas e IA',
-      badge: '✦ ACCESO TOTAL ($2)'
-    },
-    {
-      id: 'student',
-      name: 'Estudiante',
-      price: '$2',
-      period: '/ mes',
-      icon: <GraduationCap size={20} className="text-emerald-400" />,
-      desc: 'Alumnos, practicantes y profesionales en formación',
-      badge: '🎓 Estudiantes'
-    },
-    {
-      id: 'enterprise',
-      name: 'Consultora',
-      price: '$2',
-      period: '/ mes',
-      icon: <Building size={20} className="text-purple-400" />,
-      desc: 'Multiusuario, multi-cliente y gestión de equipos',
-      badge: '🚀 PRÓXIMAMENTE'
+      badge: '✦ ACCESO TOTAL ($2 USD)'
     }
   ];
 

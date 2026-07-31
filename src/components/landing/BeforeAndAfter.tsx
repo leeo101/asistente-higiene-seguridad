@@ -7,6 +7,7 @@ import {
   MagicWand,
   FilePdf,
   ShieldCheck,
+  CheckCircle,
   ArrowRight,
 } from '@phosphor-icons/react';
 
@@ -231,12 +232,12 @@ export default function BeforeAndAfter() {
               }}
             >
               <span style={{ fontSize: '1.2rem' }}>🚀</span> Con Asistente H&S{' '}
-              <Sparkles color="#60a5fa" weight="fill" size={18} />
+              <ShieldCheck color="#60a5fa" weight="bold" size={18} />
             </h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {[
-                { icon: <Sparkles size={22} color="#60a5fa" weight="duotone" />, text: 'IA que redacta por ti en segundos' },
+                { icon: <CheckCircle size={22} color="#60a5fa" weight="duotone" />, text: 'Redacción y análisis normativo en segundos' },
                 { icon: <FilePdf size={22} color="#60a5fa" weight="duotone" />, text: 'PDFs profesionales con firmas integradas' },
                 { icon: <ShieldCheck size={22} color="#60a5fa" weight="duotone" />, text: 'Cumplimiento normativo automático' },
                 { icon: <ShieldCheck size={22} color="#60a5fa" weight="duotone" />, text: 'Acceso desde el celular en la obra' },

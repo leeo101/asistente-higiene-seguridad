@@ -293,69 +293,78 @@ export default function AuditManager(): React.ReactElement | null {
         rawMessage={shareItem ? `📋 Informe de Auditoría EHS\n📌 Título: ${shareItem.auditTitle || shareItem.title}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${shareItem.date || shareItem.scheduledDate}` : ''}
         elementIdToPrint="pdf-content-audit"
         fileName={`Auditoria_${(shareItem?.auditTitle || shareItem?.title || 'Reporte').replace(/\s+/g, '_')}.pdf`} />
-      
 
             <div id="pdf-content-audit" className="fixed left-[0] opacity-[0] top-[0] pointer-events-[none]">
                 {shareItem && <AuditPdf data={shareItem} />}
             </div>
 
-            <Breadcrumbs />
             <PremiumHeader 
                 title="Auditorías EHS" 
-                subtitle={`ISO 45001 • ${stats.inProgress} en curso`}
-                icon={<ClipboardCheck />}
-            >
-                <div className="flex gap-3 flex-wrap">
-                    <button
-            onClick={() => navigate('/audit/new')}
-            style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 8px 20px rgba(16,185,129,0.3)' }}
-            className="flex items-center gap-2 px-6 py-3 rounded-2xl text-white font-extrabold text-base transition-colors whitespace-nowrap cursor-pointer border-none m-0">
-            
-                        <Plus size={20} strokeWidth={2.5} />
-                        Nueva Auditoría
-                    </button>
+                subtitle="Gestión de auditorías internas, externas e inspecciones de cumplimiento ISO 45001"
+                icon={<ClipboardCheck size={36} color="#ffffff" />}
+            />
+
+            {/* Top Summary Cards (KPIs) igual que Aptitudes Médicas */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 mb-6">
+                <div 
+                  onClick={() => setFilterStatus('all')}
+                  className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                    filterStatus === 'all' 
+                      ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 shadow-md' 
+                      : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-blue-400'
+                  }`}>
+                  <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider">Total Auditorías</span>
+                    <FileText size={20} />
+                  </div>
+                  <div className="text-2xl font-black text-slate-900 dark:text-white">{stats.total}</div>
+                  <span className="text-[11px] text-slate-500">Auditorías registradas</span>
                 </div>
-            </PremiumHeader>
 
-            {/* Stats Cards */}
-            <div style={{
+                <div 
+                  onClick={() => setFilterStatus('in_progress')}
+                  className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                    filterStatus === 'in_progress' 
+                      ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 shadow-md' 
+                      : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-amber-400'
+                  }`}>
+                  <div className="flex items-center justify-between text-amber-600 dark:text-amber-400 mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider">En Curso</span>
+                    <Clock size={20} />
+                  </div>
+                  <div className="text-2xl font-black text-amber-600 dark:text-amber-400">{stats.inProgress}</div>
+                  <span className="text-[11px] text-slate-500">En ejecución activa</span>
+                </div>
 
-        gridTemplateColumns: isMobile ? 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))' : 'repeat(auto-fit, minmax(180px, 1fr))',
-        gap: isMobile ? '0.75rem' : '1rem',
-        marginBottom: isMobile ? '1rem' : '2rem'
-      }} className="grid">
-                <StatCard
-          icon={<FileText size={24} />}
-          label="Total Auditorías"
-          value={stats.total}
-          color="#3B82F6"
-          gradient="linear-gradient(135deg, #3B82F6, #1D4ED8)"
-          isMobile={isMobile} />
-        
-                <StatCard
-          icon={<Clock size={24} />}
-          label="En Curso"
-          value={stats.inProgress}
-          color="#f59e0b"
-          gradient="linear-gradient(135deg, #f59e0b, #d97706)"
-          isMobile={isMobile} />
-        
-                <StatCard
-          icon={<CheckCircle2 size={24} />}
-          label="Completadas"
-          value={stats.completed}
-          color="#16a34a"
-          gradient="linear-gradient(135deg, #16a34a, #059669)"
-          isMobile={isMobile} />
-        
-                <StatCard
-          icon={<AlertTriangle size={24} />}
-          label="Hallazgos Abiertos"
-          value={stats.openFindings}
-          color="#dc2626"
-          gradient="linear-gradient(135deg, #dc2626, #991b1b)"
-          isMobile={isMobile} />
-        
+                <div 
+                  onClick={() => setFilterStatus('completed')}
+                  className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                    filterStatus === 'completed' 
+                      ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 shadow-md' 
+                      : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-emerald-400'
+                  }`}>
+                  <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider">Completadas</span>
+                    <CheckCircle2 size={20} />
+                  </div>
+                  <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{stats.completed}</div>
+                  <span className="text-[11px] text-slate-500">Informes finalizados</span>
+                </div>
+
+                <div 
+                  onClick={() => setFilterStatus('findings')}
+                  className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                    filterStatus === 'findings' || filterStatus === 'open_findings'
+                      ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-500 shadow-md' 
+                      : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-rose-400'
+                  }`}>
+                  <div className="flex items-center justify-between text-rose-600 dark:text-rose-400 mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider">Hallazgos Abiertos</span>
+                    <AlertTriangle size={20} />
+                  </div>
+                  <div className="text-2xl font-black text-rose-600 dark:text-rose-400">{stats.openFindings}</div>
+                  <span className="text-[11px] text-slate-500">Desviaciones a tratar</span>
+                </div>
             </div>
 
             {/* Secondary Stats */}
@@ -424,44 +433,67 @@ export default function AuditManager(): React.ReactElement | null {
             {/* Content by Tab */}
             {activeTab === 'audits' &&
       <>
-                    {/* Search & Filters */}
-                    <div className="flex gap-[1rem] mb-[1.5rem] flex-wrap">
-          
-                        <div className="flex-[1] min-w-[280px] relative h-[50px]">
+                    {/* Search & Filters igual que Aptitudes Médicas */}
+                    <div className="flex flex-row items-center justify-between gap-3 mb-6 flex-wrap sm:flex-nowrap">
+                        <div className="relative flex-1 min-w-[200px] max-w-xs h-[38px]">
                             <Search 
-                              size={20} 
+                              size={16} 
+                              className="text-slate-400 pointer-events-none z-10" 
                               style={{ 
                                 position: 'absolute', 
-                                left: '1.2rem', 
+                                left: '0.75rem', 
                                 top: 0, 
                                 bottom: 0, 
                                 marginTop: 'auto', 
                                 marginBottom: 'auto', 
-                                color: 'var(--color-text-muted)', 
                                 display: 'block' 
                               }} 
-                              className="pointer-events-none z-10" 
                             />
                             <input
                               type="text"
                               placeholder="Buscar por título, auditor, ubicación..."
                               value={searchTerm}
                               onChange={(e: any) => setSearchTerm(e.target.value)}
-                              style={{ width: '100%', height: '50px', paddingLeft: '3.5rem', paddingRight: '1rem', boxSizing: 'border-box', outline: 'none' }}
-                              className="input-professional rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.95rem] font-[500] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all" 
+                              style={{ paddingLeft: '2.25rem', paddingRight: '0.75rem', height: '38px', width: '100%', boxSizing: 'border-box', outline: 'none' }}
+                              className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all" 
                             />
                         </div>
 
-                        <select
-            value={filterStatus}
-            onChange={(e: any) => setFilterStatus(e.target.value)}
-            className="input-professional p-[0.85rem_1.25rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.9rem] font-[600] outline-[none] cursor-pointer">
-            
-                            <option value="all">Todos los Estados</option>
-                            {Object.entries(AUDIT_STATUS).map(([key, value]: any) =>
-            <option key={key} value={key}>{value.label}</option>
-            )}
-                        </select>
+                        <div className="flex items-center gap-2">
+                            <select
+                                value={filterStatus}
+                                onChange={(e: any) => setFilterStatus(e.target.value)}
+                                style={{ height: '34px' }}
+                                className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2 text-xs font-semibold text-slate-700 dark:text-slate-200 outline-none cursor-pointer">
+                                <option value="all">Todos los Estados</option>
+                                {Object.entries(AUDIT_STATUS).map(([key, value]: any) =>
+                                  <option key={key} value={key}>{value.label}</option>
+                                )}
+                            </select>
+
+                            {/* Botón Nueva Auditoría super compacto al lado del buscador */}
+                            <button 
+                              onClick={() => navigate('/audit/new')} 
+                              style={{
+                                backgroundColor: '#059669',
+                                color: '#ffffff',
+                                border: 'none',
+                                padding: '6px 14px',
+                                fontSize: '12px',
+                                fontWeight: '800',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                whiteSpace: 'nowrap',
+                                height: '34px',
+                                boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
+                              }}>
+                              <Plus size={14} />
+                              <span>Nueva Auditoría</span>
+                            </button>
+                        </div>
                     </div>
 
                     {/* Audits List */}

@@ -179,8 +179,10 @@ export default function RiskMatrixPdfGenerator({ data }: {data: any;}): React.Re
                 </div>
 
                 {/* Firmas */}
-                <PdfSignatures data={finalData} />
-            <PdfBrandingFooter />
+                <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="pdf-signatures-wrapper avoid-break avoid-break-strictly mt-[1.5rem]">
+                    <PdfSignatures data={finalData} />
+                </div>
+                <PdfBrandingFooter />
 
                 <div className="mt-[auto] pt-[2rem] text-center text-[0.65rem] font-[900] text-[#94a3b8] letter-spacing-[0.1em] uppercase page-break-inside-[avoid]">
                     Documento de Prevención de Riesgos Laborales

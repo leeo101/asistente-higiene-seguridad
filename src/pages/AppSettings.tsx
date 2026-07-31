@@ -27,10 +27,16 @@ export default function AppSettings(): React.ReactElement | null {
     setTheme(savedTheme);
   }, []);
 
-  const toggleTheme = (newTheme) => {
+  const toggleTheme = (newTheme: string) => {
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
     document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    document.documentElement.classList.toggle('high-contrast', newTheme === 'high-contrast');
+    if (newTheme === 'high-contrast') {
+      document.documentElement.setAttribute('data-theme', 'high-contrast');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
   };
 
   const handleManualSync = async () => {
@@ -163,64 +169,52 @@ export default function AppSettings(): React.ReactElement | null {
 
 
 
-
-
-
-
-
-          
                         <Lock size={16} /> Iniciar sesión para activar la nube
                     </button>
         }
 
                 {/* Advanced toggle */}
-                {currentUser &&
-        <button
-          onClick={() => setShowAdvanced((v) => !v)} className="bg-[none] border-none text-[var(--color-text-muted)] text-[0.75rem] cursor-pointer mt-[0.5rem] p-[0.2rem_0] text-decoration-[underline] text-left">
-
-          
+                {currentUser && (
+                    <button
+                        onClick={() => setShowAdvanced((v) => !v)}
+                        className="bg-none border-none text-[var(--color-text-muted)] text-[0.75rem] cursor-pointer mt-[0.5rem] p-[0.2rem_0] underline text-left"
+                    >
                         {showAdvanced ? 'Ocultar opciones avanzadas' : 'Opciones avanzadas (exportar archivo)'}
                     </button>
-        }
+                )}
 
-                {showAdvanced &&
-        <div className="mt-[0.8rem] flex gap-[0.8rem] flex-wrap">
+                {showAdvanced && (
+                    <div className="mt-[0.8rem] flex gap-[0.8rem] flex-wrap">
                         <button
-            onClick={handleExport} className="flex-[1] min-width-[130px] flex items-center justify-center gap-[0.5rem] p-[0.65rem] rounded-[10px] bg-[transparent] text-[var(--color-text-muted)] border-[1px_solid_var(--color-border)] cursor-pointer font-[700] text-[0.8rem]">
-
-            
+                            onClick={handleExport}
+                            className="flex-[1] min-w-[130px] flex items-center justify-center gap-[0.5rem] p-[0.65rem] rounded-[10px] bg-transparent text-[var(--color-text-muted)] border-[1px_solid_var(--color-border)] cursor-pointer font-[700] text-[0.8rem]"
+                        >
                             <Download size={15} /> Exportar JSON
                         </button>
                         <button
-            onClick={() => importRef.current?.click()} className="flex-[1] min-width-[130px] flex items-center justify-center gap-[0.5rem] p-[0.65rem] rounded-[10px] bg-[transparent] text-[var(--color-text-muted)] border-[1px_solid_var(--color-border)] cursor-pointer font-[700] text-[0.8rem]">
-
-            
+                            onClick={() => (importRef.current as any)?.click()}
+                            className="flex-[1] min-w-[130px] flex items-center justify-center gap-[0.5rem] p-[0.65rem] rounded-[10px] bg-transparent text-[var(--color-text-muted)] border-[1px_solid_var(--color-border)] cursor-pointer font-[700] text-[0.8rem]"
+                        >
                             <Upload size={15} /> Importar JSON
                         </button>
                         <input ref={importRef} type="file" accept=".json" hidden onChange={handleImport} />
-                        <div className="w-[100%] flex items-start gap-[0.4rem] text-[0.7rem] text-[var(--color-text-muted)] p-[0.5rem_0.7rem] bg-[rgba(245,158,11,0.06)] border-[1px_solid_rgba(245,158,11,0.2)] rounded-[8px]">
-                            <TriangleAlert size={12} color="#f59e0b" className="flex-shrink-[0] mt-[1px]" />
+                        <div className="w-full flex items-start gap-[0.4rem] text-[0.7rem] text-[var(--color-text-muted)] p-[0.5rem_0.7rem] bg-[rgba(245,158,11,0.06)] border-[1px_solid_rgba(245,158,11,0.2)] rounded-[8px]">
+                            <TriangleAlert size={12} color="#f59e0b" className="flex-shrink-0 mt-[1px]" />
                             Importar reemplaza los datos actuales del dispositivo.
                         </div>
                     </div>
-        }
+                )}
             </div>
 
             {/* ── PREFERENCIAS ── */}
             <div className="mb-[1.5rem] bg-[rgba(var(--color-surface-rgb),_0.5)] backdrop-filter-[blur(12px)] border-[1px_solid_var(--glass-border)] rounded-[20px] p-[1.5rem]">
-
-
-
-
-
-
-        
                 <h3 className="mt-[0] mb-[1.2rem] text-[1.05rem] font-[900]">Preferencias</h3>
                 <div className="flex flex-col gap-[0]">
-                    {[{ icon: <Bell size={20} />, title: 'Notificaciones', desc: 'Alertas de inspecciones pendientes' },
-          { icon: <Smartphone size={20} />, title: 'Modo Offline', desc: 'Sincronizar datos al recuperar señal' }].
-          map(({ icon, title, desc }, idx) =>
-          <div key={idx} className="flex justify-space-between items-center p-[1rem_0] border-bottom-[1px_solid_var(--color-border)]">
+                    {[
+                        { icon: <Bell size={20} />, title: 'Notificaciones', desc: 'Alertas de inspecciones pendientes' },
+                        { icon: <Smartphone size={20} />, title: 'Modo Offline', desc: 'Sincronizar datos al recuperar señal' }
+                    ].map(({ icon, title, desc }, idx) => (
+                        <div key={idx} className="flex justify-between items-center p-[1rem_0] border-b-[1px_solid_var(--color-border)]">
                             <div className="flex items-center gap-[0.8rem]">
                                 <div className="text-[var(--color-text-secondary)] flex">{icon}</div>
                                 <div>
@@ -228,26 +222,42 @@ export default function AppSettings(): React.ReactElement | null {
                                     <p className="m-[0] text-[0.78rem] text-[var(--color-text-secondary)]">{desc}</p>
                                 </div>
                             </div>
-                            <input type="checkbox" defaultChecked className="w-[auto] m-[0] accent-color-[var(--color-primary)] transform-[scale(1.2)] cursor-pointer" />
+                            <input type="checkbox" defaultChecked className="w-[auto] m-[0] accent-[var(--color-primary)] transform scale-125 cursor-pointer" />
                         </div>
-          )}
+                    ))}
 
-                    <div className="flex justify-space-between items-center pt-[1rem]">
+                    <div className="flex justify-between items-center pt-[1rem] flex-wrap gap-[0.8rem]">
                         <div className="flex items-center gap-[0.8rem]">
                             <div className="text-[var(--color-text-secondary)] flex">
                                 {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
                             </div>
                             <div>
-                                <p className="m-[0] text-[0.95rem] font-[700]">Tema</p>
-                                <p className="m-[0] text-[0.78rem] text-[var(--color-text-secondary)]">Modo {theme === 'dark' ? 'oscuro' : 'claro'} activo</p>
+                                <p className="m-[0] text-[0.95rem] font-[700]">Tema de Interfaz</p>
+                                <p className="m-[0] text-[0.78rem] text-[var(--color-text-secondary)]">
+                                    {theme === 'dark' ? 'Modo Oscuro' : theme === 'high-contrast' ? 'Alto Contraste (Industrial)' : 'Modo Claro'}
+                                </p>
                             </div>
                         </div>
-                        <div className="flex gap-[0.5rem]">
-                            {['light', 'dark'].map((t) =>
-              <button key={t} onClick={() => toggleTheme(t)} style={{ border: theme === t ? '2px solid var(--color-primary)' : '1px solid var(--color-border)', background: theme === t ? 'rgba(56, 189, 248, 0.1)' : 'var(--color-background)', color: theme === t ? 'var(--color-primary)' : 'var(--color-text-secondary)', fontWeight: theme === t ? 800 : 600 }} className="p-[0.5rem_0.8rem] rounded-[10px] cursor-pointer text-[0.82rem] transition-[all_0.2s]">
-                                    {t === 'dark' ? '🌙 Oscuro' : '☀️ Claro'}
+                        <div className="flex gap-[0.4rem] flex-wrap">
+                            {[
+                                { key: 'light', label: '☀️ Claro' },
+                                { key: 'dark', label: '🌙 Oscuro' },
+                                { key: 'high-contrast', label: '⚡ Alto Contraste' }
+                            ].map(({ key, label }) => (
+                                <button
+                                    key={key}
+                                    onClick={() => toggleTheme(key)}
+                                    style={{
+                                        border: theme === key ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                        background: theme === key ? 'rgba(56, 189, 248, 0.15)' : 'var(--color-background)',
+                                        color: theme === key ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                                        fontWeight: theme === key ? 800 : 600
+                                    }}
+                                    className="p-[0.45rem_0.75rem] rounded-[10px] cursor-pointer text-[0.78rem] transition-[all_0.2s]"
+                                >
+                                    {label}
                                 </button>
-              )}
+                            ))}
                         </div>
                     </div>
                 </div>

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import {
-  Shield, Zap, CheckCircle2,
+  Shield, Zap, CheckCircle2, ShieldCheck,
   Users, BarChart3, Globe, Sparkles,
   ArrowRight } from
 'lucide-react';
@@ -81,13 +81,13 @@ export default function MarketingLanding({ onStart }: MarketingLandingProps) {
           </div>
           <h2 className="text-[clamp(1.9rem,_5vw,_2.5rem)] font-[900] mb-[0.8rem] font-family-[var(--font-heading)]">
             Elegí tu plan y empezá hoy
-          </h2>
-          <p className="text-[var(--color-text-muted)] text-[1rem] max-w-[600px] m-[0_auto] leading-relaxed">
-            Desde estudiantes hasta grandes consultoras de HyS. Cambiá o cancelá en cualquier momento.
+            <p className="text-[var(--color-text-muted)] text-[1rem] max-w-[600px] m-[0_auto] leading-relaxed">
+            Plan Gratuito para probar y Plan Profesional PRO para gestión completa e ilimitada.
           </p>
+          </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[1.2rem] max-w-[1240px] m-[0_auto]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[1.5rem] max-w-[850px] m-[0_auto]">
 
           {/* PLAN 1: GRATUITO ($0) */}
           <div className="glass-card rounded-[24px] p-[1.8rem_1.4rem] border border-[var(--color-border)] flex flex-col justify-between relative shadow-sm">
@@ -126,55 +126,16 @@ export default function MarketingLanding({ onStart }: MarketingLandingProps) {
             </button>
           </div>
 
-          {/* PLAN 2: ESTUDIANTE ($2 USD) */}
-          <div className="glass-card rounded-[24px] p-[1.8rem_1.4rem] border-[1.5px] border-emerald-500/40 bg-gradient-to-b from-emerald-950/20 to-transparent flex flex-col justify-between relative shadow-md">
-            <div className="absolute top-[1rem] right-[1rem] bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 px-2 py-0.5 rounded-full text-[0.65rem] font-extrabold uppercase tracking-wider">
-              Estudiantes 🎓
-            </div>
-            <div>
-              <div className="text-[0.72rem] font-[900] uppercase tracking-wider text-emerald-400 mb-[0.4rem]">Plan 2: Estudiante</div>
-              <div className="flex items-baseline gap-[0.3rem] mb-[0.3rem]">
-                <span className="text-[2.2rem] font-[900] text-white leading-none">USD $2</span>
-                <span className="text-emerald-300/70 text-[0.8rem]">/ mes</span>
-              </div>
-              <p className="text-[var(--color-text-muted)] text-[0.8rem] leading-relaxed mb-4">
-                Perfecto para alumnos, practicantes y técnicos juniors.
-              </p>
-
-              <div className="border-t border-[var(--color-border)] pt-[1rem] flex flex-col gap-[0.65rem]">
-                {[
-                  { label: 'Todo del Plan Gratuito', desc: 'Más funciones de formación' },
-                  { label: 'Exportación en PDF', desc: 'Formato limpio listo para entregar' },
-                  { label: 'Cámara IA y Visión', desc: 'Detección de EPP y riesgos' },
-                  { label: 'Sincronización Nube', desc: 'Respaldo seguro de tus trabajos' }
-                ].map((f, i) => (
-                  <div key={i} className="flex gap-[0.5rem] items-start">
-                    <CheckCircle2 size={15} color="#10b981" className="mt-[2px] flex-shrink-0" />
-                    <div>
-                      <div className="text-[0.82rem] font-[700] text-[var(--color-text)]">{f.label}</div>
-                      <div className="text-[0.72rem] text-[var(--color-text-muted)]">{f.desc}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <button
-              onClick={onStart}
-              className="w-full mt-5 p-[0.8rem] rounded-[12px] border-none bg-emerald-600 hover:bg-emerald-700 text-white font-[900] text-[0.85rem] cursor-pointer shadow-md transition-all">
-              Elegir Estudiante
-            </button>
-          </div>
-
-          {/* PLAN 3: PROFESIONAL ($2 USD) - MÁS POPULAR & ACCESO TOTAL */}
-          <div className="rounded-[24px] p-[1.8rem_1.4rem] bg-[var(--gradient-premium)] border-[1.5px] border-indigo-500/50 flex flex-col justify-between relative overflow-hidden shadow-xl shadow-blue-500/20 scale-[1.02]">
-            <div className="absolute top-[-30%] right-[-20%] w-[250px] h-[250px] bg-[radial-gradient(circle,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none" />
-            <div className="absolute top-[1rem] right-[1rem] bg-amber-400/20 border border-amber-400/40 text-amber-300 px-2 py-0.5 rounded-full text-[0.65rem] font-black uppercase tracking-wider">
-              ✦ Acceso Total ($2 USD)
-            </div>
-
+          {/* PLAN 2: PROFESIONAL ($2 USD) - MÁS POPULAR & ACCESO TOTAL */}
+          <div className="rounded-[24px] p-[1.8rem_1.4rem] bg-[var(--gradient-premium)] border-[1.5px] border-indigo-500/50 flex flex-col justify-between relative overflow-hidden shadow-xl shadow-blue-500/20">
             <div className="relative z-10">
-              <div className="text-[0.72rem] font-[900] uppercase tracking-wider text-blue-200 mb-[0.4rem]">Plan 3: Profesional PRO</div>
+              <div className="flex items-center justify-between gap-2 mb-[0.6rem] flex-wrap">
+                <div className="text-[0.78rem] font-[900] uppercase tracking-wider text-blue-200">Plan 2: Profesional PRO</div>
+                <div className="bg-amber-400/20 border border-amber-400/40 text-amber-300 px-2 py-0.5 rounded-full text-[0.65rem] font-black uppercase tracking-wider whitespace-nowrap">
+                  ✦ Acceso Total ($2 USD)
+                </div>
+              </div>
+
               <div className="flex items-baseline gap-[0.3rem] mb-[0.3rem]">
                 <span className="text-[2.2rem] font-[900] text-white leading-none">USD $2</span>
                 <span className="text-blue-200/80 text-[0.8rem]">/ mes</span>
@@ -185,15 +146,16 @@ export default function MarketingLanding({ onStart }: MarketingLandingProps) {
 
               <div className="border-t border-white/15 pt-[1rem] flex flex-col gap-[0.65rem]">
                 {[
-                  { label: 'PDFs con TU LOGO', desc: 'Exportación con tu marca corporativa' },
-                  { label: 'Asesor IA & Cámara Visión', desc: 'IA ilimitada y detección de EPP/riesgos' },
-                  { label: 'Módulos Críticos Desbloqueados', desc: 'ATS, Altura, Confinados, LOTO & CAPA' },
-                  { label: 'Carga de Fuego & Extintores', desc: 'Cálculos automáticos e inspecciones' },
-                  { label: 'Checklists & Matriz IPERC', desc: 'Formularios y auditorías en terreno' },
-                  { label: 'Accidentes & Legajos Digitales', desc: 'Árbol de causas y legajos por cliente' },
-                  { label: 'Firma Digital, QR & WhatsApp', desc: 'Firma en pantalla y envío instantáneo' },
-                  { label: 'Exportación a Excel / CSV', desc: 'Descarga de planillas ejecutivas' },
-                  { label: 'Nube & Modo Offline', desc: 'Trabajá en campo sin internet' }
+                  { label: 'PDFs con TU LOGO e Identidad', desc: 'Membrete, firma digital y tu marca corporativa en todos los informes' },
+                  { label: 'Código QR de Validación Pública', desc: 'Comprobación de autenticidad para clientes e inspectores sin crear cuenta' },
+                  { label: 'Asesor IA Normativo Ilimitado', desc: 'Dec. 351/79, SRT, NFPA, OSHA y leyes laborales de LatAm 24/7' },
+                  { label: 'Cámara IA & Visión Computacional', desc: 'Detección automática de EPP y riesgos en fotos de obra' },
+                  { label: 'Módulos Críticos Desbloqueados', desc: 'ATS, Trabajo en Altura, Espacios Confinados, LOTO & CAPA' },
+                  { label: 'Carga de Fuego & Extintores', desc: 'Cálculos de masa combustible, calorías e inventario con QR' },
+                  { label: 'Checklists, Matriz IPERC & Legajos', desc: 'Formularios en terreno, árbol de causas y legajos por cliente' },
+                  { label: 'Envío a WhatsApp & Email', desc: 'Envío directo de reportes con 1 solo clic' },
+                  { label: 'Exportación a Excel / CSV', desc: 'Descarga de planillas ejecutivas de historial' },
+                  { label: 'Nube & Modo Offline en Campo', desc: 'Trabajá sin cobertura y sincronizá automáticamente' }
                 ].map((f, i) => (
                   <div key={i} className="flex gap-[0.5rem] items-start">
                     <CheckCircle2 size={15} color="#86efac" className="mt-[2px] flex-shrink-0" />
@@ -209,47 +171,7 @@ export default function MarketingLanding({ onStart }: MarketingLandingProps) {
             <button
               onClick={onStart}
               className="w-full mt-5 p-[0.8rem] rounded-[12px] border-none bg-white text-blue-900 font-[900] text-[0.85rem] cursor-pointer shadow-lg hover:bg-blue-50 transition-all relative z-10 flex items-center justify-center gap-1.5">
-              <Sparkles size={15} /> Activar Acceso Total ($2 USD)
-            </button>
-          </div>
-
-          {/* PLAN 4: CONSULTORA ($2 USD) - PRÓXIMAMENTE */}
-          <div className="glass-card rounded-[24px] p-[1.8rem_1.4rem] border-[1.5px] border-purple-500/40 bg-gradient-to-b from-purple-950/20 to-transparent flex flex-col justify-between relative shadow-lg">
-            <div className="absolute top-[1rem] right-[1rem] bg-purple-500/20 border border-purple-500/40 text-purple-300 px-2 py-0.5 rounded-full text-[0.65rem] font-extrabold uppercase tracking-wider">
-              🚀 Próximamente
-            </div>
-            <div>
-              <div className="text-[0.72rem] font-[900] uppercase tracking-wider text-purple-300 mb-[0.4rem]">Plan 4: Consultora</div>
-              <div className="flex items-baseline gap-[0.3rem] mb-[0.3rem]">
-                <span className="text-[2.2rem] font-[900] text-white leading-none">USD $2</span>
-                <span className="text-purple-300/70 text-[0.8rem]">/ mes</span>
-              </div>
-              <p className="text-[var(--color-text-muted)] text-[0.8rem] leading-relaxed mb-4">
-                Diseñado para Servicios HyS externos, consultoras y equipos multi-planta.
-              </p>
-
-              <div className="border-t border-[var(--color-border)] pt-[1rem] flex flex-col gap-[0.65rem]">
-                {[
-                  { label: 'Gestión Multi-Usuario', desc: 'Cuentas para todo tu equipo (Próximamente)' },
-                  { label: 'Carpetas Multi-Cliente', desc: 'Legajos independientes por cliente (Próximamente)' },
-                  { label: 'Dashboard Exec. KPIs EHS', desc: 'Estadísticas globales de frecuencia y severidad (Próximamente)' },
-                  { label: 'Acceso PRO Total Incluido', desc: 'Acceso a todas las herramientas PRO activas hoy' }
-                ].map((f, i) => (
-                  <div key={i} className="flex gap-[0.5rem] items-start">
-                    <CheckCircle2 size={15} color="#c084fc" className="mt-[2px] flex-shrink-0" />
-                    <div>
-                      <div className="text-[0.82rem] font-[700] text-[var(--color-text)]">{f.label}</div>
-                      <div className="text-[0.72rem] text-[var(--color-text-muted)]">{f.desc}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <button
-              onClick={onStart}
-              className="w-full mt-5 p-[0.8rem] rounded-[12px] border border-purple-500/50 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-[900] text-[0.85rem] cursor-pointer shadow-md transition-all">
-              Reservar Opción Consultora
+              <ShieldCheck size={16} className="text-blue-900" /> Activar Acceso Total ($2 USD)
             </button>
           </div>
 

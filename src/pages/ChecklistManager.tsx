@@ -979,37 +979,46 @@ export default function ChecklistManager(): React.ReactElement | null {
             {!showForm ?
       <>
                     
-                    {/* KPIs */}
-                    <div className="no-print grid grid-cols-1 md:grid-cols-3 gap-[1rem] mb-[2rem]">
-                        <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
-                            <div className="bg-blue-100 text-blue-600 p-[1rem] rounded-[12px]"><ClipboardCheck size={28} /></div>
-                            <div>
-                                <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">Total Checklists</div>
-                                <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{history.length}</div>
+                    {/* KPIs igual que Aptitudes Médicas */}
+                    <div className="no-print grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <div className="p-4 rounded-2xl border transition-all bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
+                            <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 mb-2">
+                                <span className="text-xs font-bold uppercase tracking-wider">Total Checklists</span>
+                                <ClipboardCheck size={20} />
                             </div>
+                            <div className="text-2xl font-black text-slate-900 dark:text-white">{history.length}</div>
+                            <span className="text-[11px] text-slate-500">Formularios registrados</span>
                         </div>
-                        <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
-                            <div className="bg-red-100 text-red-600 p-[1rem] rounded-[12px]"><TriangleAlert size={28} /></div>
-                            <div>
-                                <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">Rechazados / NC</div>
-                                <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{history.filter(h => getChecklistStatus(h.id).label === 'Rechazado').length}</div>
+
+                        <div className="p-4 rounded-2xl border transition-all bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
+                            <div className="flex items-center justify-between text-rose-600 dark:text-rose-400 mb-2">
+                                <span className="text-xs font-bold uppercase tracking-wider">Rechazados / NC</span>
+                                <TriangleAlert size={20} />
                             </div>
+                            <div className="text-2xl font-black text-rose-600 dark:text-rose-400">
+                                {history.filter(h => getChecklistStatus(h.id).label === 'Rechazado').length}
+                            </div>
+                            <span className="text-[11px] text-slate-500">Con observaciones críticas</span>
                         </div>
-                        <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
-                            <div className="bg-green-100 text-green-600 p-[1rem] rounded-[12px]"><CheckCircle2 size={28} /></div>
-                            <div>
-                                <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">Última Semana</div>
-                                <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{history.filter(h => new Date(h.fecha) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}</div>
+
+                        <div className="p-4 rounded-2xl border transition-all bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
+                            <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-2">
+                                <span className="text-xs font-bold uppercase tracking-wider">Última Semana</span>
+                                <CheckCircle2 size={20} />
                             </div>
+                            <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                                {history.filter(h => new Date(h.fecha) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}
+                            </div>
+                            <span className="text-[11px] text-slate-500">Inspeccionados recientemente</span>
                         </div>
                     </div>
 
                     <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap items-center">
                         <button
-            onClick={() => {setSearchParams({});setShowForm(true);setCurrentStep(1);}} style={{ backgroundColor: '#22c55e', color: 'white' }} className="flex-[0_1_auto] h-[54px] px-[1.5rem] rounded-[16px] hover:bg-[#16a34a] border-none font-[800] text-[1rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(34,197,94,0.3)] white-space-[nowrap]">
-
-            
-                            <Plus size={20} /> Nuevo Checklist
+                            onClick={() => {setSearchParams({});setShowForm(true);setCurrentStep(1);}}
+                            style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '0.6rem 1.2rem', fontSize: '0.85rem', fontWeight: '800', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}
+                            className="transition-transform hover:-translate-y-0.5 whitespace-nowrap">
+                            <Plus size={18} strokeWidth={2.5} /> NUEVO CHECKLIST
                         </button>
                         <div className="flex-[1_1_300px] relative h-[54px]">
                             <Search 

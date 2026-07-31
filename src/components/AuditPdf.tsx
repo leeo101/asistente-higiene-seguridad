@@ -40,32 +40,24 @@ export default function AuditPdf({ data }: {data: any;}): React.ReactElement | n
     <div className="w-[100%] flex justify-center">
             <div
         id="pdf-content"
-        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[12mm_15mm] bg-[#ffffff] text-[#1e293b] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[9pt] font-family-[Helvetica,_Arial,_sans-serif] border-top-[12px_solid_#2563eb]">
+        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-0 h-auto p-[10mm_12mm] bg-[#ffffff] text-[#1e293b] box-shadow-none rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[9pt] font-family-[Helvetica,_Arial,_sans-serif] border-top-[12px_solid_#2563eb]">
 
-
-
-
-
-
-
-
-        
                 <style type="text/css" media="print">
                     {`
-                        @page { size: A4 portrait; margin: 10mm; }
-                        body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; font-family: Helvetica, Arial, sans-serif; }
-                        .no-print { display: none !important; }
+                        @page { size: A4 portrait; margin: 8mm; }
+                        body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; font-family: Helvetica, Arial, sans-serif; background: white !important; }
+                        .no-print, .module-form-layout, .module-form-toolbar, .module-action-bar, header, nav, aside, .sidebar { display: none !important; }
                         .print-area {
-                            box-shadow: none !important; margin: 0 !important; padding: 5mm !important; 
+                            box-shadow: none !important; margin: 0 auto !important; padding: 0 !important; 
                             width: 100% !important; max-width: none !important; 
                             border-top: 12px solid #2563eb !important; border-radius: 0 !important; 
-                            min-height: auto !important; height: auto !important;
+                            min-height: 0 !important; height: auto !important; max-height: none !important;
                         }
                     `}
                 </style>
 
                 {/* Header Sequence */}
-                <div className="flex flex-row justify-space-between items-start border-bottom-[3px_solid_#e2e8f0] pb-[1.2rem] mb-[1.8rem] w-[100%]">
+                <div className="flex flex-row justify-between items-center border-bottom-[3px_solid_#e2e8f0] pb-[1rem] mb-[1rem] w-[100%]">
                     <div className="flex-[1] text-left">
                         <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.08em]">Sistema de Gestión HSE</p>
                         <p className="m-[0] font-[900] text-[0.8rem] uppercase text-[#2563eb]">Doc. Auditoría Interna</p>
@@ -80,84 +72,82 @@ export default function AuditPdf({ data }: {data: any;}): React.ReactElement | n
 
                     <div className="flex-[1] text-right flex flex-col items-end gap-[0.5rem]">
                         <CompanyLogo style={{ maxHeight: '38px', maxWidth: '120px', objectFit: 'contain' }} />
-
-            
                     </div>
                 </div>
 
                 {/* Titulo y Datos Generales de la Auditoría */}
-                <div className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1.5rem] w-[100%] overflow-[hidden]">
-                    <div className="p-[1rem] bg-[#f8fafc] border-bottom-[1px_solid_#cbd5e1]">
+                <div className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1rem] w-[100%] overflow-[hidden]">
+                    <div className="p-[0.8rem_1rem] bg-[#f8fafc] border-bottom-[1px_solid_#cbd5e1]">
                         <span className="text-[0.65rem] font-[800] text-[#3b82f6] uppercase letter-spacing-[0.05em] flex items-center gap-[0.4rem]">
                             <Flag size={14} /> ASPECTO EVALUADO (TÍTULO DE AUDITORÍA)
                         </span>
-                        <div className="font-[900] text-[1.3rem] text-[#0f172a] mt-[0.4rem]">{data.auditTitle || data.title || 'Auditoría General'}</div>
+                        <div className="font-[900] text-[1.2rem] text-[#0f172a] mt-[0.3rem]">{data.auditTitle || data.title || 'Auditoría General'}</div>
                     </div>
                     
                     <div className="flex bg-[#ffffff]">
-                        <div className="flex-[1] p-[0.8rem_1rem] border-right-[1px_solid_#cbd5e1]">
+                        <div className="flex-[1] p-[0.6rem_1rem] border-right-[1px_solid_#cbd5e1]">
                             <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Calendar size={12} /> FECHA</span>
-                            <div className="font-[700] text-[0.9rem] text-[#334155] mt-[0.2rem]">{data.date || data.scheduledDate || '-'}</div>
+                            <div className="font-[700] text-[0.85rem] text-[#334155] mt-[0.2rem]">{data.date || data.scheduledDate || '-'}</div>
                         </div>
-                        <div className="flex-[1] p-[0.8rem_1rem] border-right-[1px_solid_#cbd5e1]">
+                        <div className="flex-[1] p-[0.6rem_1rem] border-right-[1px_solid_#cbd5e1]">
                             <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><MapPin size={12} /> ÁREA / LOCACIÓN</span>
-                            <div className="font-[700] text-[0.9rem] text-[#334155] mt-[0.2rem]">{data.location || '-'}</div>
+                            <div className="font-[700] text-[0.85rem] text-[#334155] mt-[0.2rem]">{data.location || '-'}</div>
                         </div>
-                        <div className="flex-[1] p-[0.8rem_1rem]">
+                        <div className="flex-[1] p-[0.6rem_1rem]">
                             <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><User size={12} /> AUDITOR LÍDER</span>
-                            <div className="font-[700] text-[0.9rem] text-[#334155] mt-[0.2rem]">{actName || '-'}</div>
+                            <div className="font-[700] text-[0.85rem] text-[#334155] mt-[0.2rem]">{actName || '-'}</div>
                         </div>
                     </div>
                 </div>
 
                 {/* Alcance y Metodología */}
-                <div className="grid grid-template-columns-[1fr_1fr] gap-[1rem] mb-[2rem]">
-                    <div className="border-[1px_solid_#cbd5e1] p-[1rem] rounded-[6px] bg-[#ffffff]">
-                        <span className="text-[0.65rem] font-[800] text-[#475569] block mb-[0.5rem] border-bottom-[2px_solid_#e2e8f0] pb-[0.3rem]">OBJETIVO Y ALCANCE</span>
-                        <p className="m-[0] text-[0.8rem] text-[#334155] line-height-[1.5]">{data.scope || 'Verificar el cumplimiento de los procedimientos internos de EHS y la normativa legal vigente aplicable al sector y tareas desarrolladas.'} </p>
+                <div className="grid grid-template-columns-[1fr_1fr] gap-[0.8rem] mb-[1rem]">
+                    <div className="border-[1px_solid_#cbd5e1] p-[0.8rem_1rem] rounded-[6px] bg-[#ffffff]">
+                        <span className="text-[0.65rem] font-[800] text-[#475569] block mb-[0.4rem] border-bottom-[2px_solid_#e2e8f0] pb-[0.2rem]">OBJETIVO Y ALCANCE</span>
+                        <p className="m-[0] text-[0.78rem] text-[#334155] line-height-[1.4]">{data.scope || 'Verificar el cumplimiento de los procedimientos internos de EHS y la normativa legal vigente aplicable al sector y tareas desarrolladas.'} </p>
                     </div>
-                    <div className="border-[1px_solid_#cbd5e1] p-[1rem] rounded-[6px] bg-[#ffffff]">
-                        <span className="text-[0.65rem] font-[800] text-[#475569] block mb-[0.5rem] border-bottom-[2px_solid_#e2e8f0] pb-[0.3rem]">METODOLOGÍA DE AUDITORÍA</span>
-                        <p className="m-[0] text-[0.8rem] text-[#334155] line-height-[1.5]">Entrevistas al personal, observación técnica directa en campo y revisión cruzada de registros documentales (SGSySO).</p>
+                    <div className="border-[1px_solid_#cbd5e1] p-[0.8rem_1rem] rounded-[6px] bg-[#ffffff]">
+                        <span className="text-[0.65rem] font-[800] text-[#475569] block mb-[0.4rem] border-bottom-[2px_solid_#e2e8f0] pb-[0.2rem]">METODOLOGÍA DE AUDITORÍA</span>
+                        <p className="m-[0] text-[0.78rem] text-[#334155] line-height-[1.4]">Entrevistas al personal, observación técnica directa en campo y revisión cruzada de registros documentales (SGSySO).</p>
                     </div>
                 </div>
 
                 {/* Resumen Cuantitativo / Cualitativo */}
-                <div className="mb-[2rem]">
-                    <h3 className="text-[0.85rem] font-[800] text-[#0f172a] mb-[0.8rem] uppercase flex items-center gap-[0.4rem] border-bottom-[2px_solid_#e2e8f0] pb-[0.3rem]">
-                        <ClipboardCheck size={16} color="#3b82f6" />
+                <div className="mb-[1rem]">
+                    <h3 className="text-[0.82rem] font-[800] text-[#0f172a] mb-[0.6rem] uppercase flex items-center gap-[0.4rem] border-bottom-[2px_solid_#e2e8f0] pb-[0.3rem]">
+                        <ClipboardCheck size={15} color="#3b82f6" />
                         DESARROLLO Y RESULTADOS DEL RELEVAMIENTO
                     </h3>
                     
-                    <div className="grid grid-template-columns-[1.8fr_1fr] gap-[1.5rem] items-stretch">
-                        <div className="border-[1px_solid_#cbd5e1] p-[1rem] rounded-[6px] bg-[#ffffff]">
-                            <h4 className="m-[0_0_0.5rem_0] text-[0.75rem] font-[800] text-[#475569] uppercase">HALLAZGOS Y DESVIACIONES DETECTADAS</h4>
-                            <p className="m-[0] text-[0.85rem] text-[#1e293b] line-height-[1.6] white-space-[pre-wrap]">
+                    <div className="grid grid-template-columns-[1.8fr_1fr] gap-[1.2rem] items-stretch">
+                        <div className="border-[1px_solid_#cbd5e1] p-[0.8rem_1rem] rounded-[6px] bg-[#ffffff]">
+                            <h4 className="m-[0_0_0.4rem_0] text-[0.72rem] font-[800] text-[#475569] uppercase">HALLAZGOS Y DESVIACIONES DETECTADAS</h4>
+                            <p className="m-[0] text-[0.8rem] text-[#1e293b] line-height-[1.5] white-space-[pre-wrap]">
                                 {data.findings || '✓ Se constató el cumplimiento general de las normativas de seguridad.\n✓ Uso de EPP conforme al nivel de riesgo.\n✓ No se detectaron desvíos críticos que supongan peligro inminente.'}
                             </p>
                         </div>
                         
-                        <div className="bg-[#f8fafc] p-[1.2rem] rounded-[6px] border-[1px_solid_#cbd5e1] flex flex-col gap-[0.8rem]">
-                            <div className="flex justify-space-between items-center border-bottom-[1px_dashed_#cbd5e1] pb-[0.5rem]">
-                                <span className="font-[700] text-[0.75rem] text-[#475569]">CONFORMIDADES</span>
-                                <span className="text-[#ffffff] bg-[#10b981] p-[0.1rem_0.6rem] rounded-[12px] font-[900] text-[0.8rem]">{data.conformities || '10'}</span>
+                        <div className="bg-[#f8fafc] p-[0.8rem_1rem] rounded-[6px] border-[1px_solid_#cbd5e1] flex flex-col gap-[0.6rem]">
+                            <div className="flex flex-row justify-between items-center border-bottom-[1px_dashed_#cbd5e1] pb-[0.4rem] w-[100%]">
+                                <span className="font-[700] text-[0.72rem] text-[#475569]">CONFORMIDADES</span>
+                                <span className="text-[#ffffff] bg-[#10b981] p-[0.15rem_0.65rem] rounded-[12px] font-[900] text-[0.8rem] ml-auto shrink-0">{data.conformities || '10'}</span>
                             </div>
-                            <div className="flex justify-space-between items-center border-bottom-[1px_dashed_#cbd5e1] pb-[0.5rem]">
-                                <span className="font-[700] text-[0.75rem] text-[#475569]">NO CONFORMIDADES</span>
-                                <span className="text-[#ffffff] bg-[#ef4444] p-[0.1rem_0.6rem] rounded-[12px] font-[900] text-[0.8rem]">{data.nonConformities || '0'}</span>
+                            <div className="flex flex-row justify-between items-center border-bottom-[1px_dashed_#cbd5e1] pb-[0.4rem] w-[100%]">
+                                <span className="font-[700] text-[0.72rem] text-[#475569]">NO CONFORMIDADES</span>
+                                <span className="text-[#ffffff] bg-[#ef4444] p-[0.15rem_0.65rem] rounded-[12px] font-[900] text-[0.8rem] ml-auto shrink-0">{data.nonConformities || '0'}</span>
                             </div>
-                            <div className="flex justify-space-between items-center">
-                                <span className="font-[700] text-[0.75rem] text-[#475569]">OPORT. DE MEJORA</span>
-                                <span className="text-[#ffffff] bg-[#3b82f6] p-[0.1rem_0.6rem] rounded-[12px] font-[900] text-[0.8rem]">{data.opportunities || '2'}</span>
+                            <div className="flex flex-row justify-between items-center w-[100%]">
+                                <span className="font-[700] text-[0.72rem] text-[#475569]">OPORT. DE MEJORA</span>
+                                <span className="text-[#ffffff] bg-[#3b82f6] p-[0.15rem_0.65rem] rounded-[12px] font-[900] text-[0.8rem] ml-auto shrink-0">{data.opportunities || '2'}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Conclusion Final */}
-                <div className="border-left-[4px_solid_#3b82f6] bg-[#eff6ff] p-[1rem_1.5rem] rounded-[0_6px_6px_0] mb-[2rem]">
-                    <span className="text-[0.7rem] font-[900] text-[#1e3a8a] block mb-[0.4rem] uppercase">CONCLUSIÓN FINAL DEL AUDITOR</span>
-                    <p className="m-[0] text-[0.9rem] text-[#1e3a8a] font-style-[italic] font-[600] line-height-[1.5]">
+                <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break avoid-break-strictly border-left-[4px_solid_#3b82f6] bg-[#eff6ff] p-[0.8rem_1.2rem] rounded-[0_6px_6px_0] mb-[1rem]">
+                    <span className="text-[0.68rem] font-[900] text-[#1e3a8a] block mb-[0.3rem] uppercase">CONCLUSIÓN FINAL DEL AUDITOR</span>
+                    <p className="m-[0] text-[0.85rem] text-[#1e3a8a] font-style-[italic] font-[600] line-height-[1.4]">
                         {data.conclusion || 'La auditoría concluye que el sistema logístico y de producción mantiene condiciones eficaces de seguridad, con requerimientos de ajustes menores en el seguimiento de capacitaciones planificadas.'}
                     </p>
                 </div>

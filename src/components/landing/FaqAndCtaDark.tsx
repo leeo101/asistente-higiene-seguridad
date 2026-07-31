@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, Sparkle as Sparkles } from '@phosphor-icons/react';
+import { ArrowRight, ShieldCheck } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 
 const items = [
@@ -278,11 +278,11 @@ export default function FaqAndCtaDark() {
               </span>
             </div>
 
-            <Sparkles
+            <ShieldCheck
               size={48}
               style={{ marginBottom: '1.5rem', opacity: 0.9 }}
-              color="#fcd34d"
-              weight="fill"
+              color="#60a5fa"
+              weight="duotone"
             />
 
             <h2

@@ -543,7 +543,11 @@ export default function Home(): React.ReactElement {
         <div className="fixed top-0 left-0 right-0 z-[8000] w-full bg-[#020617]/90 backdrop-blur-md border-b border-white/10 px-4 sm:px-8 py-3">
           <div className="max-w-[1400px] mx-auto flex items-center justify-between w-full">
             <div className="flex items-center gap-2 font-black text-lg sm:text-xl text-white tracking-tight cursor-pointer" onClick={() => navigate('/')}>
-              <ShieldCheck weight="duotone" size={26} color="#60a5fa" />
+              <img
+                src={localStorage.getItem('companyLogo') || "/logo.png"}
+                alt="Logo Asistente H&S"
+                className="w-8 h-8 object-contain rounded-lg shadow-sm"
+              />
               <span>Asistente H&S</span>
             </div>
             <div className="flex items-center gap-3">
@@ -578,13 +582,13 @@ export default function Home(): React.ReactElement {
           <div style={{ gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: isMobile ? '2rem' : '4rem' }} className="relative z-[1] max-w-[1400px] m-[0_auto] grid items-center w-full">
             <div className="stagger-item animation-delay-[0.1s]" style={{ textAlign: isMobile ? 'center' : 'left' }}>
               <div className="display-[inline-flex] items-center gap-[0.6rem] p-[0.5rem_1rem] bg-[rgba(59,_130,_246,_0.1)] border-[1px_solid_rgba(59,_130,_246,_0.2)] rounded-[100px] mb-[2rem]">
-                <ShieldCheck size={16} color="#60a5fa" />
-                <span className="text-[#60a5fa] text-[0.85rem] font-[800] letter-spacing-[1px] uppercase">Plataforma H&S con IA</span>
+                <ShieldCheck size={16} color="#38bdf8" />
+                <span className="text-[#38bdf8] text-[0.85rem] font-[800] letter-spacing-[1px] uppercase">Plataforma Profesional H&S</span>
               </div>
               <h1 className="text-[clamp(2.8rem,_6vw,_4.5rem)] font-[900] text-[white] m-[0_0_1.5rem] line-height-[1.1] letter-spacing-[-2px] font-family-[var(--font-heading)]">
                 Creá tus{' '}
-                <span className="bg-[linear-gradient(to_right,_#60a5fa,_#a855f7)] webkit-background-clip-[text] webkit-text-fill-color-[transparent] inline-block min-width-[5ch]">
-                  {typedWord}<span className="animation-[pulse-soft_0.8s_ease-in-out_infinite] opacity-[1] text-[#60a5fa]">|</span>
+                <span className="bg-[linear-gradient(to_right,_#38bdf8,_#818cf8)] webkit-background-clip-[text] webkit-text-fill-color-[transparent] inline-block min-width-[5ch]">
+                  {typedWord}<span className="animation-[pulse-soft_0.8s_ease-in-out_infinite] opacity-[1] text-[#38bdf8]">|</span>
                 </span>
                 {' '}en minutos.{' '}
               </h1>
@@ -947,7 +951,6 @@ export default function Home(): React.ReactElement {
           <FeaturesShowcase />
           <WallOfLove />
           <BeforeAndAfter />
-          <RoiCalculator />
           <PricingDark onStart={() => navigate('/login', { state: { view: 'register' } })} />
           <FaqAndCtaDark />
           </div>

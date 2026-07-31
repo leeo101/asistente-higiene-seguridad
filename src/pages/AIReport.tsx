@@ -93,7 +93,73 @@ export default function AIReport(): React.ReactElement | null {
         </button>
       </div>
 
-            <div id="pdf-content" className="card report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0 p-[3rem] min-h-[29.7cm] h-[auto] bg-[#ffffff] text-[#1e293b] box-shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] relative">
+            <div id="pdf-content" className="card report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0 p-[1.5rem] sm:p-[2.5rem] min-h-0 h-auto bg-[#ffffff] text-[#1e293b] box-shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] relative">
+
+                {/* Header */}
+                <div className="grid grid-template-columns-[1fr_2fr_1fr] items-center border-bottom-[4px_solid_var(--color-primary)] pb-[1rem] mb-[1.2rem] w-[100%] gap-[1rem]">
+                    <div className="text-left">
+                        <p className="m-[0] font-[700] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.05em]">Sistema de Gestión</p>
+                        <p className="m-[0] font-[900] text-[0.75rem] uppercase text-[#1e293b]">Control H&S</p>
+                    </div>
+
+                    <div className="text-center">
+                        <h2 className="m-[0] text-[1.2rem] font-[900] text-[var(--color-primary)] uppercase letter-spacing-[1px] line-height-[1.2]">
+                            Informe de Inspección IA
+                        </h2>
+                        <p className="m-[4px_0_0_0] text-[0.65rem] text-[#64748b] font-[600]">Detección de Riesgos y EPP</p>
+                    </div>
+
+                    <div className="flex justify-end">
+                        <CompanyLogo className="h-[45px] w-[auto] max-w-[140px] object-fit-[contain]" />
+                    </div>
+                </div>
+
+                {profile &&
+        <div className="no-print mb-[1rem] text-right text-[0.8rem] text-[#64748b]">
+                        <p className="m-[0] font-[700]">Profesional: {profile.name} | Mat: {profile.license}</p>
+                    </div>
+        }
+
+                {/* Info Block */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-3 mb-6 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <div>
+                        <p className="m-[0] text-[0.7rem] text-[#64748b]">Tipo de Inspección</p>
+                        <p className="m-[0] font-[800] text-[0.85rem] text-[var(--color-primary)]">
+                            {data.type === 'general_risks' ? 'DETECTAR RIESGOS GENERALES' : 'VERIFICAR EPP'}
+                        </p>
+                    </div>
+                    <div>
+                        <p className="m-[0] text-[0.7rem] text-[#64748b]">Empresa / Planta</p>
+                        <input
+              type="text"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              className="no-print m-[0] p-[0.2rem_0] font-[600] text-[0.85rem] border-none border-bottom-[1px_solid_#e2e8f0] bg-[transparent] w-[100%]" />
+
+            
+                        <p className="print-only m-[0] font-[600] text-[0.85rem]">{company}</p>
+                    </div>
+                    <div>
+                        <p className="m-[0] text-[0.7rem] text-[#64748b]">Fecha del Escaneo</p>
+                        <p className="m-[0] font-[600] text-[0.85rem]">{new Date(data.date).toLocaleString()}</p>
+                    </div>
+                </div>
+
+                {/* Evidence Photo */}
+                <div className="mb-[1.5rem] text-center">
+                    <div className="relative inline-block border-[3px_solid_#fff] box-shadow-[0_5px_15px_rgba(0,0,0,0.1)] rounded-[12px] overflow-[hidden]">
+                        <img src={data.image} alt="Evidencia" className="max-w-[100%] max-h-[260px] object-contain block mx-auto" />
+                        {/* Simplified Overlay for Report */}
+                        {data.type === 'general_risks' ?
+            <div className="absolute top-[10px] right-[10px] bg-[rgba(59,_130,_246,_0.9)] text-[#fff] text-[0.8rem] font-[800] p-[4px_10px] rounded-[20px] border-[2px_solid_#fff]">ANÁLISIS ENTORNO</div> :
+            data.analysis?.ppeComplete ?
+            <div className="absolute top-[10px] right-[10px] bg-[rgba(16,_185,_129,_0.9)] text-[#fff] text-[0.8rem] font-[800] p-[4px_10px] rounded-[20px] border-[2px_solid_#fff]">✓ EPP O.K.</div> :
+
+            <div className="absolute top-[10px] right-[10px] bg-[rgba(239,_68,_68,_0.9)] text-[#fff] text-[0.8rem] font-[800] p-[4px_10px] rounded-[20px] border-[2px_solid_#fff]">⚠️ FALTA EPP</div>
+            }
+                    </div>
+                    <p className="mt-[0.5rem] text-[0.75rem] text-[#64748b] font-style-[italic]">Captura fotográfica del sistema de inspección ocular</p>
+                </div>
 
 
 
