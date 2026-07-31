@@ -221,7 +221,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                           const rowBg = globalIdx % 2 === 0 ? '#ffffff' : '#f8fafc';
 
                           return (
-                            <tbody key={`${empresa}-${globalIdx}`} style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+                            <tbody key={`${empresa}-${globalIdx}`} className="ext-row" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                                                     <tr style={{ background: rowBg, pageBreakInside: 'avoid', breakInside: 'avoid', borderTop: '1px solid #e2e8f0' }}>
                                                                         <td style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 900, color: '#0f172a', fontSize: '9.5pt' }}>
                                                                             <div style={{ fontSize: '7pt', color: '#94a3b8', marginBottom: '2px' }}>{globalIdx + 1}</div>

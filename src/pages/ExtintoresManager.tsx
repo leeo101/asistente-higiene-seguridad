@@ -750,39 +750,43 @@ export default function ExtintoresManager() {
       const inspBorder = isInspectedRecently ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
 
       return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0', overflowX: 'auto', whiteSpace: 'nowrap', minWidth: 0 }}>
           <button
             onClick={() => navigate(`/extintores/inspect/${item.id}`)}
-            style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 9px', fontSize: '11px', fontWeight: '800', borderRadius: '6px 0 0 6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '3px', flexShrink: 0 }}
             title="Inspeccionar Extintor">
             <ShieldCheck size={12} /> Insp
           </button>
+          <span style={{ width: '1px', background: 'rgba(255,255,255,0.3)', alignSelf: 'stretch', display: 'inline-block' }} />
 
           <button
             onClick={() => handleEdit(item)}
             title="Editar Extintor"
-            style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 9px', fontSize: '11px', fontWeight: '800', borderRadius: '0', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '3px', flexShrink: 0 }}>
             <Edit3 size={12} /> Editar
           </button>
+          <span style={{ width: '1px', background: 'rgba(255,255,255,0.3)', alignSelf: 'stretch', display: 'inline-block' }} />
 
           <button
             onClick={() => requirePro(() => generateQR(item))}
             title="Ver Código QR"
-            style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 9px', fontSize: '11px', fontWeight: '800', borderRadius: '0', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '3px', flexShrink: 0 }}>
             <QrCode size={12} /> QR
           </button>
+          <span style={{ width: '1px', background: 'rgba(255,255,255,0.3)', alignSelf: 'stretch', display: 'inline-block' }} />
 
           <button
             onClick={() => requirePro(() => setShareItem(item))}
             title="Compartir Ficha"
-            style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            style={{ backgroundColor: '#7c3aed', color: '#ffffff', border: 'none', padding: '4px 9px', fontSize: '11px', fontWeight: '800', borderRadius: '0', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '3px', flexShrink: 0 }}>
             <Share2 size={12} /> Compartir
           </button>
+          <span style={{ width: '1px', background: 'rgba(255,255,255,0.3)', alignSelf: 'stretch', display: 'inline-block' }} />
 
           <button
             onClick={() => handleDelete(item.id)}
             title="Eliminar Extintor"
-            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 9px', fontSize: '11px', fontWeight: '800', borderRadius: '0 6px 6px 0', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '3px', flexShrink: 0 }}>
             <Trash2 size={12} /> Eliminar
           </button>
         </div>

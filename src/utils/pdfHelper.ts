@@ -225,8 +225,20 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
             const pageContentHeightPx = pdfContentHeightMM * PX_PER_MM;     // ≈ 1092.28px portrait
 
             const cloneRect = clone.getBoundingClientRect();
-            const avoidElements = clone.querySelectorAll('.pdf-signatures-wrapper, .pdf-signatures-container, .pdf-brand-container, .signature-block, .avoid-break-strictly');
+            const rawAvoidElements = Array.from(clone.querySelectorAll('.pdf-signatures-wrapper, .pdf-signatures-container, .pdf-brand-container, .signature-block, .avoid-break-strictly, .ext-row'));
             
+            // Filtrar para considerar ÚNICAMENTE elementos de nivel superior y nunca insertar espaciadores dentro de un elemento hijo
+            const avoidElements = rawAvoidElements.filter(el => {
+                let parent = el.parentElement;
+                while (parent && parent !== clone) {
+                    if (parent.matches('.pdf-signatures-wrapper, .pdf-signatures-container, .pdf-brand-container, .signature-block, .avoid-break-strictly, .ext-row')) {
+                        return false;
+                    }
+                    parent = parent.parentElement;
+                }
+                return true;
+            });
+
             for (let i = 0; i < avoidElements.length; i++) {
                 const el = avoidElements[i] as HTMLElement;
                 const rect = el.getBoundingClientRect();
@@ -260,22 +272,34 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
             // Intento de renderizado vectorial nativo con motor Google Chrome Cloud
             try {
                 const controller = new AbortController();
-                const timer = setTimeout(() => controller.abort(), 4000);
-                const res = await fetch('/api/generate-pdf', {
+                const timer = setTimeout(() => controller.abort(), 25000); // 25s timeout para Chrome Headless
+                
+                // Recopilar todo el CSS de la página para inyectarlo en el servidor
+                const pageCSS = Array.from(document.styleSheets).map(sheet => {
+                    try { return Array.from(sheet.cssRules).map(r => r.cssText).join('\n'); } 
+                    catch { return ''; }
+                }).join('\n');
+
+                const cloudRes = await fetch('/api/generate-pdf', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ html: clone.outerHTML, isLandscape }),
+                    body: JSON.stringify({ 
+                        html: clone.outerHTML, 
+                        css: pageCSS,
+                        isLandscape 
+                    }),
                     signal: controller.signal
                 });
                 clearTimeout(timer);
-                if (res.ok) {
-                    const cloudBlob = await res.blob();
+                if (cloudRes.ok && cloudRes.headers.get('content-type')?.includes('application/pdf')) {
+                    const cloudBlob = await cloudRes.blob();
                     if (cloudBlob && cloudBlob.size > 2000) {
                         return cloudBlob;
                     }
                 }
             } catch (e) {
                 // Fallback automático al renderizado Ultra HD nativo en cliente
+                console.info('[PDF] Chrome Cloud fallback al motor local Ultra HD:', e);
             }
 
             const isMobileCanvas = window.innerWidth < 768 || ('ontouchstart' in window);

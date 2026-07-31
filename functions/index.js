@@ -853,23 +853,120 @@ Si no se detecta un extintor, extinguisherDetected debe ser false y el resto pue
 });
 
 /**
- * Endpoint /api/generate-pdf – Generación de PDF vectorial con motor Google Chrome Cloud
+ * Endpoint /api/generate-pdf – Generación de PDF vectorial con motor Google Chrome Headless
+ * Usa @sparticuz/chromium (optimizado para serverless) + puppeteer-core
  */
 exports.generatePdf = onRequest({
-    memory: "1GiB",
-    timeoutSeconds: 30
+    memory: "2GiB",
+    timeoutSeconds: 60,
+    cpu: 2
 }, (req, res) => {
     return corsHandler(req, res, async () => {
+        if (req.method === 'OPTIONS') {
+            res.set('Access-Control-Allow-Origin', '*');
+            res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            return res.status(204).send('');
+        }
         if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+
+        let browser = null;
         try {
-            const { html, isLandscape } = req.body || {};
+            const { html, isLandscape, css } = req.body || {};
             if (!html) return res.status(400).json({ error: 'No html content provided' });
 
-            // Respuesta para integrar con Puppeteer / Google Chrome Cloud Engine
-            res.status(503).json({ error: 'Google Chrome Cloud Engine en mantenimiento, usando motor Ultra HD en cliente' });
+            const chromium = require('@sparticuz/chromium');
+            const puppeteer = require('puppeteer-core');
+
+            // Configuración de Chrome para Firebase Functions
+            chromium.setHeadlessMode = true;
+            chromium.setGraphicsMode = false;
+
+            const executablePath = await chromium.executablePath();
+
+            browser = await puppeteer.launch({
+                args: [
+                    ...chromium.args,
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--disable-web-security',
+                    '--font-render-hinting=none',
+                    '--disable-features=VizDisplayCompositor'
+                ],
+                defaultViewport: chromium.defaultViewport,
+                executablePath,
+                headless: chromium.headless,
+                ignoreHTTPSErrors: true,
+            });
+
+            const page = await browser.newPage();
+
+            // Inyectar el HTML completo del documento
+            const fullHtml = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { margin: 0; padding: 0; background: #ffffff; font-family: 'Inter', Arial, sans-serif; }
+    ${css || ''}
+  </style>
+</head>
+<body>
+  ${html}
+</body>
+</html>`;
+
+            await page.setContent(fullHtml, {
+                waitUntil: ['networkidle0', 'domcontentloaded'],
+                timeout: 30000
+            });
+
+            // Esperar a que las imágenes (firmas, logos) carguen
+            await page.evaluate(() => {
+                return new Promise((resolve) => {
+                    const images = document.querySelectorAll('img');
+                    if (images.length === 0) return resolve(true);
+                    let loaded = 0;
+                    const checkDone = () => { if (++loaded >= images.length) resolve(true); };
+                    images.forEach(img => {
+                        if (img.complete) { checkDone(); }
+                        else { img.onload = checkDone; img.onerror = checkDone; }
+                    });
+                    setTimeout(() => resolve(true), 3000);
+                });
+            });
+
+            // Generar PDF con el motor vectorial de Chrome — igual calidad que window.print()
+            const pdfBuffer = await page.pdf({
+                format: 'A4',
+                landscape: !!isLandscape,
+                printBackground: true,
+                margin: { top: '10mm', right: '10mm', bottom: '10mm', left: '10mm' },
+                preferCSSPageSize: false,
+                displayHeaderFooter: false
+            });
+
+            await browser.close();
+            browser = null;
+
+            // Devolver el PDF binario vectorial
+            res.set('Content-Type', 'application/pdf');
+            res.set('Content-Disposition', 'inline; filename="documento.pdf"');
+            res.set('Content-Length', pdfBuffer.length);
+            res.status(200).send(Buffer.from(pdfBuffer));
+
         } catch (err) {
-            logger.error("Error generatePdf Cloud Engine", err);
-            res.status(500).json({ error: err.message });
+            logger.error("Error generatePdf Chrome Headless", err);
+            if (browser) {
+                try { await browser.close(); } catch (_) {}
+            }
+            // Retornar 503 para que el cliente haga fallback al motor local Ultra HD
+            res.status(503).json({ error: err.message });
         }
     });
 });

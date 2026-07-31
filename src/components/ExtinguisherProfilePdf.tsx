@@ -119,24 +119,9 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
     } catch (e) {}
   }
 
-  // Fallback garantizado: Si no hay historial previo registrado (ej. al compartir desde el formulario de contenido),
-  // se sintetiza la inspección de control actual a partir de los datos del extintor para que el PDF NUNCA quede vacío.
-  if (!latestInspection) {
-    const isOk = (data.estadoFisico || 'Operativo') === 'Operativo' && recargaStatus.text !== 'Vencido' && phStatus.text !== 'Vencido';
-    latestInspection = {
-      fecha: data.vencimientoRecarga ? data.vencimientoRecarga + 'T12:00:00Z' : new Date().toISOString(),
-      inspector: actName || 'Inspector H&S',
-      resultado: isOk ? 'APROBADO' : 'RECHAZADO',
-      items: [
-        { text: 'Manómetro (presión operable)', status: isOk ? 'C' : 'NC', notes: isOk ? 'Presión operable en rango' : 'Verificar presión' },
-        { text: 'Acceso y visibilidad sin obstrucciones', status: 'C', notes: 'Ubicación asignada y libre' },
-        { text: 'Señalización reglamentaria (símbolos/chapa)', status: 'C', notes: data.selloIRAM ? `Sello IRAM/OPDS: ${data.selloIRAM}` : 'Cartelería conforme' },
-        { text: 'Manguera, tobera y precinto de seguridad', status: 'C', notes: 'Precinto de seguridad intacto' },
-        { text: 'Estado físico del cilindro y pintura', status: (data.estadoFisico || 'Operativo') === 'Operativo' ? 'C' : 'NC', notes: data.estadoFisico || 'Sin corrosión ni abolladuras' }
-      ],
-      observaciones: data.observaciones || (isOk ? 'Equipo verificado y en condiciones operativas según normativa NFPA 10.' : 'Requiere intervención técnica o recarga preventivas.')
-    };
-  }
+  // NOTA: Si no hay inspección real registrada, latestInspection = null.
+  // El PDF mostrará "Sin inspecciones registradas" en lugar de datos inventados.
+  // NO se sintetiza información que el usuario no haya cargado.}
 
   return (
     <div id="extinguisher-profile-wrap" className="container pb-[3rem] min-h-[100vh] flex flex-col">
@@ -358,7 +343,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         </h3>
                         
                         <div>
-                        {latestInspection && (
+                        {latestInspection ? (
                             <div>
                                 <div className="flex justify-between mb-[8px] text-[9.5pt] bg-slate-50 p-[6px_10px] rounded-[6px] border border-slate-300 avoid-break">
                                     <div><strong className="text-slate-600">Fecha:</strong> <span className="font-[900] text-slate-900">{new Date(latestInspection.fecha).toLocaleDateString('es-AR')}</span></div>
@@ -368,7 +353,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                 
                                 <table className="w-full border-collapse break-words text-[9.5pt] font-sans mt-2">
                                     <thead>
-                                        <tr className="avoid-break avoid-break-strictly break-inside-avoid bg-slate-100" style={{ pageBreakInside: 'avoid' }}>
+                                        <tr className="avoid-break break-inside-avoid bg-slate-100" style={{ pageBreakInside: 'avoid' }}>
                                             <th className="border border-slate-300 p-2 text-left w-[46%] font-[900] text-slate-900">Ítem a Verificar</th>
                                             <th className="border border-slate-300 p-2 text-center w-[24%] font-[900] text-slate-900">Estado</th>
                                             <th className="border border-slate-300 p-2 text-left w-[30%] font-[900] text-slate-900">Observación</th>
@@ -387,7 +372,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                                     : 'Sin observación';
 
                                             return (
-                                                <tr key={idx} className="avoid-break avoid-break-strictly break-inside-avoid" style={{ background: idx % 2 === 1 ? '#f8fafc' : '#ffffff', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+                                                <tr key={idx} className="avoid-break break-inside-avoid" style={{ background: idx % 2 === 1 ? '#f8fafc' : '#ffffff', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                                     <td className="border border-slate-300 p-2 text-slate-900 font-bold break-words whitespace-normal">
                                                         {item.text}
                                                     </td>
@@ -404,14 +389,14 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                 </table>
 
                                 {latestInspection.observaciones &&
-                                    <div className="mt-[8px] text-[9.5pt] bg-[#fffbeb] p-[8px_12px] rounded-[6px] border-[1.5px] border-[#fde68a] text-[#78350f] avoid-break avoid-break-strictly" style={{ pageBreakInside: 'avoid' }}>
+                                    <div className="mt-[8px] text-[9.5pt] bg-[#fffbeb] p-[8px_12px] rounded-[6px] border-[1.5px] border-[#fde68a] text-[#78350f] avoid-break" style={{ pageBreakInside: 'avoid' }}>
                                         <strong className="block mb-[2px] font-[900] text-[#92400e]">Observaciones Generales:</strong>
                                         {latestInspection.observaciones}
                                     </div>
                                 }
 
                                 {(latestInspection.fotos && latestInspection.fotos.length > 0 || latestInspection.items && latestInspection.items.some((i) => i.photos && i.photos.length > 0)) &&
-                                    <div className="mt-[10px] border-t-[1.5px] border-dashed border-slate-300 pt-[8px] avoid-break avoid-break-strictly" style={{ pageBreakInside: 'avoid' }}>
+                                    <div className="mt-[10px] border-t-[1.5px] border-dashed border-slate-300 pt-[8px] avoid-break" style={{ pageBreakInside: 'avoid' }}>
                                         <h4 className="m-[0_0_8px_0] text-[9.5pt] text-slate-900 font-[900]">📸 Evidencia Fotográfica</h4>
                                         
                                         {latestInspection.fotos && latestInspection.fotos.length > 0 &&
@@ -443,11 +428,16 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                 }
 
                             </div>
+                        ) : (
+                            <div style={{ padding: '16px', textAlign: 'center', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1.5px dashed #cbd5e1', color: '#64748b' }}>
+                                <p style={{ margin: 0, fontWeight: 800, fontSize: '10pt' }}>⚠️ Sin inspecciones registradas</p>
+                                <p style={{ margin: '4px 0 0 0', fontSize: '8.5pt', fontStyle: 'italic' }}>No se han realizado inspecciones para este equipo todavía.</p>
+                            </div>
                         )}
                         </div>
                     </div>
 
-                    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="pdf-signatures-wrapper avoid-break avoid-break-strictly mt-[8px]">
+                    <div className="mt-[8px]">
                         <PdfSignatures
                             data={data}
                             box1={data.showSignatures?.operator ? {
@@ -473,7 +463,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         />
                     </div>
 
-                    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="pdf-brand-container avoid-break avoid-break-strictly mt-[6px]">
+                    <div className="mt-[6px]">
                         <PdfBrandingFooter />
                     </div>
                 </div>
