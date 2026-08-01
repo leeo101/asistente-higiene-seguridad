@@ -2,19 +2,12 @@ import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
-
-const ADMIN_EMAILS = ['admin@asistentehs.com', 'enzorodriguez31@gmail.com'];
-const PERMANENT_PRO_EMAILS = ['arielalaniz9@gmail.com'];
-
-// Cuentas con pago mensual específico y su fecha de vencimiento exacta (TIMESTAMP ms)
-const SPECIFIC_SUBSCRIPTIONS: Record<string, number> = {
-  // Pago recibido el 16 de Julio -> Vence el 15 de Agosto de 2026
-  'joaquintunut@gmail.com': new Date('2026-08-15T23:59:59Z').getTime()
-};
+import { evaluateProAccess } from '../config/proAccountsRegistry';
 
 /**
  * Hook de gestión de acceso PRO y Administración.
- * Maneja accesos permanentes (Admin / Ariel) y suscripciones mensuales con fecha exacta de vencimiento.
+ * Combina verificación de Claims del servidor con el registro central de cuentas autorizadas
+ * y datos de suscripción local/nube para evitar des-suscripciones accidentales.
  */
 export function usePaywall() {
   const navigate = useNavigate();
@@ -56,16 +49,12 @@ export function usePaywall() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  // 2. Comprobar email actual
-  const userEmail = (currentUser?.email || '').toLowerCase().trim();
-  const isEmailAdmin = ADMIN_EMAILS.includes(userEmail);
-  const isEmailPermanentPro = PERMANENT_PRO_EMAILS.includes(userEmail);
+  // 2. Comprobar email actual en el registro central blindado
+  const registryEval = useMemo(() => {
+    return evaluateProAccess(currentUser?.email);
+  }, [currentUser]);
 
-  // 3. Comprobar vencimiento de suscripción por email específico
-  const specificExpiry = SPECIFIC_SUBSCRIPTIONS[userEmail] || null;
-  const isSpecificSubValid = specificExpiry !== null && Date.now() <= specificExpiry;
-
-  // 4. Comprobar suscripción local activa
+  // 3. Comprobar suscripción local activa
   const localSubData = useMemo(() => {
     try {
       return JSON.parse(localStorage.getItem('subscriptionData') || '{}');
@@ -80,49 +69,50 @@ export function usePaywall() {
     return expiry > Date.now();
   }, [localSubData]);
 
-  // Roles consolidados
-  const isAdmin = isAdminClaim || isEmailAdmin;
-  const isPro = isAdmin || isProClaim || isEmailPermanentPro || isSpecificSubValid || hasLocalActiveSub;
+  // Roles consolidados (Servidor JWT + Registro Blindado + LocalStorage)
+  const isAdmin = isAdminClaim || registryEval.isAdmin;
+  const isPro = isAdmin || isProClaim || registryEval.isPro || hasLocalActiveSub;
 
-  // Sincronizar subscriptionData para cuentas con fecha específica
+  // Auto-reparación de localStorage para cuentas validadas
   useEffect(() => {
-    if (specificExpiry && isSpecificSubValid) {
+    if (currentUser && registryEval.isPro) {
       try {
+        const expiryToSave = registryEval.expiry || (Date.now() + 365 * 24 * 60 * 60 * 1000);
         localStorage.setItem('subscriptionData', JSON.stringify({
           status: 'active',
-          expiry: specificExpiry.toString(),
-          provider: 'monthly_payment'
+          expiry: expiryToSave.toString(),
+          provider: registryEval.isAdmin ? 'admin' : 'authorized_pro'
         }));
       } catch (e) {
-        console.error('Error al guardar suscripción específica:', e);
+        console.error('Error al guardar datos de suscripción autorizada:', e);
       }
     }
-  }, [userEmail, specificExpiry, isSpecificSubValid]);
+  }, [currentUser, registryEval]);
 
   const daysRemaining = useMemo(() => {
     if (!isPro) return 0;
-    if (isAdmin || isEmailPermanentPro) return Infinity;
+    if (isAdmin || (registryEval.isPro && !registryEval.expiry)) return Infinity;
 
-    const expiryMs = specificExpiry || parseInt(localSubData.expiry || '0', 10);
+    const expiryMs = registryEval.expiry || parseInt(localSubData.expiry || '0', 10);
     if (!expiryMs) return 30;
     return Math.max(0, Math.ceil((expiryMs - Date.now()) / (1000 * 60 * 60 * 24)));
-  }, [isAdmin, isPro, isEmailPermanentPro, specificExpiry, localSubData, syncPulse, internalPulse]);
+  }, [isAdmin, isPro, registryEval, localSubData, syncPulse, internalPulse]);
 
   const expiryDate = useMemo(() => {
-    if (isAdmin || isEmailPermanentPro) return null;
-    const expiryMs = specificExpiry || parseInt(localSubData.expiry || '0', 10);
+    if (isAdmin || (registryEval.isPro && !registryEval.expiry)) return null;
+    const expiryMs = registryEval.expiry || parseInt(localSubData.expiry || '0', 10);
     return expiryMs ? new Date(expiryMs) : null;
-  }, [isAdmin, isEmailPermanentPro, specificExpiry, localSubData, syncPulse, internalPulse]);
+  }, [isAdmin, registryEval, localSubData, syncPulse, internalPulse]);
 
   const isExpiringSoon = useMemo(() => {
-    if (isAdmin || !isPro || isEmailPermanentPro) return false;
+    if (isAdmin || !isPro || (registryEval.isPro && !registryEval.expiry)) return false;
     return daysRemaining > 0 && daysRemaining <= 7;
-  }, [isAdmin, isPro, isEmailPermanentPro, daysRemaining]);
+  }, [isAdmin, isPro, registryEval, daysRemaining]);
 
   const isExpired = useMemo(() => {
-    if (isAdmin || isEmailPermanentPro) return false;
+    if (isAdmin || (registryEval.isPro && !registryEval.expiry)) return false;
     return !isPro || (daysRemaining === 0 && expiryDate !== null);
-  }, [isAdmin, isPro, isEmailPermanentPro, daysRemaining, expiryDate]);
+  }, [isAdmin, isPro, registryEval, daysRemaining, expiryDate]);
 
   const status = isPro ? 'active' : 'none';
   const isActive = isPro;

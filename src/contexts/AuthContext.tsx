@@ -11,6 +11,7 @@ import {
 } from 'firebase/auth';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { auth } from '../firebase';
+import { evaluateProAccess } from '../config/proAccountsRegistry';
 
 // Tipos
 interface PersonalData {
@@ -172,6 +173,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       clearTimeout(emergencyTimer);
       if (isMounted) {
         setCurrentUser(user);
+        if (user && user.email) {
+          const evalResult = evaluateProAccess(user.email);
+          if (evalResult.isPro) {
+            const expiryToSave = evalResult.expiry || (Date.now() + 365 * 24 * 60 * 60 * 1000);
+            try {
+              localStorage.setItem('subscriptionData', JSON.stringify({
+                status: 'active',
+                expiry: expiryToSave.toString(),
+                provider: evalResult.isAdmin ? 'admin' : 'authorized_pro'
+              }));
+            } catch (e) {}
+          }
+        }
         setLoading(false);
       }
     }, (error) => {
