@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 
 const ADMIN_EMAILS = ['admin@asistentehs.com', 'enzorodriguez31@gmail.com'];
-const PRO_EMAILS = ['arielalaniz9@gmail.com'];
+const PRO_EMAILS = ['arielalaniz9@gmail.com', 'joaquintunut@gmail.com'];
 
 /**
  * Hook de gestión de acceso PRO y Administración.
