@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, FlaskConical, Shield, AlertTriangle, Droplets, Flame, Skull, Zap, Wind, Thermometer, Radio, CheckCircle2, Eye, Printer, Share2, Pencil } from 'lucide-react';
+import { ArrowLeft, Save, FlaskConical, Shield, AlertTriangle, Printer, Share2, Pencil, CheckCircle2, Building2, Package } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
@@ -9,13 +9,8 @@ import PdfSignatures from '../components/PdfSignatures';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
-import {
-  ModuleFormLayout,
-  ModuleFormToolbar,
-  ModuleFormDocument,
-  ModuleFormSection,
-  ModuleActionBar,
-} from '../components/module';
+import PremiumHeader from '../components/PremiumHeader';
+import AnimatedPage from '../components/AnimatedPage';
 
 const GHS_PICTOGRAMS = {
   explosive: { icon: '🧨', name: 'Explosivo', color: '#dc2626' },
@@ -32,23 +27,20 @@ const GHS_PICTOGRAMS = {
 };
 
 const HAZARD_CATEGORIES = [
-{ id: 'fisico', name: 'Peligro Físico', icon: '🔥' },
-{ id: 'salud', name: 'Peligro para la Salud', icon: '🏥' },
-{ id: 'ambiental', name: 'Peligro Ambiental', icon: '🌍' }];
-
-
-
+  { id: 'fisico', name: 'Peligro Físico', icon: '🔥' },
+  { id: 'salud', name: 'Peligro para la Salud', icon: '🏥' },
+  { id: 'ambiental', name: 'Peligro Ambiental', icon: '🌍' }
+];
 
 export default function ChemicalSafetyForm(): React.ReactElement | null {
   const { requirePro } = usePaywall();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isMobile, setIsMobile] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const { isPro } = usePaywall();
 
   useDocumentTitle(isEdit ? 'Editar Producto Químico' : 'Nuevo Producto Químico');
+
   const [chemical, setChemical] = useState<any>({
     name: '',
     casNumber: '',
@@ -63,8 +55,8 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
     supplier: '',
     sdsDate: '',
     expiryDate: '',
-    hazardStatements: [], // H-phrases
-    precautionaryStatements: [], // P-phrases
+    hazardStatements: [],
+    precautionaryStatements: [],
     ppe: {
       gloves: false,
       mask: false,
@@ -93,365 +85,525 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
 
   const setShowSignatures = (updater: any) => {
     setChemical((prev: any) => {
-      const updated = typeof updater === 'function' ? updater(prev.showSignatures) : updater;
+      const currentObj = (prev && typeof prev.showSignatures === 'object' && prev.showSignatures !== null)
+        ? prev.showSignatures
+        : { operator: true, professional: true, supervisor: true };
+      const updated = typeof updater === 'function' ? updater(currentObj) : updater;
       return { ...prev, showSignatures: updated };
     });
   };
 
-  const showSignatures = chemical.showSignatures || { operator: true, professional: true, supervisor: true };
+  const showSignatures = (chemical && typeof chemical.showSignatures === 'object' && chemical.showSignatures !== null)
+    ? chemical.showSignatures
+    : { operator: true, professional: true, supervisor: true };
 
   useEffect(() => {
+    try {
+      const savedData = localStorage.getItem('personalData');
+      const savedSigData = localStorage.getItem('signatureStampData');
+      const legacySignature = localStorage.getItem('capturedSignature');
+
+      let signature = legacySignature || null;
+      let stamp = null;
+      if (savedSigData) {
+        const parsed = JSON.parse(savedSigData);
+        signature = parsed?.signature || signature;
+        stamp = parsed?.stamp || null;
+      }
+
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        setProfessional({
+          name: data?.name || '',
+          license: data?.license || '',
+          signature: signature,
+          stamp: stamp
+        });
+      } else {
+        setProfessional((prev: any) => ({ ...prev, signature, stamp }));
+      }
+    } catch (e) {
+      console.error('Error al cargar datos profesionales:', e);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
     if (location.state?.editData) {
-      const ed = location.state.editData;
+      const editData = location.state.editData;
       setChemical({
-        ...ed,
-        operatorSignature: ed.operatorSignature || '',
-        professionalSignature: ed.professionalSignature || '',
-        supervisorSignature: ed.supervisorSignature || ed.signature || '',
-        signature: ed.signature || ed.supervisorSignature || '',
-        showSignatures: ed.showSignatures || { operator: true, professional: true, supervisor: true }
+        ...editData,
+        showSignatures: editData.showSignatures || { operator: true, professional: true, supervisor: true }
       });
       setIsEdit(true);
     }
   }, [location.state]);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener('resize', handleResize);
-
-    const savedData = localStorage.getItem('personalData');
-    const savedSigData = localStorage.getItem('signatureStampData');
-    const legacySignature = localStorage.getItem('capturedSignature');
-
-    let signature = legacySignature || null;
-    let stamp = null;
-    if (savedSigData) {
-      const parsed = JSON.parse(savedSigData);
-      signature = parsed.signature || signature;
-      stamp = parsed.stamp || null;
-    }
-
-    if (savedData) {
-      const data = JSON.parse(savedData);
-      setProfessional({
-        name: data.name || '',
-        license: data.license || '',
-        signature: signature,
-        stamp: stamp
-      });
-    } else {
-      setProfessional((prev: any) => ({ ...prev, signature, stamp }));
-    }
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   const handleSave = () => {
     if (!chemical.name.trim()) {
-      toast.error('Por favor ingrese el nombre del producto');
+      toast.error('Por favor complete el Nombre del Producto');
       return;
     }
 
-    const saved = JSON.parse(localStorage.getItem('chemical_safety_db') || '[]');
-    let updated;
+    try {
+      const saved = JSON.parse(localStorage.getItem('chemical_safety_db') || '[]');
+      let updated;
 
-    const newChemical = {
-      ...chemical,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      status: 'active',
-      professionalSignature: chemical.professionalSignature || professional.signature,
-      professionalName: chemical.professionalName || professional.name,
-      professionalLicense: chemical.professionalLicense || professional.license,
-      professionalStamp: chemical.professionalStamp || professional.stamp
-    };
-
-    if (isEdit) {
       const entryToSave = {
         ...chemical,
         professionalSignature: chemical.professionalSignature || professional.signature,
         professionalName: chemical.professionalName || professional.name,
         professionalLicense: chemical.professionalLicense || professional.license,
-        professionalStamp: chemical.professionalStamp || professional.stamp
+        professionalStamp: chemical.professionalStamp || professional.stamp,
+        updatedAt: new Date().toISOString()
       };
-      updated = saved.map((c: any) => c.id === (chemical as any).id ? entryToSave : c);
-      toast.success('Ficha actualizada');
-    } else {
-      updated = [newChemical, ...saved];
-      toast.success('Ficha guardada');
-    }
 
-    localStorage.setItem('chemical_safety_db', JSON.stringify(updated));
-    navigate('/chemical-safety?created=true');
+      if (isEdit) {
+        updated = saved.map((c: any) => (c.id === chemical.id ? entryToSave : c));
+        toast.success('Ficha actualizada correctamente');
+      } else {
+        const newEntry = {
+          ...entryToSave,
+          id: `CHEM-${Date.now()}`,
+          createdAt: new Date().toISOString()
+        };
+        updated = [newEntry, ...saved];
+        toast.success('Ficha guardada correctamente');
+      }
+
+      localStorage.setItem('chemical_safety_db', JSON.stringify(updated));
+      navigate('/chemical-safety');
+    } catch (e) {
+      console.error('Error al guardar producto químico:', e);
+      toast.error('Error al guardar el producto');
+    }
   };
 
-  const togglePictogram = (pictoId) => {
+  const togglePictogram = (pictoKey: string) => {
     const current = chemical.pictograms || [];
-    const updated = current.includes(pictoId) ?
-    current.filter((p) => p !== pictoId) :
-    [...current, pictoId];
+    const updated = current.includes(pictoKey)
+      ? current.filter((p: string) => p !== pictoKey)
+      : [...current, pictoKey];
     setChemical({ ...chemical, pictograms: updated });
   };
 
   return (
-    <ModuleFormLayout>
-        <ModuleFormToolbar
-          title={isEdit ? 'Editar Producto Químico' : 'Nuevo Producto Químico'}
-          subtitle="Ficha Técnica de Seguridad (SGA)"
-          icon={<FlaskConical size={32} color="#ffffff" />}
-        />
-        
-        <ModuleFormDocument id="pdf-content">
-            <ModuleFormSection title="Datos del Producto" icon={<FlaskConical />}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="md:col-span-2">
-                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Nombre del Producto *</label>
-                            <input type="text" value={chemical.name} onChange={(e) => setChemical({ ...chemical, name: e.target.value })} className="module-form-input" placeholder="Ej: Acetona, Ácido Sulfúrico..." />
-                        </div>
-                        <div>
-                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Número CAS</label>
-                            <input type="text" value={chemical.casNumber} onChange={(e) => setChemical({ ...chemical, casNumber: e.target.value })} className="module-form-input" placeholder="Ej: 67-64-1" />
-                        </div>
-                        <div>
-                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Número UN</label>
-                            <input type="text" value={chemical.unNumber} onChange={(e) => setChemical({ ...chemical, unNumber: e.target.value })} className="module-form-input" placeholder="Ej: UN1090" />
-                        </div>
-                        <div>
-                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Categoría de Peligro</label>
-                            <select value={chemical.category} onChange={(e) => setChemical({ ...chemical, category: e.target.value })} className="module-form-input">
-                                {HAZARD_CATEGORIES.map((cat) => <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>)}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Ubicación / Depósito</label>
-                            <input type="text" value={chemical.location} onChange={(e) => setChemical({ ...chemical, location: e.target.value })} className="module-form-input" placeholder="Ej: Almacén Inflamables" />
-                        </div>
-                        <div>
-                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Cantidad en Stock</label>
-                            <div className="flex gap-2">
-                                <input type="text" value={chemical.quantity} onChange={(e) => setChemical({ ...chemical, quantity: e.target.value })} className="module-form-input flex-[2]" placeholder="Ej: 100" />
-                                <select value={chemical.unit} onChange={(e) => setChemical({ ...chemical, unit: e.target.value })} className="module-form-input flex-1">
-                                    <option value="L">Litros</option>
-                                    <option value="kg">Kilogramos</option>
-                                    <option value="und">Unidades</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Proveedor</label>
-                            <input type="text" value={chemical.supplier} onChange={(e) => setChemical({ ...chemical, supplier: e.target.value })} className="module-form-input" placeholder="Nombre del proveedor" />
-                        </div>
-                    </div>
-            </ModuleFormSection>
+    <AnimatedPage>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-4 pb-28 px-3 sm:px-6 lg:px-8 text-slate-900 dark:text-slate-100">
 
-            <ModuleFormSection title="Pictogramas y Riesgos" icon={<AlertTriangle />}>
-                    <div className="mt-[1rem]">
-                        <h3 className="m-0 mb-4 text-base font-extrabold text-[var(--color-primary)]">Pictogramas SGA (Sistema Globalmente Armonizado)</h3>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                            {Object.entries(GHS_PICTOGRAMS).map(([key, config]) =>
-              <button
-                key={key}
-                onClick={() => togglePictogram(key)}
-                style={{
-                  background: chemical.pictograms?.includes(key) ? `${config.color}15` : 'var(--color-surface)',
-                  border: `2px solid ${chemical.pictograms?.includes(key) ? config.color : 'var(--color-border)'}`
-                }} className="p-[1rem] rounded-[var(--radius-xl)] cursor-pointer flex flex-col items-center gap-[0.5rem] transition-[all_0.2s]">
-                
-                                    <span className="text-[2.5rem]">{config.icon}</span>
-                                    <span style={{ color: chemical.pictograms?.includes(key) ? config.color : 'var(--color-text-muted)' }} className="text-[0.7rem] font-[800] text-center">{config.name}</span>
-                                </button>
-              )}
-                      </div>
-                     </div>
-                     <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                            <h3 className="m-0 mb-4 text-lg font-extrabold text-[var(--color-primary)]">Frases H y P (Res. 801/15)</h3>
-                            <div className="flex flex-col gap-4">
-                                <div>
-                                    <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Indicaciones de Peligro (H)</label>
-                                    <textarea
-                    value={chemical.hazardStatements.join('\n')}
-                    onChange={(e) => setChemical({ ...chemical, hazardStatements: e.target.value.split('\n') })}
-                    className="module-form-input min-h-[80px]"
-                    placeholder="Ej: H225 Líquido y vapores muy inflamables" />
-                  
-                                                </div>
-                                <div>
-                                    <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Consejos de Prudencia (P)</label>
-                                    <textarea
-                    value={chemical.precautionaryStatements.join('\n')}
-                    onChange={(e) => setChemical({ ...chemical, precautionaryStatements: e.target.value.split('\n') })}
-                    className="module-form-input min-h-[80px]"
-                    placeholder="Ej: P210 Mantener alejado del calor..." />
-                  
-                                </div>
-                            </div>
-                        </div>
+        {/* Estilo estricto de impresión */}
+        <style type="text/css">
+          {`
+            @media print {
+              @page { size: A4 portrait; margin: 4mm; }
+              body { background: #ffffff !important; color: #0f172a !important; margin: 0 !important; padding: 0 !important; }
+              .screen-only, .no-print, header, nav, aside, .sidebar { display: none !important; }
+              .ats-pdf-offscreen {
+                position: static !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                opacity: 1 !important;
+                overflow: visible !important;
+              }
+              #pdf-portal-container {
+                display: block !important;
+                position: static !important;
+                left: 0 !important;
+                top: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+              }
+            }
+          `}
+        </style>
 
-                        <div>
-                            <h3 className="m-0 mb-4 text-lg font-extrabold text-[var(--color-primary)]">EPP Requerido</h3>
-                            <div className="grid grid-cols-2 gap-3">
-                                {Object.entries(chemical.ppe).map(([key, value]) =>
-                <button
-                  key={key}
-                  onClick={() => setChemical({ ...chemical, ppe: { ...chemical.ppe, [key]: !value } })}
-                  style={{
-                    background: value ? 'rgba(59, 130, 246, 0.1)' : 'var(--color-surface)',
-                    border: `2px solid ${value ? 'var(--color-primary)' : 'var(--color-border)'}`
-                  }} className="p-[0.75rem] rounded-[var(--radius-lg)] cursor-pointer flex items-center gap-[0.50rem]">
-                  
-                                        <div style={{ background: value ? 'var(--color-primary)' : 'transparent' }} className="w-[16px] h-[16px] rounded-[4px] border-[2px_solid_var(--color-primary)] flex items-center justify-center">
-                                            {value && <CheckCircle2 size={12} color="#fff" />}
-                                        </div>
-                                        <span className="text-[0.8rem] font-[700] capitalize">
-                                            {key === 'gloves' && 'Guantes Químicos'}
-                                            {key === 'mask' && 'Máscara p/ Vapores'}
-                                            {key === 'goggles' && 'Antiparras'}
-                                            {key === 'apron' && 'Delantal Impermeable'}
-                                        </span>
-                                    </button>
-                )}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="mt-[2.5rem]">
-                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Almacenamiento, Compatibilidad y Primeros Auxilios</label>
-                        <textarea
-              value={chemical.storage}
-              onChange={(e) => setChemical({ ...chemical, storage: e.target.value })}
-              className="module-form-input min-h-[100px] pt-3"
-              placeholder="Describa condiciones especiales, incompatibilidades y medidas urgentes de primeros auxilios..." />
-            
-                    </div>
-            </ModuleFormSection>
+        <div className="max-w-[1000px] mx-auto space-y-4 screen-only">
 
-            <ModuleFormSection title="Firmas y Autorizaciones" icon={<Pencil />}>
-                        <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
-                            <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                            <div className="flex gap-[1rem] flex-wrap justify-center">
-                                {[
-                { id: 'operator', label: 'Personal Afectado' },
-                { id: 'professional', label: 'Especialista Higiene y Seguridad' },
-                { id: 'supervisor', label: 'Encargado / Supervisor' }].
-                map((sig) => {
-                  const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+          {/* Modal de Compartir / Exportar PDF */}
+          <ShareModal
+            isOpen={showShareModal}
+            open={showShareModal}
+            onClose={() => setShowShareModal(false)}
+            elementIdToPrint="pdf-portal-container"
+            title="Ficha Técnica Química (SDS)"
+            text={`Ficha de Seguridad: ${chemical.name || 'Sustancia Quíimica'}`}
+            rawMessage={`Ficha de Seguridad: ${chemical.name || 'Sustancia Química'}`}
+            fileName={`Quimico_${chemical.name || 'Sin_Nombre'}.pdf`}
+          />
+
+          {/* Header Principal Limpio */}
+          <PremiumHeader
+            title={isEdit ? 'Editar Producto Químico' : 'Nuevo Producto Químico'}
+            subtitle="Ficha Técnica de Seguridad basada en el Sistema Globalmente Armonizado (SGA/GHS)"
+            icon={<FlaskConical size={32} color="#ffffff" />}
+          />
+
+          {/* Botón Volver Chiquito Arriba */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => navigate('/chemical-safety')}
+              style={{ backgroundColor: '#475569', color: '#ffffff', border: 'none', padding: '6px 14px', borderRadius: '8px', fontWeight: '800', fontSize: '11px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            >
+              <ArrowLeft size={14} /> Volver al Historial
+            </button>
+          </div>
+
+          {/* Sección 1: Datos del Producto */}
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm space-y-3">
+            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
+              <FlaskConical size={18} className="text-indigo-600 dark:text-indigo-400" />
+              <h2 className="m-0 text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide">
+                1. Identificación del Producto
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="sm:col-span-3">
+                <label className="block mb-1 text-[11px] font-extrabold uppercase text-slate-700 dark:text-slate-300">
+                  Nombre Comercial / Químico *
+                </label>
+                <input
+                  type="text"
+                  value={chemical.name || ''}
+                  onChange={(e) => setChemical({ ...chemical, name: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all"
+                  placeholder="Ej: Acetona, Ácido Sulfúrico, Cloro..."
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-[11px] font-extrabold uppercase text-slate-700 dark:text-slate-300">
+                  Número CAS
+                </label>
+                <input
+                  type="text"
+                  value={chemical.casNumber || ''}
+                  onChange={(e) => setChemical({ ...chemical, casNumber: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="Ej: 67-64-1"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-[11px] font-extrabold uppercase text-slate-700 dark:text-slate-300">
+                  Número UN
+                </label>
+                <input
+                  type="text"
+                  value={chemical.unNumber || ''}
+                  onChange={(e) => setChemical({ ...chemical, unNumber: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="Ej: UN1090"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-[11px] font-extrabold uppercase text-slate-700 dark:text-slate-300">
+                  Categoría de Peligro
+                </label>
+                <select
+                  value={chemical.category || 'fisico'}
+                  onChange={(e) => setChemical({ ...chemical, category: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                >
+                  {HAZARD_CATEGORIES.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.icon} {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block mb-1 text-[11px] font-extrabold uppercase text-slate-700 dark:text-slate-300">
+                  Ubicación / Depósito
+                </label>
+                <input
+                  type="text"
+                  value={chemical.location || ''}
+                  onChange={(e) => setChemical({ ...chemical, location: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="Ej: Almacén Inflamables"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-[11px] font-extrabold uppercase text-slate-700 dark:text-slate-300">
+                  Cantidad en Stock
+                </label>
+                <div className="flex gap-1">
+                  <input
+                    type="text"
+                    value={chemical.quantity || ''}
+                    onChange={(e) => setChemical({ ...chemical, quantity: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    placeholder="Ej: 100"
+                  />
+                  <select
+                    value={chemical.unit || 'L'}
+                    onChange={(e) => setChemical({ ...chemical, unit: e.target.value })}
+                    className="px-2 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs"
+                  >
+                    <option value="L">Litros (L)</option>
+                    <option value="kg">Kilos (kg)</option>
+                    <option value="m3">m³</option>
+                    <option value="unidades">Unid.</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block mb-1 text-[11px] font-extrabold uppercase text-slate-700 dark:text-slate-300">
+                  Proveedor
+                </label>
+                <input
+                  type="text"
+                  value={chemical.supplier || ''}
+                  onChange={(e) => setChemical({ ...chemical, supplier: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="Nombre del proveedor"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-[11px] font-extrabold uppercase text-slate-700 dark:text-slate-300">
+                  Fecha Vencimiento SDS
+                </label>
+                <input
+                  type="date"
+                  value={chemical.expiryDate || chemical.sdsDate || ''}
+                  onChange={(e) => setChemical({ ...chemical, expiryDate: e.target.value, sdsDate: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Sección 2: Pictogramas SGA */}
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm space-y-3">
+            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
+              <AlertTriangle size={18} className="text-red-600 dark:text-red-400" />
+              <h2 className="m-0 text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide">
+                2. Pictogramas SGA (Sistema Globalmente Armonizado)
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2">
+              {Object.entries(GHS_PICTOGRAMS).map(([key, item]) => {
+                const isSelected = (chemical.pictograms || []).includes(key);
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => togglePictogram(key)}
+                    className={`p-3 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 ${
+                      isSelected
+                        ? 'bg-red-500/10 border-red-500 text-red-700 dark:text-red-300 ring-2 ring-red-500'
+                        : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className="text-2xl">{item.icon}</span>
+                    <span className="text-[10px] font-extrabold uppercase block">{item.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Sección 3: Indicaciones Frases H y P */}
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm space-y-3">
+            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
+              <Shield size={18} className="text-amber-600 dark:text-amber-400" />
+              <h2 className="m-0 text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide">
+                3. Indicaciones de Peligro y Prudencia (Frases H & P)
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block mb-1 text-[11px] font-extrabold uppercase text-red-700 dark:text-red-400">
+                  ⚠️ Indicaciones de Peligro (Frases H)
+                </label>
+                <textarea
+                  rows={3}
+                  value={
+                    Array.isArray(chemical.hazardStatements)
+                      ? chemical.hazardStatements.join(', ')
+                      : chemical.hazardStatements || chemical.riskPhrases || ''
+                  }
+                  onChange={(e) => setChemical({ ...chemical, hazardStatements: e.target.value })}
+                  className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-red-500"
+                  placeholder="Ej: H225 Líquido y vapores muy inflamables. H319 Provoca irritación ocular grave."
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-[11px] font-extrabold uppercase text-indigo-700 dark:text-indigo-400">
+                  🛡️ Consejos de Prudencia (Frases P)
+                </label>
+                <textarea
+                  rows={3}
+                  value={
+                    Array.isArray(chemical.precautionaryStatements)
+                      ? chemical.precautionaryStatements.join(', ')
+                      : chemical.precautionaryStatements || chemical.safetyPhrases || ''
+                  }
+                  onChange={(e) => setChemical({ ...chemical, precautionaryStatements: e.target.value })}
+                  className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="Ej: P210 Mantener alejado del calor. P305 EN CASO DE CONTACTO CON LOS OJOS Aclarar cuidadosamente con agua."
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Sección 4: Firmas y Autorizaciones */}
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm space-y-4">
+            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
+              <Pencil size={18} className="text-purple-600 dark:text-purple-400" />
+              <h2 className="m-0 text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide">
+                4. Firmas y Autorizaciones del Reporte
+              </h2>
+            </div>
+
+            <div className="p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl space-y-2">
+              <span className="text-slate-900 dark:text-white text-[11px] font-black uppercase tracking-wider block">
+                MOSTRAR BLOQUES DE FIRMA EN EL PDF:
+              </span>
+              <div className="flex gap-2 flex-wrap">
+                {[
+                  { id: 'operator', label: 'Personal Afectado' },
+                  { id: 'professional', label: 'Especialista H&S' },
+                  { id: 'supervisor', label: 'Supervisión / Cierre' }
+                ].map((sig) => {
+                  const isChecked = !!showSignatures[sig.id as keyof typeof showSignatures];
                   return (
                     <label
                       key={sig.id}
-                      className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease]"
-                      style={{
-                        border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
-                        background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
-                        color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
-                        boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
-                      }}>
-                                            <input
+                      className={`flex items-center gap-1.5 cursor-pointer px-2.5 py-1.5 rounded-lg border transition-all text-xs font-bold ${
+                        isChecked
+                          ? 'bg-blue-500/10 border-blue-500 text-blue-700 dark:text-blue-300'
+                          : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400'
+                      }`}
+                    >
+                      <input
                         type="checkbox"
                         checked={isChecked}
-                        onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="hidden" />
-                                            <div style={{
-                        border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
-                        background: isChecked ? 'var(--color-primary)' : 'transparent'
-                      }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
-                                                {isChecked && <CheckCircle2 size={12} color="white" />}
-                                            </div>
-                                            {sig.label}
-                                        </label>);
-
+                        onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))}
+                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span>{sig.label}</span>
+                    </label>
+                  );
                 })}
-                            </div>
-                        </div>
-
-                        <div className="mb-[2.5rem]">
-                            <PdfSignatures
-                data={{
-                  ...chemical,
-                  professionalSignature: professional.signature,
-                  professionalName: professional.name,
-                  professionalLicense: professional.license,
-                  professionalStamp: professional.stamp
-                }}
-                box1={showSignatures.operator ? {
-                  title: 'PERSONAL AFECTADO',
-                  subtitle: 'Firma y Aclaración',
-                  signatureUrl: chemical.operatorSignature || null,
-                  isProfessional: false
-                } : null}
-                box2={showSignatures.professional ? {
-                  title: 'PROFESIONAL H&S',
-                  subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
-                  signatureUrl: chemical.professionalSignature || professional.signature || null,
-                  stampUrl: chemical.professionalStamp || professional.stamp || null,
-                  isProfessional: true,
-                  license: professional.license
-                } : null}
-                box3={showSignatures.supervisor ? {
-                  title: 'SUPERVISIÓN / CIERRE',
-                  subtitle: 'Sello y Firma receptora',
-                  signatureUrl: chemical.supervisorSignature || chemical.signature || null,
-                  isProfessional: false
-                } : null} />
-              
-            <PdfBrandingFooter />
-                        </div>
-
-                        <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {showSignatures.operator &&
-              <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                    <SignatureCanvas
-                  onSave={(sig) => setChemical((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
-                  initialImage={chemical.operatorSignature}
-                  title="Firma de Personal Afectado" />
-                
-                                </div>
-              }
-                            
-                            {showSignatures.professional &&
-              <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                    <SignatureCanvas
-                  onSave={(sig) => setChemical((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
-                  initialImage={chemical.professionalSignature || professional.signature}
-                  title="Firma de Especialista H&S" />
-                
-                                </div>
-              }
-
-                            {showSignatures.supervisor &&
-              <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                    <SignatureCanvas
-                  onSave={(sig) => setChemical((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
-                  initialImage={chemical.supervisorSignature || chemical.signature}
-                  title="Firma de Supervisor / Cierre" />
-                
-                                </div>
-              }
-                        </div>
-            </ModuleFormSection>
-        </ModuleFormDocument>
-
-        <ModuleActionBar
-            actions={[
-                { id: 'save', label: 'GUARDAR FICHA', icon: <Save />, variant: 'primary', onClick: () => requirePro(handleSave) },
-                { id: 'share', label: 'COMPARTIR', icon: <Share2 />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) },
-                { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer />, variant: 'secondary', onClick: () => requirePro(() => window.print()) }
-            ]}
-        />
-
-            <ShareModal
-        isOpen={showShareModal}
-        open={showShareModal}
-        onClose={() => setShowShareModal(false)}
-        elementIdToPrint="pdf-content"
-        title="Ficha Técnica Química"
-        text={`Ficha de Seguridad: ${chemical.name}`}
-        rawMessage={`Ficha de Seguridad: ${chemical.name}`}
-        fileName={`Quimico_${chemical.name || 'Sin_Nombre'}.pdf`} />
-      
-
-            <div className="print-only fixed left-[-9999px] top-[0] opacity-[0.01] pointer-events-none" id="pdf-content">
-                <ChemicalSafetyPdf data={{ ...chemical, id: (chemical as any).id || Date.now().toString(), createdAt: (chemical as any).createdAt || new Date().toISOString() }} />
+              </div>
             </div>
-    </ModuleFormLayout>);
+
+            {/* Canvas de Dibujo de Firma */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {showSignatures.operator && (
+                <div className="bg-slate-50 dark:bg-slate-900/40 rounded-xl p-3 border border-slate-200 dark:border-slate-700 space-y-1">
+                  <div className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase">
+                    Firma Personal Afectado
+                  </div>
+                  <SignatureCanvas
+                    onSave={(sig) => setChemical((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                    initialImage={chemical.operatorSignature}
+                    label=""
+                  />
+                </div>
+              )}
+
+              {showSignatures.professional && (
+                <div className="bg-slate-50 dark:bg-slate-900/40 rounded-xl p-3 border border-slate-200 dark:border-slate-700 space-y-1">
+                  <div className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase">
+                    Firma Especialista H&S
+                  </div>
+                  <SignatureCanvas
+                    onSave={(sig) => setChemical((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                    initialImage={chemical.professionalSignature || professional?.signature}
+                    label=""
+                  />
+                </div>
+              )}
+
+              {showSignatures.supervisor && (
+                <div className="bg-slate-50 dark:bg-slate-900/40 rounded-xl p-3 border border-slate-200 dark:border-slate-700 space-y-1">
+                  <div className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase">
+                    Firma Supervisor / Cierre
+                  </div>
+                  <SignatureCanvas
+                    onSave={(sig) => setChemical((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
+                    initialImage={chemical.supervisorSignature || chemical.signature}
+                    label=""
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Botones de Acción Chiquitos Únicamente al Pie */}
+          <div className="flex items-center justify-end gap-2 pt-2 pb-6">
+            <button
+              type="button"
+              onClick={() => requirePro(() => setShowShareModal(true))}
+              style={{ backgroundColor: '#7c3aed', color: '#ffffff', border: 'none', padding: '6px 12px', fontSize: '12px', fontWeight: '800', borderRadius: '8px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            >
+              <Share2 size={13} /> Compartir
+            </button>
+
+            <button
+              type="button"
+              onClick={() => requirePro(() => window.print())}
+              style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '6px 12px', fontSize: '12px', fontWeight: '800', borderRadius: '8px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            >
+              <Printer size={13} /> PDF
+            </button>
+
+            <button
+              type="button"
+              onClick={() => requirePro(handleSave)}
+              style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '6px 16px', fontSize: '12px', fontWeight: '800', borderRadius: '8px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            >
+              <CheckCircle2 size={14} /> Guardar Ficha
+            </button>
+          </div>
+
+        </div>
+
+        {/* Portal Offscreen para PDF Vectorial (Compartir e Imprimir) */}
+        <div
+          id="pdf-portal-container"
+          className="ats-pdf-offscreen"
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            left: '-9999px',
+            top: '-99999px',
+            width: '210mm',
+            height: 'auto',
+            overflow: 'visible',
+            opacity: 1,
+            pointerEvents: 'none',
+            zIndex: -9999,
+            background: '#ffffff'
+          }}
+        >
+          <ChemicalSafetyPdf
+            data={{
+              ...chemical,
+              id: (chemical as any).id || Date.now().toString(),
+              createdAt: (chemical as any).createdAt || new Date().toISOString(),
+              professionalSignature: chemical.professionalSignature || professional?.signature,
+              professionalName: chemical.professionalName || professional?.name,
+              professionalLicense: chemical.professionalLicense || professional?.license,
+              professionalStamp: chemical.professionalStamp || professional?.stamp
+            }}
+          />
+        </div>
+
+      </div>
+    </AnimatedPage>
+  );
 }

@@ -43,6 +43,17 @@ const STORAGE_COMPATIBILITY = {
   reactivos: ['reactivos']
 };
 
+const formatDateSafe = (dateVal: any): string => {
+  if (!dateVal) return '-';
+  try {
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return String(dateVal);
+    return d.toLocaleDateString('es-AR');
+  } catch (e) {
+    return String(dateVal || '-');
+  }
+};
+
 export default function ChemicalSafety(): React.ReactElement | null {
   const navigate = useNavigate();
   const [chemicals, setChemicals] = useState<any[]>([]);
@@ -604,101 +615,90 @@ function ChemicalCard({ chemical, hazardLevel, onView, onShare, onEdit, onDelete
 function ChemicalListItem({ chemical, hazardLevel, onView, onShare, onDelete, isMobile }: any) {
   return (
     <div className={`p-4 sm:p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center gap-4 transition-all hover:shadow-md ${isMobile ? 'flex-wrap' : 'flex-nowrap'}`}>
-            <div style={{
+      <div
+        style={{
+          background: `linear-gradient(135deg, ${hazardLevel.color}, ${hazardLevel.color}cc)`,
+          boxShadow: `0 4px 15px ${hazardLevel.color}40`
+        }}
+        className="w-[48px] h-[48px] rounded-xl flex items-center justify-center text-white text-[1.5rem] flex-shrink-0"
+      >
+        {chemical.pictograms?.[0] ? (GHS_PICTOGRAMS as any)[chemical.pictograms[0]]?.icon : '⚗️'}
+      </div>
 
+      <div className="flex-1 min-w-0">
+        <h3 className="m-0 text-base font-extrabold text-slate-800 dark:text-white whitespace-nowrap overflow-hidden text-ellipsis">
+          {chemical.name}
+        </h3>
+        <p style={{ color: '#000000' }} className="m-0 mt-1 text-xs font-black dark:text-slate-200">
+          CAS: {chemical.casNumber || 'N/A'} • Ubicación: {chemical.location || 'Sin ubicación'} • Cantidad: {chemical.quantity || '0'} {chemical.unit || ''} • Proveedor: {chemical.supplier || 'N/A'} • Vencimiento: {chemical.expiryDate ? formatDateSafe(chemical.expiryDate) : '-'}
+        </p>
+      </div>
 
-        background: `linear-gradient(135deg, ${hazardLevel.color}, ${hazardLevel.color}cc)`,
+      <span
+        style={{
+          background: `${hazardLevel.color}15`,
+          color: hazardLevel.color
+        }}
+        className="p-[0.35rem_0.85rem] rounded-full text-[0.75rem] font-[800] uppercase flex-shrink-0"
+      >
+        {hazardLevel.label}
+      </span>
 
-
-
-
-
-
-
-        boxShadow: `0 4px 15px ${hazardLevel.color}40`
-      }} className="w-[48px] h-[48px] rounded-[var(--radius-lg)] flex items-center justify-center text-[#fff] text-[1.5rem] flex-shrink-[0]">
-                {chemical.pictograms?.[0] ? GHS_PICTOGRAMS[chemical.pictograms[0]]?.icon : '⚗️'}
-            </div>
-
-            <div className="flex-1 min-w-0">
-                <h3 className="m-0 text-base font-extrabold text-slate-800 dark:text-white whitespace-nowrap overflow-hidden text-ellipsis">
-                    {chemical.name}
-                </h3>
-                <p className="m-0 mt-1 text-sm text-slate-500 dark:text-slate-400 font-medium">
-                    CAS: {chemical.casNumber || 'N/A'} • {chemical.location || 'Sin ubicación'}
-                </p>
-            </div>
-
-            <span style={{
-
-        background: `${hazardLevel.color}15`,
-        color: hazardLevel.color
-
-
-
-
-
-      }} className="p-[0.35rem_0.85rem] rounded-[var(--radius-full)] text-[0.75rem] font-[800] uppercase flex-shrink-[0]">
-                {hazardLevel.label}
-            </span>
-
-            <div className="flex gap-2">
-                <button
+      <div className="flex gap-2">
+        <button
           onClick={onView}
-          className="p-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer text-blue-600 dark:text-blue-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
-          
-                    <Eye size={18} />
-                </button>
-                <button
+          className="p-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer text-blue-600 dark:text-blue-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+        >
+          <Eye size={18} />
+        </button>
+        <button
           onClick={onShare}
-          className="p-2 bg-emerald-100 border border-emerald-300 rounded-lg cursor-pointer text-emerald-600 hover:bg-emerald-200 transition-colors">
-          
-                    <Share2 size={18} />
-                </button>
-                <button
+          className="p-2 bg-emerald-100 border border-emerald-300 rounded-lg cursor-pointer text-emerald-600 hover:bg-emerald-200 transition-colors"
+        >
+          <Share2 size={18} />
+        </button>
+        <button
           onClick={onDelete}
-          className="p-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer text-red-500 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
-          
-                    <Trash2 size={18} />
-                </button>
-            </div>
-        </div>);
-
+          className="p-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer text-red-500 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+        >
+          <Trash2 size={18} />
+        </button>
+      </div>
+    </div>
+  );
 }
 
-const InfoField = ({ label, value }: any) =>
-<div>
-        <div className="text-[0.7rem] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
-            {label}
-        </div>
-        <div className="text-[0.9rem] font-semibold text-slate-800 dark:text-white">
-            {value}
-        </div>
-    </div>;
-
+const InfoField = ({ label, value }: any) => (
+  <div>
+    <div style={{ color: '#475569' }} className="text-[0.7rem] font-black uppercase mb-0.5">
+      {label}
+    </div>
+    <div style={{ color: '#000000' }} className="text-[0.9rem] font-black dark:text-white">
+      {value}
+    </div>
+  </div>
+);
 
 function EmptyState({ onAdd }: any) {
   return (
     <div className="px-8 py-16 text-center bg-white dark:bg-slate-800 rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-600">
-            <div className="w-20 h-20 mx-auto mb-6 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
-                <FlaskConical size={40} color="var(--color-text-muted)" />
-            </div>
-            <h3 className="m-0 mb-2 text-xl font-extrabold text-slate-800 dark:text-white">
-                Sin Productos Químicos
-            </h3>
-            <p className="m-0 mb-6 text-[0.95rem] text-slate-500 dark:text-slate-400">
-                Comenzá a gestionar tu inventario de productos químicos con clasificación GHS/SGA
-            </p>
-            <button
+      <div className="w-20 h-20 mx-auto mb-6 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
+        <FlaskConical size={40} color="var(--color-text-muted)" />
+      </div>
+      <h3 className="m-0 mb-2 text-xl font-extrabold text-slate-800 dark:text-white">
+        Sin Productos Químicos
+      </h3>
+      <p className="m-0 mb-6 text-[0.95rem] text-slate-500 dark:text-slate-400">
+        Comenzá a gestionar tu inventario de productos químicos con clasificación GHS/SGA
+      </p>
+      <button
         onClick={onAdd}
-        className="btn-primary w-[auto] m-[0]">
-
-        
-                <Plus size={20} className="mr-[0.5rem]" />
-                Agregar Primer Producto
-            </button>
-        </div>);
-
+        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg border-none cursor-pointer transition-all inline-flex items-center gap-2"
+      >
+        <Plus size={18} /> Agregar Primer Producto
+      </button>
+    </div>
+  );
 }
 
 // Modal de Agregar Producto Químico

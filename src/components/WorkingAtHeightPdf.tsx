@@ -24,217 +24,214 @@ const EQUIPMENT_MAP = {
   sling: 'Eslinga de anclaje de cinta'
 };
 
-export default function WorkingAtHeightPdf({ data }: {data: any;}): React.ReactElement | null {
+export default function WorkingAtHeightPdf({ data }: { data: any }): React.ReactElement | null {
   if (!data) return null;
 
   const sections = [
-  { id: 'description', title: 'Descripción del Trabajo', icon: <Users size={18} />, value: data.workDescription },
-  { id: 'department', title: 'Departamento / Área', icon: <ShieldCheck size={18} />, value: data.department },
-  { id: 'medical', title: 'Aptitud Médica', icon: <HeartPulse size={18} />, value: data.medicalFitness ? 'Vigente' : 'No verificada' },
-  { id: 'rescue', title: 'Plan de Rescate', icon: <LifeBuoy size={18} />, value: data.rescuePlan }];
-
+    { id: 'description', title: 'Descripción del Trabajo', icon: <Users size={18} />, value: data.workDescription },
+    { id: 'department', title: 'Departamento / Área', icon: <ShieldCheck size={18} />, value: data.department },
+    { id: 'medical', title: 'Aptitud Médica', icon: <HeartPulse size={18} />, value: data.medicalFitness ? 'Vigente' : 'No verificada' },
+    { id: 'rescue', title: 'Plan de Rescate', icon: <LifeBuoy size={18} />, value: data.rescuePlan }
+  ];
 
   // Map risk factors and equipment if they are IDs
-  const hazards = Array.isArray(data.riskFactors) ?
-  data.riskFactors.map((h) => RISK_FACTORS_MAP[h as keyof typeof RISK_FACTORS_MAP] || h) :
-  data.hazards || [];
+  const hazards = Array.isArray(data.riskFactors)
+    ? data.riskFactors.map((h) => RISK_FACTORS_MAP[h as keyof typeof RISK_FACTORS_MAP] || h)
+    : data.hazards || [];
 
   return (
-    <div className="w-[100%] flex justify-center">
-            <div
+    <div className="w-full flex justify-center">
+      <div
         id="pdf-content"
-        className="pdf-container card print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[15mm_20mm] bg-[#ffffff] text-[#000000] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[12px] box-sizing-[border-box] m-[0_auto] font-family-[system-ui,_-apple-system,_sans-serif]">
+        className="pdf-container card print-area w-full max-w-[210mm] min-h-0 h-auto p-[10mm_14mm] bg-white text-slate-900 shadow-2xl rounded-xl box-border mx-auto font-sans"
+      >
+        <style type="text/css">
+          {`
+            @page { size: A4 portrait; margin: 8mm; }
+            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: #ffffff !important; }
+            .no-print { display: none !important; }
+            .print-area {
+              box-shadow: none !important;
+              margin: 0 !important;
+              padding: 8mm !important;
+              width: 100% !important;
+              max-width: none !important;
+              border-top: 10px solid #2563eb !important;
+              border-radius: 0 !important;
+              background: #ffffff !important;
+              color: #0f172a !important;
+            }
+            .avoid-break { page-break-inside: avoid !important; break-inside: avoid !important; }
+            .avoid-break-strictly { page-break-inside: avoid !important; break-inside: avoid !important; }
+          `}
+        </style>
 
+        {/* Encabezado Principal — Fondo de Gradiente Azul Oscuro Nítido con Texto Blanco Brillante */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%)',
+            color: '#ffffff',
+            padding: '1.25rem 1.5rem',
+            borderRadius: '12px',
+            marginBottom: '1.25rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            boxShadow: '0 4px 15px rgba(37,99,235,0.2)'
+          }}
+          className="avoid-break"
+        >
+          <div className="flex items-center gap-3">
+            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '10px', backdropFilter: 'blur(10px)' }}>
+              <ShieldCheck size={28} color="#38bdf8" strokeWidth={2.5} />
+            </div>
+            <div>
+              <h1 style={{ color: '#ffffff', margin: 0, fontSize: '18pt', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.5px', lineHeight: 1 }}>
+                PERMISO TRABAJO EN ALTURA
+              </h1>
+              <p style={{ color: '#93c5fd', margin: '5px 0 0 0', fontSize: '8.5pt', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                SISTEMA DE GESTIÓN DE SEGURIDAD (RES. SRT 61/23)
+              </p>
+            </div>
+          </div>
 
+          <div className="ml-5 shrink-0 text-right flex flex-col items-end gap-1">
+            <CompanyLogo style={{ maxHeight: '45px', maxWidth: '140px', objectFit: 'contain' }} className="bg-white p-2 rounded-lg shadow-sm" />
+            <div style={{ color: '#cbd5e1', fontSize: '0.55rem', fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              Doc. Controlado
+            </div>
+          </div>
+        </div>
 
+        {/* Info Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5 avoid-break">
+          <div className="border border-slate-200 rounded-xl p-3 bg-gradient-to-br from-slate-50 to-slate-100/70">
+            <span className="text-[7.5pt] font-extrabold text-slate-500 block uppercase tracking-wider mb-1">TRABAJADOR</span>
+            <span className="text-[10.5pt] font-black text-slate-900 block truncate">{data.workerName || 'N/A'}</span>
+          </div>
+          <div className="border border-slate-200 rounded-xl p-3 bg-gradient-to-br from-slate-50 to-slate-100/70">
+            <span className="text-[7.5pt] font-extrabold text-slate-500 block uppercase tracking-wider mb-1">UBICACIÓN / SECTOR</span>
+            <span className="text-[10.5pt] font-black text-slate-900 block truncate">{data.location || 'Planta General'}</span>
+          </div>
+          <div className="border border-slate-200 rounded-xl p-3 bg-gradient-to-br from-slate-50 to-slate-100/70">
+            <span className="text-[7.5pt] font-extrabold text-slate-500 block uppercase tracking-wider mb-1">FECHA</span>
+            <span className="text-[10.5pt] font-black text-slate-900 block">{data.createdAt ? new Date(data.createdAt).toLocaleDateString('es-AR') : new Date().toLocaleDateString('es-AR')}</span>
+          </div>
+          <div className="border border-slate-200 rounded-xl p-3 bg-gradient-to-br from-slate-50 to-slate-100/70">
+            <span className="text-[7.5pt] font-extrabold text-slate-500 block uppercase tracking-wider mb-1">ALTURA ESTIMADA</span>
+            <span className="text-[10.5pt] font-black text-slate-900 block">{data.height ? `${data.height} metros` : 'No especificada'}</span>
+          </div>
+        </div>
 
+        {/* Core Safety Sections */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 avoid-break">
+          {sections.map((section) => (
+            <div key={section.id} className="border border-slate-200 rounded-xl p-3 bg-white flex flex-col">
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="text-blue-600">{section.icon}</div>
+                <span className="font-extrabold text-[9pt] text-slate-800 uppercase">{section.title}</span>
+              </div>
+              <div className="text-[9.5pt] text-slate-700 whitespace-pre-wrap leading-relaxed">{section.value || 'No especificado'}</div>
+            </div>
+          ))}
+        </div>
 
-
-
-        
-                <style type="text/css" media="print">
-                    {`
-                        @page { size: A4 portrait; margin: 15mm; }
-                        body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-                        .no-print { display: none !important; }
-                        .print-area {
-                            box-shadow: none !important;
-                            margin: 0 !important;
-                            padding: 10mm !important;
-                            width: 100% !important;
-                            max-width: none !important;
-                            border-top: 12px solid #2563eb !important;
-                            border-radius: 0 !important;
-                        }
-                        .gradient-header {
-                            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-                        }
-                    `}
-                </style>
-
-                {/* Header - Mejorado visualmente */}
-                <div className="gradient-header p-[1.5rem] rounded-[12px] mb-[1.5rem] flex justify-space-between items-start text-[#ffffff]">
-
-
-
-
-
-
-
-          
-                    <div className="flex-[1]">
-                        <div className="flex items-center gap-[0.5rem] mb-[0.5rem]">
-                            <div className="bg-[rgba(255,255,255,0.2)] p-[8px] rounded-[8px] backdrop-filter-[blur(10px)]">
-
-
-
-
-                
-                                <ShieldCheck size={28} color="#38bdf8" strokeWidth={2.5} />
-                            </div>
-                            <div>
-                                <h1 className="m-[0] text-[20pt] font-[900] uppercase letter-spacing-[-0.5px] line-height-[1]">
-
-
-
-
-
-
-                  
-                                    PERMISO TRABAJO EN ALTURA
-                                </h1>
-                                <p className="m-[4px_0_0_0] text-[9pt] text-[#cbd5e1] font-[600] uppercase letter-spacing-[1px]">
-
-
-
-
-
-
-                  
-                                    SISTEMA DE GESTIÓN DE SEGURIDAD (RES. SRT 61/23)
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className="ml-[20px] flex-shrink-[0] text-right flex flex-col items-end gap-[0.4rem]">
-                        <CompanyLogo style={{ maxHeight: '45px', maxWidth: '140px', objectFit: 'contain' }} className="bg-[#ffffff] p-[8px] rounded-[8px] box-shadow-[0_4px_6px_rgba(0,0,0,0.1)]" />
-
-
-
-
-
-
-
-
-
-
-            
-                        <div className="text-[0.55rem] font-[900] text-[#94a3b8] letter-spacing-[0.05em] uppercase">Doc. Controlado</div>
-                    </div>
-                </div>
-
-                {/* Info Grid */}
-                <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(200px,_1fr))] gap-[1rem] mb-[2rem]">
-
-
-
-
-          
-                    <div className="border-[1px_solid_#e2e8f0] rounded-[10px] p-[1rem] bg-[linear-gradient(135deg,_#f8fafc_0%,_#f1f5f9_100%)]">
-                        <span className="text-[7.5pt] font-[800] text-[#64748b] block uppercase letter-spacing-[0.5px] mb-[4px]">TRABAJADOR</span>
-                        <span className="text-[11pt] font-[800] text-[#0f172a]">{data.workerName || 'N/A'}</span>
-                    </div>
-                    <div className="border-[1px_solid_#e2e8f0] rounded-[10px] p-[1rem] bg-[linear-gradient(135deg,_#f8fafc_0%,_#f1f5f9_100%)]">
-                        <span className="text-[7.5pt] font-[800] text-[#64748b] block uppercase letter-spacing-[0.5px] mb-[4px]">UBICACIÓN / SECTOR</span>
-                        <span className="text-[11pt] font-[800] text-[#0f172a]">{data.location}</span>
-                    </div>
-                    <div className="border-[1px_solid_#e2e8f0] rounded-[10px] p-[1rem] bg-[linear-gradient(135deg,_#f8fafc_0%,_#f1f5f9_100%)]">
-                        <span className="text-[7.5pt] font-[800] text-[#64748b] block uppercase letter-spacing-[0.5px] mb-[4px]">FECHA</span>
-                        <span className="text-[11pt] font-[800] text-[#0f172a]">{new Date(data.createdAt).toLocaleDateString('es-AR')}</span>
-                    </div>
-                    <div className="border-[1px_solid_#e2e8f0] rounded-[10px] p-[1rem] bg-[linear-gradient(135deg,_#f8fafc_0%,_#f1f5f9_100%)]">
-                        <span className="text-[7.5pt] font-[800] text-[#64748b] block uppercase letter-spacing-[0.5px] mb-[4px]">ALTURA ESTIMADA</span>
-                        <span className="text-[11pt] font-[800] text-[#0f172a]">{data.height} metros</span>
-                    </div>
-                </div>
-
-                {/* Core Safety Sections */}
-                <div className="grid grid-template-columns-[1fr_1fr] gap-[1rem] mb-[2rem]">
-                    {sections.map((section) =>
-          <div key={section.id} className="border-[1px_solid_#e2e8f0] rounded-[10px] p-[1rem] bg-[#ffffff] flex flex-col">
-                            <div className="flex items-center gap-[0.5rem] mb-[0.5rem]">
-                                <div className="text-[#3b82f6]">{section.icon}</div>
-                                <span className="font-[800] text-[9pt] text-[#334155] uppercase">{section.title}</span>
-                            </div>
-                            <div className="text-[10pt] text-[#475569] white-space-[pre-wrap] line-height-[1.5]">{section.value || 'No especificado'}</div>
-                        </div>
-          )}
-                </div>
-
-                {/* Hazards & Mitigation */}
-                <div className="mb-[2rem] border-[1px_solid_#e2e8f0] rounded-[10px] overflow-[hidden]">
-                    <div className="bg-[linear-gradient(135deg,_#1e293b_0%,_#334155_100%)] p-[0.8rem_1rem] text-[#ffffff]">
-                        <h3 className="m-[0] text-[10.5pt] font-[800] uppercase letter-spacing-[0.5px] flex items-center gap-[0.5rem]">
-                            <ShieldCheck size={18} /> ANÁLISIS DE RIESGOS Y EPP REQUERIDO
-                        </h3>
-                    </div>
-                    <div className="grid grid-template-columns-[1fr_1fr] gap-[1rem] p-[1.2rem] bg-[#f8fafc]">
-                        <div>
-                            <span className="text-[8pt] font-[800] block text-[#64748b] mb-[0.5rem] uppercase">RIESGOS DETECTADOS</span>
-                            <div className="flex flex-wrap gap-[8px]">
-                                {hazards.length > 0 ? hazards.map((h: string, i: number) =>
-                <span key={i} className="bg-[#fee2e2] border-[1px_solid_#fca5a5] text-[#b91c1c] p-[4px_10px] rounded-[6px] text-[8.5pt] font-[700]">{h}</span>
-                ) : <span className="text-[9pt] text-[#64748b] font-[600]">Trabajo en altura estándar.</span>}
-                            </div>
-                        </div>
-                        <div>
-                            <span className="text-[8pt] font-[800] block text-[#64748b] mb-[0.5rem] uppercase">EQUIPOS DE PROTECCIÓN (EPP)</span>
-                            <div className="grid grid-template-columns-[1fr] gap-[8px]">
-                                {['harness', 'lanyard', 'helmet', 'lifeline'].map((key) => {
+        {/* Hazards & Mitigation — Protegido con avoid-break-strictly para que no se corte por la mitad */}
+        <div
+          style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+          className="avoid-break avoid-break-strictly mb-5 border border-slate-200 rounded-xl overflow-hidden bg-white"
+        >
+          <div
+            style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)', color: '#ffffff' }}
+            className="p-3"
+          >
+            <h3 style={{ color: '#ffffff', margin: 0 }} className="text-[10pt] font-black uppercase tracking-wider flex items-center gap-2">
+              <ShieldCheck size={18} color="#38bdf8" /> ANÁLISIS DE RIESGOS Y EPP REQUERIDO
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50/70">
+            <div>
+              <span className="text-[8pt] font-extrabold block text-slate-500 mb-2 uppercase tracking-wide">RIESGOS DETECTADOS</span>
+              <div className="flex flex-wrap gap-2">
+                {hazards.length > 0 ? (
+                  hazards.map((h: string, i: number) => (
+                    <span key={i} className="bg-red-100 border border-red-300 text-red-700 px-2.5 py-1 rounded-lg text-[8.5pt] font-bold">
+                      {h}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-[9pt] text-slate-600 font-semibold">Trabajo en altura estándar.</span>
+                )}
+              </div>
+            </div>
+            <div>
+              <span className="text-[8pt] font-extrabold block text-slate-500 mb-2 uppercase tracking-wide">EQUIPOS DE PROTECCIÓN (EPP)</span>
+              <div className="grid grid-cols-1 gap-2">
+                {['harness', 'lanyard', 'helmet', 'lifeline'].map((key) => {
                   const hasIt = data.ppe && data.ppe[key];
                   const labels = { harness: 'Arnés de Seguridad', lanyard: 'Cola de Amarre', helmet: 'Casco con Barbijo', lifeline: 'Línea de Vida' };
                   return (
-                    <div key={key} style={{ background: hasIt ? '#f0fdf4' : '#ffffff', border: `1px solid ${hasIt ? '#86efac' : '#e2e8f0'}` }} className="flex items-center gap-[0.6rem] p-[4px_8px] rounded-[6px]">
-                                            <div style={{ border: `2px solid ${hasIt ? '#16a34a' : '#cbd5e1'}`, background: hasIt ? '#16a34a' : '#fff' }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center">
-                                                {hasIt && <span className="text-[#fff] text-[12px] line-height-[1]">✓</span>}
-                                            </div>
-                                            <span style={{ fontWeight: hasIt ? 700 : 500, color: hasIt ? '#166534' : '#64748b' }} className="text-[9pt]">{labels[key as keyof typeof labels]}</span>
-                                        </div>);
-
-                })}
-                            </div>
-                        </div>
+                    <div
+                      key={key}
+                      style={{ background: hasIt ? '#f0fdf4' : '#ffffff', border: `1px solid ${hasIt ? '#86efac' : '#e2e8f0'}` }}
+                      className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg"
+                    >
+                      <div
+                        style={{ border: `2px solid ${hasIt ? '#16a34a' : '#cbd5e1'}`, background: hasIt ? '#16a34a' : '#fff' }}
+                        className="w-4 h-4 rounded flex items-center justify-center shrink-0"
+                      >
+                        {hasIt && <span className="text-white text-[10px] font-black">✓</span>}
+                      </div>
+                      <span style={{ fontWeight: hasIt ? 700 : 500, color: hasIt ? '#166534' : '#64748b' }} className="text-[8.5pt]">
+                        {labels[key as keyof typeof labels]}
+                      </span>
                     </div>
-                </div>
-
-                {/* Signatures */}
-                <PdfSignatures
-          data={data}
-          box1={data.showSignatures?.operator !== false ? {
-            title: 'OPERADOR / TRABAJADOR',
-            subtitle: (data.workerName || 'Firma del Operador').toUpperCase(),
-            signatureUrl: data.operatorSignature || null,
-            isProfessional: false
-          } : null}
-          box2={data.showSignatures?.professional !== false ? {
-            title: 'PROFESIONAL H&S',
-            subtitle: (data.professionalName || 'Firma de Especialista').toUpperCase(),
-            signatureUrl: data.professionalSignature || null,
-            stampUrl: data.professionalStamp || null,
-            isProfessional: true,
-            license: data.professionalLicense || null
-          } : null}
-          box3={data.showSignatures?.supervisor !== false ? {
-            title: 'SUPERVISOR / AUTORIZANTE',
-            subtitle: (data.supervisor || 'Firma del Supervisor').toUpperCase(),
-            signatureUrl: data.supervisorSignature || data.signature || null,
-            isProfessional: false
-          } : null} />
-        
-
-                <PdfBrandingFooter />
+                  );
+                })}
+              </div>
             </div>
-        </div>);
+          </div>
+        </div>
 
+        {/* Signatures */}
+        <PdfSignatures
+          data={data}
+          box1={
+            data.showSignatures?.operator !== false
+              ? {
+                  title: 'OPERADOR / TRABAJADOR',
+                  subtitle: (data.workerName || 'Firma del Operador').toUpperCase(),
+                  signatureUrl: data.operatorSignature || null,
+                  isProfessional: false
+                }
+              : null
+          }
+          box2={
+            data.showSignatures?.professional !== false
+              ? {
+                  title: 'PROFESIONAL H&S',
+                  subtitle: (data.professionalName || 'Firma de Especialista').toUpperCase(),
+                  signatureUrl: data.professionalSignature || null,
+                  stampUrl: data.professionalStamp || null,
+                  isProfessional: true,
+                  license: data.professionalLicense || null
+                }
+              : null
+          }
+          box3={
+            data.showSignatures?.supervisor !== false
+              ? {
+                  title: 'SUPERVISOR / AUTORIZANTE',
+                  subtitle: (data.supervisor || 'Firma del Supervisor').toUpperCase(),
+                  signatureUrl: data.supervisorSignature || data.signature || null,
+                  isProfessional: false
+                }
+              : null
+          }
+        />
+
+        <PdfBrandingFooter />
+      </div>
+    </div>
+  );
 }
