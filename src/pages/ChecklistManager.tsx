@@ -455,6 +455,8 @@ export default function ChecklistManager(): React.ReactElement | null {
   const [filterEmpresa, setFilterEmpresa] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [autoPrintShare, setAutoPrintShare] = useState(false);
+  // Flag to prevent clearing activeSections when navigating away after save
+  const isCreatingNewRef = useRef(false);
 
   const [companyInfo, setCompanyInfo] = useState({
     name: '',
@@ -743,11 +745,24 @@ export default function ChecklistManager(): React.ReactElement | null {
 
 
   useEffect(() => {
-    if (!searchParams.get('id')) {
-      // Empezar en blanco sin ningún checklist seleccionado por defecto
+    if (!searchParams.get('id') && isCreatingNewRef.current) {
+      // Solo limpiar cuando el usuario inicia explícitamente un nuevo checklist
       setActiveSections([]);
       setEpps([]);
       setFotos([]);
+      setObservations('');
+      setActionPlan([]);
+      setNextReview('');
+      setSelectedNorms([]);
+      setChecklistTitle('CHECKLIST');
+      setCompanyInfo({ name: '', inspector: '', address: '', responsable: '' });
+      setInspectionInfo({
+        item: '', serial: '',
+        date: new Date().toISOString().split('T')[0],
+        expirationDate: '', extinguisherObs: '',
+        marca: '', patente: '', horometro: '', pt: '', responsableArea: ''
+      });
+      isCreatingNewRef.current = false;
     }
   }, [searchParams]);
 
@@ -1015,7 +1030,7 @@ export default function ChecklistManager(): React.ReactElement | null {
 
                     <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap items-center">
                         <button
-                            onClick={() => {setSearchParams({});setShowForm(true);setCurrentStep(1);}}
+                            onClick={() => {isCreatingNewRef.current = true; setSearchParams({}); setShowForm(true); setCurrentStep(1);}}
                             style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '0.6rem 1.2rem', fontSize: '0.85rem', fontWeight: '800', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}
                             className="transition-transform hover:-translate-y-0.5 whitespace-nowrap">
                             <Plus size={18} strokeWidth={2.5} /> NUEVO CHECKLIST
