@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { AlertTriangle, Sparkles, ArrowRight, X, Clock, ShieldAlert } from 'lucide-react';
+import { Sparkles, ArrowRight, X, Clock, ShieldAlert } from 'lucide-react';
 import { usePaywall } from '../hooks/usePaywall';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -16,18 +16,17 @@ export default function SubscriptionRenewalBanner() {
     setDismissed(isDismissed);
   }, []);
 
-  // Don't show if user not logged in, is admin, or dismissed for this session, or already on /subscribe page
+  // No mostrar en login, registro, o para administradores/cuentas permanentes activos
   if (!currentUser || isAdmin || dismissed || location.pathname === '/subscribe' || location.pathname === '/login') {
     return null;
   }
 
-  // Only show if subscription is expiring soon (<= 7 days) OR expired
+  // Mostrar si falta poco tiempo (<= 7 días) o si la suscripción está vencida
   const shouldShow = isExpiringSoon || (isExpired && !isPro);
 
   if (!shouldShow) return null;
 
   const handleDismiss = () => {
-    sessionStorage.getItem('dismissed_renewal_banner');
     sessionStorage.setItem('dismissed_renewal_banner', 'true');
     setDismissed(true);
   };
@@ -37,45 +36,109 @@ export default function SubscriptionRenewalBanner() {
     : 'próximamente';
 
   return (
-    <div className="no-print w-full z-[9990] animate-in fade-in slide-in-from-top-4 duration-300 px-3 sm:px-6 pt-2 pb-1">
-      <div className="max-w-[1200px] mx-auto rounded-2xl p-3 sm:p-4 bg-gradient-to-r from-amber-950/80 via-orange-950/70 to-red-950/80 border border-amber-500/40 shadow-xl shadow-amber-500/10 backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-white">
-        
+    <div className="no-print w-full z-[9990] animate-in fade-in slide-in-from-top-4 duration-300 px-3 sm:px-6 pt-3 pb-2">
+      <div
+        style={{
+          backgroundColor: '#0f172a',
+          color: '#ffffff',
+          border: '2px solid #f59e0b',
+          borderRadius: '16px',
+          padding: '16px',
+          boxShadow: '0 20px 25px -5px rgba(0,0,0,0.5), 0 0 15px rgba(245,158,11,0.2)'
+        }}
+        className="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4"
+      >
+        {/* Icono y Texto */}
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="p-2.5 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-400 shrink-0">
-            {isExpiringSoon ? <Clock size={22} className="animate-pulse" /> : <ShieldAlert size={22} className="text-red-400" />}
+          <div
+            style={{
+              backgroundColor: '#b45309',
+              color: '#ffffff',
+              borderRadius: '12px',
+              padding: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}
+          >
+            {isExpiringSoon ? <Clock size={24} className="animate-pulse text-amber-300" /> : <ShieldAlert size={24} className="text-red-400" />}
           </div>
+
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-extrabold text-sm sm:text-base text-amber-300">
+            <div className="flex items-center gap-2 flex-wrap mb-1">
+              <span style={{ color: '#fbbf24', fontSize: '15px', fontWeight: '900' }}>
                 {isExpiringSoon ? '⚠️ ¡Tu Suscripción PRO vence pronto!' : '🚨 Suscripción PRO Inactiva / Vencida'}
               </span>
-              <span className="text-[0.68rem] px-2 py-0.5 rounded-full bg-amber-500/30 text-amber-200 font-black uppercase">
+              <span
+                style={{
+                  backgroundColor: '#78350f',
+                  color: '#fef3c7',
+                  fontSize: '11px',
+                  fontWeight: '900',
+                  padding: '3px 8px',
+                  borderRadius: '100px',
+                  textTransform: 'uppercase'
+                }}
+              >
                 {isExpiringSoon ? `${daysRemaining} días restantes` : 'Renovación requerida'}
               </span>
             </div>
-            <p className="text-xs text-amber-100/80 mt-0.5 leading-relaxed">
+
+            <p style={{ color: '#ffffff', fontSize: '13px', fontWeight: '600', margin: 0, lineHeight: '1.4' }}>
               {isExpiringSoon ? (
-                <>Vence el <strong className="text-white">{formattedExpiry}</strong>. Renová ahora por solo <strong className="text-amber-300">$2 USD/mes</strong> para mantener la IA ilimitada, PDFs con tu logo y todos los módulos.</>
+                <>Vence el <strong style={{ color: '#fbbf24' }}>{formattedExpiry}</strong>. Renová ahora por solo <strong style={{ color: '#fbbf24' }}>$2 USD/mes</strong> para mantener la IA ilimitada y PDFs con tu logo.</>
               ) : (
-                <>Mantené el acceso a la generación de informes con tu logo, Asesor IA y exportaciones activando tu plan por solo <strong className="text-amber-300">$2 USD/mes</strong>.</>
+                <>Mantené el acceso a la generación de informes con tu logo, Asesor IA y exportaciones activando tu plan por solo <strong style={{ color: '#fbbf24' }}>$2 USD/mes</strong>.</>
               )}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 justify-end">
+        {/* Botones de Acción y Cruz para Cerrar */}
+        <div className="flex items-center gap-3 w-full sm:w-auto shrink-0 justify-end">
           <button
+            type="button"
             onClick={() => navigate('/subscribe')}
-            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm cursor-pointer shadow-lg shadow-amber-500/25 flex items-center justify-center gap-1.5 transition-all hover:scale-105 active:scale-95 border-none"
+            style={{
+              backgroundColor: '#f59e0b',
+              color: '#000000',
+              fontWeight: '900',
+              fontSize: '13px',
+              padding: '10px 18px',
+              borderRadius: '12px',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.4)',
+              transition: 'transform 0.2s'
+            }}
           >
             <Sparkles size={16} /> Renovar por $2 USD <ArrowRight size={14} />
           </button>
+
+          {/* Cruz bien visible */}
           <button
+            type="button"
             onClick={handleDismiss}
             title="Cerrar aviso por esta sesión"
-            className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-xl transition-all border-none cursor-pointer"
+            style={{
+              backgroundColor: '#334155',
+              color: '#ffffff',
+              border: '1px solid #64748b',
+              borderRadius: '10px',
+              width: '36px',
+              height: '36px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s'
+            }}
           >
-            <X size={18} />
+            <X size={20} color="#ffffff" />
           </button>
         </div>
 
