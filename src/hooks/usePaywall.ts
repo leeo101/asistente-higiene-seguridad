@@ -64,14 +64,17 @@ export function usePaywall() {
   }, [syncPulse, internalPulse]);
 
   const hasLocalActiveSub = useMemo(() => {
+    // SEGURIDAD: localStorage solo es un caché auxiliar, NUNCA fuente de verdad primaria.
+    // Se usa solo para determinar días restantes cuando el JWT ya confirmó acceso Pro.
     if (localSubData.status === 'active') return true;
     const expiry = parseInt(localSubData.expiry || '0', 10);
     return expiry > Date.now();
   }, [localSubData]);
 
-  // Roles consolidados (Servidor JWT + Registro Blindado + LocalStorage)
+  // Roles consolidados (Servidor JWT + Registro Blindado solamente)
+  // hasLocalActiveSub NO otorga isPro por sí solo — previene manipulación del localStorage
   const isAdmin = isAdminClaim || registryEval.isAdmin;
-  const isPro = isAdmin || isProClaim || registryEval.isPro || hasLocalActiveSub;
+  const isPro = isAdmin || isProClaim || registryEval.isPro;
 
   // Auto-reparación de localStorage para cuentas validadas
   useEffect(() => {
