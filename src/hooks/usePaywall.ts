@@ -4,12 +4,17 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 
 const ADMIN_EMAILS = ['admin@asistentehs.com', 'enzorodriguez31@gmail.com'];
-const PRO_EMAILS = ['arielalaniz9@gmail.com', 'joaquintunut@gmail.com'];
+const PERMANENT_PRO_EMAILS = ['arielalaniz9@gmail.com'];
+
+// Cuentas con pago mensual específico y su fecha de vencimiento exacta (TIMESTAMP ms)
+const SPECIFIC_SUBSCRIPTIONS: Record<string, number> = {
+  // Pago recibido el 16 de Julio -> Vence el 15 de Agosto de 2026
+  'joaquintunut@gmail.com': new Date('2026-08-15T23:59:59Z').getTime()
+};
 
 /**
  * Hook de gestión de acceso PRO y Administración.
- * Combina verificación de Claims del servidor con emails autorizados
- * y datos de suscripción local/nube para evitar des-suscripciones accidentales.
+ * Maneja accesos permanentes (Admin / Ariel) y suscripciones mensuales con fecha exacta de vencimiento.
  */
 export function usePaywall() {
   const navigate = useNavigate();
@@ -51,78 +56,73 @@ export function usePaywall() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  // 2. Comprobar email actual en listas autorizadas de Admin y Pro
+  // 2. Comprobar email actual
   const userEmail = (currentUser?.email || '').toLowerCase().trim();
   const isEmailAdmin = ADMIN_EMAILS.includes(userEmail);
-  const isEmailPro = PRO_EMAILS.includes(userEmail);
+  const isEmailPermanentPro = PERMANENT_PRO_EMAILS.includes(userEmail);
 
-  // 3. Comprobar suscripción local activa
-  const hasLocalActiveSub = useMemo(() => {
+  // 3. Comprobar vencimiento de suscripción por email específico
+  const specificExpiry = SPECIFIC_SUBSCRIPTIONS[userEmail] || null;
+  const isSpecificSubValid = specificExpiry !== null && Date.now() <= specificExpiry;
+
+  // 4. Comprobar suscripción local activa
+  const localSubData = useMemo(() => {
     try {
-      const subData = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
-      if (subData.status === 'active') return true;
-      const expiry = parseInt(subData.expiry || '0', 10);
-      return expiry > Date.now();
+      return JSON.parse(localStorage.getItem('subscriptionData') || '{}');
     } catch {
-      return false;
+      return {};
     }
   }, [syncPulse, internalPulse]);
 
-  // roles consolidados
-  const isAdmin = isAdminClaim || isEmailAdmin;
-  const isPro = isAdmin || isProClaim || isEmailPro || hasLocalActiveSub;
+  const hasLocalActiveSub = useMemo(() => {
+    if (localSubData.status === 'active') return true;
+    const expiry = parseInt(localSubData.expiry || '0', 10);
+    return expiry > Date.now();
+  }, [localSubData]);
 
-  // Garantizar que cuentas autorizadas guarden estado activo en localStorage
+  // Roles consolidados
+  const isAdmin = isAdminClaim || isEmailAdmin;
+  const isPro = isAdmin || isProClaim || isEmailPermanentPro || isSpecificSubValid || hasLocalActiveSub;
+
+  // Sincronizar subscriptionData para cuentas con fecha específica
   useEffect(() => {
-    if (isPro && (isEmailAdmin || isEmailPro)) {
+    if (specificExpiry && isSpecificSubValid) {
       try {
-        const existing = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
-        if (existing.status !== 'active') {
-          const oneYearFromNow = Date.now() + 365 * 24 * 60 * 60 * 1000;
-          localStorage.setItem('subscriptionData', JSON.stringify({
-            status: 'active',
-            expiry: oneYearFromNow.toString(),
-            provider: 'authorized_account'
-          }));
-        }
+        localStorage.setItem('subscriptionData', JSON.stringify({
+          status: 'active',
+          expiry: specificExpiry.toString(),
+          provider: 'monthly_payment'
+        }));
       } catch (e) {
-        console.error('Error al guardar suscripción autorizada:', e);
+        console.error('Error al guardar suscripción específica:', e);
       }
     }
-  }, [isPro, isEmailAdmin, isEmailPro]);
+  }, [userEmail, specificExpiry, isSpecificSubValid]);
 
   const daysRemaining = useMemo(() => {
     if (!isPro) return 0;
-    if (isAdmin || isEmailPro) return 365;
-    try {
-      const subData = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
-      const expiry = parseInt(subData.expiry || '0', 10);
-      if (!expiry) return 30;
-      return Math.max(0, Math.ceil((expiry - Date.now()) / (1000 * 60 * 60 * 24)));
-    } catch {
-      return 30;
-    }
-  }, [isAdmin, isPro, isEmailPro, syncPulse, internalPulse]);
+    if (isAdmin || isEmailPermanentPro) return Infinity;
+
+    const expiryMs = specificExpiry || parseInt(localSubData.expiry || '0', 10);
+    if (!expiryMs) return 30;
+    return Math.max(0, Math.ceil((expiryMs - Date.now()) / (1000 * 60 * 60 * 24)));
+  }, [isAdmin, isPro, isEmailPermanentPro, specificExpiry, localSubData, syncPulse, internalPulse]);
 
   const expiryDate = useMemo(() => {
-    try {
-      const subData = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
-      const expiry = parseInt(subData.expiry || '0', 10);
-      return expiry ? new Date(expiry) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
-    } catch {
-      return null;
-    }
-  }, [syncPulse, internalPulse]);
+    if (isAdmin || isEmailPermanentPro) return null;
+    const expiryMs = specificExpiry || parseInt(localSubData.expiry || '0', 10);
+    return expiryMs ? new Date(expiryMs) : null;
+  }, [isAdmin, isEmailPermanentPro, specificExpiry, localSubData, syncPulse, internalPulse]);
 
   const isExpiringSoon = useMemo(() => {
-    if (isAdmin || !isPro || isEmailPro) return false;
+    if (isAdmin || !isPro || isEmailPermanentPro) return false;
     return daysRemaining > 0 && daysRemaining <= 7;
-  }, [isAdmin, isPro, isEmailPro, daysRemaining]);
+  }, [isAdmin, isPro, isEmailPermanentPro, daysRemaining]);
 
   const isExpired = useMemo(() => {
-    if (isAdmin || isEmailPro) return false;
-    return !isPro;
-  }, [isAdmin, isPro, isEmailPro]);
+    if (isAdmin || isEmailPermanentPro) return false;
+    return !isPro || (daysRemaining === 0 && expiryDate !== null);
+  }, [isAdmin, isPro, isEmailPermanentPro, daysRemaining, expiryDate]);
 
   const status = isPro ? 'active' : 'none';
   const isActive = isPro;

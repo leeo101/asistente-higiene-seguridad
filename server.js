@@ -260,10 +260,17 @@ const verifyFirebaseToken = async (req, res, next) => {
 
 const requirePro = async (req, res, next) => {
     const ADMIN_EMAILS = ['admin@asistentehs.com', 'enzorodriguez31@gmail.com'];
-    const PRO_EMAILS = ['arielalaniz9@gmail.com', 'joaquintunut@gmail.com'];
+    const PERMANENT_PRO_EMAILS = ['arielalaniz9@gmail.com'];
+    const SPECIFIC_SUBSCRIPTIONS = {
+        'joaquintunut@gmail.com': new Date('2026-08-15T23:59:59Z').getTime() // Pago 16 de Julio (Vence 15 de Agosto)
+    };
+
     if (req.user && req.user.email) {
         const email = req.user.email.toLowerCase();
-        if (ADMIN_EMAILS.includes(email) || PRO_EMAILS.includes(email)) {
+        if (ADMIN_EMAILS.includes(email) || PERMANENT_PRO_EMAILS.includes(email)) {
+            return next();
+        }
+        if (SPECIFIC_SUBSCRIPTIONS[email] && Date.now() <= SPECIFIC_SUBSCRIPTIONS[email]) {
             return next();
         }
     }
