@@ -127,6 +127,7 @@ const EnvironmentalIncidents = lazyWithRetry(() => import('./pages/Environmental
 const SafetyKPIs = lazyWithRetry(() => import('./pages/SafetyKPIs'));
 const ToolboxTalk = lazyWithRetry(() => import('./pages/ToolboxTalk'));
 const ContractorManagement = lazyWithRetry(() => import('./pages/ContractorManagement'));
+const ContractorMatrix = lazyWithRetry(() => import('./pages/ContractorMatrix'));
 const Legajos = lazyWithRetry(() => import('./pages/Legajos'));
 const LegajoForm = lazyWithRetry(() => import('./pages/LegajoForm'));
 const FleetManager = lazyWithRetry(() => import('./pages/FleetManager'));
@@ -658,7 +659,8 @@ function App() {
                   <Route path="/stop-cards" element={<ProtectedRoute><StopCards /></ProtectedRoute>} />
                   <Route path="/stop-cards/new" element={<ProtectedRoute><StopCardsForm /></ProtectedRoute>} />
                   <Route path="/logo-settings" element={<ProtectedRoute><LogoSettings /></ProtectedRoute>} />
-                  <Route path="/contractors" element={<ProtectedRoute><ContractorManagement /></ProtectedRoute>} />
+                  <Route path="/contractors" element={<ProtectedRoute><ContractorMatrix /></ProtectedRoute>} />
+                  <Route path="/contractor-matrix" element={<ProtectedRoute><ContractorMatrix /></ProtectedRoute>} />
                   <Route path="/lifting-form" element={<ProtectedRoute><LiftingForm /></ProtectedRoute>} />
                   <Route path="/fleet-form" element={<ProtectedRoute><FleetForm /></ProtectedRoute>} />
                   <Route path="/evacuation-form" element={<ProtectedRoute><EvacuationSimulatorForm /></ProtectedRoute>} />

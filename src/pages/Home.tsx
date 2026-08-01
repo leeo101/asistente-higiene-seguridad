@@ -148,7 +148,8 @@ const quickLinks: QuickLink[] = [
 { to: '/legajos', icon: <FileText weight="duotone" size={26} />, label: 'Legajos Técnicos', sub: 'Decreto 351/79', color: '#eab308', bg: 'rgba(234,179,8,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'Dec. 351' },
 { to: '/medical', icon: <Activity weight="duotone" size={26} />, label: 'Aptitudes Médicas', sub: 'Exámenes Preocupacionales y Periódicos', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'Res. 37/10' },
 { to: '/incident-heatmap', icon: <MapTrifold weight="duotone" size={26} />, label: 'Mapa Calor', sub: 'Focos de Incidentes', color: '#f97316', bg: 'rgba(249,115,22,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'ISO 31000' },
-{ to: '/emergency-plan', icon: <Siren weight="duotone" size={26} />, label: 'Plan de Emergencias', sub: 'Roles, Brigadas y Simulacros', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'Ley 19587' }].
+{ to: '/emergency-plan', icon: <Siren weight="duotone" size={26} />, label: 'Plan de Emergencias', sub: 'Roles, Brigadas y Simulacros', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'Ley 19587' },
+{ to: '/contractor-matrix', icon: <Users weight="duotone" size={26} />, label: 'Matriz Contratistas', sub: 'Control Documental y Garita', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'Ley 19587' }].
 sort((a, b) => a.label.localeCompare(b.label, 'es-AR'));
 
 // Counter hook

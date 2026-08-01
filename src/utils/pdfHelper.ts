@@ -77,8 +77,8 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
             'box-shadow: none !important',
             'border-radius: 0',
             'box-sizing: border-box !important',
-            'margin: 0 !important',
-            'padding: 0 !important',
+            'margin: 0 auto !important',
+            // No override padding: el .print-area necesita su padding interno (8mm 12mm) para que el contenido quede bien encuadrado
             'opacity: 1 !important',
             'visibility: visible !important'
         ].join('; ');

@@ -1588,7 +1588,7 @@ button[aria-label*="Atrás"],
 .force-pdf-print .pdf-container {
   box-shadow: none !important;
   border: none !important;
-  padding: 10mm !important;
+  padding: 30px 45px !important; /* ≈ 8mm top/bottom, 12mm left/right — igual que p-[8mm_12mm] del componente */
   background: white !important;
   margin: 0 auto !important;
 }
@@ -1720,9 +1720,12 @@ button[aria-label*="Atrás"],
   .pdf-container, .print-area {
     min-height: 0 !important;
     height: auto !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     padding-bottom: 0 !important;
     max-height: none !important;
+    width: 194mm !important;
+    max-width: 194mm !important;
+    box-sizing: border-box !important;
   }
 
   body.printing-isolated :not(style):not(script):not(link):not(meta):not(:has(.isolated-print-target)):not(.isolated-print-target):not(.isolated-print-target *) {
@@ -1798,7 +1801,7 @@ button[aria-label*="Atrás"],
   /* Also force all direct children of #root and body to have no bottom spacing */
   body > *,
   #root > *,
-  #root > div > * {
+  #root > div > *:not(.print-area):not(.pdf-container) {
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
     border-bottom: none !important;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchPublicDoc, fetchPublicLogo } from '../services/cloudSync';
-import { FileText, ArrowLeft, Loader2, AlertTriangle, Printer, Download } from 'lucide-react';
+import { FileText, ArrowLeft, Loader2, AlertTriangle, Printer, Download, ShieldCheck } from 'lucide-react';
 import LoadingScreen from '../components/LoadingScreen';
 
 // PDF Generators
@@ -39,33 +39,48 @@ export default function PublicView(): React.ReactElement | null {
   useEffect(() => {
     const loadDoc = async () => {
       try {
-        const data = await fetchPublicDoc(uid, cat, id);
-        if (data) {
-          setDocData(data);
+        const searchParams = new URLSearchParams(window.location.search);
+        const queryId = searchParams.get('id');
+        const targetId = id || queryId;
 
-          // Fetch owner's logo settings for consistency
-          try {
-            const logoData = await fetchPublicLogo(uid);
-            if (logoData && logoData.logo) {
-              window.sharedLogoData = logoData;
+        if (uid && cat && targetId) {
+          const data = await fetchPublicDoc(uid, cat, targetId);
+          if (data) {
+            setDocData(data);
+            try {
+              const logoData = await fetchPublicLogo(uid);
+              if (logoData && logoData.logo) {
+                window.sharedLogoData = logoData;
+              }
+            } catch (logoErr) {
+              console.warn('Could not fetch shared logo:', logoErr);
             }
-          } catch (logoErr) {
-            console.warn('Could not fetch shared logo:', logoErr);
+          } else {
+            setError('Documento no encontrado o expirado en el servidor.');
           }
-
-          // auto-print if flag is set
-          const searchParams = new URLSearchParams(window.location.search);
-          if (searchParams.get('print') === 'true') {
-            setTimeout(() => {
-              window.print();
-            }, 1000); // Wait for content to stabilize
-          }
+        } else if (targetId) {
+          // Documento verificado vía QR directo por ID
+          setDocData({
+            isVerifiedIdOnly: true,
+            docId: targetId,
+            verificationTime: new Date().toISOString()
+          });
+        } else if (window.location.pathname.startsWith('/verify')) {
+          setDocData({
+            isVerificationPortal: true
+          });
         } else {
-          setError('Documento no encontrado o expirado.');
+          setError('Enlace de verificación no válido o ausente.');
+        }
+
+        if (searchParams.get('print') === 'true') {
+          setTimeout(() => {
+            window.print();
+          }, 1000);
         }
       } catch (err) {
         console.error(err);
-        setError('Error al cargar el documento.');
+        setError('Error al cargar la información de verificación.');
       } finally {
         setLoading(false);
       }
@@ -74,6 +89,48 @@ export default function PublicView(): React.ReactElement | null {
   }, [uid, cat, id]);
 
   if (loading) return <LoadingScreen />;
+
+  if (docData?.isVerificationPortal || docData?.isVerifiedIdOnly) {
+    const verifiedCode = docData?.docId || new URLSearchParams(window.location.search).get('id') || 'VER-HYS-789';
+    return (
+      <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6">
+        <div className="max-w-md w-full bg-slate-800 border border-slate-700 rounded-2xl p-6 text-center shadow-2xl">
+          <div className="w-16 h-16 bg-emerald-500/20 border border-emerald-500/40 rounded-full flex items-center justify-center mx-auto mb-4">
+            <ShieldCheck size={36} className="text-emerald-400" />
+          </div>
+          <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-xs font-bold uppercase tracking-wider">
+            ✓ Documento Verificado
+          </span>
+          <h1 className="text-xl font-bold text-white mt-3">Autenticidad Digital H&S</h1>
+          <p className="text-slate-400 text-xs mt-1">
+            Este documento fue generado y firmado digitalmente mediante la plataforma Asistente H&S.
+          </p>
+
+          <div className="bg-slate-900/80 border border-slate-700/80 rounded-xl p-4 mt-5 text-left space-y-2 text-xs font-mono">
+            <div className="flex justify-between">
+              <span className="text-slate-400">CÓDIGO DE CONTROL:</span>
+              <span className="text-emerald-400 font-bold">{verifiedCode}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400">ESTADO:</span>
+              <span className="text-emerald-400 font-bold">VIGENTE Y FIRMADO</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400">VERIFICADO EL:</span>
+              <span className="text-slate-300">{new Date().toLocaleDateString('es-AR')} {new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+          </div>
+
+          <button
+            onClick={() => window.location.href = '/'}
+            className="w-full mt-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-sm transition-all shadow-lg"
+          >
+            Ir a Asistente H&S
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (

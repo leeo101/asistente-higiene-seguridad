@@ -19,9 +19,13 @@ export default function PdfBrandingFooter({
     signedBy,
     timestamp
 }: PdfBrandingFooterProps) {
+    const baseUrl = typeof window !== 'undefined' && window.location.origin 
+        ? window.location.origin 
+        : 'https://asistentehs.com';
+
     const finalVerificationUrl = verificationUrl || (documentId 
-        ? `https://asistentehs.com/verify?id=${encodeURIComponent(documentId)}`
-        : 'https://asistentehs.com/verify');
+        ? `${baseUrl}/verify?id=${encodeURIComponent(documentId)}`
+        : `${baseUrl}/verify`);
 
     const formattedDate = timestamp || new Date().toLocaleDateString('es-AR', {
         year: 'numeric',

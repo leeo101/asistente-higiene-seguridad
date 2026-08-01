@@ -140,15 +140,31 @@ export default function ChecklistPdfGenerator({
     >
       <style type="text/css" media="print">
         {`
-            @page { size: A4 portrait; margin: 10mm; }
-            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; font-family: Helvetica, Arial, sans-serif; color: #0f172a !important; background: #ffffff !important; }
+            @page { size: A4 portrait; margin: 8mm; }
+            html, body {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                font-family: Helvetica, Arial, sans-serif;
+                color: #0f172a !important;
+                background: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                display: block !important;
+            }
             .no-print { display: none !important; }
             .print-area {
-                box-shadow: none !important; margin: 0 !important; padding: 5mm !important;
-                width: 100% !important; max-width: none !important;
+                box-shadow: none !important;
+                margin: 0 auto !important;
+                padding: 5mm !important;
+                width: 194mm !important;
+                max-width: 194mm !important;
                 border-top: 8px solid ${globalRiskColor} !important;
-                border-radius: 0 !important; min-height: 0 !important; height: auto !important;
-                color: #0f172a !important; background: #ffffff !important;
+                border-radius: 0 !important;
+                min-height: 0 !important;
+                height: auto !important;
+                color: #0f172a !important;
+                background: #ffffff !important;
+                box-sizing: border-box !important;
             }
             .page-break-before { page-break-before: always; break-before: page; }
             .avoid-break, .avoid-break-strictly, .break-inside-avoid {
@@ -171,7 +187,7 @@ export default function ChecklistPdfGenerator({
           </h1>
           <hr style={{ borderTop: `4px solid ${globalRiskColor}`, margin: '0.4rem auto 0 auto', width: '60px', border: 0, borderRadius: '2px' }} />
           
-          <div style={{ backgroundColor: globalRiskColor, margin: '0.5rem auto 0 auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', padding: '0.25rem 0.8rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', textAlign: 'center' }}>
+          <div style={{ backgroundColor: globalRiskColor, margin: '0.5rem auto 0 auto', display: 'block', color: '#ffffff', padding: '0.25rem 0.8rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', textAlign: 'center', maxWidth: '220px' }}>
             {globalRiskLabel}
           </div>
         </div>
@@ -278,49 +294,47 @@ export default function ChecklistPdfGenerator({
         )}
       </div>
 
-      {/* Resumen Estadístico - KPI cards */}
-      <div style={{ display: 'table', tableLayout: 'fixed', width: '100%', marginBottom: '1rem', breakInside: 'avoid', pageBreakInside: 'avoid', borderSpacing: '0.7rem 0', borderCollapse: 'separate', boxSizing: 'border-box' }}>
-        <div style={{ display: 'table-row' }}>
-          {/* CUMPLE */}
-          <div style={{ display: 'table-cell', width: '33.33%', background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', border: '1px solid #86efac', borderRadius: '10px', padding: '0.6rem 0.4rem', textAlign: 'center', verticalAlign: 'middle', boxSizing: 'border-box' }}>
-            <div style={{ display: 'block', width: '100%', textAlign: 'center', marginBottom: '4px', lineHeight: '1.2' }}>
-              <Check size={11} style={{ color: '#166534', display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }} />
-              <span style={{ display: 'inline-block', verticalAlign: 'middle', textAlign: 'center', fontSize: '0.6rem', fontWeight: 900, color: '#166534', textTransform: 'uppercase', letterSpacing: '0.04em' }}>CUMPLE</span>
-            </div>
-            <div style={{ display: 'block', width: '100%', textAlign: 'center', fontSize: '1.5rem', fontWeight: 900, color: '#15803d', height: '1.8rem', lineHeight: '1.8rem', margin: '0 auto' }}>
-              {okCount}
-            </div>
-            <div style={{ display: 'block', width: '100%', textAlign: 'center', marginTop: '6px' }}>
-              <span style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '2px 10px', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block', textAlign: 'center', minWidth: '48px', lineHeight: '16px', margin: '0 auto' }}>{okPercent}%</span>
-            </div>
+      {/* Resumen Estadístico - KPI cards (flex para compatibilidad html2canvas) */}
+      <div style={{ display: 'flex', flexDirection: 'row', width: '100%', marginBottom: '1rem', breakInside: 'avoid', pageBreakInside: 'avoid', boxSizing: 'border-box', gap: '0.5rem' }}>
+        {/* CUMPLE */}
+        <div style={{ flex: '1 1 0', background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', border: '1px solid #86efac', borderRadius: '10px', padding: '0.6rem 0.4rem', textAlign: 'center', boxSizing: 'border-box' }}>
+          <div style={{ textAlign: 'center', marginBottom: '4px', lineHeight: '1.4' }}>
+            <Check size={11} style={{ color: '#166534', display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }} />
+            <span style={{ display: 'inline-block', verticalAlign: 'middle', fontSize: '0.6rem', fontWeight: 900, color: '#166534', textTransform: 'uppercase', letterSpacing: '0.04em' }}>CUMPLE</span>
           </div>
-
-          {/* NO CUMPLE */}
-          <div style={{ display: 'table-cell', width: '33.33%', background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)', border: '1px solid #fca5a5', borderRadius: '10px', padding: '0.6rem 0.4rem', textAlign: 'center', verticalAlign: 'middle', boxSizing: 'border-box' }}>
-            <div style={{ display: 'block', width: '100%', textAlign: 'center', marginBottom: '4px', lineHeight: '1.2' }}>
-              <X size={11} style={{ color: '#991b1b', display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }} />
-              <span style={{ display: 'inline-block', verticalAlign: 'middle', textAlign: 'center', fontSize: '0.6rem', fontWeight: 900, color: '#991b1b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>NO CUMPLE</span>
-            </div>
-            <div style={{ display: 'block', width: '100%', textAlign: 'center', fontSize: '1.5rem', fontWeight: 900, color: '#b91c1c', height: '1.8rem', lineHeight: '1.8rem', margin: '0 auto' }}>
-              {failCount}
-            </div>
-            <div style={{ display: 'block', width: '100%', textAlign: 'center', marginTop: '6px' }}>
-              <span style={{ backgroundColor: '#dc2626', color: '#ffffff', padding: '2px 10px', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block', textAlign: 'center', minWidth: '48px', lineHeight: '16px', margin: '0 auto' }}>{failPercent}%</span>
-            </div>
+          <div style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 900, color: '#15803d', lineHeight: '1.8rem', margin: '2px 0 6px' }}>
+            {okCount}
           </div>
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '2px 10px', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block', minWidth: '48px', lineHeight: '18px' }}>{okPercent}%</span>
+          </div>
+        </div>
 
-          {/* N/A */}
-          <div style={{ display: 'table-cell', width: '33.33%', background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', border: '1px solid #cbd5e1', borderRadius: '10px', padding: '0.6rem 0.4rem', textAlign: 'center', verticalAlign: 'middle', boxSizing: 'border-box' }}>
-            <div style={{ display: 'block', width: '100%', textAlign: 'center', marginBottom: '4px', lineHeight: '1.2' }}>
-              <Activity size={11} style={{ color: '#475569', display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }} />
-              <span style={{ display: 'inline-block', verticalAlign: 'middle', textAlign: 'center', fontSize: '0.6rem', fontWeight: 900, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em' }}>N / A</span>
-            </div>
-            <div style={{ display: 'block', width: '100%', textAlign: 'center', fontSize: '1.5rem', fontWeight: 900, color: '#475569', height: '1.8rem', lineHeight: '1.8rem', margin: '0 auto' }}>
-              {naCount}
-            </div>
-            <div style={{ display: 'block', width: '100%', textAlign: 'center', marginTop: '6px' }}>
-              <span style={{ backgroundColor: '#64748b', color: '#ffffff', padding: '2px 10px', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block', textAlign: 'center', minWidth: '48px', lineHeight: '16px', margin: '0 auto' }}>{naPercent}%</span>
-            </div>
+        {/* NO CUMPLE */}
+        <div style={{ flex: '1 1 0', background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)', border: '1px solid #fca5a5', borderRadius: '10px', padding: '0.6rem 0.4rem', textAlign: 'center', boxSizing: 'border-box' }}>
+          <div style={{ textAlign: 'center', marginBottom: '4px', lineHeight: '1.4' }}>
+            <X size={11} style={{ color: '#991b1b', display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }} />
+            <span style={{ display: 'inline-block', verticalAlign: 'middle', fontSize: '0.6rem', fontWeight: 900, color: '#991b1b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>NO CUMPLE</span>
+          </div>
+          <div style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 900, color: '#b91c1c', lineHeight: '1.8rem', margin: '2px 0 6px' }}>
+            {failCount}
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ backgroundColor: '#dc2626', color: '#ffffff', padding: '2px 10px', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block', minWidth: '48px', lineHeight: '18px' }}>{failPercent}%</span>
+          </div>
+        </div>
+
+        {/* N/A */}
+        <div style={{ flex: '1 1 0', background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', border: '1px solid #cbd5e1', borderRadius: '10px', padding: '0.6rem 0.4rem', textAlign: 'center', boxSizing: 'border-box' }}>
+          <div style={{ textAlign: 'center', marginBottom: '4px', lineHeight: '1.4' }}>
+            <Activity size={11} style={{ color: '#475569', display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }} />
+            <span style={{ display: 'inline-block', verticalAlign: 'middle', fontSize: '0.6rem', fontWeight: 900, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em' }}>N / A</span>
+          </div>
+          <div style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 900, color: '#475569', lineHeight: '1.8rem', margin: '2px 0 6px' }}>
+            {naCount}
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ backgroundColor: '#64748b', color: '#ffffff', padding: '2px 10px', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block', minWidth: '48px', lineHeight: '18px' }}>{naPercent}%</span>
           </div>
         </div>
       </div>
@@ -346,17 +360,17 @@ export default function ChecklistPdfGenerator({
         const sectionFails = section.items.filter((item: any) => item.status === 'FAIL' || item.status === 'NC' || item.value === 'NO' || item.estado === 'NO');
         return (
           <div key={section.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="border-[1px_solid_#cbd5e1] rounded-[8px] mb-[1rem] avoid-break avoid-break-strictly break-inside-avoid overflow-hidden box-shadow-[0_2px_10px_rgba(0,0,0,0.03)] bg-white">
-            <div style={{ background: 'linear-gradient(90deg, #1e3a8a 0%, #2563eb 100%)', borderBottom: '2px solid #1e40af', display: 'flex', alignItems: 'center', padding: '0.22rem 0.7rem', minHeight: '28px' }}>
-              <h3 style={{ margin: 0, fontWeight: 900, fontSize: '0.9rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '0.35rem', flex: 1, textAlign: 'left' }}>
-                <ClipboardCheck size={12} style={{ color: '#93c5fd', flexShrink: 0 }} />
-                {section.title}
+            <div style={{ background: 'linear-gradient(90deg, #1e3a8a 0%, #2563eb 100%)', borderBottom: '2px solid #1e40af', display: 'flex', alignItems: 'center', padding: '0.3rem 0.7rem', minHeight: '28px' }}>
+              <h3 style={{ margin: 0, fontWeight: 900, fontSize: '0.9rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em', flex: 1, textAlign: 'left', lineHeight: '1.3', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <ClipboardCheck size={12} style={{ color: '#93c5fd', display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }} />
+                <span style={{ verticalAlign: 'middle' }}>{section.title}</span>
               </h3>
               {sectionFails.length > 0 ? (
-                <span style={{ padding: '2px 7px', backgroundColor: '#ef4444', color: '#fff', borderRadius: '10px', fontSize: '0.5rem', fontWeight: 900, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: '0.5rem' }}>
+                <span style={{ padding: '2px 7px', backgroundColor: '#ef4444', color: '#fff', borderRadius: '10px', fontSize: '0.5rem', fontWeight: 900, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: '0.5rem', display: 'inline-block', verticalAlign: 'middle', lineHeight: '14px' }}>
                   ⚠ {sectionFails.length} NC{sectionFails.length > 1 ? 's' : ''}
                 </span>
               ) : (
-                <span style={{ padding: '2px 7px', backgroundColor: '#22c55e', color: '#fff', borderRadius: '10px', fontSize: '0.5rem', fontWeight: 900, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: '0.5rem' }}>
+                <span style={{ padding: '2px 7px', backgroundColor: '#22c55e', color: '#fff', borderRadius: '10px', fontSize: '0.5rem', fontWeight: 900, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: '0.5rem', display: 'inline-block', verticalAlign: 'middle', lineHeight: '14px' }}>
                   ✓ SIN DESVÍOS
                 </span>
               )}
@@ -383,14 +397,14 @@ export default function ChecklistPdfGenerator({
                           {item.text || item.pregunta || item.check}
                         </div>
 
-                        {/* Badges con estilos inline explícitos - centrado garantizado */}
+                        {/* Badges con estilos inline explícitos - lineHeight para compatibilidad html2canvas */}
                         <div style={{ width: '60px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.4rem', borderLeft: '1px solid #e2e8f0' }}>
                           {isOk ? (
-                            <div style={{ backgroundColor: '#dcfce7', color: '#15803d', border: '1px solid #86efac', fontWeight: 900, fontSize: '8pt', padding: '2px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minWidth: '28px', height: '20px' }}>C</div>
+                            <div style={{ backgroundColor: '#dcfce7', color: '#15803d', border: '1px solid #86efac', fontWeight: 900, fontSize: '8pt', padding: '2px 8px', borderRadius: '4px', display: 'inline-block', textAlign: 'center', minWidth: '28px', lineHeight: '16px' }}>C</div>
                           ) : isFail ? (
-                            <div style={{ backgroundColor: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5', fontWeight: 900, fontSize: '8pt', padding: '2px 6px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minWidth: '28px', height: '20px' }}>NC</div>
+                            <div style={{ backgroundColor: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5', fontWeight: 900, fontSize: '8pt', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', textAlign: 'center', minWidth: '28px', lineHeight: '16px' }}>NC</div>
                           ) : (
-                            <div style={{ backgroundColor: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', fontWeight: 900, fontSize: '8pt', padding: '2px 6px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minWidth: '28px', height: '20px' }}>N/A</div>
+                            <div style={{ backgroundColor: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', fontWeight: 900, fontSize: '8pt', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', textAlign: 'center', minWidth: '28px', lineHeight: '16px' }}>N/A</div>
                           )}
                         </div>
                       </div>
@@ -499,8 +513,8 @@ export default function ChecklistPdfGenerator({
               const normName = norm?.name || ALL_NORMS_MAP[normId] || normId;
               return (
                 <div key={normId} style={{ backgroundColor: '#ffffff', border: '1px solid #d8b4fe', flex: '1 1 260px', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.7rem', borderRadius: '6px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                  <div style={{ backgroundColor: '#9333ea', color: '#ffffff', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 900, flexShrink: 0, lineHeight: 1 }}>✓</div>
-                  <span style={{ color: '#0f172a', fontWeight: 800, fontSize: '8.5pt' }}>{normName}</span>
+                  <div style={{ backgroundColor: '#9333ea', color: '#ffffff', width: '18px', height: '18px', borderRadius: '50%', display: 'inline-block', textAlign: 'center', lineHeight: '18px', fontSize: '0.65rem', fontWeight: 900, flexShrink: 0, verticalAlign: 'middle' }}>✓</div>
+                  <span style={{ color: '#0f172a', fontWeight: 800, fontSize: '8.5pt', verticalAlign: 'middle' }}>{normName}</span>
                 </div>
               );
             })}
