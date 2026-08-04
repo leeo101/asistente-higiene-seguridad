@@ -7,6 +7,7 @@ export interface SignatureBoxProps {
   stampUrl?: string | null;
   isProfessional?: boolean;
   license?: string | null;
+  profession?: string | null;
   customContent?: React.ReactNode;
 }
 
@@ -26,11 +27,12 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
     return null;
   };
 
-  // Auto-detect professional signature and stamp
+  // Auto-detect professional signature, stamp, name, license, and title/profession
   let actSignature = getVal(['professionalSignature', 'signature', 'auditorSignature', 'evaluadorFirma']);
   let actStamp = getVal(['professionalStamp', 'stamp', 'sello', 'profesionalSello']);
   let actName = getVal(['professionalName', 'leadAuditor', 'expositor', 'evaluador', 'profesionalNombre']);
   let actLic = getVal(['professionalLicense', 'license', 'matricula', 'profesionalMatricula']);
+  let actTitle = getVal(['professionalTitle', 'profesion', 'profession', 'titulo', 'title', 'profesionalTitulo']);
   let supervisorSignature = getVal(['capatazSignature', 'supervisorSignature', 'responsableFirma']);
 
   if (!actSignature || !actStamp) {
@@ -49,15 +51,21 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
 
   let operatorSignature = getVal(['operatorSignature', 'operadorFirma']);
 
-  if (!actName || !actLic) {
+  if (!actName || !actLic || !actTitle) {
     try {
       const lsPersonal = typeof window !== 'undefined' ? localStorage.getItem('personalData') : null;
       if (lsPersonal) {
         const pd = JSON.parse(lsPersonal);
-        actName = actName || pd.name;
-        actLic = actLic || pd.license;
+        actName = actName || pd.name || pd.fullName;
+        actLic = actLic || pd.license || pd.matricula;
+        actTitle = actTitle || pd.profession || pd.profesion || pd.title || pd.titulo;
       }
     } catch (e) {}
+  }
+
+  // Fallback predeterminado para título profesional
+  if (!actTitle || actTitle === 'Técnico' || actTitle === 'PROFESIONAL') {
+    actTitle = 'Técnico Universitario en Higiene y Seguridad Laboral';
   }
 
   const defaultBox1: SignatureBoxProps = {
@@ -68,12 +76,13 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
   };
 
   const defaultBox2: SignatureBoxProps = {
-    title: 'PROFESIONAL ACTUANTE',
+    title: 'PROFESIONAL',
     subtitle: (actName || 'Firma y Sello').toUpperCase(),
     signatureUrl: actSignature,
     stampUrl: actStamp,
     isProfessional: true,
-    license: actLic
+    license: actLic,
+    profession: actTitle
   };
 
   const defaultBox3: SignatureBoxProps = {
@@ -92,7 +101,13 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
     boxes.push(box1 || defaultBox1);
   }
   if (showPro) {
-    boxes.push(box2 || defaultBox2);
+    // Si viene un box2 personalizado, asegurarnos de limpiar "/ INSTRUCTOR" y pasar profession
+    const pBox = box2 || defaultBox2;
+    boxes.push({
+      ...pBox,
+      title: (pBox.title || 'PROFESIONAL').replace(' / INSTRUCTOR', '').replace(' / INSTRUCTORA', ''),
+      profession: pBox.profession || actTitle
+    });
   }
   if (showSup) {
     boxes.push(box3 || defaultBox3);
@@ -169,9 +184,14 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
               <p style={{ color: textCol, letterSpacing: '0.02em' }} className="m-[0] font-[800] text-[0.68rem] uppercase word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">
                 {box.title}
               </p>
-              <p style={{ color: subTextCol, fontWeight: isPro ? 700 : 500 }} className="m-[2px_0_0_0] text-[0.6rem] word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">
+              <p style={{ color: subTextCol, fontWeight: isPro ? 800 : 500 }} className="m-[2px_0_0_0] text-[0.6rem] word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">
                 {box.subtitle}
               </p>
+              {isPro && (box.profession || actTitle) && (
+                <p style={{ color: '#047857', fontWeight: 700, fontSize: '0.55rem', margin: '2px 0 0 0', textTransform: 'uppercase', lineHeight: '1.2' }}>
+                  {box.profession || actTitle}
+                </p>
+              )}
               {box.license &&
                 <div style={{ display: 'block', textAlign: 'center', marginTop: '5px', padding: '3px 8px', background: '#16a34a', color: '#ffffff', borderRadius: '5px', fontSize: '9pt', fontWeight: 900, letterSpacing: '0.03em' }}>
                   Mat. Nº&nbsp;{box.license}

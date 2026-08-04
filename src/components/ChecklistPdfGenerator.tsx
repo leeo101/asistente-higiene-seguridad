@@ -175,126 +175,118 @@ export default function ChecklistPdfGenerator({
       </style>
 
       {/* Header Tripartito */}
-      <div className="flex flex-row justify-space-between items-start border-bottom-[3px_solid_#e2e8f0] pb-[0.8rem] mb-[1rem] w-[100%]">
-        <div className="flex-[1] text-left">
+      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #e2e8f0', paddingBottom: '0.8rem', marginBottom: '1rem', width: '100%' }}>
+        <div style={{ flex: 1, textAlign: 'left' }}>
           <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.08em]">Sistema de Gestión HSE</p>
           <p style={{ color: globalRiskColor }} className="m-[0] font-[900] text-[0.8rem] uppercase">Doc. Inspección de Seguridad</p>
         </div>
 
         <div style={{ flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-          <h1 style={{ margin: 0, fontWeight: 900, fontSize: '1.6rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1.1, color: '#0f172a', textAlign: 'center' }}>
+          <h1 style={{ margin: 0, fontWeight: 900, fontSize: '1.5rem', letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1.1, color: '#0f172a', textAlign: 'center' }}>
             {checklistData.checklistTitle || 'CHECK LIST'}
           </h1>
           <hr style={{ borderTop: `4px solid ${globalRiskColor}`, margin: '0.4rem auto 0 auto', width: '60px', border: 0, borderRadius: '2px' }} />
-          
-          <div style={{ backgroundColor: globalRiskColor, margin: '0.5rem auto 0 auto', display: 'block', color: '#ffffff', padding: '0.25rem 0.8rem', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', textAlign: 'center', maxWidth: '220px' }}>
+          <div style={{ backgroundColor: globalRiskColor, margin: '0.4rem auto 0 auto', display: 'inline-block', color: '#ffffff', padding: '3px 12px 4px 12px', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', textAlign: 'center', maxWidth: '220px', lineHeight: 1, verticalAlign: 'middle' }}>
             {globalRiskLabel}
           </div>
         </div>
 
-        <div className="flex-[1] text-right flex flex-col items-end gap-[0.4rem]">
+        <div style={{ flex: 1, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.4rem' }}>
           <CompanyLogo style={{ maxHeight: '38px', maxWidth: '120px', objectFit: 'contain' }} />
           {inspInfo.serial && (
-            <div className="text-right">
-              <div className="text-[0.55rem] font-[900] text-[#94a3b8] uppercase letter-spacing-[0.1em]">DOC N°</div>
-              <div className="font-[900] text-[1rem] text-[#0f172a]">{inspInfo.serial}</div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '0.55rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>DOC N°</div>
+              <div style={{ fontWeight: 900, fontSize: '1rem', color: '#0f172a' }}>{inspInfo.serial}</div>
             </div>
           )}
         </div>
       </div>
 
       {/* Datos del Relevamiento */}
-      <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1rem] w-[100%] overflow-hidden bg-white avoid-break avoid-break-strictly break-inside-avoid">
-        <div className="flex bg-slate-50 border-bottom-[1px_solid_#cbd5e1]">
-          <div className="flex-[2] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
-            <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Building2 size={12} /> CLIENTE / EMPRESA</span>
-            <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{compInfo.name || '-'}</div>
+      <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid', border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '1rem', width: '100%', overflow: 'hidden', backgroundColor: '#ffffff' }} className="avoid-break avoid-break-strictly break-inside-avoid">
+        <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+          <div style={{ flex: 2, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Building2 size={12} /> CLIENTE / EMPRESA</span>
+            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{compInfo.name || '-'}</div>
           </div>
-          <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
-            <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><MapPin size={12} /> ÁREA / UBICACIÓN</span>
-            <div className="font-[700] text-[0.8rem] text-[#334155] mt-[0.2rem]">{compInfo.cuit || '-'}</div>
+          <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={12} /> ÁREA / UBICACIÓN</span>
+            <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155', marginTop: '0.2rem' }}>{compInfo.cuit || '-'}</div>
           </div>
-          <div className="flex-[1] p-[0.4rem_0.6rem]">
-            <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><MapPin size={12} /> UBICACIÓN / OBRA</span>
-            <div className="font-[700] text-[0.8rem] text-[#334155] mt-[0.2rem]">{compInfo.location || '-'}</div>
+          <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
+            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MapPin size={12} /> UBICACIÓN / OBRA</span>
+            <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155', marginTop: '0.2rem' }}>{compInfo.location || '-'}</div>
           </div>
         </div>
-        <div className="flex bg-white border-bottom-[1px_solid_#cbd5e1]">
-          {!hasTools && !hasHeavy && !hasVehicles && !hasPermits && !hasExtinguishers ? (
-            <div className="flex-[2] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
-              <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><ClipboardCheck size={12} /> {hasPermits ? "SECTOR / ÁREA" : "EQUIPO / ÁREA REVISADA"}</span>
-              <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.item || checklistData.equipo || '-'}</div>
-            </div>
-          ) : (
-            <div className="flex-[2] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
-              <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><AlertTriangle size={12} /> EQUIPO / LUGAR DE INSP.</span>
-              <div className="font-[700] text-[0.8rem] text-[#334155] mt-[0.2rem]">{inspInfo.date ? new Date(inspInfo.date + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
-            </div>
-          )}
-          <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
-            <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Calendar size={12} /> FECHA DE REVISIÓN</span>
-            <div className="font-[700] text-[0.8rem] text-[#334155] mt-[0.2rem]">{inspInfo.date ? new Date(inspInfo.date + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
+        <div style={{ display: 'flex', backgroundColor: '#ffffff', borderBottom: '1px solid #cbd5e1' }}>
+          <div style={{ flex: 2, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12} /> {hasPermits ? "SECTOR / ÁREA" : "EQUIPO / LUGAR DE INSP."}</span>
+            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.item || checklistData.equipo || '-'}</div>
           </div>
-          <div className="flex-[1] p-[0.4rem_0.6rem]">
-            <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><User size={12} /> INSPECTOR</span>
-            <div className="font-[700] text-[0.8rem] text-[#334155] mt-[0.2rem]">{compInfo.inspector || '-'}</div>
+          <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={12} /> FECHA DE REVISIÓN</span>
+            <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155', marginTop: '0.2rem' }}>{inspInfo.date ? new Date(inspInfo.date + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}</div>
+          </div>
+          <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
+            <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><User size={12} /> INSPECTOR</span>
+            <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155', marginTop: '0.2rem' }}>{compInfo.inspector || '-'}</div>
           </div>
         </div>
         
         {hasVehicles && (
-          <div className="flex bg-slate-50 border-bottom-[1px_solid_#cbd5e1]">
-            <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
-              <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><ClipboardCheck size={12} /> MARCA / MODELO</span>
-              <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.marca || '-'}</div>
+          <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+            <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+              <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12} /> MARCA / MODELO</span>
+              <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.marca || '-'}</div>
             </div>
-            <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
-              <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Hash size={12} /> DOMINIO (PATENTE)</span>
-              <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.patente || '-'}</div>
+            <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+              <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Hash size={12} /> DOMINIO (PATENTE)</span>
+              <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.patente || '-'}</div>
             </div>
-            <div className="flex-[1] p-[0.4rem_0.6rem]">
-              <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Activity size={12} /> HORÓMETRO / KM</span>
-              <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.horometro || '-'}</div>
+            <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
+              <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Activity size={12} /> HORÓMETRO / KM</span>
+              <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.horometro || '-'}</div>
             </div>
           </div>
         )}
 
         {(hasTools || hasHeavy) && !hasVehicles && (
-          <div className="flex bg-slate-50 border-bottom-[1px_solid_#cbd5e1]">
-            <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
-              <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><ClipboardCheck size={12} /> MARCA / MODELO</span>
-              <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.marca || '-'}</div>
+          <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+            <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+              <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12} /> MARCA / MODELO</span>
+              <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.marca || '-'}</div>
             </div>
-            <div className="flex-[1] p-[0.4rem_0.6rem]">
-              <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Hash size={12} /> {hasExtinguishers ? "CHAPA / NÚMERO" : "Nº IDENTIFICACIÓN (SERIAL)"}</span>
-              <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.serial || '-'}</div>
+            <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
+              <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Hash size={12} /> {hasExtinguishers ? "CHAPA / NÚMERO" : "Nº IDENTIFICACIÓN (SERIAL)"}</span>
+              <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.serial || '-'}</div>
             </div>
           </div>
         )}
 
         {!hasTools && !hasHeavy && !hasVehicles && !hasPermits && (
-          <div className="flex bg-slate-50 border-bottom-[1px_solid_#cbd5e1]">
-            <div className="flex-[1] p-[0.4rem_0.6rem]">
-              <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Hash size={12} /> {hasExtinguishers ? "CHAPA / NÚMERO" : "Nº IDENTIFICACIÓN (SERIAL)"}</span>
-              <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.serial || '-'}</div>
+          <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+            <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
+              <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Hash size={12} /> {hasExtinguishers ? "CHAPA / NÚMERO" : "Nº IDENTIFICACIÓN (SERIAL)"}</span>
+              <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.serial || '-'}</div>
             </div>
           </div>
         )}
 
         {hasPermits && (
-          <div className="flex bg-slate-50 border-bottom-[1px_solid_#cbd5e1]">
-            <div className="flex-[1] p-[0.4rem_0.6rem] border-right-[1px_solid_#cbd5e1]">
-              <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><ClipboardCheck size={12} /> Nº PERMISO DE TRABAJO (PT)</span>
-              <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{compInfo.address || '-'}</div>
+          <div style={{ display: 'flex', backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+            <div style={{ flex: 1, padding: '0.4rem 0.6rem', borderRight: '1px solid #cbd5e1' }}>
+              <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ClipboardCheck size={12} /> Nº PERMISO DE TRABAJO (PT)</span>
+              <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{compInfo.address || '-'}</div>
             </div>
-            <div className="flex-[1] p-[0.4rem_0.6rem]">
-              <span className="text-[0.55rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><User size={12} /> RESPONSABLE EMPRESA</span>
-              <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{inspInfo.responsableArea || '-'}</div>
+            <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
+              <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><User size={12} /> RESPONSABLE EMPRESA</span>
+              <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.responsableArea || '-'}</div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Resumen Estadístico - KPI cards (flex para compatibilidad html2canvas) */}
+      {/* Resumen Estadístico - KPI cards */}
       <div style={{ display: 'flex', flexDirection: 'row', width: '100%', marginBottom: '1rem', breakInside: 'avoid', pageBreakInside: 'avoid', boxSizing: 'border-box', gap: '0.5rem' }}>
         {/* CUMPLE */}
         <div style={{ flex: '1 1 0', background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', border: '1px solid #86efac', borderRadius: '10px', padding: '0.6rem 0.4rem', textAlign: 'center', boxSizing: 'border-box' }}>
@@ -305,8 +297,8 @@ export default function ChecklistPdfGenerator({
           <div style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 900, color: '#15803d', lineHeight: '1.8rem', margin: '2px 0 6px' }}>
             {okCount}
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <span style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '2px 10px', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block', minWidth: '48px', lineHeight: '18px' }}>{okPercent}%</span>
+          <div style={{ textAlign: 'center', marginTop: '4px' }}>
+            <span style={{ backgroundColor: '#16a34a', color: '#ffffff', padding: '3px 10px 3px 10px', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block', minWidth: '48px', lineHeight: 1, verticalAlign: 'middle' }}>{okPercent}%</span>
           </div>
         </div>
 
@@ -319,8 +311,8 @@ export default function ChecklistPdfGenerator({
           <div style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 900, color: '#b91c1c', lineHeight: '1.8rem', margin: '2px 0 6px' }}>
             {failCount}
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <span style={{ backgroundColor: '#dc2626', color: '#ffffff', padding: '2px 10px', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block', minWidth: '48px', lineHeight: '18px' }}>{failPercent}%</span>
+          <div style={{ textAlign: 'center', marginTop: '4px' }}>
+            <span style={{ backgroundColor: '#dc2626', color: '#ffffff', padding: '3px 10px 3px 10px', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block', minWidth: '48px', lineHeight: 1, verticalAlign: 'middle' }}>{failPercent}%</span>
           </div>
         </div>
 
@@ -333,21 +325,21 @@ export default function ChecklistPdfGenerator({
           <div style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 900, color: '#475569', lineHeight: '1.8rem', margin: '2px 0 6px' }}>
             {naCount}
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <span style={{ backgroundColor: '#64748b', color: '#ffffff', padding: '2px 10px', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block', minWidth: '48px', lineHeight: '18px' }}>{naPercent}%</span>
+          <div style={{ textAlign: 'center', marginTop: '4px' }}>
+            <span style={{ backgroundColor: '#64748b', color: '#ffffff', padding: '3px 10px 3px 10px', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block', minWidth: '48px', lineHeight: 1, verticalAlign: 'middle' }}>{naPercent}%</span>
           </div>
         </div>
       </div>
 
       {/* EPPs Requeridos */}
       {epps.length > 0 && (
-        <div className="avoid-break avoid-break-strictly break-inside-avoid border-[1px_solid_#cbd5e1] rounded-[6px] mb-[0.8rem] p-[0.6rem_0.8rem] bg-slate-50">
-          <div className="text-[0.65rem] font-[900] uppercase text-[#0f172a] mb-[0.4rem]">
+        <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', marginBottom: '0.8rem', padding: '0.6rem 0.8rem', backgroundColor: '#f8fafc' }} className="avoid-break avoid-break-strictly break-inside-avoid">
+          <div style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', color: '#0f172a', marginBottom: '0.4rem' }}>
             EPPs Obligatorios / Seleccionados
           </div>
-          <div className="flex flex-wrap gap-[4px]">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
             {epps.map((epp: string, idx: number) => (
-              <div key={idx} className="bg-blue-50 border border-blue-200 text-blue-800 text-[6.5pt] font-[700] px-[6px] py-[2px] rounded-[4px] uppercase">
+              <div key={idx} style={{ backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', color: '#1e40af', fontSize: '6.5pt', fontWeight: 800, padding: '3px 8px 3px 8px', borderRadius: '4px', textTransform: 'uppercase', display: 'inline-block', lineHeight: 1, verticalAlign: 'middle' }}>
                 {epp}
               </div>
             ))}
@@ -359,21 +351,28 @@ export default function ChecklistPdfGenerator({
       {sections.map((section: any, sectionIdx: number) => {
         const sectionFails = section.items.filter((item: any) => item.status === 'FAIL' || item.status === 'NC' || item.value === 'NO' || item.estado === 'NO');
         return (
-          <div key={section.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="border-[1px_solid_#cbd5e1] rounded-[8px] mb-[1rem] avoid-break avoid-break-strictly break-inside-avoid overflow-hidden box-shadow-[0_2px_10px_rgba(0,0,0,0.03)] bg-white">
-            <div style={{ background: 'linear-gradient(90deg, #1e3a8a 0%, #2563eb 100%)', borderBottom: '2px solid #1e40af', display: 'flex', alignItems: 'center', padding: '0.3rem 0.7rem', minHeight: '28px' }}>
-              <h3 style={{ margin: 0, fontWeight: 900, fontSize: '0.9rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em', flex: 1, textAlign: 'left', lineHeight: '1.3', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <ClipboardCheck size={12} style={{ color: '#93c5fd', display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }} />
-                <span style={{ verticalAlign: 'middle' }}>{section.title}</span>
-              </h3>
-              {sectionFails.length > 0 ? (
-                <span style={{ padding: '2px 7px', backgroundColor: '#ef4444', color: '#fff', borderRadius: '10px', fontSize: '0.5rem', fontWeight: 900, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: '0.5rem', display: 'inline-block', verticalAlign: 'middle', lineHeight: '14px' }}>
-                  ⚠ {sectionFails.length} NC{sectionFails.length > 1 ? 's' : ''}
-                </span>
-              ) : (
-                <span style={{ padding: '2px 7px', backgroundColor: '#22c55e', color: '#fff', borderRadius: '10px', fontSize: '0.5rem', fontWeight: 900, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: '0.5rem', display: 'inline-block', verticalAlign: 'middle', lineHeight: '14px' }}>
-                  ✓ SIN DESVÍOS
-                </span>
-              )}
+          <div key={section.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid', border: '1px solid #cbd5e1', borderRadius: '8px', marginBottom: '1rem', overflow: 'hidden', backgroundColor: '#ffffff', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }} className="avoid-break avoid-break-strictly break-inside-avoid">
+            {/* Header de sección usando CSS Table para alineación vertical perfecta */}
+            <div style={{ background: 'linear-gradient(90deg, #1e3a8a 0%, #2563eb 100%)', borderBottom: '2px solid #1e40af', display: 'table', width: '100%', height: '36px', boxSizing: 'border-box' }}>
+              <div style={{ display: 'table-cell', verticalAlign: 'middle', textAlign: 'left', paddingLeft: '12px', height: '36px' }}>
+                <div style={{ margin: 0, padding: 0, fontWeight: 900, fontSize: '0.82rem', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.04em', lineHeight: 1 }}>
+                  <span style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '6px' }}>
+                    <ClipboardCheck size={14} style={{ color: '#93c5fd', verticalAlign: 'middle' }} />
+                  </span>
+                  <span style={{ display: 'inline-block', verticalAlign: 'middle' }}>{section.title}</span>
+                </div>
+              </div>
+              <div style={{ display: 'table-cell', verticalAlign: 'middle', textAlign: 'right', paddingRight: '12px', whiteSpace: 'nowrap', height: '36px' }}>
+                {sectionFails.length > 0 ? (
+                  <span style={{ display: 'inline-block', verticalAlign: 'middle', padding: '3px 8px', backgroundColor: '#ef4444', color: '#fff', borderRadius: '10px', fontSize: '0.55rem', fontWeight: 900, lineHeight: 1 }}>
+                    ⚠ {sectionFails.length} NC{sectionFails.length > 1 ? 's' : ''}
+                  </span>
+                ) : (
+                  <span style={{ display: 'inline-block', verticalAlign: 'middle', padding: '3px 8px', backgroundColor: '#22c55e', color: '#fff', borderRadius: '10px', fontSize: '0.55rem', fontWeight: 900, lineHeight: 1 }}>
+                    ✓ SIN DESVÍOS
+                  </span>
+                )}
+              </div>
             </div>
 
             <div>
@@ -385,26 +384,28 @@ export default function ChecklistPdfGenerator({
                     borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid #f1f5f9',
                     backgroundColor: isFail ? '#fef2f2' : (idx % 2 === 0 ? '#ffffff' : '#f8fafc')
                   }}>
-                      {/* Fila principal: número | texto | estado */}
-                      <div style={{ display: 'flex', alignItems: 'stretch', minHeight: '32px' }}>
-                        <div style={{ width: '28px', flexShrink: 0, padding: '0.3rem 0.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid #e2e8f0' }}>
-                          <div style={{ backgroundColor: '#e2e8f0', color: '#475569', width: '18px', height: '18px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', lineHeight: 1 }}>
+                      {/* Fila principal usando CSS Table para centrado vertical perfecto */}
+                      <div style={{ display: 'table', width: '100%', minHeight: '34px', tableLayout: 'fixed' }}>
+                        {/* Número */}
+                        <div style={{ display: 'table-cell', verticalAlign: 'middle', textAlign: 'center', width: '32px', borderRight: '1px solid #e2e8f0', padding: '4px 0' }}>
+                          <span style={{ backgroundColor: '#e2e8f0', color: '#475569', width: '22px', height: '22px', lineHeight: '22px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 900, display: 'inline-block', textAlign: 'center', verticalAlign: 'middle' }}>
                             {idx + 1}
-                          </div>
+                          </span>
                         </div>
 
-                        <div style={{ color: isFail ? '#7f1d1d' : '#0f172a', fontWeight: 700, flex: 1, padding: '0.4rem 0.6rem', display: 'flex', alignItems: 'center', fontSize: '0.75rem' }}>
+                        {/* Pregunta */}
+                        <div style={{ color: isFail ? '#7f1d1d' : '#0f172a', fontWeight: 700, display: 'table-cell', verticalAlign: 'middle', padding: '0.4rem 0.6rem', fontSize: '0.75rem', lineHeight: '1.3' }}>
                           {item.text || item.pregunta || item.check}
                         </div>
 
-                        {/* Badges con estilos inline explícitos - lineHeight para compatibilidad html2canvas */}
-                        <div style={{ width: '60px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.4rem', borderLeft: '1px solid #e2e8f0' }}>
+                        {/* Respuesta Badge */}
+                        <div style={{ display: 'table-cell', verticalAlign: 'middle', textAlign: 'center', width: '55px', borderLeft: '1px solid #e2e8f0', padding: '4px 0' }}>
                           {isOk ? (
-                            <div style={{ backgroundColor: '#dcfce7', color: '#15803d', border: '1px solid #86efac', fontWeight: 900, fontSize: '8pt', padding: '2px 8px', borderRadius: '4px', display: 'inline-block', textAlign: 'center', minWidth: '28px', lineHeight: '16px' }}>C</div>
+                            <span style={{ backgroundColor: '#dcfce7', color: '#15803d', border: '1px solid #86efac', fontWeight: 900, fontSize: '8.5pt', padding: '3px 8px', borderRadius: '4px', display: 'inline-block', textAlign: 'center', minWidth: '28px', lineHeight: 1, verticalAlign: 'middle' }}>C</span>
                           ) : isFail ? (
-                            <div style={{ backgroundColor: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5', fontWeight: 900, fontSize: '8pt', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', textAlign: 'center', minWidth: '28px', lineHeight: '16px' }}>NC</div>
+                            <span style={{ backgroundColor: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5', fontWeight: 900, fontSize: '8.5pt', padding: '3px 8px', borderRadius: '4px', display: 'inline-block', textAlign: 'center', minWidth: '28px', lineHeight: 1, verticalAlign: 'middle' }}>NC</span>
                           ) : (
-                            <div style={{ backgroundColor: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', fontWeight: 900, fontSize: '8pt', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', textAlign: 'center', minWidth: '28px', lineHeight: '16px' }}>N/A</div>
+                            <span style={{ backgroundColor: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', fontWeight: 900, fontSize: '8.5pt', padding: '3px 8px', borderRadius: '4px', display: 'inline-block', textAlign: 'center', minWidth: '28px', lineHeight: 1, verticalAlign: 'middle' }}>N/A</span>
                           )}
                         </div>
                       </div>
@@ -536,7 +537,7 @@ export default function ChecklistPdfGenerator({
             isProfessional: false
           } : null}
           box2={fullData.showSignatures?.professional ? {
-            title: 'PROFESIONAL / INSTRUCTOR',
+            title: 'PROFESIONAL',
             subtitle: (actName || 'Firma de Especialista').toUpperCase(),
             signatureUrl: fullData.signature || actSignature || null,
             stampUrl: fullData.professionalStamp || actStamp || null,
@@ -552,7 +553,7 @@ export default function ChecklistPdfGenerator({
         />
       </div>
 
-      <PdfBrandingFooter />
+      {fullData.showFooter !== false && <PdfBrandingFooter />}
     </div>
   );
 }

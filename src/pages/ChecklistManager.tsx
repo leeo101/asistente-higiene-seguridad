@@ -456,8 +456,7 @@ export default function ChecklistManager(): React.ReactElement | null {
   const [isSaving, setIsSaving] = useState(false);
   const [autoPrintShare, setAutoPrintShare] = useState(false);
   // Static PDF sharing from history (uses frozen IndexedDB blob)
-  const [staticPdfBlob, setStaticPdfBlob] = useState<Blob | null>(null);
-  const [staticPdfName, setStaticPdfName] = useState('');
+
   const [isStaticSharing, setIsStaticSharing] = useState(false);
   // Flag to prevent clearing activeSections when navigating away after save
   const isCreatingNewRef = useRef(false);
@@ -498,6 +497,7 @@ export default function ChecklistManager(): React.ReactElement | null {
     supervisor: true,
     professional: true
   });
+  const [showFooter, setShowFooter] = useState(true);
   const [actionPlan, setActionPlan] = useState([]);
   const [nextReview, setNextReview] = useState('');
 
@@ -652,6 +652,7 @@ export default function ChecklistManager(): React.ReactElement | null {
         setFotos(parsed.fotos || []);
         setSelectedNorms(parsed.selectedNorms || []);
         if (parsed.showSignatures) setShowSignatures(parsed.showSignatures);
+        if (parsed.showFooter !== undefined) setShowFooter(parsed.showFooter);
         setOperatorSignature(parsed.operatorSignature || '');
         setSignature(parsed.signature || '');
         setSupervisorSignature(parsed.supervisorSignature || '');
@@ -675,6 +676,7 @@ export default function ChecklistManager(): React.ReactElement | null {
       epps,
       fotos,
       showSignatures,
+      showFooter,
       operatorSignature,
       signature,
       supervisorSignature,
@@ -868,79 +870,9 @@ export default function ChecklistManager(): React.ReactElement | null {
       let stored = localStorage.getItem('checklist_' + item.id);
       let parsed = stored ? JSON.parse(stored) : item;
 
-      // 2. Intentar usar PDF estático archivado si existe
-      if (parsed.hasStaticPdf || item.hasStaticPdf) {
-        setIsStaticSharing(true);
-        try {
-          const blob = await getPdfBlob(item.id);
-          if (blob && blob.size > 2000) {
-            const empresa = parsed.empresa || item.empresa || 'Reporte';
-            const equipo = parsed.equipo || item.equipo || 'Checklist';
-            const safeName = `Checklist_${empresa.replace(/\s+/g, '_')}_${equipo.replace(/\s+/g, '_')}.pdf`;
-            setStaticPdfBlob(blob);
-            setStaticPdfName(safeName);
-            setIsStaticSharing(false);
-            return;
-          }
-        } catch (err) {
-          console.warn('[ShareHistory] Error al cargar PDF estático, usando fallback:', err);
-        }
-        setIsStaticSharing(false);
-      }
-
-      // 3. Fallback: usar el flujo estándar con ChecklistPdfGenerator
+      // 2. Abrir ShareModal estándar con regeneración fresca de ChecklistPdfGenerator
       setShareItem(parsed);
     });
-  };
-
-  const handleStaticPdfAction = async (action: 'download' | 'share' | 'print') => {
-    if (!staticPdfBlob || !staticPdfName) return;
-    if (action === 'download') {
-      const url = window.URL.createObjectURL(staticPdfBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = staticPdfName;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-      toast.success('¡PDF descargado con éxito!');
-      setStaticPdfBlob(null);
-    } else if (action === 'share') {
-      try {
-        const file = new File([staticPdfBlob], staticPdfName, { type: 'application/pdf' });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: staticPdfName });
-          toast.success('¡Compartido!');
-        } else {
-          // fallback to download
-          handleStaticPdfAction('download');
-          return;
-        }
-      } catch (err: any) {
-        if (err?.name !== 'AbortError') handleStaticPdfAction('download');
-      }
-      setStaticPdfBlob(null);
-    } else if (action === 'print') {
-      try {
-        const url = window.URL.createObjectURL(staticPdfBlob);
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = url;
-        document.body.appendChild(iframe);
-        iframe.onload = () => {
-          iframe.contentWindow?.print();
-          setTimeout(() => {
-            document.body.removeChild(iframe);
-            window.URL.revokeObjectURL(url);
-          }, 2000);
-        };
-      } catch {
-        handleStaticPdfAction('download');
-        return;
-      }
-      setStaticPdfBlob(null);
-    }
   };
 
   const columns = [
@@ -1224,6 +1156,9 @@ export default function ChecklistManager(): React.ReactElement | null {
               selectedNorms,
               availableNorms,
               showSignatures,
+              showFooter,
+              epps,
+              fotos,
               operatorSignature,
               signature,
               supervisorSignature
@@ -1763,6 +1698,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                 </h3>
 
                 {/* Custom visual switches */}
+                {/* Custom visual switches */}
                 <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
                     <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                     <div className="flex gap-[1rem] flex-wrap justify-center">
@@ -1781,23 +1717,51 @@ export default function ChecklistManager(): React.ReactElement | null {
                       background: isChecked ? '#eff6ff' : 'transparent',
                       color: isChecked ? '#2563eb' : '#64748b',
                     }}>
-                    
-                                    <input
+                    <input
                       type="checkbox"
                       checked={isChecked}
-                      onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))} className="hidden" />
-
-                    
-                                    <div style={{
-                      border: isChecked ? '2px solid #3b82f6' : '2px solid #94a3b8',
-                      background: isChecked ? '#3b82f6' : 'transparent'
-                    }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-all flex-shrink-0">
-                                        {isChecked && <CheckCircle2 size={12} color="white" />}
-                                    </div>
-                                    <span className="whitespace-nowrap leading-none mt-[1px]">{sig.label}</span>
-                                </label>);
-
+                      onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))}
+                      className="hidden"
+                    />
+                    <div
+                      style={{
+                        border: isChecked ? '2px solid #3b82f6' : '2px solid #94a3b8',
+                        background: isChecked ? '#3b82f6' : 'transparent'
+                      }}
+                      className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-all flex-shrink-0">
+                      {isChecked && <CheckCircle2 size={12} color="white" />}
+                    </div>
+                    <span className="whitespace-nowrap leading-none mt-[1px]">{sig.label}</span>
+                  </label>
+                );
               })}
+                    </div>
+
+                    <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px] mt-2">PIE DE PÁGINA INSTITUCIONAL / QR:</div>
+                    <div className="flex gap-[1rem] flex-wrap justify-center">
+                        <label
+                          className="flex items-center gap-2 cursor-pointer select-none p-[0.6rem_1.2rem] rounded-full font-[800] text-[0.8rem] transition-all"
+                          style={{
+                            border: showFooter ? '1px solid #10b981' : '1px solid #cbd5e1',
+                            background: showFooter ? '#ecfdf5' : 'transparent',
+                            color: showFooter ? '#059669' : '#64748b',
+                          }}>
+                          <input
+                            type="checkbox"
+                            checked={showFooter}
+                            onChange={(e) => setShowFooter(e.target.checked)}
+                            className="hidden"
+                          />
+                          <div
+                            style={{
+                              border: showFooter ? '2px solid #10b981' : '2px solid #94a3b8',
+                              background: showFooter ? '#10b981' : 'transparent'
+                            }}
+                            className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-all flex-shrink-0">
+                            {showFooter && <CheckCircle2 size={12} color="white" />}
+                          </div>
+                          <span className="whitespace-nowrap leading-none mt-[1px]">Incluir Pie de Página institucional con QR</span>
+                        </label>
                     </div>
                 </div>
 
@@ -1821,7 +1785,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                 isProfessional: false
               } : null}
               box2={showSignatures.professional ? {
-                title: 'PROFESIONAL / INSTRUCTOR',
+                title: 'PROFESIONAL',
                 subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
                 signatureUrl: signature || professional.signature || null,
                 stampUrl: professional.stamp || null,
@@ -1835,7 +1799,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                 isProfessional: false
               } : null} />
             
-            <PdfBrandingFooter />
+            {showFooter && <PdfBrandingFooter />}
                 </div>
 
                 {/* Interactive Signature Drawing Pads */}
@@ -1880,12 +1844,12 @@ export default function ChecklistManager(): React.ReactElement | null {
           {currentStep === totalSteps && 
               <>
                  <button onClick={() => requirePro(() => {
-                   const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, operatorSignature, signature, supervisorSignature, equipo: inspectionInfo?.item || checklistTitle || 'Checklist', empresa: companyInfo?.name || '-', fecha: inspectionInfo?.date || new Date().toISOString() };
+                   const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, showFooter, operatorSignature, signature, supervisorSignature, equipo: inspectionInfo?.item || checklistTitle || 'Checklist', empresa: companyInfo?.name || '-', fecha: inspectionInfo?.date || new Date().toISOString() };
                    setAutoPrintShare(true);
                    setShareItem(data as any);
                  })} style={{ backgroundColor: '#1e293b', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><Printer size={16} /> IMPRIMIR</button>
                  <button onClick={() => requirePro(() => {
-                   const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, operatorSignature, signature, supervisorSignature, equipo: inspectionInfo?.item || checklistTitle || 'Checklist', empresa: companyInfo?.name || '-', fecha: inspectionInfo?.date || new Date().toISOString() };
+                   const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, showFooter, operatorSignature, signature, supervisorSignature, equipo: inspectionInfo?.item || checklistTitle || 'Checklist', empresa: companyInfo?.name || '-', fecha: inspectionInfo?.date || new Date().toISOString() };
                    setAutoPrintShare(false);
                    setShareItem(data as any);
                  })} style={{ backgroundColor: '#3b82f6', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><Share2 size={16} /> COMPARTIR</button>
@@ -1912,49 +1876,6 @@ export default function ChecklistManager(): React.ReactElement | null {
       </div>
       {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} details={(qrTarget as any).details} onClose={() => setQrTarget(null)} />}
       {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
-
-      {/* Modal de compartir PDF estático (sin re-renderizar) */}
-      {staticPdfBlob && (
-        <div
-          style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999999, padding: '1.5rem', boxSizing: 'border-box' }}
-          onClick={() => setStaticPdfBlob(null)}
-        >
-          <div
-            style={{ background: 'var(--color-surface)', borderRadius: '28px', width: '100%', maxWidth: '420px', padding: '2rem', boxShadow: '0 25px 70px -10px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', position: 'relative' }}
-            onClick={e => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setStaticPdfBlob(null)}
-              style={{ position: 'absolute', top: '1rem', right: '1rem', background: '#ef4444', border: 'none', borderRadius: '10px', width: 32, height: 32, cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 900 }}
-            >✕</button>
-            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-              <div style={{ width: 56, height: 56, background: 'linear-gradient(135deg, #10b981, #059669)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem', fontSize: '1.6rem' }}>📄</div>
-              <h2 style={{ margin: 0, fontWeight: 900, fontSize: '1.3rem', color: 'var(--color-text)' }}>PDF Archivado</h2>
-              <p style={{ margin: '0.3rem 0 0', fontSize: '0.78rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Idéntico al guardado originalmente</p>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
-              <button
-                onClick={() => handleStaticPdfAction('download')}
-                style={{ padding: '0.9rem', background: '#8b5cf6', color: '#fff', border: 'none', borderRadius: 14, fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-              >
-                <Download size={18} /> Descargar
-              </button>
-              <button
-                onClick={() => handleStaticPdfAction('share')}
-                style={{ padding: '0.9rem', background: '#25D366', color: '#fff', border: 'none', borderRadius: 14, fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-              >
-                <Share2 size={18} /> Compartir
-              </button>
-              <button
-                onClick={() => handleStaticPdfAction('print')}
-                style={{ padding: '0.9rem', background: '#1e293b', color: '#fff', border: 'none', borderRadius: 14, fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', gridColumn: '1 / -1' }}
-              >
-                <Printer size={18} /> Imprimir
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

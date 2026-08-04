@@ -37,10 +37,64 @@ export default function PersonalData(): React.ReactElement | null {
     profession: ''
   });
 
+  const [isCustomTitle, setIsCustomTitle] = useState(false);
+
+  const PROFESSION_OPTIONS = [
+    // TÉCNICOS
+    "Técnico Universitario en Higiene y Seguridad Laboral",
+    "Técnico Universitario en Higiene y Seguridad en el Trabajo",
+    "Técnico Superior en Higiene y Seguridad en el Trabajo",
+    "Técnico Superior en Control de Gestión Ambiental y SyST",
+    "Técnico Superior en Ergonomía Ocupacional",
+    "Técnico en Higiene, Seguridad y Medio Ambiente",
+    "Técnico en Seguridad e Higiene Industrial",
+    // LICENCIADOS
+    "Licenciado en Higiene y Seguridad en el Trabajo",
+    "Licenciado en Seguridad, Higiene y Control Ambiental",
+    "Licenciado en Gestión de la Salud y Seguridad Ocupacional",
+    "Licenciado en Ergonomía Ocupacional",
+    "Licenciado en Ciencias Ambientales y SyST",
+    // INGENIEROS
+    "Ingeniero Especialista en Higiene y Seguridad en el Trabajo",
+    "Ingeniero en Seguridad Laboral y Ambiental",
+    "Ingeniero Industrial con Especialización en SyST",
+    "Ingeniero Químico / Ambiental",
+    // ESPECIALISTAS Y OTROS
+    "Especialista en Ergonomía y Salud Ocupacional",
+    "Auditor Líder en Sistemas de Gestión ISO 45001 / 14001",
+    "Médico del Trabajo / Salud Ocupacional",
+    "CUSTOM_OPTION"
+  ];
+
   useEffect(() => {
     const savedData = localStorage.getItem('personalData');
     if (savedData) {
-      setFormData(JSON.parse(savedData));
+      try {
+        const parsed = JSON.parse(savedData);
+        if (!parsed.profession || parsed.profession === 'Técnico' || parsed.profession === 'PROFESIONAL') {
+          parsed.profession = 'Técnico Universitario en Higiene y Seguridad Laboral';
+          localStorage.setItem('personalData', JSON.stringify(parsed));
+        }
+        setFormData(parsed);
+        if (parsed.profession && !PROFESSION_OPTIONS.includes(parsed.profession)) {
+          setIsCustomTitle(true);
+        }
+      } catch (e) {}
+    } else {
+      // Si no existen datos guardados, inicializar con el título por defecto
+      const initial = {
+        name: 'Ariel',
+        email: '',
+        dni: '',
+        license: '',
+        phone: '',
+        address: '',
+        country: 'argentina',
+        photo: null,
+        profession: 'Técnico Universitario en Higiene y Seguridad Laboral'
+      };
+      localStorage.setItem('personalData', JSON.stringify(initial));
+      setFormData(initial);
     }
   }, []);
 
@@ -210,15 +264,57 @@ export default function PersonalData(): React.ReactElement | null {
 
                 <FieldGroup icon={<GraduationCap size={15} />} label="Título / Profesión">
                     <select
-            value={formData.profession}
-            onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
-            style={{ ...inputStyle }} className="appearance-[none]">
-            
-                        <option value="">Seleccione su título</option>
-                        <option value="Técnico">Técnico</option>
-                        <option value="Ingeniero">Ingeniero</option>
-                        <option value="Licenciado">Licenciado</option>
+                      value={isCustomTitle ? 'CUSTOM_OPTION' : formData.profession}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === 'CUSTOM_OPTION') {
+                          setIsCustomTitle(true);
+                          setFormData({ ...formData, profession: '' });
+                        } else {
+                          setIsCustomTitle(false);
+                          setFormData({ ...formData, profession: val });
+                        }
+                      }}
+                      style={{ ...inputStyle }} className="appearance-[none] mb-2">
+                        <option value="">Seleccione su título profesional...</option>
+                        <optgroup label="TÉCNICOS">
+                          <option value="Técnico Universitario en Higiene y Seguridad Laboral">Técnico Universitario en Higiene y Seguridad Laboral</option>
+                          <option value="Técnico Universitario en Higiene y Seguridad en el Trabajo">Técnico Universitario en Higiene y Seguridad en el Trabajo</option>
+                          <option value="Técnico Superior en Higiene y Seguridad en el Trabajo">Técnico Superior en Higiene y Seguridad en el Trabajo</option>
+                          <option value="Técnico Superior en Control de Gestión Ambiental y SyST">Técnico Superior en Control de Gestión Ambiental y SyST</option>
+                          <option value="Técnico Superior en Ergonomía Ocupacional">Técnico Superior en Ergonomía Ocupacional</option>
+                          <option value="Técnico en Higiene, Seguridad y Medio Ambiente">Técnico en Higiene, Seguridad y Medio Ambiente</option>
+                          <option value="Técnico en Seguridad e Higiene Industrial">Técnico en Seguridad e Higiene Industrial</option>
+                        </optgroup>
+                        <optgroup label="LICENCIADOS">
+                          <option value="Licenciado en Higiene y Seguridad en el Trabajo">Licenciado en Higiene y Seguridad en el Trabajo</option>
+                          <option value="Licenciado en Seguridad, Higiene y Control Ambiental">Licenciado en Seguridad, Higiene y Control Ambiental</option>
+                          <option value="Licenciado en Gestión de la Salud y Seguridad Ocupacional">Licenciado en Gestión de la Salud y Seguridad Ocupacional</option>
+                          <option value="Licenciado en Ergonomía Ocupacional">Licenciado en Ergonomía Ocupacional</option>
+                          <option value="Licenciado en Ciencias Ambientales y SyST">Licenciado en Ciencias Ambientales y SyST</option>
+                        </optgroup>
+                        <optgroup label="INGENIEROS">
+                          <option value="Ingeniero Especialista en Higiene y Seguridad en el Trabajo">Ingeniero Especialista en Higiene y Seguridad en el Trabajo</option>
+                          <option value="Ingeniero en Seguridad Laboral y Ambiental">Ingeniero en Seguridad Laboral y Ambiental</option>
+                          <option value="Ingeniero Industrial con Especialización en SyST">Ingeniero Industrial con Especialización en SyST</option>
+                          <option value="Ingeniero Químico / Ambiental">Ingeniero Químico / Ambiental</option>
+                        </optgroup>
+                        <optgroup label="ESPECIALISTAS Y OTROS">
+                          <option value="Especialista en Ergonomía y Salud Ocupacional">Especialista en Ergonomía y Salud Ocupacional</option>
+                          <option value="Auditor Líder en Sistemas de Gestión ISO 45001 / 14001">Auditor Líder en Sistemas de Gestión ISO 45001 / 14001</option>
+                          <option value="Médico del Trabajo / Salud Ocupacional">Médico del Trabajo / Salud Ocupacional</option>
+                        </optgroup>
+                        <option value="CUSTOM_OPTION">✍️ Otro Título / Personalizado...</option>
                     </select>
+                    {isCustomTitle && (
+                      <input
+                        type="text"
+                        placeholder="Escriba su título profesional completo..."
+                        value={formData.profession}
+                        onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors mt-2"
+                      />
+                    )}
                 </FieldGroup>
 
                 <FieldGroup icon={<Globe size={15} />} label="País / Región">
