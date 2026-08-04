@@ -455,6 +455,10 @@ export default function ChecklistManager(): React.ReactElement | null {
   const [filterEmpresa, setFilterEmpresa] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [autoPrintShare, setAutoPrintShare] = useState(false);
+  // Static PDF sharing from history (uses frozen IndexedDB blob)
+  const [staticPdfBlob, setStaticPdfBlob] = useState<Blob | null>(null);
+  const [staticPdfName, setStaticPdfName] = useState('');
+  const [isStaticSharing, setIsStaticSharing] = useState(false);
   // Flag to prevent clearing activeSections when navigating away after save
   const isCreatingNewRef = useRef(false);
 
@@ -854,6 +858,91 @@ export default function ChecklistManager(): React.ReactElement | null {
     }), 'checklists_herramientas', { fecha: 'Fecha', equipo: 'Equipo', marca: 'Marca', serial: 'Número Serie', empresa: 'Empresa', estado: 'Estado' }, 'Reporte de Checklists'));
   };
 
+  /**
+   * Intenta compartir el PDF estático archivado en IndexedDB.
+   * Si no existe, hace fallback al flujo estándar de re-renderizado.
+   */
+  const handleShareFromHistory = async (item: any) => {
+    requirePro(async () => {
+      // 1. Cargar datos completos desde localStorage
+      let stored = localStorage.getItem('checklist_' + item.id);
+      let parsed = stored ? JSON.parse(stored) : item;
+
+      // 2. Intentar usar PDF estático archivado si existe
+      if (parsed.hasStaticPdf || item.hasStaticPdf) {
+        setIsStaticSharing(true);
+        try {
+          const blob = await getPdfBlob(item.id);
+          if (blob && blob.size > 2000) {
+            const empresa = parsed.empresa || item.empresa || 'Reporte';
+            const equipo = parsed.equipo || item.equipo || 'Checklist';
+            const safeName = `Checklist_${empresa.replace(/\s+/g, '_')}_${equipo.replace(/\s+/g, '_')}.pdf`;
+            setStaticPdfBlob(blob);
+            setStaticPdfName(safeName);
+            setIsStaticSharing(false);
+            return;
+          }
+        } catch (err) {
+          console.warn('[ShareHistory] Error al cargar PDF estático, usando fallback:', err);
+        }
+        setIsStaticSharing(false);
+      }
+
+      // 3. Fallback: usar el flujo estándar con ChecklistPdfGenerator
+      setShareItem(parsed);
+    });
+  };
+
+  const handleStaticPdfAction = async (action: 'download' | 'share' | 'print') => {
+    if (!staticPdfBlob || !staticPdfName) return;
+    if (action === 'download') {
+      const url = window.URL.createObjectURL(staticPdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = staticPdfName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+      toast.success('¡PDF descargado con éxito!');
+      setStaticPdfBlob(null);
+    } else if (action === 'share') {
+      try {
+        const file = new File([staticPdfBlob], staticPdfName, { type: 'application/pdf' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: staticPdfName });
+          toast.success('¡Compartido!');
+        } else {
+          // fallback to download
+          handleStaticPdfAction('download');
+          return;
+        }
+      } catch (err: any) {
+        if (err?.name !== 'AbortError') handleStaticPdfAction('download');
+      }
+      setStaticPdfBlob(null);
+    } else if (action === 'print') {
+      try {
+        const url = window.URL.createObjectURL(staticPdfBlob);
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = url;
+        document.body.appendChild(iframe);
+        iframe.onload = () => {
+          iframe.contentWindow?.print();
+          setTimeout(() => {
+            document.body.removeChild(iframe);
+            window.URL.revokeObjectURL(url);
+          }, 2000);
+        };
+      } catch {
+        handleStaticPdfAction('download');
+        return;
+      }
+      setStaticPdfBlob(null);
+    }
+  };
+
   const columns = [
   {
     header: 'Nº',
@@ -950,14 +1039,12 @@ export default function ChecklistManager(): React.ReactElement | null {
         </button>
 
         <button
-          onClick={() => requirePro(() => {
-            let stored = localStorage.getItem('checklist_' + item.id);
-            let parsed = stored ? JSON.parse(stored) : item;
-            setShareItem(parsed);
-          })}
+          onClick={() => handleShareFromHistory(item)}
           title="Compartir Informe"
-          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <Share2 size={12} /> Compartir
+          disabled={isStaticSharing}
+          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', opacity: isStaticSharing ? 0.7 : 1 }}>
+          {isStaticSharing ? <div style={{ width: 12, height: 12, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> : <Share2 size={12} />}
+          {isStaticSharing ? 'Cargando...' : 'Compartir'}
         </button>
 
         <button
@@ -1825,6 +1912,49 @@ export default function ChecklistManager(): React.ReactElement | null {
       </div>
       {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} details={(qrTarget as any).details} onClose={() => setQrTarget(null)} />}
       {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+
+      {/* Modal de compartir PDF estático (sin re-renderizar) */}
+      {staticPdfBlob && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999999, padding: '1.5rem', boxSizing: 'border-box' }}
+          onClick={() => setStaticPdfBlob(null)}
+        >
+          <div
+            style={{ background: 'var(--color-surface)', borderRadius: '28px', width: '100%', maxWidth: '420px', padding: '2rem', boxShadow: '0 25px 70px -10px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', position: 'relative' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setStaticPdfBlob(null)}
+              style={{ position: 'absolute', top: '1rem', right: '1rem', background: '#ef4444', border: 'none', borderRadius: '10px', width: 32, height: 32, cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 900 }}
+            >✕</button>
+            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+              <div style={{ width: 56, height: 56, background: 'linear-gradient(135deg, #10b981, #059669)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem', fontSize: '1.6rem' }}>📄</div>
+              <h2 style={{ margin: 0, fontWeight: 900, fontSize: '1.3rem', color: 'var(--color-text)' }}>PDF Archivado</h2>
+              <p style={{ margin: '0.3rem 0 0', fontSize: '0.78rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Idéntico al guardado originalmente</p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+              <button
+                onClick={() => handleStaticPdfAction('download')}
+                style={{ padding: '0.9rem', background: '#8b5cf6', color: '#fff', border: 'none', borderRadius: 14, fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+              >
+                <Download size={18} /> Descargar
+              </button>
+              <button
+                onClick={() => handleStaticPdfAction('share')}
+                style={{ padding: '0.9rem', background: '#25D366', color: '#fff', border: 'none', borderRadius: 14, fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+              >
+                <Share2 size={18} /> Compartir
+              </button>
+              <button
+                onClick={() => handleStaticPdfAction('print')}
+                style={{ padding: '0.9rem', background: '#1e293b', color: '#fff', border: 'none', borderRadius: 14, fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', gridColumn: '1 / -1' }}
+              >
+                <Printer size={18} /> Imprimir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
