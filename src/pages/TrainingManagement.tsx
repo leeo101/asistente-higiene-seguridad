@@ -562,7 +562,7 @@ export default function TrainingManagement(): React.ReactElement | null {
       <div className="container min-h-screen bg-[var(--color-background)] pb-[8rem]">
         {(!showForm && !showExamForm) ? (
           /* ==================== HISTORY / MAIN VIEW ==================== */
-          <div className="max-w-[1200px] m-[0_auto] px-[1rem] py-[1.5rem]">
+          <div className="max-w-[1200px] m-[0_auto] px-2.5 sm:px-4 py-3 sm:py-6">
             {/* Header con toque Dorado conservado */}
             <div className="no-print mb-6">
               <PremiumHeader
@@ -572,10 +572,10 @@ export default function TrainingManagement(): React.ReactElement | null {
               />
             </div>
 
-            {/* Action Bar Superior — BOTONES CON COLORES VÍVIDOS Y FORZADOS */}
-            <div className="flex items-center justify-between gap-4 mb-8 flex-wrap bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-md">
-              <div className="flex items-center gap-3 flex-wrap">
-                {/* Botón Nueva Capacitación — SIEMPRE VERDE */}
+            {/* Action Bar Superior — BOTONES ORGANIZADOS Y BALANCEADOS EN GRID */}
+            <div className="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-md mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
+                {/* Botón Nueva Capacitación */}
                 <button
                   onClick={() => {
                     setEditingId(null);
@@ -588,12 +588,12 @@ export default function TrainingManagement(): React.ReactElement | null {
                     boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)',
                     border: 'none'
                   }}
-                  className="px-6 py-3.5 rounded-xl font-black text-sm cursor-pointer flex items-center gap-2 transition-all hover:bg-emerald-600 hover:scale-[1.02]"
+                  className="w-full h-12 px-4 rounded-xl font-black text-sm cursor-pointer flex items-center justify-center gap-2 transition-all hover:bg-emerald-600 hover:scale-[1.01] active:scale-95"
                 >
                   <Plus size={20} strokeWidth={3} /> Nueva Capacitación
                 </button>
 
-                {/* Botón Escanear Planilla con IA — MISMO TAMAÑO, ALTURA Y COLOR VERDE (#10b981) QUE NUEVA CAPACITACIÓN */}
+                {/* Botón Escanear Planilla con IA */}
                 <button
                   onClick={() => setIsScannerModalOpen(true)}
                   style={{
@@ -602,15 +602,12 @@ export default function TrainingManagement(): React.ReactElement | null {
                     boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)',
                     border: 'none'
                   }}
-                  className="px-6 py-3.5 rounded-xl font-black text-sm cursor-pointer flex items-center gap-2 transition-all hover:bg-emerald-600 hover:scale-[1.02]"
+                  className="w-full h-12 px-4 rounded-xl font-black text-sm cursor-pointer flex items-center justify-center gap-2 transition-all hover:bg-emerald-600 hover:scale-[1.01] active:scale-95"
                 >
-                  <ScanLine size={20} strokeWidth={2.5} /> Escanear Planilla con IA
+                  <ScanLine size={20} strokeWidth={2.5} /> Escanear Planilla IA
                 </button>
 
-
-
-                {/* Botón Crear Examen — PÚRPURA CON COLOR FORZADO */}
-
+                {/* Botón Crear Examen */}
                 <button
                   onClick={() => setShowExamForm(true)}
                   style={{
@@ -619,25 +616,25 @@ export default function TrainingManagement(): React.ReactElement | null {
                     boxShadow: '0 4px 15px rgba(142, 68, 173, 0.4)',
                     border: 'none'
                   }}
-                  className="px-6 py-3.5 rounded-xl font-black text-sm cursor-pointer flex items-center gap-2 transition-all hover:bg-purple-700 hover:scale-[1.02]"
+                  className="w-full h-12 px-4 rounded-xl font-black text-sm cursor-pointer flex items-center justify-center gap-2 transition-all hover:bg-purple-700 hover:scale-[1.01] active:scale-95"
                 >
                   <FileText size={20} strokeWidth={2.5} /> Crear Examen
                 </button>
-              </div>
 
-              {/* Botón Exportar Excel — AZUL CON COLOR FORZADO */}
-              <button
-                onClick={handleExportCSV}
-                style={{
-                  backgroundColor: '#2563eb',
-                  color: '#ffffff',
-                  boxShadow: '0 4px 15px rgba(37, 99, 235, 0.4)',
-                  border: 'none'
-                }}
-                className="px-5 py-3 rounded-xl font-black text-sm cursor-pointer flex items-center gap-2 transition-all hover:bg-blue-700 hover:scale-[1.02] ml-auto"
-              >
-                <Download size={18} strokeWidth={2.5} /> Exportar Excel / CSV
-              </button>
+                {/* Botón Exportar Excel / CSV */}
+                <button
+                  onClick={handleExportCSV}
+                  style={{
+                    backgroundColor: '#2563eb',
+                    color: '#ffffff',
+                    boxShadow: '0 4px 15px rgba(37, 99, 235, 0.4)',
+                    border: 'none'
+                  }}
+                  className="w-full h-12 px-4 rounded-xl font-black text-sm cursor-pointer flex items-center justify-center gap-2 transition-all hover:bg-blue-700 hover:scale-[1.01] active:scale-95"
+                >
+                  <Download size={18} strokeWidth={2.5} /> Exportar Excel / CSV
+                </button>
+              </div>
             </div>
 
             {/* Dashboard Stats */}
@@ -648,7 +645,7 @@ export default function TrainingManagement(): React.ReactElement | null {
               <StatCard icon={<Timer />} label="Duración Promedio" value={`${avgDuration} hs`} color="#3b82f6" gradient="linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)" />
             </div>
 
-            {/* Filtros por Categoría — BOTONES DE FILTRO CON COLORES DISTINTIVOS Y FORZADOS */}
+            {/* Filtros por Categoría */}
             <div className="flex items-center gap-2.5 mb-6 overflow-x-auto pb-2 scrollbar-none flex-wrap">
               <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mr-2">
                 <Filter size={15} /> Categorías:
@@ -674,8 +671,8 @@ export default function TrainingManagement(): React.ReactElement | null {
               })}
             </div>
 
-            {/* Tabla de Resultados */}
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl">
+            {/* Tabla de Resultados — DESLIZABLE HORIZONTALMENTE COMO EN MATAFUEGOS */}
+            <div className="bg-white dark:bg-slate-800 p-3 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden">
               <DataTable
                 data={filteredHistory}
                 columns={columns}
@@ -685,7 +682,9 @@ export default function TrainingManagement(): React.ReactElement | null {
                 emptyIcon={<BookOpen size={48} className="text-emerald-500/40" />}
               />
             </div>
+
           </div>
+
         ) : (
           /* ==================== FORM / EXAM VIEW ==================== */
           <>

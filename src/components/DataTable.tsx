@@ -26,6 +26,7 @@ interface DataTableProps<T> {
   onEmptyAction?: () => void;
   emptyActionLabel?: string;
   hideHeader?: boolean;
+  renderMobileCard?: (item: T, index: number) => React.ReactNode;
 }
 
 export function DataTable<T extends Record<string, any>>({
@@ -38,8 +39,10 @@ export function DataTable<T extends Record<string, any>>({
   emptyIcon,
   onEmptyAction,
   emptyActionLabel,
-  hideHeader = false
+  hideHeader = false,
+  renderMobileCard
 }: DataTableProps<T>) {
+
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState<{key: keyof T | string | null;direction: 'ascending' | 'descending';}>({
     key: null,
@@ -174,57 +177,70 @@ export function DataTable<T extends Record<string, any>>({
         </div>
       )}
 
-      {/* Table Content */}
-      <div style={{ overflowX: 'auto', width: '100%' }}>
-        <table className="w-[100%] border-collapse-[collapse] text-left">
-          <thead>
-            <tr className="bg-[var(--color-background)] border-bottom-[2px_solid_var(--color-border)]">
-              {columns.map((col, i) =>
-              <th key={i} style={{
+      {/* Table / Card Content */}
+      {isMobile && renderMobileCard ? (
+        <div className="flex flex-col gap-3 w-full">
+          {paginatedData.length > 0 ? (
+            paginatedData.map((row, rowIndex) => (
+              <React.Fragment key={rowIndex}>
+                {renderMobileCard(row, (currentPage - 1) * itemsPerPage + rowIndex)}
+              </React.Fragment>
+            ))
+          ) : (
+            <div className="p-8 text-center text-[var(--color-text-muted)] bg-[var(--color-background)] rounded-2xl border border-[var(--color-border)]">
+              No se encontraron coincidencias para "{searchTerm}"
+            </div>
+          )}
+        </div>
+      ) : (
+        <div style={{ overflowX: 'auto', width: '100%' }} className="overflow-x-auto w-full touch-pan-x scrollbar-thin">
 
-
-
-
-
-                cursor: col.sortable ? 'pointer' : 'default'
-
-              }}
-              onClick={() => col.sortable && requestSort(col.accessor)} className="p-[1rem_1.25rem] text-[0.75rem] uppercase font-[800] text-[var(--color-text-muted)] white-space-[nowrap]">
-                
-                  <div className="flex items-center gap-[0.4rem]">
-                    {col.header}
-                    {col.sortable &&
-                  <div style={{ opacity: sortConfig.key === col.accessor ? 1 : 0.3 }} className="flex flex-col">
-                        <CaretUp size={10} weight={sortConfig.key === col.accessor && sortConfig.direction === 'ascending' ? 'bold' : 'regular'} color={sortConfig.key === col.accessor && sortConfig.direction === 'ascending' ? 'var(--color-primary)' : 'currentColor'} />
-                        <CaretDown size={10} weight={sortConfig.key === col.accessor && sortConfig.direction === 'descending' ? 'bold' : 'regular'} color={sortConfig.key === col.accessor && sortConfig.direction === 'descending' ? 'var(--color-primary)' : 'currentColor'} className="mt-[-4px]" />
-                      </div>
-                  }
-                  </div>
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedData.length > 0 ?
-            paginatedData.map((row, rowIndex) =>
-            <tr key={rowIndex} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.02)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'} className="border-bottom-[1px_solid_var(--color-border)] transition-[background_var(--transition-fast)]">
-                  {columns.map((col, colIndex) =>
-              <td key={colIndex} className="p-[1rem_1.25rem] text-[var(--color-text)] text-[0.9rem] vertical-align-[middle]">
-                      {col.render ? col.render(row, (currentPage - 1) * itemsPerPage + rowIndex) : row[col.accessor as keyof T] as unknown as string || '—'}
-                    </td>
-              )}
-                </tr>
-            ) :
-
-            <tr>
-                <td colSpan={columns.length} className="p-[3rem] text-center text-[var(--color-text-muted)]">
-                  No se encontraron coincidencias para "{searchTerm}"
-                </td>
+          <table className="w-[100%] border-collapse-[collapse] text-left">
+            <thead>
+              <tr className="bg-[var(--color-background)] border-bottom-[2px_solid_var(--color-border)]">
+                {columns.map((col, i) => (
+                  <th
+                    key={i}
+                    style={{ cursor: col.sortable ? 'pointer' : 'default' }}
+                    onClick={() => col.sortable && requestSort(col.accessor)}
+                    className="p-[0.75rem_1rem] sm:p-[1rem_1.25rem] text-[0.75rem] uppercase font-[800] text-[var(--color-text-muted)] white-space-[nowrap]"
+                  >
+                    <div className="flex items-center gap-[0.4rem]">
+                      {col.header}
+                      {col.sortable && (
+                        <div style={{ opacity: sortConfig.key === col.accessor ? 1 : 0.3 }} className="flex flex-col">
+                          <CaretUp size={10} weight={sortConfig.key === col.accessor && sortConfig.direction === 'ascending' ? 'bold' : 'regular'} color={sortConfig.key === col.accessor && sortConfig.direction === 'ascending' ? 'var(--color-primary)' : 'currentColor'} />
+                          <CaretDown size={10} weight={sortConfig.key === col.accessor && sortConfig.direction === 'descending' ? 'bold' : 'regular'} color={sortConfig.key === col.accessor && sortConfig.direction === 'descending' ? 'var(--color-primary)' : 'currentColor'} className="mt-[-4px]" />
+                        </div>
+                      )}
+                    </div>
+                  </th>
+                ))}
               </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {paginatedData.length > 0 ? (
+                paginatedData.map((row, rowIndex) => (
+                  <tr key={rowIndex} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.02)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'} className="border-bottom-[1px_solid_var(--color-border)] transition-[background_var(--transition-fast)]">
+                    {columns.map((col, colIndex) => (
+                      <td key={colIndex} className="p-[0.75rem_1rem] sm:p-[1rem_1.25rem] text-[var(--color-text)] text-[0.9rem] vertical-align-[middle]">
+                        {col.render ? col.render(row, (currentPage - 1) * itemsPerPage + rowIndex) : row[col.accessor as keyof T] as unknown as string || '—'}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={columns.length} className="p-[3rem] text-center text-[var(--color-text-muted)]">
+                    No se encontraron coincidencias para "{searchTerm}"
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
 
       {/* Pagination Footer */}
       {totalPages > 1 &&
