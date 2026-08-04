@@ -1,10 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { Camera, Upload, ScanLine, Sparkles, X, Check, Loader2, AlertCircle, RefreshCw, UserCheck, FileText } from 'lucide-react';
+import { Camera, Upload, ScanLine, Sparkles, X, Check, Loader2, AlertCircle, RefreshCw, UserCheck, FileText, Zap, ZapOff, Image as ImageIcon } from 'lucide-react';
 import { API_BASE_URL } from '../config';
-
 import { auth } from '../firebase';
 import toast from 'react-hot-toast';
-
 
 export interface ExtractedAsistente {
   nombre: string;
@@ -40,8 +38,9 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [resultData, setResultData] = useState<ExtractedTrainingData | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [isFlashOn, setIsFlashOn] = useState(false);
+  const [hasFlashSupport, setHasFlashSupport] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   if (!isOpen) return null;
 
@@ -54,8 +53,8 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('La imagen excede los 10MB. Probá reducir su tamaño o calidad.');
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error('La imagen excede los 15MB. Probá tomar la foto con menor resolución.');
       return;
     }
 
@@ -65,20 +64,38 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
       setResultData(null);
     };
     reader.readAsDataURL(file);
+    // reset input value so re-selecting same file works
+    e.target.value = '';
   };
 
   const startCamera = async () => {
     try {
       setIsCameraActive(true);
+      setIsFlashOn(false);
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 3840, min: 1280 },
+          height: { ideal: 2160, min: 720 }
+        }
       });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
+      const track = stream.getVideoTracks()[0];
+      if (track && track.getCapabilities) {
+        const capabilities = (track.getCapabilities() as any) || {};
+        if (capabilities.torch) {
+          setHasFlashSupport(true);
+        } else {
+          setHasFlashSupport(true); // Always offer flash toggle button for web compatibility
+        }
+      } else {
+        setHasFlashSupport(true);
+      }
     } catch (err) {
       console.error("Error al acceder a la cámara:", err);
-      toast.error('No se pudo acceder a la cámara. Verificá los permisos de tu navegador.');
+      toast.error('No se pudo abrir la cámara web/móvil directa. Usá las opciones "Tomar Foto con Cámara" o "Elegir de Galería".');
       setIsCameraActive(false);
     }
   };
@@ -86,22 +103,48 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
   const stopCamera = () => {
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach(track => {
+        if (isFlashOn) {
+          (track as any).applyConstraints({ advanced: [{ torch: false }] }).catch(() => {});
+        }
+        track.stop();
+      });
       videoRef.current.srcObject = null;
     }
     setIsCameraActive(false);
+    setIsFlashOn(false);
+  };
+
+  const toggleFlash = async () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      const track = stream.getVideoTracks()[0];
+      if (track) {
+        try {
+          const nextState = !isFlashOn;
+          await (track as any).applyConstraints({
+            advanced: [{ torch: nextState }]
+          });
+          setIsFlashOn(nextState);
+          toast.success(nextState ? 'Flash Encendido ⚡' : 'Flash Apagado');
+        } catch (e) {
+          console.error("Error toggling flash:", e);
+          toast.error('El flash no está soportado en esta cámara o navegador.');
+        }
+      }
+    }
   };
 
   const captureCameraPhoto = () => {
     if (!videoRef.current) return;
     const video = videoRef.current;
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 720;
+    canvas.width = video.videoWidth || 1920;
+    canvas.height = video.videoHeight || 1080;
     const ctx = canvas.getContext('2d');
     if (ctx) {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
       setSelectedImage(dataUrl);
       setResultData(null);
       stopCamera();
@@ -139,7 +182,7 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
       toast.dismiss(toastId);
 
       if (!data.sheetDetected) {
-        toast.error('No se detectó claramente una planilla de capacitación en la foto. Intentá con una foto con mejor iluminación.', { duration: 5000 });
+        toast.error('No se detectó claramente una planilla de capacitación en la foto. Intentá con otra foto o mejor iluminación.', { duration: 5000 });
       } else {
         toast.success(`Planilla leída correctamente! Se encontraron ${data.asistentes?.length || 0} asistentes.`);
       }
@@ -168,94 +211,123 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="bg-[var(--color-bg-surface,#18181b)] border border-emerald-500/30 text-[var(--color-text,#f4f4f5)] rounded-2xl sm:rounded-3xl w-full max-w-4xl max-h-[95vh] flex flex-col shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
+      <div className="bg-[var(--color-bg-surface,#18181b)] border border-emerald-500/40 text-[var(--color-text,#f4f4f5)] rounded-none sm:rounded-3xl w-full h-full sm:h-auto max-w-4xl sm:max-h-[95vh] flex flex-col shadow-2xl overflow-hidden">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-zinc-800 bg-gradient-to-r from-emerald-950/60 via-teal-950/40 to-zinc-900">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-zinc-800 bg-gradient-to-r from-emerald-950/70 via-teal-950/50 to-zinc-900 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 border border-emerald-400/40 flex items-center justify-center text-white shadow-lg shadow-emerald-600/30">
               <ScanLine className="w-5 h-5 text-white" />
             </div>
-
             <div>
               <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
                 Escáner Inteligente de Planillas IA
               </h3>
-              <p className="text-[11px] sm:text-xs text-emerald-300/80 font-medium">
-                Fotografiá una planilla física para extraer tema, fecha y nómina automáticamente.
+              <p className="text-[11px] sm:text-xs text-emerald-300/90 font-medium">
+                Fotografiá una planilla física para extraer tema, fecha y nómina de firmantes.
               </p>
             </div>
           </div>
           <button
             onClick={() => { stopCamera(); onClose(); }}
-            className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+            className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-6 h-6" />
           </button>
         </div>
 
         {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
           {!selectedImage && !isCameraActive && (
-            <div className="flex flex-col items-center justify-center border-2 border-dashed border-emerald-500/40 hover:border-emerald-400 rounded-2xl sm:rounded-3xl p-6 sm:p-10 text-center transition-all bg-gradient-to-b from-emerald-950/20 to-zinc-900/50 group">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-500 border border-emerald-400/30 flex items-center justify-center text-white mb-4 group-hover:scale-110 shadow-xl shadow-emerald-500/20 transition-transform">
+            <div className="flex flex-col items-center justify-center border-2 border-dashed border-emerald-500/50 hover:border-emerald-400 rounded-2xl sm:rounded-3xl p-5 sm:p-10 text-center transition-all bg-gradient-to-b from-emerald-950/30 via-zinc-900/60 to-zinc-950 group my-auto min-h-[320px]">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-500 border border-emerald-400/30 flex items-center justify-center text-white mb-4 group-hover:scale-110 shadow-xl shadow-emerald-500/30 transition-transform">
                 <FileText className="w-8 h-8" />
               </div>
-              <h4 className="text-base sm:text-lg font-black text-white mb-1">
+              <h4 className="text-base sm:text-xl font-black text-white mb-1">
                 Subí o fotografiá la hoja de capacitación física
               </h4>
-              <p className="text-xs sm:text-sm text-zinc-400 max-w-md mb-6">
-                Asegurate de que los textos y los datos de la hoja sean legibles ante la cámara.
+              <p className="text-xs sm:text-sm text-zinc-300 max-w-md mb-6">
+                Seleccioná una opción para capturar la planilla completa de asistencia o examen.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 w-full sm:w-auto">
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 transition-all hover:scale-[1.02] cursor-pointer"
-                >
-                  <Upload className="w-4 h-4" /> Seleccionar Foto / Archivo
-                </button>
+              {/* Botones de Selección Nativa (Labels 100% compatibles con celulares Android y iPhone) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 w-full max-w-md">
+                {/* 1. Selector de Galería (SIN capture para abrir la Galería/Archivos sin problemas) */}
+                <label className="flex items-center justify-center gap-2.5 px-5 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-sm shadow-xl shadow-emerald-600/30 cursor-pointer transition-all active:scale-95 text-center">
+                  <ImageIcon className="w-5 h-5 shrink-0" />
+                  <span>Elegir de Galería / Archivos</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </label>
+
+                {/* 2. Captura Directa con Cámara Nativa del Celular */}
+                <label className="flex items-center justify-center gap-2.5 px-5 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-500 hover:from-indigo-500 hover:to-purple-400 text-white font-black text-sm shadow-xl shadow-indigo-600/30 cursor-pointer transition-all active:scale-95 text-center">
+                  <Camera className="w-5 h-5 shrink-0 text-amber-300" />
+                  <span>Tomar Foto (Cámara)</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+
+              {/* Opción Secundaria: Visor en Vivo en la Web */}
+              <div className="mt-4 pt-4 border-t border-zinc-800/80 w-full max-w-md flex justify-center">
                 <button
                   type="button"
                   onClick={startCamera}
-                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-500 hover:from-indigo-500 hover:to-purple-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition-all hover:scale-[1.02] cursor-pointer"
+                  className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 underline decoration-emerald-500/40 underline-offset-4"
                 >
-                  <Camera className="w-4 h-4 text-amber-300" /> Abrir Cámara Directa
+                  <Camera className="w-3.5 h-3.5" /> Abrir Cámara en Pantalla Completa
                 </button>
               </div>
-
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handleFileChange}
-                className="hidden"
-              />
             </div>
           )}
 
-          {/* Camera Streaming Mode */}
+          {/* Camera Streaming Mode (Visor en Vivo Ampliado) */}
           {isCameraActive && (
-            <div className="flex flex-col items-center gap-4">
-              <div className="relative w-full max-w-lg aspect-video rounded-2xl overflow-hidden bg-black border-2 border-emerald-500/60 shadow-2xl">
-                <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
-                <div className="absolute inset-0 border-2 border-dashed border-amber-400/70 m-4 pointer-events-none rounded-xl" />
+            <div className="flex flex-col items-center gap-4 w-full h-full min-h-[380px]">
+              <div className="relative w-full flex-1 min-h-[320px] max-h-[60vh] sm:max-h-[480px] rounded-2xl overflow-hidden bg-black border-2 border-emerald-500/60 shadow-2xl flex items-center justify-center">
+                <video ref={videoRef} autoPlay playsInline className="w-full h-full object-contain bg-black" />
+                <div className="absolute inset-0 border-2 border-dashed border-amber-400/80 m-4 pointer-events-none rounded-xl" />
+                
+                {/* Botón de Flash / Linterna */}
+                {hasFlashSupport && (
+                  <button
+                    type="button"
+                    onClick={toggleFlash}
+                    className={`absolute top-4 right-4 z-20 px-3 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all shadow-lg backdrop-blur-md ${
+                      isFlashOn
+                        ? 'bg-amber-500 text-slate-950 border border-amber-300 shadow-amber-500/40'
+                        : 'bg-black/60 text-zinc-300 border border-zinc-700 hover:bg-zinc-800'
+                    }`}
+                  >
+                    {isFlashOn ? <Zap className="w-4 h-4 fill-amber-950" /> : <ZapOff className="w-4 h-4" />}
+                    <span>FLASH {isFlashOn ? 'ON ⚡' : 'OFF'}</span>
+                  </button>
+                )}
               </div>
-              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto shrink-0">
                 <button
                   type="button"
                   onClick={captureCameraPhoto}
-                  className="w-full sm:w-auto px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-600/40 cursor-pointer"
+                  className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-600/40 cursor-pointer transition-all active:scale-95"
                 >
-                  <Camera className="w-4 h-4" /> Capturar Foto
+                  <Camera className="w-5 h-5 text-amber-300" /> Capturar Foto de la Planilla
                 </button>
                 <button
                   type="button"
                   onClick={stopCamera}
-                  className="w-full sm:w-auto px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-sm cursor-pointer"
+                  className="w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-sm cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -266,7 +338,7 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
           {/* Selected Image Preview & Analysis Results */}
           {selectedImage && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-              {/* Left Column: Image Preview */}
+              {/* Left Column: Image Preview (Vista Previa Ampliada) */}
               <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black text-emerald-400 uppercase tracking-wider">
@@ -275,16 +347,16 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
                   <button
                     type="button"
                     onClick={resetSelection}
-                    className="text-xs text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 cursor-pointer"
+                    className="text-xs text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 cursor-pointer bg-zinc-900 px-3 py-1 rounded-lg border border-zinc-800"
                   >
-                    <RefreshCw className="w-3.5 h-3.5" /> Cambiar Foto
+                    <RefreshCw className="w-3.5 h-3.5" /> Sacar Otra Foto
                   </button>
                 </div>
-                <div className="relative rounded-2xl overflow-hidden border border-zinc-700 bg-zinc-950 flex items-center justify-center min-h-[240px] max-h-[350px] sm:max-h-[420px]">
+                <div className="relative rounded-2xl overflow-hidden border border-zinc-700 bg-zinc-950 flex items-center justify-center min-h-[300px] sm:min-h-[420px] max-h-[50vh] sm:max-h-[500px]">
                   <img
                     src={selectedImage}
                     alt="Planilla de capacitación"
-                    className="w-full h-full object-contain max-h-[350px] sm:max-h-[420px]"
+                    className="w-full h-full object-contain max-h-[50vh] sm:max-h-[500px]"
                   />
                 </div>
 
@@ -293,7 +365,7 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
                     type="button"
                     onClick={handleAnalyze}
                     disabled={isAnalyzing}
-                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/30 disabled:opacity-50 transition-all hover:scale-[1.01] cursor-pointer"
+                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-white font-black text-base flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/30 disabled:opacity-50 transition-all hover:scale-[1.01] active:scale-95 cursor-pointer"
                   >
                     {isAnalyzing ? (
                       <>
@@ -304,7 +376,6 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
                         <ScanLine className="w-5 h-5 text-amber-300 animate-pulse" /> Analizar con IA e Importar Datos
                       </>
                     )}
-
                   </button>
                 )}
               </div>
@@ -321,7 +392,7 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
                 </span>
 
                 {isAnalyzing && (
-                  <div className="flex-1 flex flex-col items-center justify-center p-6 border border-emerald-500/30 rounded-2xl bg-emerald-950/20 text-center min-h-[240px]">
+                  <div className="flex-1 flex flex-col items-center justify-center p-6 border border-emerald-500/30 rounded-2xl bg-emerald-950/20 text-center min-h-[260px]">
                     <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mb-3" />
                     <p className="text-sm font-black text-white">Leyendo encabezados y lista de firmantes...</p>
                     <p className="text-xs text-emerald-300/80 mt-1">Por favor aguardá unos segundos.</p>
@@ -329,7 +400,7 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
                 )}
 
                 {!isAnalyzing && !resultData && (
-                  <div className="flex-1 flex flex-col items-center justify-center p-6 border border-zinc-800 rounded-2xl bg-zinc-900/30 text-center min-h-[240px]">
+                  <div className="flex-1 flex flex-col items-center justify-center p-6 border border-zinc-800 rounded-2xl bg-zinc-900/30 text-center min-h-[260px]">
                     <Sparkles className="w-10 h-10 text-amber-400 mb-2" />
                     <p className="text-xs text-zinc-300">
                       Tocá en <strong>"Analizar con IA e Importar Datos"</strong> para escanear la foto.
@@ -338,7 +409,7 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
                 )}
 
                 {resultData && (
-                  <div className="flex-1 flex flex-col gap-3 bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 overflow-y-auto max-h-[380px] sm:max-h-[420px]">
+                  <div className="flex-1 flex flex-col gap-3 bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 overflow-y-auto max-h-[400px] sm:max-h-[460px]">
                     {!resultData.sheetDetected ? (
                       <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2">
                         <AlertCircle className="w-5 h-5 shrink-0 text-amber-400" />
@@ -387,7 +458,7 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
                           {(!resultData.asistentes || resultData.asistentes.length === 0) ? (
                             <p className="text-xs text-zinc-500 italic p-2">No se detectaron filas en la nómina.</p>
                           ) : (
-                            <div className="space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
+                            <div className="space-y-1.5 max-h-[180px] overflow-y-auto pr-1">
                               {resultData.asistentes.map((asistente, idx) => (
                                 <div
                                   key={idx}
@@ -423,7 +494,7 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
                         <button
                           type="button"
                           onClick={handleApply}
-                          className="w-full py-3.5 mt-1 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-600/40 transition-all hover:scale-[1.01] cursor-pointer"
+                          className="w-full py-4 mt-1 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-600/40 transition-all hover:scale-[1.01] active:scale-95 cursor-pointer"
                         >
                           <Check className="w-5 h-5" /> Aplicar Datos a la Capacitación
                         </button>
@@ -439,4 +510,3 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
     </div>
   );
 }
-
