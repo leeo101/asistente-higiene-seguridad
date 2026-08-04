@@ -407,8 +407,9 @@ export default function TrainingManagement(): React.ReactElement | null {
       accessor: 'fecha',
       sortable: true,
       render: (item: any) => (
-        <span className="flex items-center gap-1.5 text-slate-900 dark:text-slate-100 whitespace-nowrap font-bold text-sm">
-          <Calendar size={14} className="text-emerald-600 dark:text-emerald-400" /> {item.fecha ? new Date(item.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : '—'}
+        <span style={{ color: '#1e293b' }} className="flex items-center gap-1.5 whitespace-nowrap font-black text-sm dark:!text-slate-100">
+          <Calendar size={15} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+          {item.fecha ? new Date(item.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : '—'}
         </span>
       )
     },
@@ -418,15 +419,14 @@ export default function TrainingManagement(): React.ReactElement | null {
       sortable: true,
       render: (item: any) => (
         <div className="flex items-center gap-3 py-1">
-          <div className="bg-emerald-600 text-white p-2.5 rounded-xl shadow-sm shrink-0">
+          <div className="bg-gradient-to-br from-emerald-600 to-teal-600 text-white p-2.5 rounded-xl shadow-md shrink-0">
             <BookOpen size={18} />
           </div>
           <div className="flex flex-col">
-            {/* TEMA MAS OSCURO Y DESTACADO */}
-            <span style={{ color: '#0f172a' }} className="font-extrabold text-[0.98rem] dark:text-slate-100 leading-tight">
+            <span style={{ color: '#0f172a' }} className="font-black text-[0.98rem] dark:!text-white leading-tight">
               {item.tema}
             </span>
-            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mt-0.5">
+            <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.12)', color: '#047857' }} className="px-2.5 py-0.5 rounded-md font-extrabold text-xs inline-block mt-1 w-fit dark:!text-emerald-300 dark:!bg-emerald-950/50">
               {item.tipoCapacitacion || 'Seguridad e Higiene'}
             </span>
           </div>
@@ -438,9 +438,13 @@ export default function TrainingManagement(): React.ReactElement | null {
       accessor: 'expositor',
       sortable: true,
       render: (item: any) => (
-        <div className="flex flex-col text-xs">
-          <span className="font-extrabold text-slate-900 dark:text-slate-100">{item.expositor || '—'}</span>
-          <span className="text-slate-600 dark:text-slate-400 font-medium">{item.lugar || item.ubicacion || 'Planta Industrial'}</span>
+        <div className="flex flex-col text-xs gap-0.5">
+          <span style={{ color: '#0f172a' }} className="font-black dark:!text-slate-100 text-[0.85rem]">
+            {item.expositor || '—'}
+          </span>
+          <span style={{ color: '#475569' }} className="font-bold dark:!text-slate-300 text-[11px]">
+            {item.lugar || item.ubicacion || 'Planta Industrial'}
+          </span>
         </div>
       )
     },
@@ -448,8 +452,9 @@ export default function TrainingManagement(): React.ReactElement | null {
       header: 'Asistentes',
       accessor: 'asistentes',
       render: (item: any) => (
-        <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700 rounded-full text-xs font-black w-fit text-emerald-900 dark:text-emerald-300">
-          <Users size={14} className="text-emerald-700 dark:text-emerald-400" /> {item.asistentes?.length || 0} personas
+        <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#065f46', borderColor: 'rgba(16, 185, 129, 0.4)' }} className="inline-flex items-center gap-1.5 px-3 py-1 border rounded-full text-xs font-black w-fit dark:!text-emerald-300 dark:!bg-emerald-950/60 dark:!border-emerald-700">
+          <Users size={14} className="text-emerald-700 dark:text-emerald-400 shrink-0" />
+          {item.asistentes?.length || 0} {item.asistentes?.length === 1 ? 'persona' : 'personas'}
         </span>
       )
     },
@@ -457,11 +462,13 @@ export default function TrainingManagement(): React.ReactElement | null {
       header: 'Duración',
       accessor: 'duracion',
       render: (item: any) => (
-        <span className="flex items-center gap-1.5 text-slate-900 dark:text-slate-200 text-sm font-extrabold">
-          <Timer size={14} className="text-amber-600" /> {item.duracion} hs
+        <span style={{ color: '#0f172a' }} className="inline-flex items-center gap-1.5 text-sm font-black dark:!text-slate-100">
+          <Timer size={15} className="text-amber-500 shrink-0" />
+          {item.duracion} hs
         </span>
       )
     },
+
     {
       header: 'Acciones',
       accessor: 'id',
