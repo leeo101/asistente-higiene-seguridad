@@ -5,6 +5,7 @@ import aiReportConclusion from './_ai-report-conclusion.js';
 import analyzeExtinguisher from './_analyze-extinguisher.js';
 import analyzeGeneralRisks from './_analyze-general-risks.js';
 import analyzeImage from './_analyze-image.js';
+import analyzeTrainingSheet from './_analyze-training-sheet.js';
 import dailyInsight from './_daily-insight.js';
 
 export default async function handler(req, res) {
@@ -14,7 +15,9 @@ export default async function handler(req, res) {
   if (url.includes('ai-report-conclusion')) return aiReportConclusion(req, res);
   if (url.includes('analyze-extinguisher')) return analyzeExtinguisher(req, res);
   if (url.includes('analyze-general-risks')) return analyzeGeneralRisks(req, res);
+  if (url.includes('analyze-training-sheet')) return analyzeTrainingSheet(req, res);
   if (url.includes('analyze-image')) return analyzeImage(req, res);
   if (url.includes('daily-insight')) return dailyInsight(req, res);
   return aiAdvisor(req, res);
 }
+

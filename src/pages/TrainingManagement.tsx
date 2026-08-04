@@ -4,11 +4,14 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Save, Users, Calendar, Clock, BookOpen,
   UserPlus, Trash2, CheckCircle2, FileText, Briefcase,
-  Plus, Share2, Printer, Pencil, QrCode, Timer, Download, Filter, Eye
+  Plus, Share2, Printer, Pencil, QrCode, Timer, Download, Filter, Eye,
+  Sparkles, Camera, ScanLine
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import TrainingPdfGenerator from '../components/TrainingPdfGenerator';
 import TrainingExamPdfGenerator from '../components/TrainingExamPdfGenerator';
+import TrainingScannerModal, { ExtractedTrainingData } from '../components/TrainingScannerModal';
+
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -174,9 +177,41 @@ export default function TrainingManagement(): React.ReactElement | null {
 
   const [formData, setFormData] = useState(initialFormState);
   const [showSignatures, setShowSignatures] = useState(initialFormState.showSignatures);
+  const [isScannerModalOpen, setIsScannerModalOpen] = useState(false);
+
+  const handleApplyScannedData = (scannedData: ExtractedTrainingData, imageBase64: string) => {
+    setFormData((prev) => {
+      const newAsistentes = (scannedData.asistentes || []).map((a) => ({
+        nombre: a.nombre || '',
+        dni: a.dni || '',
+        puesto: a.puesto || '',
+        nota: a.nota || '',
+        firma: '',
+        showSignatureModal: false
+      }));
+
+      return {
+        ...prev,
+        tema: scannedData.tema || prev.tema,
+        tipoCapacitacion: scannedData.tipoCapacitacion || prev.tipoCapacitacion || 'Seguridad e Higiene',
+        fecha: scannedData.fecha || prev.fecha,
+        duracion: scannedData.duracion || prev.duracion,
+        expositor: scannedData.expositor || prev.expositor,
+        empresa: scannedData.empresa || prev.empresa,
+        ubicacion: scannedData.lugar || prev.ubicacion,
+        objetivo: scannedData.objetivo || prev.objetivo,
+        asistentes: newAsistentes.length > 0 ? newAsistentes : prev.asistentes,
+        fotoPlanillaOriginal: imageBase64 || (prev as any).fotoPlanillaOriginal
+      };
+    });
+    if (!showForm) {
+      setShowForm(true);
+    }
+  };
 
   const [professional, setProfessional] = useState({ name: '', license: '', signature: '', stamp: '' });
   const [isMobile, setIsMobile] = useState(false);
+
 
   useDocumentTitle(showExamForm ? 'Generador de Exámenes' : showForm ? editingId ? 'Editar Capacitación' : 'Nueva Capacitación' : 'Gestión de Capacitaciones');
 
@@ -548,7 +583,24 @@ export default function TrainingManagement(): React.ReactElement | null {
                   <Plus size={20} strokeWidth={3} /> Nueva Capacitación
                 </button>
 
+                {/* Botón Escanear Planilla con IA — MISMO TAMAÑO, ALTURA Y COLOR VERDE (#10b981) QUE NUEVA CAPACITACIÓN */}
+                <button
+                  onClick={() => setIsScannerModalOpen(true)}
+                  style={{
+                    backgroundColor: '#10b981',
+                    color: '#ffffff',
+                    boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)',
+                    border: 'none'
+                  }}
+                  className="px-6 py-3.5 rounded-xl font-black text-sm cursor-pointer flex items-center gap-2 transition-all hover:bg-emerald-600 hover:scale-[1.02]"
+                >
+                  <ScanLine size={20} strokeWidth={2.5} /> Escanear Planilla con IA
+                </button>
+
+
+
                 {/* Botón Crear Examen — PÚRPURA CON COLOR FORZADO */}
+
                 <button
                   onClick={() => setShowExamForm(true)}
                   style={{
@@ -704,9 +756,27 @@ export default function TrainingManagement(): React.ReactElement | null {
                   <div className="w-full">
                     {/* General Metadata Panel */}
                     <div className="bg-white dark:bg-slate-800 p-8 mb-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl">
-                      <h2 className="text-lg font-extrabold mb-6 flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                        <BookOpen size={20} /> Metadatos de la Charla
-                      </h2>
+                      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+                        <h2 className="text-lg font-extrabold flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                          <BookOpen size={20} /> Metadatos de la Charla
+                        </h2>
+                        <button
+                          type="button"
+                          onClick={() => setIsScannerModalOpen(true)}
+                          style={{
+                            backgroundColor: '#10b981',
+                            color: '#ffffff',
+                            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)',
+                            border: 'none'
+                          }}
+                          className="w-full sm:w-auto px-5 py-3 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition-all cursor-pointer hover:bg-emerald-600 hover:scale-[1.02]"
+                        >
+                          <ScanLine size={18} strokeWidth={2.5} /> Escanear Foto de Planilla con IA
+                        </button>
+
+
+                      </div>
+
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="col-span-full flex flex-col gap-2">
@@ -912,6 +982,12 @@ export default function TrainingManagement(): React.ReactElement | null {
       </div>
 
       {!showForm && !showExamForm && <AdBanner />}
+
+      <TrainingScannerModal
+        isOpen={isScannerModalOpen}
+        onClose={() => setIsScannerModalOpen(false)}
+        onApplyData={handleApplyScannedData}
+      />
     </AnimatedPage>
   );
 }
