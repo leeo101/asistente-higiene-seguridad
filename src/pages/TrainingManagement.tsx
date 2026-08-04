@@ -163,6 +163,7 @@ export default function TrainingManagement(): React.ReactElement | null {
     duracion: '1',
     empresa: '',
     ubicacion: '',
+    objetivo: '',
     observaciones: '',
     preguntas: [
       { texto: '¿Comprendió los riesgos asociados a la tarea?' },
@@ -174,6 +175,7 @@ export default function TrainingManagement(): React.ReactElement | null {
     supervisorSignature: '',
     showSignatures: { operator: false, professional: true, supervisor: false }
   };
+
 
   const [formData, setFormData] = useState(initialFormState);
   const [showSignatures, setShowSignatures] = useState(initialFormState.showSignatures);

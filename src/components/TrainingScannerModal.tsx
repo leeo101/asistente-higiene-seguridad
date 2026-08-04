@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { Camera, Upload, ScanLine, X, Check, Loader2, AlertCircle, RefreshCw, UserCheck, FileText } from 'lucide-react';
+import { Camera, Upload, ScanLine, Sparkles, X, Check, Loader2, AlertCircle, RefreshCw, UserCheck, FileText } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+
 import { auth } from '../firebase';
 import toast from 'react-hot-toast';
 
