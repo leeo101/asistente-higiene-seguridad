@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Shield, Plus, Search, Calendar, HeartPulse, UserCheck, AlertTriangle, 
   FileText, CheckCircle2, XCircle, QrCode, ExternalLink, Trash2, Filter, 
-  Building2, User, HardHat, FileSpreadsheet, Sparkles, Zap, Truck, ArrowUpRight
+  Building2, User, HardHat, FileSpreadsheet, Sparkles, Zap, Truck, ArrowUpRight, ArrowLeft, X
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -404,8 +404,14 @@ export default function MedicalAptitudes() {
         {/* Form View */}
         {showForm ? (
           <div className="glass-card p-6 sm:p-8 mt-6 rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700 flex-wrap gap-3">
               <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setShowForm(false)} 
+                  className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer mr-1"
+                  title="Volver al Historial">
+                  <ArrowLeft size={20} />
+                </button>
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
                   <FileText size={22} />
                 </div>
@@ -431,6 +437,7 @@ export default function MedicalAptitudes() {
                 </div>
               )}
             </div>
+
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
               <div>
@@ -573,9 +580,9 @@ export default function MedicalAptitudes() {
                 <div 
                   onClick={() => setFormData(prev => ({ ...prev, allowHeight: !prev.allowHeight }))}
                   style={{
-                    backgroundColor: formData.allowHeight ? '#dcfce7' : '#ffffff',
-                    border: formData.allowHeight ? '2px solid #16a34a' : '1px solid #cbd5e1',
-                    color: formData.allowHeight ? '#15803d' : '#334155',
+                    backgroundColor: formData.allowHeight ? '#dcfce7' : '#fff5f5',
+                    border: formData.allowHeight ? '2px solid #16a34a' : '1px solid #fca5a5',
+                    color: formData.allowHeight ? '#15803d' : '#991b1b',
                     padding: '12px 14px',
                     borderRadius: '12px',
                     display: 'flex',
@@ -585,23 +592,22 @@ export default function MedicalAptitudes() {
                     userSelect: 'none'
                   }}>
                   <div className="flex items-center gap-2.5">
-                    <ArrowUpRight size={18} style={{ color: formData.allowHeight ? '#16a34a' : '#94a3b8' }} />
-                    <span style={{ fontSize: '12px', fontWeight: formData.allowHeight ? '900' : '600' }}>Trabajo en Altura</span>
+                    <ArrowUpRight size={18} style={{ color: formData.allowHeight ? '#16a34a' : '#dc2626' }} />
+                    <span style={{ fontSize: '12px', fontWeight: '800' }}>Trabajo en Altura</span>
                   </div>
                   <div style={{
-                    width: '20px',
-                    height: '20px',
+                    width: '22px',
+                    height: '22px',
                     borderRadius: '6px',
-                    backgroundColor: formData.allowHeight ? '#16a34a' : '#f1f5f9',
+                    backgroundColor: formData.allowHeight ? '#16a34a' : '#ef4444',
                     color: '#ffffff',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '12px',
-                    fontWeight: '900',
-                    border: formData.allowHeight ? 'none' : '1px solid #cbd5e1'
+                    fontSize: '13px',
+                    fontWeight: '900'
                   }}>
-                    {formData.allowHeight ? '✓' : ''}
+                    {formData.allowHeight ? '✓' : '✕'}
                   </div>
                 </div>
 
@@ -609,9 +615,9 @@ export default function MedicalAptitudes() {
                 <div 
                   onClick={() => setFormData(prev => ({ ...prev, allowConfined: !prev.allowConfined }))}
                   style={{
-                    backgroundColor: formData.allowConfined ? '#dcfce7' : '#ffffff',
-                    border: formData.allowConfined ? '2px solid #16a34a' : '1px solid #cbd5e1',
-                    color: formData.allowConfined ? '#15803d' : '#334155',
+                    backgroundColor: formData.allowConfined ? '#dcfce7' : '#fff5f5',
+                    border: formData.allowConfined ? '2px solid #16a34a' : '1px solid #fca5a5',
+                    color: formData.allowConfined ? '#15803d' : '#991b1b',
                     padding: '12px 14px',
                     borderRadius: '12px',
                     display: 'flex',
@@ -621,23 +627,22 @@ export default function MedicalAptitudes() {
                     userSelect: 'none'
                   }}>
                   <div className="flex items-center gap-2.5">
-                    <Shield size={18} style={{ color: formData.allowConfined ? '#16a34a' : '#94a3b8' }} />
-                    <span style={{ fontSize: '12px', fontWeight: formData.allowConfined ? '900' : '600' }}>Espacios Confinados</span>
+                    <Shield size={18} style={{ color: formData.allowConfined ? '#16a34a' : '#dc2626' }} />
+                    <span style={{ fontSize: '12px', fontWeight: '800' }}>Espacios Confinados</span>
                   </div>
                   <div style={{
-                    width: '20px',
-                    height: '20px',
+                    width: '22px',
+                    height: '22px',
                     borderRadius: '6px',
-                    backgroundColor: formData.allowConfined ? '#16a34a' : '#f1f5f9',
+                    backgroundColor: formData.allowConfined ? '#16a34a' : '#ef4444',
                     color: '#ffffff',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '12px',
-                    fontWeight: '900',
-                    border: formData.allowConfined ? 'none' : '1px solid #cbd5e1'
+                    fontSize: '13px',
+                    fontWeight: '900'
                   }}>
-                    {formData.allowConfined ? '✓' : ''}
+                    {formData.allowConfined ? '✓' : '✕'}
                   </div>
                 </div>
 
@@ -645,9 +650,9 @@ export default function MedicalAptitudes() {
                 <div 
                   onClick={() => setFormData(prev => ({ ...prev, allowMachinery: !prev.allowMachinery }))}
                   style={{
-                    backgroundColor: formData.allowMachinery ? '#dcfce7' : '#ffffff',
-                    border: formData.allowMachinery ? '2px solid #16a34a' : '1px solid #cbd5e1',
-                    color: formData.allowMachinery ? '#15803d' : '#334155',
+                    backgroundColor: formData.allowMachinery ? '#dcfce7' : '#fff5f5',
+                    border: formData.allowMachinery ? '2px solid #16a34a' : '1px solid #fca5a5',
+                    color: formData.allowMachinery ? '#15803d' : '#991b1b',
                     padding: '12px 14px',
                     borderRadius: '12px',
                     display: 'flex',
@@ -657,23 +662,22 @@ export default function MedicalAptitudes() {
                     userSelect: 'none'
                   }}>
                   <div className="flex items-center gap-2.5">
-                    <Truck size={18} style={{ color: formData.allowMachinery ? '#16a34a' : '#94a3b8' }} />
-                    <span style={{ fontSize: '12px', fontWeight: formData.allowMachinery ? '900' : '600' }}>Maquinaria / Flota</span>
+                    <Truck size={18} style={{ color: formData.allowMachinery ? '#16a34a' : '#dc2626' }} />
+                    <span style={{ fontSize: '12px', fontWeight: '800' }}>Maquinaria / Flota</span>
                   </div>
                   <div style={{
-                    width: '20px',
-                    height: '20px',
+                    width: '22px',
+                    height: '22px',
                     borderRadius: '6px',
-                    backgroundColor: formData.allowMachinery ? '#16a34a' : '#f1f5f9',
+                    backgroundColor: formData.allowMachinery ? '#16a34a' : '#ef4444',
                     color: '#ffffff',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '12px',
-                    fontWeight: '900',
-                    border: formData.allowMachinery ? 'none' : '1px solid #cbd5e1'
+                    fontSize: '13px',
+                    fontWeight: '900'
                   }}>
-                    {formData.allowMachinery ? '✓' : ''}
+                    {formData.allowMachinery ? '✓' : '✕'}
                   </div>
                 </div>
 
@@ -681,9 +685,9 @@ export default function MedicalAptitudes() {
                 <div 
                   onClick={() => setFormData(prev => ({ ...prev, allowElectrical: !prev.allowElectrical }))}
                   style={{
-                    backgroundColor: formData.allowElectrical ? '#dcfce7' : '#ffffff',
-                    border: formData.allowElectrical ? '2px solid #16a34a' : '1px solid #cbd5e1',
-                    color: formData.allowElectrical ? '#15803d' : '#334155',
+                    backgroundColor: formData.allowElectrical ? '#dcfce7' : '#fff5f5',
+                    border: formData.allowElectrical ? '2px solid #16a34a' : '1px solid #fca5a5',
+                    color: formData.allowElectrical ? '#15803d' : '#991b1b',
                     padding: '12px 14px',
                     borderRadius: '12px',
                     display: 'flex',
@@ -693,23 +697,22 @@ export default function MedicalAptitudes() {
                     userSelect: 'none'
                   }}>
                   <div className="flex items-center gap-2.5">
-                    <Zap size={18} style={{ color: formData.allowElectrical ? '#16a34a' : '#94a3b8' }} />
-                    <span style={{ fontSize: '12px', fontWeight: formData.allowElectrical ? '900' : '600' }}>Riesgo Eléctrico</span>
+                    <Zap size={18} style={{ color: formData.allowElectrical ? '#16a34a' : '#dc2626' }} />
+                    <span style={{ fontSize: '12px', fontWeight: '800' }}>Riesgo Eléctrico</span>
                   </div>
                   <div style={{
-                    width: '20px',
-                    height: '20px',
+                    width: '22px',
+                    height: '22px',
                     borderRadius: '6px',
-                    backgroundColor: formData.allowElectrical ? '#16a34a' : '#f1f5f9',
+                    backgroundColor: formData.allowElectrical ? '#16a34a' : '#ef4444',
                     color: '#ffffff',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '12px',
-                    fontWeight: '900',
-                    border: formData.allowElectrical ? 'none' : '1px solid #cbd5e1'
+                    fontSize: '13px',
+                    fontWeight: '900'
                   }}>
-                    {formData.allowElectrical ? '✓' : ''}
+                    {formData.allowElectrical ? '✓' : '✕'}
                   </div>
                 </div>
 
@@ -728,19 +731,19 @@ export default function MedicalAptitudes() {
               />
             </div>
 
-            {/* Form Actions - Botones Cancelar y Guardar con estilos e inline forzados */}
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+            {/* Form Actions - Botones Cancelar y Guardar destacados */}
+            <div className="flex flex-wrap items-center justify-end gap-3 pt-6 border-t border-slate-200 dark:border-slate-700">
               <button 
                 type="button"
                 onClick={() => { setShowForm(false); resetForm(); }} 
-                style={{ backgroundColor: '#475569', color: '#ffffff', border: 'none', padding: '8px 18px', fontSize: '12px', fontWeight: '800', borderRadius: '8px', cursor: 'pointer' }}>
-                Cancelar
+                style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '12px 24px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)' }}>
+                <ArrowLeft size={18} /> Cancelar / Volver
               </button>
               <button 
                 type="button"
                 onClick={handleSave} 
-                style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '8px 22px', fontSize: '12px', fontWeight: '900', borderRadius: '8px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)' }}>
-                <CheckCircle2 size={16} />
+                style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '12px 28px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4)' }}>
+                <CheckCircle2 size={18} />
                 <span>{formData.id ? 'Actualizar Examen' : 'Guardar Examen'}</span>
               </button>
             </div>

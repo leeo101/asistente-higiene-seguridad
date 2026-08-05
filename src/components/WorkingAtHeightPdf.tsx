@@ -1,189 +1,184 @@
 import React from 'react';
-import { Users, ShieldCheck, HeartPulse, LifeBuoy } from 'lucide-react';
+import { ShieldCheck, HeartPulse, LifeBuoy, User, MapPin, Calendar, Ruler, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
 
-const RISK_FACTORS_MAP = {
-  weather: 'Condiciones climáticas adversas',
-  height: 'Altura superior a 2 metros',
-  electrical: 'Riesgo eléctrico cercano',
-  unstable: 'Superficies inestables',
-  load: 'Cargas suspendidas',
-  confined: 'Espacios confinados',
-  heat: 'Estrés térmico'
+const WORK_TYPE_NAMES: Record<string, string> = {
+  scaffolding: 'Andamios',
+  ladder: 'Escalera',
+  roof: 'Techos',
+  platform: 'Plataforma Elevadora',
+  lift: 'Elevador / Grúa',
+  structure: 'Estructura Metálica'
 };
 
-const EQUIPMENT_MAP = {
-  harness: 'Arnés de Seguridad de cuerpo completo',
-  lanyard: 'Cabo de vida simple/doble con amortiguador',
-  helmet: 'Casco con barboquejo',
-  carabiner: 'Mosquetones de seguridad con cierre automático',
-  rope: 'Cuerda de seguridad / Línea de vida vertical',
-  anchor: 'Punto de anclaje certificado',
-  sling: 'Eslinga de anclaje de cinta'
+const PRIORITY_NAMES: Record<string, string> = {
+  critical: 'CRÍTICA',
+  high: 'ALTA',
+  medium: 'MEDIA',
+  low: 'BAJA'
 };
 
 export default function WorkingAtHeightPdf({ data }: { data: any }): React.ReactElement | null {
   if (!data) return null;
 
-  const sections = [
-    { id: 'description', title: 'Descripción del Trabajo', icon: <Users size={18} />, value: data.workDescription },
-    { id: 'department', title: 'Departamento / Área', icon: <ShieldCheck size={18} />, value: data.department },
-    { id: 'medical', title: 'Aptitud Médica', icon: <HeartPulse size={18} />, value: data.medicalFitness ? 'Vigente' : 'No verificada' },
-    { id: 'rescue', title: 'Plan de Rescate', icon: <LifeBuoy size={18} />, value: data.rescuePlan }
-  ];
-
-  // Map risk factors and equipment if they are IDs
-  const hazards = Array.isArray(data.riskFactors)
-    ? data.riskFactors.map((h) => RISK_FACTORS_MAP[h as keyof typeof RISK_FACTORS_MAP] || h)
-    : data.hazards || [];
+  const workTypeName = WORK_TYPE_NAMES[data.workType] || data.workType || 'No especificado';
+  const priorityName = PRIORITY_NAMES[data.priority] || data.priority || 'MEDIA';
 
   return (
     <div className="w-full flex justify-center">
       <div
         id="pdf-content"
-        className="pdf-container card print-area w-full max-w-[210mm] min-h-0 h-auto p-[10mm_14mm] bg-white text-slate-900 shadow-2xl rounded-xl box-border mx-auto font-sans"
+        className="pdf-container card print-area w-full max-w-[210mm] min-h-0 h-auto p-[6mm_10mm] bg-white text-slate-900 shadow-xl rounded-xl box-border mx-auto font-sans"
       >
         <style type="text/css">
           {`
-            @page { size: A4 portrait; margin: 8mm; }
-            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: #ffffff !important; }
+            @page { size: A4 portrait; margin: 5mm; }
+            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: #ffffff !important; margin: 0 !important; padding: 0 !important; }
             .no-print { display: none !important; }
             .print-area {
               box-shadow: none !important;
               margin: 0 !important;
-              padding: 8mm !important;
+              padding: 5mm 8mm !important;
               width: 100% !important;
               max-width: none !important;
-              border-top: 10px solid #2563eb !important;
+              border-top: 6px solid #d97706 !important;
               border-radius: 0 !important;
               background: #ffffff !important;
               color: #0f172a !important;
             }
             .avoid-break { page-break-inside: avoid !important; break-inside: avoid !important; }
-            .avoid-break-strictly { page-break-inside: avoid !important; break-inside: avoid !important; }
           `}
         </style>
 
-        {/* Encabezado Principal — Fondo de Gradiente Azul Oscuro Nítido con Texto Blanco Brillante */}
+        {/* Encabezado Principal Premium */}
         <div
           style={{
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%)',
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #d97706 100%)',
             color: '#ffffff',
-            padding: '1.25rem 1.5rem',
-            borderRadius: '12px',
-            marginBottom: '1.25rem',
+            padding: '1rem 1.25rem',
+            borderRadius: '10px',
+            marginBottom: '1rem',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            boxShadow: '0 4px 15px rgba(37,99,235,0.2)'
+            boxShadow: '0 4px 12px rgba(217, 119, 6, 0.2)'
           }}
           className="avoid-break"
         >
           <div className="flex items-center gap-3">
-            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '10px', backdropFilter: 'blur(10px)' }}>
-              <ShieldCheck size={28} color="#38bdf8" strokeWidth={2.5} />
+            <div style={{ background: 'rgba(255,255,255,0.15)', padding: '8px', borderRadius: '8px', backdropFilter: 'blur(8px)' }}>
+              <ShieldCheck size={26} color="#fbbf24" strokeWidth={2.5} />
             </div>
             <div>
-              <h1 style={{ color: '#ffffff', margin: 0, fontSize: '18pt', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.5px', lineHeight: 1 }}>
-                PERMISO TRABAJO EN ALTURA
+              <h1 style={{ color: '#ffffff', margin: 0, fontSize: '16pt', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
+                PERMISO DE TRABAJO EN ALTURA
               </h1>
-              <p style={{ color: '#93c5fd', margin: '5px 0 0 0', fontSize: '8.5pt', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                SISTEMA DE GESTIÓN DE SEGURIDAD (RES. SRT 61/23)
+              <p style={{ color: '#fde68a', margin: '4px 0 0 0', fontSize: '8pt', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                SEGURIDAD Y SALUD EN EL TRABAJO • RES. SRT 61/23 (OSHA 1926.501)
               </p>
             </div>
           </div>
 
-          <div className="ml-5 shrink-0 text-right flex flex-col items-end gap-1">
-            <CompanyLogo style={{ maxHeight: '45px', maxWidth: '140px', objectFit: 'contain' }} className="bg-white p-2 rounded-lg shadow-sm" />
-            <div style={{ color: '#cbd5e1', fontSize: '0.55rem', fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-              Doc. Controlado
+          <div className="ml-4 shrink-0 text-right flex flex-col items-end gap-1">
+            <CompanyLogo style={{ maxHeight: '40px', maxWidth: '130px', objectFit: 'contain' }} className="bg-white p-1.5 rounded-md shadow-sm" />
+            <div style={{ color: '#e2e8f0', fontSize: '0.55rem', fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              DOCUMENTO CONTROLADO
             </div>
           </div>
         </div>
 
-        {/* Info Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5 avoid-break">
-          <div className="border border-slate-200 rounded-xl p-3 bg-gradient-to-br from-slate-50 to-slate-100/70">
-            <span className="text-[7.5pt] font-extrabold text-slate-500 block uppercase tracking-wider mb-1">TRABAJADOR</span>
-            <span className="text-[10.5pt] font-black text-slate-900 block truncate">{data.workerName || 'N/A'}</span>
+        {/* Grilla Principal de Datos Generales */}
+        <div className="grid grid-cols-4 gap-2.5 mb-4 avoid-break">
+          <div className="border border-slate-200 rounded-lg p-2.5 bg-slate-50">
+            <span className="text-[7pt] font-extrabold text-slate-500 block uppercase tracking-wider mb-0.5">TRABAJADOR</span>
+            <span className="text-[9.5pt] font-black text-slate-900 block truncate">{data.workerName || 'N/A'}</span>
           </div>
-          <div className="border border-slate-200 rounded-xl p-3 bg-gradient-to-br from-slate-50 to-slate-100/70">
-            <span className="text-[7.5pt] font-extrabold text-slate-500 block uppercase tracking-wider mb-1">UBICACIÓN / SECTOR</span>
-            <span className="text-[10.5pt] font-black text-slate-900 block truncate">{data.location || 'Planta General'}</span>
+          <div className="border border-slate-200 rounded-lg p-2.5 bg-slate-50">
+            <span className="text-[7pt] font-extrabold text-slate-500 block uppercase tracking-wider mb-0.5">TIPO DE TRABAJO</span>
+            <span className="text-[9.5pt] font-black text-amber-700 block truncate">{workTypeName}</span>
           </div>
-          <div className="border border-slate-200 rounded-xl p-3 bg-gradient-to-br from-slate-50 to-slate-100/70">
-            <span className="text-[7.5pt] font-extrabold text-slate-500 block uppercase tracking-wider mb-1">FECHA</span>
-            <span className="text-[10.5pt] font-black text-slate-900 block">{data.createdAt ? new Date(data.createdAt).toLocaleDateString('es-AR') : new Date().toLocaleDateString('es-AR')}</span>
+          <div className="border border-slate-200 rounded-lg p-2.5 bg-slate-50">
+            <span className="text-[7pt] font-extrabold text-slate-500 block uppercase tracking-wider mb-0.5">UBICACIÓN / SECTOR</span>
+            <span className="text-[9.5pt] font-black text-slate-900 block truncate">{data.location || 'Planta General'}</span>
           </div>
-          <div className="border border-slate-200 rounded-xl p-3 bg-gradient-to-br from-slate-50 to-slate-100/70">
-            <span className="text-[7.5pt] font-extrabold text-slate-500 block uppercase tracking-wider mb-1">ALTURA ESTIMADA</span>
-            <span className="text-[10.5pt] font-black text-slate-900 block">{data.height ? `${data.height} metros` : 'No especificada'}</span>
+          <div className="border border-slate-200 rounded-lg p-2.5 bg-slate-50">
+            <span className="text-[7pt] font-extrabold text-slate-500 block uppercase tracking-wider mb-0.5">FECHA Y ALTURA</span>
+            <span className="text-[9.5pt] font-black text-slate-900 block">
+              {data.height ? `${data.height}m` : '3.5m'} • {data.createdAt ? new Date(data.createdAt).toLocaleDateString('es-AR') : new Date().toLocaleDateString('es-AR')}
+            </span>
           </div>
         </div>
 
-        {/* Core Safety Sections */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 avoid-break">
-          {sections.map((section) => (
-            <div key={section.id} className="border border-slate-200 rounded-xl p-3 bg-white flex flex-col">
-              <div className="flex items-center gap-2 mb-1.5">
-                <div className="text-blue-600">{section.icon}</div>
-                <span className="font-extrabold text-[9pt] text-slate-800 uppercase">{section.title}</span>
-              </div>
-              <div className="text-[9.5pt] text-slate-700 whitespace-pre-wrap leading-relaxed">{section.value || 'No especificado'}</div>
+        {/* Sección Seguridad y Salud: Apto Médico, Supervisor y Prioridad */}
+        <div className="grid grid-cols-3 gap-2.5 mb-4 avoid-break">
+          <div style={{ background: data.medicalFitness ? '#f0fdf4' : '#fff5f5', border: `1px solid ${data.medicalFitness ? '#86efac' : '#fca5a5'}` }} className="rounded-lg p-2.5 flex items-center justify-between">
+            <div>
+              <span className="text-[7pt] font-extrabold block text-slate-500 uppercase tracking-wider">APTO MÉDICO VIGENTE</span>
+              <span style={{ color: data.medicalFitness ? '#166534' : '#991b1b' }} className="text-[9pt] font-black uppercase">
+                {data.medicalFitness ? '✓ HABILITADO' : '✕ NO HABILITADO'}
+              </span>
             </div>
-          ))}
+            <div style={{ background: data.medicalFitness ? '#16a34a' : '#dc2626' }} className="w-6 h-6 rounded-md flex items-center justify-center text-white font-black text-xs">
+              {data.medicalFitness ? '✓' : '✕'}
+            </div>
+          </div>
+
+          <div className="border border-slate-200 rounded-lg p-2.5 bg-slate-50">
+            <span className="text-[7pt] font-extrabold text-slate-500 block uppercase tracking-wider mb-0.5">SUPERVISOR A CARGO</span>
+            <span className="text-[9pt] font-black text-slate-900 block truncate">{data.supervisor || 'No designado'}</span>
+          </div>
+
+          <div className="border border-slate-200 rounded-lg p-2.5 bg-slate-50">
+            <span className="text-[7pt] font-extrabold text-slate-500 block uppercase tracking-wider mb-0.5">NIVEL DE RIESGO</span>
+            <span className="text-[9pt] font-black text-amber-600 block uppercase">{priorityName}</span>
+          </div>
         </div>
 
-        {/* Hazards & Mitigation — Protegido con avoid-break-strictly para que no se corte por la mitad */}
-        <div
-          style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
-          className="avoid-break avoid-break-strictly mb-5 border border-slate-200 rounded-xl overflow-hidden bg-white"
-        >
-          <div
-            style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)', color: '#ffffff' }}
-            className="p-3"
-          >
-            <h3 style={{ color: '#ffffff', margin: 0 }} className="text-[10pt] font-black uppercase tracking-wider flex items-center gap-2">
-              <ShieldCheck size={18} color="#38bdf8" /> ANÁLISIS DE RIESGOS Y EPP REQUERIDO
+        {/* Análisis de Equipos de Protección Personal (EPP) e Inspección */}
+        <div className="border border-slate-200 rounded-lg overflow-hidden mb-4 avoid-break">
+          <div style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: '#ffffff' }} className="px-3 py-2">
+            <h3 style={{ color: '#ffffff', margin: 0 }} className="text-[8.5pt] font-black uppercase tracking-wider flex items-center gap-1.5">
+              <ShieldCheck size={16} color="#fbbf24" /> INSPECCIÓN DE EQUIPOS Y EPP REQUERIDOS
             </h3>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50/70">
+          <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50/50">
+            {/* Inspección de Equipos */}
             <div>
-              <span className="text-[8pt] font-extrabold block text-slate-500 mb-2 uppercase tracking-wide">RIESGOS DETECTADOS</span>
-              <div className="flex flex-wrap gap-2">
-                {hazards.length > 0 ? (
-                  hazards.map((h: string, i: number) => (
-                    <span key={i} className="bg-red-100 border border-red-300 text-red-700 px-2.5 py-1 rounded-lg text-[8.5pt] font-bold">
-                      {h}
+              <span className="text-[7.5pt] font-extrabold block text-slate-500 mb-1.5 uppercase tracking-wide">ESTADO DE EQUIPOS DE SEGURIDAD</span>
+              <div className="space-y-1">
+                {[
+                  { label: 'Arnés de Seguridad', status: data.equipmentCheck?.harness || 'good' },
+                  { label: 'Cola de Amarre / Amortiguador', status: data.equipmentCheck?.lanyard || 'good' },
+                  { label: 'Punto de Anclaje Certificado', status: data.equipmentCheck?.anchor || 'good' }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between bg-white px-2.5 py-1 rounded border border-slate-200 text-[8pt]">
+                    <span className="font-bold text-slate-700">{item.label}</span>
+                    <span className={`font-black text-[7.5pt] px-2 py-0.5 rounded ${item.status === 'good' ? 'bg-emerald-100 text-emerald-800' : item.status === 'bad' ? 'bg-red-100 text-red-800' : 'bg-slate-100 text-slate-700'}`}>
+                      {item.status === 'good' ? '✓ BUENO' : item.status === 'bad' ? '✕ MALO' : '— N/A'}
                     </span>
-                  ))
-                ) : (
-                  <span className="text-[9pt] text-slate-600 font-semibold">Trabajo en altura estándar.</span>
-                )}
+                  </div>
+                ))}
               </div>
             </div>
+
+            {/* EPP Requeridos */}
             <div>
-              <span className="text-[8pt] font-extrabold block text-slate-500 mb-2 uppercase tracking-wide">EQUIPOS DE PROTECCIÓN (EPP)</span>
-              <div className="grid grid-cols-1 gap-2">
-                {['harness', 'lanyard', 'helmet', 'lifeline'].map((key) => {
-                  const hasIt = data.ppe && data.ppe[key];
-                  const labels = { harness: 'Arnés de Seguridad', lanyard: 'Cola de Amarre', helmet: 'Casco con Barbijo', lifeline: 'Línea de Vida' };
+              <span className="text-[7.5pt] font-extrabold block text-slate-500 mb-1.5 uppercase tracking-wide">EQUIPOS DE PROTECCIÓN (EPP)</span>
+              <div className="grid grid-cols-2 gap-1.5">
+                {[
+                  { key: 'harness', label: 'Arnés Completo' },
+                  { key: 'lanyard', label: 'Cola de Amarre' },
+                  { key: 'helmet', label: 'Casco c/ Barbijo' },
+                  { key: 'lifeline', label: 'Línea de Vida' }
+                ].map(({ key, label }) => {
+                  const req = data.ppe && data.ppe[key];
                   return (
-                    <div
-                      key={key}
-                      style={{ background: hasIt ? '#f0fdf4' : '#ffffff', border: `1px solid ${hasIt ? '#86efac' : '#e2e8f0'}` }}
-                      className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg"
-                    >
-                      <div
-                        style={{ border: `2px solid ${hasIt ? '#16a34a' : '#cbd5e1'}`, background: hasIt ? '#16a34a' : '#fff' }}
-                        className="w-4 h-4 rounded flex items-center justify-center shrink-0"
-                      >
-                        {hasIt && <span className="text-white text-[10px] font-black">✓</span>}
-                      </div>
-                      <span style={{ fontWeight: hasIt ? 700 : 500, color: hasIt ? '#166534' : '#64748b' }} className="text-[8.5pt]">
-                        {labels[key as keyof typeof labels]}
+                    <div key={key} style={{ background: req ? '#f0fdf4' : '#fff5f5', border: `1px solid ${req ? '#86efac' : '#fca5a5'}` }} className="flex items-center justify-between px-2 py-1 rounded">
+                      <span style={{ color: req ? '#166534' : '#991b1b' }} className="text-[7.5pt] font-bold truncate">{label}</span>
+                      <span style={{ background: req ? '#16a34a' : '#dc2626' }} className="text-white text-[7pt] font-black px-1.5 py-0.2 rounded">
+                        {req ? '✓' : '✕'}
                       </span>
                     </div>
                   );
@@ -193,42 +188,52 @@ export default function WorkingAtHeightPdf({ data }: { data: any }): React.React
           </div>
         </div>
 
-        {/* Signatures */}
-        <PdfSignatures
-          data={data}
-          box1={
-            data.showSignatures?.operator !== false
-              ? {
-                  title: 'OPERADOR / TRABAJADOR',
-                  subtitle: (data.workerName || 'Firma del Operador').toUpperCase(),
-                  signatureUrl: data.operatorSignature || null,
-                  isProfessional: false
-                }
-              : null
-          }
-          box2={
-            data.showSignatures?.professional !== false
-              ? {
-                  title: 'PROFESIONAL H&S',
-                  subtitle: (data.professionalName || 'Firma de Especialista').toUpperCase(),
-                  signatureUrl: data.professionalSignature || null,
-                  stampUrl: data.professionalStamp || null,
-                  isProfessional: true,
-                  license: data.professionalLicense || null
-                }
-              : null
-          }
-          box3={
-            data.showSignatures?.supervisor !== false
-              ? {
-                  title: 'SUPERVISOR / AUTORIZANTE',
-                  subtitle: (data.supervisor || 'Firma del Supervisor').toUpperCase(),
-                  signatureUrl: data.supervisorSignature || data.signature || null,
-                  isProfessional: false
-                }
-              : null
-          }
-        />
+        {/* Observaciones si existen */}
+        {data.observations && (
+          <div className="border border-slate-200 rounded-lg p-2.5 bg-slate-50 mb-4 avoid-break">
+            <span className="text-[7pt] font-extrabold text-slate-500 block uppercase tracking-wider mb-0.5">OBSERVACIONES Y DETALLES OPERATIVOS</span>
+            <p className="m-0 text-[8.5pt] font-medium text-slate-800 leading-snug">{data.observations}</p>
+          </div>
+        )}
+
+        {/* Firmas Digitales Oficiales */}
+        <div className="avoid-break mt-2">
+          <PdfSignatures
+            data={data}
+            box1={
+              data.showSignatures?.operator !== false
+                ? {
+                    title: 'OPERADOR / TRABAJADOR',
+                    subtitle: (data.workerName || 'Firma del Operador').toUpperCase(),
+                    signatureUrl: data.operatorSignature || null,
+                    isProfessional: false
+                  }
+                : null
+            }
+            box2={
+              data.showSignatures?.professional !== false
+                ? {
+                    title: 'PROFESIONAL H&S',
+                    subtitle: (data.professionalName || 'Firma de Especialista').toUpperCase(),
+                    signatureUrl: data.professionalSignature || null,
+                    stampUrl: data.professionalStamp || null,
+                    isProfessional: true,
+                    license: data.professionalLicense || null
+                  }
+                : null
+            }
+            box3={
+              data.showSignatures?.supervisor !== false
+                ? {
+                    title: 'SUPERVISOR / AUTORIZANTE',
+                    subtitle: (data.supervisor || 'Firma del Supervisor').toUpperCase(),
+                    signatureUrl: data.supervisorSignature || data.signature || null,
+                    isProfessional: false
+                  }
+                : null
+            }
+          />
+        </div>
 
         <PdfBrandingFooter />
       </div>

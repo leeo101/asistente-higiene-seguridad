@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, ArrowDown, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Ruler, Eye, Printer, Share2, Pencil } from 'lucide-react';
+import { ArrowLeft, Save, ArrowDown, Shield, AlertTriangle, Clock, CheckCircle2, XCircle, X, User, MapPin, Ruler, Eye, Printer, Share2, Pencil, HardHat } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
@@ -9,8 +9,9 @@ import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 import PremiumHeader from '../components/PremiumHeader';
+import AnimatedPage from '../components/AnimatedPage';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
-import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
+import { ModuleFormSection, ModuleActionBar } from '../components/module';
 
 const WORK_TYPES = [
 { id: 'scaffolding', name: 'Andamios', icon: '🏗️' },
@@ -200,15 +201,31 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
   } as any;
 
   return (
-    <div className="container min-h-[100vh] pb-[8rem]">
-            <ModuleFormLayout>
-                <ModuleFormToolbar
-                    title={isEdit ? 'Editar Permiso en Altura' : 'Permiso de Trabajo en Altura'}
-                    subtitle="Gestión de permisos según OSHA 1926.501"
-                    icon={<ArrowDown size={36} color="#ffffff" />}
-                />
-                <ModuleFormDocument>
-                    <ModuleFormSection title="Información General" icon={<User size={20} />}>
+    <AnimatedPage>
+      <div className="container pb-[8rem] space-y-6 min-h-[100vh]">
+        {/* Header Principal Banner */}
+        <PremiumHeader
+          title={isEdit ? 'Editar Permiso en Altura' : 'Permiso de Trabajo en Altura'}
+          subtitle="Gestión de permisos según OSHA 1926.501 • Res. SRT 61/23"
+          icon={<HardHat size={32} color="#ffffff" />}
+          color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+          onBack={() => navigate('/working-at-height')}
+        />
+
+        {/* Botón Volver al Historial */}
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => navigate('/working-at-height')}
+            style={{ backgroundColor: '#475569', color: '#ffffff', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: '800', fontSize: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          >
+            <ArrowLeft size={16} /> Volver al Historial
+          </button>
+        </div>
+
+        {/* Tarjeta Principal del Formulario */}
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 sm:p-8 shadow-xl space-y-8">
+          <ModuleFormSection title="Información General" icon={<User size={20} />}>
                     <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem]">
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
                             <label className="block mb-2 text-sm font-semibold text-slate-400">Nombre del Trabajador *</label>
@@ -222,16 +239,8 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                   key={t.id}
                   onClick={() => setPermit({ ...permit, workType: t.id })}
                   style={{
-
                     background: permit.workType === t.id ? 'rgba(59, 130, 246, 0.1)' : 'var(--color-background)',
                     border: `2px solid ${permit.workType === t.id ? 'var(--color-primary)' : 'var(--color-border)'}`
-
-
-
-
-
-
-
                   }} className="p-[1rem] rounded-[var(--radius-xl)] cursor-pointer flex flex-col items-center gap-[0.5rem] transition-[all_0.2s]">
                   
                                         <span className="text-[2rem]">{t.icon}</span>
@@ -263,18 +272,9 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                   key={k}
                   onClick={() => setPermit({ ...permit, priority: k })}
                   style={{
-
                     background: permit.priority === k ? `${v.color}15` : 'var(--color-background)',
                     border: `2px solid ${permit.priority === k ? v.color : 'var(--color-border)'}`,
-
-
-
-
-
-
-
                     color: permit.priority === k ? v.color : 'var(--color-text-muted)',
-
                     boxShadow: permit.priority === k ? `0 0 15px ${v.color}30` : 'none'
                   }} className="p-[1rem] rounded-[var(--radius-xl)] cursor-pointer flex items-center justify-center gap-[0.5rem] font-[800] transition-[all_0.2s]">
                   
@@ -292,32 +292,24 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                             
                             <div className="flex flex-col gap-4">
                                 <div style={{
-
-                  background: permit.medicalFitness ? 'rgba(16, 185, 129, 0.05)' : 'rgba(220, 38, 38, 0.05)',
-                  border: `2px dashed ${permit.medicalFitness ? 'var(--color-success)' : '#dc2626'}`
-
-
-
-
+                  background: permit.medicalFitness ? '#dcfce7' : '#fff5f5',
+                  border: `2px solid ${permit.medicalFitness ? '#16a34a' : '#ef4444'}`
                 }} className="p-[1.5rem] rounded-[var(--radius-xl)] flex flex-col gap-[1rem]">
                                     <div className="flex items-center gap-4">
                                         <button
+                      type="button"
                       onClick={() => setPermit({ ...permit, medicalFitness: !permit.medicalFitness })}
                       style={{
-
-                        border: `3px solid ${permit.medicalFitness ? 'var(--color-success)' : '#dc2626'}`,
-                        background: permit.medicalFitness ? 'var(--color-success)' : 'transparent'
-
-
-                      }} className="w-[40px] h-[40px] rounded-[50%] flex items-center justify-center cursor-pointer transition-[all_0.2s] flex-shrink-[0]">
+                        backgroundColor: permit.medicalFitness ? '#16a34a' : '#ef4444'
+                      }} className="w-[40px] h-[40px] rounded-[50%] flex items-center justify-center cursor-pointer transition-all flex-shrink-0 border-none shadow-md">
                       
-                                            {permit.medicalFitness && <CheckCircle2 size={24} color="#fff" />}
+                                            {permit.medicalFitness ? <CheckCircle2 size={24} color="#fff" /> : <XCircle size={24} color="#fff" />}
                                         </button>
                                         <div>
-                                            <span style={{ color: permit.medicalFitness ? 'var(--color-success)' : '#dc2626' }} className="text-[1.1rem] font-[900] block">
-                                                Apto Médico Vigente
+                                            <span style={{ color: permit.medicalFitness ? '#15803d' : '#991b1b' }} className="text-[1.1rem] font-[900] block">
+                                                Apto Médico Vigente: {permit.medicalFitness ? '✓ HABILITADO' : '✕ NO HABILITADO'}
                                             </span>
-                                            <span className="text-[0.8rem] text-[var(--color-text-muted)]">
+                                            <span style={{ color: permit.medicalFitness ? '#166534' : '#b91c1c' }} className="text-[0.8rem] font-[700]">
                                                 {permit.medicalFitness ? 'Verificado y habilitado para tareas en altura' : '¡ATENCIÓN! No puede realizar tareas sin apto médico'}
                                             </span>
                                         </div>
@@ -341,24 +333,23 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
               <div key={key} className="mb-[1rem]">
                                     <label className="block mb-2 text-sm font-semibold text-slate-400">{key === 'harness' ? 'Arnés' : key === 'lanyard' ? 'Cola de Amarre' : 'Punto de Anclaje'}</label>
                                     <div className="flex gap-[0.5rem]">
-                                        {['good', 'bad', 'na'].map((status) =>
+                                        {[
+                                          { id: 'good', label: '✓ Bueno', bg: '#16a34a' },
+                                          { id: 'bad', label: '✕ Malo', bg: '#dc2626' },
+                                          { id: 'na', label: '— N/A', bg: '#475569' }
+                                        ].map((st) =>
                   <button
-                    key={status}
-                    onClick={() => setPermit({ ...permit, equipmentCheck: { ...permit.equipmentCheck, [key]: status } })}
+                    key={st.id}
+                    type="button"
+                    onClick={() => setPermit({ ...permit, equipmentCheck: { ...permit.equipmentCheck, [key]: st.id } })}
                     style={{
-
-
-
-
-
-
-                      background: value === status ? 'var(--color-primary)' : 'var(--color-surface)',
-                      color: value === status ? 'white' : 'var(--color-text)'
-
-                    }} className="flex-[1] p-[0.5rem] text-[0.8rem] font-[700] rounded-[var(--radius-md)] border-[1px_solid_var(--color-border)] cursor-pointer">
-                    
-                                                {status === 'good' ? 'B' : status === 'bad' ? 'M' : 'N/A'}
-                                            </button>
+                      background: value === st.id ? st.bg : 'var(--color-surface)',
+                      color: value === st.id ? 'white' : 'var(--color-text)',
+                      border: value === st.id ? `2px solid ${st.bg}` : '1px solid var(--color-border)',
+                      fontWeight: value === st.id ? '900' : '600'
+                    }} className="flex-1 p-[0.6rem] text-[0.85rem] rounded-[var(--radius-md)] cursor-pointer transition-all">
+                    {st.label}
+                  </button>
                   )}
                                     </div>
                                 </div>
@@ -372,27 +363,26 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                             {Object.entries(permit.ppe).map(([key, value]) =>
               <button
                 key={key}
+                type="button"
                 onClick={() => setPermit({ ...permit, ppe: { ...permit.ppe, [key]: !value } })}
                 style={{
-
-                  background: value ? 'rgba(59, 130, 246, 0.1)' : 'var(--color-background)',
-                  border: `2px solid ${value ? 'var(--color-primary)' : 'var(--color-border)'}`
-
-
-
-
-
-
-                }} className="p-[1rem] rounded-[var(--radius-lg)] cursor-pointer flex items-center gap-[0.75rem] transition-[all_0.2s]">
+                  background: value ? '#dcfce7' : '#fff5f5',
+                  border: `2px solid ${value ? '#16a34a' : '#fca5a5'}`
+                }} className="p-[1rem] rounded-[var(--radius-lg)] cursor-pointer flex items-center justify-between transition-all">
                 
-                                    <div style={{ background: value ? 'var(--color-primary)' : 'transparent' }} className="w-[20px] h-[20px] rounded-[4px] border-[2px_solid_var(--color-primary)] flex items-center justify-center">
-                                        {value && <CheckCircle2 size={14} color="#fff" />}
+                                    <div className="flex items-center gap-[0.75rem]">
+                                      <div style={{ background: value ? '#16a34a' : '#ef4444' }} className="w-[24px] h-[24px] rounded-[6px] flex items-center justify-center font-black text-white text-xs">
+                                          {value ? '✓' : '✕'}
+                                      </div>
+                                      <span style={{ color: value ? '#15803d' : '#991b1b' }} className="text-[0.9rem] font-[800] capitalize">
+                                          {key === 'harness' && 'Arnés de Seguridad'}
+                                          {key === 'lanyard' && 'Cola de Amarre'}
+                                          {key === 'helmet' && 'Casco con Barbijo'}
+                                          {key === 'lifeline' && 'Línea de Vida'}
+                                      </span>
                                     </div>
-                                    <span className="text-[0.9rem] font-[700] capitalize">
-                                        {key === 'harness' && 'Arnés de Seguridad'}
-                                        {key === 'lanyard' && 'Cola de Amarre'}
-                                        {key === 'helmet' && 'Casco con Barbijo'}
-                                        {key === 'lifeline' && 'Línea de Vida'}
+                                    <span style={{ backgroundColor: value ? '#16a34a' : '#ef4444' }} className="text-white text-[11px] font-black px-2 py-0.5 rounded-full">
+                                      {value ? 'REQUERIDO' : 'NO REQUERIDO'}
                                     </span>
                                 </button>
               )}
@@ -415,139 +405,197 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
                     <div className="mt-[2.5rem]">
                         <ModuleFormSection title="Firmas y Autorizaciones del Permiso" icon={<Pencil size={20} />}>
 
+                        {/* 1. Recuadros Interáctivos para Dibujar Firmas en Pantalla */}
+                        <div className="no-print mb-8 p-6 bg-slate-50 dark:bg-slate-900/60 border-2 border-slate-200 dark:border-slate-700 rounded-3xl space-y-4 shadow-sm">
+                          <h3 className="m-0 text-base font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                            <span>🖊️</span> FIRMAS DIGITALES (DIBUJAR EN PANTALLA)
+                          </h3>
+                          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 m-0 mb-4">
+                            Dibuje las firmas sobre los recuadros táctiles. Aparecerán automáticamente en la planilla oficial.
+                          </p>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="p-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm">
+                              <SignatureCanvas
+                                onSave={(sig) => setPermit((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                                initialImage={permit.operatorSignature}
+                                label="Firma del Operador / Trabajador"
+                              />
+                            </div>
+
+                            <div className="p-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm">
+                              <SignatureCanvas
+                                onSave={(sig) => setPermit((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                                initialImage={permit.professionalSignature || professional.signature}
+                                label="Firma de Especialista H&S"
+                              />
+                            </div>
+
+                            <div className="p-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm">
+                              <SignatureCanvas
+                                onSave={(sig) => setPermit((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
+                                initialImage={permit.supervisorSignature || permit.signature}
+                                label="Firma del Supervisor / Autorizante"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 2. Botones para Alternar Visibilidad de Firmas en el PDF */}
                         <div className="no-print mb-[2rem] p-[1.5rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] flex flex-col gap-[1rem] items-center box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.05)]">
                             <div className="text-[var(--color-text)] text-[0.95rem] font-[800] uppercase letter-spacing-[0.5px]">
-                                <span className="inline-block border-bottom-[2px_solid_var(--color-primary)] pb-[2px]">Personalizar Firmas del Documento</span>
+                                <span className="inline-block border-bottom-[2px_solid_var(--color-primary)] pb-[2px]">Mostrar / Ocultar Firmas en Documento PDF</span>
                             </div>
                             <div className="flex gap-[1rem] flex-wrap justify-center">
                                 {[
-                { id: 'operator', label: 'Operador / Trabajador' },
-                { id: 'professional', label: 'Especialista H&S' },
-                { id: 'supervisor', label: 'Supervisor' }].
-                map((role) =>
-                <button
-                  key={role.id}
-                  onClick={() => setShowSignatures((s: any) => ({ ...s, [role.id]: !s[role.id] }))}
-                  style={{
-
-
-                    border: `2px solid ${showSignatures[role.id] ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                    background: showSignatures[role.id] ? 'var(--color-primary)' : 'transparent',
-                    color: showSignatures[role.id] ? 'white' : 'var(--color-text-muted)',
-
-
-
-
-
-
-
-                    boxShadow: showSignatures[role.id] ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none'
-                  }} className="p-[0.6rem_1.2rem] rounded-[var(--radius-full)] font-[700] text-[0.9rem] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem]">
-                  
-                                        <div style={{
-
-                    border: `2px solid ${showSignatures[role.id] ? 'white' : 'var(--color-border)'}`,
-
-                    background: showSignatures[role.id] ? 'white' : 'transparent'
-                  }} className="w-[18px] h-[18px] rounded-[50%] flex items-center justify-center">
-                                            {showSignatures[role.id] && <div className="w-[10px] h-[10px] rounded-[50%] bg-[var(--color-primary)]" />}
-                                        </div>
-                                        {role.label}
-                                    </button>
-                )}
+                                  { id: 'operator', label: 'Operador / Trabajador' },
+                                  { id: 'professional', label: 'Especialista H&S' },
+                                  { id: 'supervisor', label: 'Supervisor' }
+                                ].map((role) => (
+                                  <button
+                                    key={role.id}
+                                    type="button"
+                                    onClick={() => setShowSignatures((s: any) => ({ ...s, [role.id]: !s[role.id] }))}
+                                    style={{
+                                      border: `2px solid ${showSignatures[role.id] ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                                      background: showSignatures[role.id] ? 'var(--color-primary)' : 'transparent',
+                                      color: showSignatures[role.id] ? 'white' : 'var(--color-text-muted)',
+                                      boxShadow: showSignatures[role.id] ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none'
+                                    }}
+                                    className="p-[0.6rem_1.2rem] rounded-[var(--radius-full)] font-[700] text-[0.9rem] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem]"
+                                  >
+                                    <div
+                                      style={{
+                                        border: `2px solid ${showSignatures[role.id] ? 'white' : 'var(--color-border)'}`,
+                                        background: showSignatures[role.id] ? 'white' : 'transparent'
+                                      }}
+                                      className="w-[18px] h-[18px] rounded-[50%] flex items-center justify-center"
+                                    >
+                                      {showSignatures[role.id] && <div className="w-[10px] h-[10px] rounded-[50%] bg-[var(--color-primary)]" />}
+                                    </div>
+                                    {role.label}
+                                  </button>
+                                ))}
                             </div>
                         </div>
 
-                        {/* On-Sheet Visual Preview of PDF signature blocks */}
-                        <div className="mb-[2.5rem]">
+                        {/* 3. Previsualización en Vivo del Documento Imprimible */}
+                        <div className="mb-[2.5rem] bg-white p-4 border border-slate-200 rounded-2xl shadow-sm">
+                            <h4 className="text-xs font-black text-slate-500 uppercase mb-3">Previsualización de Firmas Oficiales</h4>
                             <PdfSignatures
-                data={{
-                  ...permit,
-                  professionalSignature: professional.signature,
-                  professionalName: professional.name,
-                  professionalLicense: professional.license,
-                  professionalStamp: professional.stamp
-                }}
-                box1={showSignatures.operator ? {
-                  title: 'OPERADOR / TRABAJADOR',
-                  subtitle: (permit.workerName || 'Firma del Operador').toUpperCase(),
-                  signatureUrl: permit.operatorSignature || null,
-                  isProfessional: false
-                } : null}
-                box2={showSignatures.professional ? {
-                  title: 'PROFESIONAL H&S',
-                  subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
-                  signatureUrl: permit.professionalSignature || professional.signature || null,
-                  stampUrl: permit.professionalStamp || professional.stamp || null,
-                  isProfessional: true,
-                  license: professional.license
-                } : null}
-                box3={showSignatures.supervisor ? {
-                  title: 'SUPERVISOR / AUTORIZANTE',
-                  subtitle: (permit.supervisor || 'Firma del Supervisor').toUpperCase(),
-                  signatureUrl: permit.supervisorSignature || permit.signature || null,
-                  isProfessional: false
-                } : null} />
-              
-            <PdfBrandingFooter />
+                              data={{
+                                ...permit,
+                                professionalSignature: professional.signature,
+                                professionalName: professional.name,
+                                professionalLicense: professional.license,
+                                professionalStamp: professional.stamp
+                              }}
+                              box1={showSignatures.operator ? {
+                                title: 'OPERADOR / TRABAJADOR',
+                                subtitle: (permit.workerName || 'Firma del Operador').toUpperCase(),
+                                signatureUrl: permit.operatorSignature || null,
+                                isProfessional: false
+                              } : null}
+                              box2={showSignatures.professional ? {
+                                title: 'PROFESIONAL H&S',
+                                subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
+                                signatureUrl: permit.professionalSignature || professional.signature || null,
+                                stampUrl: permit.professionalStamp || professional.stamp || null,
+                                isProfessional: true,
+                                license: professional.license
+                              } : null}
+                              box3={showSignatures.supervisor ? {
+                                title: 'SUPERVISOR / AUTORIZANTE',
+                                subtitle: (permit.supervisor || 'Firma del Supervisor').toUpperCase(),
+                                signatureUrl: permit.supervisorSignature || permit.signature || null,
+                                isProfessional: false
+                              } : null}
+                            />
+                            <PdfBrandingFooter />
                         </div>
 
-                        {/* Interactive Signature Drawing Pads */}
-                        <div className="no-print animate-fade-in grid grid-template-columns-[1fr] gap-[2rem] mt-[2rem] pt-[2rem] border-top-[1px_solid_var(--color-border)]">
-                            <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(280px,_1fr))] gap-[2rem]">
-                                {showSignatures.operator &&
-                <div className="card p-[1rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)]">
-                                        <SignatureCanvas
-                    onSave={(sig) => setPermit((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
-                    initialImage={permit.operatorSignature}
-                    label="Firma del Operador / Trabajador" />
-                  
-                                    </div>
-                }
-                                
-                                {showSignatures.professional &&
-                <div className="card p-[1rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)]">
-                                        <SignatureCanvas
-                    onSave={(sig) => setPermit((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
-                    initialImage={permit.professionalSignature || professional.signature}
-                    label="Firma de Especialista H&S" />
-                  
-                                    </div>
-                }
-
-                                {showSignatures.supervisor &&
-                <div className="card p-[1rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)]">
-                                        <SignatureCanvas
-                    onSave={(sig) => setPermit((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
-                    initialImage={permit.supervisorSignature || permit.signature}
-                    label="Firma del Supervisor / Autorizante" />
-                  
-                                    </div>
-                }
-                            </div>
-                        </div>
-                           </ModuleFormSection>
+                        </ModuleFormSection>
                     </div>
-                </ModuleFormDocument>
-            </ModuleFormLayout>
 
-            <ModuleActionBar actions={[
-                { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'secondary', onClick: () => requirePro(() => window.print()) },
-                { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) },
-                { id: 'save', label: 'GUARDAR PERMISO', icon: <Save size={18} />, variant: 'primary', onClick: (e: any) => { e.preventDefault(); requirePro(handleSave); } }
-            ]} />
+                    {/* 4. Botones de Acción In-Line al FINAL ABSOLUTO dentro de la tarjeta */}
+                    <div className="no-print mt-10 pt-6 border-t-2 border-slate-300 dark:border-slate-700 flex flex-wrap items-center justify-between gap-4 bg-slate-100 dark:bg-slate-900/90 p-5 rounded-2xl shadow-lg">
+                      <button
+                        type="button"
+                        onClick={() => navigate('/working-at-height')}
+                        style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '12px 24px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)' }}>
+                        <ArrowLeft size={18} /> Cancelar / Volver
+                      </button>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => requirePro(() => window.print())}
+                          style={{ backgroundColor: '#8b5cf6', color: '#ffffff', border: 'none', padding: '12px 22px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)' }}>
+                          <Printer size={18} /> Imprimir PDF
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => requirePro(() => setShowShareModal(true))}
+                          style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '12px 22px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)' }}>
+                          <Share2 size={18} /> Compartir
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
+                          style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '14px 32px', fontSize: '15px', fontWeight: '900', borderRadius: '14px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '10px', boxShadow: '0 6px 20px rgba(5, 150, 105, 0.45)' }}>
+                          <Save size={22} /> Guardar Permiso
+                        </button>
+                      </div>
+                    </div>
+        </div>
 
-            <ShareModal
-        isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
-        elementIdToPrint="pdf-content"
-        title="Permiso Trabajo en Altura"
-        fileName={`Altura_${permit.workerName || 'Sin_Nombre'}.pdf`} />
-      
+        {/* 5. Barra Flotante de Acciones (ModuleActionBar) - SIEMPRE VISIBLE EN PANTALLA */}
+        <ModuleActionBar
+          actions={[
+            {
+              id: 'back',
+              label: 'Cancelar / Volver',
+              variant: 'danger',
+              icon: <ArrowLeft size={16} />,
+              onClick: () => navigate('/working-at-height')
+            },
+            {
+              id: 'print',
+              label: 'Imprimir PDF',
+              variant: 'secondary',
+              icon: <Printer size={16} />,
+              onClick: () => requirePro(() => window.print())
+            },
+            {
+              id: 'share',
+              label: 'Compartir',
+              variant: 'info',
+              icon: <Share2 size={16} />,
+              onClick: () => requirePro(() => setShowShareModal(true))
+            },
+            {
+              id: 'save',
+              label: 'Guardar Permiso',
+              variant: 'primary',
+              icon: <Save size={18} />,
+              onClick: (e: any) => { e.preventDefault(); requirePro(handleSave); }
+            }
+          ]}
+        />
 
-            <div id="pdf-content" className="print-only fixed left-[0] opacity-[0.01] top-[0]">
-                <WorkingAtHeightPdf data={{ ...permit, createdAt: (permit as any).createdAt || new Date().toISOString() } as any} />
-            </div>
-        </div>);
 
+
+
+        <ShareModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          elementIdToPrint="pdf-content"
+          title="Permiso Trabajo en Altura"
+          fileName={`Altura_${permit.workerName || 'Sin_Nombre'}.pdf`}
+        />
+
+        <div className="hidden print:block print:w-full">
+          <WorkingAtHeightPdf data={{ ...permit, createdAt: (permit as any).createdAt || new Date().toISOString() } as any} />
+        </div>
+      </div>
+    </AnimatedPage>
+  );
 }

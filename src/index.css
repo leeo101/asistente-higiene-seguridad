@@ -2534,6 +2534,25 @@ button[aria-label*="Atrás"],
 }
 /* --- PRINT SYSTEM ENHANCEMENTS --- */
 @media print {
+  html, body, #root, main, .animated-page {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  .container {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
   /* Hide everything by default */
   body * {
     visibility: hidden !important;
