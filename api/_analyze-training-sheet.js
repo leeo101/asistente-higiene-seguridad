@@ -22,10 +22,11 @@ export default async function handler(req, res) {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
 
-        const MAX_BASE64_SIZE = 5 * 1024 * 1024;
+        const MAX_BASE64_SIZE = 15 * 1024 * 1024;
         if (image.length > MAX_BASE64_SIZE) {
-            return res.status(413).json({ error: 'La imagen excede el tamaño máximo permitido (5MB).' });
+            return res.status(413).json({ error: 'La imagen excede el tamaño máximo permitido (15MB).' });
         }
+
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'Falta API Key de Gemini en el servidor' });

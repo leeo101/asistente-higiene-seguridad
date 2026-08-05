@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Camera, Upload, ScanLine, Sparkles, X, Check, Loader2, AlertCircle, RefreshCw, UserCheck, FileText, Zap, ZapOff, Image as ImageIcon } from 'lucide-react';
+import { Camera, Upload, ScanLine, Sparkles, X, Check, Loader2, AlertCircle, RefreshCw, UserCheck, FileText, Zap, ZapOff, Image as ImageIcon, Trash2, Plus, Layers } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { auth } from '../firebase';
 import toast from 'react-hot-toast';
@@ -33,9 +33,44 @@ interface TrainingScannerModalProps {
   onApplyData: (data: ExtractedTrainingData, imageBase64: string) => void;
 }
 
+// Función auxiliar de compresión del lado del cliente para reducir tamaño sin perder legibilidad
+const compressImage = (dataUrl: string, maxWidth = 1600, quality = 0.82): Promise<string> => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      let width = img.width;
+      let height = img.height;
+      if (width > maxWidth || height > maxWidth) {
+        if (width > height) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        } else {
+          width = Math.round((width * maxWidth) / height);
+          height = maxWidth;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      } else {
+        resolve(dataUrl);
+      }
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+};
+
 export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: TrainingScannerModalProps) {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [imagesList, setImagesList] = useState<string[]>([]);
+  const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisProgress, setAnalysisProgress] = useState<string>('');
   const [resultData, setResultData] = useState<ExtractedTrainingData | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [isFlashOn, setIsFlashOn] = useState(false);
@@ -44,27 +79,45 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
 
   if (!isOpen) return null;
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const processFile = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      if (!file.type.startsWith('image/')) {
+        reject(new Error(`El archivo ${file.name} no es una imagen válida`));
+        return;
+      }
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Por favor seleccioná un archivo de imagen válido (JPG, PNG, WebP)');
-      return;
-    }
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const compressed = await compressImage(reader.result as string);
+        resolve(compressed);
+      };
+      reader.onerror = () => reject(new Error(`Error al leer ${file.name}`));
+      reader.readAsDataURL(file);
+    });
+  };
 
-    if (file.size > 15 * 1024 * 1024) {
-      toast.error('La imagen excede los 15MB. Probá tomar la foto con menor resolución.');
-      return;
-    }
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setSelectedImage(reader.result as string);
+    const toastId = toast.loading(`Cargando ${files.length} foto(s)...`);
+
+    try {
+      const newImages: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const compressed = await processFile(files[i]);
+        newImages.push(compressed);
+      }
+
+      setImagesList((prev) => [...prev, ...newImages]);
       setResultData(null);
-    };
-    reader.readAsDataURL(file);
-    // reset input value so re-selecting same file works
+      toast.dismiss(toastId);
+      toast.success(`${newImages.length} hoja(s) agregada(s) correctamente!`);
+    } catch (err: any) {
+      toast.dismiss(toastId);
+      toast.error(err.message || 'Error al procesar archivos');
+    }
+
     e.target.value = '';
   };
 
@@ -88,14 +141,14 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
         if (capabilities.torch) {
           setHasFlashSupport(true);
         } else {
-          setHasFlashSupport(true); // Always offer flash toggle button for web compatibility
+          setHasFlashSupport(true);
         }
       } else {
         setHasFlashSupport(true);
       }
     } catch (err) {
       console.error("Error al acceder a la cámara:", err);
-      toast.error('No se pudo abrir la cámara web/móvil directa. Usá las opciones "Tomar Foto con Cámara" o "Elegir de Galería".');
+      toast.error('No se pudo abrir la cámara directa. Usá las opciones de Galería / Cámara Nativa.');
       setIsCameraActive(false);
     }
   };
@@ -135,7 +188,7 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
     }
   };
 
-  const captureCameraPhoto = () => {
+  const captureCameraPhoto = async () => {
     if (!videoRef.current) return;
     const video = videoRef.current;
     const canvas = document.createElement('canvas');
@@ -144,68 +197,144 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
     const ctx = canvas.getContext('2d');
     if (ctx) {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-      setSelectedImage(dataUrl);
+      const rawUrl = canvas.toDataURL('image/jpeg', 0.92);
+      const compressed = await compressImage(rawUrl);
+
+      setImagesList((prev) => [...prev, compressed]);
+      setActiveImageIndex((prev) => imagesList.length); // seleccionar la nueva
       setResultData(null);
-      stopCamera();
+      toast.success(`Foto ${imagesList.length + 1} capturada! Podés tomar más o finalizar.`);
     }
   };
 
-  const handleAnalyze = async () => {
-    if (!selectedImage) {
-      toast.error('Primero cargá o tomá una foto de la planilla.');
+  const removeImage = (indexToRemove: number) => {
+    setImagesList((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+    if (activeImageIndex >= imagesList.length - 1) {
+      setActiveImageIndex(Math.max(0, imagesList.length - 2));
+    }
+    setResultData(null);
+  };
+
+  const handleAnalyzeAll = async () => {
+    if (imagesList.length === 0) {
+      toast.error('Primero cargá o tomá al menos una foto de la planilla.');
       return;
     }
 
     setIsAnalyzing(true);
-    const toastId = toast.loading('Procesando planilla con Inteligencia Artificial...');
+    setResultData(null);
+
+    const mergedData: ExtractedTrainingData = {
+      sheetDetected: false,
+      tema: '',
+      tipoCapacitacion: 'Seguridad e Higiene',
+      fecha: '',
+      duracion: '',
+      expositor: '',
+      empresa: '',
+      lugar: '',
+      objetivo: '',
+      asistentes: [],
+      observaciones: ''
+    };
+
+    const uniqueDNI = new Set<string>();
+    const uniqueNames = new Set<string>();
+    let totalAsistentesDetectados = 0;
+    let successfulSheets = 0;
 
     try {
       const currentUser = auth.currentUser;
       const token = currentUser ? await currentUser.getIdToken() : '';
 
-      const response = await fetch(`${API_BASE_URL}/api/analyze-training-sheet`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify({ image: selectedImage })
-      });
+      for (let i = 0; i < imagesList.length; i++) {
+        setAnalysisProgress(`Procesando hoja ${i + 1} de ${imagesList.length} con IA...`);
+        const toastId = toast.loading(`Procesando hoja ${i + 1} de ${imagesList.length}...`);
 
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || errData.details || `Error en servidor (${response.status})`);
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/analyze-training-sheet`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            },
+            body: JSON.stringify({ image: imagesList[i] })
+          });
+
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error || errData.details || `Error HTTP ${response.status}`);
+          }
+
+          const pageData: ExtractedTrainingData = await response.json();
+          toast.dismiss(toastId);
+
+          if (pageData.sheetDetected) {
+            mergedData.sheetDetected = true;
+            successfulSheets++;
+
+            // Tomar los datos del encabezado de la primera planilla leída
+            if (!mergedData.tema && pageData.tema) mergedData.tema = pageData.tema;
+            if (!mergedData.tipoCapacitacion && pageData.tipoCapacitacion) mergedData.tipoCapacitacion = pageData.tipoCapacitacion;
+            if (!mergedData.fecha && pageData.fecha) mergedData.fecha = pageData.fecha;
+            if (!mergedData.duracion && pageData.duracion) mergedData.duracion = pageData.duracion;
+            if (!mergedData.expositor && pageData.expositor) mergedData.expositor = pageData.expositor;
+            if (!mergedData.empresa && pageData.empresa) mergedData.empresa = pageData.empresa;
+            if (!mergedData.lugar && pageData.lugar) mergedData.lugar = pageData.lugar;
+            if (!mergedData.objetivo && pageData.objetivo) mergedData.objetivo = pageData.objetivo;
+
+            // Consolidar asistentes evitando duplicados por DNI o Nombre
+            if (pageData.asistentes && Array.isArray(pageData.asistentes)) {
+              for (const a of pageData.asistentes) {
+                const cleanDni = (a.dni || '').trim().toLowerCase();
+                const cleanName = (a.nombre || '').trim().toLowerCase();
+
+                if (cleanDni && uniqueDNI.has(cleanDni)) continue;
+                if (!cleanDni && cleanName && uniqueNames.has(cleanName)) continue;
+
+                if (cleanDni) uniqueDNI.add(cleanDni);
+                if (cleanName) uniqueNames.add(cleanName);
+
+                mergedData.asistentes.push(a);
+                totalAsistentesDetectados++;
+              }
+            }
+          } else {
+            toast.error(`Hoja ${i + 1}: No se detectó planilla legible.`);
+          }
+        } catch (err: any) {
+          toast.dismiss(toastId);
+          console.error(`Error procesando hoja ${i + 1}:`, err);
+          toast.error(`Hoja ${i + 1}: ${err.message || 'Error al escanear'}`);
+        }
       }
 
-      const data: ExtractedTrainingData = await response.json();
-      toast.dismiss(toastId);
-
-      if (!data.sheetDetected) {
-        toast.error('No se detectó claramente una planilla de capacitación en la foto. Intentá con otra foto o mejor iluminación.', { duration: 5000 });
+      if (!mergedData.sheetDetected) {
+        toast.error('No se pudo leer información clara en ninguna de las planillas enviadas.');
       } else {
-        toast.success(`Planilla leída correctamente! Se encontraron ${data.asistentes?.length || 0} asistentes.`);
+        toast.success(`¡Proceso completado! Se leyeron ${successfulSheets} hoja(s) y un total de ${totalAsistentesDetectados} asistentes.`, { duration: 6000 });
       }
 
-      setResultData(data);
+      setResultData(mergedData);
     } catch (err: any) {
-      console.error("Error al analizar planilla:", err);
-      toast.dismiss(toastId);
-      toast.error(err.message || 'Ocurrió un error al procesar la imagen con IA');
+      console.error("Error global en análisis múltiple:", err);
+      toast.error(err.message || 'Ocurrió un error al procesar las planillas con IA');
     } finally {
       setIsAnalyzing(false);
+      setAnalysisProgress('');
     }
   };
 
   const handleApply = () => {
-    if (!resultData || !selectedImage) return;
-    onApplyData(resultData, selectedImage);
-    toast.success('Datos cargados en el formulario de capacitación.');
+    if (!resultData || imagesList.length === 0) return;
+    onApplyData(resultData, imagesList[0]); // Pasar dataset consolidado e imagen principal
+    toast.success(`¡Datos cargados! ${resultData.asistentes?.length || 0} asistentes importados al formulario.`);
     onClose();
   };
 
-  const resetSelection = () => {
-    setSelectedImage(null);
+  const resetAll = () => {
+    setImagesList([]);
+    setActiveImageIndex(0);
     setResultData(null);
     stopCamera();
   };
@@ -222,10 +351,15 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
             </div>
             <div>
               <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                Escáner Inteligente de Planillas IA
+                Escáner Multi-Planilla IA
+                {imagesList.length > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-extrabold">
+                    {imagesList.length} {imagesList.length === 1 ? 'hoja' : 'hojas'}
+                  </span>
+                )}
               </h3>
               <p className="text-[11px] sm:text-xs text-emerald-300/90 font-medium">
-                Fotografiá una planilla física para extraer tema, fecha y nómina de firmantes.
+                Cargá o fotografiá 1 o varias planillas físicas del mismo tema (500+ personas).
               </p>
             </div>
           </div>
@@ -239,33 +373,35 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
 
         {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
-          {!selectedImage && !isCameraActive && (
+          {/* Si NO hay imágenes y NO está la cámara activa */}
+          {imagesList.length === 0 && !isCameraActive && (
             <div className="flex flex-col items-center justify-center border-2 border-dashed border-emerald-500/50 hover:border-emerald-400 rounded-2xl sm:rounded-3xl p-5 sm:p-10 text-center transition-all bg-gradient-to-b from-emerald-950/30 via-zinc-900/60 to-zinc-950 group my-auto min-h-[320px]">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-500 border border-emerald-400/30 flex items-center justify-center text-white mb-4 group-hover:scale-110 shadow-xl shadow-emerald-500/30 transition-transform">
-                <FileText className="w-8 h-8" />
+                <Layers className="w-8 h-8" />
               </div>
               <h4 className="text-base sm:text-xl font-black text-white mb-1">
-                Subí o fotografiá la hoja de capacitación física
+                Subí una o varias planillas físicas de capacitación
               </h4>
               <p className="text-xs sm:text-sm text-zinc-300 max-w-md mb-6">
-                Seleccioná una opción para capturar la planilla completa de asistencia o examen.
+                Podés seleccionar múltiples fotos de una sola vez desde la Galería o fotografiarlas con la cámara.
               </p>
 
-              {/* Botones de Selección Nativa (Labels 100% compatibles con celulares Android y iPhone) */}
+              {/* Botones de Selección Nativa de Múltiples Fotos */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 w-full max-w-md">
-                {/* 1. Selector de Galería (SIN capture para abrir la Galería/Archivos sin problemas) */}
+                {/* 1. Selector de Galería MÚLTIPLE */}
                 <label className="flex items-center justify-center gap-2.5 px-5 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-sm shadow-xl shadow-emerald-600/30 cursor-pointer transition-all active:scale-95 text-center">
                   <ImageIcon className="w-5 h-5 shrink-0" />
-                  <span>Elegir de Galería / Archivos</span>
+                  <span>Elegir Fotos de Galería</span>
                   <input
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={handleFileChange}
                     className="hidden"
                   />
                 </label>
 
-                {/* 2. Captura Directa con Cámara Nativa del Celular */}
+                {/* 2. Captura Directa con Cámara Nativa */}
                 <label className="flex items-center justify-center gap-2.5 px-5 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-500 hover:from-indigo-500 hover:to-purple-400 text-white font-black text-sm shadow-xl shadow-indigo-600/30 cursor-pointer transition-all active:scale-95 text-center">
                   <Camera className="w-5 h-5 shrink-0 text-amber-300" />
                   <span>Tomar Foto (Cámara)</span>
@@ -279,20 +415,20 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
                 </label>
               </div>
 
-              {/* Opción Secundaria: Visor en Vivo en la Web */}
+              {/* Opción Secundaria: Visor en Vivo en Pantalla */}
               <div className="mt-4 pt-4 border-t border-zinc-800/80 w-full max-w-md flex justify-center">
                 <button
                   type="button"
                   onClick={startCamera}
                   className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 underline decoration-emerald-500/40 underline-offset-4"
                 >
-                  <Camera className="w-3.5 h-3.5" /> Abrir Cámara en Pantalla Completa
+                  <Camera className="w-3.5 h-3.5" /> Abrir Cámara en Vivo en Pantalla
                 </button>
               </div>
             </div>
           )}
 
-          {/* Camera Streaming Mode (Visor en Vivo Ampliado) */}
+          {/* Modo Cámara en Vivo */}
           {isCameraActive && (
             <div className="flex flex-col items-center gap-4 w-full h-full min-h-[380px]">
               <div className="relative w-full flex-1 min-h-[320px] max-h-[60vh] sm:max-h-[480px] rounded-2xl overflow-hidden bg-black border-2 border-emerald-500/60 shadow-2xl flex items-center justify-center">
@@ -314,6 +450,13 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
                     <span>FLASH {isFlashOn ? 'ON ⚡' : 'OFF'}</span>
                   </button>
                 )}
+
+                {/* Badge de Fotos Capturadas */}
+                {imagesList.length > 0 && (
+                  <div className="absolute bottom-4 left-4 z-20 px-3.5 py-1.5 rounded-xl bg-emerald-600/90 text-white border border-emerald-400/50 text-xs font-black shadow-lg">
+                    {imagesList.length} {imagesList.length === 1 ? 'foto guardada' : 'fotos guardadas'}
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto shrink-0">
@@ -322,71 +465,132 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
                   onClick={captureCameraPhoto}
                   className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-600/40 cursor-pointer transition-all active:scale-95"
                 >
-                  <Camera className="w-5 h-5 text-amber-300" /> Capturar Foto de la Planilla
+                  <Camera className="w-5 h-5 text-amber-300" /> Capturar Foto ({imagesList.length + 1})
                 </button>
+                {imagesList.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={stopCamera}
+                    className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 cursor-pointer"
+                  >
+                    <Check className="w-4 h-4" /> Listo ({imagesList.length} fotos)
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={stopCamera}
                   className="w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-sm cursor-pointer"
                 >
-                  Cancelar
+                  Cerrar Cámara
                 </button>
               </div>
             </div>
           )}
 
-          {/* Selected Image Preview & Analysis Results */}
-          {selectedImage && (
+          {/* Vista Previa de Imágenes Cargadas & Botones de Análisis */}
+          {imagesList.length > 0 && !isCameraActive && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-              {/* Left Column: Image Preview (Vista Previa Ampliada) */}
+              {/* Columna Izquierda: Galería de Fotos / Tiras de Hojas */}
               <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-emerald-400 uppercase tracking-wider">
-                    Foto Capturada
+                  <span className="text-xs font-black text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Layers className="w-4 h-4" /> Hojas de Asistencia ({imagesList.length})
                   </span>
                   <button
                     type="button"
-                    onClick={resetSelection}
-                    className="text-xs text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 cursor-pointer bg-zinc-900 px-3 py-1 rounded-lg border border-zinc-800"
+                    onClick={resetAll}
+                    className="text-xs text-red-400 hover:text-red-300 font-bold flex items-center gap-1 cursor-pointer bg-zinc-900 px-3 py-1 rounded-lg border border-zinc-800"
                   >
-                    <RefreshCw className="w-3.5 h-3.5" /> Sacar Otra Foto
+                    <Trash2 className="w-3.5 h-3.5" /> Borrar Todas
                   </button>
                 </div>
-                <div className="relative rounded-2xl overflow-hidden border border-zinc-700 bg-zinc-950 flex items-center justify-center min-h-[300px] sm:min-h-[420px] max-h-[50vh] sm:max-h-[500px]">
-                  <img
-                    src={selectedImage}
-                    alt="Planilla de capacitación"
-                    className="w-full h-full object-contain max-h-[50vh] sm:max-h-[500px]"
-                  />
+
+                {/* Tira Horizontal de Miniaturas (Carousel de Hojas) */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                  {imagesList.map((img, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => setActiveImageIndex(idx)}
+                      className={`relative w-20 h-24 rounded-xl overflow-hidden border-2 shrink-0 cursor-pointer transition-all ${
+                        activeImageIndex === idx
+                          ? 'border-emerald-400 shadow-lg shadow-emerald-500/30 scale-105'
+                          : 'border-zinc-800 opacity-70 hover:opacity-100'
+                      }`}
+                    >
+                      <img src={img} alt={`Hoja ${idx + 1}`} className="w-full h-full object-cover" />
+                      <span className="absolute bottom-1 left-1 bg-black/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded">
+                        #{idx + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeImage(idx);
+                        }}
+                        className="absolute top-1 right-1 p-1 bg-red-600/90 text-white rounded-full hover:bg-red-500"
+                        title="Eliminar esta hoja"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* Botones de Agregar Más Hojas */}
+                  <label className="w-20 h-24 rounded-xl border-2 border-dashed border-emerald-500/40 hover:border-emerald-400 bg-emerald-950/20 flex flex-col items-center justify-center text-emerald-400 shrink-0 cursor-pointer hover:bg-emerald-950/40 transition-colors">
+                    <Plus className="w-6 h-6 mb-1" />
+                    <span className="text-[10px] font-extrabold text-center px-1 leading-tight">+ Más Hojas</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
 
+                {/* Visor Grande de la Hoja Seleccionada */}
+                <div className="relative rounded-2xl overflow-hidden border border-zinc-700 bg-zinc-950 flex items-center justify-center min-h-[260px] sm:min-h-[380px] max-h-[45vh] sm:max-h-[450px]">
+                  <img
+                    src={imagesList[activeImageIndex] || imagesList[0]}
+                    alt={`Hoja ${activeImageIndex + 1}`}
+                    className="w-full h-full object-contain max-h-[45vh] sm:max-h-[450px]"
+                  />
+                  <div className="absolute top-3 left-3 bg-black/80 border border-zinc-700 text-emerald-300 font-black text-xs px-3 py-1 rounded-xl backdrop-blur-md">
+                    Hoja {activeImageIndex + 1} de {imagesList.length}
+                  </div>
+                </div>
+
+                {/* Botón Principal de Acción: Analizar Todas las Planillas */}
                 {!resultData && (
                   <button
                     type="button"
-                    onClick={handleAnalyze}
+                    onClick={handleAnalyzeAll}
                     disabled={isAnalyzing}
                     className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-white font-black text-base flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/30 disabled:opacity-50 transition-all hover:scale-[1.01] active:scale-95 cursor-pointer"
                   >
                     {isAnalyzing ? (
                       <>
-                        <Loader2 className="w-5 h-5 animate-spin" /> Procesando Planilla con IA...
+                        <Loader2 className="w-5 h-5 animate-spin text-amber-300" />
+                        <span>{analysisProgress || 'Procesando Planillas con IA...'}</span>
                       </>
                     ) : (
                       <>
-                        <ScanLine className="w-5 h-5 text-amber-300 animate-pulse" /> Analizar con IA e Importar Datos
+                        <ScanLine className="w-5 h-5 text-amber-300 animate-pulse" />
+                        <span>Analizar {imagesList.length} {imagesList.length === 1 ? 'Planilla' : 'Planillas'} con IA e Importar</span>
                       </>
                     )}
                   </button>
                 )}
               </div>
 
-              {/* Right Column: AI Extraction Results */}
+              {/* Columna Derecha: Resultados del Análisis Consolidado */}
               <div className="flex flex-col gap-3">
                 <span className="text-xs font-black text-zinc-300 uppercase tracking-wider flex items-center justify-between">
-                  <span>Datos Extraídos</span>
+                  <span>Resultado Consolidado</span>
                   {resultData?.sheetDetected && (
                     <span className="text-emerald-400 text-xs font-bold flex items-center gap-1 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/30">
-                      <Check className="w-3.5 h-3.5" /> Planilla detectada
+                      <Check className="w-3.5 h-3.5" /> Lectura Exitosa
                     </span>
                   )}
                 </span>
@@ -394,8 +598,8 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
                 {isAnalyzing && (
                   <div className="flex-1 flex flex-col items-center justify-center p-6 border border-emerald-500/30 rounded-2xl bg-emerald-950/20 text-center min-h-[260px]">
                     <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mb-3" />
-                    <p className="text-sm font-black text-white">Leyendo encabezados y lista de firmantes...</p>
-                    <p className="text-xs text-emerald-300/80 mt-1">Por favor aguardá unos segundos.</p>
+                    <p className="text-sm font-black text-white">{analysisProgress || 'Leyendo firmas y asistentes...'}</p>
+                    <p className="text-xs text-emerald-300/80 mt-1">Consolidando nómina de todas las hojas.</p>
                   </div>
                 )}
 
@@ -403,7 +607,7 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
                   <div className="flex-1 flex flex-col items-center justify-center p-6 border border-zinc-800 rounded-2xl bg-zinc-900/30 text-center min-h-[260px]">
                     <Sparkles className="w-10 h-10 text-amber-400 mb-2" />
                     <p className="text-xs text-zinc-300">
-                      Tocá en <strong>"Analizar con IA e Importar Datos"</strong> para escanear la foto.
+                      Tocá en <strong>"Analizar {imagesList.length} Planilla(s) con IA"</strong> para escanear y consolidar las listas.
                     </p>
                   </div>
                 )}
@@ -414,9 +618,9 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
                       <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2">
                         <AlertCircle className="w-5 h-5 shrink-0 text-amber-400" />
                         <div>
-                          <strong className="text-amber-200">No se detectó planilla clara.</strong>
+                          <strong className="text-amber-200">No se detectó planilla legible.</strong>
                           <p className="mt-1 text-zinc-300">
-                            Intentá tomar la foto enfrente de la hoja y con buena iluminación.
+                            Intentá tomar las fotos de frente y con buena iluminación.
                           </p>
                         </div>
                       </div>
@@ -446,26 +650,26 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
                           </div>
                         </div>
 
-                        {/* Attendees List */}
+                        {/* Attendees List Consolidada */}
                         <div>
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-xs font-black text-emerald-400 flex items-center gap-1.5 uppercase">
                               <UserCheck className="w-4 h-4 text-emerald-400" />
-                              Asistentes ({resultData.asistentes?.length || 0})
+                              Nómina Consolidada ({resultData.asistentes?.length || 0} personas)
                             </span>
                           </div>
 
                           {(!resultData.asistentes || resultData.asistentes.length === 0) ? (
                             <p className="text-xs text-zinc-500 italic p-2">No se detectaron filas en la nómina.</p>
                           ) : (
-                            <div className="space-y-1.5 max-h-[180px] overflow-y-auto pr-1">
+                            <div className="space-y-1.5 max-h-[190px] overflow-y-auto pr-1">
                               {resultData.asistentes.map((asistente, idx) => (
                                 <div
                                   key={idx}
                                   className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-950 border border-zinc-800/80 text-xs"
                                 >
                                   <div className="flex flex-col pr-2">
-                                    <span className="font-bold text-white">{asistente.nombre}</span>
+                                    <span className="font-bold text-white">{idx + 1}. {asistente.nombre}</span>
                                     <span className="text-[10px] text-zinc-400">
                                       DNI: <strong className="text-zinc-300">{asistente.dni || 'S/N'}</strong> {asistente.puesto ? `• ${asistente.puesto}` : ''}
                                     </span>
@@ -490,13 +694,13 @@ export default function TrainingScannerModal({ isOpen, onClose, onApplyData }: T
                           )}
                         </div>
 
-                        {/* Action Apply Button */}
+                        {/* Botón Aplicar Datos */}
                         <button
                           type="button"
                           onClick={handleApply}
                           className="w-full py-4 mt-1 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-600/40 transition-all hover:scale-[1.01] active:scale-95 cursor-pointer"
                         >
-                          <Check className="w-5 h-5" /> Aplicar Datos a la Capacitación
+                          <Check className="w-5 h-5" /> Aplicar Datos al Formulario ({resultData.asistentes?.length || 0} Asistentes)
                         </button>
                       </>
                     )}
