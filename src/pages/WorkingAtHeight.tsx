@@ -13,6 +13,8 @@ import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import { usePaywall } from '../hooks/usePaywall';
 import PremiumHeader from '../components/PremiumHeader';
 import ConfirmModal from '../components/ConfirmModal';
+import { DataTable } from '../components/DataTable';
+
 
 // Límites según OSHA 1926.501 y normas internacionales
 const HEIGHT_LIMITS = {
@@ -218,24 +220,101 @@ export default function WorkingAtHeight(): React.ReactElement | null {
     return matchesSearch && matchesStatus;
   });
 
-  // Estadísticas
   const stats = {
     total: permits.length,
     active: activePermits.length,
-    pending: permits.filter((p) => p.status === 'pending').length,
     completed: permits.filter((p) => p.status === 'completed').length,
-    workTypes: permits.reduce((acc, p) => {
-      if (p.workType) acc[p.workType] = (acc[p.workType] || 0) + 1;
-      return acc;
-    }, {}),
     avgHeight: permits.length > 0 ?
     (permits.reduce((sum, p) => sum + (parseFloat(p.height) || 0), 0) / permits.length).toFixed(1) :
     0
   };
 
+  const columns = [
+    {
+      header: 'Trabajador',
+      accessor: 'workerName',
+      render: (item: any) => (
+        <div className="flex flex-col">
+          <span style={{ color: '#000000', fontWeight: '900', fontSize: '13px' }}>
+            {item.workerName || 'Sin Nombre'}
+          </span>
+          <span style={{ color: '#64748b', fontWeight: '700', fontSize: '11px' }}>
+            📍 {item.location || 'Sin ubicación'}
+          </span>
+        </div>
+      )
+    },
+    {
+      header: 'Tipo / Altura',
+      accessor: 'height',
+      render: (item: any) => (
+        <div className="flex flex-col">
+          <span style={{ color: '#000000', fontWeight: '800', fontSize: '12px' }}>
+            📏 {item.height ? `${item.height}m` : '1.8m'}
+          </span>
+          <span style={{ color: '#475569', fontWeight: '700', fontSize: '11px' }}>
+            {item.workType ? (WORK_TYPES.find((w: any) => w.id === item.workType)?.name || item.workType) : 'General'}
+          </span>
+        </div>
+      )
+    },
+    {
+      header: 'Fecha',
+      accessor: 'createdAt',
+      render: (item: any) => (
+        <span style={{ color: '#000000', fontWeight: '900', fontSize: '12px' }}>
+          {item.createdAt ? new Date(item.createdAt).toLocaleDateString('es-AR') : '—'}
+        </span>
+      )
+    },
+    {
+      header: 'Estado',
+      accessor: 'status',
+      render: (item: any) => {
+        const st = (PERMIT_STATUS as any)[item.status] || PERMIT_STATUS.draft;
+        return (
+          <span style={{ backgroundColor: st.bg, color: st.color, border: `1px solid ${st.color}40`, padding: '4px 10px', borderRadius: '9999px', fontSize: '11px', fontWeight: '900', display: 'inline-block' }}>
+            {st.label}
+          </span>
+        );
+      }
+    },
+    {
+      header: 'Acciones',
+      accessor: 'id',
+      render: (item: any) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button 
+            onClick={() => navigate('/working-at-height/new', { state: { editData: item } })} 
+            style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <FileText size={12} /> Editar
+          </button>
+          
+          <button 
+            onClick={() => setSelectedPermit(item)} 
+            style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Eye size={12} /> Ver
+          </button>
+
+          <button 
+            onClick={() => requirePro(() => setShareItem(item))} 
+            style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Share2 size={12} /> Compartir
+          </button>
+
+          <button 
+            onClick={() => deletePermit(item.id)} 
+            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Trash2 size={12} /> Eliminar
+          </button>
+        </div>
+      )
+    }
+  ];
+
   return (
     <div className="container pb-[6rem]">
-            <ShareModal
+      <ShareModal
         isOpen={!!shareItem}
         open={!!shareItem}
         onClose={() => setShareItem(null)}
@@ -243,233 +322,195 @@ export default function WorkingAtHeight(): React.ReactElement | null {
         text={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}` : ''}
         rawMessage={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}\n\nGenerado con Asistente H&S` : ''}
         elementIdToPrint="pdf-content"
-        fileName={`Altura_${shareItem?.location || 'Sin_Nombre'}.pdf`} />
-      
+        fileName={`Altura_${shareItem?.location || 'Sin_Nombre'}.pdf`}
+      />
 
-            <div className="fixed left-[0] opacity-[0.01] top-[0] pointer-events-[none]">
-                {shareItem && <WorkingAtHeightPdf data={shareItem} />}
-            </div>
-            
-            <div className="no-print mb-8">
-                <PremiumHeader
+      <div className="fixed left-[0] opacity-[0.01] top-[0] pointer-events-[none]">
+        {shareItem && <WorkingAtHeightPdf data={shareItem} />}
+      </div>
+      
+      <div className="no-print mb-6">
+        <PremiumHeader
           title="Trabajo en Altura"
           subtitle={`OSHA 1926.501 • ${activePermits.length} activos`}
           icon={<HardHat size={32} color="#ffffff" />}
-          color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
-        
-                <div className="flex justify-space-between items-center flex-wrap gap-[1rem] mt-[1rem]">
-                    <></>
-                    <div className="flex gap-[0.75rem] flex-wrap">
-                        <button
-              onClick={handleCreatePermit} className="w-[auto] m-[0] flex items-center gap-[0.5rem] p-[0.75rem_1.25rem] bg-[linear-gradient(135deg,_#10b981_0%,_#059669_100%)] text-[#ffffff] border-none rounded-[8px] font-[700] cursor-pointer box-shadow-[0_4px_15px_rgba(16,_185,_129,_0.3)] transition-[all_0.2s_ease]">
+          color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+        />
+      </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-              
-                            <Plus size={20} strokeWidth={3} /> Nuevo Permiso
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <StatCard
+      {/* Top Summary Cards (KPIs) */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <StatCard
           icon={<FileText size={24} />}
           label="Total Permisos"
           value={stats.total}
           color="#3B82F6"
-          gradient="linear-gradient(135deg, #3B82F6, #1D4ED8)" />
-        
-                <StatCard
+          gradient="linear-gradient(135deg, #3B82F6, #1D4ED8)"
+        />
+        <StatCard
           icon={<CheckCircle2 size={24} />}
           label="Trabajos Activos"
           value={stats.active}
           color="#16a34a"
-          gradient="linear-gradient(135deg, #16a34a, #059669)" />
-        
-                <StatCard
+          gradient="linear-gradient(135deg, #16a34a, #059669)"
+        />
+        <StatCard
           icon={<Ruler size={24} />}
           label="Altura Promedio"
           value={`${stats.avgHeight}m`}
           color="#f59e0b"
-          gradient="linear-gradient(135deg, #f59e0b, #d97706)" />
-        
-                <StatCard
+          gradient="linear-gradient(135deg, #f59e0b, #d97706)"
+        />
+        <StatCard
           icon={<CheckSquare size={24} />}
           label="Completados"
           value={stats.completed}
           color="#8b5cf6"
-          gradient="linear-gradient(135deg, #8b5cf6, #7c3aed)" />
-        
-            </div>
+          gradient="linear-gradient(135deg, #8b5cf6, #7c3aed)"
+        />
+      </div>
 
-            {/* Tabs — línea inferior estilo profesional */}
-            <div className="tab-underline-container">
-                <button
-          className={`tab-underline${activeTab === 'permits' ? ' active' : ''}`}
-          onClick={() => setActiveTab('permits')}>
-          
-                    <FileText size={16} />
-                    Permisos
-                    <span className="tab-count">{permits.length}</span>
-                </button>
-                <button
-          className={`tab-underline${activeTab === 'active' ? ' active' : ''}`}
-          onClick={() => setActiveTab('active')}>
-          
-                    <CheckCircle2 size={16} />
-                    Activos
-                    <span className="tab-count">{activePermits.length}</span>
-                    {activePermits.length > 0 &&
-          <span className="absolute top-[6px] right-[6px] w-[8px] h-[8px] bg-[#ef4444] rounded-[50%]" />
+      {/* Buscador y Botón Nuevo Permiso — IDÉNTICO A APTITUDES MÉDICAS */}
+      <div className="flex flex-row items-center justify-between gap-3 mt-6 mb-4">
+        {/* Input de Búsqueda */}
+        <div className="relative flex-1 max-w-xs h-[38px]">
+          <Search 
+            size={16} 
+            className="text-slate-400 pointer-events-none z-10" 
+            style={{ 
+              position: 'absolute', 
+              left: '0.75rem', 
+              top: 0, 
+              bottom: 0, 
+              marginTop: 'auto', 
+              marginBottom: 'auto', 
+              display: 'block' 
+            }} 
+          />
+          <input 
+            type="text" 
+            placeholder="Buscar trabajador o ubicación..." 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+            style={{ paddingLeft: '2.25rem', paddingRight: '0.75rem', height: '38px', width: '100%', boxSizing: 'border-box', outline: 'none' }}
+            className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" 
+          />
+        </div>
 
+        {/* Botón Nuevo Permiso de Altura */}
+        <button 
+          onClick={handleCreatePermit} 
+          style={{
+            backgroundColor: '#059669',
+            color: '#ffffff',
+            border: 'none',
+            padding: '6px 14px',
+            fontSize: '12px',
+            fontWeight: '800',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            whiteSpace: 'nowrap',
+            height: '34px',
+            boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
+          }}>
+          <Plus size={14} />
+          <span>Nuevo Permiso de Altura</span>
+        </button>
+      </div>
 
+      {/* Filter Tabs — IDÉNTICO A APTITUDES MÉDICAS */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs mb-4">
+        <button
+          onClick={() => setFilterStatus('all')}
+          style={{
+            backgroundColor: filterStatus === 'all' ? '#2563eb' : '#ffffff',
+            color: filterStatus === 'all' ? '#ffffff' : '#334155',
+            border: filterStatus === 'all' ? '1px solid #2563eb' : '1px solid #cbd5e1',
+            padding: '6px 12px',
+            borderRadius: '8px',
+            fontWeight: '800',
+            cursor: 'pointer'
+          }}>
+          Todos ({permits.length})
+        </button>
+        <button
+          onClick={() => setFilterStatus('active')}
+          style={{
+            backgroundColor: filterStatus === 'active' ? '#059669' : '#ffffff',
+            color: filterStatus === 'active' ? '#ffffff' : '#334155',
+            border: filterStatus === 'active' ? '1px solid #059669' : '1px solid #cbd5e1',
+            padding: '6px 12px',
+            borderRadius: '8px',
+            fontWeight: '800',
+            cursor: 'pointer'
+          }}>
+          Activos ({activePermits.length})
+        </button>
+        <button
+          onClick={() => setFilterStatus('pending')}
+          style={{
+            backgroundColor: filterStatus === 'pending' ? '#d97706' : '#ffffff',
+            color: filterStatus === 'pending' ? '#ffffff' : '#334155',
+            border: filterStatus === 'pending' ? '1px solid #d97706' : '1px solid #cbd5e1',
+            padding: '6px 12px',
+            borderRadius: '8px',
+            fontWeight: '800',
+            cursor: 'pointer'
+          }}>
+          Pendientes ({permits.filter((p: any) => p.status === 'pending').length})
+        </button>
+        <button
+          onClick={() => setFilterStatus('completed')}
+          style={{
+            backgroundColor: filterStatus === 'completed' ? '#8b5cf6' : '#ffffff',
+            color: filterStatus === 'completed' ? '#ffffff' : '#334155',
+            border: filterStatus === 'completed' ? '1px solid #8b5cf6' : '1px solid #cbd5e1',
+            padding: '6px 12px',
+            borderRadius: '8px',
+            fontWeight: '800',
+            cursor: 'pointer'
+          }}>
+          Completados ({permits.filter((p: any) => p.status === 'completed').length})
+        </button>
+      </div>
 
+      {/* Tabla de Resultados — DATATABLE IDÉNTICO A APTITUDES MÉDICAS */}
+      <div className="glass-card p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+        <DataTable
+          data={filteredPermits}
+          columns={columns}
+          hideHeader={true}
+          emptyMessage="No hay permisos de trabajo en altura cargados."
+          emptyIcon={<HardHat size={48} />}
+        />
+      </div>
 
+      {/* Modal de Detalle */}
+      {selectedPermit && (
+        <PermitDetailModal
+          permit={selectedPermit}
+          statusConfig={PERMIT_STATUS[selectedPermit.status as keyof typeof PERMIT_STATUS] || PERMIT_STATUS.draft}
+          onClose={() => setSelectedPermit(null)}
+          WORK_TYPES={WORK_TYPES}
+          FALL_PROTECTION={FALL_PROTECTION}
+          RISK_FACTORS={RISK_FACTORS}
+          HEIGHT_LIMITS={HEIGHT_LIMITS}
+        />
+      )}
 
-
-
-
-          }
-                </button>
-                <button
-          className={`tab-underline${activeTab === 'limits' ? ' active' : ''}`}
-          onClick={() => setActiveTab('limits')}>
-          
-                    <Activity size={16} />
-                    Límites de Seguridad
-                </button>
-            </div>
-
-            {/* Content by Tab */}
-            {activeTab === 'permits' &&
-      <>
-                    {/* Search & Filters */}
-                    <div className="flex gap-[1rem] mb-[1.5rem] flex-wrap">
-                        <div className="flex-[1] min-w-[280px] relative h-[50px]">
-                            <Search 
-                              size={20} 
-                              color="var(--color-text-muted)" 
-                              style={{ 
-                                position: 'absolute', 
-                                left: '1.2rem', 
-                                top: 0, 
-                                bottom: 0, 
-                                marginTop: 'auto', 
-                                marginBottom: 'auto', 
-                                display: 'block' 
-                              }} 
-                              className="pointer-events-none z-10" 
-                            />
-                            <input
-                              type="text"
-                              placeholder="Buscar por trabajador, ubicación..."
-                              value={searchTerm}
-                              onChange={(e) => setSearchTerm(e.target.value)}
-                              style={{ width: '100%', height: '50px', paddingLeft: '3.5rem', paddingRight: '1rem', boxSizing: 'border-box', outline: 'none' }}
-                              className="rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.95rem] font-[500] focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all shadow-sm" 
-                            />
-                        </div>
-
-                        <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)} className="p-[0.85rem_1.25rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.9rem] font-[600] outline-[none] cursor-pointer">
-
-
-
-
-
-
-
-
-
-            
-                            <option value="all">Todos los Estados</option>
-                            {Object.entries(PERMIT_STATUS).map(([key, value]) =>
-            <option key={key} value={key}>{value.label}</option>
-            )}
-                        </select>
-                    </div>
-
-                    {/* Permits List */}
-                    {filteredPermits.length === 0 ?
-        <EmptyStateIllustrated
-          title="Sin Permisos de Trabajo en Altura"
-          description="Todavía no hay permisos creados. Creá el primero para gestionar la seguridad según OSHA 1.8m."
-          icon={<HardHat />} /> :
-
-
-        <div className="flex flex-col gap-3">
-                            {filteredPermits.map((permit) =>
-          <PermitCard
-            key={permit.id}
-            permit={permit}
-            statusConfig={PERMIT_STATUS[permit.status] || PERMIT_STATUS.draft}
-            onAuthorize={() => authorizePermit(permit.id)}
-            onSuspend={() => suspendPermit(permit.id)}
-            onComplete={() => completePermit(permit.id)}
-            onView={() => setSelectedPermit(permit)}
-            onEdit={() => navigate('/working-at-height/new', { state: { editData: permit } })}
-            onShare={() => requirePro(() => setShareItem(permit))}
-            onDelete={() => deletePermit(permit.id)} />
-
-          )}
-                        </div>
-        }
-                </>
-      }
-
-            {activeTab === 'active' &&
-      <ActivePermitsList
-        activePermits={activePermits}
-        onComplete={completePermit}
-        onSuspend={suspendPermit}
-        onView={setSelectedPermit}
-        onShare={(permit) => requirePro(() => setShareItem(permit))} />
-
-      }
-
-            {activeTab === 'limits' &&
-      <HeightLimitsPanel limits={HEIGHT_LIMITS} fallProtection={FALL_PROTECTION} />
-      }
-
-            {/* Modal de Detalle */}
-            {selectedPermit &&
-      <PermitDetailModal
-        permit={selectedPermit}
-        statusConfig={PERMIT_STATUS[selectedPermit.status] || PERMIT_STATUS.draft}
-        onClose={() => setSelectedPermit(null)}
-        WORK_TYPES={WORK_TYPES}
-        FALL_PROTECTION={FALL_PROTECTION}
-        RISK_FACTORS={RISK_FACTORS}
-        HEIGHT_LIMITS={HEIGHT_LIMITS} />
-
-      }
-
-            <ConfirmModal
+      <ConfirmModal
         isOpen={confirmModal.isOpen}
         onClose={() => setConfirmModal({ isOpen: false, payload: null })}
         onConfirm={executeDelete}
         title="¿Eliminar permiso?"
         message="Esta acción no se puede deshacer."
-        iconEmoji="🗑️" />
-      
-        </div>);
-
+        iconEmoji="🗑️"
+      />
+    </div>
+  );
 }
 
 // Componentes Auxiliares
