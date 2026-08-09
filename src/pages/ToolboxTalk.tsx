@@ -22,6 +22,7 @@ import { downloadCSV } from '../services/exportCsv';
 import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { ModuleFormLayout, ModuleFormToolbar, ModuleActionBar } from '../components/module';
+import { validateWorkerMedicalStatus } from '../utils/workerValidation';
 
 function DeleteConfirm({ onConfirm, onCancel }: any) {
   return (
@@ -695,42 +696,54 @@ export default function ToolboxTalk(): React.ReactElement {
             
 
                             <div className="flex flex-col gap-[0.25rem]">
-                                {form.asistentes.map((att, idx) =>
-              <div key={att.id} className="toolbox-asistente-card">
+                                {form.asistentes.map((att, idx) => {
+                                  const searchTarget = att.dni || att.nombre;
+                                  const med = searchTarget ? validateWorkerMedicalStatus(searchTarget, 'general') : null;
+                                  return (
+                                    <div key={att.id} className="toolbox-asistente-card">
                                         <span className="toolbox-asistente-badge">Asistente #{idx + 1}</span>
                                         <div style={{
-
-                  gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr auto auto'
-
-
-                }} className="grid gap-[0.6rem] items-center">
+                                          gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr auto auto'
+                                        }} className="grid gap-[0.6rem] items-center">
                                             <input type="text" value={att.nombre}
-                  onChange={(e) => updateAttendee(att.id, 'nombre', e.target.value)}
-                  placeholder={`Nombre completo`}
-                  className="toolbox-input-plain toolbox-focus-glow" />
-                  
+                                              onChange={(e) => updateAttendee(att.id, 'nombre', e.target.value)}
+                                              placeholder={`Nombre completo`}
+                                              className="toolbox-input-plain toolbox-focus-glow" />
+                                            
                                             <input type="text" value={att.dni}
-                  onChange={(e) => updateAttendee(att.id, 'dni', e.target.value)}
-                  placeholder="DNI"
-                  className="toolbox-input-plain toolbox-focus-glow" />
-                  
+                                              onChange={(e) => updateAttendee(att.id, 'dni', e.target.value)}
+                                              placeholder="DNI"
+                                              className="toolbox-input-plain toolbox-focus-glow" />
+                                            
                                             <button
-                    onClick={() => updateAttendee(att.id, 'firma', !att.firma)}
-                    className={`toolbox-signature-pill ${att.firma ? 'toolbox-signature-pill-active' : ''}`}
-                    style={{ border: att.firma ? '1.5px solid #10b981' : '1.5px solid #f59e0b', background: att.firma ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)', color: att.firma ? '#10b981' : '#f59e0b', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '6px', borderRadius: '8px', fontWeight: 'bold' }}>
-                    
+                                              onClick={() => updateAttendee(att.id, 'firma', !att.firma)}
+                                              className={`toolbox-signature-pill ${att.firma ? 'toolbox-signature-pill-active' : ''}`}
+                                              style={{ border: att.firma ? '1.5px solid #10b981' : '1.5px solid #f59e0b', background: att.firma ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)', color: att.firma ? '#10b981' : '#f59e0b', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '6px', borderRadius: '8px', fontWeight: 'bold' }}>
                                                 <CheckCircle2 size={16} /> {att.firma ? 'Firmó ✓' : 'Sin firma'}
                                             </button>
                                             <button onClick={() => removeAttendee(att.id)}
-                  onMouseEnter={(e) => {e.currentTarget.style.background = '#ef4444'; e.currentTarget.style.color = 'white';}}
-                  onMouseLeave={(e) => {e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.color = '#dc2626';}}
-                  style={{ background: 'rgba(239,68,68,0.1)', border: '1.5px solid #ef4444', color: '#dc2626', borderRadius: '10px', padding: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
-                    
+                                              onMouseEnter={(e) => {e.currentTarget.style.background = '#ef4444'; e.currentTarget.style.color = 'white';}}
+                                              onMouseLeave={(e) => {e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.color = '#dc2626';}}
+                                              style={{ background: 'rgba(239,68,68,0.1)', border: '1.5px solid #ef4444', color: '#dc2626', borderRadius: '10px', padding: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
                                                 <Trash2 size={16} />
-                        </button>
+                                            </button>
                                         </div>
+                                        {med && searchTarget.trim().length > 1 && (
+                                          <div style={{
+                                            marginTop: '0.4rem',
+                                            padding: '0.35rem 0.7rem',
+                                            borderRadius: '8px',
+                                            fontSize: '0.75rem',
+                                            fontWeight: 700,
+                                            background: med.status === 'apto' ? 'rgba(16, 185, 129, 0.08)' : med.status === 'vencido' || med.status === 'no_apto' ? 'rgba(239, 68, 68, 0.08)' : 'rgba(245, 158, 11, 0.08)',
+                                            color: med.status === 'apto' ? '#047857' : med.status === 'vencido' || med.status === 'no_apto' ? '#b91c1c' : '#b45309'
+                                          }}>
+                                            {med.message}
+                                          </div>
+                                        )}
                                     </div>
-              )}
+                                  );
+                                })}
                             </div>
                         </div>
 

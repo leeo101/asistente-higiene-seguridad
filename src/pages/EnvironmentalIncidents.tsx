@@ -128,17 +128,37 @@ export default function EnvironmentalIncidents() {
   };
 
   const createCapa = (incident: any) => {
-    // Enviar al módulo CAPA pasando datos del incidente
-    const draftCapa = {
-      title: `Acción por Incidente Ambiental: ${incident.type}`,
-      description: `Relacionado al incidente ${incident.id} ocurrido el ${incident.date} en ${incident.location}.\nDescripción original: ${incident.description}`,
-      origin: 'Incidente Ambiental',
-      sourceId: incident.id,
-      status: 'Draft'
-    };
-    // Lo mandamos al formulario de CAPA pre-completado (si CAPAManager lo soporta via localStorage o state)
-    // Por simplicidad, navegamos con state
-    navigate('/capa-manager', { state: { draftCapa, fromIncident: incident.id } });
+    try {
+      const savedCapa = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
+      const newCapaItem = {
+        id: `CAPA-ENV-${Date.now()}`,
+        title: `[Incidente Ambiental] ${incident.type || 'Contención'} en ${incident.location || 'Planta'}`,
+        description: `Incidente ambiental de tipo ${incident.type} (Agente: ${incident.agent || 'N/D'}, Vol: ${incident.volume || 'N/D'}). Ubicación: ${incident.location}.\nAcciones inmediatas: ${incident.immediateActions || 'N/D'}`,
+        origin: 'Incidente Ambiental',
+        sourceId: incident.id,
+        capaType: 'corrective',
+        priority: incident.severity === 'Crítico' || incident.severity === 'Grave' ? 'critical' : 'high',
+        assignedTo: incident.area || 'Gestión Ambiental',
+        targetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        status: 'open',
+        createdAt: new Date().toISOString()
+      };
+      
+      localStorage.setItem('ehs_capa_db', JSON.stringify([newCapaItem, ...savedCapa]));
+      toast.success('🚀 Acción derivada al Módulo CAPA');
+      
+      const draftCapa = {
+        title: newCapaItem.title,
+        description: newCapaItem.description,
+        origin: 'Incidente Ambiental',
+        sourceId: incident.id,
+        status: 'Draft'
+      };
+      navigate('/capa-manager', { state: { draftCapa, fromIncident: incident.id } });
+    } catch (e) {
+      console.error('Error al derivar a CAPA', e);
+      toast.error('No se pudo derivar la acción a CAPA');
+    }
   };
 
   const filteredIncidents = incidents.filter((inc) =>

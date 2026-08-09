@@ -838,9 +838,37 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                                 </div>
             )}
 
-                            <button className="btn-outline hover-lift p-[0.8rem] text-[0.85rem] w-[100%] justify-center rounded-[12px]" onClick={() => addArrayItem('medidas', { accion: '', responsable: '', fechaLimite: '' })}>
-                                <Plus size={16} /> Añadir otra Medida
-                            </button>
+                            <div className="flex flex-col sm:flex-row gap-3 mt-2">
+                                <button type="button" className="btn-outline hover-lift p-[0.8rem] text-[0.85rem] flex-1 justify-center rounded-[12px]" onClick={() => addArrayItem('medidas', { accion: '', responsable: '', fechaLimite: '' })}>
+                                    <Plus size={16} /> Añadir otra Medida
+                                </button>
+                                <button type="button" style={{ background: 'linear-gradient(135deg, #059669, #10b981)', color: '#fff', border: 'none', fontWeight: 800, cursor: 'pointer', padding: '0.8rem 1.2rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 4px 12px rgba(16,185,129,0.3)' }} onClick={() => {
+                                    const validMedidas = (formData.medidas || []).filter((m: any) => m.accion && m.accion.trim());
+                                    if (validMedidas.length === 0) {
+                                        toast.error('Ingrese al menos una medida correctiva con descripción.');
+                                        return;
+                                    }
+                                    const existingCapas = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
+                                    const newCapas = validMedidas.map((m: any, idx: number) => ({
+                                        id: `CAPA-ACC-${Date.now()}-${idx}`,
+                                        createdAt: new Date().toISOString(),
+                                        title: `[Accidente] ${m.accion}`,
+                                        capaType: 'preventive',
+                                        origin: 'Investigación de Accidente',
+                                        description: `Medida preventiva por accidente de ${formData.victimaNombre || 'trabajador'} el ${formData.fecha || 'N/D'}. Empresa: ${formData.empresa || 'N/D'}.`,
+                                        rootCause: (formData.porques || []).filter(Boolean).pop() || formData.problemaCentral || 'Investigación de Siniestro',
+                                        actionPlan: m.accion,
+                                        assignedTo: m.responsable || 'Seguridad e Higiene',
+                                        targetDate: m.fechaLimite || '',
+                                        priority: formData.gravedad === 'Mortal' || formData.gravedad === 'Grave' ? 'critical' : 'high',
+                                        status: 'open'
+                                    }));
+                                    localStorage.setItem('ehs_capa_db', JSON.stringify([...newCapas, ...existingCapas]));
+                                    toast.success(`🚀 ${newCapas.length} acción(es) exportada(s) con éxito al Módulo CAPA`);
+                                }}>
+                                    <Sparkles size={18} /> Exportar Acciones al Módulo CAPA
+                                </button>
+                            </div>
                         </div>
           }
                     </ModuleFormSection>

@@ -17,6 +17,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
+import { validateWorkerMedicalStatus } from '../utils/workerValidation';
 
 // Constants from ConfinedSpace.tsx
 const CONFINED_SPACE_TYPES = [
@@ -369,16 +370,37 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                   if (val) {addTeamMember('entrant', val);input.value = '';}
                 }} style={{ backgroundColor: '#16a34a', color: '#ffffff' }} className="p-[0_0.75rem] h-[50px] rounded-[8px] flex items-center justify-center transition-colors shadow-sm shrink-0 border-none cursor-pointer"><Plus size={20} strokeWidth={3} /></button>
                             </div>
-                            <div className="flex flex-wrap gap-[0.5rem]">
-                                {permit.team.entrants.map((entrant, idx) =>
-                <span key={idx} className="p-[0.4rem_0.85rem] bg-[#eff6ff] border-[1px_solid_#3b82f6] rounded-[var(--radius-full)] text-[0.8rem] font-[700] flex items-center gap-[0.5rem]">
-                                        {entrant}
-                                        <Trash2 size={14} onClick={() => {
-                    const updated = permit.team.entrants.filter((_, i) => i !== idx);
-                    setPermit({ ...permit, team: { ...permit.team, entrants: updated } });
-                  }} className="cursor-pointer text-[#ef4444]" />
-                                    </span>
-                )}
+                            <div className="flex flex-col gap-[0.5rem]">
+                                {permit.team.entrants.map((entrant, idx) => {
+                                  const med = validateWorkerMedicalStatus(entrant, 'confined');
+                                  return (
+                                    <div key={idx} style={{
+                                      background: med.status === 'apto' ? '#f0fdf4' : med.status === 'vencido' || med.status === 'no_apto' ? '#fef2f2' : '#fffbeb',
+                                      border: `1px solid ${med.status === 'apto' ? '#86efac' : med.status === 'vencido' || med.status === 'no_apto' ? '#fca5a5' : '#fde68a'}`,
+                                      borderRadius: '10px',
+                                      padding: '0.5rem 0.8rem',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'space-between',
+                                      gap: '0.5rem'
+                                    }}>
+                                      <div className="flex items-center gap-[0.5rem]">
+                                        <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#1e293b' }}>{entrant}</span>
+                                        <span style={{
+                                          fontSize: '0.72rem',
+                                          fontWeight: 700,
+                                          color: med.status === 'apto' ? '#166534' : med.status === 'vencido' || med.status === 'no_apto' ? '#991b1b' : '#92400e'
+                                        }}>
+                                          {med.message}
+                                        </span>
+                                      </div>
+                                      <Trash2 size={16} onClick={() => {
+                                        const updated = permit.team.entrants.filter((_, i) => i !== idx);
+                                        setPermit({ ...permit, team: { ...permit.team, entrants: updated } });
+                                      }} className="cursor-pointer text-[#ef4444] shrink-0" />
+                                    </div>
+                                  );
+                                })}
                             </div>
                         </div>
                         <div>

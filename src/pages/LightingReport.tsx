@@ -23,6 +23,7 @@ import { auth } from '../firebase';
 import { Search } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
 import { ModuleActionBar } from '../components/module';
+import { evaluateLightingLevel } from '../utils/hygieneCalculators';
 const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '0.85rem 1.2rem',

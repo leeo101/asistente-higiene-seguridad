@@ -16,6 +16,7 @@ import {
   ModuleActionBar,
 } from '../components/module';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { evaluateNoiseExposure } from '../utils/hygieneCalculators';
 
 const NOISE_LIMITS = {
   actionLevel: 80,
@@ -243,6 +244,29 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
                             </div>
                         </div>
             </div>
+
+            {measurement.levels.lavg && (() => {
+              const lavgVal = parseFloat(measurement.levels.lavg) || 0;
+              const lpeakVal = parseFloat(measurement.levels.lpeak) || 0;
+              const nrrVal = measurement.hearingProtection ? (HEARING_PROTECTION.find(hp => hp.id === measurement.hearingProtection)?.nrr || 0) : 0;
+              const noiseEval = evaluateNoiseExposure(lavgVal, lpeakVal, nrrVal);
+              return (
+                <div style={{
+                  marginTop: '1.5rem',
+                  padding: '1.2rem',
+                  borderRadius: '14px',
+                  background: noiseEval.status === 'normal' ? 'rgba(16, 185, 129, 0.08)' : noiseEval.status === 'warning' ? 'rgba(245, 158, 11, 0.08)' : 'rgba(239, 68, 68, 0.08)',
+                  border: `2px solid ${noiseEval.status === 'normal' ? '#10b981' : noiseEval.status === 'warning' ? '#f59e0b' : '#ef4444'}`
+                }}>
+                  <div style={{ fontWeight: 800, fontSize: '0.95rem', color: noiseEval.status === 'normal' ? '#047857' : noiseEval.status === 'warning' ? '#b45309' : '#b91c1c', marginBottom: '0.4rem' }}>
+                    {noiseEval.message}
+                  </div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text)' }}>
+                    💡 <strong>Recomendación Técnica:</strong> {noiseEval.recommendation}
+                  </div>
+                </div>
+              );
+            })()}
                     
                     <div className="mt-8">
                         <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Observaciones / Conclusiones del Técnico</label>
