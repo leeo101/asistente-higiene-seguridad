@@ -467,34 +467,53 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
               </h2>
             </div>
 
-            <div className="p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl space-y-2">
-              <span className="text-slate-900 dark:text-white text-[11px] font-black uppercase tracking-wider block">
-                MOSTRAR BLOQUES DE FIRMA EN EL PDF:
-              </span>
-              <div className="flex gap-2 flex-wrap">
+            <div className="p-4 bg-slate-900 dark:bg-slate-950 rounded-2xl border border-slate-700 shadow-lg space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-black text-sm shadow-inner">
+                  ✍️
+                </div>
+                <div>
+                  <span className="text-amber-400 text-xs font-black uppercase tracking-wider block">
+                    Visibilidad de Bloques de Firma en el PDF
+                  </span>
+                  <span className="text-slate-400 text-[11px] font-medium block">
+                    Selecciona las firmas que deseas incluir en el documento imprimible
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex gap-2.5 flex-wrap pt-1">
                 {[
-                  { id: 'operator', label: 'Personal Afectado' },
-                  { id: 'professional', label: 'Especialista H&S' },
-                  { id: 'supervisor', label: 'Supervisión / Cierre' }
+                  { id: 'operator', label: 'Personal Afectado', color: '#2563eb', icon: '👤' },
+                  { id: 'professional', label: 'Especialista H&S', color: '#9333ea', icon: '🛡️' },
+                  { id: 'supervisor', label: 'Supervisión / Cierre', color: '#059669', icon: '📋' }
                 ].map((sig) => {
                   const isChecked = !!showSignatures[sig.id as keyof typeof showSignatures];
                   return (
-                    <label
+                    <button
+                      type="button"
                       key={sig.id}
-                      className={`flex items-center gap-1.5 cursor-pointer px-2.5 py-1.5 rounded-lg border transition-all text-xs font-bold ${
-                        isChecked
-                          ? 'bg-blue-500/10 border-blue-500 text-blue-700 dark:text-blue-300'
-                          : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400'
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))}
-                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
+                      onClick={() => setShowSignatures((s: any) => ({ ...s, [sig.id]: !isChecked }))}
+                      style={{
+                        backgroundColor: isChecked ? sig.color : '#1e293b',
+                        color: '#ffffff',
+                        border: isChecked ? 'none' : '1px solid #334155',
+                        boxShadow: isChecked ? `0 4px 14px ${sig.color}60` : 'none',
+                        transform: isChecked ? 'scale(1.02)' : 'scale(1)'
+                      }}
+                      className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-black cursor-pointer transition-all duration-200 hover:brightness-110 active:scale-95">
+                      <div style={{
+                        backgroundColor: isChecked ? 'rgba(255,255,255,0.25)' : '#0f172a',
+                        borderColor: isChecked ? 'transparent' : '#475569'
+                      }} className="w-5 h-5 rounded-md flex items-center justify-center border transition-all">
+                        {isChecked ? (
+                          <CheckCircle2 size={13} className="text-white" />
+                        ) : (
+                          <span className="text-[10px]">{sig.icon}</span>
+                        )}
+                      </div>
                       <span>{sig.label}</span>
-                    </label>
+                    </button>
                   );
                 })}
               </div>

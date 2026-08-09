@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
-  ArrowLeft, Save, Plus, Trash2, Printer,
+  ArrowLeft, Save, Plus, Trash2, Printer, Download,
   ShieldCheck, Building2, User, Calendar,
   CheckCircle2, AlertCircle, HelpCircle, Pencil, Info, Share2,
   Users, Clock, Zap, Flame, HardHat, Construction, QrCode } from
@@ -37,6 +37,7 @@ export default function WorkPermit(): React.ReactElement | null {
 
   const [showForm, setShowForm] = useState(!!editData);
   const [history, setHistory] = useState([]);
+  const [filterType, setFilterType] = useState('all');
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [qrTarget, setQrTarget] = useState<any>(null);
   const [shareItem, setShareItem] = useState<any>(null);
@@ -345,88 +346,223 @@ export default function WorkPermit(): React.ReactElement | null {
   {
     header: 'Acciones',
     accessor: 'id',
-    render: (item: any) =>
-    <div className="flex gap-[0.4rem]">
-                    <button onClick={() => {setFormData(item);setShowForm(true);}} title="Ver" className="p-[0.4rem] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[8px] text-[var(--color-text)] cursor-pointer"><Pencil size={15} /></button>
-                    <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/permit/${item.id}?print=true`;setQrTarget({ text: url, title: `Permiso — ${item.empresa}` });})} title="QR" className="p-[0.4rem] bg-[rgba(139,92,246,0.08)] border-[1px_solid_rgba(139,92,246,0.2)] rounded-[8px] text-[#8b5cf6] cursor-pointer"><QrCode size={15} /></button>
-                    <button onClick={() => requirePro(() => setShareItem(item))} title="Compartir" className="p-[0.4rem] bg-[rgba(22,163,74,0.08)] border-[1px_solid_rgba(22,163,74,0.2)] rounded-[8px] text-[#16a34a] cursor-pointer"><Share2 size={15} /></button>
-                    <button onClick={() => setDeleteTarget(item.id)} className="p-[0.4rem] bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[8px] text-[#ef4444] cursor-pointer"><Trash2 size={15} /></button>
-                </div>
-
+    render: (item: any) => (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <button
+          onClick={() => { setFormData(item); setShowForm(true); }}
+          title="Editar Permiso"
+          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Pencil size={12} /> Editar
+        </button>
+        <button
+          onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/permit/${item.id}?print=true`; setQrTarget({ text: url, title: `Permiso — ${item.empresa}` }); })}
+          title="Ver Código QR"
+          style={{ backgroundColor: '#8b5cf6', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <QrCode size={12} /> QR
+        </button>
+        <button
+          onClick={() => requirePro(() => setShareItem(item))}
+          title="Exportar PDF / Compartir"
+          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Share2 size={12} /> PDF
+        </button>
+        <button
+          onClick={() => setDeleteTarget(item.id)}
+          title="Eliminar Permiso"
+          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Trash2 size={12} /> Eliminar
+        </button>
+      </div>
+    )
   }];
 
 
   return (
     <div className="container max-w-5xl pb-32">
-            {deleteTarget &&
-      <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center">
-                    <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl max-w-md w-[90%] text-center shadow-xl border border-slate-200 dark:border-slate-700">
-                        <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
-                        <h3 className="m-0 mb-4 text-xl font-bold text-slate-800 dark:text-slate-100">¿Eliminar este permiso?</h3>
-                        <div className="flex gap-4 justify-center">
-                            <button onClick={() => setDeleteTarget(null)} className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Cancelar</button>
-                            <button onClick={confirmDelete} className="px-4 py-2 rounded-lg border-none bg-red-500 text-white font-bold hover:bg-red-600 transition-colors shadow-sm shadow-red-500/30">Eliminar</button>
-                        </div>
-                    </div>
-                </div>
-      }
-            
-            {!showForm ?
-      <AnimatedPage>
-                    <div className="mb-6">
-                        <Breadcrumbs />
-                    </div>
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center">
+          <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl max-w-md w-[90%] text-center shadow-xl border border-slate-200 dark:border-slate-700">
+            <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
+            <h3 className="m-0 mb-4 text-xl font-bold text-slate-800 dark:text-slate-100">¿Eliminar este permiso de trabajo?</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Esta acción eliminará el registro permanentemente.</p>
+            <div className="flex gap-4 justify-center">
+              <button onClick={() => setDeleteTarget(null)} className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-bold text-xs cursor-pointer">Cancelar</button>
+              <button onClick={confirmDelete} className="px-4 py-2 rounded-lg border-none bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-sm text-xs cursor-pointer">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
-                    <PremiumHeader onBack={showForm ? () => {setShowForm(false);} : undefined}
-        title="Permisos de Trabajo"
-        subtitle="Gestión de Tareas Críticas y Especiales"
-        icon={<ShieldCheck size={32} color="#ffffff" />}
-        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
-        
+      {!showForm ? (
+        <AnimatedPage>
+          <div className="mb-6">
+            <Breadcrumbs />
+          </div>
 
-                    <div className="flex gap-[1rem] mb-[1.5rem] mt-[1.5rem] flex-wrap">
-                        <></>
-                    </div>
+          <PremiumHeader
+            onBack={showForm ? () => setShowForm(false) : undefined}
+            title="Permisos de Trabajo"
+            subtitle="Gestión de Tareas Críticas y Permisos Especiales (Res. 311/03 / SRT)"
+            icon={<ShieldCheck size={32} color="#ffffff" />}
+            color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+          />
 
-                    <div className="mb-6 flex gap-4 flex-wrap items-center">
-                        <button onClick={() => setShowForm(true)} className="hover-lift flex items-center gap-2 bg-emerald-500 text-white border-none rounded-xl px-6 py-3 text-sm font-extrabold cursor-pointer shadow-[0_4px_15px_rgba(16,185,129,0.3)] hover:bg-emerald-600 transition-all">
-                            <Plus size={18} /> NUEVA TAREA
-                        </button>
-                        {history.length > 0 &&
-          <button onClick={() => requirePro(handleExportCSV)} className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-5 py-3 text-sm font-extrabold cursor-pointer text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                EXCEL
-                            </button>
-          }
-                    </div>
+          {/* Tarjetas Resumen KPI Estilo Aptitudes Médicas */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            <div
+              onClick={() => setFilterType('all')}
+              className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                filterType === 'all'
+                  ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 shadow-md'
+                  : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-blue-400'
+              }`}>
+              <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider">Total Permisos</span>
+                <ShieldCheck size={18} />
+              </div>
+              <div className="text-2xl font-black text-slate-900 dark:text-white">{history.length}</div>
+            </div>
 
-                    <div className="ats-pdf-offscreen">
-                        {shareItem && <WorkPermitPdfGenerator data={shareItem} id="pdf-content-list" />}
-                    </div>
+            <div
+              onClick={() => setFilterType('aprobado')}
+              className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                filterType === 'aprobado'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 shadow-md'
+                  : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-emerald-400'
+              }`}>
+              <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider">Permisos Aprobados</span>
+                <CheckCircle2 size={18} />
+              </div>
+              <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                {history.filter((h: any) => h.estado === 'Aprobado').length}
+              </div>
+            </div>
 
-                    <ShareModal
-          isOpen={!!shareItem}
-          open={!!shareItem}
-          onClose={() => setShareItem(null)}
-          title={`Permiso de Trabajo - ${shareItem?.empresa || ''}`}
-          text={shareItem ? `🔐 Permiso de Trabajo\n🏗️ Empresa: ${shareItem.empresa}\n🚧 Obra: ${shareItem.obra}\n📅 Fecha: ${shareItem.fecha}` : ''}
-          rawMessage={``}
-          elementIdToPrint="pdf-content-list"
-          fileName={`Permiso_${shareItem?.empresa || 'Trabajo'}`} />
-        
+            <div
+              onClick={() => setFilterType('pendiente')}
+              className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                filterType === 'pendiente'
+                  ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 shadow-md'
+                  : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-amber-400'
+              }`}>
+              <div className="flex items-center justify-between text-amber-600 dark:text-amber-400 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider">Pendientes / Borrador</span>
+                <Clock size={18} />
+              </div>
+              <div className="text-2xl font-black text-amber-600 dark:text-amber-400">
+                {history.filter((h: any) => h.estado !== 'Aprobado').length}
+              </div>
+            </div>
 
-                    <div className="mt-8">
-                        <DataTable
-            data={history}
-            columns={columns}
-            searchPlaceholder="Buscar por empresa, obra o tipo..."
-            searchFields={['empresa', 'obra']}
-            emptyMessage="No hay permisos registrados."
-            emptyIcon={<ShieldCheck size={48} />} />
-          
-                    </div>
+            <div
+              onClick={() => setFilterType('criticos')}
+              className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                filterType === 'criticos'
+                  ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-500 shadow-md'
+                  : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-rose-400'
+              }`}>
+              <div className="flex items-center justify-between text-rose-600 dark:text-rose-400 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider">Tareas Críticas</span>
+                <Flame size={18} />
+              </div>
+              <div className="text-2xl font-black text-rose-600 dark:text-rose-400">
+                {history.filter((h: any) => ['altura', 'fuego', 'confinado', 'electrico'].includes(h.tipoPermiso)).length}
+              </div>
+            </div>
+          </div>
 
-                    {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
-                </AnimatedPage> :
+          {/* Toolbar con Botones de Filtro Vibrantes */}
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mt-6 mb-4">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
+              {[
+                { id: 'all', label: 'Todos los Permisos', bg: '#2563eb', activeBg: '#1d4ed8' },
+                { id: 'altura', label: '🧗 Altura', bg: '#dc2626', activeBg: '#b91c1c' },
+                { id: 'fuego', label: '🔥 Trabajo en Caliente', bg: '#ea580c', activeBg: '#c2410c' },
+                { id: 'electrico', label: '⚡ Eléctrico / LOTO', bg: '#d97706', activeBg: '#b45309' },
+                { id: 'confinado', label: '📦 Espacio Confinado', bg: '#9333ea', activeBg: '#7e22ce' },
+                { id: 'aprobado', label: '✅ Aprobados', bg: '#059669', activeBg: '#047857' }
+              ].map((tab) => {
+                const isSelected = filterType === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setFilterType(tab.id)}
+                    style={{
+                      backgroundColor: isSelected ? tab.activeBg : tab.bg,
+                      color: '#ffffff',
+                      boxShadow: isSelected ? '0 4px 14px rgba(0,0,0,0.25)' : '0 2px 6px rgba(0,0,0,0.12)',
+                      transform: isSelected ? 'scale(1.04)' : 'none',
+                      border: 'none',
+                      padding: '8px 16px',
+                      borderRadius: '12px',
+                      fontWeight: 800,
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      transition: 'all 0.2s ease'
+                    }}>
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => requirePro(handleExportCSV)}
+                style={{ backgroundColor: '#4f46e5', color: '#ffffff', border: 'none' }}
+                className="px-4 py-2.5 rounded-xl font-extrabold text-xs flex items-center gap-2 shadow-md hover:bg-indigo-700 transition-colors cursor-pointer">
+                <Download size={16} /> Exportar Excel / CSV
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowForm(true)}
+                style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none' }}
+                className="px-5 py-2.5 rounded-xl font-extrabold text-xs flex items-center gap-2 shadow-md hover:bg-emerald-700 transition-colors cursor-pointer">
+                <Plus size={16} /> Nueva Tarea
+              </button>
+            </div>
+          </div>
+
+          <div className="ats-pdf-offscreen">
+            {shareItem && <WorkPermitPdfGenerator data={shareItem} id="pdf-content-list" />}
+          </div>
+
+          <ShareModal
+            isOpen={!!shareItem}
+            open={!!shareItem}
+            onClose={() => setShareItem(null)}
+            title={`Permiso de Trabajo - ${shareItem?.empresa || ''}`}
+            text={shareItem ? `🔐 Permiso de Trabajo\n🏗️ Empresa: ${shareItem.empresa}\n🚧 Obra: ${shareItem.obra}\n📅 Fecha: ${shareItem.fecha}` : ''}
+            rawMessage={``}
+            elementIdToPrint="pdf-content-list"
+            fileName={`Permiso_${shareItem?.empresa || 'Trabajo'}`}
+          />
+
+          <div className="mt-4">
+            <DataTable
+              data={history.filter((item: any) => {
+                if (filterType === 'all') return true;
+                if (filterType === 'aprobado') return item.estado === 'Aprobado';
+                if (filterType === 'pendiente') return item.estado !== 'Aprobado';
+                if (filterType === 'criticos') return ['altura', 'fuego', 'confinado', 'electrico'].includes(item.tipoPermiso);
+                return item.tipoPermiso === filterType;
+              })}
+              columns={columns}
+              searchPlaceholder="Buscar por empresa, obra o tipo..."
+              searchFields={['empresa', 'obra']}
+              emptyMessage="No hay permisos registrados."
+              emptyIcon={<ShieldCheck size={48} />}
+            />
+          </div>
+
+          {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
+        </AnimatedPage>
+      ) : (
 
       <AnimatedPage>
                     <div className="no-print mb-8">
@@ -675,6 +811,9 @@ export default function WorkPermit(): React.ReactElement | null {
                   
                                 </div>
                                 <div className="flex items-center gap-2">
+                  
+                                </div>
+                                <div className="flex items-center gap-2">
                                     <span className="sm:hidden text-[0.6rem] font-bold text-blue-500 uppercase">Firma:</span>
                                     <div className="hidden sm:block w-[100%] h-[1px] bg-[#ccc]"></div>
                                 </div>
@@ -692,88 +831,59 @@ export default function WorkPermit(): React.ReactElement | null {
                         <Pencil size={22} className="text-[var(--color-primary)]" /> Firmas y Aprobaciones del Permiso
                     </h3>
 
-                    <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
-                        <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                        <div className="flex gap-[1rem] flex-wrap justify-center">
-                            {[
-                { id: 'operator', label: 'Solicitante' },
-                { id: 'professional', label: 'Gerencia EHS' },
-                { id: 'supervisor', label: 'Supervisor' }].
-                map((sig) => {
-                  const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
-                  return (
-                    <label
-                      key={sig.id}
-                      className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease]"
-                      style={{
-
-
-                        border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
-                        background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
-                        color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
-
-
-
-                        boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
-                      }}>
-                      
-                                        <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="none" />
-
-                      
-                                        <div style={{
-
-
-
-                        border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
-                        background: isChecked ? 'var(--color-primary)' : 'transparent'
-
-
-
-
-                      }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
-                                            {isChecked && <CheckCircle2 size={12} color="white" />}
-                                        </div>
-                                        {sig.label}
-                                    </label>);
-
-                })}
+                    <div className="p-4 bg-slate-900 dark:bg-slate-950 rounded-2xl border border-slate-700 shadow-lg space-y-3 mb-6 no-print">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-black text-sm shadow-inner">
+                          ✍️
                         </div>
+                        <div>
+                          <span className="text-amber-400 text-xs font-black uppercase tracking-wider block">
+                            Visibilidad de Bloques de Firma en el PDF
+                          </span>
+                          <span className="text-slate-400 text-[11px] font-medium block">
+                            Selecciona las firmas que deseas incluir en el permiso imprimible
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2.5 flex-wrap pt-1">
+                        {[
+                          { id: 'operator', label: 'Solicitante / Operador', color: '#2563eb', icon: '👤' },
+                          { id: 'professional', label: 'Gerencia EHS / Emisor', color: '#9333ea', icon: '🛡️' },
+                          { id: 'supervisor', label: 'Supervisor de Trabajo', color: '#059669', icon: '📋' }
+                        ].map((sig) => {
+                          const isChecked = !!showSignatures[sig.id as keyof typeof showSignatures];
+                          return (
+                            <button
+                              type="button"
+                              key={sig.id}
+                              onClick={() => setShowSignatures((s: any) => ({ ...s, [sig.id]: !isChecked }))}
+                              style={{
+                                backgroundColor: isChecked ? sig.color : '#1e293b',
+                                color: '#ffffff',
+                                border: isChecked ? 'none' : '1px solid #334155',
+                                boxShadow: isChecked ? `0 4px 14px ${sig.color}60` : 'none',
+                                transform: isChecked ? 'scale(1.02)' : 'scale(1)'
+                              }}
+                              className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-black cursor-pointer transition-all duration-200 hover:brightness-110 active:scale-95">
+                              <div style={{
+                                backgroundColor: isChecked ? 'rgba(255,255,255,0.25)' : '#0f172a',
+                                borderColor: isChecked ? 'transparent' : '#475569'
+                              }} className="w-5 h-5 rounded-md flex items-center justify-center border transition-all">
+                                {isChecked ? (
+                                  <CheckCircle2 size={13} className="text-white" />
+                                ) : (
+                                  <span className="text-[10px]">{sig.icon}</span>
+                                )}
+                              </div>
+                              <span>{sig.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
 
-                    <div className="mb-8">
-                        <PdfSignatures
-                data={{
-                  ...formData,
-                  professionalSignature: professional.signature,
-                  professionalName: professional.name,
-                  professionalLicense: professional.license,
-                  professionalStamp: professional.stamp
-                }}
-                box1={showSignatures.operator ? {
-                  title: 'SOLICITANTE / OPERADOR',
-                  subtitle: 'Aclaración y Firma',
-                  signatureUrl: formData.operatorSignature || formData.firmas?.solicitante?.sign || null,
-                  isProfessional: false
-                } : null}
-                box2={showSignatures.professional ? {
-                  title: 'GERENCIA EHS / EMISOR',
-                  subtitle: (professional.name || 'Firma y Sello H&S').toUpperCase(),
-                  signatureUrl: formData.professionalSignature || professional.signature || formData.firmas?.ehs?.sign || null,
-                  stampUrl: formData.professionalStamp || professional.stamp || null,
-                  isProfessional: true,
-                  license: professional.license
-                } : null}
-                box3={showSignatures.supervisor ? {
-                  title: 'SUPERVISOR DE TRABAJO',
-                  subtitle: 'Aprobación / Autorización',
-                  signatureUrl: formData.supervisorSignature || formData.firmas?.supervisor?.sign || null,
-                  isProfessional: false
-                } : null} />
-              
-                    </div>
+
 
                     {/* Signature Tactile Drawing Pads */}
                     <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -830,7 +940,7 @@ export default function WorkPermit(): React.ReactElement | null {
                 <PdfBrandingFooter />
             </div>
             </AnimatedPage>
-      }
+      )}
         </div>);
 
 }

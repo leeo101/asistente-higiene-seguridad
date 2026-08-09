@@ -124,7 +124,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
                             margin-bottom: 0.8rem !important;
                         }
                         .gradient-header {
-                            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+                            background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
                         }
                     `}
                 </style>

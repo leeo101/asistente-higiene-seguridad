@@ -31,7 +31,7 @@ export default function FleetPdfGenerator({ data, checklistItems }: {data: any;c
                 </style>
 
                 {/* Modern Gradient Header */}
-                <div className="bg-[linear-gradient(135deg,_#0f172a_0%,_#1e293b_100%)] m-[-15mm_-15mm_15mm_-15mm] p-[15mm] text-[white] flex justify-space-between items-center border-bottom-[4px_solid_#38bdf8]">
+                <div className="bg-[linear-gradient(135deg,_#f59e0b_0%,_#d97706_50%,_#b45309_100%)] m-[-15mm_-15mm_15mm_-15mm] p-[15mm] text-[white] flex justify-space-between items-center border-bottom-[4px_solid_#38bdf8]">
 
 
 

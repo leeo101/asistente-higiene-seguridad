@@ -313,33 +313,53 @@ export default function StopCards(): React.ReactElement | null {
           </div>
         </div>
 
-        {/* Toolbar de Acciones (Nueva Tarjeta + Exportar CSV) */}
+        {/* Toolbar de Acciones con Botones de Colores Vibrantes */}
         <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mt-6 mb-4">
           <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
-            {['all', 'Condición Insegura', 'Acto Inseguro', 'Casi Accidente', 'Acto Seguro'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setTypeFilter(tab)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${
-                  typeFilter === tab
-                    ? 'bg-amber-600 text-white shadow-sm'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-                }`}>
-                {tab === 'all' ? 'Todos los registros' : tab}
-              </button>
-            ))}
+            {[
+              { id: 'all', label: 'Todos los registros', bg: '#2563eb', activeBg: '#1d4ed8' },
+              { id: 'Condición Insegura', label: 'Condición Insegura', bg: '#d97706', activeBg: '#b45309' },
+              { id: 'Acto Inseguro', label: 'Acto Inseguro', bg: '#dc2626', activeBg: '#991b1b' },
+              { id: 'Casi Accidente', label: 'Casi Accidente', bg: '#e11d48', activeBg: '#be123c' },
+              { id: 'Acto Seguro', label: 'Acto Seguro', bg: '#16a34a', activeBg: '#15803d' }
+            ].map((tab) => {
+              const isSelected = typeFilter === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setTypeFilter(tab.id)}
+                  style={{
+                    backgroundColor: isSelected ? tab.activeBg : tab.bg,
+                    color: '#ffffff',
+                    boxShadow: isSelected ? '0 4px 14px rgba(0,0,0,0.25)' : '0 2px 6px rgba(0,0,0,0.12)',
+                    transform: isSelected ? 'scale(1.04)' : 'none',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '12px',
+                    fontWeight: 800,
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    transition: 'all 0.2s ease'
+                  }}>
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={handleExportCSV}
-              className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-extrabold text-xs flex items-center gap-2 hover:bg-slate-50 transition-colors shadow-sm">
+              style={{ backgroundColor: '#4f46e5', color: '#ffffff', border: 'none' }}
+              className="px-4 py-2.5 rounded-xl font-extrabold text-xs flex items-center gap-2 shadow-md hover:bg-indigo-700 transition-colors cursor-pointer">
               <Download size={16} /> Exportar Excel / CSV
             </button>
 
             <button
               onClick={() => navigate('/stop-cards/new')}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-extrabold text-xs flex items-center gap-2 shadow-md transition-all">
+              style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none' }}
+              className="px-5 py-2.5 rounded-xl font-extrabold text-xs flex items-center gap-2 shadow-md hover:bg-emerald-700 transition-colors cursor-pointer">
               <Plus size={16} /> Nueva Tarjeta STOP
             </button>
           </div>

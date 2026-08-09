@@ -87,7 +87,7 @@ export default function ExtinguisherAIPdfGenerator({ item }: {item: any;}): Reac
                 </style>
 
                 {/* Header */}
-                <div className="bg-[linear-gradient(135deg,_#1e293b_0%,_#334155_100%)] p-[1.5rem] rounded-[12px] mb-[1.5rem] flex justify-space-between items-start text-[#ffffff]">
+                <div className="bg-[linear-gradient(135deg,_#f59e0b_0%,_#d97706_50%,_#b45309_100%)] p-[1.5rem] rounded-[12px] mb-[1.5rem] flex justify-space-between items-start text-[#ffffff]">
 
 
 

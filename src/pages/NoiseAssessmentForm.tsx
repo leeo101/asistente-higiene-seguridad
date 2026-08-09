@@ -271,88 +271,75 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
                     <div className="mt-8">
                         <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Observaciones / Conclusiones del Técnico</label>
                         <textarea
-              value={measurement.observations}
-              onChange={(e) => setMeasurement({ ...measurement, observations: e.target.value })}
-              className="module-form-input min-h-[80px]"
-              placeholder="Describa condiciones ambientales, anomalías o recomendaciones..." />
-            
+                          value={measurement.observations}
+                          onChange={(e) => setMeasurement({ ...measurement, observations: e.target.value })}
+                          className="module-form-input min-h-[80px]"
+                          placeholder="Describa condiciones ambientales, anomalías o recomendaciones..." 
+                        />
                     </div>
 
-                    <div className="mt-8">
+                    <div className="mt-8 mb-6">
                         <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Profesional / Técnico Responsable</label>
-                        <input type="text" value={measurement.technician} onChange={(e) => setMeasurement({ ...measurement, technician: e.target.value })} className="module-form-input" placeholder="Nombre y Apellido del Técnico" />
+                        <input 
+                          type="text" 
+                          value={measurement.technician} 
+                          onChange={(e) => setMeasurement({ ...measurement, technician: e.target.value })} 
+                          className="module-form-input" 
+                          placeholder="Nombre y Apellido del Técnico" 
+                        />
                     </div>
-            </ModuleFormSection>
 
-            <ModuleFormSection title="Firmas y Autorizaciones" icon={<Pencil />}>
-                        <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
-                            <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                            <div className="flex gap-[1rem] flex-wrap justify-center">
-                                {[
-                { id: 'operator', label: 'Trabajador Evaluado' },
-                { id: 'professional', label: 'Especialista H&S' },
-                { id: 'supervisor', label: 'Responsable / Auditor' }].
-                map((sig) => {
-                  const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
-                  return (
-                    <label
-                      key={sig.id}
-                      className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease]"
-                      style={{
-                        border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
-                        background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
-                        color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
-                        boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
-                      }}>
-                                            <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="none" />
-                                            <div style={{
-                        border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
-                        background: isChecked ? 'var(--color-primary)' : 'transparent'
-                      }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
-                                                {isChecked && <CheckCircle2 size={12} color="white" />}
-                                            </div>
-                                            {sig.label}
-                                        </label>);
-
-                })}
-                            </div>
+                    <div className="p-4 bg-slate-900 dark:bg-slate-950 rounded-2xl border border-slate-700 shadow-lg space-y-3 mb-6 no-print">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-black text-sm shadow-inner">
+                          ✍️
                         </div>
-
-                        <div className="mb-[2.5rem]">
-                            <PdfSignatures
-                data={{
-                  ...measurement,
-                  professionalSignature: professional.signature,
-                  professionalName: professional.name,
-                  professionalLicense: professional.license,
-                  professionalStamp: professional.stamp
-                }}
-                box1={showSignatures.operator ? {
-                  title: 'TRABAJADOR EVALUADO',
-                  subtitle: 'Firma y Aclaración',
-                  signatureUrl: measurement.operatorSignature || null,
-                  isProfessional: false
-                } : null}
-                box2={showSignatures.professional ? {
-                  title: 'ESPECIALISTA H&S',
-                  subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
-                  signatureUrl: measurement.professionalSignature || professional.signature || null,
-                  stampUrl: measurement.professionalStamp || professional.stamp || null,
-                  isProfessional: true,
-                  license: professional.license
-                } : null}
-                box3={showSignatures.supervisor ? {
-                  title: 'RESPONSABLE / AUDITOR',
-                  subtitle: 'Aprobación / Autoridad',
-                  signatureUrl: measurement.supervisorSignature || measurement.signature || null,
-                  isProfessional: false
-                } : null} />
-              
-            <PdfBrandingFooter />
+                        <div>
+                          <span className="text-amber-400 text-xs font-black uppercase tracking-wider block">
+                            Visibilidad de Bloques de Firma en el PDF
+                          </span>
+                          <span className="text-slate-400 text-[11px] font-medium block">
+                            Selecciona las firmas que deseas incluir en la planilla de medición imprimible
+                          </span>
                         </div>
+                      </div>
+
+                      <div className="flex gap-2.5 flex-wrap pt-1">
+                        {[
+                          { id: 'operator', label: 'Trabajador Evaluado', color: '#2563eb', icon: '👤' },
+                          { id: 'professional', label: 'Especialista H&S', color: '#9333ea', icon: '🛡️' },
+                          { id: 'supervisor', label: 'Responsable / Auditor', color: '#059669', icon: '📋' }
+                        ].map((sig) => {
+                          const isChecked = !!showSignatures[sig.id as keyof typeof showSignatures];
+                          return (
+                            <button
+                              type="button"
+                              key={sig.id}
+                              onClick={() => setShowSignatures((s: any) => ({ ...s, [sig.id]: !isChecked }))}
+                              style={{
+                                backgroundColor: isChecked ? sig.color : '#1e293b',
+                                color: '#ffffff',
+                                border: isChecked ? 'none' : '1px solid #334155',
+                                boxShadow: isChecked ? `0 4px 14px ${sig.color}60` : 'none',
+                                transform: isChecked ? 'scale(1.02)' : 'scale(1)'
+                              }}
+                              className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-black cursor-pointer transition-all duration-200 hover:brightness-110 active:scale-95">
+                              <div style={{
+                                backgroundColor: isChecked ? 'rgba(255,255,255,0.25)' : '#0f172a',
+                                borderColor: isChecked ? 'transparent' : '#475569'
+                              }} className="w-5 h-5 rounded-md flex items-center justify-center border transition-all">
+                                {isChecked ? (
+                                  <CheckCircle2 size={13} className="text-white" />
+                                ) : (
+                                  <span className="text-[10px]">{sig.icon}</span>
+                                )}
+                              </div>
+                              <span>{sig.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
 
                         <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {showSignatures.operator &&
