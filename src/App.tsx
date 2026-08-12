@@ -113,6 +113,7 @@ const StopCardsForm = lazyWithRetry(() => import('./pages/StopCardsForm'));
 const StopCards = lazyWithRetry(() => import('./pages/StopCards'));
 const LogoSettings = lazyWithRetry(() => import('./pages/LogoSettings'));
 const PublicView = lazyWithRetry(() => import('./pages/PublicView'));
+const MobileSignView = lazyWithRetry(() => import('./pages/MobileSignView'));
 const ProfessionalChat = lazyWithRetry(() => import('./pages/ProfessionalChat'));
 const ExtinguisherAI = lazyWithRetry(() => import('./pages/ExtinguisherAI'));
 const ChemicalSafety = lazyWithRetry(() => import('./pages/ChemicalSafety'));
@@ -651,6 +652,8 @@ function App() {
                   <Route path="/extintores/inspect/:id" element={<ExtinguisherInspection />} />
                   <Route path="/verify" element={<PublicView />} />
                   <Route path="/verify/:id" element={<PublicView />} />
+                  <Route path="/sign" element={<MobileSignView />} />
+                  <Route path="/sign/:permitId/:role" element={<MobileSignView />} />
                   <Route path="/thermal-stress" element={<ProtectedRoute><ThermalStress /></ProtectedRoute>} />
                   <Route path="/drills" element={<ProtectedRoute><Drills /></ProtectedRoute>} />
                   <Route path="/drills/new" element={<ProtectedRoute><DrillsForm /></ProtectedRoute>} />

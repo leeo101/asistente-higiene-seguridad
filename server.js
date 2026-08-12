@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+import compression from 'compression';
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { Resend } from 'resend';
@@ -61,7 +62,17 @@ const db = admin.apps.length ? admin.firestore() : null;
 // ==========================================
 // UNIFIED SERVER (API + STATIC) 
 // ==========================================
-const app = express()
+const app = express();
+
+app.use(compression());
+
+// Additional Security & Isolation Headers Middleware
+app.use((req, res, next) => {
+    res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    next();
+});
 
 // ==========================================
 // SECURITY HEADERS (HELMET)
@@ -102,6 +113,7 @@ function isOriginAllowed(origin) {
     ];
     return (
         allowedOrigins.includes(origin) ||
+        /^https:\/\/asistente-de-higiene-y-seguridad[a-z0-9-]*\.vercel\.app$/i.test(origin) ||
         origin.startsWith('http://localhost:') ||
         origin.startsWith('http://127.0.0.1:') ||
         origin.startsWith('http://[::1]:') ||

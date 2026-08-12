@@ -19,7 +19,6 @@ export interface PdfSignaturesProps {
 }
 
 export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesProps) {
-  // Helper to safely get nested values or fallbacks
   const getVal = (keys: string[]) => {
     for (const k of keys) {
       if (data && data[k]) return data[k];
@@ -27,13 +26,13 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
     return null;
   };
 
-  // Auto-detect professional signature, stamp, name, license, and title/profession
   let actSignature = getVal(['professionalSignature', 'signature', 'auditorSignature', 'evaluadorFirma']);
   let actStamp = getVal(['professionalStamp', 'stamp', 'sello', 'profesionalSello']);
   let actName = getVal(['professionalName', 'leadAuditor', 'expositor', 'evaluador', 'profesionalNombre']);
   let actLic = getVal(['professionalLicense', 'license', 'matricula', 'profesionalMatricula']);
   let actTitle = getVal(['professionalTitle', 'profesion', 'profession', 'titulo', 'title', 'profesionalTitulo']);
   let supervisorSignature = getVal(['capatazSignature', 'supervisorSignature', 'responsableFirma']);
+  let operatorSignature = getVal(['operatorSignature', 'operadorFirma']);
 
   if (!actSignature || !actStamp) {
     try {
@@ -49,8 +48,6 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
     } catch (e) {}
   }
 
-  let operatorSignature = getVal(['operatorSignature', 'operadorFirma']);
-
   if (!actName || !actLic || !actTitle) {
     try {
       const lsPersonal = typeof window !== 'undefined' ? localStorage.getItem('personalData') : null;
@@ -63,21 +60,20 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
     } catch (e) {}
   }
 
-  // Fallback predeterminado para título profesional
   if (!actTitle || actTitle === 'Técnico' || actTitle === 'PROFESIONAL') {
     actTitle = 'Técnico Universitario en Higiene y Seguridad Laboral';
   }
 
   const defaultBox1: SignatureBoxProps = {
-    title: 'OPERADOR / RESPONSABLE',
+    title: 'SOLICITANTE / OPERADOR',
     subtitle: 'Aclaración y Firma',
     signatureUrl: operatorSignature || null,
     isProfessional: false
   };
 
   const defaultBox2: SignatureBoxProps = {
-    title: 'PROFESIONAL',
-    subtitle: (actName || 'Firma y Sello').toUpperCase(),
+    title: 'GERENCIA EHS / EMISOR',
+    subtitle: (actName || 'Firma y Sello H&S').toUpperCase(),
     signatureUrl: actSignature,
     stampUrl: actStamp,
     isProfessional: true,
@@ -86,8 +82,8 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
   };
 
   const defaultBox3: SignatureBoxProps = {
-    title: 'SUPERVISIÓN / CIERRE',
-    subtitle: 'Sello y Firma receptora',
+    title: 'SUPERVISOR DE TRABAJO',
+    subtitle: 'Aprobación / Autorización',
     signatureUrl: supervisorSignature,
     isProfessional: false
   };
@@ -101,11 +97,10 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
     boxes.push(box1 || defaultBox1);
   }
   if (showPro) {
-    // Si viene un box2 personalizado, asegurarnos de limpiar "/ INSTRUCTOR" y pasar profession
     const pBox = box2 || defaultBox2;
     boxes.push({
       ...pBox,
-      title: (pBox.title || 'PROFESIONAL').replace(' / INSTRUCTOR', '').replace(' / INSTRUCTORA', ''),
+      title: (pBox.title || 'GERENCIA EHS / EMISOR').replace(' / INSTRUCTOR', '').replace(' / INSTRUCTORA', ''),
       profession: pBox.profession || actTitle
     });
   }
@@ -116,96 +111,86 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
   if (boxes.length === 0) return null;
 
   return (
-    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="pdf-signatures-wrapper avoid-break avoid-break-strictly break-inside-avoid w-[100%] block mt-[0.5rem] border-t-[2px_dashed_#cbd5e1] pt-[0.5rem] pb-[0.3rem] text-center">
-      <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break break-inside-avoid flex justify-center items-start w-[100%] gap-[0.75rem]">
+    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="pdf-signatures-wrapper avoid-break break-inside-avoid w-full block mt-4 border-t-2 border-slate-300 pt-4 pb-2 text-center">
+      <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break break-inside-avoid flex justify-center items-stretch w-full gap-4 flex-wrap sm:flex-nowrap">
         {boxes.map((box, idx) => {
           const isPro = box.isProfessional;
-          const borderCol = isPro ? '#bbf7d0' : '#e2e8f0';
+          const borderCol = isPro ? '#86efac' : '#cbd5e1';
           const bgCol = isPro ? '#f0fdf4' : '#f8fafc';
-          const textCol = isPro ? '#166534' : '#334155';
-          const subTextCol = isPro ? '#15803d' : '#64748b';
-          const lineCol = isPro ? '#86efac' : '#cbd5e1';
+          const textCol = isPro ? '#14532d' : '#0f172a';
+          const subTextCol = isPro ? '#15803d' : '#475569';
+          const hasSig = typeof box.signatureUrl === 'string' && box.signatureUrl.trim().length > 5;
+          const hasStamp = typeof box.stampUrl === 'string' && box.stampUrl.trim().length > 5;
 
           return (
-            <div key={idx} style={{
-              breakInside: 'avoid',
-              pageBreakInside: 'avoid',
-              flex: boxes.length === 1 ? '0 0 260px' : '1 1 0',
-              margin: boxes.length === 1 ? '0 auto' : '0',
-              border: `1px solid ${borderCol}`,
-              background: bgCol,
-              boxShadow: isPro 
-                ? '0 4px 12px -2px rgba(16,185,129,0.08), 0 2px 4px -1px rgba(16,185,129,0.03)'
-                : '0 4px 6px -1px rgba(0,0,0,0.04), 0 2px 4px -1px rgba(0,0,0,0.02)',
-              borderRadius: isPro ? '10px' : '8px',
-              position: 'relative',
-            }} className="avoid-break break-inside-avoid p-[0.6rem] text-center min-width-[180px] max-w-[260px] box-sizing-[border-box]">
+            <div
+              key={idx}
+              style={{
+                breakInside: 'avoid',
+                pageBreakInside: 'avoid',
+                flex: boxes.length === 1 ? '0 0 280px' : '1 1 0',
+                margin: boxes.length === 1 ? '0 auto' : '0',
+                borderColor: borderCol,
+                backgroundColor: bgCol,
+              }}
+              className={`avoid-break break-inside-avoid p-3 text-center rounded-xl border-2 shadow-xs relative min-w-[190px] max-w-[280px] box-border ${
+                isPro ? 'ring-1 ring-emerald-400' : ''
+              }`}
+            >
               {isPro && (
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: '3px',
-                  background: 'linear-gradient(90deg, #10b981, #059669)'
-                }} />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-green-600 rounded-t-xl" />
               )}
-              {/* Signature / Stamp image row */}
-              <div style={{
-                borderBottom: `1px dashed ${lineCol}`
-              }} className="min-h-[48px] h-[auto] w-[100%] text-center pb-[0.3rem] mb-[0.3rem] box-sizing-[border-box] overflow-[hidden] flex justify-center items-center gap-[0.3rem]">
-                {box.signatureUrl && box.signatureUrl.length > 20 &&
+              
+              {/* Contenedor de firma e imagen de sello */}
+              <div className="min-h-[55px] h-auto w-full text-center border-b border-dashed border-slate-300 pb-2 mb-2 flex items-center justify-center gap-2">
+                {hasSig && (
                   <img
-                    src={box.signatureUrl}
+                    src={box.signatureUrl!}
                     alt="Firma"
-                    style={{
-                      maxWidth: box.stampUrl && box.stampUrl.length > 20 ? '48%' : '100%',
-                      objectPosition: 'center',
-                      objectFit: 'contain'
-                    }} className="h-[40px] w-[auto]" />
-                }
-                {box.stampUrl && box.stampUrl.length > 20 &&
+                    className="max-h-[50px] w-auto max-w-[130px] object-contain"
+                  />
+                )}
+                {hasStamp && (
                   <img
-                    src={box.stampUrl}
+                    src={box.stampUrl!}
                     alt="Sello"
-                    style={{
-                      maxWidth: box.signatureUrl && box.signatureUrl.length > 20 ? '48%' : '100%',
-                      objectPosition: 'center',
-                      objectFit: 'contain'
-                    }} className="h-[40px] w-[auto]" />
-                }
-                {(!box.signatureUrl || box.signatureUrl.length <= 20) && (!box.stampUrl || box.stampUrl.length <= 20) &&
-                  <div className="h-[45px] w-[100%] flex flex-col items-center justify-center text-[0.52rem] text-slate-400 font-bold uppercase tracking-widest gap-[1px]">
-                    <span className="text-[#94a3b8]">✍️ Firma Registrada</span>
-                    <span className="text-[0.45rem] text-[#cbd5e1]">Validada en Sistema</span>
+                    className="max-h-[50px] w-auto max-w-[110px] object-contain"
+                  />
+                )}
+                {!hasSig && !hasStamp && (
+                  <div className="h-[45px] w-full flex flex-col items-center justify-center border-b border-slate-400 border-dashed">
+                    <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">
+                      Firma / Sello
+                    </span>
                   </div>
-                }
+                )}
               </div>
-              <p style={{ color: textCol, letterSpacing: '0.02em' }} className="m-[0] font-[800] text-[0.68rem] uppercase word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">
+
+              <p style={{ color: textCol }} className="m-0 font-black text-xs uppercase tracking-tight leading-tight">
                 {box.title}
               </p>
-              <p style={{ color: subTextCol, fontWeight: isPro ? 800 : 500 }} className="m-[2px_0_0_0] text-[0.6rem] word-break-[break-word] overflow-wrap-[break-word] line-height-[1.2]">
+              <p style={{ color: subTextCol }} className="m-0.5 font-bold text-[10px] leading-tight">
                 {box.subtitle}
               </p>
               {isPro && (box.profession || actTitle) && (
-                <p style={{ color: '#047857', fontWeight: 700, fontSize: '0.55rem', margin: '2px 0 0 0', textTransform: 'uppercase', lineHeight: '1.2' }}>
+                <p className="m-0 text-[9px] font-extrabold text-emerald-800 uppercase tracking-tight">
                   {box.profession || actTitle}
                 </p>
               )}
-              {box.license &&
-                <div style={{ display: 'block', textAlign: 'center', marginTop: '5px', padding: '3px 8px', background: '#16a34a', color: '#ffffff', borderRadius: '5px', fontSize: '9pt', fontWeight: 900, letterSpacing: '0.03em' }}>
-                  Mat. Nº&nbsp;{box.license}
+              {box.license && (
+                <div className="mt-1 inline-block px-2.5 py-0.5 bg-emerald-700 text-white rounded font-black text-[10px] tracking-wider uppercase shadow-xs">
+                  Mat. N° {box.license}
                 </div>
-              }
-              {box.customContent}
-            </div>);
+              )}
+            </div>
+          );
         })}
       </div>
 
-      {/* 🛡️ Secure Document Verification QR Footer */}
-      <div className="mt-[0.5rem] pt-[0.4rem] border-t-[1px] border-dashed border-[#e2e8f0] flex items-center justify-between px-[0.5rem] avoid-break break-inside-avoid">
-        <div className="flex items-center gap-[0.4rem] text-left">
-          <div className="w-[28px] h-[28px] bg-[#f1f5f9] border-[1px] border-[#cbd5e1] rounded-[6px] p-[2px] flex items-center justify-center shrink-0">
+      {/* Footer de verificación QR */}
+      <div className="mt-3 pt-2 border-t border-dashed border-slate-300 flex items-center justify-between px-2 avoid-break break-inside-avoid">
+        <div className="flex items-center gap-2 text-left">
+          <div className="w-8 h-8 bg-slate-100 border border-slate-300 rounded p-0.5 flex items-center justify-center shrink-0">
             <img
               src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}/v/${data?.id || 'doc'}` : 'https://asistentehs.web.app')}`}
               alt="QR Validación"
@@ -213,17 +198,18 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
             />
           </div>
           <div>
-            <div className="text-[0.55rem] font-[900] text-[#334155] uppercase tracking-wider">
-              🔒 Verificación Digital H&amp;S
+            <div className="text-[10px] font-black text-slate-800 uppercase tracking-wider">
+              🔒 VERIFICACIÓN DIGITAL H&amp;S
             </div>
-            <div className="text-[0.5rem] text-[#64748b] font-[500]">
+            <div className="text-[9px] text-slate-500 font-bold">
               Escaneá el código QR para validar la autenticidad del documento.
             </div>
           </div>
         </div>
-        <div className="text-right text-[0.48rem] text-[#94a3b8] font-[700]">
-          SISTEMA AUDITADO · ISO 45001
+        <div className="text-right text-[9px] text-slate-500 font-extrabold">
+          DOCUMENTO AUDITADO · NORMA ISO 45001
         </div>
       </div>
-    </div>);
+    </div>
+  );
 }

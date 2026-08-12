@@ -14,16 +14,14 @@ const ALLOWED_ORIGINS = [
 ];
 
 /**
- * Orígenes permitidos para API (dev local, red LAN y producción).
+ * Orígenes permitidos para API (dev local, red LAN y producción oficial).
  */
 export function isOriginAllowed(origin) {
   if (!origin) return true;
 
   return (
     ALLOWED_ORIGINS.includes(origin) ||
-    origin.endsWith('.vercel.app') ||
-    origin.endsWith('.github.io') ||
-    origin.startsWith('https://asistente-de-higiene-y-seguridad') ||
+    /^https:\/\/asistente-de-higiene-y-seguridad[a-z0-9-]*\.vercel\.app$/i.test(origin) ||
     origin.startsWith('http://localhost:') ||
     origin.startsWith('http://127.0.0.1:') ||
     origin.startsWith('http://[::1]:') ||

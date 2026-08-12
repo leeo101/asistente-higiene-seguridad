@@ -1,5 +1,5 @@
 import React from 'react';
-import { Lock, Zap, AlertTriangle } from 'lucide-react';
+import { Lock, Zap, AlertTriangle, ShieldCheck } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
 import PdfBrandingFooter from './PdfBrandingFooter';
@@ -22,10 +22,9 @@ const DEVICE_MAP = {
   tag: { name: 'Etiqueta de peligro', icon: '🏷️' }
 };
 
-export default function LOTOPdf({ data }: {data: any;}): React.ReactElement | null {
+export default function LOTOPdf({ data }: { data: any }): React.ReactElement | null {
   if (!data) return null;
 
-  // Obtener firma profesional desde data o localStorage
   let actSignature: string | null = data?.professionalSignature || null;
   let actStamp: string | null = data?.professionalStamp || null;
   let actName: string | null = data?.professionalName || null;
@@ -40,8 +39,7 @@ export default function LOTOPdf({ data }: {data: any;}): React.ReactElement | nu
         const parsed = JSON.parse(lsStamp);
         actSignature = parsed.signature;
         actStamp = parsed.stamp;
-      } else
-      if (legacySig) {
+      } else if (legacySig) {
         actSignature = legacySig;
       }
       if (lsPersonal) {
@@ -52,212 +50,324 @@ export default function LOTOPdf({ data }: {data: any;}): React.ReactElement | nu
     } catch (e) {}
   }
 
+  const docId = data.id ? String(data.id).slice(-6).toUpperCase() : 'S/N';
+
   return (
-    <div className="w-[100%] flex justify-center">
-            <div
+    <div className="w-full flex justify-center py-4 bg-slate-100 print:bg-white print:py-0">
+      <div
         id="pdf-content"
-        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[15mm] bg-[#ffffff] text-[#000000] box-sizing-[border-box] m-[0_auto] text-[10pt] font-family-[system-ui,_-apple-system,_sans-serif]">
+        className="pdf-container print-area w-full max-w-[210mm] min-h-[297mm] p-8 sm:p-10 bg-white text-slate-900 shadow-xl rounded-2xl box-border mx-auto text-xs font-sans print:shadow-none print:p-4 print:max-w-none print:rounded-none"
+      >
+        <style type="text/css" media="print">
+          {`
+            @page { size: A4 portrait; margin: 8mm; }
+            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .no-print { display: none !important; }
+            .print-area { 
+              box-shadow: none !important; 
+              margin: 0 !important; 
+              padding: 0 !important; 
+              width: 100% !important; 
+              max-width: none !important; 
+              border: none !important;
+              border-radius: 0 !important; 
+            }
+          `}
+        </style>
 
+        {/* Top Accent Line */}
+        <div className="w-full h-2 bg-gradient-to-r from-red-700 via-amber-600 to-red-900 rounded-t-lg mb-5"></div>
 
-
-
-
-
-        
-                <style type="text/css" media="print">
-                    {`
-                        @page { size: A4 portrait; margin: 10mm; }
-                        body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-                        .no-print { display: none !important; }
-                        .print-area { box-shadow: none !important; margin: 0 !important; padding: 5mm !important; width: 100% !important; max-width: none !important; border: none !important; border-radius: 0 !important; min-height: auto !important; height: auto !important; }
-                    `}
-                </style>
-
-                {/* Header */}
-                <div className="flex justify-space-between items-center border-bottom-[3px_solid_#333] pb-[1rem] mb-[1.5rem]">
-                    <div>
-                        <h1 className="m-[0] text-[1.6rem] font-[900]">PROCEDIMIENTO LOTO (BLOQUEO Y ETIQUETADO)</h1>
-                        <p className="m-[0] text-[0.9rem] font-[700] text-[#666]">SEGÚN ESTÁNDAR OSHA 29 CFR 1910.147</p>
-                    </div>
-                    <CompanyLogo style={{ maxHeight: '48px', maxWidth: '140px', objectFit: 'contain' }} />
-                </div>
-
-                {/* Info Grid */}
-                <div className="grid grid-template-columns-[1.5fr_1fr_1fr] gap-[0] border-[1.5px_solid_#000] mb-[1.5rem]">
-                    <div className="p-[0.5rem] border-right-[1.5px_solid_#000] border-bottom-[1px_solid_#000]">
-                        <span className="text-[0.6rem] font-[900] block">EQUIPO / MÁQUINA</span>
-                        <span className="font-[700]">{data.equipmentName || 'N/A'} {data.equipmentTag ? `(${data.equipmentTag})` : ''}</span>
-                    </div>
-                    <div className="p-[0.5rem] border-right-[1.5px_solid_#000] border-bottom-[1px_solid_#000]">
-                        <span className="text-[0.6rem] font-[900] block">TIPO BLOQUEO</span>
-                        <span className="font-[700]">{data.lockoutType === 'group' ? `Grupal (Caja: ${data.lockBoxNumber || 'N/A'})` : 'Individual'}</span>
-                    </div>
-                    <div className="p-[0.5rem] border-bottom-[1px_solid_#000]">
-                        <span className="text-[0.6rem] font-[900] block">FECHA</span>
-                        <span className="font-[700]">{data.createdAt ? new Date(data.createdAt).toLocaleDateString('es-AR') : 'N/A'}</span>
-                    </div>
-                    <div className="p-[0.5rem] border-right-[1.5px_solid_#000]" style={{ gridColumn: 'span 2', borderRight: '1.5px solid #000' }}>
-                        <span className="text-[0.6rem] font-[900] block">UBICACIÓN / DEPARTAMENTO</span>
-                        <span className="font-[700]">{data.location || 'No especificada'}{data.department ? ` - Depto: ${data.department}` : ''}</span>
-                    </div>
-                    <div className="p-[0.5rem]">
-                        <span className="text-[0.6rem] font-[900] block">ID PROCEDIMIENTO</span>
-                        <span className="font-[700]">#LOTO-{data.id?.slice(-6) || 'N/A'}</span>
-                    </div>
-                </div>
-
-                {/* Energy Sources */}
-                <div className="mb-[1.5rem]">
-                    <h3 className="text-[0.9rem] font-[900] bg-[#1e293b] text-[#fff] p-[0.5rem] mb-[0.5rem] flex items-center gap-[0.5rem]">
-                        <Zap size={18} /> FUENTES DE ENERGÍA Y BLOQUEO
-                    </h3>
-                    <div className="grid grid-template-columns-[1fr_1fr] gap-[1rem]">
-                        <div className="border-[1px_solid_#ddd] p-[0.8rem] rounded-[6px]">
-                            <span className="text-[0.7rem] font-[900] text-[#64748b] block mb-[0.3rem]">ENERGÍAS A BLOQUEAR</span>
-                            <div className="flex flex-wrap gap-[6px]">
-                                {data.energyTypes?.length > 0 ? data.energyTypes.map((t: string, i: number) => {
-                  const e = ENERGY_MAP[t as keyof typeof ENERGY_MAP] || { name: t, icon: '⚡', color: '#1e40af', bg: '#eff6ff', border: '#dbeafe' };
-                  return (
-                    <span key={i} style={{ background: e.bg, border: `1px solid ${e.border}`, color: e.color }} className="p-[4px_8px] rounded-[4px] text-[0.8rem] font-[800] flex items-center gap-[4px]">
-                                            <span>{e.icon}</span> {e.name}
-                                        </span>);
-
-                }) : <span className="text-[0.8rem] text-[#666]">Ninguna especificada</span>}
-                            </div>
-                        </div>
-                        <div className="border-[1px_solid_#ddd] p-[0.8rem] rounded-[6px]">
-                            <span className="text-[0.7rem] font-[900] text-[#64748b] block mb-[0.3rem]">DISPOSITIVOS REQUERIDOS</span>
-                            <div className="flex flex-wrap gap-[6px]">
-                                {data.lotoDevices?.length > 0 ? data.lotoDevices.map((d: string, i: number) => {
-                  const dev = DEVICE_MAP[d as keyof typeof DEVICE_MAP] || { name: d, icon: '🔧' };
-                  return (
-                    <span key={i} className="bg-[#f8fafc] border-[1px_solid_#e2e8f0] text-[#334155] p-[4px_8px] rounded-[4px] text-[0.8rem] font-[800] flex items-center gap-[4px]">
-                                            <span>{dev.icon}</span> {dev.name}
-                                        </span>);
-
-                }) : <span className="text-[0.8rem] text-[#666]">Ninguno especificado</span>}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Isolation Points List */}
-                {data.isolationPointsList?.length > 0 && (
-                    <div className="mb-[1.5rem]">
-                        <h3 className="text-[0.9rem] font-[900] bg-[#1e293b] text-[#fff] p-[0.5rem] mb-[0.5rem]">
-                            PUNTOS DE AISLAMIENTO ESPECÍFICOS
-                        </h3>
-                        <table className="w-full text-left border-collapse border border-slate-300 text-[8pt]" style={{ border: '1px solid #cbd5e1' }}>
-                            <thead>
-                                <tr className="bg-slate-100 border-b border-slate-300">
-                                    <th className="p-[4px_8px] border-r border-slate-300 font-[900] w-1/4" style={{ borderRight: '1px solid #cbd5e1', padding: '6px' }}>Punto</th>
-                                    <th className="p-[4px_8px] border-r border-slate-300 font-[900] w-1/5" style={{ borderRight: '1px solid #cbd5e1', padding: '6px' }}>Energía</th>
-                                    <th className="p-[4px_8px] border-r border-slate-300 font-[900] w-1/5" style={{ borderRight: '1px solid #cbd5e1', padding: '6px' }}>Dispositivo</th>
-                                    <th className="p-[4px_8px] border-r border-slate-300 font-[900] w-1/5" style={{ borderRight: '1px solid #cbd5e1', padding: '6px' }}>Ubicación</th>
-                                    <th className="p-[4px_8px] font-[900] w-1/6 text-center" style={{ padding: '6px' }}>¿Verificado?</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {data.isolationPointsList.map((point: any, idx: number) => {
-                                    const e = ENERGY_MAP[point.energyType as keyof typeof ENERGY_MAP] || { name: point.energyType, icon: '⚡' };
-                                    const dev = DEVICE_MAP[point.device as keyof typeof DEVICE_MAP] || { name: point.device, icon: '🔒' };
-                                    return (
-                                        <tr key={idx} className="border-b border-slate-300" style={{ borderBottom: '1px solid #cbd5e1' }}>
-                                            <td className="p-[4px_8px] border-r border-slate-300 font-[750]" style={{ borderRight: '1px solid #cbd5e1', padding: '6px' }}>{point.name || 'N/A'}</td>
-                                            <td className="p-[4px_8px] border-r border-slate-300" style={{ borderRight: '1px solid #cbd5e1', padding: '6px' }}>{e.icon} {e.name}</td>
-                                            <td className="p-[4px_8px] border-r border-slate-300" style={{ borderRight: '1px solid #cbd5e1', padding: '6px' }}>{dev.icon} {dev.name}</td>
-                                            <td className="p-[4px_8px] border-r border-slate-300" style={{ borderRight: '1px solid #cbd5e1', padding: '6px' }}>{point.location || 'N/A'}</td>
-                                            <td className="p-[4px_8px] text-center font-[900] text-emerald-700" style={{ padding: '6px' }}>{point.verified ? 'SÍ' : 'NO'}</td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-
-                {/* Verification & Warnings */}
-                <div className="grid grid-template-columns-[1fr_1fr] gap-[1rem] mb-[1.5rem]">
-                    <div className="border-[1px_solid_#fbd38d] bg-[#fffaf0] rounded-[6px] p-[0.8rem]">
-                        <div className="flex items-center gap-[0.5rem] mb-[0.5rem] text-[#c05621]">
-                            <Lock size={18} />
-                            <span className="font-[900] text-[0.85rem]">VERIFICACIÓN DE ENERGÍA CERO</span>
-                        </div>
-                        <p className="m-[0] text-[0.8rem]">
-                            {data.zeroEnergyVerification?.tested ? (
-                                <span>
-                                    CONFIRMADA mediante método: {
-                                        data.zeroEnergyVerification.method === 'try_start' ? 'Intento de Arranque Local' :
-                                        data.zeroEnergyVerification.method === 'tester' ? 'Medición con Instrumento' :
-                                        data.zeroEnergyVerification.method === 'gauge' ? 'Verificación de Presión' :
-                                        data.zeroEnergyVerification.method === 'visual' ? 'Inspección Visual' : 'Método especificado'
-                                    }.
-                                </span>
-                            ) : (
-                                <span>No se ha registrado verificación formal de energía cero.</span>
-                            )}
-                        </p>
-                        {data.isolationPoints && (
-                            <p className="m-[0.5rem_0_0_0] text-[0.75rem] text-slate-600"><strong>Notas:</strong> {data.isolationPoints}</p>
-                        )}
-                    </div>
-                    <div className="border-[1px_solid_#feb2b2] bg-[#fff5f5] rounded-[6px] p-[0.8rem]">
-                        <div className="flex items-center gap-[0.5rem] mb-[0.5rem] text-[#c53030]">
-                            <AlertTriangle size={18} />
-                            <span className="font-[900] text-[0.85rem]">ADVERTENCIA CRÍTICA</span>
-                        </div>
-                        <p className="m-[0] text-[0.8rem] font-[700]">PROHIBIDO RETIRAR BLOQUEOS SIN AUTORIZACIÓN DEL RESPONSABLE DEL TRABAJO.</p>
-                    </div>
-                </div>
-
-                {/* Restoration Checklist */}
-                {data.restorationChecklist && (
-                    <div className="mb-[1.5rem] border-[1px_solid_#cbd5e1] rounded-[6px] p-[0.8rem] bg-slate-50/30">
-                        <div className="flex items-center gap-[0.5rem] mb-[0.5rem] text-slate-700">
-                            <span className="font-[900] text-[0.85rem] uppercase">Desbloqueo y Restablecimiento (Retiro de Bloqueos)</span>
-                        </div>
-                        <div className="grid grid-template-columns-[1fr_1fr] gap-[4px_12px] text-[8.5pt]">
-                            <div>[ {data.restorationChecklist.guardsReinstalled ? 'X' : ' ' } ] Protecciones y guardas reinstaladas</div>
-                            <div>[ {data.restorationChecklist.toolsRemoved ? 'X' : ' ' } ] Herramientas y materiales retirados</div>
-                            <div>[ {data.restorationChecklist.personnelClear ? 'X' : ' ' } ] Todo el personal fuera del área de peligro</div>
-                            <div>[ {data.restorationChecklist.locksRemoved ? 'X' : ' ' } ] Candados y etiquetas de bloqueo retirados</div>
-                            <div className="grid-column-span-2" style={{ gridColumn: 'span 2', fontWeight: 'bold' }}>
-                                [ {data.restorationChecklist.authorizedRestart ? 'X' : ' ' } ] Re-energización y reinicio plenamente AUTORIZADO
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Final Signatures */}
-                <PdfSignatures
-          data={data}
-          box1={data.showSignatures?.operator !== false ? {
-            title: 'PERSONAL AFECTADO',
-            subtitle: 'Firma y Aclaración',
-            signatureUrl: data.operatorSignature || null,
-            isProfessional: false
-          } : null}
-          box2={data.showSignatures?.professional !== false ? {
-            title: 'PROFESIONAL H&S',
-            subtitle: (actName || 'Firma de Especialista').toUpperCase(),
-            signatureUrl: actSignature || null,
-            stampUrl: data.professionalStamp || actStamp || null,
-            isProfessional: true,
-            license: actLic || null
-          } : null}
-          box3={data.showSignatures?.supervisor !== false ? {
-            title: 'ENCARGADO BLOQUEO',
-            subtitle: 'Aprobación / Supervisor',
-            signatureUrl: data.signature || data.supervisorSignature || null,
-            isProfessional: false
-          } : null} />
-        
-            <PdfBrandingFooter />
-
-                <div className="mt-[2rem] text-[0.6rem] text-[#64748b] text-center font-[900] letter-spacing-[0.1em]">
-                    REGISTRO DE BLOQUEO CONFORME A NORMAS INTERNACIONALES DE SEGURIDAD INDUSTRIAL.
-                </div>
+        {/* Header */}
+        <div className="flex justify-between items-center border-b-2 border-slate-800 pb-4 mb-5">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <span className="bg-red-950 text-white font-black text-[10px] px-2.5 py-0.5 rounded uppercase tracking-wider">
+                ESTÁNDAR OSHA 29 CFR 1910.147
+              </span>
+              <span className="bg-amber-600 text-white font-black text-[10px] px-2 py-0.5 rounded uppercase">
+                CONTROL DE ENERGÍAS PELIGROSAS
+              </span>
             </div>
-        </div>);
+            <h1 className="m-0 text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
+              <Lock className="text-red-700 inline" size={24} /> PROCEDIMIENTO LOTO (BLOQUEO Y ETIQUETADO)
+            </h1>
+            <div className="text-xs font-black text-red-700 uppercase tracking-wide">
+              PROTOCOLO OBLIGATORIO DE AISLAMIENTO ENERGÉTICO
+            </div>
+          </div>
 
+          <div className="flex flex-col items-end gap-2">
+            <CompanyLogo style={{ maxHeight: '50px', maxWidth: '160px', objectFit: 'contain' }} />
+            <div className="text-right bg-slate-50 border border-slate-200 px-3 py-1 rounded-xl shadow-xs">
+              <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest">REGISTRO N°</div>
+              <div className="text-sm font-black text-red-700">#LOTO-{docId}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Info Grid */}
+        <div className="border-2 border-slate-800 rounded-xl overflow-hidden mb-5 bg-white page-break-inside-avoid shadow-xs">
+          <div className="bg-slate-900 text-white font-black text-[11px] px-4 py-1.5 uppercase tracking-wider">
+            ESPECIFICACIONES DEL EQUIPO Y UBICACIÓN
+          </div>
+          <div className="grid grid-cols-3 border-b border-slate-200">
+            <div className="p-3 border-r border-slate-200 flex flex-col gap-0.5 bg-slate-50/50">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">EQUIPO / MÁQUINA</span>
+              <span className="font-extrabold text-sm text-slate-900">
+                {data.equipmentName || 'N/A'} {data.equipmentTag ? `(${data.equipmentTag})` : ''}
+              </span>
+            </div>
+            <div className="p-3 border-r border-slate-200 flex flex-col gap-0.5 bg-slate-50/50">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">TIPO BLOQUEO</span>
+              <span className="font-extrabold text-sm text-slate-900">
+                {data.lockoutType === 'group' ? `Grupal (Caja: ${data.lockBoxNumber || 'N/A'})` : 'Individual'}
+              </span>
+            </div>
+            <div className="p-3 flex flex-col gap-0.5 bg-slate-50/50">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">FECHA REGISTRO</span>
+              <span className="font-extrabold text-sm text-slate-900">
+                {data.createdAt ? new Date(data.createdAt).toLocaleDateString('es-AR') : 'N/A'}
+              </span>
+            </div>
+          </div>
+          <div className="grid grid-cols-3">
+            <div className="col-span-2 p-3 border-r border-slate-200 flex flex-col gap-0.5">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">UBICACIÓN / DEPARTAMENTO</span>
+              <span className="font-extrabold text-sm text-slate-900">
+                {data.location || 'No especificada'} {data.department ? ` - Depto: ${data.department}` : ''}
+              </span>
+            </div>
+            <div className="p-3 flex flex-col gap-0.5 bg-slate-50/30">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">ESTADO PROCEDIMIENTO</span>
+              <span className="font-extrabold text-sm text-emerald-700 uppercase">✓ ACTIVO / EN VIGENCIA</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Energy Sources & Devices */}
+        <div className="mb-5 page-break-inside-avoid">
+          <div className="flex items-center gap-2 mb-2 pb-1 border-b-2 border-slate-800">
+            <Zap className="text-amber-600" size={18} />
+            <h3 className="text-xs font-black text-slate-900 m-0 uppercase tracking-wider">
+              FUENTES DE ENERGÍA Y DISPOSITIVOS DE BLOQUEO REQUERIDOS
+            </h3>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="border border-slate-300 p-3 rounded-xl bg-slate-50/50">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block mb-2">
+                ENERGÍAS A BLOQUEAR
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {data.energyTypes?.length > 0 ? (
+                  data.energyTypes.map((t: string, i: number) => {
+                    const e = ENERGY_MAP[t as keyof typeof ENERGY_MAP] || {
+                      name: t,
+                      icon: '⚡',
+                      color: '#1e40af',
+                      bg: '#eff6ff',
+                      border: '#dbeafe'
+                    };
+                    return (
+                      <span
+                        key={i}
+                        style={{ background: e.bg, borderColor: e.border, color: e.color }}
+                        className="px-2.5 py-1 rounded-lg text-xs font-extrabold flex items-center gap-1.5 border shadow-2xs"
+                      >
+                        <span>{e.icon}</span> {e.name}
+                      </span>
+                    );
+                  })
+                ) : (
+                  <span className="text-xs text-slate-500">Ninguna especificada</span>
+                )}
+              </div>
+            </div>
+
+            <div className="border border-slate-300 p-3 rounded-xl bg-slate-50/50">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block mb-2">
+                DISPOSITIVOS DE SEGURIDAD REQUERIDOS
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {data.lotoDevices?.length > 0 ? (
+                  data.lotoDevices.map((d: string, i: number) => {
+                    const dev = DEVICE_MAP[d as keyof typeof DEVICE_MAP] || { name: d, icon: '🔧' };
+                    return (
+                      <span
+                        key={i}
+                        className="bg-white border border-slate-300 text-slate-800 px-2.5 py-1 rounded-lg text-xs font-extrabold flex items-center gap-1.5 shadow-2xs"
+                      >
+                        <span>{dev.icon}</span> {dev.name}
+                      </span>
+                    );
+                  })
+                ) : (
+                  <span className="text-xs text-slate-500">Ninguno especificado</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Isolation Points List */}
+        {data.isolationPointsList?.length > 0 && (
+          <div className="mb-5 page-break-inside-avoid">
+            <div className="flex items-center gap-2 mb-2 pb-1 border-b-2 border-slate-800">
+              <ShieldCheck className="text-blue-700" size={18} />
+              <h3 className="text-xs font-black text-slate-900 m-0 uppercase tracking-wider">
+                PUNTOS DE AISLAMIENTO ESPECÍFICOS Y VERIFICACIÓN
+              </h3>
+            </div>
+            <div className="border border-slate-300 rounded-xl overflow-hidden">
+              <div className="grid grid-cols-[1.5fr_1fr_1.5fr_1.5fr_90px] bg-slate-100 p-2.5 border-b-2 border-slate-300 font-black text-[11px] text-slate-700 uppercase tracking-wider">
+                <div>PUNTO DE AISLAMIENTO</div>
+                <div>ENERGÍA</div>
+                <div>DISPOSITIVO</div>
+                <div>UBICACIÓN</div>
+                <div className="text-center">VERIFICADO</div>
+              </div>
+              {data.isolationPointsList.map((point: any, idx: number) => {
+                const e = ENERGY_MAP[point.energyType as keyof typeof ENERGY_MAP] || { name: point.energyType, icon: '⚡' };
+                const dev = DEVICE_MAP[point.device as keyof typeof DEVICE_MAP] || { name: point.device, icon: '🔒' };
+                return (
+                  <div
+                    key={idx}
+                    className={`grid grid-cols-[1.5fr_1fr_1.5fr_1.5fr_90px] gap-3 items-center p-2.5 border-b border-slate-200 page-break-inside-avoid ${
+                      idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'
+                    }`}
+                  >
+                    <div className="font-extrabold text-xs text-slate-900">{point.name || 'N/A'}</div>
+                    <div className="text-xs font-bold text-slate-700">
+                      {e.icon} {e.name}
+                    </div>
+                    <div className="text-xs font-medium text-slate-700">
+                      {dev.icon} {dev.name}
+                    </div>
+                    <div className="text-xs font-medium text-slate-600">{point.location || 'N/A'}</div>
+                    <div className="flex justify-center">
+                      <span
+                        className={`px-2.5 py-0.5 rounded-lg text-xs font-black uppercase ${
+                          point.verified ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-rose-100 text-rose-800 border border-rose-300'
+                        }`}
+                      >
+                        {point.verified ? '✓ SÍ' : '✗ NO'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Verification & Warnings */}
+        <div className="grid grid-cols-2 gap-4 mb-5 page-break-inside-avoid">
+          <div className="border border-amber-300 bg-amber-50/60 rounded-xl p-3.5">
+            <div className="flex items-center gap-2 mb-1.5 text-amber-900">
+              <Lock size={18} className="text-amber-700" />
+              <span className="font-black text-xs uppercase">VERIFICACIÓN DE ENERGÍA CERO</span>
+            </div>
+            <p className="m-0 text-xs font-medium text-slate-800 leading-relaxed">
+              {data.zeroEnergyVerification?.tested ? (
+                <span>
+                  CONFIRMADA mediante método:{' '}
+                  <strong className="text-amber-950">
+                    {data.zeroEnergyVerification.method === 'try_start'
+                      ? 'Intento de Arranque Local'
+                      : data.zeroEnergyVerification.method === 'tester'
+                      ? 'Medición con Instrumento'
+                      : data.zeroEnergyVerification.method === 'gauge'
+                      ? 'Verificación de Presión'
+                      : data.zeroEnergyVerification.method === 'visual'
+                      ? 'Inspección Visual'
+                      : 'Método especificado'}
+                  </strong>
+                </span>
+              ) : (
+                <span>No se ha registrado verificación formal de energía cero.</span>
+              )}
+            </p>
+            {data.isolationPoints && (
+              <p className="mt-2 text-[11px] text-slate-600 font-medium">
+                <strong>Notas adicionales:</strong> {data.isolationPoints}
+              </p>
+            )}
+          </div>
+
+          <div className="border border-rose-300 bg-rose-50/60 rounded-xl p-3.5">
+            <div className="flex items-center gap-2 mb-1.5 text-rose-900">
+              <AlertTriangle size={18} className="text-rose-700" />
+              <span className="font-black text-xs uppercase">ADVERTENCIA CRÍTICA DE SEGURIDAD</span>
+            </div>
+            <p className="m-0 text-xs font-black text-rose-900 uppercase leading-relaxed">
+              PROHIBIDO RETIRAR CANDADOS O ETIQUETAS DE BLOQUEO SIN AUTORIZACIÓN DEL RESPONSABLE DEL PROCEDIMIENTO.
+            </p>
+          </div>
+        </div>
+
+        {/* Restoration Checklist */}
+        {data.restorationChecklist && (
+          <div className="mb-5 border border-slate-300 rounded-xl p-3.5 bg-slate-50/40 page-break-inside-avoid">
+            <div className="flex items-center gap-2 mb-2 text-slate-800 border-b border-slate-200 pb-1">
+              <span className="font-black text-xs uppercase">DESBLOQUEO Y RESTABLECIMIENTO DE ENERGÍA</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs font-bold text-slate-800">
+              <div>[{data.restorationChecklist.guardsReinstalled ? '✓' : ' '}] Protecciones y guardas reinstaladas</div>
+              <div>[{data.restorationChecklist.toolsRemoved ? '✓' : ' '}] Herramientas y materiales retirados</div>
+              <div>[{data.restorationChecklist.personnelClear ? '✓' : ' '}] Todo el personal fuera del área de peligro</div>
+              <div>[{data.restorationChecklist.locksRemoved ? '✓' : ' '}] Candados y etiquetas retirados</div>
+              <div className="col-span-2 text-emerald-800 font-extrabold mt-1">
+                [{data.restorationChecklist.authorizedRestart ? '✓' : ' '}] Re-energización y reinicio plenamente AUTORIZADO
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Final Signatures */}
+        <div className="mt-6 page-break-inside-avoid">
+          <PdfSignatures
+            data={data}
+            box1={
+              data.showSignatures?.operator !== false
+                ? {
+                    title: 'PERSONAL AFECTADO',
+                    subtitle: 'Firma y Aclaración',
+                    signatureUrl: data.operatorSignature || null,
+                    isProfessional: false
+                  }
+                : null
+            }
+            box2={
+              data.showSignatures?.professional !== false
+                ? {
+                    title: 'GERENCIA EHS / ESPECIALISTA',
+                    subtitle: (actName || 'Firma de Especialista').toUpperCase(),
+                    signatureUrl: actSignature || null,
+                    stampUrl: data.professionalStamp || actStamp || null,
+                    isProfessional: true,
+                    license: actLic || null
+                  }
+                : null
+            }
+            box3={
+              data.showSignatures?.supervisor !== false
+                ? {
+                    title: 'ENCARGADO DE BLOQUEO',
+                    subtitle: 'Aprobación / Supervisor',
+                    signatureUrl: data.signature || data.supervisorSignature || null,
+                    isProfessional: false
+                  }
+                : null
+            }
+          />
+        </div>
+
+        <PdfBrandingFooter />
+
+        <div className="mt-4 text-[10px] text-slate-400 text-center font-black tracking-widest uppercase">
+          REGISTRO OFICIAL DE BLOQUEO CONFORME A NORMAS INTERNACIONALES DE SEGURIDAD INDUSTRIAL (OSHA 29 CFR 1910.147)
+        </div>
+      </div>
+    </div>
+  );
 }
