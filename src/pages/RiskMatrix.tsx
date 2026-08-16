@@ -15,6 +15,7 @@ import {
   ModuleFormSection,
   ModuleActionBar
 } from '../components/module';
+import IpercRiskMatrix5x5, { IpercItem } from '../components/IpercRiskMatrix5x5';
 const HAZARD_TYPES = [
 { value: '', label: 'Seleccionar...', icon: null, color: 'var(--color-text-muted)' },
 { value: 'Físico', label: 'Físico', icon: <Zap size={12} />, color: '#3b82f6' },
@@ -171,6 +172,27 @@ export default function RiskMatrix(): React.ReactElement | null {
           className="m-0 border-none bg-transparent font-bold text-[0.95rem] text-slate-900 dark:text-slate-100 outline-none w-full" />
                 </div>
             </div>
+            </ModuleFormSection>
+
+            <ModuleFormSection title="Evaluación e Identificación IPERC 5x5 (ISO 45001)" icon={<TriangleAlert size={20} />}>
+              <div className="mb-6">
+                <IpercRiskMatrix5x5
+                  onItemEvaluated={(item) => {
+                    const newRow = {
+                      id: Date.now(),
+                      task: item.taskName,
+                      hazardType: item.hazardCategory,
+                      hazard: item.hazardDescription,
+                      probableEffect: item.consequenceDescription,
+                      exposedCount: 1,
+                      probability: item.residualProb,
+                      severity: item.residualSev,
+                      controls: `[${item.controlHierarchy.toUpperCase()}] ${item.controlDescription}`
+                    };
+                    setRows(prev => [...prev, newRow]);
+                  }}
+                />
+              </div>
             </ModuleFormSection>
 
             <ModuleFormSection title="Resumen y Mapa de Calor" icon={<Activity size={20} />}>

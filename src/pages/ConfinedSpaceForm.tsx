@@ -18,6 +18,7 @@ import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
 import { validateWorkerMedicalStatus } from '../utils/workerValidation';
+import WorkerMedicalChecker from '../components/WorkerMedicalChecker';
 
 // Constants from ConfinedSpace.tsx
 const CONFINED_SPACE_TYPES = [
@@ -404,12 +405,22 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
                             </div>
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-700">Vigía de Seguridad *</label>
-                            <input type="text" className="input-professional" value={permit.team.attendant} onChange={(e) => setPermit({ ...permit, team: { ...permit.team, attendant: e.target.value } })} placeholder="Nombre del vigía" />
+                            <WorkerMedicalChecker
+                              value={permit.team.attendant}
+                              riskType="confined"
+                              label="Vigía de Seguridad *"
+                              placeholder="Nombre del vigía o DNI..."
+                              onChange={(val) => setPermit((prev: any) => ({ ...prev, team: { ...prev.team, attendant: val } }))}
+                            />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-700">Supervisor de Entrada *</label>
-                            <input type="text" className="input-professional" value={permit.team.supervisor} onChange={(e) => setPermit({ ...permit, team: { ...permit.team, supervisor: e.target.value } })} placeholder="Nombre del supervisor" />
+                            <WorkerMedicalChecker
+                              value={permit.team.supervisor}
+                              riskType="confined"
+                              label="Supervisor de Entrada *"
+                              placeholder="Nombre del supervisor o DNI..."
+                              onChange={(val) => setPermit((prev: any) => ({ ...prev, team: { ...prev.team, supervisor: val } }))}
+                            />
                         </div>
                         <div>
                             <label className="block mb-2 text-sm font-semibold text-slate-700">Equipo de Rescate</label>

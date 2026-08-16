@@ -5,6 +5,7 @@ import { requestNotificationPermission, getPermissionStatus, sendTestNotificatio
 import { useAuth } from '../contexts/AuthContext';
 import { Capacitor } from '@capacitor/core';
 import { useLocation, useNavigate } from 'react-router-dom';
+import OfflineSyncStatusWidget from './OfflineSyncStatusWidget';
 
 // ─── Configuración visual por tipo ──────────────────────────────────────────
 const TYPE_META: Record<string, { emoji: string; label: string; url: string }> = {
@@ -70,7 +71,10 @@ export default function HeaderNotifications() {
   const hasAlerts = notifications.length > 0;
 
   return (
-    <div className="relative" ref={panelRef}>
+    <div className="relative flex items-center gap-2" ref={panelRef}>
+      {/* ── Offline & Sync Widget ─────────────────────────────────────────── */}
+      <OfflineSyncStatusWidget compact={true} />
+
       {/* ── Bell button ─────────────────────────────────────────────────── */}
       <button
         onClick={() => setShowAlerts(v => !v)}

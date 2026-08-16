@@ -11,6 +11,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 import ConfirmModal from '../components/ConfirmModal';
+import ContractorAccessControlModal from '../components/ContractorAccessControlModal';
 
 export interface ContractorDoc {
   id: string;
@@ -70,6 +71,7 @@ export default function ContractorMatrix() {
   const [isContractorModalOpen, setIsContractorModalOpen] = useState(false);
   const [isWorkerModalOpen, setIsWorkerModalOpen] = useState(false);
   const [isDocUpdateModalOpen, setIsDocUpdateModalOpen] = useState(false);
+  const [isGaritaAccessModalOpen, setIsGaritaAccessModalOpen] = useState(false);
 
   const [editingContractor, setEditingContractor] = useState<Partial<ContractorCompany>>({});
   const [editingWorker, setEditingWorker] = useState<Partial<WorkerItem>>({});
@@ -640,6 +642,26 @@ export default function ContractorMatrix() {
         >
           {/* Estilos inline forzados para los botones del header */}
           <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+            <button
+              onClick={() => setIsGaritaAccessModalOpen(true)}
+              style={{
+                backgroundColor: '#059669',
+                color: '#ffffff',
+                border: 'none',
+                padding: '0.6rem 1.2rem',
+                borderRadius: '12px',
+                fontWeight: 900,
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                boxShadow: '0 4px 14px rgba(5, 150, 105, 0.35)'
+              }}
+            >
+              <ShieldCheck size={16} /> Control de Acceso Garita
+            </button>
+
             <button
               onClick={() => window.print()}
               style={{
@@ -1383,6 +1405,13 @@ export default function ContractorMatrix() {
         message="Esta acción no se puede deshacer y borrará el registro seleccionado."
         onConfirm={handleDeleteConfirm}
         onClose={() => setConfirmDeleteModal({ isOpen: false, type: 'company', id: null })}
+      />
+
+      <ContractorAccessControlModal
+        isOpen={isGaritaAccessModalOpen}
+        onClose={() => setIsGaritaAccessModalOpen(false)}
+        companies={contractors}
+        workers={workers}
       />
     </AnimatedPage>
   );

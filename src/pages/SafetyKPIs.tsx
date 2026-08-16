@@ -18,6 +18,7 @@ import toast from 'react-hot-toast';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { auth } from '../firebase';
+import ExecutiveBiDashboardWidget from '../components/ExecutiveBiDashboardWidget';
 
 const STORAGE_KEY = 'ehs_kpi_data';
 
@@ -426,6 +427,14 @@ export default function SafetyKPIs(): React.ReactElement {
                             {isPredicting ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
                             Análisis Predictivo de Accidentes (IA)
                         </button>
+                    </div>
+
+                    <div className="mb-8">
+                      <ExecutiveBiDashboardWidget
+                        currentIf={latestMetrics?.indiceFrecuencia || 0}
+                        currentIg={latestMetrics?.indiceGravedad || 0}
+                        daysWithoutAccidents={getDaysSinceLastAccident()}
+                      />
                     </div>
 
                     {predictionData && (

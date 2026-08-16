@@ -192,3 +192,132 @@ export function validateWorkerMedicalStatus(
     clinic: match.clinic
   };
 }
+
+export interface TeamValidationResult {
+  isValid: boolean;
+  totalWorkers: number;
+  validWorkersCount: number;
+  invalidWorkersCount: number;
+  details: { worker: string; validation: MedicalValidationResult }[];
+}
+
+export function validateTeamMedicalStatus(
+  workers: string[],
+  riskType: 'height' | 'confined' | 'machinery' | 'electrical' | 'general' = 'general'
+): TeamValidationResult {
+  const cleanList = Array.from(new Set(workers.map(w => w.trim()).filter(Boolean)));
+  const details = cleanList.map(worker => ({
+    worker,
+    validation: validateWorkerMedicalStatus(worker, riskType)
+  }));
+
+  const validWorkersCount = details.filter(d => d.validation.isValid).length;
+  const invalidWorkersCount = details.length - validWorkersCount;
+
+  return {
+    isValid: invalidWorkersCount === 0 && cleanList.length > 0,
+    totalWorkers: cleanList.length,
+    validWorkersCount,
+    invalidWorkersCount,
+    details
+  };
+}
+
+export interface WorkerOption {
+  name: string;
+  dni?: string;
+  jobTitle?: string;
+  source: 'medical' | 'legajo' | 'contractor';
+  medicalStatus?: string;
+  expirationDate?: string;
+  allowHeight?: boolean;
+  allowConfined?: boolean;
+  allowElectrical?: boolean;
+  allowMachinery?: boolean;
+}
+
+export function getAvailableWorkers(): WorkerOption[] {
+  const optionsMap = new Map<string, WorkerOption>();
+
+  // 1. Load Medical DB
+  try {
+    const raw = localStorage.getItem('ehs_medical_db');
+    if (raw) {
+      const exams = JSON.parse(raw);
+      exams.forEach((e: any) => {
+        if (e.workerName) {
+          const key = (e.dni || e.workerName).toString().trim().toLowerCase();
+          optionsMap.set(key, {
+            name: e.workerName,
+            dni: e.dni || '',
+            jobTitle: e.jobTitle || '',
+            source: 'medical',
+            medicalStatus: e.result || 'apto',
+            expirationDate: e.expirationDate,
+            allowHeight: e.allowHeight ?? true,
+            allowConfined: e.allowConfined ?? true,
+            allowElectrical: e.allowElectrical ?? true,
+            allowMachinery: e.allowMachinery ?? true
+          });
+        }
+      });
+    }
+  } catch (err) {}
+
+  // 2. Load Legajos DB
+  try {
+    const raw = localStorage.getItem('legajos_cache') || localStorage.getItem('legajos_db');
+    if (raw) {
+      const legajos = JSON.parse(raw);
+      legajos.forEach((l: any) => {
+        if (l.name) {
+          const key = (l.dni || l.name).toString().trim().toLowerCase();
+          if (!optionsMap.has(key)) {
+            optionsMap.set(key, {
+              name: l.name,
+              dni: l.dni || '',
+              jobTitle: l.puesto || l.jobTitle || '',
+              source: 'legajo',
+              medicalStatus: l.medicalStatus || 'apto',
+              expirationDate: l.medicalExpiry,
+              allowHeight: l.allowHeight ?? true,
+              allowConfined: l.allowConfined ?? true,
+              allowElectrical: l.allowElectrical ?? true,
+              allowMachinery: l.allowMachinery ?? true
+            });
+          }
+        }
+      });
+    }
+  } catch (err) {}
+
+  // 3. Load Contractor Workers DB
+  try {
+    const raw = localStorage.getItem('contractors_matrix_workers');
+    if (raw) {
+      const contractorWorkers = JSON.parse(raw);
+      contractorWorkers.forEach((cw: any) => {
+        if (cw.workerName) {
+          const key = (cw.dni || cw.workerName).toString().trim().toLowerCase();
+          if (!optionsMap.has(key)) {
+            optionsMap.set(key, {
+              name: cw.workerName,
+              dni: cw.dni || '',
+              jobTitle: cw.puesto || 'Contratista',
+              source: 'contractor',
+              medicalStatus: cw.aptoMedicoDate ? 'apto' : 'vencido',
+              expirationDate: cw.aptoMedicoDate,
+              allowHeight: true,
+              allowConfined: true,
+              allowElectrical: true,
+              allowMachinery: true
+            });
+          }
+        }
+      });
+    }
+  } catch (err) {}
+
+  return Array.from(optionsMap.values());
+}
+

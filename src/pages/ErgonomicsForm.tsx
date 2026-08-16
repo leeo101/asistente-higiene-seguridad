@@ -22,6 +22,7 @@ import { getErrorMessage } from '../utils/errorUtils';
 import ErgonomicsPdfGenerator from '../components/ErgonomicsPdfGenerator';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
+import NioshErgonomicsCalculatorWidget from '../components/NioshErgonomicsCalculatorWidget';
 
 export default function ErgonomicsForm(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -311,7 +312,33 @@ export default function ErgonomicsForm(): React.ReactElement | null {
       }
 
             {step === 3 &&
-      <ModuleFormSection title="Planilla 2.A: Evaluación" icon={<Accessibility />}>
+      <ModuleFormSection title="Planilla 2.A: Evaluación Ergonómica NIOSH (Res. 886/15)" icon={<Accessibility />}>
+                    <div className="mb-6">
+                      <NioshErgonomicsCalculatorWidget
+                        params={{
+                          pesoReal: Number(formData.calculoLevantamiento?.peso || 0),
+                          distanciaH: Number(formData.calculoLevantamiento?.distanciaH || 25),
+                          distanciaV: Number(formData.calculoLevantamiento?.distanciaV || 75),
+                          desplazamientoD: 25,
+                          anguloTorsionA: Number(formData.calculoLevantamiento?.torsion || 0),
+                          frecuenciaF: Number(formData.calculoLevantamiento?.frecuencia || 0.2),
+                          agarre: (formData.calculoLevantamiento?.agarre as any) || 'Bueno'
+                        }}
+                        onChangeParams={(updated) => {
+                          setFormData((prev: any) => ({
+                            ...prev,
+                            calculoLevantamiento: {
+                              ...prev.calculoLevantamiento,
+                              ...(updated.pesoReal !== undefined ? { peso: updated.pesoReal } : {}),
+                              ...(updated.distanciaH !== undefined ? { distanciaH: updated.distanciaH } : {}),
+                              ...(updated.distanciaV !== undefined ? { distanciaV: updated.distanciaV } : {}),
+                              ...(updated.anguloTorsionA !== undefined ? { torsion: updated.anguloTorsionA } : {})
+                            }
+                          }));
+                        }}
+                      />
+                    </div>
+
                     {formData.planilla1.levantamientoCarga ?
         <div className="bg-[rgba(59,_130,_246,_0.05)] border-[1px_solid_rgba(59,_130,_246,_0.15)] p-[1.8rem] rounded-[16px] mb-[2.5rem]">
                             <h4 className="m-[0_0_1.5rem_0] text-[1.1rem] font-[800] text-[var(--color-text)]">Levantamiento de Cargas</h4>

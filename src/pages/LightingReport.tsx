@@ -24,6 +24,7 @@ import { Search } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
 import { ModuleActionBar } from '../components/module';
 import { evaluateLightingLevel } from '../utils/hygieneCalculators';
+import LightingCalculatorWidget from '../components/LightingCalculatorWidget';
 const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '0.85rem 1.2rem',
@@ -524,7 +525,13 @@ export default function LightingReport(): React.ReactElement | null {
 
             <main className="p-[2rem_1.5rem] max-w-[1000px] m-[0_auto]">
                 <div className="mb-6">
-                    <></>
+                    <LightingCalculatorWidget
+                      luxRequerido={formData.luxRequerido}
+                      mediciones={formData.mediciones as any}
+                      onConclusionGenerated={(conclusionText) => {
+                        setFormData(prev => ({ ...prev, conclusion: conclusionText }));
+                      }}
+                    />
                 </div>
 
             {showShare &&

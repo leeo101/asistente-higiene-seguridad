@@ -1,5 +1,121 @@
 // Calculadores de Higiene Industrial y Evaluación de Normativas (Res. SRT 295/03, 30/2023, Dec. 351/79 Anexo IV)
 
+export interface HearingProtectorItem {
+  id: string;
+  brand: string;
+  model: string;
+  type: 'earplugs' | 'earmuffs' | 'dual';
+  nrr: number;
+  snr: number;
+}
+
+export const COMMERCIAL_HEARING_PROTECTORS: HearingProtectorItem[] = [
+  { id: '3m_1110', brand: '3M', model: '1110 / 1100 (Tapón de Espuma)', type: 'earplugs', nrr: 29, snr: 37 },
+  { id: '3m_1270', brand: '3M', model: '1270 (Tapón de Silicona Reutilizable)', type: 'earplugs', nrr: 25, snr: 25 },
+  { id: '3m_peltor_opt105', brand: '3M Peltor', model: 'Optime 105 (Orejera Copa)', type: 'earmuffs', nrr: 30, snr: 35 },
+  { id: '3m_peltor_x4a', brand: '3M Peltor', model: 'X4A (Orejera Alta Atenuación)', type: 'earmuffs', nrr: 27, snr: 33 },
+  { id: 'libus_l340', brand: 'Libus', model: 'L-340 (Tapón de Espuma)', type: 'earplugs', nrr: 32, snr: 36 },
+  { id: 'libus_l300', brand: 'Libus', model: 'L-300 (Orejera Copa)', type: 'earmuffs', nrr: 26, snr: 29 },
+  { id: 'moldex_spark', brand: 'Moldex', model: 'SparkPlugs (Tapón de Espuma)', type: 'earplugs', nrr: 33, snr: 35 },
+  { id: 'msa_left_right', brand: 'MSA', model: 'Left/Right High (Orejera)', type: 'earmuffs', nrr: 28, snr: 31 },
+  { id: 'dual_standard', brand: 'Genérico', model: 'Protección Dual (Tapón NRR 29 + Orejera NRR 25)', type: 'dual', nrr: 34, snr: 39 }
+];
+
+export interface DetailedNoiseAttenuationResult {
+  originalLeq: number;
+  effectiveLeq: number;
+  attenuationDb: number;
+  protectionRating: 'sobreproteccion' | 'optima' | 'aceptable' | 'insuficiente';
+  noiseDosePercent: number;
+  methodUsed: 'nrr_osha' | 'snr_iso';
+  isDual: boolean;
+  effectiveNrr: number;
+  message: string;
+  recommendation: string;
+}
+
+export function calculateAdvancedNoiseAttenuation(
+  leq: number,
+  nrr: number = 0,
+  snr: number = 0,
+  exposureHours: number = 8,
+  method: 'nrr_osha' | 'snr_iso' = 'nrr_osha',
+  isDual: boolean = false,
+  secondaryNrr: number = 0
+): DetailedNoiseAttenuationResult {
+  if (!leq || leq <= 0) {
+    return {
+      originalLeq: 0,
+      effectiveLeq: 0,
+      attenuationDb: 0,
+      protectionRating: 'optima',
+      noiseDosePercent: 0,
+      methodUsed: method,
+      isDual,
+      effectiveNrr: 0,
+      message: 'Ingrese el nivel Leq en dBA para evaluar la atenuación del EPP.',
+      recommendation: 'A la espera de datos de medición.'
+    };
+  }
+
+  // NRR Dual calculation according to OSHA standard: max(NRR1, NRR2) + 5
+  let effectiveNrr = nrr;
+  if (isDual) {
+    const mainNrr = Math.max(nrr, secondaryNrr);
+    effectiveNrr = mainNrr + 5;
+  }
+
+  let attenuationDb = 0;
+  if (method === 'nrr_osha') {
+    // OSHA / Res SRT 295/03 formula: Derating = (NRR - 7) / 2
+    attenuationDb = effectiveNrr > 7 ? (effectiveNrr - 7) / 2 : 0;
+  } else {
+    // ISO 4869-2 SNR formula with 3 dB safety derating factor
+    attenuationDb = snr > 3 ? (snr - 3) : 0;
+  }
+
+  const effectiveLeq = Math.max(0, parseFloat((leq - attenuationDb).toFixed(1)));
+
+  // Calculate Noise Dose Percentage: Dose% = (T / 8) * 10^((Leq_efectivo - 85)/10) * 100
+  const doseRatio = (exposureHours / 8) * Math.pow(10, (effectiveLeq - 85) / 10);
+  const noiseDosePercent = parseFloat((doseRatio * 100).toFixed(1));
+
+  let protectionRating: 'sobreproteccion' | 'optima' | 'aceptable' | 'insuficiente' = 'optima';
+  let message = '';
+  let recommendation = '';
+
+  if (effectiveLeq < 70) {
+    protectionRating = 'sobreproteccion';
+    message = `⚠️ SOBREPROTECCIÓN AUDITIVA: Nivel efectivo en oído = ${effectiveLeq} dB(A).`;
+    recommendation = 'La atenuación es excesiva (<70 dBA). Puede dificultar la comunicación verbal y la audición de alarmas de emergencia. Se sugiere un EPP con menor NRR (18-24 dB).';
+  } else if (effectiveLeq <= 79.9) {
+    protectionRating = 'optima';
+    message = `🟢 PROTECCIÓN ÓPTIMA: Nivel efectivo en oído = ${effectiveLeq} dB(A) (Dosis diaria: ${noiseDosePercent}%).`;
+    recommendation = 'El EPP auditivo brinda un nivel de confort y protección idóneo (rango ideal 70-79 dBA).';
+  } else if (effectiveLeq <= 84.9) {
+    protectionRating = 'aceptable';
+    message = `🟡 PROTECCIÓN ACEPTABLE / NIVEL DE ACCIÓN: Nivel efectivo en oído = ${effectiveLeq} dB(A).`;
+    recommendation = 'Protección adecuada dentro del límite preventivo. Se sugiere mantener inspección periódica de los protectores.';
+  } else {
+    protectionRating = 'insuficiente';
+    message = `🔴 PROTECCIÓN INSUFICIENTE: Nivel efectivo en oído = ${effectiveLeq} dB(A) excede los 85 dB(A).`;
+    recommendation = 'El EPP provisto no atenúa lo suficiente el ruido del sector. Se requiere un protector de mayor NRR (≥29 dB) o implementar Doble Protección (Tapón + Orejera).';
+  }
+
+  return {
+    originalLeq: leq,
+    effectiveLeq,
+    attenuationDb: parseFloat(attenuationDb.toFixed(1)),
+    protectionRating,
+    noiseDosePercent,
+    methodUsed: method,
+    isDual,
+    effectiveNrr,
+    message,
+    recommendation
+  };
+}
+
 export interface NoiseEvaluationResult {
   status: 'normal' | 'warning' | 'exceeded' | 'peak_exceeded';
   effectiveLevel: number;
@@ -21,42 +137,40 @@ export function evaluateNoiseExposure(
     };
   }
 
-  // Atenuación efectiva del EPP (fórmula OSHA/ISO: Effective dBA = Lavg - ((NRR - 7) / 2))
-  const nrrDerating = hearingProtectionNrr > 7 ? (hearingProtectionNrr - 7) / 2 : 0;
-  const effectiveLevel = Math.max(0, parseFloat((lavg - nrrDerating).toFixed(1)));
-
+  const adv = calculateAdvancedNoiseAttenuation(lavg, hearingProtectionNrr);
+  
   if (lpeak >= 140) {
     return {
       status: 'peak_exceeded',
-      effectiveLevel,
+      effectiveLevel: adv.effectiveLeq,
       message: `🔴 NIVEL PICO CRÍTICO: ${lpeak} dBC (Límite Máximo Absoluto: 140 dBC).`,
       recommendation: 'Trabajo suspendido de inmediato. Requiere aislamiento acústico estructural y EPP dual obligatorio.'
     };
   }
 
-  if (effectiveLevel >= 85) {
+  if (adv.effectiveLeq >= 85) {
     return {
       status: 'exceeded',
-      effectiveLevel,
-      message: `🔴 RIESGO ELEVADO: Nivel efectivo de ${effectiveLevel} dB(A) excede el Límite Permisible (85 dB(A) / 8hs).`,
-      recommendation: 'Obligatorio el uso de protección auditiva de alto NRR (≥29 dB) o doble protección (Tapones + Orejeras), e ingresar al Programa de Conservación de la Audición (PCA).'
+      effectiveLevel: adv.effectiveLeq,
+      message: adv.message,
+      recommendation: adv.recommendation
     };
   }
 
-  if (effectiveLevel >= 80) {
+  if (adv.effectiveLeq >= 80) {
     return {
       status: 'warning',
-      effectiveLevel,
-      message: `⚠️ NIVEL DE ACCIÓN: Nivel efectivo de ${effectiveLevel} dB(A) (Nivel de Acción Preventivo 80-84 dB(A)).`,
-      recommendation: 'Se sugiere proveer protección auditiva voluntaria/preventiva y realizar audiometrías tonales periódicas.'
+      effectiveLevel: adv.effectiveLeq,
+      message: adv.message,
+      recommendation: adv.recommendation
     };
   }
 
   return {
     status: 'normal',
-    effectiveLevel,
-    message: `🟢 DENTRO DE NORMA: Nivel efectivo de ${effectiveLevel} dB(A) dentro de parámetros seguros (<80 dB(A)).`,
-    recommendation: 'No requiere EPP auditivo obligatorio para este nivel de exposición.'
+    effectiveLevel: adv.effectiveLeq,
+    message: adv.message,
+    recommendation: adv.recommendation
   };
 }
 

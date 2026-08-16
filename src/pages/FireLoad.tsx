@@ -27,6 +27,7 @@ import QRModal from '../components/QRModal';
 import FireLoadPdfGenerator from '../components/FireLoadPdfGenerator';
 import SignatureCanvas from '../components/SignatureCanvas';
 import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar, ModuleWizardFooter } from '../components/module';
+import FireLoadCalculatorWidget from '../components/FireLoadCalculatorWidget';
 
 function DeleteConfirm({ onConfirm, onCancel }: any) {
   return (
@@ -671,6 +672,16 @@ return (
 
                     <div className="flex flex-col lg:flex-row gap-6 items-start">
                         <div className="flex flex-col gap-6 flex-1 w-full">
+                            <div className="no-print">
+                              <FireLoadCalculatorWidget
+                                superficie={formData.superficie}
+                                riesgo={formData.riesgo as any}
+                                materiales={formData.materiales}
+                                onConclusionGenerated={(memoria) => {
+                                  setFormData(prev => ({ ...prev, conclusion: memoria }));
+                                }}
+                              />
+                            </div>
                             
                             <ModuleFormSection title="Datos del Sector de Incendio" icon={<Building2 size={20} className="text-orange-500" />}>
                             <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -11,6 +11,7 @@ import ShareModal from '../components/ShareModal';
 import TrainingPdfGenerator from '../components/TrainingPdfGenerator';
 import TrainingExamPdfGenerator from '../components/TrainingExamPdfGenerator';
 import TrainingScannerModal, { ExtractedTrainingData } from '../components/TrainingScannerModal';
+import TrainingExamAiGeneratorModal, { GeneratedExamData } from '../components/TrainingExamAiGeneratorModal';
 
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
@@ -154,6 +155,8 @@ export default function TrainingManagement(): React.ReactElement | null {
   const [printType, setPrintType] = useState<'asistencia' | 'examen'>('asistencia');
   const [showExamForm, setShowExamForm] = useState(false);
   const [selectedTipoFilter, setSelectedTipoFilter] = useState<string>('todos');
+  const [showAiExamModal, setShowAiExamModal] = useState(false);
+  const [aiExamTopic, setAiExamTopic] = useState('');
 
   const initialFormState = {
     tema: '',
@@ -477,6 +480,17 @@ export default function TrainingManagement(): React.ReactElement | null {
       accessor: 'id',
       render: (item: any) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          <button 
+            onClick={() => {
+              setAiExamTopic(item.tema);
+              setSelectedTraining(item);
+              setShowAiExamModal(true);
+            }} 
+            title="Generar Examen con IA" 
+            style={{ backgroundColor: '#8b5cf6', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Sparkles size={12} /> Examen IA
+          </button>
+
           <button 
             onClick={() => handleEdit(item)} 
             title="Ver / Editar Capacitación" 
@@ -996,6 +1010,25 @@ export default function TrainingManagement(): React.ReactElement | null {
         isOpen={isScannerModalOpen}
         onClose={() => setIsScannerModalOpen(false)}
         onApplyData={handleApplyScannedData}
+      />
+
+      <TrainingExamAiGeneratorModal
+        isOpen={showAiExamModal}
+        onClose={() => setShowAiExamModal(false)}
+        initialTopic={aiExamTopic || formData.tema}
+        initialObjective={formData.objetivo}
+        onSaveExam={(exam) => {
+          setFormData((prev: any) => ({
+            ...prev,
+            preguntas: exam.questions.map(q => ({
+              texto: q.question,
+              opciones: q.options,
+              respuestaCorrecta: q.correctAnswerIndex,
+              justificacion: q.justification
+            }))
+          }));
+          toast.success(`Examen de ${exam.questions.length} preguntas asignado a la capacitación`);
+        }}
       />
     </AnimatedPage>
   );

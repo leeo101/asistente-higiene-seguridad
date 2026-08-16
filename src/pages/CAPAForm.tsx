@@ -16,6 +16,7 @@ import {
   ModuleWizardFooter,
 } from '../components/module';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import RootCauseAnalyzer from '../components/RootCauseAnalyzer';
 
 const CAPA_TYPES = [
 { id: 'corrective', name: 'Correctiva', icon: '🔧' },
@@ -297,65 +298,58 @@ export default function CAPAForm(): React.ReactElement | null {
             
                     </div>
 
-                    <div className="mt-[3rem] pt-[2rem] border-top-[1px_solid_var(--glass-border-subtle)]">
-                        <div className="flex items-center justify-between mb-[1.5rem] flex-wrap gap-[1rem]">
-                            <h3 className="m-[0] text-[1.25rem] font-[900] text-[var(--color-primary-light)] flex items-center gap-[0.5rem] letter-spacing-[0.5px]">
-                                <Clock size={20} /> ANÁLISIS DE CAUSA RAÍZ
-                            </h3>
-                            <select
-                value={capa.rootCauseMethod}
-                onChange={(e) => setCapa({ ...capa, rootCauseMethod: e.target.value })} className="p-[0.5rem_1rem] rounded-[10px] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.85rem] font-[700]">
-
-                
-                                <option value="5why">5 Porqués</option>
-                                <option value="ishikawa">Diagrama de Ishikawa</option>
-                            </select>
-                        </div>
-                        
-                        {capa.rootCauseMethod === '5why' ?
-            <div className="capa-why-container">
-                                <div className="capa-why-timeline" />
-                                {[1, 2, 3, 4, 5].map((num) =>
-              <div key={num} className="capa-why-node">
-                                        <div className="capa-why-badge">{num}</div>
-                                        <div className="flex flex-col gap-[0.25rem] w-[100%]">
-                                            <label className="text-[0.75rem] font-[800] text-[var(--color-text-muted)] uppercase">
-                                                {num}° Porqué
-                                            </label>
-                                            <input
-                    type="text"
-                    value={(capa.rootCause as any)[`why${num}`] || ''}
-                    onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, [`why${num}`]: e.target.value } })}
-                    className="module-form-input"
-                    placeholder={`¿Por qué ocurrió el paso anterior?`} />
-                  
-                                        </div>
-                                    </div>
-              )}
-                            </div> :
-
-            <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem] bg-[rgba(255,255,255,0.02)] p-[1.5rem] rounded-[1rem] border-[1px_solid_var(--glass-border)]">
-                                {[
-              { id: 'manpower', label: 'Mano de Obra', placeholder: 'Personal, capacitación, actitud...' },
-              { id: 'method', label: 'Método', placeholder: 'Procedimientos, instrucciones...' },
-              { id: 'machine', label: 'Máquina', placeholder: 'Equipos, herramientas...' },
-              { id: 'material', label: 'Material', placeholder: 'Insumos, repuestos...' },
-              { id: 'measurement', label: 'Medición', placeholder: 'Instrumentos, controles...' },
-              { id: 'environment', label: 'Medio Ambiente', placeholder: 'Lugar de trabajo, clima...' }].
-              map((cat) =>
-              <div key={cat.id} className="flex flex-col gap-[0.5rem]">
-                                        <label className="text-[0.8rem] font-[800] text-[var(--color-primary)] uppercase">{cat.label}</label>
-                                        <input
-                  type="text"
-                  value={(capa.rootCause.ishikawa as any)?.[cat.id] || ''}
-                  onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, ishikawa: { ...(capa.rootCause.ishikawa || {}), [cat.id]: e.target.value } as any } })}
-                  className="module-form-input"
-                  placeholder={cat.placeholder} />
-                
-                                    </div>
-              )}
-                            </div>
-            }
+                    <div className="mt-8">
+                        <RootCauseAnalyzer
+                          problemStatement={capa.description}
+                          initialData={{
+                            method: (capa.rootCauseMethod as any) || '5why',
+                            whys: [
+                              (capa.rootCause as any)?.why1 || '',
+                              (capa.rootCause as any)?.why2 || '',
+                              (capa.rootCause as any)?.why3 || '',
+                              (capa.rootCause as any)?.why4 || '',
+                              (capa.rootCause as any)?.why5 || ''
+                            ],
+                            ishikawa: {
+                              manpower: typeof (capa.rootCause?.ishikawa as any)?.manpower === 'string' 
+                                ? [(capa.rootCause?.ishikawa as any)?.manpower].filter(Boolean)
+                                : (capa.rootCause?.ishikawa as any)?.manpower || [],
+                              methodology: typeof (capa.rootCause?.ishikawa as any)?.method === 'string'
+                                ? [(capa.rootCause?.ishikawa as any)?.method].filter(Boolean)
+                                : (capa.rootCause?.ishikawa as any)?.methodology || [],
+                              machinery: typeof (capa.rootCause?.ishikawa as any)?.machine === 'string'
+                                ? [(capa.rootCause?.ishikawa as any)?.machine].filter(Boolean)
+                                : (capa.rootCause?.ishikawa as any)?.machinery || [],
+                              materials: typeof (capa.rootCause?.ishikawa as any)?.material === 'string'
+                                ? [(capa.rootCause?.ishikawa as any)?.material].filter(Boolean)
+                                : (capa.rootCause?.ishikawa as any)?.materials || [],
+                              measurement: typeof (capa.rootCause?.ishikawa as any)?.measurement === 'string'
+                                ? [(capa.rootCause?.ishikawa as any)?.measurement].filter(Boolean)
+                                : (capa.rootCause?.ishikawa as any)?.measurement || [],
+                              environment: typeof (capa.rootCause?.ishikawa as any)?.environment === 'string'
+                                ? [(capa.rootCause?.ishikawa as any)?.environment].filter(Boolean)
+                                : (capa.rootCause?.ishikawa as any)?.environment || []
+                            },
+                            rootCauseSummary: (capa.rootCause as any)?.finalCause || ''
+                          }}
+                          onChange={(rcaData) => {
+                            setCapa((prev: any) => ({
+                              ...prev,
+                              rootCauseMethod: rcaData.method,
+                              rootCause: {
+                                ...prev.rootCause,
+                                why1: rcaData.whys[0] || '',
+                                why2: rcaData.whys[1] || '',
+                                why3: rcaData.whys[2] || '',
+                                why4: rcaData.whys[3] || '',
+                                why5: rcaData.whys[4] || '',
+                                ishikawa: rcaData.ishikawa,
+                                finalCause: rcaData.rootCauseSummary
+                              }
+                            }));
+                          }}
+                        />
+                    </div>
                         
                         <div className="capa-why-node capa-why-final-container mt-[1.5rem] p-[1.25rem]">
                             <div className="flex items-center gap-[0.5rem] mb-[0.75rem]">
@@ -368,10 +362,8 @@ export default function CAPAForm(): React.ReactElement | null {
                 onChange={(e) => setCapa({ ...capa, rootCause: { ...capa.rootCause, finalCause: e.target.value } })}
                 className="module-form-input"
                 placeholder="La causa fundamental identificada es..." />
-              
                         </div>
                     </div>
-                </div>
             </ModuleFormSection>
 
             <ModuleFormSection title="Plan de Acción y Verificación" icon={<Target />}>

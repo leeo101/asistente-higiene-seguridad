@@ -12,6 +12,7 @@ import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
 import { validateWorkerMedicalStatus } from '../utils/workerValidation';
+import WorkerMedicalChecker from '../components/WorkerMedicalChecker';
 
 const ENERGY_TYPES = [
 { id: 'electrical', name: 'Eléctrica', icon: '⚡', color: '#fbbf24' },
@@ -286,28 +287,14 @@ export default function LOTOForm(): React.ReactElement | null {
                         <input type="text" value={procedure.department} onChange={(e) => setProcedure({ ...procedure, department: e.target.value })} className="input-professional" placeholder="Ej: Mantenimiento" />
                     </div>
                     <div style={isMobile ? {} : { gridColumn: 'span 3' }}>
-                        <label className="block mb-2 text-sm font-semibold text-slate-400">Supervisor / Responsable LOTO *</label>
-                        <input type="text" value={procedure.supervisor} onChange={(e) => setProcedure({ ...procedure, supervisor: e.target.value })} className="input-professional" placeholder="Nombre completo o DNI" />
-                        {procedure.supervisor && procedure.supervisor.trim().length > 1 && (() => {
-                          const med = validateWorkerMedicalStatus(procedure.supervisor, 'electrical');
-                          return (
-                            <div style={{
-                              marginTop: '0.5rem',
-                              padding: '0.6rem 0.9rem',
-                              borderRadius: '10px',
-                              fontSize: '0.82rem',
-                              fontWeight: 700,
-                              background: med.status === 'apto' ? 'rgba(16, 185, 129, 0.12)' : med.status === 'vencido' || med.status === 'no_apto' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(245, 158, 11, 0.12)',
-                              border: `1px solid ${med.status === 'apto' ? '#10b981' : med.status === 'vencido' || med.status === 'no_apto' ? '#ef4444' : '#f59e0b'}`,
-                              color: med.status === 'apto' ? '#047857' : med.status === 'vencido' || med.status === 'no_apto' ? '#b91c1c' : '#b45309',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.5rem'
-                            }}>
-                              {med.message}
-                            </div>
-                          );
-                        })()}
+                        <WorkerMedicalChecker
+                          value={procedure.supervisor}
+                          riskType="electrical"
+                          label="Supervisor / Responsable LOTO *"
+                          placeholder="Nombre completo o DNI..."
+                          required={true}
+                          onChange={(val) => setProcedure((prev: any) => ({ ...prev, supervisor: val }))}
+                        />
                     </div>
                 </div>
             </ModuleFormSection>

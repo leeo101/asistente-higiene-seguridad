@@ -5,7 +5,7 @@ import html2canvas from 'html2canvas';
 import {
   ArrowLeft, Save, Trash2, Printer, Image as ImageIcon,
   ZoomIn, ZoomOut, Download, Share2, Eye, EyeOff,
-  Maximize2, HelpCircle, Layers, MousePointer2, Move, Map as MapIcon } from
+  Maximize2, HelpCircle, Layers, MousePointer2, Move, Map as MapIcon, Sparkles } from
 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import RiskMapPdfGenerator from '../components/RiskMapPdfGenerator';
@@ -20,6 +20,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
 import { SAFETY_ICONS } from '../data/mapIcons';
 import PremiumHeader from '../components/PremiumHeader';
+import RiskMapTemplateSelectorModal, { PlanElement } from '../components/RiskMapTemplateSelectorModal';
 
 // ─── Layer helpers ─────────────────────────────────────────────────────────
 const getLayer = (el) => {
@@ -72,6 +73,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [showShareModal, setShowShareModal] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
 
   // ─── Panning state ───────────────────────────────────────────────────────
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
@@ -544,7 +546,13 @@ export default function RiskMapGenerator(): React.ReactElement | null {
         
 
                 <div className="flex justify-between items-center flex-wrap gap-4">
-                    <></>
+                    <button 
+                      onClick={() => setShowTemplateModal(true)} 
+                      style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none' }}
+                      className="px-4 py-2.5 rounded-xl font-extrabold text-xs shadow-md flex items-center gap-2 cursor-pointer transition-transform hover:-translate-y-0.5"
+                    >
+                        <Sparkles size={16} /> Cargar Plantilla de Sector
+                    </button>
                     
                     <button onClick={clearCanvas} className="btn-outline hover-lift flex items-center gap-2 m-0 px-4 py-2 border border-red-500/30 text-red-500 rounded-xl font-bold">
                         <Trash2 size={16} /> Borrar Todo
@@ -1069,6 +1077,16 @@ export default function RiskMapGenerator(): React.ReactElement | null {
             <div className="print-only">
                 <RiskMapPdfGenerator data={{ ...meta, elements, backgroundImage }} onBack={() => {}} onShare={() => setShowShareModal(true)} />
             </div>
+
+            <RiskMapTemplateSelectorModal
+              isOpen={showTemplateModal}
+              onClose={() => setShowTemplateModal(false)}
+              onSelectTemplate={(tmplElements, tmplMeta) => {
+                setElements(tmplElements as any);
+                setMeta(prev => ({ ...prev, sector: tmplMeta.sector, empresa: prev.empresa || tmplMeta.name }));
+                addToHistory(tmplElements);
+              }}
+            />
         </div>);
 
 }

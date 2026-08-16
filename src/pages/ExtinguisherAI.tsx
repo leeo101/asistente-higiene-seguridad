@@ -17,6 +17,7 @@ import PremiumHeader from '../components/PremiumHeader';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { useAuth } from '../contexts/AuthContext';
 import { getErrorMessage } from '../utils/errorUtils';
+import ExtinguisherManometerAnalyzer, { ManometerAnalysisResult } from '../components/ExtinguisherManometerAnalyzer';
 
 // Tipos de extintores y sus características
 const EXTINTOR_INFO = {
@@ -555,7 +556,21 @@ export default function ExtinguisherAI() {
             
                         
                         <div className="mt-[1.5rem] mb-[1.5rem] z-[10]">
-                            <></>
+                            <ExtinguisherManometerAnalyzer
+                              onCancel={() => setIsCameraVisible(false)}
+                              onAnalysisComplete={(res, img) => {
+                                setCapturedImage(img);
+                                setAnalysisResult({
+                                  extinguisherDetected: true,
+                                  type: res.type,
+                                  status: res.expirationStatus,
+                                  manometerStatus: res.manometerStatus,
+                                  manometerMessage: res.manometerMessage,
+                                  confidence: res.confidenceScore / 100,
+                                  recommendations: res.recommendations
+                                } as any);
+                              }}
+                            />
                         </div>
                     </div>
 

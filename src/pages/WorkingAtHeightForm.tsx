@@ -12,6 +12,7 @@ import PremiumHeader from '../components/PremiumHeader';
 import AnimatedPage from '../components/AnimatedPage';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { ModuleFormSection, ModuleActionBar } from '../components/module';
+import WorkerMedicalChecker from '../components/WorkerMedicalChecker';
 import { validateWorkerMedicalStatus } from '../utils/workerValidation';
 
 const WORK_TYPES = [
@@ -141,6 +142,17 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
       return;
     }
 
+    const medVal = validateWorkerMedicalStatus(permit.workerName, 'height');
+    if (!medVal.isValid) {
+      if (medVal.status === 'no_apto') {
+        toast.error(`⚠️ ATENCIÓN: ${permit.workerName} tiene dictamen NO APTO. Se requiere autorización médica especial para continuar.`);
+      } else if (medVal.status === 'vencido') {
+        toast.error(`⚠️ ATENCIÓN: El apto médico de ${permit.workerName} se encuentra VENCIDO.`);
+      } else if (medVal.status === 'sin_permiso_especifico') {
+        toast.error(`⚠️ ATENCIÓN: ${permit.workerName} no cuenta con habilitación explícita para Trabajo en Altura.`);
+      }
+    }
+
     const saved = JSON.parse(localStorage.getItem('working_height_permits_db') || '[]');
     let updated;
 
@@ -229,36 +241,18 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
           <ModuleFormSection title="Información General" icon={<User size={20} />}>
                     <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem]">
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Nombre o DNI del Trabajador *</label>
-                            <input type="text" value={permit.workerName} onChange={(e) => {
-                              const newName = e.target.value;
-                              const val = validateWorkerMedicalStatus(newName, 'height');
-                              setPermit((prev: any) => ({
-                                ...prev,
-                                workerName: newName,
-                                medicalFitness: val.status === 'apto' ? true : prev.medicalFitness
-                              }));
-                            }} className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" placeholder="Nombre completo o DNI" />
-                            {permit.workerName && permit.workerName.trim().length > 1 && (() => {
-                              const med = validateWorkerMedicalStatus(permit.workerName, 'height');
-                              return (
-                                <div style={{
-                                  marginTop: '0.5rem',
-                                  padding: '0.6rem 0.9rem',
-                                  borderRadius: '10px',
-                                  fontSize: '0.82rem',
-                                  fontWeight: 700,
-                                  background: med.status === 'apto' ? 'rgba(16, 185, 129, 0.12)' : med.status === 'vencido' || med.status === 'no_apto' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(245, 158, 11, 0.12)',
-                                  border: `1px solid ${med.status === 'apto' ? '#10b981' : med.status === 'vencido' || med.status === 'no_apto' ? '#ef4444' : '#f59e0b'}`,
-                                  color: med.status === 'apto' ? '#047857' : med.status === 'vencido' || med.status === 'no_apto' ? '#b91c1c' : '#b45309',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '0.5rem'
-                                }}>
-                                  {med.message}
-                                </div>
-                              );
-                            })()}
+                            <WorkerMedicalChecker
+                              value={permit.workerName}
+                              riskType="height"
+                              required={true}
+                              onChange={(name, validation) => {
+                                setPermit((prev: any) => ({
+                                  ...prev,
+                                  workerName: name,
+                                  medicalFitness: validation.status === 'apto' ? true : prev.medicalFitness
+                                }));
+                              }}
+                            />
                         </div>
                         <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
                             <label className="block mb-2 text-sm font-semibold text-slate-400">Tipo de Trabajo</label>
