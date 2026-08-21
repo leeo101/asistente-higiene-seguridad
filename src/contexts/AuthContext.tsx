@@ -13,6 +13,8 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { auth } from '../firebase';
 import { evaluateProAccess } from '../config/proAccountsRegistry';
 
+import { UserRole, RBACPermissions, getPermissionsForRole } from '../types/rbac';
+
 // Tipos
 interface PersonalData {
   name: string;
@@ -21,15 +23,21 @@ interface PersonalData {
   country: string;
   profileComplete: boolean;
   googleAccount: boolean;
+  role?: UserRole;
+  companyId?: string;
 }
 
 interface AuthContextType {
   currentUser: User | null;
+  userRole: UserRole;
+  companyId: string;
+  permissions: RBACPermissions;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   deleteAccount: () => Promise<void>;
+  updateUserRole: (newRole: UserRole, newCompanyId?: string) => void;
 }
 
 // Crear contexto con tipo
@@ -44,6 +52,19 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
+// Hook helper para RBAC
+export const useRBAC = () => {
+  const { userRole, permissions, companyId } = useAuth();
+  return {
+    role: userRole,
+    permissions,
+    companyId,
+    hasPermission: (permissionName: keyof RBACPermissions): boolean => {
+      return !!permissions[permissionName];
+    }
+  };
+};
+
 // Props del Provider
 interface AuthProviderProps {
   children: ReactNode;
@@ -52,6 +73,45 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // RBAC State
+  const [userRole, setUserRole] = useState<UserRole>(() => {
+    try {
+      const saved = localStorage.getItem('personalData');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.role) return parsed.role;
+      }
+    } catch (e) {}
+    return 'superadmin'; // Default role for existing single-user accounts
+  });
+
+  const [companyId, setCompanyId] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem('personalData');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.companyId) return parsed.companyId;
+      }
+    } catch (e) {}
+    return 'default_company';
+  });
+
+  const permissions = getPermissionsForRole(userRole);
+
+  const updateUserRole = (newRole: UserRole, newCompanyId?: string) => {
+    setUserRole(newRole);
+    if (newCompanyId) {
+      setCompanyId(newCompanyId);
+    }
+    try {
+      const saved = localStorage.getItem('personalData');
+      const parsed = saved ? JSON.parse(saved) : {};
+      parsed.role = newRole;
+      if (newCompanyId) parsed.companyId = newCompanyId;
+      localStorage.setItem('personalData', JSON.stringify(parsed));
+    } catch (e) {}
+  };
 
   const signup = async (email: string, password: string, name: string): Promise<void> => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -82,7 +142,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         photo: photoURL,
         country: 'argentina',
         profileComplete: false,
-        googleAccount: true
+        googleAccount: true,
+        role: userRole,
+        companyId: companyId
       };
       localStorage.setItem('personalData', JSON.stringify(personalData));
     }
@@ -205,11 +267,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value: AuthContextType = {
     currentUser,
+    userRole,
+    companyId,
+    permissions,
     login,
     signup,
     signInWithGoogle,
     logout,
-    deleteAccount
+    deleteAccount,
+    updateUserRole
   };
 
   return (

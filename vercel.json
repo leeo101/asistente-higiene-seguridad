@@ -87,6 +87,20 @@
             ]
         }
     ],
+    "redirects": [
+        {
+            "source": "/(.*)",
+            "has": [
+                {
+                    "type": "header",
+                    "key": "x-forwarded-proto",
+                    "value": "http"
+                }
+            ],
+            "permanent": true,
+            "destination": "https://asistentehs.com/$1"
+        }
+    ],
     "rewrites": [
         {
             "source": "/api/ai-advisor",

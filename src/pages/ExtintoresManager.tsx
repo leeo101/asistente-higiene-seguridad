@@ -26,6 +26,8 @@ import ExtinguisherPdfGenerator from '../components/ExtinguisherPdfGenerator';
 import ConfirmModal from '../components/ConfirmModal';
 import ExcelJS from 'exceljs';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { BulkImportModal } from '../components/BulkImportModal';
+import { ExtinguisherImportRow } from '../utils/dataImporterExporter';
 
 const formatType = (tipo: string) => {
   if (!tipo) return 'N/A';
@@ -46,6 +48,7 @@ export default function ExtintoresManager() {
   const [filterEmpresa, setFilterEmpresa] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [showTools, setShowTools] = useState(false);
+  const [showBulkImportModal, setShowBulkImportModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [qrData, setQrData] = useState(null);
   const [showQrModal, setShowQrModal] = useState(false);
@@ -283,6 +286,25 @@ export default function ExtintoresManager() {
       if (fileInputRef.current) fileInputRef.current.value = '';
     };
     reader.readAsArrayBuffer(file);
+  };
+
+  const handleBulkImportConfirm = (items: ExtinguisherImportRow[]) => {
+    const nuevos = items.map((item, idx) => ({
+      id: Date.now().toString() + '_' + idx,
+      numero: item.code,
+      tipo: item.type,
+      capacidad: item.capacity,
+      ubicacion: item.location,
+      vencimientoRecarga: item.expirationDate,
+      estadoFisico: item.status,
+      empresa: filterEmpresa || 'Planta Principal',
+      syncStatus: 'pending'
+    }));
+
+    const updated = [...extintores, ...nuevos];
+    setExtintores(updated as any);
+    localStorage.setItem('extinguishers_inventory', JSON.stringify(updated));
+    if (syncCollection) syncCollection('extinguishers_inventory', updated);
   };
 
   useEffect(() => {
@@ -1430,10 +1452,9 @@ export default function ExtintoresManager() {
                             </div>
                             
                             <div className="tool-item">
-                                <label className="action-btn-premium btn-share m-0 w-full cursor-pointer">
+                                <button onClick={() => setShowBulkImportModal(true)} className="action-btn-premium btn-share m-0 w-full cursor-pointer">
                                     <UploadCloud size={16} /> IMPORTAR
-                                    <input type="file" accept=".xlsx, .xls" className="hidden" ref={fileInputRef} onChange={handleExcelImport} />
-                                </label>
+                                </button>
                                 <span className="tool-desc">Cargar datos<br/>masivamente</span>
                             </div>
                             
@@ -1614,9 +1635,14 @@ export default function ExtintoresManager() {
                             <QrCode size={18} /> DESCARGAR IMAGEN QR
                         </button>
                     </div>
-                </div>
-            </div>, document.body)
+                    </div>
+                </div>, document.body)
       }
-        </div>);
-
+      <BulkImportModal
+        isOpen={showBulkImportModal}
+        onClose={() => setShowBulkImportModal(false)}
+        onImportConfirmed={handleBulkImportConfirm}
+      />
+    </div>
+  );
 }

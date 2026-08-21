@@ -7,17 +7,19 @@ interface PdfBrandingFooterProps {
     verificationUrl?: string;
     signedBy?: string;
     timestamp?: string;
+    hash?: string;
 }
 
 /**
- * PdfBrandingFooter – Pie de página legal y de marca con código QR de verificación de autenticidad.
+ * PdfBrandingFooter – Pie de página legal y de marca con código QR de verificación de autenticidad y Hash SHA-256.
  */
 export default function PdfBrandingFooter({
     documentId,
     documentType,
     verificationUrl,
     signedBy,
-    timestamp
+    timestamp,
+    hash
 }: PdfBrandingFooterProps) {
     const baseUrl = typeof window !== 'undefined' && window.location.origin 
         ? window.location.origin 
@@ -197,6 +199,7 @@ export default function PdfBrandingFooter({
                 </div>
                 <div className="pdf-doc-meta">
                     {documentId && <span>ID: {documentId} | </span>}
+                    {hash && <span title={hash}>SHA-256: {hash.substring(0, 16).toUpperCase()}... | </span>}
                     {signedBy && <span>Firmado: {signedBy} | </span>}
                     <span>Emisión: {formattedDate}</span>
                 </div>

@@ -66,11 +66,22 @@ const app = express();
 
 app.use(compression());
 
-// Additional Security & Isolation Headers Middleware
+// Force HTTPS Redirection in production
 app.use((req, res, next) => {
+    if (req.headers['x-forwarded-proto'] && req.headers['x-forwarded-proto'] === 'http' && process.env.NODE_ENV === 'production') {
+        return res.redirect(301, `https://${req.headers.host}${req.url}`);
+    }
+    next();
+});
+
+// Additional Security & Isolation Headers Middleware (XSS & HTTPS enforcement)
+app.use((req, res, next) => {
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
     res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
     next();
 });
 
@@ -89,10 +100,11 @@ app.use(helmet({
             "media-src": ["'self'", "blob:"],
             "object-src": ["'none'"],
             "base-uri": ["'self'"],
-            "form-action": ["'self'"]
+            "form-action": ["'self'", "https:"],
+            "upgrade-insecure-requests": []
         }
     },
-    crossOriginEmbedderPolicy: false, // Often needed for Firebase/Google assets
+    crossOriginEmbedderPolicy: false,
     referrerPolicy: { policy: "strict-origin-when-cross-origin" }
 }));
 

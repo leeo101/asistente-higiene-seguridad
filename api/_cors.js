@@ -34,6 +34,11 @@ export function isOriginAllowed(origin) {
 export function setCorsHeaders(req, res) {
   const origin = req.headers?.origin;
 
+  // Cabeceras globales de seguridad en respuestas API
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+
   if (!origin) {
     res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,GET,POST,PUT,DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Admin-Key');

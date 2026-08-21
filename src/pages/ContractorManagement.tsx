@@ -15,6 +15,7 @@ import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../config';
 import ConfirmModal from '../components/ConfirmModal';
+import { evaluateContractorStatus } from '../utils/contractorCompliance';
 
 // Interfaces
 export interface Contractor {
