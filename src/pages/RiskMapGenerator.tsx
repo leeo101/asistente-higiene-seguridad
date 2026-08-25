@@ -97,7 +97,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
   };
 
   // ─── Helpers ─────────────────────────────────────────────────────────────
-  const snap = (v) => isSnapToGrid ? Math.round(v / 20) * 20 : v;
+  const snap = (v) => isSnapToGrid ? Math.round(v / 2) * 2 : Math.round(v);
 
   const getCoords = (e) => {
     if (!containerRef.current) return { x: 0, y: 0 };
@@ -259,19 +259,41 @@ export default function RiskMapGenerator(): React.ReactElement | null {
     if (drawingShape) {
       const dx = drawingShape.endX - drawingShape.startX;
       const dy = drawingShape.endY - drawingShape.startY;
-      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
-        let type = 'arrow';
-        if (drawingShape.type === 'LINE') type = 'line';
-        if (drawingShape.type === 'RECTANGLE') type = 'rect';
-        if (drawingShape.type === 'CIRCLE') type = 'circle';
-        const color = SAFETY_ICONS[drawingShape.type]?.color || '#374151';
-        const newEl = {
-          id: Date.now(), type, color, strokeWidth: 3, lineStyle, opacity: 1,
-          startX: drawingShape.startX, startY: drawingShape.startY,
-          endX: drawingShape.endX, endY: drawingShape.endY
-        };
-        addToHistory([...elements, newEl]);
+      let startX = drawingShape.startX;
+      let startY = drawingShape.startY;
+      let endX = drawingShape.endX;
+      let endY = drawingShape.endY;
+
+      // Si fue solo un clic (sin arrastrar más de 5px), creamos una figura por defecto centrada donde hizo clic
+      if (Math.abs(dx) <= 5 && Math.abs(dy) <= 5) {
+        if (drawingShape.type === 'ARROW_LINE' || drawingShape.type === 'LINE') {
+          startX = drawingShape.startX - 40;
+          endX = drawingShape.startX + 40;
+          startY = drawingShape.startY;
+          endY = drawingShape.startY;
+        } else if (drawingShape.type === 'RECTANGLE') {
+          startX = drawingShape.startX - 50;
+          startY = drawingShape.startY - 30;
+          endX = drawingShape.startX + 50;
+          endY = drawingShape.startY + 30;
+        } else if (drawingShape.type === 'CIRCLE') {
+          startX = drawingShape.startX - 40;
+          startY = drawingShape.startY - 40;
+          endX = drawingShape.startX + 40;
+          endY = drawingShape.startY + 40;
+        }
       }
+
+      let type = 'arrow';
+      if (drawingShape.type === 'LINE') type = 'line';
+      if (drawingShape.type === 'RECTANGLE') type = 'rect';
+      if (drawingShape.type === 'CIRCLE') type = 'circle';
+      const color = SAFETY_ICONS[drawingShape.type]?.color || '#374151';
+      const newEl = {
+        id: Date.now(), type, color, strokeWidth: 3, lineStyle, opacity: 1,
+        startX, startY, endX, endY
+      };
+      addToHistory([...elements, newEl]);
       setDrawingShape(null);
     }
     setIsDragging(false);
@@ -616,10 +638,10 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                 </div>
 
                 {/* ─── Main 3-column layout ─── */}
-                <div className="flex gap-[1rem] min-h-[680px] flex-wrap w-[100%]">
+                <div className="flex gap-3 min-h-[720px] flex-wrap md:flex-nowrap w-full">
 
-                    {/* ── LEFT SIDEBAR ── */}
-                    <div className="card flex-auto min-w-[250px] max-w-full p-0 flex flex-col overflow-hidden m-0" style={{ background: 'var(--color-surface)' }}>
+                    {/* ── LEFT SIDEBAR (Ultra Compact 210px) ── */}
+                    <div className="card flex-none w-full md:w-[210px] md:min-w-[210px] md:max-w-[210px] p-0 flex flex-col overflow-hidden m-0" style={{ background: 'var(--color-surface)' }}>
                         {/* Tab bar — modern pill style */}
                         <div className="flex p-2 gap-1" style={{ background: 'var(--color-background)', borderBottom: '1px solid var(--color-border)' }}>
                             {([['icons', '🎨 Íconos'], ['layers', '☰ Capas'], ['help', '❓ Ayuda']] as [string, string][]).map(([id, label]) =>
@@ -754,7 +776,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                   }
                                     </div>
 
-                                    {/* Icon Library — improved with colored badge */}
+                                    {/* Icon Library — compact 6-column grid */}
                                     {Object.entries(categories).map(([cat, icons]) => {
                                       const catColors: Record<string, string> = {
                                         'Estructura': '#475569',
@@ -765,31 +787,32 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                                       };
                                       const catColor = catColors[cat] || '#64748b';
                                       return (
-                <div key={cat} style={{ marginBottom: 2 }}>
+                <div key={cat} style={{ marginBottom: 4 }}>
                                             <div style={{
-                                              fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase',
-                                              letterSpacing: '0.07em', marginBottom: 6,
-                                              display: 'flex', alignItems: 'center', gap: 5,
+                                              fontSize: '0.58rem', fontWeight: 900, textTransform: 'uppercase',
+                                              letterSpacing: '0.06em', marginBottom: 4,
+                                              display: 'flex', alignItems: 'center', gap: 4,
                                             }}>
-                                              <div style={{ width: 8, height: 8, borderRadius: '50%', background: catColor, flexShrink: 0 }} />
+                                              <div style={{ width: 6, height: 6, borderRadius: '50%', background: catColor, flexShrink: 0 }} />
                                               <span style={{ color: catColor }}>{cat}</span>
                                             </div>
-                                            <div className="grid grid-cols-5 gap-1.5">
+                                            <div className="grid grid-cols-6 gap-1">
                                                 {icons.map((icon) =>
                     <button key={icon.id} onClick={() => setSelectedTool(icon.id)} title={icon.label}
                     style={{
-                      border: selectedTool === icon.id ? `2px solid ${icon.color}` : '1.5px solid var(--color-border)',
+                      border: selectedTool === icon.id ? `2px solid ${icon.color}` : '1px solid var(--color-border)',
                       background: selectedTool === icon.id ? `${icon.color}22` : 'var(--color-background)',
-                      borderRadius: 8,
-                      padding: '6px',
+                      borderRadius: 6,
+                      padding: '2px',
+                      width: 28,
+                      height: 28,
                       cursor: 'pointer',
                       transition: 'all 0.15s',
-                      aspectRatio: '1',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      boxShadow: selectedTool === icon.id ? `0 2px 8px ${icon.color}44` : 'none',
+                      boxShadow: selectedTool === icon.id ? `0 2px 6px ${icon.color}44` : 'none',
                       transform: selectedTool === icon.id ? 'scale(1.08)' : 'scale(1)',
                     }}>
-                                                        <div style={{ color: icon.color, width: 20, height: 20 }} dangerouslySetInnerHTML={{ __html: icon.svg }} />
+                                                        <div style={{ color: icon.color, width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }} dangerouslySetInnerHTML={{ __html: icon.svg }} />
                                                     </button>
                     )}
                                             </div>
@@ -850,11 +873,11 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                         </div>
                     </div>
 
-                    {/* ── CANVAS AREA ── */}
-                    <div className="flex-[3_1_350px] flex flex-col gap-3 min-w-[300px] w-full">
+                    {/* ── CANVAS AREA (MAXIMIZED FOR DRAWING) ── */}
+                    <div className="flex-1 flex flex-col gap-2 min-w-0 w-full overflow-hidden">
                         {/* Canvas toolbar */}
-                        <div className="flex justify-space-between items-center flex-wrap gap-[0.4rem]">
-                            <div className="flex gap-[4]">
+                        <div className="flex justify-between items-center flex-wrap gap-2">
+                            <div className="flex gap-1">
                                 <button onClick={undo} title="Deshacer (Ctrl+Z)" disabled={historyIndex <= 0}
                 style={{ ...toolBtnStyle(false), opacity: historyIndex <= 0 ? 0.4 : 1 }}>
                                     ↩ Desha.
@@ -864,7 +887,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                                     ↪ Reha.
                                 </button>
                             </div>
-                            <div className="flex gap-[4] items-center">
+                            <div className="flex gap-1 items-center">
                                 <button onClick={() => setIsSnapToGrid(!isSnapToGrid)} style={toolBtnStyle(isSnapToGrid, '#0284c7')} title="Imán de cuadrícula">
                                     🧲 Imán
                                 </button>
@@ -874,16 +897,16 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                                 <button onClick={fitToScreen} style={toolBtnStyle(false)} title="Ajustar a pantalla">
                                     <Maximize2 size={13} /> Ajustar
                                 </button>
-                                <div className="flex items-center gap-[2] ml-[4]">
-                                    <button onClick={() => setZoom((z) => Math.max(0.2, z - 0.1))} style={{ ...toolBtnStyle(false) }} className="p-[5px_7px]"><ZoomOut size={14} /></button>
-                                    <span className="text-[0.75rem] font-[800] min-width-[40] text-center">{Math.round(zoom * 100)}%</span>
-                                    <button onClick={() => setZoom((z) => Math.min(3, z + 0.1))} style={{ ...toolBtnStyle(false) }} className="p-[5px_7px]"><ZoomIn size={14} /></button>
+                                <div className="flex items-center gap-1 ml-1">
+                                    <button onClick={() => setZoom((z) => Math.max(0.2, z - 0.1))} style={{ ...toolBtnStyle(false) }} className="px-2 py-1"><ZoomOut size={14} /></button>
+                                    <span className="text-xs font-extrabold min-w-[36px] text-center">{Math.round(zoom * 100)}%</span>
+                                    <button onClick={() => setZoom((z) => Math.min(3, z + 0.1))} style={{ ...toolBtnStyle(false) }} className="px-2 py-1"><ZoomIn size={14} /></button>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Canvas */}
-                        <div className="card flex-[1] overflow-[hidden] relative p-[0] min-h-[500] touch-action-[none]"
+                        {/* Canvas ampliado para dibujar */}
+                        <div className="card flex-1 overflow-hidden relative p-0 min-h-[680px] md:min-h-[720px] touch-action-none"
             ref={containerRef}
             style={{
               background: isBlueprintMode ? '#0f172a' : '#f1f5f9',
@@ -900,18 +923,19 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                             {/* Infinite canvas */}
                             <div data-canvas-area
               style={{
-                transform: `scale(${zoom})`,
+                transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
+                transformOrigin: '0 0',
                 backgroundColor: isBlueprintMode ? '#0f172a' : '#f1f5f9',
                 backgroundImage: gridBg,
                 backgroundSize: '20px 20px',
-              }} className="w-[4000] h-[4000] absolute transform-origin-[0_0]">
+              }} className="w-[4000px] h-[4000px] absolute">
 
                                 {backgroundImage &&
                 <img src={backgroundImage} alt="Fondo" style={{
 
                   opacity: isBlueprintMode ? 0.3 : 0.6,
                   filter: isBlueprintMode ? 'invert(1) grayscale(1)' : 'none'
-                }} className="absolute top-[100] left-[100] max-w-[2000] pointer-events-[none]" />
+                }} className="absolute top-[100px] left-[100px] max-w-[2000px] pointer-events-none" />
                 }
 
                                 {/* Icons and Text (HTML layer) */}
@@ -932,7 +956,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                         color: el.color || iconDef.color, cursor: el.locked ? 'not-allowed' : 'move',
                         opacity: el.opacity ?? 1, zIndex: isSel ? 100 : 10
                       }}
-                      dangerouslySetInnerHTML={{ __html: iconDef.svg }} className="absolute w-[40] h-[40] rounded-[5] flex items-center justify-center" />);
+                      dangerouslySetInnerHTML={{ __html: iconDef.svg }} className="absolute w-[40px] h-[40px] rounded-[5px] flex items-center justify-center" />);
 
                   }
                   if (el.type === 'text') {
@@ -949,10 +973,10 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                         border: isSel ? '1px dashed #3b82f6' : '1px solid transparent',
                         cursor: el.locked ? 'not-allowed' : 'move', zIndex: isSel ? 100 : 10,
                         background: isSel ? 'rgba(59,130,246,0.05)' : 'transparent'
-                      }} className="absolute p-[3px_7px] text-[15] font-[800] white-space-[nowrap]">
+                      }} className="absolute p-[3px_7px] text-[15px] font-extrabold whitespace-nowrap">
                                                 {isEd ?
                         <input autoFocus value={textInputValue} onChange={(e) => setTextInputValue(e.target.value)}
-                        onBlur={handleTextSave} onKeyDown={(e) => e.key === 'Enter' && handleTextSave()} className="bg-[white] border-[1px_solid_#3b82f6] text-[black] font-[800] text-[15]" /> :
+                        onBlur={handleTextSave} onKeyDown={(e) => e.key === 'Enter' && handleTextSave()} className="bg-white border border-blue-500 text-black font-extrabold text-[15px]" /> :
 
                         el.text}
                                             </div>);
@@ -962,13 +986,13 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                 })}
 
                                 {/* SVG vector layer */}
-                                <svg className="absolute top-[0] left-[0] w-[100%] h-[100%] z-[50] pointer-events-[none]">
+                                <svg className="absolute top-0 left-0 w-full h-full z-[50] pointer-events-none">
                                     <defs>
                                         <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
                                             <polygon points="0 0,10 3.5,0 7" fill="context-stroke" />
                                         </marker>
                                     </defs>
-                                    <g className="pointer-events-[all]">
+                                    <g className="pointer-events-auto">
                                         {visibleElements.filter((el) => ['line', 'rect', 'circle', 'arrow', 'polyline'].includes(el.type)).map(renderSvgElement)}
                                     </g>
 
@@ -1007,7 +1031,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                   left: drawingShape.endX + 12, top: drawingShape.endY - 28
 
 
-                }} className="absolute bg-[rgba(15,23,42,0.85)] text-[#fff] p-[3px_10px] rounded-[6] text-[11] font-[700] z-[1000] pointer-events-[none] backdrop-filter-[blur(4px)]">
+                }} className="absolute bg-slate-900/90 text-white px-2.5 py-1 rounded-md text-xs font-bold z-[1000] pointer-events-none backdrop-blur-sm">
                                         {getDimLabel()}
                                     </div>
                 }
@@ -1019,16 +1043,16 @@ export default function RiskMapGenerator(): React.ReactElement | null {
 
               background: isBlueprintMode ? '#0f172a' : 'var(--color-surface)',
               color: isBlueprintMode ? '#94a3b8' : 'var(--color-text-muted)'
-            }} className="flex items-center justify-space-between p-[0.35rem_0.75rem] rounded-[8] text-[0.7rem] border-[1px_solid_var(--color-border)] flex-wrap gap-[0.25rem]">
+            }} className="flex items-center justify-between px-3 py-1.5 rounded-lg text-xs border border-slate-200 dark:border-slate-800 flex-wrap gap-1">
                             <span>X: <strong>{cursorPos.x}</strong> &nbsp;Y: <strong>{cursorPos.y}</strong> &nbsp;(px @ {Math.round(zoom * 100)}%)</span>
                             <span>{elements.length} elemento{elements.length !== 1 ? 's' : ''} en el mapa</span>
                             <span>Herramienta: <strong>{selectedTool}</strong></span>
                         </div>
                     </div>
 
-                    {/* ── RIGHT PROPERTIES PANEL ── */}
-                    <div className="card flex-[1_1_200px] min-width-[200px] max-w-[100%] p-[0] overflow-y-[auto] m-[0]">
-                        <div className="p-[0.5rem_0.75rem] border-bottom-[1px_solid_var(--color-border)] text-[0.65rem] font-[800] uppercase text-[var(--color-text-muted)]">
+                    {/* ── RIGHT PROPERTIES PANEL (Compact 190px) ── */}
+                    <div className="card flex-none w-full md:w-[190px] md:min-w-[190px] md:max-w-[190px] p-0 overflow-y-auto m-0">
+                        <div className="p-2 border-b border-slate-200 dark:border-slate-800 text-[0.65rem] font-extrabold uppercase text-slate-500">
                             Panel de Objeto
                         </div>
                         <MapPropertiesPanel

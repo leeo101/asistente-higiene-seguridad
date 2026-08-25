@@ -16,6 +16,9 @@ import HeaderNotifications from './components/HeaderNotifications';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider, useSync } from './contexts/SyncContext';
+import { LanguageProvider } from './contexts/LanguageContext';
+import LanguageSelector from './components/LanguageSelector';
+import SyncStatusIndicator from './components/SyncStatusIndicator';
 import { Toaster, toast } from 'react-hot-toast';
 import SubscriptionRenewalBanner from './components/SubscriptionRenewalBanner';
 import { usePaywall } from './hooks/usePaywall';
@@ -134,6 +137,8 @@ const LegajoForm = lazyWithRetry(() => import('./pages/LegajoForm'));
 const FleetManager = lazyWithRetry(() => import('./pages/FleetManager'));
 const IncidentHeatmap = lazyWithRetry(() => import('./pages/IncidentHeatmap'));
 const AccidentHistory = lazyWithRetry(() => import('./pages/AccidentHistory'));
+const TrustCenter = lazyWithRetry(() => import('./pages/TrustCenter'));
+const AssetQRScanner = lazyWithRetry(() => import('./pages/AssetQRScanner'));
 
 // SAFETY MODULE FORMS
 const AuditForm = lazyWithRetry(() => import('./pages/AuditForm'));
@@ -463,7 +468,10 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
         </kbd>
       </button>
       <HeaderNotifications />
-      <CloudStatusIndicator />
+      <div className="flex items-center gap-2">
+        <LanguageSelector />
+        <SyncStatusIndicator />
+      </div>
     </div>
   );
 }
@@ -504,15 +512,16 @@ function App() {
   }, []);
 
   return (
-    <AuthProvider>
-      <NativePermissionRequester />
-      <SyncProvider>
-        <ScrollToTop />
-        <GlobalPrintGuard />
-        <PushNotificationEnabler />
-        <ThemeApplier />
-        <OnboardingTour />
-        <NetworkBadge />
+    <LanguageProvider>
+      <AuthProvider>
+        <NativePermissionRequester />
+        <SyncProvider>
+          <ScrollToTop />
+          <GlobalPrintGuard />
+          <PushNotificationEnabler />
+          <ThemeApplier />
+          <OnboardingTour />
+          <NetworkBadge />
         <OfflineIndicator />
         <Toaster
           position="top-center"
@@ -668,6 +677,8 @@ function App() {
                   <Route path="/fleet-form" element={<ProtectedRoute><FleetForm /></ProtectedRoute>} />
                   <Route path="/evacuation-form" element={<ProtectedRoute><EvacuationSimulatorForm /></ProtectedRoute>} />
                   <Route path="/evacuation-history" element={<ProtectedRoute><EvacuationSimulatorHistory /></ProtectedRoute>} />
+                  <Route path="/security-trust" element={<TrustCenter />} />
+                  <Route path="/asset-scanner" element={<ProtectedRoute><AssetQRScanner /></ProtectedRoute>} />
                   <Route path="/legajos" element={<ProtectedRoute><Legajos /></ProtectedRoute>} />
                   <Route path="/legajos/nuevo" element={<ProtectedRoute><LegajoForm /></ProtectedRoute>} />
                   <Route path="/legajos/editar/:id" element={<ProtectedRoute><LegajoForm /></ProtectedRoute>} />
@@ -690,6 +701,7 @@ function App() {
         </div>
       </SyncProvider>
     </AuthProvider >
+  </LanguageProvider>
   );
 }
 

@@ -1,15 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Map as MapIcon, Calendar, ChevronRight, Trash2, Share2, Edit2, QrCode, Plus, FileText } from 'lucide-react';
+import {
+  Map as MapIcon, Plus, Search, Eye, Edit2, Trash2, CheckCircle2, XCircle, Calendar,
+  Activity, Target, Share2, QrCode, FileText, Building, Layers
+} from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import RiskMapPdfGenerator from '../components/RiskMapPdfGenerator';
 import ShareModal from '../components/ShareModal';
-import QRModal from '../components/QRModal';
-import { usePaywall } from '../hooks/usePaywall';
-import AnimatedPage from '../components/AnimatedPage';
+import ConfirmModal from '../components/ConfirmModal';
+import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import PremiumHeader from '../components/PremiumHeader';
+import AnimatedPage from '../components/AnimatedPage';
+import { usePaywall } from '../hooks/usePaywall';
 
 export default function RiskMapHistory(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -18,241 +23,440 @@ export default function RiskMapHistory(): React.ReactElement | null {
   const { currentUser } = useAuth();
   const { syncing, syncCollection } = useSync();
 
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedMap, setSelectedMap] = useState(null);
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [qrTarget, setQrTarget] = useState(null);
-  const [shareItem, setShareItem] = useState(null);
+  const [filterType, setFilterType] = useState<'all' | 'risk' | 'evacuation'>('all');
+  const [selectedMap, setSelectedMap] = useState<any>(null);
+  const [qrModal, setQrModal] = useState<any>(null);
+  const [shareItem, setShareItem] = useState<any>(null);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const h = JSON.parse(localStorage.getItem('risk_map_history') || '[]');
-    setHistory(h.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+    try {
+      const saved = localStorage.getItem('risk_map_history');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setHistory(parsed.sort((a: any, b: any) => new Date(b.date || b.createdAt || Date.now()).getTime() - new Date(a.date || a.createdAt || Date.now()).getTime()));
+        }
+      }
+    } catch (e) {
+      console.error('[RISK MAP HISTORY] Error reading localStorage:', e);
+      setHistory([]);
+    }
   }, [syncing]);
 
-  const handleDelete = (id, e) => {
-    e.stopPropagation();
-    setDeleteTarget(id);
-  };
-
-  const confirmDelete = () => {
-    const updated = history.filter((item) => item.id !== deleteTarget);
+  const saveHistory = (updated: any[]) => {
     setHistory(updated);
-    localStorage.setItem('risk_map_history', JSON.stringify(updated));
-    syncCollection('risk_map_history', updated);
-    setDeleteTarget(null);
+    try {
+      localStorage.setItem('risk_map_history', JSON.stringify(updated));
+      syncCollection('risk_map_history', updated);
+    } catch (e) {
+      console.error('[RISK MAP HISTORY] Error saving:', e);
+    }
   };
 
-  const filteredHistory = history.filter((item) => {
-    const searchStr = `${item.empresa} ${item.sector}`.toLowerCase();
-    return searchStr.includes(searchTerm.toLowerCase());
-  });
+  const handleDelete = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setConfirmModal({ isOpen: true, payload: id });
+  };
+
+  const executeDelete = () => {
+    if (confirmModal.payload) {
+      const updated = history.filter((item) => item.id !== confirmModal.payload);
+      saveHistory(updated);
+    }
+    setConfirmModal({ isOpen: false, payload: null });
+  };
+
+  const metrics = useMemo(() => {
+    const total = history.length;
+    const sectors = new Set(history.map((h) => h.sector || 'General')).size;
+    const elements = history.reduce((acc, h) => acc + (Array.isArray(h.elements) ? h.elements.length : 0), 0);
+    const evacuation = history.filter((h) => 
+      Array.isArray(h.elements) && h.elements.some((el: any) => el.type === 'arrow' || (el.type === 'icon' && el.iconId === 'YOU_ARE_HERE'))
+    ).length;
+
+    return { total, sectors, elements, evacuation };
+  }, [history]);
+
+  const filteredHistory = useMemo(() => {
+    return history.filter((item) => {
+      if (!item) return false;
+      const searchStr = `${item.empresa || ''} ${item.sector || ''} ${item.id || ''}`.toLowerCase();
+      const matchesSearch = searchStr.includes(searchTerm.toLowerCase());
+      
+      const isEvac = Array.isArray(item.elements) && item.elements.some((el: any) => el.type === 'arrow' || (el.type === 'icon' && el.iconId === 'YOU_ARE_HERE'));
+
+      let matchesType = true;
+      if (filterType === 'risk') matchesType = !isEvac;
+      else if (filterType === 'evacuation') matchesType = isEvac;
+
+      return matchesSearch && matchesType;
+    });
+  }, [history, searchTerm, filterType]);
 
   if (selectedMap) {
-    return <RiskMapPdfGenerator data={selectedMap} onBack={() => setSelectedMap(null)} />;
+    return <RiskMapPdfGenerator data={selectedMap} onBack={() => setSelectedMap(null)} onShare={() => setShareItem(selectedMap)} />;
   }
 
   return (
     <AnimatedPage>
-        <div className="container pb-[3rem] min-h-[100vh] flex flex-col">
-            {deleteTarget &&
-        <div className="fixed inset-[0] bg-[rgba(0,0,0,0.5)] z-[1000] flex items-center justify-center backdrop-filter-[blur(4px)]">
-                    <div className="card max-w-[320px] text-center p-[2rem]">
-                        <Trash2 size={48} className="text-[#ef4444] mb-[1rem]" />
-                        <h3>¿Eliminar mapa?</h3>
-                        <p className="text-[0.9rem] text-[var(--color-text-muted)]">Esta acción borrará definitivamente el mapa de {history.find((h) => h.id === deleteTarget)?.empresa}.</p>
-                        <div className="flex gap-[1rem] mt-[1.5rem]">
-                            <button onClick={() => setDeleteTarget(null)} className="flex-[1] p-[0.8rem] rounded-[12px] bg-[var(--color-background)] border-none text-[var(--color-text)]">Cancelar</button>
-                            <button onClick={confirmDelete} className="flex-[1] p-[0.8rem] rounded-[12px] bg-[#ef4444] text-[white] border-none">Eliminar</button>
-                        </div>
-                    </div>
-                </div>
-        }
+      <div className="container pb-[6rem] min-h-[100vh] flex flex-col pt-4">
+        {/* Header idéntico a Aptitudes Médicas */}
+        <PremiumHeader
+          title="Historial de Mapas de Riesgos"
+          subtitle="Croquis, planos de evacuación e identificación de peligros ISO 7010 / ISO 45001"
+          icon={<MapIcon size={36} color="#ffffff" />}
+        />
 
-            <ShareModal
+        {/* Top Summary Cards (KPIs) idéntico a Aptitudes Médicas */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div
+            onClick={() => setFilterType('all')}
+            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              filterType === 'all'
+                ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 shadow-md'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-blue-400'
+            }`}
+          >
+            <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Total Mapas</span>
+              <Activity size={20} />
+            </div>
+            <div className="text-2xl font-black text-slate-900 dark:text-white">{metrics.total}</div>
+            <span className="text-[11px] text-slate-500">Planos guardados</span>
+          </div>
+
+          <div
+            onClick={() => setFilterType('risk')}
+            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              filterType === 'risk'
+                ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 shadow-md'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-emerald-400'
+            }`}
+          >
+            <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Sectores Mapeados</span>
+              <Building size={20} />
+            </div>
+            <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{metrics.sectors}</div>
+            <span className="text-[11px] text-slate-500">Áreas diferenciadas</span>
+          </div>
+
+          <div className="p-4 rounded-2xl border bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
+            <div className="flex items-center justify-between text-amber-600 dark:text-amber-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Elementos ISO</span>
+              <Target size={20} />
+            </div>
+            <div className="text-2xl font-black text-amber-600 dark:text-amber-400">{metrics.elements}</div>
+            <span className="text-[11px] text-slate-500">Señaléticas colocadas</span>
+          </div>
+
+          <div
+            onClick={() => setFilterType('evacuation')}
+            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              filterType === 'evacuation'
+                ? 'bg-purple-50 dark:bg-purple-950/40 border-purple-500 shadow-md'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-purple-400'
+            }`}
+          >
+            <div className="flex items-center justify-between text-purple-600 dark:text-purple-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Evacuación</span>
+              <Layers size={20} />
+            </div>
+            <div className="text-2xl font-black text-purple-600 dark:text-purple-400">{metrics.evacuation}</div>
+            <span className="text-[11px] text-slate-500">Planos de emergencia</span>
+          </div>
+        </div>
+
+        {/* Toolbar & Search Bar Section */}
+        <div className="mt-8 space-y-4">
+          <div className="flex flex-row items-center justify-between gap-3">
+            {/* Input de Búsqueda */}
+            <div className="relative flex-1 max-w-xs h-[38px]">
+              <Search
+                size={16}
+                className="text-slate-400 pointer-events-none z-10"
+                style={{
+                  position: 'absolute',
+                  left: '0.75rem',
+                  top: 0,
+                  bottom: 0,
+                  marginTop: 'auto',
+                  marginBottom: 'auto',
+                  display: 'block'
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Buscar por empresa o sector..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ paddingLeft: '2.25rem', paddingRight: '0.75rem', height: '38px', width: '100%', boxSizing: 'border-box', outline: 'none' }}
+                className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+              />
+            </div>
+
+            {/* Botón Nuevo Mapa SUPER COMPACTO INLINE idéntico a Aptitudes Médicas */}
+            <button
+              onClick={() => requirePro(() => navigate('/risk-maps'))}
+              style={{
+                backgroundColor: '#059669',
+                color: '#ffffff',
+                border: 'none',
+                padding: '6px 14px',
+                fontSize: '12px',
+                fontWeight: '800',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                whiteSpace: 'nowrap',
+                height: '34px',
+                boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
+              }}
+            >
+              <Plus size={14} />
+              <span>Nuevo Mapa</span>
+            </button>
+          </div>
+
+          {/* Filter Tabs idénticos a Aptitudes Médicas */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+            <button
+              onClick={() => setFilterType('all')}
+              style={{
+                backgroundColor: filterType === 'all' ? '#2563eb' : '#ffffff',
+                color: filterType === 'all' ? '#ffffff' : '#334155',
+                border: filterType === 'all' ? '1px solid #2563eb' : '1px solid #cbd5e1',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontWeight: '800',
+                cursor: 'pointer'
+              }}
+            >
+              Todos ({metrics.total})
+            </button>
+            <button
+              onClick={() => setFilterType('risk')}
+              style={{
+                backgroundColor: filterType === 'risk' ? '#059669' : '#ffffff',
+                color: filterType === 'risk' ? '#ffffff' : '#334155',
+                border: filterType === 'risk' ? '1px solid #059669' : '1px solid #cbd5e1',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontWeight: '800',
+                cursor: 'pointer'
+              }}
+            >
+              Mapas de Riesgo ({metrics.total - metrics.evacuation})
+            </button>
+            <button
+              onClick={() => setFilterType('evacuation')}
+              style={{
+                backgroundColor: filterType === 'evacuation' ? '#8b5cf6' : '#ffffff',
+                color: filterType === 'evacuation' ? '#ffffff' : '#334155',
+                border: filterType === 'evacuation' ? '1px solid #8b5cf6' : '1px solid #cbd5e1',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontWeight: '800',
+                cursor: 'pointer'
+              }}
+            >
+              Planos Evacuación ({metrics.evacuation})
+            </button>
+          </div>
+
+          {/* List con Tarjetas & Botones Sólidos de Colores */}
+          <div className="flex flex-col gap-3">
+            {filteredHistory.length === 0 ? (
+              <EmptyStateIllustrated
+                title="Sin Mapas Registrados"
+                description="Creá croquis, planos de evacuación e identificación de riesgos según ISO 7010 / ISO 45001."
+                icon={<MapIcon />}
+              />
+            ) : (
+              filteredHistory.map((map) => (
+                <RiskMapCard
+                  key={map.id || Math.random()}
+                  mapItem={map}
+                  onView={() => setSelectedMap(map)}
+                  onEdit={() => navigate('/risk-maps', { state: { editData: map } })}
+                  onQR={() => setQrModal(map)}
+                  onShare={() => setShareItem(map)}
+                  onDelete={() => handleDelete(map.id)}
+                />
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Modal QR de Validación idéntico a Aptitudes Médicas */}
+        {qrModal && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl relative border border-slate-200 dark:border-slate-800 space-y-4">
+              <button
+                onClick={() => setQrModal(null)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-transparent border-none cursor-pointer"
+              >
+                <XCircle size={24} />
+              </button>
+
+              <div className="w-14 h-14 rounded-2xl bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center mx-auto">
+                <QrCode size={28} />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-extrabold text-slate-900 dark:text-white m-0">Mapa de Riesgos Verificado</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">
+                  {qrModal.empresa || 'Empresa'} ({qrModal.sector || 'Sector General'})
+                </p>
+              </div>
+
+              <div className="bg-white p-4 rounded-2xl inline-block border border-slate-200 shadow-sm">
+                <QRCodeSVG value={`${window.location.origin}/v/${currentUser?.uid || 'pub'}/riskmap/${qrModal.id}?print=true`} size={180} />
+              </div>
+
+              <p className="text-xs text-slate-400">
+                Escaneá este código QR para validar y auditar el mapa de riesgos ISO en tiempo real.
+              </p>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setQrModal(null)}
+                  style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '10px 16px', borderRadius: '10px', fontWeight: '800', fontSize: '12px', cursor: 'pointer', flex: 1 }}
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Compartir / Impresión PDF */}
+        <ShareModal
+          isOpen={!!shareItem}
           open={!!shareItem}
           onClose={() => setShareItem(null)}
           title={`Mapa de Riesgo - ${shareItem?.empresa || ''}`}
-          text={shareItem ? `🗺️ Mapa de Riesgos ISO\n🏢 Empresa: ${shareItem.empresa}\n📍 Sector: ${shareItem.sector}\n📅 Fecha: ${shareItem.fecha}` : ''}
-          elementIdToPrint="pdf-content" />
-        
+          text={shareItem ? `🗺️ Mapa de Riesgos ISO 7010\n🏢 Empresa: ${shareItem.empresa}\n📍 Sector: ${shareItem.sector}\n📅 Fecha: ${shareItem.fecha || new Date().toLocaleDateString('es-AR')}` : ''}
+          rawMessage={shareItem ? `🗺️ Mapa de Riesgos ISO 7010\n🏢 Empresa: ${shareItem.empresa}\n📍 Sector: ${shareItem.sector}\n📅 Fecha: ${shareItem.fecha || new Date().toLocaleDateString('es-AR')}` : ''}
+          elementIdToPrint="pdf-content"
+          fileName={`Mapa_Riesgos_${shareItem?.empresa || 'Empresa'}.pdf`}
+        />
 
-            <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
-                {shareItem && <RiskMapPdfGenerator data={shareItem} />}
-            </div>
-
-            <PremiumHeader
-          title="Mapas de Riesgos"
-          subtitle="Croquis e Identificación ISO"
-          icon={<MapIcon size={32} color="#ffffff" />}
-          color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
-        
-
-            <div className="flex gap-[1rem] mb-[1.5rem] mt-[1.5rem] flex-wrap">
-                <></>
-            </div>
-
-            <div className="mb-[2rem] flex justify-start">
-                <button
-            onClick={() => {
-              requirePro(() => navigate('/risk-maps'));
-            }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              padding: '0.75rem 1.5rem',
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              color: '#ffffff',
-              fontWeight: 800,
-              borderRadius: '14px',
-              border: 'none',
-              cursor: 'pointer',
-              boxShadow: '0 8px 20px rgba(16,185,129,0.3)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 12px 25px rgba(16,185,129,0.4)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.3)';
-            }}
-            >
-            
-                <Plus size={18} /> Nuevo Mapa
-                </button>
-            </div>
-
-            <div className="relative mb-[2rem] h-[50px]">
-                <Search 
-                  size={20} 
-                  className="text-slate-400 pointer-events-none z-10" 
-                  style={{ 
-                    position: 'absolute', 
-                    left: '1rem', 
-                    top: 0, 
-                    bottom: 0, 
-                    marginTop: 'auto', 
-                    marginBottom: 'auto', 
-                    display: 'block' 
-                  }} 
-                />
-                <input
-                  type="text"
-                  placeholder="Buscar por empresa o sector..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)} 
-                  style={{ width: '100%', height: '50px', paddingLeft: '3.2rem', paddingRight: '1rem', outline: 'none', boxSizing: 'border-box' }}
-                  className="rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm font-medium" 
-                />
-            </div>
-
-            <div className="flex flex-col gap-4">
-                {filteredHistory.map((map) => (
-                  <div key={map.id} className="card p-[1.25rem] cursor-pointer" style={{ borderLeft: `6px solid #8b5cf6` }} onClick={() => setSelectedMap(map)}>
-                        <div className="flex items-center gap-4">
-                            <div className="w-[48px] h-[48px] rounded-[12px] bg-[rgba(139,92,246,0.15)] text-[#8b5cf6] flex items-center justify-center flex-shrink-[0]">
-                                <MapIcon size={24} />
-                            </div>
-                            <div className="flex-[1] min-width-[0]">
-                                <div className="flex justify-space-between items-center">
-                                    <h3 className="m-[0] text-[1.1rem] font-[800] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">
-                                        {map.empresa}
-                                    </h3>
-                                    <span className="text-[0.85rem] font-[800] text-[var(--color-primary)]">
-                                        {map.elements.length} Elementos
-                                    </span>
-                                </div>
-                                <div className="flex flex-wrap gap-[1rem] mt-[0.5rem] text-[0.85rem] text-[var(--color-text-muted)]">
-                                    <span className="flex items-center gap-[0.3rem]"><Calendar size={14} /> {new Date(map.fecha + 'T12:00:00Z').toLocaleDateString('es-AR')}</span>
-                                    <span><strong>Sector:</strong> {map.sector}</span>
-                                </div>
-                            </div>
-                            <ChevronRight className="hidden sm:block text-[var(--color-border)] flex-shrink-[0]" />
-                        </div>
-                        <div className="mt-[1rem] pt-[1rem] border-top-[1px_solid_var(--color-border)] flex justify-end gap-[0.6rem]">
-                            <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedMap(map);
-                                }}
-                                title="Ver Reporte"
-                                style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }}
-                                className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
-                            >
-                                <FileText size={16} />
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  requirePro(() => setShareItem(map));
-                                }}
-                                title="Compartir"
-                                style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }}
-                                className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
-                            >
-                                <Share2 size={16} />
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  requirePro(() => {
-                                    const url = `${window.location.origin}/v/${currentUser?.uid}/riskmap/${map.id}?print=true`;
-                                    setQrTarget({ text: url, title: `Mapa de Riesgos — ${map.sector}` });
-                                  });
-                                }}
-                                title="Código QR"
-                                style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }}
-                                className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
-                            >
-                                <QrCode size={16} />
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate('/risk-maps', { state: { editData: map } });
-                                }}
-                                title="Editar"
-                                style={{ backgroundColor: '#eab308', color: '#fff', border: 'none' }}
-                                className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
-                            >
-                                <Edit2 size={16} />
-                            </button>
-                            <button
-                                onClick={(e) => handleDelete(map.id, e)}
-                                title="Eliminar"
-                                style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }}
-                                className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center"
-                            >
-                                <Trash2 size={16} />
-                            </button>
-                        </div>
-                  </div>
-                ))}
-
-                {filteredHistory.length === 0 && (
-                  <div className="text-center p-[4rem_1rem] bg-[var(--color-surface)] rounded-[24px] border-[1.5px_dashed_var(--color-border)]">
-                        <MapIcon size={48} className="text-[var(--color-border)] mb-[1rem] opacity-[0.5]" />
-                        <h3 className="m-[0_0_0.5rem_0] text-[var(--color-text)]">No hay mapas registrados</h3>
-                        <p className="m-[0] text-[var(--color-text-muted)] text-[0.9rem]">
-                            {searchTerm ? 'Ningún mapa coincide con la búsqueda.' : 'Tus croquis y mapas de riesgo ISO aparecerán aquí.'}
-                        </p>
-                  </div>
-                )}
-            </div>
-
-            {qrTarget &&
-        <QRModal
-          text={qrTarget.text}
-          title={qrTarget.title}
-          onClose={() => setQrTarget(null)} />
-
-        }
+        <div className="ats-pdf-offscreen">
+          {shareItem && <RiskMapPdfGenerator data={shareItem} />}
         </div>
-        </AnimatedPage>);
 
+        <ConfirmModal
+          isOpen={confirmModal.isOpen}
+          onClose={() => setConfirmModal({ isOpen: false, payload: null })}
+          onConfirm={executeDelete}
+          title="¿Eliminar mapa de riesgos?"
+          message="Esta acción borrará definitivamente el croquis seleccionado."
+          iconEmoji="🗑️"
+        />
+      </div>
+    </AnimatedPage>
+  );
+}
+
+// Componente de Tarjeta con Botones Coloridos e Identidad Visual de Aptitudes Médicas
+function RiskMapCard({ mapItem, onView, onEdit, onQR, onShare, onDelete }: any) {
+  if (!mapItem) return null;
+  const elementCount = Array.isArray(mapItem.elements) ? mapItem.elements.length : 0;
+  const isEvac = Array.isArray(mapItem.elements) && mapItem.elements.some((el: any) => el.type === 'arrow' || (el.type === 'icon' && el.iconId === 'YOU_ARE_HERE'));
+
+  const cardBorderColor = isEvac ? '#8b5cf6' : '#2563eb';
+  const cardBadgeBg = isEvac ? '#f3e8ff' : '#eff6ff';
+  const cardBadgeColor = isEvac ? '#7c3aed' : '#2563eb';
+
+  return (
+    <div
+      className="card p-[1.25rem] flex flex-col md:flex-row md:items-center justify-between gap-[1rem] transition-all bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm"
+      style={{ borderLeft: `4px solid ${cardBorderColor}` }}
+    >
+      {/* Icon & Details */}
+      <div className="flex items-center gap-[1rem] flex-1 min-w-0">
+        <div style={{ background: `${cardBorderColor}15`, border: `2px solid ${cardBorderColor}` }} className="w-[56px] h-[56px] rounded-2xl flex items-center justify-center flex-shrink-0">
+          <MapIcon size={24} color={cardBorderColor} />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-[0.5rem] mb-[0.35rem] flex-wrap">
+            <h3 className="m-0 text-[1.1rem] font-[800] text-slate-900 dark:text-white truncate">{mapItem.empresa || 'Empresa Sin Nombre'}</h3>
+            <span style={{ background: cardBadgeBg, color: cardBadgeColor }} className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider">
+              {isEvac ? 'EVACUACIÓN' : 'MAPA DE RIESGO'}
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-[0.75rem] text-xs text-slate-500 font-medium">
+            <span className="flex items-center gap-1">
+              <Building size={14} />
+              Sector: {mapItem.sector || 'General'}
+            </span>
+            <span className="flex items-center gap-1">
+              <Calendar size={14} />
+              {mapItem.fecha ? new Date(mapItem.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : 'Sin fecha'}
+            </span>
+            <span className="flex items-center gap-1">
+              <Target size={14} />
+              {elementCount} Señalética(s)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Botones Sólidos y Coloridos idénticos a Aptitudes Médicas */}
+      <div className="flex items-center gap-[6px] flex-wrap">
+        {/* Botón Editar con fondo Ámbar/Amarillo sólido */}
+        <button
+          onClick={onEdit}
+          title="Editar Mapa"
+          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '5px 12px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(217, 119, 6, 0.2)' }}
+        >
+          <Edit2 size={12} /> Editar
+        </button>
+
+        {/* Botón Ver con fondo Azul sólido */}
+        <button
+          onClick={onView}
+          title="Ver Plano y Generar PDF"
+          style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '5px 12px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)' }}
+        >
+          <Eye size={12} /> Ver
+        </button>
+
+        {/* Botón QR con fondo Púrpura sólido */}
+        <button
+          onClick={onQR}
+          title="Ver Credencial QR de Validación"
+          style={{ backgroundColor: '#4f46e5', color: '#ffffff', border: 'none', padding: '5px 12px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(79, 70, 229, 0.2)' }}
+        >
+          <QrCode size={12} /> QR
+        </button>
+
+        {/* Botón Compartir / PDF con fondo Verde sólido */}
+        <button
+          onClick={onShare}
+          title="Compartir Informe PDF"
+          style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '5px 12px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)' }}
+        >
+          <Share2 size={12} /> Compartir
+        </button>
+
+        {/* Botón Eliminar con fondo Rojo sólido */}
+        <button
+          onClick={onDelete}
+          title="Eliminar Registro"
+          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '5px 12px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(220, 38, 38, 0.2)' }}
+        >
+          <Trash2 size={12} /> Eliminar
+        </button>
+      </div>
+    </div>
+  );
 }

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Plus, Download, Search, AlertTriangle, FileText, ChevronRight, X, User, Briefcase, Activity, Calendar, FileQuestion, Users, FileSignature, CheckCircle2, Shield, Save, Building2, TreeDeciduous, ShieldAlert, Zap, Box, Wind, Droplets, ArrowUpCircle, Truck, Pencil, Share2, Trash2, QrCode, Camera, MapPin, Sparkles, UserPlus, ListPlus, ChevronLeft, Printer, Mic, MicOff } from 'lucide-react';
+import { ArrowLeft, Plus, Download, Search, AlertTriangle, FileText, ChevronRight, X, User, Briefcase, Activity, Calendar, FileQuestion, Users, FileSignature, CheckCircle2, Shield, Save, Building2, TreeDeciduous, ShieldAlert, Zap, Box, Wind, Droplets, ArrowUpCircle, Truck, Pencil, Share2, Trash2, QrCode, Camera, MapPin, Sparkles, UserPlus, ListPlus, ChevronLeft, Printer, Mic, MicOff, XCircle } from 'lucide-react';
 import PremiumHeader from '../components/PremiumHeader';
+import AnimatedPage from '../components/AnimatedPage';
 import { usePaywall } from '../hooks/usePaywall';
 import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
@@ -153,6 +154,117 @@ function AdjuntosSection({
 
 }
 
+const ACCIDENT_PRESETS = [
+  {
+    id: 'corte',
+    label: '🔨 Corte por Amoladora / Herramienta',
+    empresa: 'Planta Industrial SRL',
+    ubicacion: 'Taller de Mecanizado',
+    gravedad: 'Moderado',
+    victimaNombre: 'Carlos Gómez',
+    victimaDni: '34567890',
+    victimaPuesto: 'Oficial Metalúrgico',
+    victimaAntiguedad: '3 años',
+    lesion: 'Herida cortante incisa en palma de mano',
+    parteCuerpo: 'Mano Derecha / Dedos',
+    mecanismoAccidente: 'Contacto con objeto cortante en movimiento',
+    parteCuerpoEspecifica: 'Mano / Dedos',
+    artNombre: 'Provincia ART',
+    numeroSiniestro: 'SIN-884920',
+    centroMedico: 'Sanatorio Central',
+    diasIltEstimados: '14',
+    descripcionHecho: 'Al manipular la amoladora angular sin la guarda fijada correctamente, se produjo el trabamiento del disco provocando un contragolpe (kickback) que hizo contacto con la mano del trabajador.',
+    problemaCentral: 'Contragolpe de amoladora provocando corte en mano derecha',
+    porques: [
+      'Traba del disco en la pieza metálica.',
+      'Inexistencia de guarda de protección instalada en la herramienta.',
+      'Retiro intencional de la guarda para mayor velocidad de corte.',
+      'Falta de supervisión efectiva en el taller y falta de procedimiento de trabajo seguro.'
+    ]
+  },
+  {
+    id: 'lumbago',
+    label: '📦 Lumbalgia por Carga Física (Res. 886/15)',
+    empresa: 'Logística & Depósito SA',
+    ubicacion: 'Sector Expedición',
+    gravedad: 'Moderado',
+    victimaNombre: 'Marcos Juárez',
+    victimaDni: '38123456',
+    victimaPuesto: 'Operario de Depósito',
+    victimaAntiguedad: '1 año 6 meses',
+    lesion: 'Lumbalgia aguda por esfuerzo biomecánico',
+    parteCuerpo: 'Columna Lumbar / Espalda',
+    mecanismoAccidente: 'Sobreesfuerzo ergonómico / Levantamiento manual',
+    parteCuerpoEspecifica: 'Columna Lumbar / Espalda',
+    artNombre: 'Experta ART',
+    numeroSiniestro: 'SIN-991204',
+    centroMedico: 'Clínica de Traumatología',
+    diasIltEstimados: '10',
+    descripcionHecho: 'El operario levantó manualmente una caja de 32 kg desde el nivel del suelo girando el tronco sin ayuda mecánica ni apoyo de un compañero.',
+    problemaCentral: 'Sobreesfuerzo muscular en levantamiento de carga pesada',
+    porques: [
+      'Levantamiento individual de bulto superior a 25 kg.',
+      'Rotación del tronco durante el levantamiento.',
+      'Indisponibilidad momentánea de la apiladora eléctrica.',
+      'Incumplimiento de la Res. 886/15 y falta de pausas activas.'
+    ]
+  },
+  {
+    id: 'altura',
+    label: '🪜 Caída a Distinto Nivel (>1.5m)',
+    empresa: 'Constructora del Plata',
+    ubicacion: 'Frente de Obra - Piso 2',
+    gravedad: 'Grave',
+    victimaNombre: 'Roberto Rossi',
+    victimaDni: '31987654',
+    victimaPuesto: 'Montador de Estructuras',
+    victimaAntiguedad: '4 años',
+    lesion: 'Politraumatismo y fractura de tobillo',
+    parteCuerpo: 'Miembro Inferior Izquierdo / Tobillo',
+    mecanismoAccidente: 'Caída a distinto nivel',
+    parteCuerpoEspecifica: 'Miembro Inferior Izquierdo',
+    artNombre: 'Prevención ART',
+    numeroSiniestro: 'SIN-440192',
+    centroMedico: 'Hospital de Urgencias',
+    diasIltEstimados: '45',
+    descripcionHecho: 'Durante el armado del andamio tubular a 2.80m de altura, el trabajador tropezó con un tablón suelto y cayó al vacío sin haber amarrado su arnés a la línea de vida.',
+    problemaCentral: 'Caída desde andamio a 2.80 metros de altura',
+    porques: [
+      'Pérdida de equilibrio al pisar un tablón no fijado.',
+      'Ausencia de rodapiés y barandas perimetrales completas en el andamio.',
+      'Falta de enganche del cabo de vida al punto de anclaje.',
+      'Supervisión deficiente del permiso de trabajo en altura.'
+    ]
+  },
+  {
+    id: 'electrico',
+    label: '⚡ Descarga Eléctrica en Tablero',
+    empresa: 'Servicios Industriales SA',
+    ubicacion: 'Sala de Máquinas Principal',
+    gravedad: 'Grave',
+    victimaNombre: 'Gonzalo Fernández',
+    victimaDni: '36543210',
+    victimaPuesto: 'Electricista de Mantenimiento',
+    victimaAntiguedad: '5 años',
+    lesion: 'Quemadura de 2do grado en mano e inflamación',
+    parteCuerpo: 'Mano Izquierda / Cuello',
+    mecanismoAccidente: 'Contacto eléctrico directo / Arco eléctrico',
+    parteCuerpoEspecifica: 'Mano / Dedos',
+    artNombre: 'Galeno ART',
+    numeroSiniestro: 'SIN-776512',
+    centroMedico: 'Instituto del Quemado',
+    diasIltEstimados: '21',
+    descripcionHecho: 'Al intervenir en el tablero eléctrico secundario para reemplazar un térmico sin haber realizado el bloqueo LOTO previo, se generó un arco eléctrico al rozar la barra energizada con el destornillador.',
+    problemaCentral: 'Descarga y arco eléctrico en tablero con tensión',
+    porques: [
+      'Contacto accidental con barra energizada.',
+      'Intervención con tensión sin aplicar procedimiento de bloqueo LOTO.',
+      'No utilización de guantes dieléctricos ni máscara de protección facial.',
+      'Falta de verificación con multímetro del estado de tensión cero.'
+    ]
+  }
+];
+
 export default function AccidentInvestigation(): React.ReactElement | null {
   const { requirePro } = usePaywall();
   const navigate = useNavigate();
@@ -172,6 +284,32 @@ export default function AccidentInvestigation(): React.ReactElement | null {
   const [shareItem, setShareItem] = useState<any>(null);
   const [printItem, setPrintItem] = useState<any>(null);
   const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'Leve' | 'Moderado' | 'GraveMortal'>('all');
+
+  const metrics = useMemo(() => {
+    const total = history.length;
+    let leve = 0;
+    let moderado = 0;
+    let graveMortal = 0;
+
+    history.forEach((item: any) => {
+      const g = item?.gravedad;
+      if (g === 'Leve') leve++;
+      else if (g === 'Moderado') moderado++;
+      else if (g === 'Grave' || g === 'Mortal') graveMortal++;
+    });
+
+    return { total, leve, moderado, graveMortal };
+  }, [history]);
+
+  const filteredHistory = useMemo(() => {
+    return history.filter((item: any) => {
+      if (statusFilter === 'Leve') return item.gravedad === 'Leve';
+      if (statusFilter === 'Moderado') return item.gravedad === 'Moderado';
+      if (statusFilter === 'GraveMortal') return item.gravedad === 'Grave' || item.gravedad === 'Mortal';
+      return true;
+    });
+  }, [history, statusFilter]);
 
   // Form state
   const [currentStep, setCurrentStep] = useState(0);
@@ -179,7 +317,19 @@ export default function AccidentInvestigation(): React.ReactElement | null {
   const [formData, setFormData] = useState<any>({
     fecha: new Date().toISOString().split('T')[0],
     hora: '', empresa: '', ubicacion: '', gravedad: 'Leve',
+    artNombre: '', numeroSiniestro: '', centroMedico: '', diasIltEstimados: '',
     victimaNombre: '', victimaDni: '', victimaPuesto: '', victimaAntiguedad: '', lesion: '', parteCuerpo: '',
+    mecanismoAccidente: '', parteCuerpoEspecifica: '',
+    condicionesAmbientales: {
+      iluminacionDeficiente: false,
+      ordenLimpiezaDeficiente: false,
+      pisoResbaladizo: false,
+      ruidoElevado: false,
+      eppAusenteOInadecuado: false,
+      ventilacionInsuficiente: false,
+      faltaGuardaProteccion: false
+    },
+    hhtTotal: '100000',
     descripcionHecho: '', testigos: [{ nombre: '', declaracion: '' }],
     problemaCentral: '', porques: [''],
     medidas: [{ accion: '', responsable: '', fechaLimite: '' }],
@@ -433,122 +583,239 @@ export default function AccidentInvestigation(): React.ReactElement | null {
   if (selectedReport) {
     return (
       <div className="print-only-wrapper">
-                <AccidentPdfGenerator report={{ ...selectedReport, id: selectedReport.id || Date.now() }} onBack={() => setSelectedReport(null)} />
-            </div>);
+        <AccidentPdfGenerator report={{ ...selectedReport, id: selectedReport.id || Date.now() }} onBack={() => setSelectedReport(null)} />
+      </div>);
 
   }
 
   if (!isFormVisible) {
     const columns = [
-    {
-      header: 'Fecha',
-      accessor: 'date',
-      sortable: true,
-      render: (item: any) =>
-      <span className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 whitespace-nowrap">
-                        <Calendar size={14} /> {new Date(item.date || item.fecha).toLocaleDateString('es-AR')}
-                    </span>
+      {
+        header: 'Fecha',
+        accessor: 'date',
+        sortable: true,
+        render: (item: any) => (
+          <span style={{ color: '#000000', fontWeight: '900', fontSize: '13px', display: 'block' }}>
+            {new Date(item.date || item.fecha).toLocaleDateString('es-AR')}
+          </span>
+        )
+      },
+      {
+        header: 'Accidentado / Víctima',
+        accessor: 'victimaNombre',
+        sortable: true,
+        render: (item: any) => (
+          <div>
+            <div style={{ color: '#000000', fontWeight: '900', fontSize: '14px', lineHeight: '1.2' }}>{item.victimaNombre || 'Sin nombre'}</div>
+            <div style={{ color: '#475569', fontWeight: '700', fontSize: '12px', marginTop: '2px' }}>
+              {item.empresa ? `${item.empresa}` : ''} {item.victimaDni ? `• DNI: ${item.victimaDni}` : ''}
+            </div>
+          </div>
+        )
+      },
+      {
+        header: 'Sector / Lesión',
+        accessor: 'ubicacion',
+        sortable: true,
+        render: (item: any) => (
+          <div>
+            <span style={{ color: '#0f172a', fontWeight: '800', fontSize: '12px', display: 'block' }}>
+              📍 {item.ubicacion || '—'}
+            </span>
+            <span style={{ color: '#64748b', fontWeight: '600', fontSize: '11px' }}>
+              {item.lesion || 'Sin especificar'}
+            </span>
+          </div>
+        )
+      },
+      {
+        header: 'Gravedad',
+        accessor: 'gravedad',
+        sortable: true,
+        render: (item: any) => {
+          const g = item.gravedad;
+          if (g === 'Leve') {
+            return (
+              <span style={{ backgroundColor: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '4px 10px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <CheckCircle2 size={13} /> Leve (Sin Baja)
+              </span>
+            );
+          }
+          if (g === 'Moderado') {
+            return (
+              <span style={{ backgroundColor: '#fffbeb', color: '#d97706', border: '1px solid #fde68a', padding: '4px 10px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <AlertTriangle size={13} /> Moderado (Con Baja)
+              </span>
+            );
+          }
+          if (g === 'Grave' || g === 'Mortal') {
+            return (
+              <span style={{ backgroundColor: '#fef2f2', color: '#dc2626', border: '1px solid #fecdd3', padding: '4px 10px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <XCircle size={13} /> {g.toUpperCase()}
+              </span>
+            );
+          }
+          return (
+            <span style={{ backgroundColor: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0', padding: '4px 10px', borderRadius: '6px', fontWeight: '800', fontSize: '11px' }}>
+              {g || '—'}
+            </span>
+          );
+        }
+      },
+      {
+        header: 'Acciones',
+        accessor: 'id',
+        render: (item: any) => (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            <button 
+              onClick={() => setSelectedReport(item)} 
+              style={{ backgroundColor: '#475569', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(71, 85, 105, 0.2)' }}>
+              <FileText size={12} /> Ver PDF
+            </button>
+            
+            <button 
+              onClick={() => { setFormData(item); setIsEdit(true); setIsFormVisible(true); }} 
+              style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(217, 119, 6, 0.2)' }}>
+              <Pencil size={12} /> Editar
+            </button>
 
-    },
-    {
-      header: 'Accidentado',
-      accessor: 'victimaNombre',
-      sortable: true,
-      render: (item: any) =>
-      <div className="flex items-center gap-3">
-                        <div className="bg-red-500/10 p-2 rounded-lg text-red-500">
-                            <AlertTriangle size={16} />
-                        </div>
-                        <span className="font-bold">{item.victimaNombre}</span>
-                    </div>
+            <button 
+              onClick={() => requirePro(() => {
+                const url = `${window.location.origin}/v/${currentUser?.uid}/accident/${item.id}?print=true`;
+                setQrTarget({ text: url, title: `Accidente — ${item.victimaNombre}` });
+              })} 
+              style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)' }}>
+              <QrCode size={12} /> QR
+            </button>
 
-    },
-    {
-      header: 'Empresa',
-      accessor: 'empresa',
-      sortable: true,
-      render: (item: any) =>
-      <span className="flex items-center gap-1.5">
-                        <MapPin size={14} /> {item.empresa}
-                    </span>
+            <button 
+              onClick={() => requirePro(() => setShareItem(item))} 
+              style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)' }}>
+              <Share2 size={12} /> Compartir
+            </button>
 
-    },
-    {
-      header: 'Gravedad',
-      accessor: 'gravedad',
-      sortable: true,
-      render: (item: any) => {
-        const cfg = severityConfig[item.gravedad] || { color: '#64748b', bg: 'rgba(100,116,139,0.1)' };
-        return (
-          <span style={{ background: cfg.bg, color: cfg.color }} className="p-[0.25rem_0.7rem] rounded-[999px] text-[0.72rem] font-[800]">
-                            {item.gravedad || '—'}
-                        </span>);
-
+            <button 
+              onClick={() => setDeleteTarget(item.id)} 
+              style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(220, 38, 38, 0.2)' }}>
+              <Trash2 size={12} /> Eliminar
+            </button>
+          </div>
+        )
       }
-    },
-    {
-      header: 'Acciones',
-      accessor: 'id',
-      render: (item: any) =>
-                    <div className="flex gap-1.5">
-                        <button onClick={() => setSelectedReport(item)} style={{ backgroundColor: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1' }} className="px-3 py-1.5 rounded-[8px] cursor-pointer text-xs font-bold transition-transform hover:-translate-y-0.5 shadow-sm">Ver</button>
-                        <button onClick={() => {setFormData(item);setIsEdit(true);setIsFormVisible(true);}} style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform" title="Editar"><Pencil size={15} /></button>
-                        <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/accident/${item.id}?print=true`;setQrTarget({ text: url, title: `Accidente — ${item.victimaNombre}` });})} style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform" title="QR"><QrCode size={15} /></button>
-                        <button onClick={() => requirePro(() => setShareItem(item))} style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform" title="Compartir"><Share2 size={15} /></button>
-                        <button onClick={() => setDeleteTarget(item.id)} style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Trash2 size={15} /></button>
-                    </div>
-
-    }];
-
+    ];
 
     return (
-      <div className="container w-full max-w-[1200px] mx-auto pb-32">
-        <div className="no-print">
-          <PremiumHeader
-            title="Investigaciones de Accidentes"
-            subtitle="Registros de siniestros"
-            icon={<AlertTriangle size={36} color="#ffffff" />}
-          />
-        </div>
-        
+      <AnimatedPage>
+        <div className="container pb-[6rem] min-h-[100vh] flex flex-col pt-4">
+          <div className="no-print">
+            <PremiumHeader
+              title="Investigaciones de Accidentes"
+              subtitle="Gestión de siniestros laborales y análisis de causa raíz — Res. SRT 7/2026 y Dec. 549/2025"
+              icon={<AlertTriangle size={36} color="#ffffff" />}
+            />
+          </div>
 
-                {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
-                {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
-                <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Investigación de Accidente - ${shareItem?.victimaNombre || ''}`} text={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⚠️ Gravedad: ${shareItem.gravedad}` : ''} rawMessage={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}` : ''} elementIdToPrint="pdf-content" fileName={`Accidente_${shareItem?.victimaNombre || 'Reporte'}.pdf`} />
-                <div id="pdf-content" className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
-                    {(shareItem || printItem) && <AccidentPdfGenerator report={{ ...(shareItem || printItem), id: (shareItem || printItem).id || Date.now() }} isHeadless={true} />}
-                </div>
+          {/* Top Summary Cards (KPIs) idénticos a Aptitudes Médicas */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            <div 
+              onClick={() => setStatusFilter('all')}
+              className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                statusFilter === 'all' 
+                  ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 shadow-md' 
+                  : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-blue-400'
+              }`}>
+              <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider">Total Registrados</span>
+                <AlertTriangle size={20} />
+              </div>
+              <div className="text-2xl font-black text-slate-900 dark:text-white">{metrics.total}</div>
+              <span className="text-[11px] text-slate-500">Investigaciones cargadas</span>
+            </div>
 
-                <main className="w-full max-w-[1000px] mx-auto pb-8">
-                    {/* Botones de Navegación */}
-                    <div className="flex gap-[1rem] p-[0_1rem] mb-[1rem]">
-                        <></>
-                    </div>
+            <div 
+              onClick={() => setStatusFilter('Leve')}
+              className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                statusFilter === 'Leve' 
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 shadow-md' 
+                  : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-emerald-400'
+              }`}>
+              <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider">Siniestros Leves</span>
+                <CheckCircle2 size={20} />
+              </div>
+              <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{metrics.leve}</div>
+              <span className="text-[11px] text-slate-500">Sin baja laboral</span>
+            </div>
 
-                    <div className="flex items-center justify-end gap-4 mb-8 flex-wrap px-4">
-                        <div className="flex gap-3">
-                            {history.length > 0 &&
-                                <button onClick={handleExportCSV} style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }} className="flex items-center gap-1.5 border-none rounded-xl px-4 py-2.5 text-xs font-extrabold cursor-pointer text-white transition-transform hover:-translate-y-0.5">
-                                    <Download size={14} /> EXCEL
-                                </button>
-              }
-                            <button onClick={() => setIsFormVisible(true)} className="flex items-center gap-2 px-5 py-2.5 w-auto m-0 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-none rounded-xl font-extrabold shadow-lg shadow-emerald-500/30 hover:-translate-y-0.5 transition-all cursor-pointer">
-                                <Plus size={18} /> NUEVA INVESTIGACIÓN
-                            </button>
-                        </div>
-                    </div>
+            <div 
+              onClick={() => setStatusFilter('Moderado')}
+              className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                statusFilter === 'Moderado' 
+                  ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 shadow-md' 
+                  : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-amber-400'
+              }`}>
+              <div className="flex items-center justify-between text-amber-600 dark:text-amber-400 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider">Con Baja (Moderados)</span>
+                <AlertTriangle size={20} />
+              </div>
+              <div className="text-2xl font-black text-amber-600 dark:text-amber-400">{metrics.moderado}</div>
+              <span className="text-[11px] text-slate-500">Con días de baja (ILT)</span>
+            </div>
 
-                <DataTable
-            data={history}
-            columns={columns}
-            searchPlaceholder="Buscar por empleado, empresa o gravedad..."
-            searchFields={['victimaNombre', 'empresa', 'gravedad', 'lesion']}
-            emptyMessage="No hay investigaciones registradas."
-            emptyIcon={<FileText size={48} />} />
+            <div 
+              onClick={() => setStatusFilter('GraveMortal')}
+              className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                statusFilter === 'GraveMortal'
+                  ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-500 shadow-md' 
+                  : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-rose-400'
+              }`}>
+              <div className="flex items-center justify-between text-rose-600 dark:text-rose-400 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider">Graves / Mortales</span>
+                <XCircle size={20} />
+              </div>
+              <div className="text-2xl font-black text-rose-600 dark:text-rose-400">{metrics.graveMortal}</div>
+              <span className="text-[11px] text-slate-500">Internación / Severos</span>
+            </div>
+          </div>
+
+          {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+          {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
+          <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Investigación de Accidente - ${shareItem?.victimaNombre || ''}`} text={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⚠️ Gravedad: ${shareItem.gravedad}` : ''} rawMessage={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}` : ''} elementIdToPrint="pdf-content" fileName={`Accidente_${shareItem?.victimaNombre || 'Reporte'}.pdf`} />
           
-                </main>
-            </div>);
+          <div id="pdf-content" className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+            {(shareItem || printItem) && <AccidentPdfGenerator report={{ ...(shareItem || printItem), id: (shareItem || printItem).id || Date.now() }} isHeadless={true} />}
+          </div>
 
+          <main className="w-full max-w-[1200px] mx-auto pb-8 mt-6">
+            <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
+              <h3 className="m-0 text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <FileText className="text-blue-500" size={22} />
+                Historial de Siniestros e Investigaciones
+              </h3>
+              <div className="flex gap-3 items-center">
+                {history.length > 0 && (
+                  <button onClick={handleExportCSV} style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }} className="flex items-center gap-1.5 border-none rounded-xl px-4 py-2.5 text-xs font-extrabold cursor-pointer text-white transition-transform hover:-translate-y-0.5">
+                    <Download size={14} /> EXCEL
+                  </button>
+                )}
+                <button onClick={() => setIsFormVisible(true)} className="flex items-center gap-2 px-5 py-2.5 w-auto m-0 bg-gradient-to-br from-blue-600 to-blue-700 text-white border-none rounded-xl font-extrabold shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 transition-all cursor-pointer">
+                  <Plus size={18} /> NUEVA INVESTIGACIÓN
+                </button>
+              </div>
+            </div>
+
+            <DataTable
+              data={filteredHistory}
+              columns={columns}
+              searchPlaceholder="Buscar por empleado, DNI, empresa, sector o lesión..."
+              searchFields={['victimaNombre', 'victimaDni', 'empresa', 'ubicacion', 'gravedad', 'lesion']}
+              emptyMessage="No hay investigaciones registradas."
+              emptyIcon={<FileText size={48} />}
+            />
+          </main>
+        </div>
+      </AnimatedPage>
+    );
   }
 
   return (
@@ -598,96 +865,331 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                     <ModuleFormSection title={SECTIONS[currentStep] || ''} icon={<FileText />}>
                         <div className="mb-4" />
 
-                    {currentStep === 0 &&
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Fecha del Suceso</label>
-                                <input type="date" value={formData.fecha} onChange={(e) => handleInputChange('fecha', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Hora Aprox.</label>
-                                <input type="time" value={formData.hora} onChange={(e) => handleInputChange('hora', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Razón Social / Empresa</label>
-                                <input type="text" placeholder="Ej. Constructora SRL" value={formData.empresa} onChange={(e) => handleInputChange('empresa', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ubicación / Sector</label>
-                                <input type="text" placeholder="Ej. Obra Centro, Sector Hormigonado" value={formData.ubicacion} onChange={(e) => handleInputChange('ubicacion', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Gravedad Estimada</label>
-                                <select value={formData.gravedad} onChange={(e) => handleInputChange('gravedad', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm">
-                                    <option value="Leve">Leve (Sin baja)</option>
-                                    <option value="Moderado">Moderado (Con baja médica corta)</option>
-                                    <option value="Grave">Grave (Internación, amputaciones)</option>
-                                    <option value="Mortal">Mortal</option>
-                                </select>
-                            </div>
+                    {currentStep === 0 && (
+                      <div className="space-y-6">
+                        {/* ⚡ Plantillas Rápidas de Accidentes Frecuentes */}
+                        <div className="bg-blue-50/70 dark:bg-blue-950/30 p-4 rounded-2xl border border-blue-200 dark:border-blue-900/50">
+                          <p className="m-0 mb-2 text-xs font-black text-blue-800 dark:text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
+                            ⚡ Carga Rápida de Siniestros Frecuentes (Presets de Prueba / Auditoría):
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {ACCIDENT_PRESETS.map((preset) => (
+                              <button
+                                key={preset.id}
+                                type="button"
+                                onClick={() => {
+                                  setFormData((prev: any) => ({
+                                    ...prev,
+                                    ...preset
+                                  }));
+                                  toast.success(`Cargada plantilla: ${preset.label}`);
+                                }}
+                                className="px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-blue-200 dark:border-blue-900/60 rounded-xl text-xs font-bold hover:bg-blue-100 hover:text-blue-800 transition-all cursor-pointer shadow-sm"
+                              >
+                                + {preset.label}
+                              </button>
+                            ))}
+                          </div>
                         </div>
-          }
 
-                    {currentStep === 1 &&
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nombre del Accidentado</label>
-                                <input type="text" placeholder="Nombre completo" value={formData.victimaNombre} onChange={(e) => handleInputChange('victimaNombre', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">DNI / CUIL</label>
-                                <input type="text" placeholder="Sin guiones" value={formData.victimaDni} onChange={(e) => handleInputChange('victimaDni', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Puesto / Tarea</label>
-                                <input type="text" placeholder="Ej. Oficial Albañil" value={formData.victimaPuesto} onChange={(e) => handleInputChange('victimaPuesto', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Antigüedad en el puesto</label>
-                                <input type="text" placeholder="Ej. 2 años" value={formData.victimaAntiguedad} onChange={(e) => handleInputChange('victimaAntiguedad', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tipo de Lesión</label>
-                                <input type="text" placeholder="Ej. Corte profundo, contusión, fractura..." value={formData.lesion} onChange={(e) => handleInputChange('lesion', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Parte del Cuerpo Afectada</label>
-                                <input type="text" placeholder="Ej. Mano derecha indíce" value={formData.parteCuerpo} onChange={(e) => handleInputChange('parteCuerpo', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
-                            </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Fecha del Suceso *</label>
+                            <input type="date" value={formData.fecha} onChange={(e) => handleInputChange('fecha', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Hora Aprox. *</label>
+                            <input type="time" value={formData.hora} onChange={(e) => handleInputChange('hora', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
+                          </div>
+                          <div className="md:col-span-2">
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Razón Social / Empresa *</label>
+                            <input type="text" placeholder="Ej. Constructora SRL" value={formData.empresa} onChange={(e) => handleInputChange('empresa', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
+                          </div>
+                          <div className="md:col-span-2">
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ubicación / Sector *</label>
+                            <input type="text" placeholder="Ej. Obra Centro, Sector Hormigonado" value={formData.ubicacion} onChange={(e) => handleInputChange('ubicacion', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
+                          </div>
+                          <div className="md:col-span-2">
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Gravedad Estimada</label>
+                            <select value={formData.gravedad} onChange={(e) => handleInputChange('gravedad', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm">
+                              <option value="Leve">Leve (Sin baja)</option>
+                              <option value="Moderado">Moderado (Con baja médica corta)</option>
+                              <option value="Grave">Grave (Internación, amputaciones)</option>
+                              <option value="Mortal">Mortal</option>
+                            </select>
+                          </div>
                         </div>
-          }
 
-                    {currentStep === 2 &&
-          <div className="flex flex-col gap-6">
+                        {/* 🏥 Registro ART y Denuncia de Siniestro (Res. SRT 1552/12) */}
+                        <div className="bg-slate-50 dark:bg-slate-900/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                          <h4 className="m-0 text-xs font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                            🏥 Registro de ART y Denuncia de Siniestro (Ley 24.557 / Res. 1552/12)
+                          </h4>
+
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Descripción detallada del Hecho (¿Qué pasó?)</label>
-                                <div className="relative flex items-center w-full">
-                                    <textarea
-                                        className="w-full px-4 py-3 pr-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm min-h-[120px] resize-y"
-                                        placeholder="Relato detallado de cómo ocurrió el accidente, basado en los testimonios y evidencias iniciales..."
-                                        value={formData.descripcionHecho}
-                                        onChange={(e) => handleInputChange('descripcionHecho', e.target.value)}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={handleVoiceDictation}
-                                        className={`absolute right-3 bottom-3 p-2.5 rounded-lg border-none cursor-pointer transition-all ${
-                                            isListeningVoice 
-                                                ? 'bg-red-500 text-white animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]' 
-                                                : 'bg-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-200/50'
-                                        }`}
-                                        title="Dictar con Voz"
+                              <label className="block font-bold text-slate-600 dark:text-slate-400 mb-1">Aseguradora ART</label>
+                              <select
+                                value={formData.artNombre}
+                                onChange={(e) => handleInputChange('artNombre', e.target.value)}
+                                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
+                              >
+                                <option value="">Seleccionar ART...</option>
+                                <option value="Provincia ART">Provincia ART</option>
+                                <option value="Experta ART">Experta ART</option>
+                                <option value="La Segunda ART">La Segunda ART</option>
+                                <option value="Galeno ART">Galeno ART</option>
+                                <option value="Prevención ART">Prevención ART</option>
+                                <option value="SMG ART">SMG ART</option>
+                                <option value="Berkley ART">Berkley ART</option>
+                                <option value="Otra / OSECAC">Otra / OSECAC</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block font-bold text-slate-600 dark:text-slate-400 mb-1">N° de Siniestro ART</label>
+                              <input
+                                type="text"
+                                placeholder="Ej. SIN-88912"
+                                value={formData.numeroSiniestro}
+                                onChange={(e) => handleInputChange('numeroSiniestro', e.target.value)}
+                                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block font-bold text-slate-600 dark:text-slate-400 mb-1">Centro Médico de Derivación</label>
+                              <input
+                                type="text"
+                                placeholder="Ej. Sanatorio Central"
+                                value={formData.centroMedico}
+                                onChange={(e) => handleInputChange('centroMedico', e.target.value)}
+                                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 📊 Calculador de Índices de Siniestralidad SRT (Res. 503/14) */}
+                        <div className="bg-emerald-50/60 dark:bg-emerald-950/20 p-5 rounded-2xl border border-emerald-200 dark:border-emerald-900/40 space-y-4">
+                          <div className="flex items-center justify-between">
+                            <h4 className="m-0 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider flex items-center gap-2">
+                              📊 Calculador de Índices de Siniestralidad SRT (Res. 503/14)
+                            </h4>
+                            <span className="text-[10px] font-extrabold bg-emerald-200 dark:bg-emerald-900/60 text-emerald-900 dark:text-emerald-100 px-2 py-0.5 rounded-full">
+                              Estadística Anual
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                            <div>
+                              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Horas Hombre Trabajadas (HHT Anual)</label>
+                              <input
+                                type="number"
+                                value={formData.hhtTotal || '100000'}
+                                onChange={(e) => handleInputChange('hhtTotal', e.target.value)}
+                                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Días de Baja / ILT Estimados</label>
+                              <input
+                                type="number"
+                                value={formData.diasIltEstimados || '0'}
+                                onChange={(e) => handleInputChange('diasIltEstimados', e.target.value)}
+                                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
+                              />
+                            </div>
+
+                            <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-emerald-200 dark:border-emerald-800 flex flex-col justify-center text-xs">
+                              {(() => {
+                                const hht = parseFloat(formData.hhtTotal) || 100000;
+                                const ilt = parseFloat(formData.diasIltEstimados) || 0;
+                                const ifVal = ((1 * 1000000) / hht).toFixed(2);
+                                const igVal = ((ilt * 1000000) / hht).toFixed(2);
+                                return (
+                                  <div className="space-y-1">
+                                    <div className="flex justify-between">
+                                      <span className="text-slate-500 font-bold">Índice Frecuencia (IF):</span>
+                                      <span className="font-black text-emerald-600 dark:text-emerald-400">{ifVal}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-slate-500 font-bold">Índice Gravedad (IG):</span>
+                                      <span className="font-black text-blue-600 dark:text-blue-400">{igVal}</span>
+                                    </div>
+                                  </div>
+                                );
+                              })()}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {currentStep === 1 && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nombre del Accidentado *</label>
+                          <input type="text" placeholder="Nombre completo" value={formData.victimaNombre} onChange={(e) => handleInputChange('victimaNombre', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">DNI / CUIL *</label>
+                          <input type="text" placeholder="Sin guiones" value={formData.victimaDni} onChange={(e) => handleInputChange('victimaDni', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Puesto / Tarea *</label>
+                          <input type="text" placeholder="Ej. Oficial Albañil" value={formData.victimaPuesto} onChange={(e) => handleInputChange('victimaPuesto', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Antigüedad en el puesto</label>
+                          <input type="text" placeholder="Ej. 2 años" value={formData.victimaAntiguedad} onChange={(e) => handleInputChange('victimaAntiguedad', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mecanismo del Siniestro (Res. SRT 7/2026)</label>
+                          <select value={formData.mecanismoAccidente} onChange={(e) => handleInputChange('mecanismoAccidente', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm">
+                            <option value="">Seleccionar mecanismo...</option>
+                            <option value="Contacto con objeto cortante en movimiento">Contacto con objeto cortante / herramienta en movimiento</option>
+                            <option value="Atrapamiento en máquinas o equipos">Atrapamiento por/entre partes móviles de máquinas</option>
+                            <option value="Caída a distinto nivel">Caída de altura / a distinto nivel</option>
+                            <option value="Caída al mismo nivel">Caída al mismo nivel / resbalón / tropiezo</option>
+                            <option value="Golpe por objeto caído o en movimiento">Golpe por objeto o herramienta en movimiento</option>
+                            <option value="Contacto eléctrico directo / indirecto">Contacto eléctrico / Arco eléctrico</option>
+                            <option value="Sobreesfuerzo ergonómico / Levantamiento manual">Sobreesfuerzo ergonómico / Levantamiento manual de carga (Res. 886/15)</option>
+                            <option value="Exposición o contacto con sustancias químicas">Exposición / Contacto con agente químico o tóxico</option>
+                            <option value="Quemadura térmica o por fricción">Quemadura térmica o por fricción</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Parte del Cuerpo Afectada (Normalizada)</label>
+                          <select value={formData.parteCuerpoEspecifica} onChange={(e) => handleInputChange('parteCuerpoEspecifica', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm">
+                            <option value="">Seleccionar región corporal...</option>
+                            <option value="Cabeza / Rostro">Cabeza / Cráneo / Rostro</option>
+                            <option value="Ojos / Visión">Ojos / Visión</option>
+                            <option value="Cuello / Cervical">Cuello / Columna Cervical</option>
+                            <option value="Columna Lumbar / Espalda">Columna Lumbar / Dorsal / Espalda</option>
+                            <option value="Miembro Superior Izquierdo">Miembro Superior Izquierdo (Hombro / Brazo / Codo)</option>
+                            <option value="Miembro Superior Derecho">Miembro Superior Derecho (Hombro / Brazo / Codo)</option>
+                            <option value="Mano / Dedos">Mano / Muñeca / Dedos</option>
+                            <option value="Tórax / Abdomen">Tórax / Abdomen / Pelvis</option>
+                            <option value="Miembro Inferior Izquierdo">Miembro Inferior Izquierdo (Muslo / Rodilla / Tobillo)</option>
+                            <option value="Miembro Inferior Derecho">Miembro Inferior Derecho (Muslo / Rodilla / Tobillo)</option>
+                            <option value="Pie / Dedos Pie">Pie / Dedos del Pie</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tipo de Lesión Diagnóstica</label>
+                          <input type="text" placeholder="Ej. Corte profundo, contusión, fractura..." value={formData.lesion} onChange={(e) => handleInputChange('lesion', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Detalle de Ubicación Anatómica</label>
+                          <input type="text" placeholder="Ej. Mano derecha, falange distal índice" value={formData.parteCuerpo} onChange={(e) => handleInputChange('parteCuerpo', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
+                        </div>
+                      </div>
+                    )}
+
+                    {currentStep === 2 && (
+                      <div className="flex flex-col gap-6">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Descripción detallada del Hecho (¿Qué pasó?)</label>
+                          <div className="relative flex items-center w-full">
+                            <textarea
+                              className="w-full px-4 py-3 pr-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm min-h-[120px] resize-y"
+                              placeholder="Relato detallado de cómo ocurrió el accidente, basado en los testimonios y evidencias iniciales..."
+                              value={formData.descripcionHecho}
+                              onChange={(e) => handleInputChange('descripcionHecho', e.target.value)}
+                            />
+                            <button
+                              type="button"
+                              onClick={handleVoiceDictation}
+                              className={`absolute right-3 bottom-3 p-2.5 rounded-lg border-none cursor-pointer transition-all ${
+                                isListeningVoice 
+                                  ? 'bg-red-500 text-white animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]' 
+                                  : 'bg-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-200/50'
+                              }`}
+                              title="Dictar con Voz"
+                            >
+                              {isListeningVoice ? <MicOff size={16} /> : <Mic size={16} />}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* 🗺️ Factores Ambientales y del Entorno de Trabajo */}
+                        <div className="p-5 rounded-2xl bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 space-y-4 shadow-sm">
+                          <div className="flex items-center gap-2">
+                            <span className="text-base">🗺️</span>
+                            <h4 style={{ color: '#0f172a' }} className="m-0 text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
+                              Factores Contribuyentes del Entorno (Checklist de Seguridad)
+                            </h4>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {[
+                              { id: 'iluminacionDeficiente', emoji: '💡', label: 'Iluminación insuficiente o encandilamiento' },
+                              { id: 'ordenLimpiezaDeficiente', emoji: '🧹', label: 'Orden y limpieza deficiente (Housekeeping)' },
+                              { id: 'pisoResbaladizo', emoji: '💧', label: 'Piso húmedo, resbaladizo o irregular' },
+                              { id: 'ruidoElevado', emoji: '🎧', label: 'Ruido ambiente elevado (dificultó comunicación)' },
+                              { id: 'eppAusenteOInadecuado', emoji: '🛡️', label: 'EPP ausente, en mal estado o no utilizado' },
+                              { id: 'ventilacionInsuficiente', emoji: '💨', label: 'Ventilación insuficiente o gases/polvos' },
+                              { id: 'faltaGuardaProteccion', emoji: '⚙️', label: 'Ausencia o anulación de guardas / LOTO' }
+                            ].map((item) => {
+                              const isChecked = !!formData.condicionesAmbientales?.[item.id];
+                              return (
+                                <button
+                                  key={item.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setFormData((prev: any) => ({
+                                      ...prev,
+                                      condicionesAmbientales: {
+                                        ...(prev.condicionesAmbientales || {}),
+                                        [item.id]: !isChecked
+                                      }
+                                    }));
+                                  }}
+                                  style={{
+                                    backgroundColor: isChecked ? '#fef3c7' : '#ffffff',
+                                    borderColor: isChecked ? '#f59e0b' : '#cbd5e1',
+                                    color: '#0f172a'
+                                  }}
+                                  className={`flex items-center gap-3 p-3.5 rounded-2xl border-2 transition-all cursor-pointer text-left shadow-sm ${
+                                    isChecked
+                                      ? 'ring-2 ring-amber-400/50 shadow-md scale-[1.01]'
+                                      : 'hover:border-slate-400'
+                                  }`}
+                                >
+                                  {/* Custom Checkbox Box */}
+                                  <div
+                                    style={{
+                                      backgroundColor: isChecked ? '#f59e0b' : '#f1f5f9',
+                                      borderColor: isChecked ? '#d97706' : '#94a3b8',
+                                      color: isChecked ? '#ffffff' : '#475569'
+                                    }}
+                                    className="w-7 h-7 rounded-xl border flex items-center justify-center font-black text-sm shrink-0 transition-transform"
+                                  >
+                                    {isChecked ? '✓' : item.emoji}
+                                  </div>
+
+                                  <div className="flex flex-col">
+                                    <span
+                                      style={{ color: '#0f172a' }}
+                                      className="font-extrabold text-xs text-slate-900 leading-snug break-words"
                                     >
-                                        {isListeningVoice ? <MicOff size={16} /> : <Mic size={16} />}
-                                    </button>
-                                </div>
-                            </div>
+                                      {item.label}
+                                    </span>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
 
-                            <AdjuntosSection
-              adjuntos={formData.fotos || []}
-              onAdd={(b64) => setFormData((prev: any) => ({ ...prev, fotos: [...(prev.fotos || []), b64] }))}
-              onRemove={(idx) => setFormData((prev: any) => ({ ...prev, fotos: (prev.fotos || []).filter((_: any, i: number) => i !== idx) }))}
-              accentColor="#3b82f6" />
+                        <AdjuntosSection
+                          adjuntos={formData.fotos || []}
+                          onAdd={(b64) => setFormData((prev: any) => ({ ...prev, fotos: [...(prev.fotos || []), b64] }))}
+                          onRemove={(idx) => setFormData((prev: any) => ({ ...prev, fotos: (prev.fotos || []).filter((_: any, i: number) => i !== idx) }))}
+                          accentColor="#3b82f6"
+                        />
             
 
                             <div className="flex justify-between items-center mt-4 pb-4 border-b border-slate-200 dark:border-slate-700">
@@ -720,7 +1222,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                                 </div>
             )}
                         </div>
-          }
+          )}
 
                     {currentStep === 3 && (
                       <div className="flex flex-col gap-6">

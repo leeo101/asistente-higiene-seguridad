@@ -4,12 +4,17 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Save, Plus, Trash2, Lightbulb, Calculator,
   FileText, Printer, Building2, Layout, Maximize2,
-  Info, TriangleAlert, ShieldCheck, History, Share2, Sun, Sparkles, Loader2, Check } from
-'lucide-react';
+  Info, TriangleAlert, ShieldCheck, History, Share2, Sun, Sparkles, Loader2, Check,
+  CheckCircle2, XCircle, Pencil, QrCode, Download } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
 import ShareModal from '../components/ShareModal';
+import QRModal from '../components/QRModal';
+import AnimatedPage from '../components/AnimatedPage';
+import { DataTable } from '../components/DataTable';
+import LightingPdfGenerator from '../components/LightingPdfGenerator';
+import { downloadCSV } from '../services/exportCsv';
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import CompanyLogo from '../components/CompanyLogo';
@@ -76,6 +81,51 @@ export default function LightingReport(): React.ReactElement | null {
   const [history, setHistory] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
+  const [statusFilter, setStatusFilter] = useState<'all' | 'cumple' | 'noCumple'>('all');
+  const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [qrTarget, setQrTarget] = useState<any>(null);
+  const [shareItem, setShareItem] = useState<any>(null);
+
+  const metrics = React.useMemo(() => {
+    const total = history.length;
+    let cumple = 0;
+    let noCumple = 0;
+    let sumaLux = 0;
+
+    history.forEach((item: any) => {
+      const isApto = item.results?.cumplePromedio;
+      if (isApto) cumple++;
+      else noCumple++;
+      if (item.results?.promedioLux) sumaLux += parseFloat(item.results.promedioLux);
+    });
+
+    const promedioGeneral = total > 0 ? Math.round(sumaLux / total) : 0;
+    return { total, cumple, noCumple, promedioGeneral };
+  }, [history]);
+
+  const filteredHistoryData = React.useMemo(() => {
+    return history.filter((item: any) => {
+      const isApto = item.results?.cumplePromedio;
+      if (statusFilter === 'cumple') return isApto;
+      if (statusFilter === 'noCumple') return !isApto;
+      return true;
+    });
+  }, [history, statusFilter]);
+
+  const handleExportCSV = () => {
+    requirePro(() => {
+      downloadCSV(history.map((i: any) => ({
+        empresa: i.empresa || i.datos?.empresa,
+        sector: i.sector || i.datos?.sector,
+        fecha: i.date ? new Date(i.date).toLocaleDateString('es-AR') : '',
+        promedioLux: i.results?.promedioLux || 0,
+        cumplimiento: i.results?.cumplePromedio ? 'CUMPLE' : 'NO CUMPLE'
+      })), 'historial_estudios_iluminacion', {
+        empresa: 'Empresa / Cliente', sector: 'Sector Evaluado', fecha: 'Fecha de Medición',
+        promedioLux: 'Promedio Lux Medido', cumplimiento: 'Dictamen Normativo'
+      });
+    });
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -313,182 +363,299 @@ export default function LightingReport(): React.ReactElement | null {
     }
   };
 
-  if (!isFormVisible) {
+  if (selectedReport) {
     return (
-      <div className="container min-h-[100vh] bg-[var(--color-background)] pb-[7rem] pt-[5.5rem]">
-                <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
-        title="Estudios de Iluminación"
-        subtitle="Gestión e historial de estudios de iluminación y luxometría."
-        icon={<Lightbulb size={32} color="#ffffff" />}
-        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
-        
-        
-                
-                <main className="p-[0_0_2rem_0] max-w-[1000px] m-[0_auto] w-[100%]">
-                    {/* Botones de Navegación */}
-                    <div className="flex gap-[1rem] p-[0_1rem] mb-[1rem]">
-                        <></>
-                    </div>
+      <div className="print-only-wrapper min-h-[100vh] bg-slate-900 pb-12 pt-4">
+        <div className="no-print flex items-center justify-between max-w-[210mm] mx-auto mb-4 px-4">
+          <button 
+            onClick={() => setSelectedReport(null)} 
+            className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs cursor-pointer border border-slate-700 transition-all">
+            <ArrowLeft size={16} /> Volver al Historial
+          </button>
+          <button 
+            onClick={() => window.print()} 
+            className="flex items-center gap-2 px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-extrabold text-xs cursor-pointer shadow-lg shadow-amber-500/30 transition-all">
+            <Printer size={16} /> Imprimir / PDF
+          </button>
+        </div>
+        <LightingPdfGenerator data={selectedReport} />
+      </div>
+    );
+  }
 
-                    <div className="flex flex-col gap-4 mb-[2rem] px-4">
-                        <div className="flex justify-end">
-                            <button onClick={() => {
-                  setFormData({
-                    empresa: '', sector: '', descripcionActividad: '', tipoTarea: '', luxRequerido: 500, conclusion: '',
-                    operatorSignature: '', supervisorSignature: '', mediciones: [{ id: Date.now().toString(), ubicacion: 'Puesto 1', luxMedido: 0 as any }]
-                  });
-                  setIsFormVisible(true);
-                }}
-                onMouseOver={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 12px 25px rgba(16,185,129,0.4)';}}
-                onMouseOut={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.3)';}}
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '0 1.5rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(16,185,129,0.3)', whiteSpace: 'nowrap', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', minHeight: '3.5rem' }}>
-                                <Plus size={22} strokeWidth={2.5} /> Nuevo Estudio
-                            </button>
-                        </div>
-                        <div className="relative w-full h-[56px]">
-                            <Search 
-                              size={22} 
-                              style={{ 
-                                position: 'absolute', 
-                                left: '1.25rem', 
-                                top: 0, 
-                                bottom: 0, 
-                                marginTop: 'auto', 
-                                marginBottom: 'auto', 
-                                color: '#94a3b8', 
-                                display: 'block' 
-                              }} 
-                              className="pointer-events-none z-10" 
-                            />
-                            <input
-                              type="text"
-                              placeholder="Buscar por empresa o sector..."
-                              value={searchTerm}
-                              onChange={(e) => setSearchTerm(e.target.value)}
-                              style={{ width: '100%', height: '56px', paddingLeft: '3.8rem', paddingRight: '1rem', borderRadius: '1rem', fontSize: '1rem', outline: 'none', fontWeight: 500, color: 'var(--color-text)', boxSizing: 'border-box' }}
-                              className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors shadow-sm"
-                            />
-                        </div>
-                    </div>
+  if (!isFormVisible) {
+    const columns = [
+      {
+        header: 'Fecha Medición',
+        accessor: 'date',
+        sortable: true,
+        render: (item: any) => (
+          <span style={{ color: '#000000', fontWeight: '900', fontSize: '13px', display: 'block' }}>
+            {new Date(item.date || item.datos?.fecha || Date.now()).toLocaleDateString('es-AR')}
+          </span>
+        )
+      },
+      {
+        header: 'Empresa / Cliente',
+        accessor: 'empresa',
+        sortable: true,
+        render: (item: any) => (
+          <div>
+            <div style={{ color: '#000000', fontWeight: '900', fontSize: '14px', lineHeight: '1.2' }}>
+              {item.empresa || item.datos?.empresa || 'Empresa sin especificar'}
+            </div>
+            <div style={{ color: '#475569', fontWeight: '700', fontSize: '12px', marginTop: '2px' }}>
+              📍 Sector: {item.sector || item.datos?.sector || 'General'}
+            </div>
+          </div>
+        )
+      },
+      {
+        header: 'Tarea / Niveles Lux',
+        accessor: 'datos.tipoTarea',
+        sortable: true,
+        render: (item: any) => {
+          const d = item.datos || item;
+          const medido = item.results?.promedioLux || 0;
+          const req = d.luxRequerido || 500;
+          return (
+            <div>
+              <span style={{ color: '#0f172a', fontWeight: '800', fontSize: '12px', display: 'block' }}>
+                💡 {d.tipoTarea || 'Estudio de Luxometría'}
+              </span>
+              <span style={{ color: '#64748b', fontWeight: '600', fontSize: '11px' }}>
+                Exigido: <strong>{req} Lux</strong> | Medido: <strong>{medido} Lux</strong>
+              </span>
+            </div>
+          );
+        }
+      },
+      {
+        header: 'Resultado Normativo',
+        accessor: 'results.cumplePromedio',
+        sortable: true,
+        render: (item: any) => {
+          const isApto = item.results?.cumplePromedio;
+          if (isApto) {
+            return (
+              <span style={{ backgroundColor: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', padding: '4px 10px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <CheckCircle2 size={13} /> CUMPLE NORMATIVA
+              </span>
+            );
+          }
+          return (
+            <span style={{ backgroundColor: '#fef2f2', color: '#dc2626', border: '1px solid #fecdd3', padding: '4px 10px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <XCircle size={13} /> NO CUMPLE NORMATIVA
+            </span>
+          );
+        }
+      },
+      {
+        header: 'Acciones',
+        accessor: 'id',
+        render: (item: any) => (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            <button 
+              onClick={() => setSelectedReport(item.datos || item)} 
+              style={{ backgroundColor: '#475569', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(71, 85, 105, 0.2)' }}>
+              <FileText size={12} /> Ver PDF
+            </button>
+            
+            <button 
+              onClick={() => {
+                setFormData(item.datos || item);
+                setIsFormVisible(true);
+                window.history.replaceState({ editData: item }, '');
+              }} 
+              style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(217, 119, 6, 0.2)' }}>
+              <Pencil size={12} /> Editar
+            </button>
 
-                    <div className="grid grid-template-columns-[repeat(auto-fill,_minmax(300px,_1fr))] gap-[1.5rem] p-[0_1rem]">
-                        {filteredHistory.length === 0 ?
-            <div className="grid-column-[1_/_-1] text-center p-[4rem_2rem] bg-[var(--color-surface)] rounded-[24px] border-[1px_dashed_var(--color-border)]">
-                                <Lightbulb size={48} className="text-[var(--color-text-light)] mb-[1rem]" />
-                                <h3 className="m-[0_0_0.5rem_0]">No hay estudios registrados</h3>
-                                <p className="m-[0] text-[var(--color-text-muted)]">Cargue su primer estudio de iluminación.</p>
-                            </div> :
+            <button 
+              onClick={() => requirePro(() => {
+                const url = `${window.location.origin}/v/${currentUser?.uid}/lighting/${item.id}?print=true`;
+                setQrTarget({ text: url, title: `Estudio Iluminación — ${item.empresa || item.datos?.empresa || ''}` });
+              })} 
+              style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)' }}>
+              <QrCode size={12} /> QR
+            </button>
 
-            filteredHistory.map((item: any) => {
-              const isApto = item.results?.cumplePromedio;
-              return (
-                <div
-                  key={item.id}
+            <button 
+              onClick={() => requirePro(() => setShareItem(item.datos || item))} 
+              style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)' }}>
+              <Share2 size={12} /> Compartir
+            </button>
+
+            <button 
+              onClick={(e) => handleDelete(item.id, e)} 
+              style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(220, 38, 38, 0.2)' }}>
+              <Trash2 size={12} /> Eliminar
+            </button>
+          </div>
+        )
+      }
+    ];
+
+    return (
+      <AnimatedPage>
+        <div className="container pb-[6rem] min-h-[100vh] flex flex-col pt-4">
+          <div className="no-print">
+            <PremiumHeader
+              title="Estudios de Iluminación"
+              subtitle={`Gestión e historial de estudios de luxometría laboral — ${countryNorms.lighting}`}
+              icon={<Lightbulb size={36} color="#ffffff" />}
+              color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            <div 
+              onClick={() => setStatusFilter('all')}
+              className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                statusFilter === 'all' 
+                  ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 shadow-md' 
+                  : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-blue-400'
+              }`}>
+              <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider">Total Evaluados</span>
+                <Lightbulb size={20} />
+              </div>
+              <div className="text-2xl font-black text-slate-900 dark:text-white">{metrics.total}</div>
+              <span className="text-[11px] text-slate-500">Estudios cargados</span>
+            </div>
+
+            <div 
+              onClick={() => setStatusFilter('cumple')}
+              className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                statusFilter === 'cumple' 
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 shadow-md' 
+                  : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-emerald-400'
+              }`}>
+              <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider">Cumple Normativa</span>
+                <CheckCircle2 size={20} />
+              </div>
+              <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{metrics.cumple}</div>
+              <span className="text-[11px] text-slate-500">Luxometría conforme</span>
+            </div>
+
+            <div 
+              onClick={() => setStatusFilter('noCumple')}
+              className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                statusFilter === 'noCumple' 
+                  ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-500 shadow-md' 
+                  : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-rose-400'
+              }`}>
+              <div className="flex items-center justify-between text-rose-600 dark:text-rose-400 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider">No Cumple (Deficiente)</span>
+                <XCircle size={20} />
+              </div>
+              <div className="text-2xl font-black text-rose-600 dark:text-rose-400">{metrics.noCumple}</div>
+              <span className="text-[11px] text-slate-500">Requiere adecuación</span>
+            </div>
+
+            <div 
+              className="p-4 rounded-2xl border bg-amber-50/50 dark:bg-amber-950/20 border-amber-300 dark:border-amber-700/50">
+              <div className="flex items-center justify-between text-amber-600 dark:text-amber-400 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider">Promedio General</span>
+                <Sun size={20} />
+              </div>
+              <div className="text-2xl font-black text-amber-600 dark:text-amber-400">{metrics.promedioGeneral} <span className="text-xs font-bold text-slate-600">Lux</span></div>
+              <span className="text-[11px] text-slate-500">Intensidad acumulada</span>
+            </div>
+          </div>
+
+          <ConfirmModal
+            isOpen={confirmModal.isOpen}
+            onClose={() => setConfirmModal({ isOpen: false, payload: null })}
+            onConfirm={executeDelete}
+            title="¿Eliminar estudio?"
+            message="Esta acción no se puede deshacer."
+            iconEmoji="🗑️"
+          />
+
+          {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
+          <ShareModal 
+            isOpen={!!shareItem} 
+            open={!!shareItem} 
+            onClose={() => setShareItem(null)} 
+            title={`Estudio de Iluminación - ${shareItem?.empresa || ''}`} 
+            text={shareItem ? `💡 Estudio de Iluminación\n🏢 Empresa: ${shareItem.empresa}\n📍 Sector: ${shareItem.sector}\n📅 Fecha: ${shareItem.fecha}\n💡 Promedio: ${shareItem.results?.promedioLux || 0} Lux` : ''} 
+            rawMessage={shareItem ? `💡 Estudio de Iluminación\n🏢 Empresa: ${shareItem.empresa}` : ''} 
+            elementIdToPrint="pdf-content" 
+            fileName={`Iluminacion_${shareItem?.empresa || 'Estudio'}.pdf`} 
+          />
+
+          <div id="pdf-content" className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+            {shareItem && <LightingPdfGenerator data={shareItem} />}
+          </div>
+
+          <main className="w-full max-w-[1200px] mx-auto pb-8 mt-6">
+            <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
+              <h3 className="m-0 text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <Lightbulb className="text-amber-500" size={22} />
+                Historial de Estudios de Luxometría
+              </h3>
+              <div className="flex gap-3 items-center">
+                {history.length > 0 && (
+                  <button 
+                    onClick={handleExportCSV} 
+                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }} 
+                    className="flex items-center gap-1.5 border-none rounded-xl px-4 py-2.5 text-xs font-extrabold cursor-pointer text-white transition-transform hover:-translate-y-0.5">
+                    <Download size={14} /> EXCEL
+                  </button>
+                )}
+                <button 
                   onClick={() => {
-                    setFormData(item.datos || item);
+                    setFormData({
+                      empresa: '', sector: '', descripcionActividad: '', tipoTarea: '', luxRequerido: 500, conclusion: '',
+                      operatorSignature: '', supervisorSignature: '', mediciones: [{ id: Date.now().toString(), ubicacion: 'Puesto 1', luxMedido: 0 as any }]
+                    });
                     setIsFormVisible(true);
-                    window.history.replaceState({ editData: item }, '');
-                  }}
-                  className="card hover-lift animate-fade-in cursor-pointer p-[1.5rem] rounded-[16px] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)]">
+                  }} 
+                  className="flex items-center gap-2 px-5 py-2.5 w-auto m-0 bg-gradient-to-br from-amber-500 to-amber-600 text-white border-none rounded-xl font-extrabold shadow-lg shadow-amber-500/30 hover:-translate-y-0.5 transition-all cursor-pointer">
+                  <Plus size={18} /> NUEVO ESTUDIO
+                </button>
+              </div>
+            </div>
 
-                  
-                                        <div className="flex justify-space-between items-start mb-[1rem]">
-                                            <div>
-                                                <h3 className="m-[0_0_0.25rem_0] text-[1.2rem] font-[900]">{item.empresa || 'Empresa'}</h3>
-                                                <span className="text-[0.8rem] text-[var(--color-text-muted)] flex items-center gap-[0.25rem]">
-                                                    <Building2 size={14} /> {item.sector || 'Sector'}
-                                                </span>
-                                            </div>
-                                            <span style={{
-                      background: isApto ? '#f0fdf4' : '#fef2f2',
-                      color: isApto ? '#16a34a' : '#dc2626'
-
-
-
-
-                    }} className="p-[0.3rem_0.6rem] rounded-[6px] text-[0.75rem] font-[900]">
-                                                {isApto ? 'CUMPLE' : 'NO CUMPLE'}
-                                            </span>
-                                        </div>
-                                        
-                                        <div className="flex justify-space-between items-center pt-[1rem] border-top-[1px_solid_var(--color-border)]">
-                                            <span className="text-[0.8rem] text-[var(--color-primary)] font-[600] flex items-center gap-[0.25rem]">
-                                                <FileText size={14} /> Ver / Editar
-                                            </span>
-                                            <button
-                      onClick={(e) => handleDelete(item.id, e)}
-
-                      title="Eliminar" className="bg-[transparent] border-none text-[#ef4444] cursor-pointer p-[0.5rem]">
-                      
-                                                <Trash2 size={18} />
-                                            </button>
-                                        </div>
-                                    </div>);
-
-            })
-            }
-                    </div>
-                </main>
-                <ConfirmModal
-          isOpen={confirmModal.isOpen}
-          onClose={() => setConfirmModal({ isOpen: false, payload: null })}
-          onConfirm={executeDelete}
-          title="¿Eliminar estudio?"
-          message="Esta acción no se puede deshacer."
-          iconEmoji="🗑️" />
-        
-            </div>);
-
+            <DataTable
+              data={filteredHistoryData}
+              columns={columns}
+              searchPlaceholder="Buscar por empresa, cliente, sector o tarea..."
+              searchFields={['empresa', 'sector', 'datos.tipoTarea']}
+              emptyMessage="No hay estudios de iluminación registrados."
+              emptyIcon={<Lightbulb size={48} />}
+            />
+          </main>
+        </div>
+      </AnimatedPage>
+    );
   }
 
   return (
     <div className="min-h-[100vh] bg-[var(--color-background)] pb-[2rem] pt-[6.5rem] lighting-report-container">
-      <style>{`
-        @media print {
-          body * { visibility: hidden; }
-          #pdf-content, #pdf-content * { visibility: visible !important; }
-          #pdf-content {
-            position: static !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-            height: auto !important;
-            background: white !important;
-          }
-          .no-print { display: none !important; }
-          .print-only { display: block !important; }
-          .lighting-report-container > *:not(main):not(style) {
-            display: none !important;
-          }
-          .lighting-report-container, .lighting-report-container main, .app-container, .main-content {
-            display: block !important;
-            position: static !important;
-            height: auto !important;
-            min-height: 0 !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            overflow: visible !important;
-          }
-        }
-        
-        /* Fallback for html2canvas (Compartir PDF) */
-        .ats-pdf-offscreen #pdf-content {
-            background: white !important;
-            width: 1200px !important;
-            padding: 40px !important;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
-        .ats-pdf-offscreen .no-print { display: none !important; }
-        .ats-pdf-offscreen .print-only { display: block !important; opacity: 1 !important; visibility: visible !important; color: black !important; }
-        .ats-pdf-offscreen .card { background: white !important; border: 1px solid #ccc !important; }
-      `}</style>
-            <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
-      title={location.state?.editData ? 'Editar Protocolo de Iluminación' : 'Nuevo Estudio de Iluminación'}
-      subtitle={`Medición según ${countryNorms.lighting}`}
-      icon={<Lightbulb size={32} color="#ffffff" />}
-      color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
+      {/* Contenedor oficial imprimible del PDF */}
+      <div id="pdf-content" className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+        <LightingPdfGenerator data={{ ...formData, fecha: (formData as any).fecha || new Date().toISOString(), results }} />
+      </div>
+
+      <ShareModal 
+        isOpen={showShare} 
+        open={showShare} 
+        onClose={() => setShowShare(false)} 
+        title={`Estudio de Iluminación - ${formData.empresa || 'Protocolo'}`} 
+        text={`💡 Estudio de Iluminación\n🏢 Empresa: ${formData.empresa}\n📍 Sector: ${formData.sector}\n💡 Promedio: ${results?.promedioLux || 0} Lux`} 
+        rawMessage={`💡 Estudio de Iluminación\n🏢 Empresa: ${formData.empresa}`} 
+        elementIdToPrint="pdf-content" 
+        fileName={`Iluminacion_${formData.empresa || 'Estudio'}.pdf`} 
+      />
+
+      <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
+        title={location.state?.editData ? 'Editar Protocolo de Iluminación' : 'Nuevo Estudio de Iluminación'}
+        subtitle={`Medición según ${countryNorms.lighting}`}
+        icon={<Lightbulb size={32} color="#ffffff" />}
+        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
 
             <ModuleActionBar
               actions={[
@@ -523,7 +690,7 @@ export default function LightingReport(): React.ReactElement | null {
               ]}
             />
 
-            <main className="p-[2rem_1.5rem] max-w-[1000px] m-[0_auto]">
+            <main className="no-print p-[2rem_1.5rem] max-w-[1000px] m-[0_auto]">
                 <div className="mb-6">
                     <LightingCalculatorWidget
                       luxRequerido={formData.luxRequerido}
@@ -535,116 +702,86 @@ export default function LightingReport(): React.ReactElement | null {
                 </div>
 
             {showShare &&
-        <ShareModal
-          isOpen={showShare}
-          open={showShare}
-          onClose={() => setShowShare(false)}
-          title={`Estudio de Iluminación - ${formData.empresa}`}
-          text={`🔦 Estudio de Iluminación\n🏢 Empresa: ${formData.empresa}\n📍 Sector: ${formData.sector}\n💡 Requerido: ${formData.luxRequerido} Lux | Promedio Medido: ${results.promedioLux} Lux\n\nGenerado con Asistente HYS`}
-          rawMessage={`🔦 Estudio de Iluminación\n🏢 Empresa: ${formData.empresa}\n📍 Sector: ${formData.sector}\n💡 Requerido: ${formData.luxRequerido} Lux | Promedio Medido: ${results.promedioLux} Lux\n\nGenerado con Asistente HYS`}
-          elementIdToPrint="pdf-content"
-          fileName={`Iluminacion_${formData.empresa}.pdf`} />
+              <ShareModal
+                isOpen={showShare}
+                open={showShare}
+                onClose={() => setShowShare(false)}
+                title={`Estudio de Iluminación - ${formData.empresa}`}
+                text={`🔦 Estudio de Iluminación\n🏢 Empresa: ${formData.empresa}\n📍 Sector: ${formData.sector}\n💡 Requerido: ${formData.luxRequerido} Lux | Promedio Medido: ${results.promedioLux} Lux\n\nGenerado con Asistente HYS`}
+                rawMessage={`🔦 Estudio de Iluminación\n🏢 Empresa: ${formData.empresa}\n📍 Sector: ${formData.sector}\n💡 Requerido: ${formData.luxRequerido} Lux | Promedio Medido: ${results.promedioLux} Lux\n\nGenerado con Asistente HYS`}
+                elementIdToPrint="pdf-content"
+                fileName={`Iluminacion_${formData.empresa}.pdf`} />
+            }
 
-        }
-
-            {/* ENCABEZADO PARA IMPRESIÓN */}
-            <div id="pdf-content" className="w-[100%] flex flex-col gap-[1rem] bg-[#ffffff] text-[#000000]">
-                {/* Header Tripartito HSE */}
-                <div className="flex flex-row justify-space-between items-start border-bottom-[3px_solid_#e2e8f0] pb-[1.2rem] mb-[1.5rem] w-[100%] border-top-[12px_solid_#eab308] pt-[1rem]">
-                    <div className="flex-[1] text-left">
-                        <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.08em]">Sistema de Gestión HSE</p>
-                        <p className="m-[0] font-[900] text-[0.8rem] uppercase text-[#d97706]">Doc. Estudio de Iluminación</p>
-                    </div>
-                    <div className="flex-[2] flex flex-col items-center justify-center text-center">
-                        <h1 className="m-[0] font-[900] text-[2.4rem] letter-spacing-[-0.02em] uppercase line-height-[1] text-[#0f172a]">ILUMINACIÓN</h1>
-                        <div className="mt-[0.3rem] bg-[#eab308] text-[white] p-[0.2rem_0.8rem] rounded-[12px] text-[0.65rem] font-[800] letter-spacing-[0.1em]">
-                            ESTUDIO DE NIVELES — {countryNorms.lighting}
-                        </div>
-                    </div>
-                    <div className="flex-[1] text-right flex flex-col items-end gap-[0.5rem]">
-                        <CompanyLogo className="h-[38px] w-[auto] object-fit-[contain] max-w-[120px]" />
-                    </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-8 print-block">
+            <div className="grid md:grid-cols-2 gap-8">
                     {/* COLUMNA 1: DATOS GENERALES */}
                     <div>
-                        <h3 className="flex items-center gap-[0.5rem] mb-[1rem] text-[var(--color-primary)] border-bottom-[2px_solid_var(--color-border)] pb-[0.5rem]">
-                            <Building2 size={20} /> Datos del Establecimiento
+                        <h3 className="flex items-center gap-[0.5rem] mb-[1rem] text-amber-500 dark:text-amber-400 font-extrabold text-[1.1rem] border-b border-slate-700/40 pb-[0.5rem]">
+                            <Building2 size={20} className="text-amber-500" /> Datos del Establecimiento
                         </h3>
 
                         <div className="card p-[2rem] mb-[1.5rem] bg-[var(--gradient-card)] border-[1px_solid_var(--glass-border)] rounded-[20px]">
                             <div className="mb-6">
                                 <label className="block text-[0.9rem] mb-[0.5rem] font-[700]">Razón Social / Obra</label>
                                 <input
-                    type="text"
-                    value={formData.empresa}
-                    onChange={(e) => handleDataChange('empresa', e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors no-print"
-                    placeholder="Nombre de la empresa..." />
-                  
-                                <div className="print-only p-[0.6rem] border-bottom-[1px_solid_#eee] text-[1rem] text-[#000]">{formData.empresa || '-'}</div>
+                                  type="text"
+                                  value={formData.empresa}
+                                  onChange={(e) => handleDataChange('empresa', e.target.value)}
+                                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                                  placeholder="Nombre de la empresa..." />
                             </div>
                             <div className="mb-6">
                                 <label className="block text-[0.9rem] mb-[0.5rem] font-[700]">Sector / Área de Estudio</label>
                                 <input
-                    type="text"
-                    value={formData.sector}
-                    onChange={(e) => handleDataChange('sector', e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors no-print"
-                    placeholder="Ej: Nave Industrial, Administración..." />
-                  
-                                <div className="print-only p-[0.6rem] border-bottom-[1px_solid_#eee] text-[1rem] text-[#000]">{formData.sector || '-'}</div>
+                                  type="text"
+                                  value={formData.sector}
+                                  onChange={(e) => handleDataChange('sector', e.target.value)}
+                                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                                  placeholder="Ej: Nave Industrial, Administración..." />
                             </div>
                             <div>
                                 <label className="block text-[0.9rem] mb-[0.5rem] font-[700]">Descripción de las Tareas</label>
                                 <input
-                    type="text"
-                    value={formData.descripcionActividad}
-                    onChange={(e) => handleDataChange('descripcionActividad', e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors no-print"
-                    placeholder="Ej: Trabajo en escritorio, torno mecánico..." />
-                  
-                                <div className="print-only p-[0.6rem] border-bottom-[1px_solid_#eee] text-[1rem] text-[#000]">{formData.descripcionActividad || '-'}</div>
+                                  type="text"
+                                  value={formData.descripcionActividad}
+                                  onChange={(e) => handleDataChange('descripcionActividad', e.target.value)}
+                                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                                  placeholder="Ej: Trabajo en escritorio, torno mecánico..." />
                             </div>
                         </div>
 
-                        <h3 className="flex items-center gap-[0.5rem] mb-[1rem] text-[var(--color-primary)] border-bottom-[2px_solid_var(--color-border)] pb-[0.5rem] mt-[2rem]">
-                            <Layout size={20} /> Requerimiento Legal
+                        <h3 className="flex items-center gap-[0.5rem] mb-[1rem] text-amber-500 dark:text-amber-400 font-extrabold text-[1.1rem] border-b border-slate-700/40 pb-[0.5rem] mt-[2rem]">
+                            <Layout size={20} className="text-amber-500" /> Requerimiento Legal
                         </h3>
 
                         <div className="card p-[2rem] bg-[var(--gradient-card)] border-[1px_solid_var(--glass-border)] rounded-[20px]">
                             <div className="mb-6">
                                 <label className="block text-[0.9rem] mb-[0.5rem] font-[700]">Tipo de Tarea Visual ({countryNorms.lighting.split(' ')[0]} o Especial)</label>
                                 <input
-                    list="visualTasksList"
-                    value={formData.tipoTarea}
-                    onChange={(e) => handleDataChange('tipoTarea', e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors no-print"
-                    placeholder="Seleccione o escriba el tipo de tarea..." />
-                  
-                                <div className="print-only p-[0.6rem] border-bottom-[1px_solid_#eee] text-[1rem] text-[#000] font-[bold]">{formData.tipoTarea || '-'}</div>
+                                  list="visualTasksList"
+                                  value={formData.tipoTarea}
+                                  onChange={(e) => handleDataChange('tipoTarea', e.target.value)}
+                                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                                  placeholder="Seleccione o escriba el tipo de tarea..." />
                                 <datalist id="visualTasksList">
                                     {visualTasks.map((t) =>
-                    <option key={t.id} value={t.label} />
-                    )}
+                                      <option key={t.id} value={t.label} />
+                                    )}
                                 </datalist>
                             </div>
                             <div className="flex items-center gap-[1rem] p-[1.2rem] bg-[rgba(59,_130,_246,_0.05)] rounded-[12px] border-[1px_solid_rgba(59,_130,_246,_0.2)]">
-                                <Sun size={32} color="var(--color-primary)" />
+                                <Sun size={32} className="text-amber-500" />
                                 <div className="flex-[1]">
                                     <p className="m-[0] text-[0.85rem] text-[var(--color-text-muted)] font-[700] uppercase mb-[0.3rem]">Iluminación Mínima Exigida</p>
                                     <div className="flex items-center gap-[0.5rem]">
                                         <input
-                        type="number"
-                        value={formData.luxRequerido}
-                        onChange={(e) => handleDataChange('luxRequerido', e.target.value === '' ? '' : Number(e.target.value))}
-                        style={{ ...inputStyle }}
-                        min="0"
-                        className="no-print w-[100px] text-[1.5rem] font-[900] text-[var(--color-primary)] p-[0.5rem] bg-[var(--color-surface)]" />
-                      
-                                        <span className="no-print text-[1.2rem] font-[700] text-[var(--color-text)]">Lux</span>
-                                        <div className="print-only text-[1.5rem] font-[800]">{formData.luxRequerido} Lux</div>
+                                          type="number"
+                                          value={formData.luxRequerido}
+                                          onChange={(e) => handleDataChange('luxRequerido', e.target.value === '' ? '' : Number(e.target.value))}
+                                          style={{ ...inputStyle }}
+                                          min="0"
+                                          className="w-[100px] text-[1.5rem] font-[900] text-amber-500 p-[0.5rem] bg-[var(--color-surface)]" />
+                                        <span className="text-[1.2rem] font-[700] text-[var(--color-text)]">Lux</span>
                                     </div>
                                 </div>
                             </div>
@@ -653,11 +790,11 @@ export default function LightingReport(): React.ReactElement | null {
 
                     {/* COLUMNA 2: MEDICIONES Y RESULTADOS */}
                     <div>
-                        <h3 className="flex items-center justify-space-between mb-[1rem] text-[var(--color-primary)] border-bottom-[2px_solid_var(--color-border)] pb-[0.5rem]">
+                        <h3 className="flex items-center justify-between mb-[1rem] text-amber-500 dark:text-amber-400 font-extrabold text-[1.1rem] border-b border-slate-700/40 pb-[0.5rem]">
                             <div className="flex items-center gap-[0.5rem]">
-                                <Lightbulb size={20} /> Puntos de Medición
+                                <Lightbulb size={20} className="text-amber-500" /> Puntos de Medición
                             </div>
-                            <button onClick={addMedicion} className="btn-secondary no-print m-[0] p-[0.4rem_0.8rem] text-[0.8rem] flex items-center gap-[0.3rem]">
+                            <button onClick={addMedicion} className="btn-secondary m-[0] p-[0.4rem_0.8rem] text-[0.8rem] flex items-center gap-[0.3rem]">
                                 <Plus size={14} /> Añadir Punto
                             </button>
                         </h3>
@@ -669,51 +806,45 @@ export default function LightingReport(): React.ReactElement | null {
                                         <tr className="bg-[rgba(255,255,255,0.02)] text-[var(--color-text-muted)]">
                                             <th className="p-[1rem] text-left border-bottom-[2px_solid_var(--color-border)] font-[800]">Punto Exacto / Puesto</th>
                                             <th className="p-[1rem] text-center border-bottom-[2px_solid_var(--color-border)] font-[800]">Lux Medido</th>
-                                            <th className="no-print p-[1rem] text-center border-bottom-[2px_solid_var(--color-border)] font-[800]">Acción</th>
+                                            <th className="p-[1rem] text-center border-bottom-[2px_solid_var(--color-border)] font-[800]">Acción</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {formData.mediciones.map((med, index) =>
-                      <tr key={med.id} className="hover-lift transition-[all_0.2s]">
+                                          <tr key={med.id} className="hover-lift transition-[all_0.2s]">
                                                 <td className="p-[0.8rem] border-bottom-[1px_solid_var(--color-border)]">
                                                     <input
-                            type="text"
-                            value={med.ubicacion}
-                            onChange={(e) => updateMedicion(index, 'ubicacion', e.target.value)}
-                            placeholder="Puesto X" className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors no-print" />
-                          
-                                                    <div className="print-only p-[0.5rem] word-break-[break-word] overflow-wrap-[anywhere]">{med.ubicacion}</div>
+                                                      type="text"
+                                                      value={med.ubicacion}
+                                                      onChange={(e) => updateMedicion(index, 'ubicacion', e.target.value)}
+                                                      placeholder="Puesto X" className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" />
                                                 </td>
                                                 <td className="p-[0.8rem] border-bottom-[1px_solid_var(--color-border)] w-[120px]">
                                                     <input
-                            type="number"
-                            value={med.luxMedido}
-                            onChange={(e) => updateMedicion(index, 'luxMedido', e.target.value)}
-                            style={{ ...inputStyle }}
-                            placeholder="0"
-                            min="0"
-                            className="no-print text-center font-[800] text-[var(--color-primary)]" />
-                          
-                                                    <div className="print-only text-center font-[bold]">{med.luxMedido}</div>
+                                                      type="number"
+                                                      value={med.luxMedido}
+                                                      onChange={(e) => updateMedicion(index, 'luxMedido', e.target.value)}
+                                                      style={{ ...inputStyle }}
+                                                      placeholder="0"
+                                                      min="0"
+                                                      className="text-center font-[800] text-amber-500" />
                                                 </td>
-                                                <td className="no-print p-[0.8rem] border-bottom-[1px_solid_var(--color-border)] text-center w-[60px]">
+                                                <td className="p-[0.8rem] border-bottom-[1px_solid_var(--color-border)] text-center w-[60px]">
                                                     <button
-                            onClick={() => removeMedicion(index)}
-
-                            className="hover-lift bg-[rgba(239,_68,_68,_0.1)] border-none text-[#ef4444] cursor-pointer p-[0.5rem] rounded-[10px] display-[inline-flex]">
-                            
+                                                      onClick={() => removeMedicion(index)}
+                                                      className="hover-lift bg-[rgba(239,_68,_68,_0.1)] border-none text-[#ef4444] cursor-pointer p-[0.5rem] rounded-[10px] display-[inline-flex]">
                                                         <Trash2 size={18} />
-                        </button>
+                                                    </button>
                                                 </td>
                                             </tr>
-                      )}
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
 
-                        <h3 className="flex items-center gap-[0.5rem] mb-[1rem] text-[var(--color-primary)] border-bottom-[2px_solid_var(--color-border)] pb-[0.5rem]">
-                            <Calculator size={20} /> Evaluación Normativa
+                        <h3 className="flex items-center gap-[0.5rem] mb-[1rem] text-amber-500 dark:text-amber-400 font-extrabold text-[1.1rem] border-b border-slate-700/40 pb-[0.5rem]">
+                            <Calculator size={20} className="text-amber-500" /> Evaluación Normativa
                         </h3>
 
                         <div className="grid grid-template-columns-[minmax(0,_1fr)] gap-[1rem]">
@@ -747,132 +878,96 @@ export default function LightingReport(): React.ReactElement | null {
                 </div>
 
                 {/* SECCIÓN DE CONCLUSIÓN */}
-                <div className="bg-white text-black p-8 shadow-sm border-2 border-slate-200 rounded-2xl print:mb-0 mb-8 mt-10 print-area block clear-[both]">
+                <div className="p-8 shadow-sm border-2 border-slate-200 rounded-2xl mb-8 mt-10 block clear-[both] bg-[var(--color-surface)]">
                     <div className="flex justify-space-between items-center mb-[1.5rem]">
-                        <h3 className="m-[0] flex items-center gap-[0.7rem] text-[var(--color-primary)]">
-                            <FileText size={22} /> Conclusión Profesional
+                        <h3 className="m-[0] flex items-center gap-[0.7rem] text-amber-500 dark:text-amber-400 font-extrabold text-[1.1rem]">
+                            <FileText size={22} className="text-amber-500" /> Conclusión Profesional
                         </h3>
                         <button
-                className="no-print p-[0.6rem_1rem] bg-[linear-gradient(135deg,_#a855f7,_#ec4899)] text-[white] border-none rounded-[12px] font-[800] text-[0.75rem] flex items-center gap-[0.4rem] outline-[none]"
-                onClick={handleGenerateConclusion}
-                disabled={isGeneratingConclusion}
-                style={{ cursor: isGeneratingConclusion ? 'wait' : 'pointer' }}>
-                
+                          className="p-[0.6rem_1rem] bg-[linear-gradient(135deg,_#a855f7,_#ec4899)] text-[white] border-none rounded-[12px] font-[800] text-[0.75rem] flex items-center gap-[0.4rem] outline-[none]"
+                          onClick={handleGenerateConclusion}
+                          disabled={isGeneratingConclusion}
+                          style={{ cursor: isGeneratingConclusion ? 'wait' : 'pointer' }}>
                             {isGeneratingConclusion ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                             {isGeneratingConclusion ? 'REDACTANDO...' : 'REDACTAR CON IA'}
                         </button>
                     </div>
 
                     <textarea
-              value={formData.conclusion || ''}
-              onChange={(e) => handleDataChange('conclusion', e.target.value)}
-              style={{ ...inputStyle }} className="no-print min-h-[160px] resize-[vertical]"
-              placeholder="Escriba la conclusión del estudio o use el botón de IA para generarla..." />
-            
-
-                    {formData.conclusion &&
-            <div className="print-only text-slate-800 text-[0.85rem] whitespace-pre-wrap leading-relaxed">
-                            {formData.conclusion}
-                        </div>
-            }
+                      value={formData.conclusion || ''}
+                      onChange={(e) => handleDataChange('conclusion', e.target.value)}
+                      style={{ ...inputStyle }} className="min-h-[160px] resize-[vertical]"
+                      placeholder="Escriba la conclusión del estudio o use el botón de IA para generarla..." />
                 </div>
 
                 {/* SECCIÓN DE DATOS OBTENIDOS POR */}
-                <div className="card animate-fade-in print-area mt-[2.5rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2.5rem] box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.08)] clear-[both]">
-                    <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.7rem] text-[var(--color-primary)] font-[900] text-[1.25rem] uppercase letter-spacing-[1.2px]">
-                        <ShieldCheck size={22} color="var(--color-primary)" /> Firmas y Validación
+                <div className="card animate-fade-in mt-[2.5rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2.5rem] box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.08)] clear-[both]">
+                    <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.7rem] text-amber-500 dark:text-amber-400 font-extrabold text-[1.25rem] uppercase tracking-wider">
+                        <ShieldCheck size={22} className="text-amber-500" /> Firmas y Validación
                     </h3>
-
                     {/* Custom visual switches */}
                     <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
                         <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                         <div className="flex gap-[1rem] flex-wrap justify-center">
                             {[
-                { id: 'operator', label: 'Operador / Responsable' },
-                { id: 'supervisor', label: 'Supervisor' },
-                { id: 'professional', label: 'Profesional' }].
-                map((sig) => {
-                  const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
-                  return (
-                    <label
-                      key={sig.id}
-                      className="flex items-center gap-2 cursor-pointer select-none p-[0.6rem_1.25rem] rounded-[99px] transition-[all_0.3s] font-[600] text-[0.875rem] border-[2px_solid_transparent]"
-                      style={{
-                        borderColor: isChecked ? '#3b82f6' : 'var(--color-border)',
-                        background: isChecked ? 'rgba(59, 130, 246, 0.08)' : 'transparent',
-                        color: isChecked ? '#3b82f6' : 'var(--color-text-muted)'
-                      }}>
-                      <div className="relative flex items-center justify-center">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))}
-                          className="absolute opacity-0 w-0 h-0"
-                        />
-                        <div className={`flex items-center justify-center w-[1.25rem] h-[1.25rem] rounded-[50%] border-[2px_solid_transparent] transition-[all_0.3s] ${
-                          isChecked 
-                            ? 'border-[#3b82f6] bg-[#3b82f6]' 
-                            : 'border-[#cbd5e1]'
-                        }`}>
-                          <Check size={12} strokeWidth={3} className={`transition-[all_0.3s] ${
-                            isChecked ? 'text-[#fff] scale-100' : 'text-[transparent] scale-50'
-                          }`} />
-                        </div>
-                      </div>
-                      <span className="font-[800]">{sig.label}</span>
-                    </label>);
-                })}
+                              { id: 'operator', label: 'Operador / Responsable' },
+                              { id: 'supervisor', label: 'Supervisor' },
+                              { id: 'professional', label: 'Profesional' }
+                            ].map((sig) => {
+                              const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                              return (
+                                <label
+                                  key={sig.id}
+                                  className="flex items-center gap-2 cursor-pointer select-none p-[0.6rem_1.25rem] rounded-[99px] transition-[all_0.3s] font-[600] text-[0.875rem] border-[2px_solid_transparent]"
+                                  style={{
+                                    borderColor: isChecked ? '#3b82f6' : 'var(--color-border)',
+                                    background: isChecked ? 'rgba(59, 130, 246, 0.08)' : 'transparent',
+                                    color: isChecked ? '#3b82f6' : 'var(--color-text-muted)'
+                                  }}>
+                                  <div className="relative flex items-center justify-center">
+                                    <input
+                                      type="checkbox"
+                                      checked={isChecked}
+                                      onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))}
+                                      className="absolute opacity-0 w-0 h-0"
+                                    />
+                                    <div className={`flex items-center justify-center w-[1.25rem] h-[1.25rem] rounded-[50%] border-[2px_solid_transparent] transition-[all_0.3s] ${
+                                      isChecked 
+                                        ? 'border-[#3b82f6] bg-[#3b82f6]' 
+                                        : 'border-[#cbd5e1]'
+                                    }`}>
+                                      <Check size={12} strokeWidth={3} className={`transition-[all_0.3s] ${
+                                        isChecked ? 'text-[#fff] scale-100' : 'text-[transparent] scale-50'
+                                      }`} />
+                                    </div>
+                                  </div>
+                                  <span className="font-[800]">{sig.label}</span>
+                                </label>
+                              );
+                            })}
                         </div>
                     </div>
-
-                <PdfSignatures
-              data={{
-                ...formData,
-                professionalSignature: professional?.signature,
-                professionalName: professional?.name,
-                professionalLicense: professional?.license
-              }}
-              box1={showSignatures.operator ? {
-                title: 'OPERADOR / RESPONSABLE',
-                subtitle: 'Toma de conocimiento',
-                signatureUrl: formData.operatorSignature || null,
-                isProfessional: false
-              } : null}
-              box3={showSignatures.supervisor ? {
-                title: 'SUPERVISOR H&S',
-                subtitle: 'Aprobación del estudio',
-                signatureUrl: formData.supervisorSignature || null,
-                isProfessional: false
-              } : null}
-              box2={showSignatures.professional ? undefined : null} />
-            
-
                     {/* Interactive Signature Drawing Pads */}
                     <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8">
                         {showSignatures.operator &&
-              <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                <SignatureCanvas
-                  onSave={(sig) => setFormData((prev) => ({ ...prev, operatorSignature: sig || '' }))}
-                  initialImage={formData.operatorSignature}
-                  label="Firma del Operador / Responsable" />
-                
-                            </div>
-              }
+                          <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                            <SignatureCanvas
+                              onSave={(sig) => setFormData((prev) => ({ ...prev, operatorSignature: sig || '' }))}
+                              initialImage={formData.operatorSignature}
+                              label="Firma del Operador / Responsable" />
+                          </div>
+                        }
                         
                         {showSignatures.supervisor &&
-              <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                <SignatureCanvas
-                  onSave={(sig) => setFormData((prev) => ({ ...prev, supervisorSignature: sig || '' }))}
-                  initialImage={formData.supervisorSignature}
-                  label="Firma del Supervisor" />
-                
-                            </div>
-              }
+                          <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                            <SignatureCanvas
+                              onSave={(sig) => setFormData((prev) => ({ ...prev, supervisorSignature: sig || '' }))}
+                              initialImage={formData.supervisorSignature}
+                              label="Firma del Supervisor" />
+                          </div>
+                        }
                     </div>
-
-                    <PdfBrandingFooter />
                 </div>
-            </div>
             </main>
         </div>);
 

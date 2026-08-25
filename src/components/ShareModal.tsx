@@ -157,12 +157,29 @@ export default function ShareModal({
         setIsGenerating(false);
       }
     } else {
-      window.print();
-      setTimeout(() => {
-        document.body.classList.remove('printing-isolated');
-        if (element) element.classList.remove('isolated-print-target');
+      // Web printing (desktop and mobile web)
+      setIsGenerating(true);
+      toast.loading('Preparando impresión...', { id: 'pdf-gen' });
+
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 150));
+        
+        // Temporariamente ocultar el overlay del modal para que no bloquee la impresión
+        const overlay = document.querySelector('.share-modal-overlay') as HTMLElement;
+        if (overlay) overlay.style.display = 'none';
+
+        window.print();
+
+        if (overlay) overlay.style.display = '';
+        toast.dismiss('pdf-gen');
         onClose();
-      }, 100);
+      } catch (err) {
+        console.error("Error al imprimir:", err);
+        toast.dismiss('pdf-gen');
+        toast.error("Error al preparar la impresión.");
+      } finally {
+        setIsGenerating(false);
+      }
     }
   };
 
@@ -512,6 +529,12 @@ export default function ShareModal({
                 </div>
 
                 <style>{`
+                    @media print {
+                        .share-modal-overlay,
+                        .share-modal-container {
+                            display: none !important;
+                        }
+                    }
                     .share-modal-overlay {
                         position: fixed;
                         top: 0; left: 0; right: 0; bottom: 0;

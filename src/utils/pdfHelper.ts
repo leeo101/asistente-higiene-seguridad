@@ -41,18 +41,20 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         offscreenContainer.setAttribute('data-pdf-offscreen', 'true');
         offscreenContainer.classList.add('ats-pdf-offscreen');
         offscreenContainer.style.cssText = [
-            'position: absolute',
-            'left: -9999px',
-            'top: -99999px',
-            'z-index: -9999',
+            'position: fixed',
+            'left: 0',
+            'top: 0',
+            'z-index: -99999',
             `width: ${targetWidth}px`,
             'height: auto',
-            'overflow: visible',
+            'overflow: hidden',
             'visibility: visible',
             'opacity: 1',
             'pointer-events: none',
             'touch-action: none',
-            'background: #ffffff'
+            'background: #ffffff',
+            'margin: 0',
+            'padding: 0'
         ].join('; ');
 
         // Clonar el elemento original con todos sus hijos
@@ -78,7 +80,6 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
             'border-radius: 0',
             'box-sizing: border-box !important',
             'margin: 0 auto !important',
-            // No override padding: el .print-area necesita su padding interno (8mm 12mm) para que el contenido quede bien encuadrado
             'opacity: 1 !important',
             'visibility: visible !important'
         ].join('; ');
@@ -239,32 +240,34 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
                 return true;
             });
 
-            for (let i = 0; i < avoidElements.length; i++) {
-                const el = avoidElements[i] as HTMLElement;
-                const rect = el.getBoundingClientRect();
-                const topPx = rect.top - cloneRect.top;
-                const heightPx = rect.height;
+            if (cloneRect.height > pageContentHeightPx + 20) {
+                for (let i = 0; i < avoidElements.length; i++) {
+                    const el = avoidElements[i] as HTMLElement;
+                    const rect = el.getBoundingClientRect();
+                    const topPx = rect.top - cloneRect.top;
+                    const heightPx = rect.height;
 
-                if (topPx > 0 && heightPx > 0 && heightPx < pageContentHeightPx) {
-                    const pageAtTop = Math.floor(topPx / pageContentHeightPx);
-                    const pageAtBottom = Math.floor((topPx + heightPx - 1) / pageContentHeightPx);
+                    if (topPx > 0 && heightPx > 0 && heightPx < pageContentHeightPx) {
+                        const pageAtTop = Math.floor(topPx / pageContentHeightPx);
+                        const pageAtBottom = Math.floor((topPx + heightPx - 1) / pageContentHeightPx);
 
-                    if (pageAtBottom > pageAtTop) {
-                        // El elemento cruza la línea divisoria de la página A4 -> insertar espaciador invisible justo encima
-                        const spaceLeft = (pageAtTop + 1) * pageContentHeightPx - topPx;
-                        const spacerHeight = Math.min(spaceLeft + 8, pageContentHeightPx - 20);
+                        if (pageAtBottom > pageAtTop) {
+                            // El elemento cruza la línea divisoria de la página A4 -> insertar espaciador invisible justo encima
+                            const spaceLeft = (pageAtTop + 1) * pageContentHeightPx - topPx;
+                            const spacerHeight = Math.min(spaceLeft + 8, pageContentHeightPx - 20);
 
-                        const spacer = document.createElement('div');
-                        spacer.style.cssText = [
-                            `height: ${Math.round(spacerHeight)}px`,
-                            'display: block',
-                            'visibility: hidden',
-                            'width: 100%',
-                            'flex-shrink: 0',
-                            'clear: both'
-                        ].join('; ');
-                        el.parentNode?.insertBefore(spacer, el);
-                        await new Promise(resolve => requestAnimationFrame(resolve));
+                            const spacer = document.createElement('div');
+                            spacer.style.cssText = [
+                                `height: ${Math.round(spacerHeight)}px`,
+                                'display: block',
+                                'visibility: hidden',
+                                'width: 100%',
+                                'flex-shrink: 0',
+                                'clear: both'
+                            ].join('; ');
+                            el.parentNode?.insertBefore(spacer, el);
+                            await new Promise(resolve => requestAnimationFrame(resolve));
+                        }
                     }
                 }
             }
@@ -313,7 +316,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
             dynamicScale = Math.max(1.8, Math.min(dynamicScale, maxSafeScale));
 
             const opt = {
-                margin: [4, 6, 4, 6],
+                margin: [0, 0, 0, 0],
                 filename: 'documento.pdf',
                 image: { type: 'png', quality: 1.0 },
                 html2canvas: { 

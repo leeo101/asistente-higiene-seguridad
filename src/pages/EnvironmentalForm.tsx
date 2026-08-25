@@ -444,7 +444,7 @@ export default function EnvironmentalForm(): React.ReactElement | null {
               actions={[
                 { id: 'save', label: 'GUARDAR REGISTRO', icon: <Save />, variant: 'primary', onClick: () => requirePro(handleSave) },
                 { id: 'share', label: 'COMPARTIR', icon: <Share2 />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) },
-                { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer />, variant: 'secondary', onClick: () => requirePro(() => window.print()) }
+                { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) }
               ]}
             />
 
@@ -459,7 +459,7 @@ export default function EnvironmentalForm(): React.ReactElement | null {
         fileName={`Ambiente_${measurement.stationName || 'Sin_Nombre'}.pdf`} />
       
 
-            <div className="print-only fixed left-[-9999px] opacity-[0.01] top-[0] pointer-events-[none]" id="pdf-content">
+            <div className="ats-pdf-offscreen" id="pdf-content">
                 <EnvironmentalPdf data={{ ...measurement, id: (measurement as any).id || Date.now().toString(), createdAt: (measurement as any).createdAt || new Date().toISOString() }} />
             </div>
         </ModuleFormLayout>);

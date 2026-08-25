@@ -56,20 +56,7 @@ export default function QRModal({ text, title = 'Código QR', details, onClose }
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 999999,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.75)',
-        backdropFilter: 'blur(8px)',
-        padding: '1rem'
-      }}
+      className="fixed inset-0 z-[999999] overflow-y-auto bg-slate-950/80 backdrop-blur-md p-4 flex items-center justify-center min-h-screen"
       onClick={onClose}
     >
       <style>{`
@@ -91,19 +78,19 @@ export default function QRModal({ text, title = 'Código QR', details, onClose }
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
-            justify-content: space-between !important;
+            justify-space-between !important;
           }
           .no-print { display: none !important; }
         }
       `}</style>
 
       <div
-        className="animate-fade-in w-full max-w-[420px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-0 overflow-hidden relative shadow-2xl flex flex-col"
-        style={{ maxHeight: '92vh' }}
+        className="animate-fade-in w-full max-w-[440px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-0 overflow-hidden relative shadow-2xl flex flex-col my-auto"
+        style={{ maxHeight: 'calc(100vh - 2rem)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Printable Area */}
-        <div id="printable-qr-label" className="p-6 flex flex-col items-center bg-white border-b border-dashed border-slate-200 overflow-y-auto relative">
+        <div id="printable-qr-label" className="p-6 pt-8 flex flex-col items-center bg-white border-b border-dashed border-slate-200 overflow-y-auto relative flex-1">
           
           {/* Prominent Forced Close Button (X) */}
           <button
@@ -134,13 +121,13 @@ export default function QRModal({ text, title = 'Código QR', details, onClose }
           </button>
 
           {/* Header */}
-          <div className="w-full text-center border-b-2 border-slate-900 pb-3 mb-4 mt-2">
-            <span className="text-[0.65rem] font-black text-slate-500 uppercase tracking-widest block mb-0.5">
-              SISTEMA DE GESTIÓN HYS · VERIFICACIÓN QR
+          <div className="w-full text-center border-b-2 border-slate-900 pb-3 mb-4 mt-2 px-8">
+            <span className="text-[0.65rem] font-black text-slate-500 uppercase tracking-widest block mb-1">
+              SISTEMA DE GESTIÓN H&S · VERIFICACIÓN QR
             </span>
-            <h1 className="m-0 text-slate-900 font-black text-xl leading-tight">
+            <h2 className="m-0 text-slate-900 font-black text-base leading-snug break-words">
               {title}
-            </h1>
+            </h2>
           </div>
 
           {/* Details */}
@@ -157,19 +144,19 @@ export default function QRModal({ text, title = 'Código QR', details, onClose }
             href={text}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-3 bg-white rounded-2xl shadow-lg border-2 border-blue-500/20 relative group w-48 h-48 flex items-center justify-center mx-auto transition-transform hover:scale-105"
+            className="p-3 bg-white rounded-2xl shadow-lg border-2 border-blue-500/20 relative group w-48 h-48 flex items-center justify-center mx-auto transition-transform hover:scale-105 my-2 shrink-0"
             title="Abrir vista pública de verificación"
           >
             <canvas ref={canvasRef} className="w-full h-full block" />
           </a>
 
-          <span className="mt-4 mb-0 text-[0.68rem] text-emerald-600 font-black tracking-wider uppercase text-center w-full bg-emerald-50 py-1.5 px-3 rounded-full border border-emerald-200">
+          <span className="mt-4 mb-0 text-[0.68rem] text-emerald-600 font-black tracking-wider uppercase text-center w-full bg-emerald-50 py-1.5 px-3 rounded-full border border-emerald-200 shrink-0">
             🟢 ESCANEE PARA VERIFICACIÓN PÚBLICA (MODO LECTURA)
           </span>
         </div>
 
         {/* Forced Controls (Not Printable) */}
-        <div className="p-4 bg-slate-900 border-t border-slate-800 flex flex-col gap-2.5 no-print">
+        <div className="p-4 bg-slate-900 border-t border-slate-800 flex flex-col gap-2.5 no-print shrink-0">
           <div className="flex gap-2">
             <button
               onClick={handlePrint}

@@ -1,4 +1,9 @@
 export const countryList = [
+    { code: 'iso_global', name: 'ISO / Global (ISO 45001 & 14001)', flag: '🌐', regionsLabel: 'Estándares Internacionales' },
+    { code: 'usa_osha', name: 'EE.UU. / OSHA & NFPA', flag: '🇺🇸', regionsLabel: 'Estados / Jurisdicciones' },
+    { code: 'mexico', name: 'México (STPS / NOMs)', flag: '🇲🇽', regionsLabel: 'Estados' },
+    { code: 'brasil', name: 'Brasil (NR / CLT)', flag: '🇧🇷', regionsLabel: 'Estados' },
+    { code: 'espana', name: 'España / UE (INSST)', flag: '🇪🇸', regionsLabel: 'Comunidades Autónomas' },
     { code: 'argentina', name: 'Argentina', flag: '🇦🇷', regionsLabel: 'Provincias' },
     { code: 'chile', name: 'Chile', flag: '🇨🇱', regionsLabel: 'Regiones' },
     { code: 'bolivia', name: 'Bolivia', flag: '🇧🇴', regionsLabel: 'Departamentos' },

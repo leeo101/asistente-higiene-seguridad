@@ -305,28 +305,32 @@ export default function LiftingForm(): React.ReactElement | null {
         <button
           onClick={(e) => { e.stopPropagation(); setPlan({ ...item, showSignatures: item.showSignatures || { operator: true, professional: true, supervisor: true } }); setIsEdit(true); setIsFormVisible(true); }}
           title="Ver / Editar Plan de Izaje"
-          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <FileText size={12} /> Editar
+          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '5px 12px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(217, 119, 6, 0.2)' }}
+        >
+          <Pencil size={12} /> Editar
         </button>
 
         <button
           onClick={(e) => { e.stopPropagation(); requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/lifting/${item.id}?print=true`; setQrTarget({ text: url, title: `Plan Izaje — ${item.location}` } as any); }); }}
           title="Ver Código QR"
-          style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          style={{ backgroundColor: '#4f46e5', color: '#ffffff', border: 'none', padding: '5px 12px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(79, 70, 229, 0.2)' }}
+        >
           <QrCode size={12} /> QR
         </button>
 
         <button
           onClick={(e) => { e.stopPropagation(); requirePro(() => setShareItem(item)); }}
-          title="Compartir Informe"
-          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          title="Compartir Informe PDF"
+          style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '5px 12px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)' }}
+        >
           <Share2 size={12} /> Compartir
         </button>
 
         <button
           onClick={(e) => { e.stopPropagation(); handleDelete(item.id, e); }}
-          title="Eliminar Plan de Izaje"
-          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          title="Eliminar Registro"
+          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '5px 12px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(220, 38, 38, 0.2)' }}
+        >
           <Trash2 size={12} /> Eliminar
         </button>
       </div>
@@ -335,87 +339,142 @@ export default function LiftingForm(): React.ReactElement | null {
 
   if (!isFormVisible && !isEdit) {
     return (
-      <div className="container w-full max-w-[1200px] mx-auto pt-24 pb-32">
+      <div className="container pb-[6rem] min-h-[100vh] flex flex-col pt-4">
+        {/* Header idéntico a Aptitudes Médicas */}
         <div className="no-print">
           <PremiumHeader
             title="Planes de Izaje"
-            subtitle="Gestión e historial de planes de izaje seguro."
-            icon={<Weight size={32} color="#ffffff" />}
+            subtitle="Gestión e historial de maniobras de izaje seguro — ASME B30.5 / OSHA 1926.1400"
+            icon={<Weight size={36} color="#ffffff" />}
           />
         </div>
         
-                <main className="w-full">
-                        {/* KPIs */}
-                        <div className="no-print grid grid-cols-1 md:grid-cols-3 gap-[1rem] mb-[2rem]">
-                            <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
-                                <div className="bg-blue-100 text-blue-600 p-[1rem] rounded-[12px]"><ClipboardList size={28} /></div>
-                                <div>
-                                    <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">Planes Generados</div>
-                                    <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{plans.length}</div>
-                                </div>
-                            </div>
-                            <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
-                                <div className="bg-red-100 text-red-600 p-[1rem] rounded-[12px]"><AlertTriangle size={28} /></div>
-                                <div>
-                                    <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">Izajes Críticos</div>
-                                    <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{plans.filter(p => {const load = parseFloat(p.loadWeight); const cap = parseFloat(p.equipmentCapacity); return (load/cap)*100 >= 75;}).length}</div>
-                                </div>
-                            </div>
-                            <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] flex items-center gap-[1rem]">
-                                <div className="bg-green-100 text-green-600 p-[1rem] rounded-[12px]"><CheckCircle2 size={28} /></div>
-                                <div>
-                                    <div className="text-[0.8rem] font-[800] text-[var(--color-text-muted)] uppercase">Planes Última Semana</div>
-                                    <div className="text-[1.8rem] font-[900] text-[var(--color-text)]">{plans.filter(h => new Date(h.createdAt || h.date) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}</div>
-                                </div>
-                            </div>
-                        </div>
+        <main className="w-full">
+          {/* Top Summary Cards (KPIs) idénticos a Aptitudes Médicas */}
+          <div className="no-print grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            <div className="p-4 rounded-2xl border bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
+              <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider">Total Planes</span>
+                <ClipboardList size={20} />
+              </div>
+              <div className="text-2xl font-black text-slate-900 dark:text-white">{plans.length}</div>
+              <span className="text-[11px] text-slate-500">Documentados ASME</span>
+            </div>
 
-                        <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap items-stretch bg-[var(--color-surface,_#fff)] p-[1.5rem] rounded-[24px] box-shadow-[0_10px_40px_rgba(0,0,0,0.04)] border-[1px_solid_rgba(0,0,0,0.05)]">
-                            <div className="flex-[1_1_250px] relative h-[56px]">
-                                <Search 
-                                  size={22} 
-                                  style={{ 
-                                    position: 'absolute', 
-                                    left: '1.25rem', 
-                                    top: 0, 
-                                    bottom: 0, 
-                                    marginTop: 'auto', 
-                                    marginBottom: 'auto', 
-                                    color: '#94a3b8', 
-                                    display: 'block' 
-                                  }} 
-                                  className="pointer-events-none z-10" 
-                                />
-                                <input
-                                  type="text"
-                                  placeholder="Buscar por ubicación o equipo..."
-                                  value={searchTerm}
-                                  onChange={(e) => setSearchTerm(e.target.value)}
-                                  style={{ width: '100%', height: '56px', paddingLeft: '3.8rem', paddingRight: '1rem', borderRadius: '1rem', fontSize: '1rem', outline: 'none', fontWeight: 500, color: 'var(--color-text)', boxSizing: 'border-box' }}
-                                  className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors shadow-sm"
-                                />
-                            </div>
-                            
-                            <div className="flex gap-[0.5rem]">
-                                <button
-                  onClick={() => setIsFormVisible(true)}
-                  onMouseOver={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 12px 25px rgba(16,185,129,0.4)';}}
-                  onMouseOut={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.3)';}}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '0 1.5rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(16,185,129,0.3)', whiteSpace: 'nowrap', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', height: '100%', minHeight: '3.5rem' }}>
-                                    <Plus size={22} strokeWidth={2.5} /> Nuevo Plan
-                                </button>
-                                
-                                {plans.length > 0 &&
-                                    <button
-                                        onClick={handleExportCSV}
-                                        onMouseOver={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 12px 25px rgba(59,130,246,0.4)';}}
-                                        onMouseOut={(e) => {e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = '0 8px 20px rgba(59,130,246,0.3)';}}
-                                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0 1.5rem', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#ffffff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(59,130,246,0.3)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', height: '100%', minHeight: '3.5rem' }}>
-                                        <Download size={20} strokeWidth={2.5} /> Excel
-                                    </button>
-                                }
-                            </div>
-                        </div>
+            <div className="p-4 rounded-2xl border bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
+              <div className="flex items-center justify-between text-red-600 dark:text-red-400 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider">Izajes Críticos</span>
+                <AlertTriangle size={20} />
+              </div>
+              <div className="text-2xl font-black text-red-600 dark:text-red-400">
+                {plans.filter(p => { const load = parseFloat(p.loadWeight || 0); const cap = parseFloat(p.equipmentCapacity || 1); return (load / cap) * 100 >= 75; }).length}
+              </div>
+              <span className="text-[11px] text-slate-500">Carga ≥ 75% capacidad</span>
+            </div>
+
+            <div className="p-4 rounded-2xl border bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
+              <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider">Izajes Normales</span>
+                <CheckCircle2 size={20} />
+              </div>
+              <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                {plans.filter(p => { const load = parseFloat(p.loadWeight || 0); const cap = parseFloat(p.equipmentCapacity || 1); return (load / cap) * 100 < 75; }).length}
+              </div>
+              <span className="text-[11px] text-slate-500">Operaciones estándar</span>
+            </div>
+
+            <div className="p-4 rounded-2xl border bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
+              <div className="flex items-center justify-between text-purple-600 dark:text-purple-400 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider">Última Semana</span>
+                <Calendar size={20} />
+              </div>
+              <div className="text-2xl font-black text-purple-600 dark:text-purple-400">
+                {plans.filter(h => new Date(h.createdAt || h.date).getTime() >= new Date().getTime() - 7 * 24 * 60 * 60 * 1000).length}
+              </div>
+              <span className="text-[11px] text-slate-500">Últimos 7 días</span>
+            </div>
+          </div>
+
+          {/* Toolbar & Search Bar Section */}
+          <div className="mt-8 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              {/* Input de Búsqueda Amplio */}
+              <div className="relative flex-1 min-w-[240px] h-[38px]">
+                <Search 
+                  size={16} 
+                  className="text-slate-400 pointer-events-none z-10" 
+                  style={{ 
+                    position: 'absolute', 
+                    left: '0.75rem', 
+                    top: 0, 
+                    bottom: 0, 
+                    marginTop: 'auto', 
+                    marginBottom: 'auto', 
+                    display: 'block' 
+                  }} 
+                />
+                <input
+                  type="text"
+                  placeholder="Buscar por ubicación o equipo..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{ paddingLeft: '2.25rem', paddingRight: '0.75rem', height: '38px', width: '100%', boxSizing: 'border-box', outline: 'none' }}
+                  className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+                />
+              </div>
+              
+              {/* Botones de Acción Inline Compactos */}
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => { setPlan({ location: '', date: new Date().toISOString().split('T')[0], time: '', equipment: 'Grua Movil', equipmentCapacity: '', loadWeight: '', maxRadius: '', windSpeed: '', riggingElements: { slings: false, shackles: false, spreaderBar: false, hooks: false }, personnel: { operator: '', rigger: '', supervisor: '' }, checklist: { groundStable: false, areaIsolated: false, weatherGood: false, powerLinesClear: false, elementsInspected: false }, observations: '', signatures: { operator: '', supervisor: '' }, operatorSignature: '', professionalSignature: '', supervisorSignature: '', showSignatures: { operator: true, professional: true, supervisor: true } }); setIsEdit(false); setIsFormVisible(true); }}
+                  style={{
+                    backgroundColor: '#059669',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '6px 14px',
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    whiteSpace: 'nowrap',
+                    height: '34px',
+                    boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
+                  }}
+                >
+                  <Plus size={14} />
+                  <span>Nuevo Plan</span>
+                </button>
+                
+                {plans.length > 0 && (
+                  <button
+                    onClick={handleExportCSV}
+                    style={{
+                      backgroundColor: '#2563eb',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '6px 14px',
+                      fontSize: '12px',
+                      fontWeight: '800',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      whiteSpace: 'nowrap',
+                      height: '34px',
+                      boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)'
+                    }}
+                  >
+                    <Download size={14} />
+                    <span>Excel</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
 
                         <DataTable
             data={filteredPlans}

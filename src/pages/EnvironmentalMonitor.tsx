@@ -1,1403 +1,567 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Leaf, Plus, Search,
-  FileText, Eye, Edit3, Trash2, CheckCircle2,
-  XCircle, Clock, User, Calendar,
-  Droplets, Wind, Thermometer, Activity,
-  AlertTriangle, BarChart3, TrendingUp, Target,
-  AlertCircle, Recycle, Factory, Cloud, Printer, Share2 } from
-'lucide-react';
+  Leaf, Plus, Search, Eye, Edit3, Trash2, CheckCircle2, XCircle, User, Calendar,
+  Droplets, Wind, Thermometer, Activity, AlertTriangle, Target, Factory, Share2, QrCode, FileText
+} from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import ShareModal from '../components/ShareModal';
 import EnvironmentalPdf from '../components/EnvironmentalPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
-import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import ConfirmModal from '../components/ConfirmModal';
+import AnimatedPage from '../components/AnimatedPage';
+
 // Tipos de monitoreo ambiental
 const MONITORING_TYPES = [
-{ id: 'air', name: 'Calidad de Aire', icon: '💨', color: '#3b82f6' },
-{ id: 'water', name: 'Calidad de Agua', icon: '💧', color: '#06b6d4' },
-{ id: 'noise', name: 'Ruido Ambiental', icon: '🔊', color: '#f59e0b' },
-{ id: 'waste', name: 'Gestión de Residuos', icon: '♻️', color: '#10b981' },
-{ id: 'emissions', name: 'Emisiones', icon: '🏭', color: '#6b7280' },
-{ id: 'soil', name: 'Calidad de Suelo', icon: '🌱', color: '#84cc16' },
-{ id: 'radiation', name: 'Radiación', icon: '☢️', color: '#f97316' },
-{ id: 'vibration', name: 'Vibraciones', icon: '📳', color: '#8b5cf6' }];
-
-
-// Parámetros medibles por tipo
-const PARAMETERS = {
-  air: [
-  { id: 'pm25', name: 'PM2.5', unit: 'μg/m³', limit: 25 },
-  { id: 'pm10', name: 'PM10', unit: 'μg/m³', limit: 50 },
-  { id: 'co', name: 'CO', unit: 'ppm', limit: 9 },
-  { id: 'no2', name: 'NO₂', unit: 'ppb', limit: 100 },
-  { id: 'so2', name: 'SO₂', unit: 'ppb', limit: 75 },
-  { id: 'o3', name: 'Ozono', unit: 'ppb', limit: 70 }],
-
-  water: [
-  { id: 'ph', name: 'pH', unit: 'pH', limit: '6.5-8.5' },
-  { id: 'turbidity', name: 'Turbidez', unit: 'NTU', limit: 5 },
-  { id: 'bod', name: 'DBO₅', unit: 'mg/L', limit: 50 },
-  { id: 'cod', name: 'DQO', unit: 'mg/L', limit: 150 },
-  { id: 'tss', name: 'SST', unit: 'mg/L', limit: 30 },
-  { id: 'oil', name: 'Aceites y Grasas', unit: 'mg/L', limit: 10 }],
-
-  noise: [
-  { id: 'leq', name: 'Leq', unit: 'dB(A)', limit: 65 },
-  { id: 'lmax', name: 'Lmax', unit: 'dB(A)', limit: 80 },
-  { id: 'lmin', name: 'Lmin', unit: 'dB(A)', limit: null }],
-
-  emissions: [
-  { id: 'co2', name: 'CO₂', unit: 'ton/año', limit: null },
-  { id: 'nox', name: 'NOx', unit: 'mg/Nm³', limit: 200 },
-  { id: 'sox', name: 'SOx', unit: 'mg/Nm³', limit: 150 },
-  { id: 'particulates', name: 'Particulados', unit: 'mg/Nm³', limit: 50 }]
-
-};
+  { id: 'air', name: 'Calidad de Aire', icon: '💨', color: '#3b82f6' },
+  { id: 'water', name: 'Calidad de Agua', icon: '💧', color: '#06b6d4' },
+  { id: 'noise', name: 'Ruido Ambiental', icon: '🔊', color: '#f59e0b' },
+  { id: 'waste', name: 'Gestión de Residuos', icon: '♻️', color: '#10b981' },
+  { id: 'emissions', name: 'Emisiones', icon: '🏭', color: '#6b7280' },
+  { id: 'soil', name: 'Calidad de Suelo', icon: '🌱', color: '#84cc16' },
+  { id: 'radiation', name: 'Radiación', icon: '☢️', color: '#f97316' },
+  { id: 'vibration', name: 'Vibraciones', icon: '📳', color: '#8b5cf6' }
+];
 
 // Estados de medición
-const MEASUREMENT_STATUS = {
+const MEASUREMENT_STATUS: Record<string, { label: string; color: string; bg: string }> = {
   normal: { label: 'NORMAL', color: '#16a34a', bg: '#f0fdf4' },
   warning: { label: 'PRECAUCIÓN', color: '#f59e0b', bg: '#fffbeb' },
   critical: { label: 'CRÍTICO', color: '#dc2626', bg: '#fef2f2' },
-  exceeded: { label: 'EXCEDIDO', color: '#991b1b', bg: '#7f1d1d' }
+  exceeded: { label: 'EXCEDIDO', color: '#dc2626', bg: '#fef2f2' }
 };
-
-// Normativa ambiental
-const ENVIRONMENTAL_REGULATIONS = [
-{ id: 'iso14001', name: 'ISO 14001:2015', icon: '📋' },
-{ id: 'epa', name: 'EPA Standards', icon: '🇺🇸' },
-{ id: 'who', name: 'OMS/WHO', icon: '🌍' },
-{ id: 'local', name: 'Normativa Local', icon: '📍' }];
-
 
 export default function EnvironmentalMonitor(): React.ReactElement | null {
   const navigate = useNavigate();
   const [measurements, setMeasurements] = useState<any[]>([]);
-  const [stations, setStations] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'normal' | 'warning' | 'critical'>('all');
   const [showShareModal, setShowShareModal] = useState(false);
-  const [selectedMeasurement, setSelectedMeasurement] = useState(null);
-  const [activeTab, setActiveTab] = useState('measurements');
-  const [shareItem, setShareItem] = useState(null);
+  const [selectedMeasurement, setSelectedMeasurement] = useState<any>(null);
+  const [shareItem, setShareItem] = useState<any>(null);
+  const [qrModal, setQrModal] = useState<any>(null);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
-
-  const [newMeasurement, setNewMeasurement] = useState({
-    id: '',
-    stationId: '',
-    stationName: '',
-    monitoringType: '',
-    location: '',
-    latitude: '',
-    longitude: '',
-    measurementDate: new Date().toISOString().split('T')[0],
-    measurementTime: '',
-    parameters: [],
-    status: 'normal',
-    weather: {
-      temperature: '',
-      humidity: '',
-      windSpeed: '',
-      windDirection: '',
-      pressure: ''
-    },
-    technician: '',
-    equipment: '',
-    observations: '',
-    regulation: ''
-  });
 
   useEffect(() => {
     window.scrollTo(0, 0);
     const loadData = () => {
-      const saved = localStorage.getItem('environmental_measurements_db');
-      if (saved) setMeasurements(JSON.parse(saved));
+      try {
+        const saved = localStorage.getItem('environmental_measurements_db');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setMeasurements(Array.isArray(parsed) ? parsed : []);
+        } else {
+          setMeasurements([]);
+        }
+      } catch (e) {
+        console.error('[ENVIRONMENTAL] Error loading data:', e);
+        setMeasurements([]);
+      }
     };
 
     loadData();
-
-    const handleStorageChange = (e) => {
-      if (e.key === 'environmental_measurements_db') {
-        loadData();
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('created')) {
-      loadData();
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
   }, []);
 
-  const saveMeasurements = (data) => {
-    localStorage.setItem('environmental_measurements_db', JSON.stringify(data));
-    setMeasurements(data);
+  const saveMeasurements = (data: any[]) => {
+    try {
+      localStorage.setItem('environmental_measurements_db', JSON.stringify(data));
+      setMeasurements(data);
+    } catch (e) {
+      console.error('[ENVIRONMENTAL] Error saving measurements:', e);
+    }
   };
 
-  const saveStations = (data) => {
-    localStorage.setItem('environmental_stations_db', JSON.stringify(data));
-    setStations(data);
-  };
-
-  const handleAddMeasurement = () => {
-    navigate('/environmental/new');
-  };
-
-  const evaluateStatus = (measurement) => {
-    const typeParams = PARAMETERS[measurement.monitoringType] || [];
-    let hasCritical = false;
-    let hasWarning = false;
-
-    measurement.parameters?.forEach((param) => {
-      const paramDef = typeParams.find((p) => p.id === param.parameterId);
-      if (paramDef && paramDef.limit) {
-        const value = parseFloat(param.value);
-        const limit = typeof paramDef.limit === 'string' ?
-        parseFloat(paramDef.limit.split('-')[1]) :
-        paramDef.limit;
-
-        if (limit && value > limit * 1.5) hasCritical = true;else
-        if (limit && value > limit) hasWarning = true;
-      }
-    });
-
-    if (hasCritical) return 'critical';
-    if (hasWarning) return 'warning';
-    return 'normal';
-  };
-
-  const resetForm = () => {
-    setNewMeasurement({
-      id: '',
-      stationId: '',
-      stationName: '',
-      monitoringType: '',
-      location: '',
-      latitude: '',
-      longitude: '',
-      measurementDate: new Date().toISOString().split('T')[0],
-      measurementTime: '',
-      parameters: [],
-      status: 'normal',
-      weather: {
-        temperature: '',
-        humidity: '',
-        windSpeed: '',
-        windDirection: '',
-        pressure: ''
-      },
-      technician: '',
-      equipment: '',
-      observations: '',
-      regulation: ''
-    });
-  };
-
-  const deleteMeasurement = (id) => {
+  const deleteMeasurement = (id: string) => {
     setConfirmModal({ isOpen: true, payload: id });
   };
 
   const executeDelete = () => {
     if (confirmModal.payload) {
-      saveMeasurements(measurements.filter((m) => m.id !== confirmModal.payload));
+      saveMeasurements(measurements.filter((m) => m?.id !== confirmModal.payload));
     }
     setConfirmModal({ isOpen: false, payload: null });
   };
 
-  const filteredMeasurements = measurements.filter((m) => {
-    const matchesSearch = m.stationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    m.location?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === 'all' || m.monitoringType === filterType;
-    const matchesStatus = filterStatus === 'all' || m.status === filterStatus;
-    return matchesSearch && matchesType && matchesStatus;
-  });
+  const filteredMeasurements = useMemo(() => {
+    return (measurements || []).filter((m) => {
+      if (!m) return false;
+      const stationName = String(m.stationName || m.name || '').toLowerCase();
+      const locationName = String(m.location || '').toLowerCase();
+      const term = String(searchTerm || '').toLowerCase();
+      
+      const matchesSearch = stationName.includes(term) || locationName.includes(term);
+      const matchesType = filterType === 'all' || m.monitoringType === filterType;
+      
+      let matchesStatus = true;
+      if (statusFilter === 'normal') matchesStatus = m.status === 'normal';
+      else if (statusFilter === 'warning') matchesStatus = m.status === 'warning';
+      else if (statusFilter === 'critical') matchesStatus = m.status === 'critical' || m.status === 'exceeded';
 
-  // Estadísticas
-  const stats = {
-    total: measurements.length,
-    normal: measurements.filter((m) => m.status === 'normal').length,
-    warning: measurements.filter((m) => m.status === 'warning').length,
-    critical: measurements.filter((m) => m.status === 'critical').length,
-    stations: stations.length,
-    complianceRate: measurements.length > 0 ?
-    Math.round(measurements.filter((m) => m.status === 'normal').length / measurements.length * 100) :
-    0
-  };
+      return matchesSearch && matchesType && matchesStatus;
+    });
+  }, [measurements, searchTerm, filterType, statusFilter]);
+
+  const metrics = useMemo(() => {
+    const total = measurements.length;
+    const normal = measurements.filter((m) => m && m.status === 'normal').length;
+    const warning = measurements.filter((m) => m && m.status === 'warning').length;
+    const critical = measurements.filter((m) => m && (m.status === 'critical' || m.status === 'exceeded')).length;
+    return { total, normal, warning, critical };
+  }, [measurements]);
 
   return (
-    <div className="container pb-[6rem]">
-            <ShareModal
-        isOpen={!!shareItem}
-        open={!!shareItem}
-        onClose={() => setShareItem(null)}
-        title={`Monitoreo Ambiental - ${shareItem?.stationName || ''}`}
-        text={shareItem ? `🌿 Monitoreo Ambiental (Ley 19.587)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${new Date(shareItem.measurementDate || shareItem.date || shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}\n👷 Responsable: ${shareItem.technician || '-'}` : ''}
-        rawMessage={shareItem ? `🌿 Monitoreo Ambiental (Ley 19.587)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${new Date(shareItem.measurementDate || shareItem.date || shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}\n👷 Responsable: ${shareItem.technician || '-'}` : ''}
-        elementIdToPrint="pdf-content-list"
-        fileName={`Monitoreo_${shareItem?.stationName || 'Sin_Nombre'}.pdf`} />
-      
+    <AnimatedPage>
+      <div className="container pb-[6rem] min-h-[100vh] flex flex-col pt-4">
+        {/* Header idéntico a Aptitudes Médicas */}
+        <PremiumHeader
+          title="Monitoreo & Historial Ambiental"
+          subtitle="ISO 14001 • Gestión de impacto ambiental, calidad de aire, agua, ruido y efluentes"
+          icon={<Leaf size={36} color="#ffffff" />}
+        />
 
-            <div className="ats-pdf-offscreen">
-                {shareItem && <EnvironmentalPdf data={shareItem} id="pdf-content-list" />}
+        {/* Top Summary Cards (KPIs) idéntico a Aptitudes Médicas */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div
+            onClick={() => setStatusFilter('all')}
+            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              statusFilter === 'all'
+                ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 shadow-md'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-blue-400'
+            }`}
+          >
+            <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Total Mediciones</span>
+              <Activity size={20} />
+            </div>
+            <div className="text-2xl font-black text-slate-900 dark:text-white">{metrics.total}</div>
+            <span className="text-[11px] text-slate-500">Puntos monitoreados</span>
+          </div>
+
+          <div
+            onClick={() => setStatusFilter('normal')}
+            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              statusFilter === 'normal'
+                ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 shadow-md'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-emerald-400'
+            }`}
+          >
+            <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Normales / Conformes</span>
+              <CheckCircle2 size={20} />
+            </div>
+            <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{metrics.normal}</div>
+            <span className="text-[11px] text-slate-500">Dentro de norma ISO 14001</span>
+          </div>
+
+          <div
+            onClick={() => setStatusFilter('warning')}
+            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              statusFilter === 'warning'
+                ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 shadow-md'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-amber-400'
+            }`}
+          >
+            <div className="flex items-center justify-between text-amber-600 dark:text-amber-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">En Precaución</span>
+              <AlertTriangle size={20} />
+            </div>
+            <div className="text-2xl font-black text-amber-600 dark:text-amber-400">{metrics.warning}</div>
+            <span className="text-[11px] text-slate-500">Cercano al límite permitido</span>
+          </div>
+
+          <div
+            onClick={() => setStatusFilter('critical')}
+            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              statusFilter === 'critical'
+                ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-500 shadow-md'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-rose-400'
+            }`}
+          >
+            <div className="flex items-center justify-between text-rose-600 dark:text-rose-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Críticas / Excedidas</span>
+              <XCircle size={20} />
+            </div>
+            <div className="text-2xl font-black text-rose-600 dark:text-rose-400">{metrics.critical}</div>
+            <span className="text-[11px] text-slate-500">Requiere acción inmediata</span>
+          </div>
+        </div>
+
+        {/* Toolbar & Search Bar Section */}
+        <div className="mt-8 space-y-4">
+          <div className="flex flex-row items-center justify-between gap-3">
+            {/* Input de Búsqueda */}
+            <div className="relative flex-1 max-w-xs h-[38px]">
+              <Search
+                size={16}
+                className="text-slate-400 pointer-events-none z-10"
+                style={{
+                  position: 'absolute',
+                  left: '0.75rem',
+                  top: 0,
+                  bottom: 0,
+                  marginTop: 'auto',
+                  marginBottom: 'auto',
+                  display: 'block'
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Buscar estación o ubicación..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ paddingLeft: '2.25rem', paddingRight: '0.75rem', height: '38px', width: '100%', boxSizing: 'border-box', outline: 'none' }}
+                className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+              />
             </div>
 
-            <Breadcrumbs />
-
-            <PremiumHeader
-        title="Monitoreo Ambiental"
-        subtitle={`ISO 14001 • ${stats.stations} estaciones`}
-        icon={<Leaf size={32} color="#ffffff" />}
-        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)">
-        
-                <div className="flex gap-[0.75rem] flex-wrap mt-[1rem]">
-                    <></>
-{/* Botón Nueva Medición movido abajo */}
-{/* Botón de historial removido */}
-                </div>
-            </PremiumHeader>
-
-            {/* Stats Cards */}
-            <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(160px,_1fr))] gap-[1rem] mb-[2rem]">
-
-
-
-
-        
-                <StatCard
-          icon={<Activity size={24} />}
-          label="Total Mediciones"
-          value={stats.total}
-          color="#3B82F6"
-          gradient="linear-gradient(135deg, #3B82F6, #1D4ED8)" />
-        
-                <StatCard
-          icon={<CheckCircle2 size={24} />}
-          label="Normales"
-          value={stats.normal}
-          color="#16a34a"
-          gradient="linear-gradient(135deg, #16a34a, #059669)" />
-        
-                <StatCard
-          icon={<AlertTriangle size={24} />}
-          label="Precaución"
-          value={stats.warning}
-          color="#f59e0b"
-          gradient="linear-gradient(135deg, #f59e0b, #d97706)" />
-        
-                <StatCard
-          icon={<XCircle size={24} />}
-          label="Críticas"
-          value={stats.critical}
-          color="#dc2626"
-          gradient="linear-gradient(135deg, #dc2626, #991b1b)" />
-        
-            </div>
-
-            {/* Compliance Rate */}
-            <div className="card p-[1.5rem] mb-[2rem]">
-                <div className="flex justify-space-between items-center mb-[1rem]">
-                    <div className="flex items-center gap-[0.75rem]">
-                        <Target size={24} color="#10b981" />
-                        <div>
-                            <h3 className="m-[0] text-[1rem] font-[800]">Tasa de Cumplimiento Ambiental</h3>
-                            <p className="m-[0.25rem_0_0_0] text-[0.85rem] text-[var(--color-text-muted)]">Mediciones dentro de límites normativos</p>
-                        </div>
-                    </div>
-                    <div className="text-right">
-                        <div className="text-[2.5rem] font-[900] text-[#10b981]">{stats.complianceRate}%</div>
-                    </div>
-                </div>
-                <div className="h-[12px] bg-[#e2e8f0] rounded-[6px] overflow-[hidden]">
-                    <div style={{ width: `${stats.complianceRate}%` }} className="h-[100%] bg-[linear-gradient(90deg,_#10b981,_#059669)] rounded-[6px] transition-[width_1s_ease]" />
-                </div>
-            </div>
-
-            {/* Tabs */}
-            <div className="flex gap-[0.5rem] mb-[1.5rem] border-bottom-[2px_solid_var(--color-border)] pb-[0.5rem]">
-
-
-
-
-
-        
-                <TabButton
-          active={activeTab === 'measurements'}
-          onClick={() => setActiveTab('measurements')}
-          icon={<Activity size={18} />}
-          label="Mediciones"
-          count={measurements.length} />
-        
-                <TabButton
-          active={activeTab === 'stations'}
-          onClick={() => setActiveTab('stations')}
-          icon={<Factory size={18} />}
-          label="Estaciones"
-          count={stations.length} />
-        
-                <TabButton
-          active={activeTab === 'limits'}
-          onClick={() => setActiveTab('limits')}
-          icon={<Target size={18} />}
-          label="Límites"
-          count={0} />
-        
-        
-            </div>
-
-            {/* Content by Tab */}
-            {activeTab === 'measurements' &&
-      <>
-                    {/* Search & Filters */}
-                    <div className="flex gap-[1rem] mb-[1.5rem] flex-wrap">
-                        <div className="flex-[1] min-w-[280px] relative h-[50px]">
-                            <Search 
-                              size={20} 
-                              color="var(--color-text-muted)" 
-                              style={{ 
-                                position: 'absolute', 
-                                left: '1.2rem', 
-                                top: 0, 
-                                bottom: 0, 
-                                marginTop: 'auto', 
-                                marginBottom: 'auto', 
-                                display: 'block' 
-                              }} 
-                              className="pointer-events-none z-10" 
-                            />
-                            <input
-                              type="text"
-                              placeholder="Buscar por estación, ubicación..."
-                              value={searchTerm}
-                              onChange={(e) => setSearchTerm(e.target.value)}
-                              style={{ width: '100%', height: '50px', paddingLeft: '3.5rem', paddingRight: '1rem', boxSizing: 'border-box', outline: 'none' }}
-                              className="rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.95rem] font-[500] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm" 
-                            />
-                        </div>
-
-                        <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)} className="p-[0.85rem_1.25rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.9rem] font-[600] outline-[none] cursor-pointer">
-
-
-
-
-
-
-
-
-
-            
-                            <option value="all">Todos los Tipos</option>
-                            {MONITORING_TYPES.map((t) =>
-            <option key={t.id} value={t.id}>{t.icon} {t.name}</option>
-            )}
-                        </select>
-
-                        <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)} className="p-[0.85rem_1.25rem] rounded-[var(--radius-lg)] border-[1px_solid_var(--color-input-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[0.9rem] font-[600] outline-[none] cursor-pointer">
-
-
-
-
-
-
-
-
-
-
-
-            
-                            <option value="all">Todos los Estados</option>
-                            {Object.entries(MEASUREMENT_STATUS).map(([key, value]) =>
-            <option key={key} value={key}>{value.label}</option>
-            )}
-                        </select>
-                    </div>
-
-                    {/* Measurements List */}
-                    {filteredMeasurements.length === 0 ?
-        <EmptyStateIllustrated
-          title="Sin Mediciones"
-          description="Registrá mediciones de monitoreo ambiental según ISO 14001 para control de impacto."
-          onAction={() => navigate('/environmental/new')}
-          icon={<Leaf />} /> :
-
-
-        <div className="flex flex-col gap-3">
-                            {filteredMeasurements.map((measurement) =>
-          <MeasurementCard
-            key={measurement.id}
-            measurement={measurement}
-            statusConfig={MEASUREMENT_STATUS[measurement.status] || MEASUREMENT_STATUS.normal}
-            monitoringType={MONITORING_TYPES.find((t) => t.id === measurement.monitoringType)}
-            onView={() => setSelectedMeasurement(measurement)}
-            onEdit={() => navigate('/environmental/new', { state: { editData: measurement } })}
-            onShare={() => setShareItem(measurement)}
-            onDelete={() => deleteMeasurement(measurement.id)} />
-
-          )}
-                        </div>
-        }
-                    
-                    {/* Botón Nueva Medición (movido desde arriba) */}
-                    <div className="mt-[2rem] flex justify-center pb-[2rem]">
-                        <button
-            onClick={() => navigate('/environmental/new')}
-
-
-
-
-
-
-
-            className="hover-lift flex-[0_1_auto] p-[1rem_1.5rem] rounded-[16px] bg-[#36B37E] text-[#fff] border-none font-[800] text-[1rem] cursor-pointer flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(54,179,126,0.3)] white-space-[nowrap]">
-            
-                            <Plus size={20} strokeWidth={2.5} />
-                            Nueva Medición
-                        </button>
-                    </div>
-                </>
-      }
-
-            {activeTab === 'stations' &&
-      <StationsList stations={stations} measurements={measurements} />
-      }
-
-            {activeTab === 'limits' &&
-      <LimitsPanel parameters={PARAMETERS} />
-      }
-
-            {/* Modal de Agregar Medición */}
-            {showAddModal &&
-      <AddMeasurementModal
-        measurement={newMeasurement}
-        setMeasurement={setNewMeasurement}
-        onSave={handleAddMeasurement}
-        onClose={() => {
-          setShowAddModal(false);
-          resetForm();
-        }}
-        MONITORING_TYPES={MONITORING_TYPES}
-        PARAMETERS={PARAMETERS}
-        ENVIRONMENTAL_REGULATIONS={ENVIRONMENTAL_REGULATIONS}
-        onPrint={() => setShowShareModal(true)} />
-
-      }
-
-            {/* Modal de Detalle */}
-            {selectedMeasurement &&
-      <MeasurementDetailModal
-        measurement={selectedMeasurement}
-        statusConfig={MEASUREMENT_STATUS[(selectedMeasurement as any).status] || MEASUREMENT_STATUS.normal}
-        monitoringType={MONITORING_TYPES.find((t) => t.id === (selectedMeasurement as any).monitoringType)}
-        onClose={() => setSelectedMeasurement(null)}
-        PARAMETERS={PARAMETERS}
-        setShowShareModal={setShowShareModal} />
-
-      }
-
-            <ShareModal
-        isOpen={showShareModal}
-        open={showShareModal}
-        onClose={() => setShowShareModal(false)}
-        elementIdToPrint="pdf-content-modal"
-        title={selectedMeasurement ? "Protocolo de Monitoreo" : "Borrador de Monitoreo"}
-        text={selectedMeasurement ? `🌿 Monitoreo Ambiental - ${selectedMeasurement.stationName}` : "Borrador de Monitoreo"}
-        rawMessage={selectedMeasurement ? `🌿 Monitoreo Ambiental - ${selectedMeasurement.stationName}` : "Borrador de Monitoreo"}
-        fileName={`Monitoreo_${selectedMeasurement?.stationName || newMeasurement?.stationName || 'Borrador'}.pdf`} />
-      
-
-            <div className="ats-pdf-offscreen">
-                <EnvironmentalPdf data={selectedMeasurement || newMeasurement} id="pdf-content-modal" />
-            </div>
-
-            <ConfirmModal
-        isOpen={confirmModal.isOpen}
-        onClose={() => setConfirmModal({ isOpen: false, payload: null })}
-        onConfirm={executeDelete}
-        title="¿Eliminar medición?"
-        message="Esta acción no se puede deshacer."
-        iconEmoji="🗑️" />
-      
-        </div>);
-
-}
-
-// Componentes Auxiliares
-function StatCard({ icon, label, value, color, gradient }) {
-  return (
-    <div className="card p-[1.25rem] bg-[var(--gradient-card)] border-[1px_solid_var(--glass-border-subtle)] relative overflow-[hidden]">
-
-
-
-
-
-      
-            <div style={{
-
-
-
-
-
-        background: gradient
-
-
-      }} className="absolute top-[-20px] right-[-20px] w-[80px] h-[80px] rounded-[50%] opacity-[0.1]" />
-            <div className="flex items-center gap-[0.75rem] mb-[0.75rem]">
-                <div style={{
-
-
-          background: gradient,
-
-
-
-
-          boxShadow: `0 4px 15px ${color}40`
-        }} className="w-[48px] h-[48px] rounded-[var(--radius-lg)] flex items-center justify-center">
-                    {React.cloneElement(icon, { color: '#ffffff', size: 24 })}
-                </div>
-            </div>
-            <div className="text-[2rem] font-[900] text-[var(--color-text)] line-height-[1]">
-                {value}
-            </div>
-            <div className="text-[0.85rem] font-[600] text-[var(--color-text-muted)]">
-                {label}
-            </div>
-        </div>);
-
-}
-
-function TabButton({ active, onClick, icon, label, count }) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-
-
-
-
-        background: active ? 'var(--color-primary)' : 'transparent',
-        color: active ? '#fff' : 'var(--color-text-muted)'
-
-
-
-
-
-
-
-
-
-      }} className="flex items-center gap-[0.5rem] p-[0.75rem_1.25rem] border-none rounded-[var(--radius-lg)_var(--radius-lg)_0_0] cursor-pointer font-[700] text-[0.9rem] transition-[all_var(--transition-fast)] relative white-space-[nowrap] flex-shrink-[0]">
-      
-            {icon}
-            {label}
-            {count !== undefined &&
-      <span style={{
-
-        background: active ? 'rgba(255,255,255,0.2)' : 'var(--color-background)'
-
-
-
-      }} className="p-[0.2rem_0.5rem] rounded-[var(--radius-full)] text-[0.75rem] font-[800]">
-                    {count}
-                </span>
-      }
-        </button>);
-
-}
-
-function MeasurementCard({ measurement, statusConfig, monitoringType, onView, onEdit, onShare, onDelete }) {
-  return (
-    <div className="card p-[1.25rem] flex items-center gap-[1rem] transition-[all_var(--transition-fast)]" style={{
-
-
-
-
-
-      borderLeft: `4px solid ${statusConfig.color}`
-    }}>
-            {/* Status Icon */}
-            <div style={{
-
-
-        background: `${statusConfig.color}15`,
-
-
-
-
-
-
-        border: `2px solid ${statusConfig.color}`
-      }} className="w-[64px] h-[64px] rounded-[var(--radius-xl)] flex flex-col items-center justify-center flex-shrink-[0]">
-                <span className="text-[1.75rem]">{monitoringType?.icon || '🌍'}</span>
-            </div>
-
-            {/* Information */}
-            <div className="flex-[1] min-width-[0]">
-                <div className="flex items-center gap-[0.75rem] mb-[0.5rem] flex-wrap">
-                    <h3 className="m-[0] text-[1.1rem] font-[800] text-[var(--color-text)] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">
-
-
-
-
-
-
-
-            
-                        {measurement.stationName}
-                    </h3>
-                    <span style={{
-
-            background: statusConfig.bg,
-            color: statusConfig.color
-
-
-
-
-          }} className="p-[0.35rem_0.75rem] rounded-[var(--radius-full)] text-[0.7rem] font-[800] uppercase">
-                        {statusConfig.label}
-                    </span>
-                </div>
-                <div className="flex flex-wrap gap-[1rem] text-[0.85rem] text-[var(--color-text-muted)] font-[500]">
-
-
-
-
-
-
-          
-                    <span className="flex items-center gap-[0.35rem]">
-                        <Leaf size={14} />
-                        {monitoringType?.name || 'Ambiental'}
-                    </span>
-                    <span className="flex items-center gap-[0.35rem]">
-                        <Calendar size={14} />
-                        {new Date(measurement.measurementDate || measurement.date || measurement.createdAt || Date.now()).toLocaleDateString('es-AR')}
-                    </span>
-                    <span className="flex items-center gap-[0.35rem]">
-                        <User size={14} />
-                        {measurement.technician || 'Sin técnico'}
-                    </span>
-                </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-[0.5rem]">
-                <button
-          onClick={onEdit}
-          className="p-2 bg-slate-800 border border-slate-700 rounded-lg text-emerald-500 hover:bg-slate-700 transition-colors"
-          title="Editar Medición">
-          
-                    <Edit3 size={18} />
-                </button>
-                <button
-          onClick={onShare}
-
-
-
-
-
-
-
-
-
-          title="Compartir PDF" className="p-[0.6rem_0.75rem] bg-[#dcfce7] border-[1px_solid_#86efac] rounded-[var(--radius-md)] cursor-pointer text-[#16a34a] transition-[all_var(--transition-fast)]">
-          
-                    <Share2 size={18} />
-                </button>
-                <button
-          onClick={onDelete}
-          className="p-2 bg-slate-800 border border-slate-700 rounded-lg text-red-500 hover:bg-slate-700 transition-colors"
-          title="Eliminar">
-          
-                    <Trash2 size={18} />
-                </button>
-            </div>
-        </div>);
-
-}
-
-function EmptyState({ onAdd }) {
-  return (
-    <div className="p-[4rem_2rem] text-center bg-[var(--gradient-card)] rounded-[var(--radius-2xl)] border-[2px_dashed_var(--color-border)]">
-
-
-
-
-
-      
-            <div className="w-[80px] h-[80px] m-[0_auto_1.5rem] bg-[var(--color-background)] rounded-[50%] flex items-center justify-center">
-
-
-
-
-
-
-
-
-        
-                <Leaf size={40} color="var(--color-text-muted)" />
-            </div>
-            <h3 className="m-[0_0_0.5rem_0] text-[1.25rem] font-[800] text-[var(--color-text)]">
-
-
-
-
-        
-                Sin Mediciones Ambientales
-            </h3>
-            <p className="m-[0_0_1.5rem_0] text-[var(--color-text-muted)] text-[0.95rem]">
-
-
-
-        
-                Registrá mediciones de monitoreo ambiental según ISO 14001
-            </p>
+            {/* Select Tipo de Monitoreo */}
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-pointer hidden sm:block"
+            >
+              <option value="all">Todos los Tipos</option>
+              {MONITORING_TYPES.map((t) => (
+                <option key={t.id} value={t.id}>{t.icon} {t.name}</option>
+              ))}
+            </select>
+
+            {/* Botón Nueva Medición SUPER COMPACTO INLINE idéntico a Aptitudes Médicas */}
             <button
-        onClick={onAdd}
-        className="btn-primary w-[auto] m-[0]">
-
-        
-                <Plus size={20} className="mr-[0.5rem]" />
-                Primera Medición
+              onClick={() => navigate('/environmental/new')}
+              style={{
+                backgroundColor: '#059669',
+                color: '#ffffff',
+                border: 'none',
+                padding: '6px 14px',
+                fontSize: '12px',
+                fontWeight: '800',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                whiteSpace: 'nowrap',
+                height: '34px',
+                boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
+              }}
+            >
+              <Plus size={14} />
+              <span>Nueva Medición</span>
             </button>
-        </div>);
-
-}
-
-function StationsList({ stations, measurements }) {
-  if (stations.length === 0) {
-    return (
-      <div className="p-[3rem_2rem] text-center bg-[var(--gradient-card)] rounded-[var(--radius-2xl)] border-[2px_dashed_var(--color-border)]">
-                <Factory size={48} color="var(--color-text-muted)" className="mb-[1rem]" />
-                <p className="text-[var(--color-text-muted)] text-[0.95rem]">No hay estaciones de monitoreo registradas. Las estaciones se crean automáticamente al registrar mediciones.</p>
-            </div>);
-
-  }
-
-  return (
-    <div className="grid grid-template-columns-[repeat(auto-fill,_minmax(300px,_1fr))] gap-[1rem]">
-            {stations.map((station) => {
-        const stationMeasurements = measurements.filter((m) => m.stationId === station.id);
-        const lastMeasurement = stationMeasurements[0];
-        const typeConfig = MONITORING_TYPES.find((t) => t.id === station.type);
-
-        return (
-          <div key={station.id} className="card p-[1.25rem]">
-                        <div className="flex items-center gap-[0.75rem] mb-[1rem]">
-                            <div style={{
-
-
-                background: `${typeConfig?.color}15`
-
-
-
-
-
-              }} className="w-[48px] h-[48px] rounded-[var(--radius-lg)] flex items-center justify-center text-[1.5rem]">
-                                {typeConfig?.icon || '🌍'}
-                            </div>
-                            <div>
-                                <h3 className="m-[0] text-[1rem] font-[800]">{station.name}</h3>
-                                <p className="m-[0.25rem_0_0_0] text-[0.8rem] text-[var(--color-text-muted)]">{typeConfig?.name}</p>
-                            </div>
-                        </div>
-                        <div className="text-[0.85rem] text-[var(--color-text-muted)] mb-[0.75rem]">
-                            📍 {station.location || 'Sin ubicación'}
-                        </div>
-                        <div className="flex justify-space-between text-[0.8rem]">
-                            <span className="text-[var(--color-text-muted)]">Mediciones: <strong>{stationMeasurements.length}</strong></span>
-                            <span className="text-[var(--color-text-muted)]">Última: <strong>{lastMeasurement ? new Date(lastMeasurement.measurementDate).toLocaleDateString('es-AR') : '-'}</strong></span>
-                        </div>
-                    </div>);
-
-      })}
-        </div>);
-
-}
-
-function LimitsPanel({ parameters }: any) {
-  return (
-    <div className="flex flex-col gap-[1.5rem]">
-            {Object.entries(parameters).map(([type, params]) => {
-        const typeConfig = MONITORING_TYPES.find((t) => t.id === type);
-        return (
-          <div key={type} className="bg-slate-900 border border-slate-700 rounded-2xl p-6">
-                        <h3 className="m-[0_0_1rem_0] text-[1rem] font-[800] flex items-center gap-[0.5rem]">
-                            <span className="text-[1.5rem]">{typeConfig?.icon}</span>
-                            {typeConfig?.name} - Límites Normativos
-                        </h3>
-                        <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(200px,_1fr))] gap-[0.75rem]">
-                            {(params as any[]).map((param) =>
-              <div key={param.id} className="p-[0.75rem] bg-[#f8fafc] border-[1px_solid_#e2e8f0] rounded-[var(--radius-lg)]">
-
-
-
-
-                
-                                    <div className="flex justify-space-between mb-[0.5rem]">
-                                        <span className="text-[0.85rem] font-[700]">{param.name}</span>
-                                        <span className="text-[0.75rem] text-[var(--color-text-muted)]">{param.unit}</span>
-                                    </div>
-                                    <div style={{ color: param.limit ? '#dc2626' : '#6b7280' }} className="text-[1.25rem] font-[900]">
-                                        {param.limit || 'Sin límite'}
-                                    </div>
-                                </div>
-              )}
-                        </div>
-                    </div>);
-
-      })}
-        </div>);
-
-}
-
-// Modal de Agregar Medición
-function AddMeasurementModal({ measurement, setMeasurement, onSave, onClose, MONITORING_TYPES, PARAMETERS, ENVIRONMENTAL_REGULATIONS, onPrint }) {
-  const addParameter = () => {
-    setMeasurement({
-      ...measurement,
-      parameters: [...(measurement.parameters || []), { parameterId: '', value: '', unit: '' }]
-    });
-  };
-
-  const updateParameter = (index, field, value) => {
-    const updated = measurement.parameters.map((p, i) => {
-      if (i === index) {
-        const paramDef = PARAMETERS[measurement.monitoringType]?.find((par) => par.id === value);
-        return {
-          ...p,
-          [field]: value,
-          unit: field === 'parameterId' && paramDef ? paramDef.unit : p.unit
-        };
-      }
-      return p;
-    });
-    setMeasurement({ ...measurement, parameters: updated });
-  };
-
-  const removeParameter = (index) => {
-    const updated = measurement.parameters.filter((_, i) => i !== index);
-    setMeasurement({ ...measurement, parameters: updated });
-  };
-
-  return (
-    <div className="modal-fullscreen-overlay" onClick={onClose}>
-            <div
-        className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto m-auto"
-        onClick={(e) => e.stopPropagation()}>
-        
-                <div className="flex justify-space-between items-center mb-[1.5rem] pb-[1rem] border-bottom-[1px_solid_var(--color-border)]">
-
-
-
-
-
-
-          
-                    <h2 className="m-0 text-2xl font-black">
-                        <Leaf size={24} className="display-[inline] mr-[0.5rem]" />
-                        Nueva Medición Ambiental
-                    </h2>
-                    <div className="flex gap-[0.5rem] items-center">
-                        <button
-              onClick={onPrint} className="p-[0.5rem_1rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-primary)] rounded-[var(--radius-md)] cursor-pointer text-[var(--color-primary)] flex items-center gap-[0.5rem] font-[700]">
-
-
-
-
-
-
-
-
-
-
-
-
-              
-                            <Printer size={18} />
-                            Imprimir
-                        </button>
-                        <button
-              onClick={onClose}
-              className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition-colors">
-              
-                            <XCircle size={24} />
-                        </button>
-                    </div>
-                </div>
-
-                <div className="grid grid-template-columns-[1fr_1fr] gap-[1rem]">
-                    {/* Tipo de Monitoreo */}
-                    <div>
-                        <label className="block mb-2 text-sm font-semibold text-slate-400">Tipo de Monitoreo *</label>
-                        <select
-              value={measurement.monitoringType}
-              onChange={(e) => setMeasurement({ ...measurement, monitoringType: e.target.value, parameters: [] })}
-              className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors">
-              
-                            <option value="">Seleccionar tipo</option>
-                            {MONITORING_TYPES.map((t) =>
-              <option key={t.id} value={t.id}>{t.icon} {t.name}</option>
-              )}
-                        </select>
-                    </div>
-
-                    {/* Nombre de Estación */}
-                    <div>
-                        <label className="block mb-2 text-sm font-semibold text-slate-400">Nombre de Estación/Punto *</label>
-                        <input
-              type="text"
-              value={measurement.stationName}
-              onChange={(e) => setMeasurement({ ...measurement, stationName: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
-              placeholder="Ej: Estación de Aire Norte" />
-            
-                    </div>
-
-                    {/* Ubicación */}
-                    <div className="grid-column-[1_/_-1]">
-                        <label className="block mb-2 text-sm font-semibold text-slate-400">Ubicación</label>
-                        <input
-              type="text"
-              value={measurement.location}
-              onChange={(e) => setMeasurement({ ...measurement, location: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
-              placeholder="Ej: Planta Industrial, Sector B" />
-            
-                    </div>
-
-                    {/* Fecha y Hora */}
-                    <div>
-                        <label className="block mb-2 text-sm font-semibold text-slate-400">Fecha de Medición</label>
-                        <input
-              type="date"
-              value={measurement.measurementDate}
-              onChange={(e) => setMeasurement({ ...measurement, measurementDate: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" />
-            
-                    </div>
-                    <div>
-                        <label className="block mb-2 text-sm font-semibold text-slate-400">Hora de Medición</label>
-                        <input
-              type="time"
-              value={measurement.measurementTime}
-              onChange={(e) => setMeasurement({ ...measurement, measurementTime: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" />
-            
-                    </div>
-
-                    {/* Técnico */}
-                    <div>
-                        <label className="block mb-2 text-sm font-semibold text-slate-400">Técnico Responsable</label>
-                        <input
-              type="text"
-              value={measurement.technician}
-              onChange={(e) => setMeasurement({ ...measurement, technician: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
-              placeholder="Nombre del técnico" />
-            
-                    </div>
-
-                    {/* Equipo */}
-                    <div>
-                        <label className="block mb-2 text-sm font-semibold text-slate-400">Equipo de Medición</label>
-                        <input
-              type="text"
-              value={measurement.equipment}
-              onChange={(e) => setMeasurement({ ...measurement, equipment: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
-              placeholder="Ej: Sonómetro SL-4001" />
-            
-                    </div>
-                </div>
-
-                {/* Parámetros */}
-                {measurement.monitoringType &&
-        <div className="mt-6">
-                        <div className="flex justify-space-between items-center mb-[0.75rem]">
-                            <label style={{ ...labelStyle }} className="m-[0]">Parámetros Medidos</label>
-                            <button
-              onClick={addParameter} className="p-[0.4rem_0.75rem] bg-[var(--color-primary)] text-[#fff] border-none rounded-[var(--radius-md)] cursor-pointer text-[0.8rem] font-[700] flex items-center gap-[0.35rem]">
-
-
-
-
-
-
-
-
-
-
-
-
-
-              
-                                <Plus size={14} /> Agregar
-                            </button>
-                        </div>
-                        <div className="flex flex-col gap-[0.5rem]">
-                            {measurement.parameters?.map((param, index) =>
-            <div key={index} className="grid grid-template-columns-[2fr_1fr_auto] gap-[0.5rem] items-center">
-                                    <select
-                value={param.parameterId}
-                onChange={(e) => updateParameter(index, 'parameterId', e.target.value)}
-                style={{ ...inputStyle }} className="mb-[0]">
-                
-                                        <option value="">Seleccionar parámetro</option>
-                                        {PARAMETERS[measurement.monitoringType]?.map((p) =>
-                <option key={p.id} value={p.id}>{p.name} ({p.unit})</option>
-                )}
-                                    </select>
-                                    <input
-                type="number"
-                step="0.01"
-                value={param.value}
-                onChange={(e) => updateParameter(index, 'value', e.target.value)}
-                style={{ ...inputStyle }}
-                placeholder="Valor" className="mb-[0]" />
-              
-                                    <button
-                onClick={() => removeParameter(index)} className="p-[0.5rem] bg-[#fef2f2] border-[1px_solid_#fecaca] rounded-[var(--radius-md)] cursor-pointer text-[#dc2626]">
-
-
-
-
-
-
-
-
-                
-                                        <XCircle size={18} />
-                                    </button>
-                                </div>
+          </div>
+
+          {/* Filter Tabs idénticos a Aptitudes Médicas */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+            <button
+              onClick={() => setStatusFilter('all')}
+              style={{
+                backgroundColor: statusFilter === 'all' ? '#2563eb' : '#ffffff',
+                color: statusFilter === 'all' ? '#ffffff' : '#334155',
+                border: statusFilter === 'all' ? '1px solid #2563eb' : '1px solid #cbd5e1',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontWeight: '800',
+                cursor: 'pointer'
+              }}
+            >
+              Todos ({metrics.total})
+            </button>
+            <button
+              onClick={() => setStatusFilter('normal')}
+              style={{
+                backgroundColor: statusFilter === 'normal' ? '#059669' : '#ffffff',
+                color: statusFilter === 'normal' ? '#ffffff' : '#334155',
+                border: statusFilter === 'normal' ? '1px solid #059669' : '1px solid #cbd5e1',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontWeight: '800',
+                cursor: 'pointer'
+              }}
+            >
+              Normales ({metrics.normal})
+            </button>
+            <button
+              onClick={() => setStatusFilter('warning')}
+              style={{
+                backgroundColor: statusFilter === 'warning' ? '#d97706' : '#ffffff',
+                color: statusFilter === 'warning' ? '#ffffff' : '#334155',
+                border: statusFilter === 'warning' ? '1px solid #d97706' : '1px solid #cbd5e1',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontWeight: '800',
+                cursor: 'pointer'
+              }}
+            >
+              Precaución ({metrics.warning})
+            </button>
+            <button
+              onClick={() => setStatusFilter('critical')}
+              style={{
+                backgroundColor: statusFilter === 'critical' ? '#dc2626' : '#ffffff',
+                color: statusFilter === 'critical' ? '#ffffff' : '#334155',
+                border: statusFilter === 'critical' ? '1px solid #dc2626' : '1px solid #cbd5e1',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontWeight: '800',
+                cursor: 'pointer'
+              }}
+            >
+              Críticas ({metrics.critical})
+            </button>
+          </div>
+
+          {/* Records List con Tarjetas & Botones Sólidos de Colores */}
+          <div className="flex flex-col gap-3">
+            {filteredMeasurements.length === 0 ? (
+              <EmptyStateIllustrated
+                title="Sin Mediciones Ambientales"
+                description="Registrá mediciones de monitoreo ambiental según ISO 14001 para control de impacto."
+                icon={<Leaf />}
+              />
+            ) : (
+              filteredMeasurements.map((m) => (
+                <MeasurementCard
+                  key={m.id || Math.random()}
+                  measurement={m}
+                  statusConfig={MEASUREMENT_STATUS[m?.status] || MEASUREMENT_STATUS.normal}
+                  monitoringType={MONITORING_TYPES.find((t) => t.id === m?.monitoringType)}
+                  onView={() => setSelectedMeasurement(m)}
+                  onEdit={() => navigate('/environmental/new', { state: { editData: m } })}
+                  onQR={() => setQrModal(m)}
+                  onShare={() => setShareItem(m)}
+                  onDelete={() => deleteMeasurement(m.id)}
+                />
+              ))
             )}
-                            {(!measurement.parameters || measurement.parameters.length === 0) &&
-            <p className="text-[0.85rem] text-[var(--color-text-muted)] font-style-[italic]">
-                                    No hay parámetros agregados. Hacé clic en "Agregar" para añadir parámetros.
-                                </p>
-            }
-                        </div>
-                    </div>
-        }
+          </div>
+        </div>
 
-                {/* Condiciones Ambientales */}
-                <div className="mt-6">
-                    <label className="block mb-2 text-sm font-semibold text-slate-400">Condiciones Ambientales</label>
-                    <div className="grid grid-template-columns-[repeat(3,_1fr)] gap-[0.75rem]">
-                        <div>
-                            <span className="text-[0.7rem] font-[700] text-[var(--color-text-muted)]">Temperatura (°C)</span>
-                            <input
-                type="number"
-                step="0.1"
-                value={measurement.weather.temperature}
-                onChange={(e) => setMeasurement({ ...measurement, weather: { ...measurement.weather, temperature: e.target.value } })}
-                style={{ ...inputStyle }} className="p-[0.5rem]" />
-              
-                        </div>
-                        <div>
-                            <span className="text-[0.7rem] font-[700] text-[var(--color-text-muted)]">Humedad (%)</span>
-                            <input
-                type="number"
-                value={measurement.weather.humidity}
-                onChange={(e) => setMeasurement({ ...measurement, weather: { ...measurement.weather, humidity: e.target.value } })}
-                style={{ ...inputStyle }} className="p-[0.5rem]" />
-              
-                        </div>
-                        <div>
-                            <span className="text-[0.7rem] font-[700] text-[var(--color-text-muted)]">Viento (km/h)</span>
-                            <input
-                type="number"
-                value={measurement.weather.windSpeed}
-                onChange={(e) => setMeasurement({ ...measurement, weather: { ...measurement.weather, windSpeed: e.target.value } })}
-                style={{ ...inputStyle }} className="p-[0.5rem]" />
-              
-                        </div>
-                    </div>
-                </div>
+        {/* Modal de Detalle */}
+        {selectedMeasurement && (
+          <MeasurementDetailModal
+            measurement={selectedMeasurement}
+            statusConfig={MEASUREMENT_STATUS[selectedMeasurement?.status] || MEASUREMENT_STATUS.normal}
+            monitoringType={MONITORING_TYPES.find((t) => t.id === selectedMeasurement?.monitoringType)}
+            onClose={() => setSelectedMeasurement(null)}
+          />
+        )}
 
-                {/* Observaciones */}
-                <div className="mt-6">
-                    <label className="block mb-2 text-sm font-semibold text-slate-400">Observaciones</label>
-                    <textarea
-            value={measurement.observations}
-            onChange={(e) => setMeasurement({ ...measurement, observations: e.target.value })}
-            style={{ ...inputStyle }}
-            placeholder="Observaciones relevantes sobre la medición..." className="min-h-[80px] resize-[vertical]" />
-          
-                </div>
+        {/* Modal QR de Validación idéntico a Aptitudes Médicas */}
+        {qrModal && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl relative border border-slate-200 dark:border-slate-800 space-y-4">
+              <button
+                onClick={() => setQrModal(null)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-transparent border-none cursor-pointer"
+              >
+                <XCircle size={24} />
+              </button>
 
-                <div className="flex gap-[1rem] mt-[2rem] pt-[1.5rem] border-top-[1px_solid_var(--color-border)]">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
+                <QrCode size={28} />
+              </div>
 
+              <div>
+                <h3 className="text-lg font-extrabold text-slate-900 dark:text-white m-0">Medición Ambiental Verificada</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">
+                  {qrModal.stationName || qrModal.name} ({qrModal.location || 'Sector Monitoreado'})
+                </p>
+              </div>
 
+              <div className="bg-white p-4 rounded-2xl inline-block border border-slate-200 shadow-sm">
+                <QRCodeSVG value={`${window.location.origin}/verify/env_${qrModal.id}`} size={180} />
+              </div>
 
+              <p className="text-xs text-slate-400">
+                Escaneá este código QR para auditar la medición de impacto ambiental en tiempo real según norma ISO 14001.
+              </p>
 
-
-          
-                    <button
-            onClick={onClose}
-            className="flex-1 p-3 bg-slate-800 border border-slate-700 rounded-xl font-bold text-slate-300 hover:bg-slate-700 transition-colors">
-            
-                        Cancelar
-                    </button>
-                    <button
-            onClick={onSave}
-            className="btn-primary flex-[1]">
-
-            
-                        Guardar Medición
-                    </button>
-                </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setQrModal(null)}
+                  style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '10px 16px', borderRadius: '10px', fontWeight: '800', fontSize: '12px', cursor: 'pointer', flex: 1 }}
+                >
+                  Cerrar
+                </button>
+              </div>
             </div>
-        </div>);
+          </div>
+        )}
 
+        {/* Componentes de Impresión / PDF */}
+        <ShareModal
+          isOpen={!!shareItem}
+          open={!!shareItem}
+          onClose={() => setShareItem(null)}
+          title={`Monitoreo Ambiental - ${shareItem?.stationName || ''}`}
+          text={shareItem ? `🌿 Monitoreo Ambiental (ISO 14001)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${new Date(shareItem.measurementDate || shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}` : ''}
+          rawMessage={shareItem ? `🌿 Monitoreo Ambiental (ISO 14001)\n📍 Estación: ${shareItem.stationName}\n📅 Fecha: ${new Date(shareItem.measurementDate || shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}` : ''}
+          elementIdToPrint="pdf-content-list"
+          fileName={`Monitoreo_${shareItem?.stationName || 'Ambiental'}.pdf`}
+        />
+
+        <div className="ats-pdf-offscreen">
+          {shareItem && <EnvironmentalPdf data={shareItem} id="pdf-content-list" />}
+        </div>
+
+        <ConfirmModal
+          isOpen={confirmModal.isOpen}
+          onClose={() => setConfirmModal({ isOpen: false, payload: null })}
+          onConfirm={executeDelete}
+          title="¿Eliminar medición?"
+          message="Esta acción no se puede deshacer."
+          iconEmoji="🗑️"
+        />
+      </div>
+    </AnimatedPage>
+  );
 }
 
-// Modal de Detalle
-function MeasurementDetailModal({ measurement, statusConfig, monitoringType, onClose, PARAMETERS, setShowShareModal }: any) {
-  const typeParams = PARAMETERS[measurement.monitoringType] || [];
+// Componente de Tarjeta con Botones Coloridos e Identidad Visual de Aptitudes Médicas
+function MeasurementCard({ measurement, statusConfig, monitoringType, onView, onEdit, onQR, onShare, onDelete }: any) {
+  if (!measurement) return null;
+  const safeStatus = statusConfig || MEASUREMENT_STATUS.normal;
 
   return (
-    <div className="modal-fullscreen-overlay" onClick={onClose}>
-            <div
-        className="card w-[100%] max-w-[700px] max-height-[90vh] overflow-[auto] m-[auto]"
+    <div className="card p-[1.25rem] flex flex-col md:flex-row md:items-center justify-between gap-[1rem] transition-all bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm" style={{ borderLeft: `4px solid ${safeStatus.color}` }}>
+      {/* Icon & Details */}
+      <div className="flex items-center gap-[1rem] flex-1 min-w-0">
+        <div style={{ background: `${safeStatus.color}15`, border: `2px solid ${safeStatus.color}` }} className="w-[56px] h-[56px] rounded-2xl flex items-center justify-center flex-shrink-0">
+          <span className="text-[1.75rem]">{monitoringType?.icon || '🌍'}</span>
+        </div>
 
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-[0.5rem] mb-[0.35rem] flex-wrap">
+            <h3 className="m-0 text-[1.1rem] font-[800] text-slate-900 dark:text-white truncate">{measurement.stationName || 'Estación Monitoreada'}</h3>
+            <span style={{ background: safeStatus.bg, color: safeStatus.color }} className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider">
+              {safeStatus.label}
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-[0.75rem] text-xs text-slate-500 font-medium">
+            <span className="flex items-center gap-1">
+              <Leaf size={14} />
+              {monitoringType?.name || 'Ambiental'}
+            </span>
+            <span className="flex items-center gap-1">
+              <Calendar size={14} />
+              {new Date(measurement.measurementDate || measurement.date || measurement.createdAt || Date.now()).toLocaleDateString('es-AR')}
+            </span>
+            <span className="flex items-center gap-1">
+              <User size={14} />
+              {measurement.technician || 'Sin técnico'}
+            </span>
+          </div>
+        </div>
+      </div>
 
+      {/* Botones Sólidos y Coloridos idénticos a Aptitudes Médicas */}
+      <div className="flex items-center gap-[6px] flex-wrap">
+        {/* Botón Editar con fondo Ámbar/Amarillo sólido */}
+        <button
+          onClick={onEdit}
+          title="Editar Medición"
+          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '5px 12px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(217, 119, 6, 0.2)' }}
+        >
+          <Edit3 size={12} /> Editar
+        </button>
 
+        {/* Botón Ver con fondo Azul sólido */}
+        <button
+          onClick={onView}
+          title="Ver Detalles"
+          style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '5px 12px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)' }}
+        >
+          <Eye size={12} /> Ver
+        </button>
 
+        {/* Botón QR con fondo Púrpura sólido */}
+        <button
+          onClick={onQR}
+          title="Ver Credencial QR de Validación"
+          style={{ backgroundColor: '#4f46e5', color: '#ffffff', border: 'none', padding: '5px 12px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(79, 70, 229, 0.2)' }}
+        >
+          <QrCode size={12} /> QR
+        </button>
 
+        {/* Botón Compartir / PDF con fondo Verde sólido */}
+        <button
+          onClick={onShare}
+          title="Compartir Informe PDF"
+          style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '5px 12px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)' }}
+        >
+          <Share2 size={12} /> Compartir
+        </button>
 
-
-        onClick={(e) => e.stopPropagation()}>
-        
-                {/* Header */}
-                <div style={{
-
-          background: `${statusConfig.bg}`,
-          borderBottom: `2px solid ${statusConfig.color}`
-
-
-
-
-        }} className="p-[1.5rem] flex justify-space-between items-center mb-[1.5rem]">
-                    <div className="flex items-center gap-4">
-                        <div style={{
-
-
-              background: `linear-gradient(135deg, ${statusConfig.color}, ${statusConfig.color}cc)`
-
-
-
-
-
-
-            }} className="w-[64px] h-[64px] rounded-[var(--radius-xl)] flex items-center justify-center text-[#fff] text-[2rem]">
-                            {monitoringType?.icon || '🌍'}
-                        </div>
-                        <div>
-                            <h2 className="m-0 text-2xl font-black">
-                                {measurement.stationName}
-                            </h2>
-                            <p className="m-[0.25rem_0_0_0] text-[var(--color-text-muted)] text-[0.9rem]">
-                                {measurement.location || 'Sin ubicación'} • {statusConfig.label}
-                            </p>
-                        </div>
-                    </div>
-                    <button
-            onClick={onClose}
-            className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition-colors">
-            
-                        <XCircle size={24} />
-                    </button>
-                </div>
-
-                {/* Parámetros Medidos */}
-                {measurement.parameters && measurement.parameters.length > 0 &&
-        <div className="mb-6">
-                        <h3 className="text-sm font-extrabold mb-3 uppercase">
-                            Parámetros Medidos
-                        </h3>
-                        <div className="flex flex-col gap-[0.5rem]">
-                            {measurement.parameters.map((param, idx) => {
-              const paramDef = typeParams.find((p) => p.id === param.parameterId);
-              const isExceeded = paramDef?.limit && parseFloat(param.value) > paramDef.limit;
-
-              return (
-                <div key={idx} style={{
-
-                  background: isExceeded ? '#fef2f2' : 'var(--color-background)',
-                  border: `1px solid ${isExceeded ? '#fecaca' : 'var(--color-border)'}`
-
-
-
-
-                }} className="p-[0.75rem_1rem] rounded-[var(--radius-lg)] flex justify-space-between items-center">
-                                        <div>
-                                            <div className="text-[0.9rem] font-[700]">{paramDef?.name || param.parameterId}</div>
-                                            {paramDef?.limit &&
-                    <div style={{ color: isExceeded ? '#dc2626' : 'var(--color-text-muted)' }} className="text-[0.75rem]">
-                                                    Límite: {paramDef.limit} {paramDef.unit}
-                                                </div>
-                    }
-                                        </div>
-                                        <div className="text-right">
-                                            <div style={{ color: isExceeded ? '#dc2626' : 'var(--color-text)' }} className="text-[1.5rem] font-[900]">
-                                                {param.value}
-                                            </div>
-                                            <div className="text-[0.75rem] text-[var(--color-text-muted)]">
-                                                {param.unit || paramDef?.unit}
-                                            </div>
-                                        </div>
-                                    </div>);
-
-            })}
-                        </div>
-                    </div>
-        }
-
-                {/* Condiciones Ambientales */}
-                {(measurement.weather?.temperature || measurement.weather?.humidity || measurement.weather?.windSpeed) &&
-        <div className="mb-6">
-                        <h3 className="text-sm font-extrabold mb-3 uppercase">
-                            <Cloud size={16} className="display-[inline] mr-[0.5rem]" />
-                            Condiciones Ambientales
-                        </h3>
-                        <div className="grid grid-template-columns-[repeat(3,_1fr)] gap-[0.75rem]">
-                            {measurement.weather.temperature &&
-            <div className="p-[0.75rem] bg-[#f8fafc] rounded-[var(--radius-lg)] text-center">
-                                    <Thermometer size={20} color="#f59e0b" className="m-[0_auto_0.5rem]" />
-                                    <div className="text-[0.75rem] text-[var(--color-text-muted)]">Temperatura</div>
-                                    <div className="text-[1.25rem] font-[900]">{measurement.weather.temperature}°C</div>
-                                </div>
-            }
-                            {measurement.weather.humidity &&
-            <div className="p-[0.75rem] bg-[#f8fafc] rounded-[var(--radius-lg)] text-center">
-                                    <Droplets size={20} color="#3b82f6" className="m-[0_auto_0.5rem]" />
-                                    <div className="text-[0.75rem] text-[var(--color-text-muted)]">Humedad</div>
-                                    <div className="text-[1.25rem] font-[900]">{measurement.weather.humidity}%</div>
-                                </div>
-            }
-                            {measurement.weather.windSpeed &&
-            <div className="p-[0.75rem] bg-[#f8fafc] rounded-[var(--radius-lg)] text-center">
-                                    <Wind size={20} color="#6b7280" className="m-[0_auto_0.5rem]" />
-                                    <div className="text-[0.75rem] text-[var(--color-text-muted)]">Viento</div>
-                                    <div className="text-[1.25rem] font-[900]">{measurement.weather.windSpeed} km/h</div>
-                                </div>
-            }
-                        </div>
-                    </div>
-        }
-
-                {/* Información Adicional */}
-                <div className="grid grid-template-columns-[1fr_1fr] gap-[1rem] mb-[1.5rem]">
-
-
-
-
-          
-                    <InfoDetail label="Fecha" value={measurement.measurementDate ? new Date(measurement.measurementDate).toLocaleDateString('es-AR') : '-'} />
-                    <InfoDetail label="Hora" value={measurement.measurementTime || '-'} />
-                    <InfoDetail label="Técnico" value={measurement.technician || '-'} />
-                    <InfoDetail label="Equipo" value={measurement.equipment || '-'} />
-                </div>
-
-                {/* Observaciones */}
-                {measurement.observations &&
-        <div className="p-[1rem] bg-[var(--color-background)] rounded-[var(--radius-lg)] mb-[1.5rem]">
-
-
-
-
-          
-                        <h4 className="m-[0_0_0.5rem_0] text-[0.85rem] font-[700]">
-                            Observaciones
-                        </h4>
-                        <p className="m-[0] text-[0.9rem] text-[var(--color-text)] line-height-[1.6]">
-                            {measurement.observations}
-                        </p>
-                    </div>
-        }
-
-                <div className="flex gap-[1rem] mt-[1rem]">
-                    <button
-            onClick={() => {
-              setShowShareModal(true);
-            }} className="flex-[1] p-[1rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-primary)] rounded-[var(--radius-lg)] font-[700] cursor-pointer text-[var(--color-primary)] flex items-center justify-center gap-[0.5rem]">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-                        <Printer size={18} />
-                        Imprimir / PDF
-                    </button>
-                    <button
-            onClick={onClose}
-            className="btn-primary flex-[1] m-[0]">
-
-            
-                        Cerrar
-                    </button>
-                </div>
-            </div>
-        </div>);
-
+        {/* Botón Eliminar con fondo Rojo sólido */}
+        <button
+          onClick={onDelete}
+          title="Eliminar Registro"
+          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '5px 12px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(220, 38, 38, 0.2)' }}
+        >
+          <Trash2 size={12} /> Eliminar
+        </button>
+      </div>
+    </div>
+  );
 }
 
-function InfoDetail({ label, value }) {
+// Componente Modal de Detalle
+function MeasurementDetailModal({ measurement, statusConfig, monitoringType, onClose }: any) {
+  if (!measurement) return null;
+  const safeStatus = statusConfig || MEASUREMENT_STATUS.normal;
+
   return (
-    <div>
-            <div className="text-[0.7rem] font-[700] text-[var(--color-text-muted)] uppercase mb-[0.25rem]">
-                {label}
-            </div>
-            <div className="text-[0.95rem] font-[600] text-[var(--color-text)]">
-                {value}
-            </div>
-        </div>);
+    <div onClick={onClose} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-lg p-6 space-y-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center pb-3 border-b border-slate-200 dark:border-slate-800">
+          <div className="flex items-center gap-2">
+            <Leaf size={22} className="text-emerald-500" />
+            <h2 className="m-0 text-lg font-extrabold text-slate-900 dark:text-white">Detalle de Monitoreo Ambiental</h2>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer">
+            <XCircle size={24} />
+          </button>
+        </div>
 
+        <div className="text-center p-5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700/60">
+          <span className="text-3xl mb-1 block">{monitoringType?.icon || '🌍'}</span>
+          <div className="text-xl font-black text-slate-900 dark:text-white">{measurement.stationName || 'Estación sin nombre'}</div>
+          <div className="text-xs font-semibold text-slate-500 mt-1">{measurement.location || 'Sin ubicación geográfica'}</div>
+          <span style={{ background: safeStatus.bg, color: safeStatus.color }} className="inline-block mt-3 px-3 py-1 rounded-full text-xs font-black uppercase">
+            {safeStatus.label}
+          </span>
+        </div>
+
+        <div className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
+          <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 py-1.5">
+            <span className="font-bold text-slate-500">Tipo de Monitoreo:</span>
+            <span className="font-extrabold">{monitoringType?.name || 'General'}</span>
+          </div>
+          <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 py-1.5">
+            <span className="font-bold text-slate-500">Fecha de Medición:</span>
+            <span className="font-extrabold">{new Date(measurement.measurementDate || measurement.date || measurement.createdAt || Date.now()).toLocaleDateString('es-AR')}</span>
+          </div>
+          <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 py-1.5">
+            <span className="font-bold text-slate-500">Técnico Responsable:</span>
+            <span className="font-extrabold">{measurement.technician || 'Sin asignar'}</span>
+          </div>
+          {measurement.observations && (
+            <div className="pt-2">
+              <span className="font-bold text-slate-500 block mb-1">Observaciones:</span>
+              <p className="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl m-0 font-mono text-[11px] text-slate-800 dark:text-slate-200 leading-relaxed">
+                {measurement.observations}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <button onClick={onClose} className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl border-none cursor-pointer shadow-md transition-colors">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  );
 }
-
-const labelStyle = {
-  display: 'block',
-  fontSize: '0.8rem',
-  fontWeight: 700,
-  color: 'var(--color-text-muted)',
-  textTransform: 'uppercase',
-  marginBottom: '0.5rem'
-};
-
-const inputStyle = {
-  width: '100%',
-  padding: '0.75rem 1rem',
-  borderRadius: 'var(--radius-lg)',
-  border: '1px solid var(--color-input-border)',
-  background: 'var(--color-surface)',
-  color: 'var(--color-text)',
-  fontSize: '0.95rem',
-  fontWeight: 500,
-  outline: 'none',
-  transition: 'all var(--transition-fast)',
-  boxSizing: 'border-box' as any
-};

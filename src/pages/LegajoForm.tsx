@@ -152,6 +152,144 @@ const DEFAULT_FORM_DATA = {
   }
 };
 
+const PRESET_RISKS = [
+  { id: 'elec', label: '⚡ Eléctrico', tipo: 'Eléctrico', descripcion: 'Contacto directo/indirecto en tableros sin protecciones o PAT inadecuada.', puesto: 'Mantenimiento / Operaciones', probabilidad: 'Media', consecuencia: 'Grave', medida: 'Instalación de disyuntores diferenciales, verificación Res. 900/15 y epp dieléctrico.', plazo: 'Inmediato', responsable: 'Mantenimiento Eléctrico' },
+  { id: 'mec', label: '⚙️ Atrapamiento', tipo: 'Mecánico', descripcion: 'Atrapamiento en partes móviles de máquinas sin guardas de protección.', puesto: 'Producción / Operadores', probabilidad: 'Media', consecuencia: 'Grave', medida: 'Colocación de protecciones fijas, paros de emergencia y bloqueo LOTO OSHA 1910.147.', plazo: 'Corto plazo', responsable: 'Jefe de Planta' },
+  { id: 'alt', label: '🪜 Trabajo en Altura', tipo: 'Altura', descripcion: 'Riesgo de caída a distinto nivel en tareas sobre 1.5 metros.', puesto: 'Mantenimiento / Montaje', probabilidad: 'Media', consecuencia: 'Fatal', medida: 'Uso obligatorio de arnés anticaídas de 2 cabos con absorbedor de impacto y punto de anclaje certificado.', plazo: 'Inmediato', responsable: 'Supervisión HYS' },
+  { id: 'ruido', label: '🎧 Ruido Continuo', tipo: 'Físico', descripcion: 'Exposición a niveles de presión sonora superiores a 85 dB(A).', puesto: 'Planta de Procesos', probabilidad: 'Alta', consecuencia: 'Moderada', medida: 'Provisión de EPP auditivo certificado (copa/endoaural Res. 85/12) y rotación.', plazo: '30 días', responsable: 'HYS' },
+  { id: 'ergo', label: '📦 Ergonomía', tipo: 'Ergonómico', descripcion: 'Levantamiento manual de cargas pesadas y posturas forzadas.', puesto: 'Depósito / Expedición', probabilidad: 'Alta', consecuencia: 'Moderada', medida: 'Implementación de ayudas mecánicas (zorras/montacargas) y protocolo Res. 886/15.', plazo: '60 días', responsable: 'Recursos Humanos / HYS' },
+  { id: 'quim', label: '🧪 Químico', tipo: 'Químico', descripcion: 'Inhalación de vapores orgánicos o polvos en suspensión.', puesto: 'Laboratorio / Mezclado', probabilidad: 'Media', consecuencia: 'Moderada', medida: 'Extracción focalizada, Hojas de Seguridad (FDS/MSDS) y protección respiratoria.', plazo: 'Inmediato', responsable: 'Jefe de Laboratorio' }
+];
+
+function FireLoadCalculator({ surface, onApply }: { surface: string; onApply: (carga: number, extintores: number, tipo: string) => void }) {
+  const [sup, setSup] = useState(parseFloat(surface) || 100);
+  const [madera, setMadera] = useState(200);
+  const [plasticos, setPlasticos] = useState(50);
+  const [liquidos, setLiquidos] = useState(0);
+
+  useEffect(() => {
+    if (surface && parseFloat(surface) > 0) {
+      setSup(parseFloat(surface));
+    }
+  }, [surface]);
+
+  const mcalTotal = (madera * 4.4) + (plasticos * 8.0) + (liquidos * 10.0);
+  const cargaFuegoKgMadera = sup > 0 ? Math.round((mcalTotal / (4.4 * sup)) * 10) / 10 : 0;
+  const extintoresSugeridos = Math.max(1, Math.ceil(sup / 200));
+
+  return (
+    <div className="bg-orange-50/80 dark:bg-orange-950/20 p-5 rounded-2xl border border-orange-200 dark:border-orange-900/40 mb-6 space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="m-0 text-sm font-black text-orange-900 dark:text-orange-300 flex items-center gap-2">
+          <span>🔥</span> Calculador de Carga de Fuego (Decreto 351/79 Anexo VII)
+        </h3>
+        <span className="text-[11px] font-extrabold bg-orange-200 dark:bg-orange-900/60 text-orange-800 dark:text-orange-200 px-2.5 py-0.5 rounded-full">
+          Dec. 351/79 Cap. 18
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs font-semibold">
+        <div>
+          <label className="block text-slate-700 dark:text-slate-300 mb-1">Superficie Sector (m²)</label>
+          <input type="number" value={sup} onChange={(e) => setSup(parseFloat(e.target.value) || 1)} className="input-professional py-1.5" />
+        </div>
+        <div>
+          <label className="block text-slate-700 dark:text-slate-300 mb-1">Madera / Papel (Kg)</label>
+          <input type="number" value={madera} onChange={(e) => setMadera(parseFloat(e.target.value) || 0)} className="input-professional py-1.5" />
+        </div>
+        <div>
+          <label className="block text-slate-700 dark:text-slate-300 mb-1">Plásticos / Caucho (Kg)</label>
+          <input type="number" value={plasticos} onChange={(e) => setPlasticos(parseFloat(e.target.value) || 0)} className="input-professional py-1.5" />
+        </div>
+        <div>
+          <label className="block text-slate-700 dark:text-slate-300 mb-1">Líquidos Inflamables (Kg)</label>
+          <input type="number" value={liquidos} onChange={(e) => setLiquidos(parseFloat(e.target.value) || 0)} className="input-professional py-1.5" />
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-orange-200 dark:border-orange-800/50 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div>
+          <span className="text-slate-500 font-bold block">Carga de Fuego Relevada:</span>
+          <span className="text-lg font-black text-orange-600 dark:text-orange-400">{cargaFuegoKgMadera} Kg/m²</span>
+          <span className="text-slate-400 text-[10px] block">({mcalTotal.toLocaleString('es-AR')} Mcal totales)</span>
+        </div>
+
+        <div>
+          <span className="text-slate-500 font-bold block">Unidades Extinción Requeridas:</span>
+          <span className="text-lg font-black text-emerald-600 dark:text-emerald-400">{extintoresSugeridos} Extintores ABC (10Kg)</span>
+          <span className="text-slate-400 text-[10px] block">(Mínimo 1 cada 200 m² por Dec. 351/79)</span>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => onApply(cargaFuegoKgMadera, extintoresSugeridos, 'Extintor Polvo ABC 10Kg')}
+          style={{ backgroundColor: '#ea580c', color: '#ffffff', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: '800', cursor: 'pointer' }}
+        >
+          ⚡ Aplicar al Legajo
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function EnvironmentTrafficLight({ estudios }: { estudios: any[] }) {
+  if (!estudios || estudios.length === 0) return null;
+
+  const now = new Date().getTime();
+  const ONE_DAY = 1000 * 60 * 60 * 24;
+
+  return (
+    <div className="bg-teal-50/80 dark:bg-teal-950/20 p-5 rounded-2xl border border-teal-200 dark:border-teal-900/40 mb-6 space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="m-0 text-sm font-black text-teal-900 dark:text-teal-300 flex items-center gap-2">
+          <span>🚦</span> Semáforo de Vencimientos de Protocolos SRT (Res. 905/15)
+        </h3>
+        <span className="text-[11px] font-extrabold bg-teal-200 dark:bg-teal-900/60 text-teal-800 dark:text-teal-200 px-2.5 py-0.5 rounded-full">
+          Vigencia Anual
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+        {estudios.map((est) => {
+          let statusLabel = 'SIN FECHA';
+          let statusColor = '#64748b';
+          let statusBg = '#f1f5f9';
+
+          if (est.fecha) {
+            const fechaEstud = new Date(est.fecha).getTime();
+            const diffDays = Math.floor((now - fechaEstud) / ONE_DAY);
+
+            if (diffDays <= 335) {
+              statusLabel = `VIGENTE (${365 - diffDays}d restantes)`;
+              statusColor = '#16a34a';
+              statusBg = '#dcfce7';
+            } else if (diffDays <= 365) {
+              statusLabel = `POR VENCER (${365 - diffDays}d restantes)`;
+              statusColor = '#d97706';
+              statusBg = '#fef3c7';
+            } else {
+              statusLabel = `VENCIDO (${diffDays - 365}d vencido)`;
+              statusColor = '#dc2626';
+              statusBg = '#fee2e2';
+            }
+          }
+
+          return (
+            <div key={est.id || Math.random()} className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-xs flex items-center justify-between gap-2 shadow-sm">
+              <div className="font-bold text-slate-800 dark:text-slate-200 truncate flex-1" title={est.nombre}>
+                {est.nombre}
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase shrink-0" style={{ background: statusBg, color: statusColor }}>
+                {statusLabel}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /* ── Reusable Adjuntos (file attachment) component ── */
 function AdjuntosSection({
   adjuntos,
@@ -661,6 +799,50 @@ export default function LegajoForm() {
             </div>
             
             <div className="space-y-6">
+              {/* Carga Rápida de Riesgos Frecuentes (ISO 45001 / Res. 886/15) */}
+              <div className="bg-red-50/60 dark:bg-red-950/20 p-4 rounded-xl border border-red-200 dark:border-red-900/40">
+                <p className="m-0 mb-2 text-xs font-black text-red-700 dark:text-red-400 uppercase tracking-wider">
+                  ⚡ Plantillas Rápidas de Riesgos Frecuentes (ISO 45001 / Res. 886/15):
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {PRESET_RISKS.map((preset) => (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => {
+                        const calcNivel = (p: string, c: string) => {
+                          const pVal = p === 'Alta' ? 3 : p === 'Media' ? 2 : 1;
+                          const cVal = c === 'Fatal' ? 4 : c === 'Grave' ? 3 : c === 'Moderada' ? 2 : 1;
+                          const res = pVal * cVal;
+                          if (res >= 9) return 'Crítico';
+                          if (res >= 6) return 'Alto';
+                          if (res >= 3) return 'Medio';
+                          return 'Bajo';
+                        };
+                        const newRiesgo = {
+                          id: Date.now().toString() + Math.random().toString().slice(-4),
+                          tipo: preset.tipo,
+                          descripcion: preset.descripcion,
+                          puesto: preset.puesto,
+                          probabilidad: preset.probabilidad,
+                          consecuencia: preset.consecuencia,
+                          nivel: calcNivel(preset.probabilidad, preset.consecuencia),
+                          expuestos: '5',
+                          medida: preset.medida,
+                          plazo: preset.plazo,
+                          responsable: preset.responsable,
+                          estado: 'Pendiente'
+                        };
+                        handleChange('riesgos', 'matriz', [newRiesgo, ...(formData.riesgos.matriz || [])]);
+                      }}
+                      className="px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-red-200 dark:border-red-900/60 rounded-lg text-xs font-bold hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-950/60 transition-all cursor-pointer shadow-sm"
+                    >
+                      + {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Dynamic Risk Matrix */}
               <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
                 <div className="flex justify-between items-center mb-4">
@@ -854,6 +1036,17 @@ export default function LegajoForm() {
                   <p className="m-0 text-sm text-[var(--color-text-muted,#475569)]">Estudio de carga de fuego y sistemas</p>
               </div>
             </div>
+
+            {/* Calculador Automático de Carga de Fuego (Dec. 351/79 Anexo VII) */}
+            <FireLoadCalculator
+              surface={formData.empresa.superficie}
+              onApply={(carga, extintores, tipo) => {
+                handleChange('incendio', 'cargaFuego', carga.toString());
+                handleChange('incendio', 'cantidadExtintores', extintores.toString());
+                handleChange('incendio', 'tipoExtintores', tipo);
+              }}
+            />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-extrabold text-slate-900 dark:text-slate-100 mb-1">Carga de Fuego Calculada (Mcal/m²)</label>
@@ -1168,6 +1361,9 @@ export default function LegajoForm() {
             </div>
             
             <div className="flex flex-col gap-6">
+              {/* Semáforo de Vencimiento de Protocolos SRT (Res. 905/15) */}
+              <EnvironmentTrafficLight estudios={formData.ambiente.estudios || []} />
+
               <div className="flex flex-col gap-4">
                 {(formData.ambiente.estudios || []).map((est, index) => {
                   const handleUpdateField = (field, val) => {
