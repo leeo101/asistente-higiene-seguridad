@@ -12,6 +12,8 @@ import { DataTable } from '../components/DataTable';
 import AnimatedPage from '../components/AnimatedPage';
 import toast from 'react-hot-toast';
 import { QRCodeSVG } from 'qrcode.react';
+import ShareModal from '../components/ShareModal';
+import MedicalPdfGenerator from '../components/MedicalPdfGenerator';
 
 export default function MedicalAptitudes() {
   const { currentUser } = useAuth();
@@ -25,6 +27,7 @@ export default function MedicalAptitudes() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'valid' | 'preexistencia' | 'expired' | 'no_apto'>('all');
   const [isMobile, setIsMobile] = useState(false);
   const [qrModal, setQrModal] = useState<any>(null);
+  const [shareItem, setShareItem] = useState<any>(null);
 
   const defaultExamDate = new Date().toISOString().split('T')[0];
   const defaultExpDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -223,6 +226,34 @@ export default function MedicalAptitudes() {
     }
   };
 
+  const buildMedicalShareMessage = (item: any) => {
+    if (!item) return '';
+    const isExpired = item.expirationDate && new Date(item.expirationDate) < new Date();
+    const resultLabel = item.result === 'no_apto' ? '🔴 NO APTO' : isExpired ? '🔴 VENCIDO' : item.result === 'preexistencias' ? '🟡 APTO C/ PREEXISTENCIAS' : '🟢 APTO SIN RESTRICCIONES';
+
+    const heightText = item.allowHeight ? '✓ Altura' : '✕ Altura';
+    const confinedText = item.allowConfined ? '✓ Confinados' : '✕ Confinados';
+    const machineryText = item.allowMachinery ? '✓ Maquinaria' : '✕ Maquinaria';
+    const electricalText = item.allowElectrical ? '✓ Eléctrico' : '✕ Eléctrico';
+
+    return `🏥 *DECLARACIÓN DE APTITUD MÉDICA LABORAL*
+👤 *Trabajador:* ${item.workerName || '-'} (DNI: ${item.dni || '-'})
+👷 *Puesto:* ${item.jobTitle || '-'}
+🏢 *Empresa:* ${item.company || '-'}
+
+📊 *Dictamen Clínico:* ${resultLabel}
+📅 *Fecha Examen:* ${item.examDate || '-'}
+⏳ *Vencimiento:* ${item.expirationDate || '-'}
+🩺 *Médico/Clínica:* ${item.doctor || '-'} (${item.clinic || '-'})
+
+🛡️ *Habilitaciones de Alto Riesgo:*
+• ${heightText} | ${confinedText}
+• ${machineryText} | ${electricalText}
+
+${item.notes ? `📝 *Observaciones:* ${item.notes}\n` : ''}
+_Generado con Asistente H&S_`;
+  };
+
   const columns = [
     {
       header: 'Fecha',
@@ -275,7 +306,15 @@ export default function MedicalAptitudes() {
       header: 'Acciones',
       accessor: 'id',
       render: (item: any) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          {/* Botón PDF Certificado */}
+          <button 
+            onClick={() => setShareItem(item)} 
+            title="Ver / Exportar Certificado PDF"
+            style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <FileText size={12} /> PDF
+          </button>
+
           {/* Botón Editar con fondo Amarillo/Ámbar sólido */}
           <button 
             onClick={() => { setFormData(item); setShowForm(true); }} 
@@ -913,6 +952,24 @@ export default function MedicalAptitudes() {
             </div>
           </div>
         )}
+
+        {/* Share & PDF Modal */}
+        {shareItem && (
+          <ShareModal
+            isOpen={!!shareItem}
+            open={!!shareItem}
+            onClose={() => setShareItem(null)}
+            title={`Aptitud Médica – ${shareItem.workerName}`}
+            rawMessage={buildMedicalShareMessage(shareItem)}
+            text={buildMedicalShareMessage(shareItem)}
+            elementIdToPrint="pdf-content"
+            fileName={`Aptitud_Medica_${(shareItem.workerName || 'Trabajador').replace(/\s+/g, '_')}_DNI_${shareItem.dni}.pdf`}
+          />
+        )}
+
+        <div className="ats-pdf-offscreen" style={{ position: 'absolute', left: '-9999px', top: '-9999px' }} aria-hidden="true">
+          <MedicalPdfGenerator medicalData={shareItem} />
+        </div>
 
       </div>
     </AnimatedPage>
