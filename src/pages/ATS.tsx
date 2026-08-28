@@ -104,7 +104,27 @@ const PRESETS = {
   'Espacio Confinado': [
   { id: 501, paso: 'Medición de gases previa', riesgo: 'Asfixia / Intoxicación / Explosión', control: 'Uso de explosímetro calibrado multigas', realizado: false },
   { id: 502, paso: 'Ventilación mecánica', riesgo: 'Acumulación de vapores', control: 'Extractor/Insuflador portátil continuo', realizado: false },
-  { id: 503, paso: 'Ingreso supervisado', riesgo: 'Atrapamiento / Desvanecimiento', control: 'Vigía permanente en boca de hombre y trípode de rescate', realizado: false }]
+  { id: 503, paso: 'Ingreso supervisado', riesgo: 'Atrapamiento / Desvanecimiento', control: 'Vigía permanente en boca de hombre y trípode de rescate', realizado: false }],
+
+  'Corte con Amoladora': [
+  { id: 601, paso: 'Inspección de herramienta y disco de corte', riesgo: 'Rotura de disco / Proyección de esquirlas', control: 'Verificación de RPM del disco, guardamotor y carcasa de protección', realizado: false },
+  { id: 602, paso: 'Ajuste de pieza y delimitación de área', riesgo: 'Atrapamiento / Golpe / Chispas a terceros', control: 'Uso de morsa/prensa de fijación y mamparas protectoras', realizado: false },
+  { id: 603, paso: 'Operación de corte o desbaste', riesgo: 'Inhalación de polvo / Daño ocular / Ruido', control: 'Protección facial completa, antiparras, protección auditiva y guantes de descarne', realizado: false }],
+
+  'Izaje / Grúa': [
+  { id: 701, paso: 'Inspección de elementos de izaje (fajas, grilletes)', riesgo: 'Corte de faja / Caída de carga suspendida', control: 'Checklist previo de fajas con etiqueta de carga máxima y pestillo de seguridad en gancho', realizado: false },
+  { id: 702, paso: 'Estabilización de grúa y vallado de radio de giro', riesgo: 'Vuelco / Golpes por atrapamiento', control: 'Uso de platos de apoyo en gatos hidráulicos y delimitación estricta con conos', realizado: false },
+  { id: 703, paso: 'Maniobra de elevación y guiado con vientos', riesgo: 'Aplastamiento / Balanceo imprevisto', control: 'Prohibición de transitar bajo carga suspendida y uso de sogas guía (vientos)', realizado: false }],
+
+  'Manipulación de Químicos': [
+  { id: 801, paso: 'Verificación de HDS y EPPs', riesgo: 'Contacto dérmico / Inhalación de vapores tóxicos', control: 'Revisión de FDS, uso de guantes de nitrilo/neopreno y respirador con vapores orgánicos', realizado: false },
+  { id: 802, paso: 'Trasvase y preparación de solución', riesgo: 'Salpicadura química / Derrame', control: 'Uso de bandeja de contención antiderrame y antiparras estancas', realizado: false },
+  { id: 803, paso: 'Aplicación / Limpieza post-tarea', riesgo: 'Generación de residuos peligrosos', control: 'Ventilación forzada y disposición de residuos en recipientes identificados', realizado: false }],
+
+  'Demolición / Picado': [
+  { id: 901, paso: 'Desenergización de servicios del sector', riesgo: 'Electrocución / Fuga de gas / Rotura de cañerías', control: 'Corte general verificado de suministros eléctricos, agua y gas', realizado: false },
+  { id: 902, paso: 'Delimitación de nivel inferior y zona de derrumbe', riesgo: 'Caída de escombros sobre personas', control: 'Vallado perimetral, marquesina de protección y aviso de zona de tiro', realizado: false },
+  { id: 903, paso: 'Ejecución de picado progresivo', riesgo: 'Derrumbe imprevisto / Inhalación de sílice / Proyección de cascotes', control: 'Demolición de arriba hacia abajo, humectación de escombros, barbijo P100 y antiparras', realizado: false }]
 
 };
 
@@ -148,8 +168,9 @@ export default function ATS(): React.ReactElement | null {
     { id: 2, paso: 'Ejecución de tarea', riesgo: 'Golpes', control: 'Uso de EPP', nivelRiesgo: 'Bajo', realizado: false }
   ],
   epps: [],
-  fotos: []
-
+  fotos: [],
+  equiposEmergencia: [] as string[],
+  trabajadores: [] as { id: number; nombre: string; dni: string; funcion: string }[]
   });
 
   const [showSignatures, setShowSignatures] = useState({
@@ -158,6 +179,9 @@ export default function ATS(): React.ReactElement | null {
     professional: true
   });
 
+  const [matrixTask, setMatrixTask] = useState<number | null>(null);
+  const [matrixP, setMatrixP] = useState<number>(2);
+  const [matrixS, setMatrixS] = useState<number>(2);
   const [showShare, setShowShare] = useState(false);
   const [isGeneratingATS, setIsGeneratingATS] = useState(false);
   const [isVisionATS, setIsVisionATS] = useState(false);
@@ -372,7 +396,9 @@ export default function ATS(): React.ReactElement | null {
       checklist: defaultChecklist,
       tareas: [],
       epps: [],
-      fotos: []
+      fotos: [],
+      equiposEmergencia: [],
+      trabajadores: []
     });
     toast.success('Formulario reiniciado');
   };
@@ -660,6 +686,26 @@ export default function ATS(): React.ReactElement | null {
     (e.capatazNombre || '').toLowerCase().includes(query);
   });
 
+  const buildATSShareMessage = (item: any) => {
+    if (!item) return '';
+    const tareas = item.tareas || [];
+    const hasCrit = tareas.some((t: any) => t.nivelRiesgo === 'Crítico');
+    const hasHigh = tareas.some((t: any) => t.nivelRiesgo === 'Alto');
+    const hasMed = tareas.some((t: any) => t.nivelRiesgo === 'Medio');
+    const riskLabel = hasCrit ? '🔴 RIESGO CRÍTICO' : hasHigh ? '🟠 RIESGO ALTO' : hasMed ? '🟡 RIESGO MEDIO' : '🟢 RIESGO BAJO';
+    
+    const keywords = ['altura', 'andamio', 'soldad', 'caliente', 'excava', 'zanja', 'loto', 'bloqueo', 'electri', 'confinado', 'izada', 'grua', 'autoelevador'];
+    const matchesKeyword = keywords.some((kw) => (item.tarea || '').toLowerCase().includes(kw) || tareas.some((t: any) => (t.paso || '').toLowerCase().includes(kw) || (t.riesgo || '').toLowerCase().includes(kw)));
+    const ptText = (hasCrit || hasHigh || matchesKeyword) ? '\n🛑 *PERMISO DE TRABAJO (PT):* OBLIGATORIO ADJUNTO' : '';
+
+    const eppsList = (item.epps || []).length > 0 ? `\n🦺 *EPPs Obligatorios:* ${item.epps.join(', ')}` : '';
+    const eqEmergencia = (item.equiposEmergencia || []).length > 0 ? `\n🧯 *Equipos Emergencia:* ${item.equiposEmergencia.join(', ')}` : '';
+    const trabajadoresCount = (item.trabajadores || []).length;
+    const trabajadoresText = trabajadoresCount > 0 ? `\n👥 *Personal Acreditado:* ${trabajadoresCount} operario(s)` : '';
+
+    return `🔐 *ANÁLISIS DE TRABAJO SEGURO (ATS)*\n🏗️ *Empresa:* ${item.empresa || '-'}\n🚧 *Obra/Ubicación:* ${item.obra || '-'}\n📅 *Fecha:* ${item.fecha || '-'}\n👷 *Capataz/Resp:* ${item.capatazNombre || '-'}\n📋 *Tarea:* ${item.tarea || '-'}\n\n📊 *Nivel de Riesgo:* ${riskLabel}${ptText}${eppsList}${eqEmergencia}${trabajadoresText}\n\n_Generado con Asistente H&S_`;
+  };
+
   return (
     <>
             <style>{printStyles}</style>
@@ -781,7 +827,7 @@ export default function ATS(): React.ReactElement | null {
                 <button
                   onClick={() => {
                     setFormData({
-                      id: '', empresa: '', cuit: '', obra: '', tarea: '', fecha: new Date().toISOString().split('T')[0], capatazNombre: '', operatorSignature: '', capatazSignature: '', checklist: defaultChecklist, tareas: [{ id: 1, paso: 'Preparación de área', riesgo: 'Caídas', control: 'Delimitación', nivelRiesgo: 'Medio', realizado: true }, { id: 2, paso: 'Ejecución de tarea', riesgo: 'Golpes', control: 'Uso de EPP', nivelRiesgo: 'Bajo', realizado: false }], epps: [], fotos: []
+                      id: '', empresa: '', cuit: '', obra: '', tarea: '', fecha: new Date().toISOString().split('T')[0], capatazNombre: '', operatorSignature: '', capatazSignature: '', checklist: defaultChecklist, tareas: [{ id: 1, paso: 'Preparación de área', riesgo: 'Caídas', control: 'Delimitación', nivelRiesgo: 'Medio', realizado: true }, { id: 2, paso: 'Ejecución de tarea', riesgo: 'Golpes', control: 'Uso de EPP', nivelRiesgo: 'Bajo', realizado: false }], epps: [], fotos: [], equiposEmergencia: [], trabajadores: []
                     });
                     navigate('/ats/nuevo');
                   }}
@@ -840,9 +886,8 @@ export default function ATS(): React.ReactElement | null {
               emptyMessage="No se encontraron registros de ATS."
               emptyIcon={<ClipboardList size={48} />} 
             />
-          
 
-                        {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} onClose={() => setQrTarget(null)} />}
+            {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} onClose={() => setQrTarget(null)} />}
                         
                         <ConfirmModal
             isOpen={confirmModal.isOpen}
@@ -866,7 +911,7 @@ export default function ATS(): React.ReactElement | null {
             } />
           
 
-                        <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`ATS - ${(shareItem as any)?.obra || ''}`} rawMessage={shareItem ? `📋 ATS\n🏗️ Empresa: ${(shareItem as any).empresa}\n🚧 Obra: ${(shareItem as any).obra}\n📅 Fecha: ${(shareItem as any).fecha}` : ''} text={shareItem ? `📋 ATS\n🏗️ Empresa: ${(shareItem as any).empresa}\n🚧 Obra: ${(shareItem as any).obra}\n📅 Fecha: ${(shareItem as any).fecha}` : ''} elementIdToPrint="pdf-content" fileName={`ATS_${(shareItem as any)?.empresa?.replace(/\s+/g, '_') || 'Reporte'}.pdf`} />
+                        <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`ATS - ${(shareItem as any)?.obra || ''}`} rawMessage={buildATSShareMessage(shareItem)} text={buildATSShareMessage(shareItem)} elementIdToPrint="pdf-content" fileName={`ATS_${(shareItem as any)?.empresa?.replace(/\s+/g, '_') || 'Reporte'}.pdf`} />
                         <div className="ats-pdf-offscreen">
                             <ATSPdfGenerator atsData={shareItem} />
                         </div>
@@ -880,9 +925,9 @@ export default function ATS(): React.ReactElement | null {
             open={showShare}
             onClose={() => setShowShare(false)}
             title={`ATS – ${formData.empresa} (${formData.obra})`}
-            text={`🔐 Análisis de Trabajo Seguro\n🏗️ Empresa: ${formData.empresa}\n🚧 Obra: ${formData.obra}\n📅 Fecha: ${formData.fecha}\n📋 Tarea: ${formData.tarea}\n\nGenerado con Asistente HYS`}
+            text={buildATSShareMessage(formData)}
             elementIdToPrint="pdf-content"
-            rawMessage={``}
+            rawMessage={buildATSShareMessage(formData)}
             fileName={`ATS_${formData.empresa || 'Reporte'}.pdf`} />
           
 
@@ -939,6 +984,19 @@ export default function ATS(): React.ReactElement | null {
                     {/* STEP 1 */}
                     {currentStep === 1 && (
                         <div className="wizard-step-anim">
+                            {(() => {
+                              const hasCritRisk = formData.tareas?.some((t: any) => t.nivelRiesgo === 'Crítico');
+                              const hasHighRisk = formData.tareas?.some((t: any) => t.nivelRiesgo === 'Alto');
+                              const keywords = ['altura', 'andamio', 'soldad', 'caliente', 'excava', 'zanja', 'loto', 'bloqueo', 'electri', 'confinado', 'izada', 'grua', 'autoelevador'];
+                              const matchesKeyword = keywords.some((kw) => (formData.tarea || '').toLowerCase().includes(kw) || formData.tareas?.some((t: any) => (t.paso || '').toLowerCase().includes(kw) || (t.riesgo || '').toLowerCase().includes(kw)));
+                              const requiresPT = hasCritRisk || hasHighRisk || matchesKeyword;
+
+                              return requiresPT ? (
+                                <div className="mb-6 p-4 bg-rose-600 text-white font-black text-xs sm:text-sm rounded-xl text-center shadow-lg uppercase tracking-wider flex items-center justify-center gap-2">
+                                  <span>🛑 ATENCIÓN: TRABAJO DE ALTO RIESGO — REQUIERE PERMISO DE TRABAJO (PT) ADJUNTO OBLIGATORIO</span>
+                                </div>
+                              ) : null;
+                            })()}
                             <ModuleFormSection title="Datos del Proyecto" icon={<Building2 size={20} />}>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                     <div className="flex flex-col gap-2 lg:col-span-2">
@@ -1207,7 +1265,6 @@ export default function ATS(): React.ReactElement | null {
                         }}
                         className="no-print ats-textarea ats-seq-textarea"
                         placeholder="Ej: Delimitación, Uso EPP..." />
-                      
                                             <div className="print-only text-slate-700 text-[0.8rem] whitespace-pre-wrap break-words">
                                                 {t.control}
                                             </div>
@@ -1218,19 +1275,28 @@ export default function ATS(): React.ReactElement | null {
                                             <select
                                                 value={t.nivelRiesgo || 'Bajo'}
                                                 onChange={(e) => updateTask(t.id, 'nivelRiesgo', e.target.value)}
-                                                className="no-print ats-input mt-[0.5rem] p-[0.4rem] rounded-[8px] font-[800] text-[0.8rem] w-full"
+                                                className="no-print ats-input mt-[0.5rem] p-[0.4rem] rounded-[8px] font-[800] text-[0.8rem] w-full cursor-pointer"
                                                 style={{
-                                                    backgroundColor: t.nivelRiesgo === 'Alto' ? '#fee2e2' : t.nivelRiesgo === 'Medio' ? '#fef3c7' : '#dcfce7',
-                                                    color: t.nivelRiesgo === 'Alto' ? '#dc2626' : t.nivelRiesgo === 'Medio' ? '#d97706' : '#16a34a',
+                                                    backgroundColor: t.nivelRiesgo === 'Crítico' ? '#881337' : t.nivelRiesgo === 'Alto' ? '#fee2e2' : t.nivelRiesgo === 'Medio' ? '#fef3c7' : '#dcfce7',
+                                                    color: t.nivelRiesgo === 'Crítico' ? '#ffffff' : t.nivelRiesgo === 'Alto' ? '#dc2626' : t.nivelRiesgo === 'Medio' ? '#d97706' : '#16a34a',
                                                     border: 'none',
                                                     outline: 'none'
                                                 }}
                                             >
-                                                <option value="Bajo">Bajo</option>
-                                                <option value="Medio">Medio</option>
-                                                <option value="Alto">Alto</option>
+                                                <option value="Bajo">🟢 Bajo</option>
+                                                <option value="Medio">🟡 Medio</option>
+                                                <option value="Alto">🟠 Alto</option>
+                                                <option value="Crítico">🔴 Crítico</option>
                                             </select>
-                                            <div className="print-only text-[0.8rem] font-[800]" style={{ color: t.nivelRiesgo === 'Alto' ? '#dc2626' : t.nivelRiesgo === 'Medio' ? '#d97706' : '#16a34a' }}>
+                                            <button
+                                                type="button"
+                                                onClick={() => setMatrixTask(t.id)}
+                                                className="no-print mt-1 text-[11px] font-black text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-none p-0"
+                                                title="Calcular riesgo con Matriz PxS"
+                                            >
+                                                <Activity size={12} /> Matriz PxS
+                                            </button>
+                                            <div className="print-only text-[0.8rem] font-[800]" style={{ color: t.nivelRiesgo === 'Crítico' ? '#881337' : t.nivelRiesgo === 'Alto' ? '#dc2626' : t.nivelRiesgo === 'Medio' ? '#d97706' : '#16a34a' }}>
                                                 {t.nivelRiesgo || 'Bajo'}
                                             </div>
                                         </div>
@@ -1338,6 +1404,41 @@ export default function ATS(): React.ReactElement | null {
                                                     </label>
                                                 )}
                                             </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Emergency Equipment Selector */}
+                            <div className="md:col-span-2 bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] mt-4">
+                                <h4 className="m-[0_0_1rem_0] text-[0.9rem] font-[800] uppercase text-[var(--color-text)] flex items-center gap-2">
+                                    <ShieldAlert size={18} className="text-rose-600" /> Equipos de Emergencia y Respuesta en Zona
+                                </h4>
+                                <div className="flex flex-wrap gap-[0.8rem]">
+                                    {[
+                                        { id: 'Matafuego ABC', label: 'Matafuego PQS / ABC' },
+                                        { id: 'Botiquín', label: 'Botiquín Primeros Auxilios' },
+                                        { id: 'Lavaojos', label: 'Lavaojos de Emergencia' },
+                                        { id: 'Ventilación', label: 'Extractor / Ventilación' },
+                                        { id: 'Delimitación', label: 'Conos / Vallas de Cerco' },
+                                        { id: 'Trípode Rescate', label: 'Trípode / Kit de Rescate' }
+                                    ].map(eq => {
+                                        const isSelected = (formData.equiposEmergencia || []).includes(eq.id);
+                                        return (
+                                            <button
+                                                key={eq.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    const current = formData.equiposEmergencia || [];
+                                                    const updated = isSelected ? current.filter(e => e !== eq.id) : [...current, eq.id];
+                                                    setFormData({ ...formData, equiposEmergencia: updated });
+                                                }}
+                                                className="flex items-center gap-[0.5rem] p-[0.6rem_1rem] rounded-[12px] transition-all cursor-pointer font-extrabold text-[0.8rem]"
+                                                style={isSelected ? { background: 'linear-gradient(135deg, #dc2626, #b91c1c)', color: '#fff', border: 'none', boxShadow: '0 4px 10px rgba(220,38,38,0.3)' } : { backgroundColor: '#f1f5f9', color: '#64748b', border: '1px solid #cbd5e1' }}
+                                            >
+                                                <ShieldAlert size={16} />
+                                                <span>{eq.label}</span>
+                                            </button>
                                         );
                                     })}
                                 </div>
@@ -1586,6 +1687,87 @@ export default function ATS(): React.ReactElement | null {
                     {currentStep === 5 && (
                         <div className="wizard-step-anim mt-[2.5rem]">
                             <ModuleFormSection title="Firmas y Autorizaciones" icon={<Pencil size={20} />}>
+                                {/* Authorized Workers Roster Form */}
+                                <div className="no-print mb-8 p-6 bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-2xl">
+                            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                                <div>
+                                    <h4 className="m-0 font-extrabold text-sm uppercase text-[var(--color-text)] flex items-center gap-2">
+                                        <User size={18} className="text-blue-600" /> Nómina de Trabajadores Autorizados (Personal Acreditado)
+                                    </h4>
+                                    <p className="m-0 text-xs text-[var(--color-text-muted)] mt-1">Registre a los operarios que participarán en la tarea para control de ART.</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const current = formData.trabajadores || [];
+                                        const newWorker = { id: Date.now(), nombre: '', dni: '', funcion: 'Operario' };
+                                        setFormData({ ...formData, trabajadores: [...current, newWorker] });
+                                    }}
+                                    className="px-3 py-2 bg-blue-600 text-white rounded-xl font-extrabold text-xs flex items-center gap-1 cursor-pointer border-none shadow-md hover:bg-blue-700"
+                                >
+                                    <Plus size={14} /> Agregar Trabajador
+                                </button>
+                            </div>
+
+                            {(formData.trabajadores || []).length === 0 ? (
+                                <div className="p-4 rounded-xl border border-dashed border-slate-300 text-center text-xs font-bold text-[var(--color-text-muted)]">
+                                    No se registraron trabajadores adicionales. Haz clic en "Agregar Trabajador" para incluir la nómina.
+                                </div>
+                            ) : (
+                                <div className="flex flex-col gap-3">
+                                    {(formData.trabajadores || []).map((w, idx) => (
+                                        <div key={w.id || idx} className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-[var(--color-background)] border border-[var(--color-border)] items-center">
+                                            <input
+                                                type="text"
+                                                placeholder="Nombre y Apellido..."
+                                                value={w.nombre}
+                                                onChange={(e) => {
+                                                    const updated = [...(formData.trabajadores || [])];
+                                                    updated[idx].nombre = e.target.value;
+                                                    setFormData({ ...formData, trabajadores: updated });
+                                                }}
+                                                className="p-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-bold text-[var(--color-text)] outline-none"
+                                            />
+                                            <input
+                                                type="text"
+                                                placeholder="DNI / Legajo..."
+                                                value={w.dni}
+                                                onChange={(e) => {
+                                                    const updated = [...(formData.trabajadores || [])];
+                                                    updated[idx].dni = e.target.value;
+                                                    setFormData({ ...formData, trabajadores: updated });
+                                                }}
+                                                className="p-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-bold text-[var(--color-text)] outline-none"
+                                            />
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Función / Rol (ej: Operario, Vigía)..."
+                                                    value={w.funcion}
+                                                    onChange={(e) => {
+                                                        const updated = [...(formData.trabajadores || [])];
+                                                        updated[idx].funcion = e.target.value;
+                                                        setFormData({ ...formData, trabajadores: updated });
+                                                    }}
+                                                    className="p-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-bold text-[var(--color-text)] outline-none w-full"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const updated = [...(formData.trabajadores || [])];
+                                                        updated.splice(idx, 1);
+                                                        setFormData({ ...formData, trabajadores: updated });
+                                                    }}
+                                                    className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer border-none bg-transparent"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
 
                         {/* Custom visual switches */}
                         <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
@@ -1781,6 +1963,83 @@ export default function ATS(): React.ReactElement | null {
                         </div>
                     </div>
       }
+      {matrixTask !== null && (
+        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-md w-full border-2 border-slate-700 shadow-2xl">
+            <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Activity size={20} className="text-blue-600" />
+                <h3 className="font-black text-base uppercase text-slate-900 dark:text-white m-0">Matriz de Riesgo PxS</h3>
+              </div>
+              <button onClick={() => setMatrixTask(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border-none bg-transparent cursor-pointer font-extrabold text-lg">✕</button>
+            </div>
+
+            <div className="flex flex-col gap-4 mb-6">
+              <div>
+                <label className="text-xs font-black uppercase text-slate-700 dark:text-slate-300 block mb-1">1. Probabilidad (P)</label>
+                <select
+                  value={matrixP}
+                  onChange={(e) => setMatrixP(Number(e.target.value))}
+                  className="w-full p-2.5 rounded-lg border-2 border-slate-300 dark:border-slate-700 bg-transparent font-bold text-sm text-slate-900 dark:text-white outline-none"
+                >
+                  <option value={1}>1 - Baja (Rara vez ocurre)</option>
+                  <option value={2}>2 - Media (Ocurrencia ocasional)</option>
+                  <option value={3}>3 - Alta (Muy probable / Frecuente)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-black uppercase text-slate-700 dark:text-slate-300 block mb-1">2. Severidad / Consecuencia (S)</label>
+                <select
+                  value={matrixS}
+                  onChange={(e) => setMatrixS(Number(e.target.value))}
+                  className="w-full p-2.5 rounded-lg border-2 border-slate-300 dark:border-slate-700 bg-transparent font-bold text-sm text-slate-900 dark:text-white outline-none"
+                >
+                  <option value={1}>1 - Leve (Lesión menor / Primeros auxilios)</option>
+                  <option value={2}>2 - Moderada (Incapacidad temporal)</option>
+                  <option value={3}>3 - Grave (Lesión grave / Incapacidad permanente)</option>
+                  <option value={4}>4 - Catastrófica (Fatalidad / Múltiples heridos)</option>
+                </select>
+              </div>
+
+              {(() => {
+                const score = matrixP * matrixS;
+                const level = score >= 9 ? 'Crítico' : score >= 5 ? 'Alto' : score >= 3 ? 'Medio' : 'Bajo';
+                const bg = score >= 9 ? 'bg-rose-950 text-white' : score >= 5 ? 'bg-rose-600 text-white' : score >= 3 ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white';
+                return (
+                  <div className={`p-4 rounded-xl text-center ${bg} shadow-md`}>
+                    <div className="text-xs font-extrabold uppercase tracking-wider mb-1">P ( {matrixP} ) × S ( {matrixS} ) = Score {score}</div>
+                    <div className="text-xl font-black uppercase tracking-tight">Riesgo Calculado: {level}</div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setMatrixTask(null)}
+                className="px-4 py-2 bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 font-bold rounded-lg cursor-pointer border-none text-xs uppercase"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const score = matrixP * matrixS;
+                  const level = score >= 9 ? 'Crítico' : score >= 5 ? 'Alto' : score >= 3 ? 'Medio' : 'Bajo';
+                  updateTask(matrixTask, 'nivelRiesgo', level);
+                  setMatrixTask(null);
+                  toast.success(`Riesgo ${level} (Score ${score}) aplicado`);
+                }}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-lg cursor-pointer border-none text-xs uppercase shadow-md"
+              >
+                Aplicar Riesgo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
         </>);
 
 

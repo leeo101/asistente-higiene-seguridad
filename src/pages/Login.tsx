@@ -7,7 +7,8 @@ const MAX_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MS = 5 * 60 * 1000; // 5 minutos
 const ATTEMPTS_KEY = 'login_attempts';
 const LOCKOUT_KEY = 'login_lockout_until';
-import { User as FirebaseUser } from 'firebase/auth';
+import { User as FirebaseUser, sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { API_BASE_URL } from '../config';
 import { countryList } from '../data/legislationData';
@@ -178,12 +179,24 @@ export default function Login(): React.ReactElement {
     } catch (error: any) {
       recordFailedAttempt();
       const remaining = MAX_ATTEMPTS - (loginAttempts + 1);
+      const errCode = error?.code || '';
+      console.error('[Login error]', error);
+
+      let detailMsg = 'Correo o contraseña incorrectos.';
+      if (errCode === 'auth/user-not-found') {
+        detailMsg = 'El correo no está registrado. Podés crear tu cuenta gratis haciendo clic en Registrate.';
+      } else if (errCode === 'auth/wrong-password' || errCode === 'auth/invalid-credential') {
+        detailMsg = 'Credenciales incorrectas. Si tu cuenta fue creada con Google, hacé clic en "Continuar con Google".';
+      } else if (errCode === 'auth/too-many-requests') {
+        detailMsg = 'Demasiados intentos fallidos. Usá "¿Olvidaste tu contraseña?" para restablecerla.';
+      }
+
       if (loginAttempts + 1 >= MAX_ATTEMPTS) {
         setStatus({ type: 'error', message: `Demasiados intentos fallidos. Cuenta bloqueada por 5 minutos.` });
       } else {
         setStatus({
           type: 'error',
-          message: `Correo o contraseña incorrectos. Te quedan ${remaining} intento${remaining !== 1 ? 's' : ''}.`
+          message: `${detailMsg} Te quedan ${remaining} intento${remaining !== 1 ? 's' : ''}.`
         });
       }
     }
@@ -197,12 +210,14 @@ export default function Login(): React.ReactElement {
       navigate('/');
     } catch (error: any) {
       console.error('Google Sign-In Error:', error);
-      if (error.code === 'auth/popup-closed-by-user') {
+      if (error.code === 'auth/unauthorized-domain') {
+        toast.error('Dominio no autorizado en Firebase. Agregá asistentehs.com en Firebase Console -> Authentication -> Dominios Autorizados.', { duration: 6000 });
+      } else if (error.code === 'auth/popup-closed-by-user') {
         toast.error('Inicio de sesión cancelado');
       } else if (error.code === 'auth/account-exists-with-different-credential') {
         toast.error('Este email ya está registrado. Usá tu contraseña habitual.');
       } else {
-        toast.error('Error al iniciar con Google: ' + error.message);
+        toast.error('Error al iniciar con Google: ' + (error.message || 'Intente nuevamente'));
       }
     }
   };
@@ -300,37 +315,25 @@ export default function Login(): React.ReactElement {
 
   const handleForgotPassword = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    setStatus({ type: 'loading', message: 'Enviando...' });
+    if (!email) {
+      setStatus({ type: 'error', message: 'Ingresá tu correo electrónico para enviarte el enlace de recuperación.' });
+      return;
+    }
+    setStatus({ type: 'loading', message: 'Enviando enlace...' });
 
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 40000);
-
-      const response = await fetch(`${API_BASE_URL}/api/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-        signal: controller.signal
+      await sendPasswordResetEmail(auth, email);
+      setStatus({
+        type: 'success',
+        message: '¡Enlace enviado! Te enviamos un correo para restablecer tu contraseña. Revisá tu casilla (y la carpeta de spam).'
       });
-
-      clearTimeout(timeoutId);
-
-      const data = await response.json();
-      if (response.ok) {
-        // 🛡️ Nunca mostrar devLink en el cliente — podría exponer el oobCode en pantalla
-        setStatus({
-          type: 'success',
-          message: 'Si el correo está registrado, recibirás un enlace en tu bandeja de entrada.'
-        });
-      } else {
-        setStatus({
-          type: 'error',
-          message: data.error || 'Error al enviar email.'
-        });
-      }
     } catch (error: any) {
-      const msg = error.name === 'AbortError' ? 'El servidor tardó demasiado.' : 'Error de conexión.';
-      setStatus({ type: 'error', message: msg });
+      console.error('Password Reset Error:', error);
+      if (error.code === 'auth/user-not-found') {
+        setStatus({ type: 'error', message: 'El correo ingresado no se encuentra registrado.' });
+      } else {
+        setStatus({ type: 'error', message: 'Error al enviar enlace: ' + (error.message || 'Intente nuevamente.') });
+      }
     }
   };
 

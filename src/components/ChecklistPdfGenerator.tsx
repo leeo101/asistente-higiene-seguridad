@@ -118,19 +118,21 @@ export default function ChecklistPdfGenerator({
   const failPercent = totalItems > 0 ? Math.round((failCount / totalItems) * 100) : 0;
   const naPercent = totalItems > 0 ? Math.round((naCount / totalItems) * 100) : 0;
   
+  const activeIds = sections.map((s: any) => s.id);
+  const hasTools = activeIds.some((id: string) => ['manual_tools', 'electric_tools', 'circular_saw', 'grinder'].includes(id));
+  const hasVehicles = activeIds.includes('autoelevadores') || (checklistData.checklistTitle && checklistData.checklistTitle.toLowerCase().includes('autoelevador'));
+  const hasPermits = activeIds.some((id: string) => ['espacios_confinados', 'trabajos_caliente', 'trabajos_altura'].includes(id));
+  const hasHeavy = activeIds.some((id: string) => ['scaffolding', 'izaje_gruas'].includes(id));
+  const hasExtinguishers = activeIds.includes('extintores_checklist');
+
   const hasCritical = failCount > 0;
   const hasObs = obs || actionPlan.length > 0;
   
   const globalRiskColor = hasCritical ? '#dc2626' : (hasObs ? '#d97706' : '#16a34a');
   const globalRiskBg = hasCritical ? '#fef2f2' : (hasObs ? '#fffbeb' : '#f0fdf4');
-  const globalRiskLabel = hasCritical ? `⚠ ${failCount} NO CONFORMIDAD${failCount > 1 ? 'ES' : ''}` : (hasObs ? 'APROBADO CON OBS.' : 'APROBADO SIN DESVÍOS');
-
-  const activeIds = sections.map((s: any) => s.id);
-  const hasTools = activeIds.some((id: string) => ['manual_tools', 'electric_tools', 'circular_saw', 'grinder'].includes(id));
-  const hasVehicles = activeIds.includes('autoelevadores');
-  const hasPermits = activeIds.some((id: string) => ['espacios_confinados', 'trabajos_caliente', 'trabajos_altura'].includes(id));
-  const hasHeavy = activeIds.some((id: string) => ['scaffolding', 'izaje_gruas'].includes(id));
-  const hasExtinguishers = activeIds.includes('extintores_checklist');
+  const globalRiskLabel = hasCritical
+    ? (hasVehicles ? '🛑 EQUIPO FUERA DE SERVICIO - BLOQUEO PREVENTIVO' : `⚠ ${failCount} NO CONFORMIDAD${failCount > 1 ? 'ES' : ''}`)
+    : (hasObs ? 'APROBADO CON OBS.' : 'APROBADO SIN DESVÍOS');
 
   return (
     <div
@@ -244,7 +246,7 @@ export default function ChecklistPdfGenerator({
               <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.patente || '-'}</div>
             </div>
             <div style={{ flex: 1, padding: '0.4rem 0.6rem' }}>
-              <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Activity size={12} /> HORÓMETRO / KM</span>
+              <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Activity size={12} /> KILOMETRAJE / HORÓMETRO</span>
               <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', marginTop: '0.2rem' }}>{inspInfo.horometro || '-'}</div>
             </div>
           </div>

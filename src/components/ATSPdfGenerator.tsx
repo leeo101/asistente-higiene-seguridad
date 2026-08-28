@@ -96,14 +96,22 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
   const checklist = data.checklist || [];
   const epps = data.epps || [];
   const fotos = data.fotos || [];
+  const equiposEmergencia: string[] = (data as any).equiposEmergencia || [];
+  const trabajadores: any[] = (data as any).trabajadores || [];
 
   const categories = [...new Set(checklist.map((item) => item.categoria))];
   const docId = data.id ? String(data.id).slice(-8).toUpperCase() : 'S/N';
 
-  const hasHighRisk = tareas.some((t) => t.nivelRiesgo === 'Alto');
-  const hasMedRisk = tareas.some((t) => t.nivelRiesgo === 'Medio');
-  const globalRiskBg = hasHighRisk ? 'bg-rose-600' : hasMedRisk ? 'bg-amber-600' : 'bg-emerald-600';
-  const globalRiskLabel = hasHighRisk ? 'RIESGO ALTO' : hasMedRisk ? 'RIESGO MEDIO' : 'RIESGO BAJO';
+  const hasCritRisk = tareas.some((t: any) => t.nivelRiesgo === 'Crítico');
+  const hasHighRisk = tareas.some((t: any) => t.nivelRiesgo === 'Alto');
+  const hasMedRisk = tareas.some((t: any) => t.nivelRiesgo === 'Medio');
+
+  const keywords = ['altura', 'andamio', 'soldad', 'caliente', 'excava', 'zanja', 'loto', 'bloqueo', 'electri', 'confinado', 'izada', 'grua', 'autoelevador'];
+  const matchesKeyword = keywords.some((kw) => (data.tarea || '').toLowerCase().includes(kw) || tareas.some((t: any) => (t.paso || '').toLowerCase().includes(kw) || (t.riesgo || '').toLowerCase().includes(kw)));
+  const requiresPT = hasCritRisk || hasHighRisk || matchesKeyword;
+
+  const globalRiskBg = hasCritRisk ? 'bg-rose-950' : hasHighRisk ? 'bg-rose-700' : hasMedRisk ? 'bg-amber-600' : 'bg-emerald-600';
+  const globalRiskLabel = hasCritRisk ? '🛑 RIESGO CRÍTICO (REQUIERE PT)' : hasHighRisk ? '⚠️ RIESGO ALTO (REQUIERE PT)' : hasMedRisk ? 'RIESGO MEDIO' : 'RIESGO BAJO';
 
   return (
     <div className="w-full flex justify-center py-4 bg-slate-100 print:bg-white print:py-0">
@@ -206,6 +214,12 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
           </div>
         </div>
 
+        {requiresPT && (
+          <div className="mb-5 p-3 bg-rose-600 text-white font-black text-xs rounded-xl text-center uppercase tracking-wider shadow-xs border-2 border-rose-800 flex items-center justify-center gap-2">
+            <span>🛑 ATENCIÓN: TRABAJO DE ALTO RIESGO — REQUIERE PERMISO DE TRABAJO (PT) ADJUNTO OBLIGATORIO</span>
+          </div>
+        )}
+
         {/* EPPs Requeridos */}
         {epps.length > 0 && (
           <div className="mb-5 page-break-inside-avoid">
@@ -248,23 +262,26 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
                 <div className="text-center">RIESGO</div>
               </div>
               {tareas.map((t, idx) => {
+                const isCrit = t.nivelRiesgo === 'Crítico';
                 const isAlto = t.nivelRiesgo === 'Alto';
                 const isMedio = t.nivelRiesgo === 'Medio';
                 return (
                   <div
                     key={t.id || idx}
-                    className={`grid grid-cols-[40px_2.5fr_2fr_2.5fr_100px] gap-3 items-center p-2.5 border-b border-slate-200 page-break-inside-avoid ${
+                    className={`grid grid-cols-[30px_1.5fr_1.5fr_2fr_90px] gap-2 p-2.5 items-center border-b border-slate-200 ${
                       idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'
                     }`}
                   >
                     <div className="text-center font-black text-xs text-slate-400">{idx + 1}</div>
                     <div className="font-extrabold text-xs text-slate-900">{t.paso || '-'}</div>
                     <div className="text-xs font-medium text-slate-700">{t.riesgo || '-'}</div>
-                    <div className="text-xs font-bold text-emerald-800">{t.control || '-'}</div>
+                    <div className="text-xs font-bold text-slate-800">{t.control || '-'}</div>
                     <div className="flex justify-center">
                       <span
-                        className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase border ${
-                          isAlto
+                        className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase border text-center ${
+                          isCrit
+                            ? 'bg-rose-950 text-white border-rose-950'
+                            : isAlto
                             ? 'bg-rose-100 text-rose-800 border-rose-300'
                             : isMedio
                             ? 'bg-amber-100 text-amber-800 border-amber-300'
@@ -359,7 +376,66 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
           </div>
         )}
 
+        {/* Equipos de Emergencia en Zona */}
+        {equiposEmergencia.length > 0 && (
+          <div className="mb-5 page-break-inside-avoid">
+            <div className="flex items-center gap-2 mb-2 pb-1 border-b-2 border-slate-800">
+              <span className="bg-rose-700 text-white font-black text-xs px-2 py-0.5 rounded">🧯</span>
+              <h3 className="text-xs font-black text-slate-900 m-0 uppercase tracking-wider">
+                EQUIPOS DE EMERGENCIA Y RESPUESTA EN ZONA
+              </h3>
+            </div>
+            <div className="flex flex-wrap gap-2 p-3 bg-rose-50 border border-rose-200 rounded-xl">
+              {equiposEmergencia.map((eq: string, idx: number) => (
+                <span
+                  key={idx}
+                  className="bg-rose-100 text-rose-900 border border-rose-300 px-3 py-1 rounded-lg text-xs font-extrabold uppercase shadow-2xs"
+                >
+                  🧯 {eq}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Firmas y Autorizaciones */}
+        {/* Nómina de Trabajadores Autorizados */}
+        {trabajadores.length > 0 && (
+          <div className="mt-6 mb-5 page-break-inside-avoid">
+            <div className="flex items-center gap-2 mb-2 pb-1 border-b-2 border-slate-800">
+              <span className="bg-blue-900 text-white font-black text-xs px-2 py-0.5 rounded">👥</span>
+              <h3 className="text-xs font-black text-slate-900 m-0 uppercase tracking-wider">
+                NÓMINA DE TRABAJADORES AUTORIZADOS (PERSONAL ACREDITADO)
+              </h3>
+            </div>
+            <div className="border border-slate-300 rounded-xl overflow-hidden bg-white shadow-2xs">
+              <div className="grid grid-cols-[30px_2fr_1.2fr_1.2fr_2fr] gap-2 p-2 bg-slate-900 text-white text-[9px] font-black uppercase tracking-wider">
+                <div className="text-center">#</div>
+                <div>NOMBRE Y APELLIDO</div>
+                <div>DNI / LEGAJO</div>
+                <div>FUNCIÓN</div>
+                <div className="text-center">FIRMA DEL OPERARIO</div>
+              </div>
+              {trabajadores.map((w: any, idx: number) => (
+                <div
+                  key={w.id || idx}
+                  className={`grid grid-cols-[30px_2fr_1.2fr_1.2fr_2fr] gap-2 p-2 items-center border-b border-slate-200 text-xs ${
+                    idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'
+                  }`}
+                >
+                  <div className="text-center font-black text-slate-400 text-[10px]">{idx + 1}</div>
+                  <div className="font-extrabold text-slate-900">{w.nombre || '-'}</div>
+                  <div className="font-bold text-slate-700">{w.dni || '-'}</div>
+                  <div className="font-medium text-slate-600">{w.funcion || 'Operario'}</div>
+                  <div className="h-8 border-b border-dashed border-slate-400 flex items-end justify-center pb-0.5 text-[9px] text-slate-400 font-bold">
+                    Firma: __________________
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="mt-6 page-break-inside-avoid">
           <PdfSignatures
             data={data}

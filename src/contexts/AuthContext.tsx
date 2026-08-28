@@ -6,6 +6,8 @@ import {
   updateProfile,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   deleteUser,
   User
 } from 'firebase/auth';
@@ -120,6 +122,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
   };
 
+  useEffect(() => {
+    // Escuchar resultado de inicio de sesión con redirect
+    getRedirectResult(auth).then((result) => {
+      if (result?.user) {
+        const user = result.user;
+        const personalData: PersonalData = {
+          name: user.displayName || '',
+          email: user.email || '',
+          photo: user.photoURL || '',
+          country: 'argentina',
+          profileComplete: false,
+          googleAccount: true,
+          role: userRole,
+          companyId: companyId
+        };
+        localStorage.setItem('personalData', JSON.stringify(personalData));
+      }
+    }).catch((err) => {
+      console.warn('Google Redirect Error:', err);
+    });
+  }, []);
+
   const signInWithGoogle = async (): Promise<void> => {
     const provider = new GoogleAuthProvider();
     provider.addScope('email');
@@ -130,23 +154,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       prompt: 'select_account'
     });
 
-    const result = await signInWithPopup(auth, provider);
-
-    // Guardar datos básicos del usuario de Google
-    const user = result.user;
-    if (user) {
-      const photoURL: string = user.photoURL || '';
-      const personalData: PersonalData = {
-        name: user.displayName || '',
-        email: user.email,
-        photo: photoURL,
-        country: 'argentina',
-        profileComplete: false,
-        googleAccount: true,
-        role: userRole,
-        companyId: companyId
-      };
-      localStorage.setItem('personalData', JSON.stringify(personalData));
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      if (user) {
+        const photoURL: string = user.photoURL || '';
+        const personalData: PersonalData = {
+          name: user.displayName || '',
+          email: user.email || '',
+          photo: photoURL,
+          country: 'argentina',
+          profileComplete: false,
+          googleAccount: true,
+          role: userRole,
+          companyId: companyId
+        };
+        localStorage.setItem('personalData', JSON.stringify(personalData));
+      }
+    } catch (error: any) {
+      if (error?.code === 'auth/popup-blocked' || error?.code === 'auth/cancelled-popup-request') {
+        console.warn('Popup bloqueado, reintentando con redirect...');
+        await signInWithRedirect(auth, provider);
+      } else {
+        throw error;
+      }
     }
   };
 

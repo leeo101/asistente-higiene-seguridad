@@ -9,7 +9,7 @@ import {
   Share2, Save, ArrowLeft, ArrowRight, Info, Pencil, Camera,
   Flame, Zap, Siren, Lightbulb, Activity, CheckCircle2,
   Search, QrCode, Download, FileText, ClipboardList,
-  HardHat, Ear, Eye as EyeIcon
+  HardHat, Ear, Eye as EyeIcon, Mic, Wrench
 } from 'lucide-react';
 import { DataTable } from '../components/DataTable';
 import { downloadCSV } from '../services/exportCsv';
@@ -485,6 +485,7 @@ export default function ChecklistManager(): React.ReactElement | null {
   const [observations, setObservations] = useState('');
   const [epps, setEpps] = useState<string[]>([]);
   const [fotos, setFotos] = useState<string[]>([]);
+  const [onlyNcFilter, setOnlyNcFilter] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
@@ -839,6 +840,14 @@ export default function ChecklistManager(): React.ReactElement | null {
     }));
   };
 
+  const checkAllGlobalOk = () => {
+    setActiveSections((prev) => prev.map((section) => ({
+      ...section,
+      items: section.items.map((item) => ({ ...item, status: 'OK' }))
+    })));
+    toast.success('Todos los ítems marcados como OK');
+  };
+
   // Progress calculation
   const progressPct = Math.round((currentStep / totalSteps) * 100);
   const progressLabel = progressPct === 100 ? 'Listo para guardar y exportar ✅' : progressPct >= 66 ? 'Casi completo' : progressPct >= 33 ? 'En progreso' : 'Pendiente';
@@ -858,6 +867,58 @@ export default function ChecklistManager(): React.ReactElement | null {
       const st = getChecklistStatus(i.id);
       return { fecha: new Date(i.fecha).toLocaleDateString('es-AR'), equipo: i.equipo, marca: i.marca, serial: i.serial, empresa: i.empresa, estado: st.label };
     }), 'checklists_herramientas', { fecha: 'Fecha', equipo: 'Equipo', marca: 'Marca', serial: 'Número Serie', empresa: 'Empresa', estado: 'Estado' }, 'Reporte de Checklists'));
+  };
+
+  const buildShareMessage = (item: any) => {
+    if (!item) return '';
+    const title = item.checklistTitle || item.equipo || 'Checklist de Inspección';
+    const equipo = item.equipo || item.inspectionInfo?.item || 'General';
+    const empresa = item.empresa || item.companyInfo?.name || '-';
+    const fecha = item.fecha ? new Date(item.fecha).toLocaleDateString('es-AR') : new Date().toLocaleDateString('es-AR');
+    const horometro = item.inspectionInfo?.horometro ? `\n⏱️ Kilometraje / Horómetro: ${item.inspectionInfo.horometro}` : '';
+
+    const allSections = item.activeSections || [];
+    const failedItems: string[] = [];
+    allSections.forEach((sec: any) => {
+      (sec.items || []).forEach((it: any) => {
+        if (it.status === 'FAIL' || it.status === 'NC') {
+          const obsText = it.observation ? ` (${it.observation})` : '';
+          failedItems.push(`• ${it.text}${obsText}`);
+        }
+      });
+    });
+
+    const activeIds = allSections.map((s: any) => s.id);
+    const isVehicle = activeIds.includes('autoelevadores') || title.toLowerCase().includes('autoelevador');
+
+    let statusHeader = '✅ Estado: APROBADO SIN DESVÍOS';
+    if (failedItems.length > 0) {
+      statusHeader = isVehicle
+        ? '🛑 Estado: EQUIPO FUERA DE SERVICIO - BLOQUEO PREVENTIVO'
+        : `⚠️ Estado: CON NO CONFORMIDADES (${failedItems.length})`;
+    } else if ((item.actionPlan && item.actionPlan.length > 0) || item.observations) {
+      statusHeader = '⚠️ Estado: APROBADO CON OBSERVACIONES';
+    }
+
+    let msg = `📋 *${title.toUpperCase()}*\n`;
+    msg += `🏗️ Empresa: ${empresa}\n`;
+    msg += `🔧 Equipo / Sector: ${equipo}\n`;
+    msg += `📅 Fecha: ${fecha}${horometro}\n`;
+    msg += `${statusHeader}\n`;
+
+    if (failedItems.length > 0) {
+      msg += `\n🚨 *DESVÍOS DETECTADOS:*\n${failedItems.join('\n')}\n`;
+    }
+
+    if (item.actionPlan && item.actionPlan.length > 0) {
+      msg += `\n🛠️ *PLAN DE ACCIÓN:*\n`;
+      item.actionPlan.forEach((act: any) => {
+        const resp = act.responsible ? ` (Resp: ${act.responsible})` : '';
+        msg += `• ${act.action}${resp}\n`;
+      });
+    }
+
+    return msg;
   };
 
   /**
@@ -978,7 +1039,6 @@ export default function ChecklistManager(): React.ReactElement | null {
           {isStaticSharing ? <div style={{ width: 12, height: 12, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> : <Share2 size={12} />}
           {isStaticSharing ? 'Cargando...' : 'Compartir'}
         </button>
-
         <button
           onClick={() => setDeleteTarget(item.id)}
           title="Eliminar Checklist"
@@ -997,7 +1057,9 @@ export default function ChecklistManager(): React.ReactElement | null {
     (e.serial || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (e.marca || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesEmpresa = filterEmpresa === '' || e.empresa === filterEmpresa;
-    return matchesSearch && matchesEmpresa;
+    const stLabel = getChecklistStatus(e.id).label;
+    const matchesNc = !onlyNcFilter || stLabel === 'Rechazado' || stLabel === 'Con Obs.';
+    return matchesSearch && matchesEmpresa && matchesNc;
   });
 
   return (
@@ -1013,9 +1075,12 @@ export default function ChecklistManager(): React.ReactElement | null {
             {!showForm ?
       <>
                     
-                    {/* KPIs igual que Aptitudes Médicas */}
+                    {/* KPIs */}
                     <div className="no-print grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                        <div className="p-4 rounded-2xl border transition-all bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
+                        <div 
+                            onClick={() => setOnlyNcFilter(false)}
+                            className="p-4 rounded-2xl border transition-all cursor-pointer bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-blue-400"
+                        >
                             <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 mb-2">
                                 <span className="text-xs font-bold uppercase tracking-wider">Total Checklists</span>
                                 <ClipboardCheck size={20} />
@@ -1024,7 +1089,14 @@ export default function ChecklistManager(): React.ReactElement | null {
                             <span className="text-[11px] text-slate-500">Formularios registrados</span>
                         </div>
 
-                        <div className="p-4 rounded-2xl border transition-all bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
+                        <div 
+                            onClick={() => setOnlyNcFilter(!onlyNcFilter)}
+                            className={`p-4 rounded-2xl border transition-all cursor-pointer select-none ${
+                                onlyNcFilter 
+                                    ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-500 shadow-md ring-2 ring-rose-500/30' 
+                                    : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-rose-400'
+                            }`}
+                        >
                             <div className="flex items-center justify-between text-rose-600 dark:text-rose-400 mb-2">
                                 <span className="text-xs font-bold uppercase tracking-wider">Rechazados / NC</span>
                                 <TriangleAlert size={20} />
@@ -1032,7 +1104,9 @@ export default function ChecklistManager(): React.ReactElement | null {
                             <div className="text-2xl font-black text-rose-600 dark:text-rose-400">
                                 {history.filter(h => getChecklistStatus(h.id).label === 'Rechazado').length}
                             </div>
-                            <span className="text-[11px] text-slate-500">Con observaciones críticas</span>
+                            <span className="text-[11px] font-bold text-rose-500">
+                                {onlyNcFilter ? 'Filtrando desvíos (haz clic para ver todos)' : 'Con observaciones críticas (clic para filtrar)'}
+                            </span>
                         </div>
 
                         <div className="p-4 rounded-2xl border transition-all bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
@@ -1053,6 +1127,16 @@ export default function ChecklistManager(): React.ReactElement | null {
                             style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '0.6rem 1.2rem', fontSize: '0.85rem', fontWeight: '800', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}
                             className="transition-transform hover:-translate-y-0.5 whitespace-nowrap">
                             <Plus size={18} strokeWidth={2.5} /> NUEVO CHECKLIST
+                        </button>
+                        <button
+                            onClick={() => setOnlyNcFilter(!onlyNcFilter)}
+                            className={`h-[54px] px-4 rounded-[16px] border-[2px_solid_var(--color-border)] font-extrabold text-xs uppercase flex items-center gap-2 cursor-pointer transition-all shadow-[0_4px_20px_rgba(0,0,0,0.05)] ${
+                                onlyNcFilter 
+                                    ? 'bg-rose-600 text-white border-rose-600' 
+                                    : 'bg-[var(--color-surface)] text-[var(--color-text)] hover:border-rose-400'
+                            }`}
+                        >
+                            <TriangleAlert size={16} /> {onlyNcFilter ? 'VER TODOS LOS CHECKLISTS' : 'VER SOLO DESVÍOS PENDIENTES'}
                         </button>
                         <div className="flex-[1_1_300px] relative h-[54px]">
                             <Search 
@@ -1079,17 +1163,17 @@ export default function ChecklistManager(): React.ReactElement | null {
                         </div>
                         <div className="flex-[0_1_250px]">
                             <select
-              value={filterEmpresa}
-              onChange={(e) => setFilterEmpresa(e.target.value)}
-              style={{ color: filterEmpresa ? 'var(--color-text)' : 'var(--color-text-muted)' }} className="w-[100%] h-[54px] px-[1rem] rounded-[16px] border-[2px_solid_var(--color-border)] text-[1rem] outline-[none] bg-[var(--color-surface)] box-shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-              
+                                value={filterEmpresa}
+                                onChange={(e) => setFilterEmpresa(e.target.value)}
+                                style={{ color: filterEmpresa ? 'var(--color-text)' : 'var(--color-text-muted)' }}
+                                className="w-[100%] h-[54px] px-[1rem] rounded-[16px] border-[2px_solid_var(--color-border)] text-[1rem] outline-[none] bg-[var(--color-surface)] box-shadow-[0_4px_20px_rgba(0,0,0,0.05)]"
+                            >
                                 <option value="">Todas las Empresas</option>
-                                {uniqueEmpresas.map((emp: any) =>
-              <option key={emp} value={emp}>{emp}</option>
-              )}
+                                {uniqueEmpresas.map((emp: any) => (
+                                    <option key={emp} value={emp}>{emp}</option>
+                                ))}
                             </select>
                         </div>
-
                     </div>
 
                     <DataTable
@@ -1232,13 +1316,20 @@ export default function ChecklistManager(): React.ReactElement | null {
                 {(() => {
               const activeIds = activeSections.map((s: any) => s.id);
               const hasTools = activeIds.some((id) => ['manual_tools', 'electric_tools', 'circular_saw', 'grinder'].includes(id));
-              const hasVehicles = activeIds.includes('autoelevadores');
+              const hasVehicles = activeIds.includes('autoelevadores') || (checklistTitle && checklistTitle.toLowerCase().includes('autoelevador'));
               const hasPermits = activeIds.some((id) => ['espacios_confinados', 'trabajos_caliente', 'trabajos_altura'].includes(id));
               const hasHeavy = activeIds.some((id) => ['scaffolding', 'izaje_gruas'].includes(id));
               const hasExtinguishers = activeIds.includes('extintores_checklist');
+              const failCount = activeSections.flatMap((s: any) => s.items || []).filter((i: any) => i.status === 'FAIL' || i.status === 'NC').length;
 
               return (
-                <div className="hover:border-blue-400/50 hover:shadow-md border-[2px_solid_var(--color-border)] rounded-[16px] mb-[2.5rem] w-[100%] overflow-[hidden] bg-[var(--color-surface)] box-shadow-[var(--shadow-sm)] transition-[all_0.3s] grid-column-[1_/_-1]">
+                <div>
+                  {hasVehicles && failCount > 0 && (
+                    <div className="mb-4 p-3 bg-red-600 text-white font-black text-xs sm:text-sm rounded-xl text-center shadow-lg uppercase tracking-wider flex items-center justify-center gap-2">
+                      <span>🛑 EQUIPO FUERA DE SERVICIO — BLOQUEO PREVENTIVO ({failCount} {failCount === 1 ? 'DESVÍO CRÍTICO' : 'DESVÍOS CRÍTICOS'})</span>
+                    </div>
+                  )}
+                  <div className="hover:border-blue-400/50 hover:shadow-md border-[2px_solid_var(--color-border)] rounded-[16px] mb-[2.5rem] w-[100%] overflow-[hidden] bg-[var(--color-surface)] box-shadow-[var(--shadow-sm)] transition-[all_0.3s] grid-column-[1_/_-1]">
                             <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 border-bottom-[2px_solid_var(--color-border)] w-[100%]">
                                 <div className="sm:col-span-2 print:col-span-2"><DocBox label="CLIENTE / EMPRESA" value={companyInfo.name} onChange={(v) => setCompanyInfo({ ...companyInfo, name: v })} large /></div>
                                 <div className="sm:col-span-2 print:col-span-2"><DocBox label="UBICACIÓN / DIRECCIÓN" value={companyInfo.address} onChange={(v) => setCompanyInfo({ ...companyInfo, address: v })} /></div>
@@ -1258,7 +1349,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                     <>
                                         <div className="sm:col-span-1 print:col-span-1"><DocBox label="MARCA / MODELO" value={inspectionInfo.marca || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, marca: v })} /></div>
                                         <div className="sm:col-span-1 print:col-span-1"><DocBox label="DOMINIO (PATENTE)" value={inspectionInfo.patente || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, patente: v })} /></div>
-                                        <div className="sm:col-span-1 print:col-span-1"><DocBox label="HORÓMETRO / KM" value={inspectionInfo.horometro || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, horometro: v })} /></div>
+                                        <div className="sm:col-span-1 print:col-span-1"><DocBox label="KILOMETRAJE / HORÓMETRO" value={inspectionInfo.horometro || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, horometro: v })} /></div>
                                     </>
                     }
                             </div>
@@ -1290,7 +1381,8 @@ export default function ChecklistManager(): React.ReactElement | null {
                                 <div className="sm:col-span-2 print:col-span-2"><DocBox label="INSPECTOR / RESPONSABLE" value={companyInfo.inspector} onChange={(v) => setCompanyInfo({ ...companyInfo, inspector: v })} /></div>
                                 <div className="sm:col-span-2 print:col-span-2"><DocBox label="PROFESIONAL HYS" value={professional.name} onChange={() => {}} /></div>
                             </div>
-                        </div>);
+                        </div>
+                    </div>);
 
             })()}
             </div>
@@ -1339,6 +1431,26 @@ export default function ChecklistManager(): React.ReactElement | null {
             {/* EDITABLE SECTIONS - Responsive */}
             {currentStep === 2 &&
         <div className="no-print mb-8">
+                {activeSections.length > 0 && (
+                  <div className="flex justify-between items-center mb-4 p-4 bg-emerald-500/10 border-2 border-emerald-500/30 rounded-xl flex-wrap gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-emerald-500/20 text-emerald-600 rounded-lg">
+                        <CheckCircle2 size={22} />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-black uppercase text-[var(--color-text)] m-0">Evaluación de Ítems</h4>
+                        <p className="text-xs text-[var(--color-text-muted)] m-0">Valida los puntos del relevamiento. Puedes marcar todos de una sola vez.</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={checkAllGlobalOk}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs uppercase px-4 py-2.5 rounded-lg shadow-sm flex items-center gap-2 cursor-pointer border-none transition-all active:scale-95 ml-auto"
+                    >
+                      <CheckCircle2 size={16} /> MARCAR TODO COMO OK
+                    </button>
+                  </div>
+                )}
                 {activeSections.map((section) => {
             return (
               <div key={section.id} className="card p-[0] mb-[1.5rem]">
@@ -1429,6 +1541,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                             style={{ border: '2px solid #1e293b', padding: '0.5rem', borderRadius: '0.5rem', flex: 1, minWidth: '150px' }}
                             onChange={(e) => updateItem(section.id, idx, 'observation', e.target.value)} 
                             className="text-sm font-bold outline-none text-slate-900 dark:text-slate-100 bg-transparent" />
+                                                    <SpeechButton onTranscript={(text) => updateItem(section.id, idx, 'observation', item.observation ? `${item.observation} ${text}` : text)} />
 
                                                     <input
                             type="file"
@@ -1606,12 +1719,34 @@ export default function ChecklistManager(): React.ReactElement | null {
 
           {currentStep === 4 &&
         <div className="no-print mb-8">
+                {/* OBSERVACIONES GENERALES */}
+                <div className="border-[2px_solid_#3b82f6] rounded-[12px] p-[1.5rem] bg-blue-50/50 dark:bg-slate-800/80 mb-[1.5rem] relative">
+                    <div className="absolute top-[-12px] left-[20px] bg-blue-600 text-white p-[4px_12px] text-[0.65rem] font-[900] uppercase letter-spacing-[0.1em] rounded-[4px]">
+                        📝 Observaciones Generales
+                    </div>
+                    <div className="flex justify-between items-center mb-2 mt-2">
+                        <label className="text-xs font-black uppercase text-slate-700 dark:text-slate-300">Resumen u observaciones adicionales</label>
+                        <SpeechButton onTranscript={(text) => setObservations((prev) => prev ? `${prev} ${text}` : text)} />
+                    </div>
+                    <textarea
+                        rows={3}
+                        value={observations}
+                        onChange={(e) => setObservations(e.target.value)}
+                        placeholder="Ingrese observaciones generales dictando por voz o escribiendo aquí..."
+                        className="w-full p-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg text-sm font-semibold outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+                    />
+                </div>
+
                 {/* PLAN DE ACCIÓN - FORMULARIO */}
                 <div className="border-[2px_solid_#f59e0b] rounded-[12px] p-[1.5rem] bg-[linear-gradient(135deg,_#fffbeb_0%,_#fef3c7_100%)] relative">
                     <div className="absolute top-[-12px] left-[20px] bg-amber-500 hover:bg-amber-600 text-[#fff] p-[4px_12px] text-[0.65rem] font-[900] uppercase letter-spacing-[0.1em] rounded-[4px]">
                         🎯 Plan de Acción
                     </div>
-                    <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(150px,_1fr))] gap-[0.8rem] mb-[1rem] mt-[0.5rem]">
+                    <div className="flex justify-between items-center mb-2 mt-2">
+                        <label className="text-xs font-black uppercase text-amber-900">Agregar Medida Correctiva</label>
+                        <SpeechButton onTranscript={(text) => setNewAction((prev) => ({ ...prev, action: prev.action ? `${prev.action} ${text}` : text }))} />
+                    </div>
+                    <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(150px,_1fr))] gap-[0.8rem] mb-[1rem]">
                         <input type="text" placeholder="Acción correctiva" value={newAction.action} onChange={(e) => setNewAction({ ...newAction, action: e.target.value })} className="p-[0.6rem_0.8rem] border border-slate-300 dark:border-slate-600 rounded-[8px] text-[0.85rem] font-[600] outline-[none]" />
                         <input type="text" placeholder="Responsable" value={newAction.responsible} onChange={(e) => setNewAction({ ...newAction, responsible: e.target.value })} className="p-[0.6rem_0.8rem] border border-slate-300 dark:border-slate-600 rounded-[8px] text-[0.85rem] font-[600] outline-[none]" />
                         <div className="flex gap-[0.5rem]">
@@ -1866,8 +2001,8 @@ export default function ChecklistManager(): React.ReactElement | null {
         onClose={() => {setShareItem(null); setAutoPrintShare(false);}} 
         autoPrint={autoPrintShare} 
         title={`Checklist — ${(shareItem as any)?.equipo || (shareItem as any)?.checklistTitle || ''}`} 
-        text={shareItem ? `📋 Checklist de Inspección\n🔧 Equipo: ${(shareItem as any).equipo || (shareItem as any).inspectionInfo?.item || ''}\n🏗️ Empresa: ${(shareItem as any).empresa || (shareItem as any).companyInfo?.name || ''}\n📅 Fecha: ${(shareItem as any).fecha ? new Date((shareItem as any).fecha).toLocaleDateString('es-AR') : new Date().toLocaleDateString('es-AR')}` : ''} 
-        rawMessage={``} 
+        text={buildShareMessage(shareItem)} 
+        rawMessage={buildShareMessage(shareItem)} 
         elementIdToPrint="pdf-content" 
         fileName={`Checklist_${(shareItem as any)?.equipo || (shareItem as any)?.checklistTitle || 'Reporte'}.pdf`} 
       />
@@ -1903,4 +2038,52 @@ function StatusBtn({ active, type, onClick, label }) {
             {label}
         </button>);
 
+}
+
+function SpeechButton({ onTranscript }: { onTranscript: (text: string) => void }) {
+  const [isListening, setIsListening] = useState(false);
+
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error('Dictado por voz no soportado en este navegador');
+      return;
+    }
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'es-AR';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.onstart = () => setIsListening(true);
+      recognition.onend = () => setIsListening(false);
+      recognition.onerror = () => setIsListening(false);
+      recognition.onresult = (e: any) => {
+        const transcript = e.results?.[0]?.[0]?.transcript;
+        if (transcript) {
+          onTranscript(transcript);
+          toast.success('Texto dictado agregado ✅');
+        }
+      };
+      recognition.start();
+    } catch {
+      setIsListening(false);
+      toast.error('Error al activar el micrófono');
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={startListening}
+      className={`px-2.5 py-1 rounded-lg border-none cursor-pointer text-xs font-black flex items-center gap-1.5 transition-all shadow-sm ${
+        isListening
+          ? 'bg-red-600 text-white animate-pulse'
+          : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20'
+      }`}
+      title="Dictar observaciones por voz"
+    >
+      <Mic size={14} />
+      <span>{isListening ? 'Escuchando...' : 'Dictar'}</span>
+    </button>
+  );
 }
