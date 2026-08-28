@@ -109,6 +109,173 @@ export default function AssetQRScanner() {
     }
   };
 
+  // Función real de Impresión del Tag QR en Ventana o Hoja A6 de Inspección
+  const handlePrintQR = () => {
+    if (!selectedAsset) return;
+    const svg = document.getElementById('asset-qr-svg');
+    let qrDataUrl = '';
+    
+    if (svg) {
+      const svgData = new XMLSerializer().serializeToString(svg);
+      qrDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    }
+
+    const printWindow = window.open('', '_blank', 'width=600,height=700');
+    if (!printWindow) {
+      window.print();
+      return;
+    }
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Etiqueta QR — ${selectedAsset.name}</title>
+          <style>
+            @page { size: A6 portrait; margin: 5mm; }
+            body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              margin: 0;
+              padding: 20px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              text-align: center;
+              background: #ffffff;
+              color: #0f172a;
+            }
+            .card {
+              border: 4px solid #0f172a;
+              border-radius: 20px;
+              padding: 24px;
+              max-width: 320px;
+              width: 100%;
+              box-sizing: border-box;
+            }
+            .badge {
+              font-size: 11px;
+              font-weight: 900;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+              color: #059669;
+              background: #d1fae5;
+              padding: 4px 12px;
+              border-radius: 9999px;
+              display: inline-block;
+              margin-bottom: 12px;
+            }
+            .qr-box {
+              background: #ffffff;
+              padding: 12px;
+              border-radius: 16px;
+              border: 2px solid #cbd5e1;
+              display: inline-block;
+              margin: 12px 0;
+            }
+            .qr-box img {
+              width: 180px;
+              height: 180px;
+              display: block;
+            }
+            .title {
+              font-size: 18px;
+              font-weight: 900;
+              color: #0f172a;
+              margin: 8px 0 4px 0;
+            }
+            .meta {
+              font-size: 12px;
+              font-weight: 700;
+              color: #475569;
+              margin-bottom: 4px;
+            }
+            .location {
+              font-size: 12px;
+              font-weight: 800;
+              color: #059669;
+              margin-top: 4px;
+            }
+            .status {
+              display: inline-block;
+              margin-top: 14px;
+              padding: 6px 16px;
+              border-radius: 9999px;
+              font-size: 11px;
+              font-weight: 900;
+              text-transform: uppercase;
+              background: #0f172a;
+              color: #ffffff;
+            }
+            .footer {
+              font-size: 10px;
+              font-weight: 700;
+              color: #94a3b8;
+              margin-top: 16px;
+              border-top: 1px dashed #cbd5e1;
+              padding-top: 8px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <div class="badge">🛡️ ASISTENTE H&S — ETIQUETA DE ACTIVO</div>
+            <div class="qr-box">
+              <img src="${qrDataUrl}" alt="QR Code" />
+            </div>
+            <div class="title">${selectedAsset.name}</div>
+            <div class="meta">ID: ${selectedAsset.id} • Serie: ${selectedAsset.serialNumber}</div>
+            <div class="location">📍 ${selectedAsset.location}</div>
+            <div class="status">ESTADO: ${selectedAsset.status}</div>
+            <div class="footer">Escaneá este código QR en terreno para auditar la inspección</div>
+          </div>
+          <script>
+            setTimeout(() => {
+              window.print();
+              window.close();
+            }, 350);
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    toast.success(`Iniciando ventana de impresión para ${selectedAsset.name}`);
+  };
+
+  // Función para Descargar la Imagen PNG del QR directamente
+  const handleDownloadQR = () => {
+    if (!selectedAsset) return;
+    const svg = document.getElementById('asset-qr-svg');
+    if (!svg) {
+      toast.error('No se pudo generar la imagen del código QR');
+      return;
+    }
+
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+
+    img.onload = () => {
+      canvas.width = img.width + 40;
+      canvas.height = img.height + 40;
+      if (ctx) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 20, 20);
+        const pngUrl = canvas.toDataURL('image/png');
+        const downloadLink = document.createElement('a');
+        downloadLink.href = pngUrl;
+        downloadLink.download = `Etiqueta_QR_${selectedAsset.id}_${selectedAsset.name.replace(/\s+/g, '_')}.png`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        toast.success('¡Etiqueta QR descargada en formato PNG!');
+      }
+    };
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+  };
+
   // Filtrar activos por búsqueda
   const filteredAssets = assets.filter(a => {
     const q = searchQuery.toLowerCase().trim();
@@ -288,7 +455,7 @@ export default function AssetQRScanner() {
           {/* Layout Principal Responsivo (Lista + Previsualizador QR) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            {/* 📋 COLUMNA IZQUIERDA: Inventario de Activos (8 Col en Desktop) */}
+            {/* 📋 COLUMNA IZQUIERDA: Inventario de Activos (7 Col en Desktop) */}
             <div className="lg:col-span-7 space-y-4">
               
               {/* Buscador + Contador */}
@@ -388,17 +555,18 @@ export default function AssetQRScanner() {
               </div>
             </div>
 
-            {/* 🔲 COLUMNA DERECHA: Previsualización de Etiqueta QR (5 Col en Desktop) */}
+            {/* 🔲 COLUMNA DERECHA: Previsualización e Impresión Real de Etiqueta QR */}
             <div className="lg:col-span-5">
               <div className="bg-slate-900 border-2 border-slate-800 p-6 rounded-3xl space-y-4 flex flex-col items-center justify-center text-center shadow-2xl sticky top-28">
                 {selectedAsset ? (
                   <>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase border border-emerald-500/30">
                       <QrCode size={16} /> Etiqueta QR Oficial de Inspección
                     </div>
 
                     <div className="p-4 bg-white rounded-3xl shadow-2xl border-4 border-slate-800 my-2">
                       <QRCodeSVG
+                        id="asset-qr-svg"
                         value={`${window.location.origin}/v/guest/asset/${selectedAsset.id}`}
                         size={170}
                         level="H"
@@ -415,12 +583,21 @@ export default function AssetQRScanner() {
                       </p>
                     </div>
 
-                    <div className="w-full pt-3 flex gap-2">
+                    {/* Botones de Acción Funcionales (Imprimir Tag QR & Descargar PNG) */}
+                    <div className="w-full pt-3 flex flex-col sm:flex-row gap-2.5">
                       <button
-                        onClick={() => toast.success(`Etiqueta QR para ${selectedAsset.name} lista para impresión`)}
-                        className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs sm:text-sm rounded-2xl flex items-center justify-center gap-2 shadow-lg border-none cursor-pointer transition-all hover:scale-105"
+                        onClick={handlePrintQR}
+                        className="flex-1 py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs sm:text-sm rounded-2xl flex items-center justify-center gap-2 shadow-xl border-none cursor-pointer transition-all hover:scale-105 active:scale-95"
                       >
                         <Printer size={18} /> Imprimir Tag QR
+                      </button>
+
+                      <button
+                        onClick={handleDownloadQR}
+                        className="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-extrabold text-xs rounded-2xl flex items-center justify-center gap-2 border border-slate-700 cursor-pointer transition-all hover:scale-105 active:scale-95 shrink-0"
+                        title="Descargar imagen PNG del QR"
+                      >
+                        <DownloadSimple size={18} /> PNG
                       </button>
                     </div>
                   </>
