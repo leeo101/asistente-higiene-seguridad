@@ -7,7 +7,7 @@ import { Capacitor } from '@capacitor/core';
 import { Share } from '@capacitor/share';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { usePaywall } from '../hooks/usePaywall';
-import { generatePdfBlob } from '../utils/pdfHelper';
+import { generatePdfBlob, printElementAsDocument } from '../utils/pdfHelper';
 
 interface ShareModalProps {
   isOpen?: boolean;
@@ -85,38 +85,17 @@ export default function ShareModal({
     }
 
     if (!elementIdToPrint) {
-      toast.error("No se ha especificado el contenido a imprimir.");
+      toast.error('No se ha especificado el contenido a imprimir.');
       return;
     }
 
-    const element = document.getElementById(elementIdToPrint);
-    if (!element) return;
-
-    document.body.classList.add('printing-isolated');
-    element.classList.add('isolated-print-target');
+    setIsGenerating(true);
 
     if (Capacitor.isNativePlatform()) {
-      setIsGenerating(true);
-      toast.loading('Generando vista previa...', { 
-        id: 'pdf-gen',
-        style: {
-          background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
-          color: '#fff',
-          fontWeight: 'bold',
-          borderRadius: '12px',
-          padding: '12px 20px',
-          boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.4)'
-        },
-        iconTheme: {
-          primary: '#fff',
-          secondary: '#10b981'
-        }
-      });
-
+      // En la app nativa: generar PDF y usar el printer nativo
+      toast.loading('Generando PDF para imprimir...', { id: 'pdf-gen' });
       try {
-        // Pequeno delay para ui
-        await new Promise((resolve) => setTimeout(resolve, 80));
-
+        await new Promise(r => setTimeout(r, 100));
         const pdfBlob = await generatePdfBlob(elementIdToPrint, isLandscape);
         const base64Data = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
@@ -124,59 +103,49 @@ export default function ShareModal({
           reader.onload = () => resolve(reader.result as string);
           reader.readAsDataURL(pdfBlob);
         });
-
         const base64String = base64Data.split(',')[1];
-        const safeName = propFileName ?
-        propFileName.endsWith('.pdf') ? propFileName : `${propFileName}.pdf` :
-        `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
-
+        const safeName = propFileName
+          ? propFileName.endsWith('.pdf') ? propFileName : `${propFileName}.pdf`
+          : `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
         toast.dismiss('pdf-gen');
-
         // @ts-ignore
         const { Printer } = await import('@capgo/capacitor-printer');
-        await Printer.printBase64({
-          data: base64String,
-          mimeType: 'application/pdf',
-          name: safeName
-        });
-
-        document.body.classList.remove('printing-isolated');
-        element.classList.remove('isolated-print-target');
+        await Printer.printBase64({ data: base64String, mimeType: 'application/pdf', name: safeName });
         onClose();
       } catch (err) {
-        console.error("Error printing natively:", err);
-        toast.dismiss('pdf-gen');
-        toast.error("La vista previa falló. Compartiendo PDF...");
-
-        document.body.classList.remove('printing-isolated');
-        element.classList.remove('isolated-print-target');
-
-        // Fallback a compartir
+        console.error('Error printing natively:', err);
+        toast.error('Error en impresión nativa. Compartiendo PDF...', { id: 'pdf-gen' });
         handleNativeShare('Imprimir');
       } finally {
         setIsGenerating(false);
       }
     } else {
-      // Web printing (desktop and mobile web)
-      setIsGenerating(true);
+      // Web: abrir ventana de impresión aislada con todo el CSS de la página
+      // Produce calidad vectorial perfecta — fuentes, colores y diseño exactos
       toast.loading('Preparando impresión...', { id: 'pdf-gen' });
-
       try {
-        await new Promise((resolve) => setTimeout(resolve, 150));
-        
-        // Temporariamente ocultar el overlay del modal para que no bloquee la impresión
-        const overlay = document.querySelector('.share-modal-overlay') as HTMLElement;
-        if (overlay) overlay.style.display = 'none';
-
-        window.print();
-
-        if (overlay) overlay.style.display = '';
+        await new Promise(r => setTimeout(r, 200));
+        await printElementAsDocument(elementIdToPrint, title, isLandscape);
         toast.dismiss('pdf-gen');
         onClose();
       } catch (err) {
-        console.error("Error al imprimir:", err);
+        console.error('Error al imprimir:', err);
         toast.dismiss('pdf-gen');
-        toast.error("Error al preparar la impresión.");
+        toast.error('Error al preparar la impresión. Intentando descarga...');
+        // Fallback: descargar PDF local
+        try {
+          const pdfBlob = await generatePdfBlob(elementIdToPrint, isLandscape);
+          const safeName = propFileName
+            ? propFileName.endsWith('.pdf') ? propFileName : `${propFileName}.pdf`
+            : `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'reporte'}.pdf`;
+          const url = window.URL.createObjectURL(pdfBlob);
+          const a = document.createElement('a');
+          a.href = url; a.download = safeName;
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+        } catch (pdfErr) {
+          console.error('Fallback PDF también falló:', pdfErr);
+        }
       } finally {
         setIsGenerating(false);
       }
