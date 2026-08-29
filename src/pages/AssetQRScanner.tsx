@@ -16,7 +16,6 @@ import {
   MagnifyingGlass,
   Wrench,
   ShieldCheck,
-  Building2,
   Tag
 } from '@phosphor-icons/react';
 import AnimatedPage from '../components/AnimatedPage';
