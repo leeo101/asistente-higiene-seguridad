@@ -32,6 +32,12 @@ export const AUTHORIZED_PRO_REGISTRY: ProAccountRule[] = [
     type: 'monthly',
     expiry: new Date('2026-08-15T23:59:59Z').getTime(), // Pago 16 de Julio de 2026 -> Vence 15 de Agosto de 2026
     note: 'Suscripción mensual por pago'
+  },
+  {
+    email: 'abelparada09@gmail.com',
+    type: 'monthly',
+    expiry: new Date('2026-09-30T23:59:59Z').getTime(), // Activación PRO 1 mes (30 Agosto 2026 -> 30 Septiembre 2026)
+    note: 'Suscripción mensual por pago'
   }
 ];
 

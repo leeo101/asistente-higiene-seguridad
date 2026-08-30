@@ -344,7 +344,7 @@ const validateStringInput = (field, maxLength = 1000) => {
 // Payment endpoint - Mercado Pago
 app.post('/api/create-subscription', adminLimiter, async (req, res) => {
     try {
-        const { planId } = req.body || {};
+        const { userId, email, planId } = req.body || {};
         let amount = 2.00;
         let planTitle = 'Asistente H&S – Plan Profesional (Acceso Total)';
 
@@ -359,8 +359,12 @@ app.post('/api/create-subscription', adminLimiter, async (req, res) => {
             planTitle = 'Asistente H&S – Plan Profesional (Acceso Total)';
         }
 
-        console.log(`API Request received for MP payment: ${planTitle} ($${amount} USD)`);
+        console.log(`API Request received for MP payment: ${planTitle} ($${amount} USD) for user ${userId}`);
         const preference = new Preference(client);
+
+        const protocol = req.headers['x-forwarded-proto'] || 'https';
+        const host = req.headers['host'] || 'asistentehs-b594e.web.app';
+        const baseUrl = `${protocol}://${host}`;
 
         const response = await preference.create({
             body: {
@@ -368,6 +372,7 @@ app.post('/api/create-subscription', adminLimiter, async (req, res) => {
                     {
                         id: planId || 'premium-sub',
                         title: planTitle,
+                        description: `Acceso completo al ${planTitle}. Suscripción mensual.`,
                         quantity: 1,
                         unit_price: amount,
                         currency_id: 'USD'
@@ -377,7 +382,11 @@ app.post('/api/create-subscription', adminLimiter, async (req, res) => {
                     success: 'https://asistentehs-b594e.web.app/subscribe?status=approved',
                     failure: 'https://asistentehs-b594e.web.app/subscribe',
                     pending: 'https://asistentehs-b594e.web.app/subscribe'
-                }
+                },
+                external_reference: userId || 'guest',
+                notification_url: `${baseUrl}/api/mercadopago-webhook`,
+                auto_return: 'approved',
+                statement_descriptor: 'ASISTENTE HY&S'
             }
         });
 
@@ -388,6 +397,55 @@ app.post('/api/create-subscription', adminLimiter, async (req, res) => {
         res.status(500).json({
             error: 'Error al generar link de pago.'
         });
+    }
+});
+
+// Mercado Pago Webhook Endpoint (Standalone Server)
+app.all('/api/mercadopago-webhook', async (req, res) => {
+    try {
+        const query = req.query || {};
+        const topic = query.topic || query.type || req.body?.type || req.body?.topic || (req.body?.action && req.body.action.startsWith('payment') ? 'payment' : null);
+        const webhookId = query.id || query['data.id'] || (req.body && req.body.data && req.body.data.id) || (req.body && req.body.id);
+
+        console.log(`[Server] Webhook received: Topic=${topic}, ID=${webhookId}`);
+
+        if (webhookId && (!topic || String(topic).includes('payment'))) {
+            const payment = new Payment(client);
+            const paymentData = await payment.get({ id: webhookId });
+
+            if (paymentData.status === 'approved') {
+                let userId = paymentData.external_reference;
+
+                if ((!userId || userId === 'guest') && admin.apps.length) {
+                    const payerEmail = paymentData.payer?.email || paymentData.additional_info?.payer?.email;
+                    if (payerEmail) {
+                        try {
+                            const userRecord = await admin.auth().getUserByEmail(payerEmail);
+                            userId = userRecord.uid;
+                        } catch (lookupErr) {
+                            console.warn('Could not find user by email in webhook:', lookupErr.message);
+                        }
+                    }
+                }
+
+                if (userId && userId !== 'guest' && admin.apps.length) {
+                    await admin.auth().setCustomUserClaims(userId, { isPro: true });
+                    const oneMonthFromNow = Date.now() + 30 * 24 * 60 * 60 * 1000;
+                    await admin.firestore().collection('users').doc(userId).collection('data').doc('subscriptionData').set({
+                        status: 'active',
+                        expiry: oneMonthFromNow.toString(),
+                        provider: 'mercadopago',
+                        lastPaymentId: String(webhookId),
+                        updatedAt: Date.now()
+                    }, { merge: true });
+                    console.log(`[Server] User ${userId} activated PRO via Webhook until ${new Date(oneMonthFromNow).toLocaleDateString()}`);
+                }
+            }
+        }
+        return res.status(200).send('OK');
+    } catch (error) {
+        console.error('[Server] Webhook error:', error);
+        return res.status(200).send('Error processed');
     }
 });
 
@@ -448,7 +506,8 @@ app.post('/api/create-stripe-subscription', adminLimiter, async (req, res) => {
 // Payment verification endpoint (Mercado Pago & Stripe)
 app.post('/api/verify-payment', verifyFirebaseToken, async (req, res) => {
     try {
-        const { payment_id, session_id } = req.body;
+        const { payment_id, collection_id, session_id } = req.body || {};
+        const mpPaymentId = payment_id || collection_id;
         
         // Stripe verification
         if (session_id && stripe) {
@@ -460,16 +519,17 @@ app.post('/api/verify-payment', verifyFirebaseToken, async (req, res) => {
                 await admin.firestore().collection('users').doc(uid).collection('data').doc('subscriptionData').set({
                     status: 'active',
                     expiry: oneMonthFromNow.toString(),
-                    provider: 'stripe'
-                });
-                return res.json({ success: true, isPro: true });
+                    provider: 'stripe',
+                    updatedAt: Date.now()
+                }, { merge: true });
+                return res.json({ success: true, isPro: true, expiry: oneMonthFromNow });
             }
         }
 
         // Mercado Pago verification
-        if (payment_id) {
+        if (mpPaymentId) {
             const payment = new Payment(client);
-            const paymentInfo = await payment.get({ id: payment_id });
+            const paymentInfo = await payment.get({ id: mpPaymentId });
             if (paymentInfo.status === 'approved') {
                 const uid = req.user.uid;
                 await admin.auth().setCustomUserClaims(uid, { isPro: true });
@@ -477,9 +537,11 @@ app.post('/api/verify-payment', verifyFirebaseToken, async (req, res) => {
                 await admin.firestore().collection('users').doc(uid).collection('data').doc('subscriptionData').set({
                     status: 'active',
                     expiry: oneMonthFromNow.toString(),
-                    provider: 'mercadopago'
-                });
-                return res.json({ success: true, isPro: true });
+                    provider: 'mercadopago',
+                    lastPaymentId: String(mpPaymentId),
+                    updatedAt: Date.now()
+                }, { merge: true });
+                return res.json({ success: true, isPro: true, expiry: oneMonthFromNow });
             }
         }
 

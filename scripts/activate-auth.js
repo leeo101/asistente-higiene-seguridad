@@ -33,10 +33,14 @@ async function run() {
             const expiry = new Date();
             expiry.setMonth(expiry.getMonth() + 1);
 
+            await auth.setCustomUserClaims(uid, { isPro: true });
+            console.log(`Custom claims set: { isPro: true }`);
+
             const subData = {
                 status: 'active',
                 expiry: String(expiry.getTime()),
                 updatedAt: Date.now(),
+                provider: 'manual_activation',
                 manualActivation: true
             };
 

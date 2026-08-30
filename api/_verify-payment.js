@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import { MercadoPagoConfig, Payment } from 'mercadopago';
 import { verifyToken, setCorsHeaders } from './_verifyToken.js';
-import { getGoogleAccessToken } from './_googleAuth.js';
+import { getGoogleAccessToken, setFirebaseCustomClaims } from './_googleAuth.js';
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const stripe = stripeSecretKey ? new Stripe(stripeSecretKey) : null;
@@ -23,7 +23,8 @@ export default async function handler(req, res) {
     if (!decodedUser) return;
 
     try {
-        const { payment_id, session_id } = req.body || {};
+        const { payment_id, collection_id, session_id } = req.body || {};
+        const mpPaymentId = payment_id || collection_id;
         const uid = decodedUser.uid;
 
         // Verify Stripe Payment
@@ -37,7 +38,7 @@ export default async function handler(req, res) {
                     try {
                         const projectId = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY).project_id;
                         const accessToken = await getGoogleAccessToken();
-                        const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${uid}/data/subscriptionData?updateMask.fieldPaths=status&updateMask.fieldPaths=expiry&updateMask.fieldPaths=provider`;
+                        const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${uid}/data/subscriptionData?updateMask.fieldPaths=status&updateMask.fieldPaths=expiry&updateMask.fieldPaths=provider&updateMask.fieldPaths=updatedAt`;
                         
                         await fetch(firestoreUrl, {
                             method: 'PATCH',
@@ -49,23 +50,27 @@ export default async function handler(req, res) {
                                 fields: {
                                     status: { stringValue: 'active' },
                                     expiry: { stringValue: oneMonthFromNow.toString() },
-                                    provider: { stringValue: 'stripe' }
+                                    provider: { stringValue: 'stripe' },
+                                    updatedAt: { integerValue: String(Date.now()) }
                                 }
                             })
                         });
+
+                        // Set custom claims
+                        await setFirebaseCustomClaims(uid, { isPro: true });
                     } catch (fsErr) {
                         console.error('Error updating firestore via REST:', fsErr);
                     }
                 }
 
-                return res.status(200).json({ success: true, isPro: true });
+                return res.status(200).json({ success: true, isPro: true, expiry: oneMonthFromNow });
             }
         }
 
         // Verify MercadoPago Payment
-        if (payment_id && mpClient) {
+        if (mpPaymentId && mpClient) {
             const payment = new Payment(mpClient);
-            const paymentInfo = await payment.get({ id: payment_id });
+            const paymentInfo = await payment.get({ id: mpPaymentId });
             if (paymentInfo.status === 'approved') {
                 const oneMonthFromNow = Date.now() + 30 * 24 * 60 * 60 * 1000;
                 
@@ -73,7 +78,7 @@ export default async function handler(req, res) {
                     try {
                         const projectId = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY).project_id;
                         const accessToken = await getGoogleAccessToken();
-                        const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${uid}/data/subscriptionData?updateMask.fieldPaths=status&updateMask.fieldPaths=expiry&updateMask.fieldPaths=provider`;
+                        const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${uid}/data/subscriptionData?updateMask.fieldPaths=status&updateMask.fieldPaths=expiry&updateMask.fieldPaths=provider&updateMask.fieldPaths=lastPaymentId&updateMask.fieldPaths=updatedAt`;
                         
                         await fetch(firestoreUrl, {
                             method: 'PATCH',
@@ -85,16 +90,21 @@ export default async function handler(req, res) {
                                 fields: {
                                     status: { stringValue: 'active' },
                                     expiry: { stringValue: oneMonthFromNow.toString() },
-                                    provider: { stringValue: 'mercadopago' }
+                                    provider: { stringValue: 'mercadopago' },
+                                    lastPaymentId: { stringValue: String(mpPaymentId) },
+                                    updatedAt: { integerValue: String(Date.now()) }
                                 }
                             })
                         });
+
+                        // Set custom claims
+                        await setFirebaseCustomClaims(uid, { isPro: true });
                     } catch (fsErr) {
                         console.error('Error updating firestore via REST:', fsErr);
                     }
                 }
 
-                return res.status(200).json({ success: true, isPro: true });
+                return res.status(200).json({ success: true, isPro: true, expiry: oneMonthFromNow });
             }
         }
 

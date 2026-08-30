@@ -8,54 +8,47 @@ async function initialize() {
     const serviceAccount = JSON.parse(rawKey);
     if (serviceAccount.private_key) serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
     admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-    return admin.firestore();
+    return { db: admin.firestore(), auth: admin.auth() };
 }
 
-async function searchDeep(db, emails) {
-    const usersSnapshot = await db.collection('users').get();
+async function activate(emails) {
+    const { db, auth } = await initialize();
 
     for (const email of emails) {
-        let found = false;
-        console.log(`\nSearching for: ${email}`);
+        console.log(`\nActivating PRO for: ${email}`);
+        try {
+            const user = await auth.getUserByEmail(email);
+            const uid = user.uid;
+            console.log(`User found: UID = ${uid}`);
 
-        for (const userDoc of usersSnapshot.docs) {
-            const userId = userDoc.id;
+            // 1. Set Custom Claims
+            await auth.setCustomUserClaims(uid, { isPro: true });
+            console.log(`Custom claim { isPro: true } set.`);
 
-            // Try common subcollections / documents
-            const subDocs = ['personalData', 'info', 'subscriptionData'];
+            // 2. Set Firestore subscriptionData
+            const expiry = new Date();
+            expiry.setMonth(expiry.getMonth() + 1);
 
-            for (const docName of subDocs) {
-                const doc = await db.collection('users').doc(userId).collection('data').doc(docName).get();
-                if (doc.exists) {
-                    const data = doc.data();
-                    const foundEmail = (data.email || data.info?.email || data.personalData?.email)?.toLowerCase();
+            await db.collection('users').doc(uid).collection('data').doc('subscriptionData').set({
+                status: 'active',
+                expiry: String(expiry.getTime()),
+                updatedAt: Date.now(),
+                provider: 'manual_activation',
+                manualActivation: true
+            }, { merge: true });
 
-                    if (foundEmail === email.toLowerCase()) {
-                        console.log(`MATCH! Found in user ${userId}, doc ${docName}`);
-
-                        const expiry = new Date();
-                        expiry.setMonth(expiry.getMonth() + 1);
-
-                        await db.collection('users').doc(userId).collection('data').doc('subscriptionData').set({
-                            status: 'active',
-                            expiry: String(expiry.getTime()),
-                            updatedAt: Date.now(),
-                            manualActivation: true
-                        }, { merge: true });
-
-                        console.log(`SUCCESS: ${email} activated.`);
-                        found = true;
-                        break;
-                    }
-                }
-            }
-            if (found) break;
+            console.log(`SUCCESS: ${email} is now PRO until ${expiry.toLocaleDateString()}`);
+        } catch (error) {
+            console.error(`Error activating ${email}:`, error.message);
         }
-        if (!found) console.log(`NOT FOUND: ${email}`);
     }
 }
 
-const db = await initialize();
 const targetEmails = process.argv.slice(2);
-await searchDeep(db, targetEmails);
+if (targetEmails.length === 0) {
+    console.log("Usage: node scripts/activate-pro.js email@example.com");
+    process.exit(1);
+}
+await activate(targetEmails);
 process.exit(0);
+

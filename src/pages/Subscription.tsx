@@ -31,8 +31,8 @@ export default function Subscription(): React.ReactElement | null {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const paymentStatus = urlParams.get('status');
-    const payment_id = urlParams.get('payment_id');
+    const paymentStatus = urlParams.get('status') || urlParams.get('collection_status');
+    const payment_id = urlParams.get('payment_id') || urlParams.get('collection_id');
     const session_id = urlParams.get('session_id');
     const subData = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
 
@@ -52,13 +52,23 @@ export default function Subscription(): React.ReactElement | null {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ payment_id, session_id })
+          body: JSON.stringify({ payment_id, collection_id: payment_id, session_id })
         })
           .then((res) => res.json())
           .then((data) => {
             if (data.success) {
+              const newExpiry = data.expiry || (Date.now() + 30 * 24 * 60 * 60 * 1000);
+              const updatedSub = {
+                status: 'active',
+                expiry: String(newExpiry),
+                provider: session_id ? 'stripe' : 'mercadopago',
+                updatedAt: Date.now()
+              };
+              localStorage.setItem('subscriptionData', JSON.stringify(updatedSub));
               setIsSubscribed(true);
+              setExpiryDate(new Date(newExpiry));
               toast.success('¡Suscripción activada con éxito!');
+              window.dispatchEvent(new Event('storage'));
               return currentUser.getIdToken(true);
             } else {
               toast.error('Hubo un error verificando el pago. Contacta soporte.');

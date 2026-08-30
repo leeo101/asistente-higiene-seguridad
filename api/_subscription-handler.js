@@ -1,6 +1,6 @@
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 import { Resend } from 'resend';
-import { getGoogleAccessToken } from './_googleAuth.js';
+import { getGoogleAccessToken, setFirebaseCustomClaims, getFirebaseUidByEmail } from './_googleAuth.js';
 import { setCorsHeaders } from './_cors.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -12,13 +12,13 @@ export default async function handler(req, res) {
     if (!corsOk) return;
 
     if (req.method === 'OPTIONS') {
-        res.status(200).end()
-        return
+        res.status(200).end();
+        return;
     }
 
     const { query } = req;
-    const topic = query.topic || query.type;
-    const webhookId = query.id || (req.body && req.body.data && req.body.data.id);
+    const topic = query.topic || query.type || req.body?.type || req.body?.topic || (req.body?.action && req.body.action.startsWith('payment') ? 'payment' : null);
+    const webhookId = query.id || query['data.id'] || (req.body && req.body.data && req.body.data.id) || (req.body && req.body.id);
 
     // DISTINGUISH BETWEEN WEBHOOK AND CREATE PREFERENCE
     if (webhookId || topic) {
@@ -26,13 +26,26 @@ export default async function handler(req, res) {
         try {
             console.log(`Webhook received: Topic=${topic}, ID=${webhookId}`);
 
-            if (topic === 'payment' || topic === 'payment.created' || topic === 'payment.updated') {
+            if (!topic || topic === 'payment' || topic === 'payment.created' || topic === 'payment.updated' || String(topic).includes('payment')) {
+                if (!webhookId) {
+                    return res.status(200).send('No ID');
+                }
                 const payment = new Payment(client);
                 const paymentData = await payment.get({ id: webhookId });
 
                 if (paymentData.status === 'approved') {
-                    const userId = paymentData.external_reference;
-                    console.log(`Payment approved for user: ${userId}`);
+                    let userId = paymentData.external_reference;
+                    console.log(`Payment approved for external_reference: ${userId}`);
+
+                    // Si no vino external_reference o vino 'guest', buscar UID por email del pagador
+                    if (!userId || userId === 'guest') {
+                        const payerEmail = paymentData.payer?.email || paymentData.additional_info?.payer?.email;
+                        if (payerEmail) {
+                            console.log(`Searching Firebase UID for payer email: ${payerEmail}`);
+                            userId = await getFirebaseUidByEmail(payerEmail);
+                            console.log(`Found UID: ${userId}`);
+                        }
+                    }
 
                     if (userId && userId !== 'guest') {
                         const projectId = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY).project_id;
@@ -58,13 +71,14 @@ export default async function handler(req, res) {
                         const newExpiry = String(baseDate.getTime());
 
                         // 3. Update subscription data via REST
-                        const patchUrl = `${firestoreUrl}?updateMask.fieldPaths=status&updateMask.fieldPaths=expiry&updateMask.fieldPaths=updatedAt&updateMask.fieldPaths=lastPaymentId`;
+                        const patchUrl = `${firestoreUrl}?updateMask.fieldPaths=status&updateMask.fieldPaths=expiry&updateMask.fieldPaths=updatedAt&updateMask.fieldPaths=lastPaymentId&updateMask.fieldPaths=provider`;
                         const payload = {
                             fields: {
                                 status: { stringValue: 'active' },
                                 expiry: { stringValue: newExpiry },
                                 updatedAt: { integerValue: String(Date.now()) },
-                                lastPaymentId: { stringValue: String(webhookId) }
+                                lastPaymentId: { stringValue: String(webhookId) },
+                                provider: { stringValue: 'mercadopago' }
                             }
                         };
 
@@ -77,6 +91,9 @@ export default async function handler(req, res) {
                             body: JSON.stringify(payload)
                         });
 
+                        // 4. Update Custom Claims in Firebase Auth
+                        await setFirebaseCustomClaims(userId, { isPro: true });
+
                         console.log(`User ${userId} updated to PRO until ${new Date(parseInt(newExpiry, 10)).toLocaleDateString()}`);
                     }
                 }
@@ -84,7 +101,6 @@ export default async function handler(req, res) {
             return res.status(200).send('OK');
         } catch (error) {
             console.error('Webhook error:', error);
-            // Mercado Pago expects a 200/201 even on errors sometimes to stop retrying if it's a code error
             return res.status(200).send('Error processed');
         }
     } else {
