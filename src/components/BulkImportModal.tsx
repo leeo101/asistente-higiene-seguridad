@@ -73,9 +73,28 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({ isOpen, onClos
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-white/20 transition-colors text-white"
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.2)',
+              border: '1.5px solid rgba(255,255,255,0.35)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              fontSize: '1.1rem',
+              fontWeight: 900,
+              lineHeight: 1,
+              transition: 'all 0.2s',
+              flexShrink: 0,
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.35)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.2)')}
+            title="Cerrar"
           >
-            <X className="w-5 h-5" />
+            ✕
           </button>
         </div>
 

@@ -88,6 +88,42 @@ export default function ConfirmModal({
         transition={{ type: 'spring', damping: 22, stiffness: 320 }}
         onClick={(e) => e.stopPropagation()} className="bg-[var(--color-surface,_#ffffff)] rounded-[28px] p-[2.5rem_2rem] max-w-[400px] w-[100%] box-shadow-[0_32px_64px_-12px_rgba(0,0,0,0.35),_0_0_0_1px_rgba(255,255,255,0.08)] text-center relative">
 
+        {/* Botón X cerrar — siempre visible */}
+        <button
+          onClick={onClose}
+          title="Cerrar"
+          style={{
+            position: 'absolute',
+            top: '1rem',
+            right: '1rem',
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            background: 'var(--color-background, #f1f5f9)',
+            border: '1.5px solid var(--color-border, #e2e8f0)',
+            color: 'var(--color-text-muted, #64748b)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            fontSize: '1.1rem',
+            fontWeight: 900,
+            transition: 'all 0.2s',
+            lineHeight: 1,
+            zIndex: 10,
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLButtonElement).style.background = 'var(--color-border, #e2e8f0)';
+            (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-text, #1e293b)';
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLButtonElement).style.background = 'var(--color-background, #f1f5f9)';
+            (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-text-muted, #64748b)';
+          }}
+        >
+          ✕
+        </button>
+
 
 
 
@@ -137,14 +173,8 @@ export default function ConfirmModal({
 
 
 
-
-
-
-
-
-
             onMouseEnter={(e) => {e.currentTarget.style.background = 'var(--color-border, #e2e8f0)';}}
-            onMouseLeave={(e) => {e.currentTarget.style.background = 'var(--color-background, #f1f5f9)';}} className="flex-[1] p-[0.9rem] rounded-[14px] bg-[var(--color-background,_#f1f5f9)] border-[1.5px_solid_var(--color-border,_#e2e8f0)] cursor-pointer font-[800] text-[0.95rem] text-[var(--color-text,_#334155)] transition-[all_0.18s]">
+            onMouseLeave={(e) => {e.currentTarget.style.background = 'var(--color-background, #f1f5f9)';}} className="flex-[1] p-[0.9rem] rounded-[14px] bg-[var(--color-background,_#f1f5f9)] border-[1.5px_solid_var(--color-border,_#e2e8f0)] cursor-pointer font-[800] text-[0.95rem] text-[var(--color-text,_#334155)] transition-[all_0.18s] min-h-[48px]">
             
                                 {cancelText}
                             </button>
@@ -165,7 +195,7 @@ export default function ConfirmModal({
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = '';
               e.currentTarget.style.boxShadow = `0 8px 20px ${themeColor}45`;
-            }} className="flex-[1] p-[0.9rem] rounded-[14px] border-none cursor-pointer font-[800] text-[0.95rem] text-[#ffffff] transition-[all_0.18s]">
+            }} className="flex-[1] p-[0.9rem] rounded-[14px] border-none cursor-pointer font-[800] text-[0.95rem] text-[#ffffff] transition-[all_0.18s] min-h-[48px]">
             
                                 {confirmText}
                             </button>

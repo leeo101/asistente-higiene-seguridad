@@ -96,7 +96,7 @@ export default function SubscriptionRenewalBanner() {
         </div>
 
         {/* Botones de Acción y Cruz para Cerrar */}
-        <div className="flex items-center gap-3 w-full sm:w-auto shrink-0 justify-end">
+        <div className="flex items-center gap-3 w-full sm:w-auto shrink-0 justify-center sm:justify-end">
           <button
             type="button"
             onClick={() => navigate('/subscribe')}
@@ -119,7 +119,7 @@ export default function SubscriptionRenewalBanner() {
             <Sparkles size={16} /> Renovar por $2 USD <ArrowRight size={14} />
           </button>
 
-          {/* Cruz bien visible */}
+          {/* Cruz circular bien visible */}
           <button
             type="button"
             onClick={handleDismiss}
@@ -127,18 +127,24 @@ export default function SubscriptionRenewalBanner() {
             style={{
               backgroundColor: '#334155',
               color: '#ffffff',
-              border: '1px solid #64748b',
-              borderRadius: '10px',
-              width: '36px',
-              height: '36px',
+              border: '1.5px solid #64748b',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              transition: 'background-color 0.2s'
+              fontSize: '1.1rem',
+              fontWeight: 900,
+              lineHeight: 1,
+              transition: 'all 0.2s',
+              flexShrink: 0,
             }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#475569')}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#334155')}
           >
-            <X size={20} color="#ffffff" />
+            ✕
           </button>
         </div>
 

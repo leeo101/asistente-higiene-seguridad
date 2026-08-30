@@ -22,6 +22,7 @@ import AnimatedPage from '../components/AnimatedPage';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { usePaywall } from '../hooks/usePaywall';
 
 interface Asset {
   id: string;
@@ -35,6 +36,17 @@ interface Asset {
 
 export default function AssetQRScanner() {
   const navigate = useNavigate();
+  const { isPro, loading } = usePaywall();
+
+  // Bloqueo PRO — solo usuarios con suscripción activa pueden usar el Escáner QR
+  useEffect(() => {
+    if (!loading && !isPro) {
+      window.dispatchEvent(new CustomEvent('show-paywall'));
+      navigate('/');
+    }
+  }, [isPro, loading, navigate]);
+
+
   const [assets, setAssets] = useState<Asset[]>(() => {
     try {
       const saved = localStorage.getItem('ehs_assets');

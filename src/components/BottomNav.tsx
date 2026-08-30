@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { House, ShieldCheck, Robot, ChartPieSlice, List } from '@phosphor-icons/react';
+import { House, ShieldCheck, Robot, ChartPieSlice, List, ChatText } from '@phosphor-icons/react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface BottomNavProps {
@@ -42,7 +42,7 @@ export default function BottomNav({ onMenuClick }: BottomNavProps): React.ReactE
 
   const navItems = [
     { to: '/', icon: <House size={22} weight={location.pathname === '/' ? 'fill' : 'regular'} />, label: 'Inicio' },
-    { to: '/ats', icon: <ShieldCheck size={22} weight={location.pathname.includes('/ats') ? 'fill' : 'regular'} />, label: 'ATS' },
+    { to: '/mensajes', icon: <ChatText size={22} weight={location.pathname.includes('/mensajes') || location.pathname.includes('/chat') ? 'fill' : 'regular'} />, label: 'Mensajería' },
     { to: '/ai-advisor', icon: <Robot size={22} weight={location.pathname.includes('/ai-advisor') ? 'fill' : 'regular'} />, label: 'Asesor IA' },
     { to: '/dashboard', icon: <ChartPieSlice size={22} weight={location.pathname === '/dashboard' ? 'fill' : 'regular'} />, label: 'KPIs' },
   ];

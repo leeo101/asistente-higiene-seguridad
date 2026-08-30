@@ -38,16 +38,13 @@ const navItems: NavItem[] = [
 { to: '/', icon: <House weight="duotone" size={20} />, label: 'Inicio', always: true },
 { to: '/security-trust', icon: <ShieldCheck weight="duotone" size={20} color="#10b981" />, label: 'Seguridad & Trust Enterprise', always: true },
 { to: '/asset-scanner', icon: <DeviceMobile weight="duotone" size={20} color="#0ea5e9" />, label: 'Escáner QR Activos', always: true },
-{ to: '/chat', icon: <ChatText weight="duotone" size={20} color="#3b82f6" />, label: 'Mensajería & Red HyS', auth: true },
 { to: '/calendar', icon: <CalendarBlank weight="duotone" size={20} />, label: 'Calendario', always: true },
 { to: '/settings', icon: <GearSix weight="duotone" size={20} />, label: 'Configuración', auth: true },
 { to: '/dashboard', icon: <ChartPieSlice weight="duotone" size={20} color="#10b981" />, label: 'Dashboard', auth: true },
-{ to: '/contractors', icon: <Users weight="duotone" size={20} color="#3b82f6" />, label: 'Contratistas', auth: true },
 { to: '/logo-settings', icon: <ImageIconPh weight="duotone" size={20} />, label: 'Logo de Empresa', auth: true },
 { to: '/profile', icon: <User weight="duotone" size={20} />, label: 'Mi Perfil', auth: true },
 { to: '/privacy', icon: <ShieldCheck weight="duotone" size={20} />, label: 'Privacidad', always: true },
-{ to: '/management-report', icon: <ChartBar weight="duotone" size={20} color="#8b5cf6" />, label: 'Reporte Mensual', auth: true },
-{ to: '/worker-portal', icon: <User weight="duotone" size={20} color="#3b82f6" />, label: 'Portal del Trabajador', auth: true }];
+{ to: '/management-report', icon: <ChartBar weight="duotone" size={20} color="#8b5cf6" />, label: 'Reporte Mensual', auth: true }];
 
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactElement {

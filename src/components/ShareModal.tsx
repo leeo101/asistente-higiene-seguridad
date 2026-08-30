@@ -384,12 +384,10 @@ export default function ShareModal({
           onClick={onClose}
           className="share-close-btn"
           title="Cerrar">
-          
-                    <X size={16} strokeWidth={3} />
+                    ✕
                 </button>
 
                 <div className="share-modal-content">
-                    {/* Drag handle indicator for mobile - hidden by default, can be shown in CSS if needed but we want it centered now */}
                     <div className="share-drag-handle" />
 
                     <div className="share-header">
@@ -397,11 +395,6 @@ export default function ShareModal({
                             <img
                 src="/logo.png"
                 alt="Logo"
-
-
-
-
-
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
                   const parent = (e.target as HTMLImageElement).parentElement;
@@ -546,21 +539,28 @@ export default function ShareModal({
                     }
                     .share-close-btn {
                         position: absolute;
-                        top: 1.25rem;
-                        right: 1.25rem;
+                        top: 1rem;
+                        right: 1rem;
                         background: #ef4444;
                         border: none;
-                        border-radius: 12px;
-                        width: 32px;
-                        height: 32px;
+                        border-radius: 50%;
+                        width: 40px;
+                        height: 40px;
                         cursor: pointer;
                         color: #ffffff;
                         display: flex;
                         align-items: center;
                         justify-content: center;
                         z-index: 10;
-                        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+                        box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
                         transition: all 0.2s;
+                        font-size: 1.1rem;
+                        font-weight: 900;
+                    }
+                    .share-close-btn:hover {
+                        background: #dc2626;
+                        transform: scale(1.1);
+                        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
                     }
                     .share-header {
                         text-align: center;
@@ -694,7 +694,7 @@ export default function ShareModal({
                     }
                     @media (max-width: 767px) {
                         .share-modal-overlay {
-                            align-items: flex-end;
+                            align-items: center;
                             padding: 1rem;
                         }
                         .share-modal-container {
@@ -702,26 +702,27 @@ export default function ShareModal({
                             width: 100%;
                         }
                         .share-modal-content {
-                            border-radius: 28px;
-                            max-height: 85vh;
+                            border-radius: 24px;
+                            max-height: 90vh;
                             padding: 1.5rem 1.25rem;
                             border-bottom: 1px solid rgba(255,255,255,0.1);
-                            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                            animation: fadeInScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
                         }
                         .share-drag-handle {
                             display: none;
                         }
                         .share-close-btn {
                             position: absolute;
-                            top: 0.5rem;
-                            right: 0.5rem;
-                            width: 38px;
-                            height: 38px;
+                            top: 0.75rem;
+                            right: 0.75rem;
+                            width: 44px;
+                            height: 44px;
                             background: #ef4444;
                             color: #ffffff;
                             border-radius: 50%;
                             z-index: 999999;
-                            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
+                            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.5);
+                            font-size: 1.15rem;
                         }
                         .share-header {
                             margin-bottom: 1rem;
@@ -747,8 +748,12 @@ export default function ShareModal({
                         }
                         .mobile-safe-area {
                             display: block;
-                            height: env(safe-area-inset-bottom, 15px);
+                            height: env(safe-area-inset-bottom, 12px);
                         }
+                    }
+                    @keyframes fadeInScale {
+                        from { opacity: 0; transform: scale(0.93); }
+                        to { opacity: 1; transform: scale(1); }
                     }
                 `}</style>
             </div>

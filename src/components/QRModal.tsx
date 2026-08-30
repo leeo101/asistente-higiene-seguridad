@@ -89,36 +89,38 @@ export default function QRModal({ text, title = 'Código QR', details, onClose }
         style={{ maxHeight: 'calc(100vh - 2rem)' }}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Botón X — fuera del área imprimible, siempre visible */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '0.75rem',
+            right: '0.75rem',
+            width: '44px',
+            height: '44px',
+            borderRadius: '50%',
+            backgroundColor: '#ef4444',
+            color: '#ffffff',
+            border: '2px solid #ffffff',
+            boxShadow: '0 4px 14px rgba(239, 68, 68, 0.45)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 900,
+            fontSize: '1.15rem',
+            lineHeight: 1,
+            zIndex: 100,
+            transition: 'all 0.2s',
+          }}
+          className="no-print hover:scale-110 hover:bg-red-700 active:scale-95 transition-all"
+          title="Cerrar ventana"
+        >
+          ✕
+        </button>
+
         {/* Printable Area */}
         <div id="printable-qr-label" className="p-6 pt-8 flex flex-col items-center bg-white border-b border-dashed border-slate-200 overflow-y-auto relative flex-1">
-          
-          {/* Prominent Forced Close Button (X) */}
-          <button
-            onClick={onClose}
-            style={{
-              position: 'absolute',
-              top: '0.75rem',
-              right: '0.75rem',
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
-              backgroundColor: '#ef4444',
-              color: '#ffffff',
-              border: '2px solid #ffffff',
-              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.4)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 900,
-              fontSize: '1.1rem',
-              zIndex: 50
-            }}
-            className="no-print hover:scale-110 active:scale-95 transition-all"
-            title="Cerrar ventana"
-          >
-            ✕
-          </button>
 
           {/* Header */}
           <div className="w-full text-center border-b-2 border-slate-900 pb-3 mb-4 mt-2 px-8">

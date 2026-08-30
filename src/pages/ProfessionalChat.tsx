@@ -53,7 +53,15 @@ const DEFAULT_REGISTERED_USERS: Colleague[] = [
 export default function ProfessionalChat(): React.ReactElement {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const { isPro, requirePro } = usePaywall();
+  const { isPro, loading, requirePro } = usePaywall();
+
+  // Bloqueo PRO — solo usuarios con suscripción activa pueden usar la Mensajería
+  useEffect(() => {
+    if (!loading && !isPro) {
+      window.dispatchEvent(new CustomEvent('show-paywall'));
+      navigate('/');
+    }
+  }, [isPro, loading, navigate]);
 
   // Vista móvil ('contacts' o 'chat')
   const [mobileView, setMobileView] = useState<'contacts' | 'chat'>('contacts');

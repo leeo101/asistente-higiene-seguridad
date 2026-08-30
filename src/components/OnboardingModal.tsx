@@ -80,15 +80,31 @@ export default function OnboardingModal({ onClose }: OnboardingModalProps) {
 
 
           
-                    <button onClick={onClose} className="absolute top-[1rem] right-[1rem] bg-[rgba(255,255,255,0.15)] border-none rounded-[50%] w-[32px] h-[32px] p-[0] flex items-center justify-center cursor-pointer text-[#ffffff]">
-
-
-
-
-
-            
-                        <X size={16} />
-                    </button>
+                    <button onClick={onClose} style={{
+              position: 'absolute',
+              top: '1rem',
+              right: '1rem',
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.2)',
+              border: '1.5px solid rgba(255,255,255,0.35)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              fontSize: '1.1rem',
+              fontWeight: 900,
+              lineHeight: 1,
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.35)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.2)')}
+            title="Cerrar"
+          >
+            ✕
+          </button>
                     <p className="text-[rgba(255,255,255,0.7)] text-[0.8rem] font-[600] m-[0_0_0.4rem] letter-spacing-[1px] uppercase">
                         ¡Bienvenido!
                     </p>
