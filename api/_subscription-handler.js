@@ -1,7 +1,7 @@
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 import { Resend } from 'resend';
 import { getGoogleAccessToken, setFirebaseCustomClaims, getFirebaseUidByEmail } from './_googleAuth.js';
-import { setCorsHeaders } from './_cors.js';
+import { setCorsHeaders, verifyToken } from './_verifyToken.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
@@ -109,8 +109,14 @@ export default async function handler(req, res) {
             return res.status(405).json({ error: 'Method Not Allowed' });
         }
 
+        // 🔐 Requiere autenticación de usuario para crear preferencia de cobro
+        const user = await verifyToken(req, res);
+        if (!user) return;
+
         try {
-            const { userId, email, planId } = req.body || {};
+            const { planId } = req.body || {};
+            const userId = user.uid;
+            const email = user.email || req.body?.email;
 
             let amount = 2.00;
             let planTitle = 'Asistente H&S – Plan Profesional (Acceso Total)';

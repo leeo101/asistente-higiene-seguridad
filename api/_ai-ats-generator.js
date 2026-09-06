@@ -20,9 +20,15 @@ export default async function handler(req, res) {
     if (!user) return;
 
     try {
-
         const { taskTitle } = req.body;
-        if (!taskTitle) return res.status(400).json({ error: 'Falta el título de la tarea' });
+        if (!taskTitle || typeof taskTitle !== 'string' || !taskTitle.trim()) {
+            return res.status(400).json({ error: 'Falta el título de la tarea' });
+        }
+
+        // 🛡️ Seguridad anti-gasto: limitar longitud a 500 caracteres
+        if (taskTitle.length > 500) {
+            return res.status(400).json({ error: 'El título de la actividad no puede superar los 500 caracteres.' });
+        }
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });

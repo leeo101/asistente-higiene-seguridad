@@ -195,6 +195,13 @@ export default function ErgonomicsForm(): React.ReactElement | null {
             title={editData ? 'Editar Estudio Ergonómico' : 'Nuevo Estudio Ergonómico'}
             subtitle="Protocolo Res. SRT 886/15"
             icon={<Accessibility size={36} color="#ffffff" />}
+            steps={['Datos Generales', 'Factores de Riesgo', 'NIOSH y Conclusión']}
+            currentStep={step}
+            onStepClick={(s) => {
+              setStep(s);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onBack={() => navigate('/ergonomics')}
         />
 
             <div className="my-6 z-10 no-print">
@@ -202,15 +209,6 @@ export default function ErgonomicsForm(): React.ReactElement | null {
             </div>
 
         <ModuleFormDocument>
-            {/* Stepper Header */}
-            <div className="flex justify-between mb-8 relative">
-                <div className="absolute top-[15px] left-0 w-full h-[2px] bg-slate-200 dark:bg-slate-700 z-0"></div>
-                {[1, 2, 3].map((s) =>
-        <div key={s} className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold text-sm z-10 transition-colors ${step >= s ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500"}`}>
-                        {s}
-                    </div>
-        )}
-            </div>
 
             {step === 1 &&
       <ModuleFormSection title="Datos Generales" icon={<Building2 />}>

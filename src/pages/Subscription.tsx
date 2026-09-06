@@ -95,12 +95,14 @@ export default function Subscription(): React.ReactElement | null {
 
     setLoading(true);
     try {
+      const idToken = await currentUser.getIdToken();
       const response = await fetch(`${API_BASE_URL}/api/create-stripe-subscription`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
         body: JSON.stringify({
-          userId: currentUser?.uid,
-          email: currentUser?.email,
           planId: selectedPlan
         })
       });
@@ -139,12 +141,14 @@ export default function Subscription(): React.ReactElement | null {
 
     setLoading(true);
     try {
+      const idToken = await currentUser.getIdToken();
       const response = await fetch(`${API_BASE_URL}/api/create-subscription`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
         body: JSON.stringify({
-          userId: currentUser?.uid,
-          email: currentUser?.email,
           planId: selectedPlan
         })
       });

@@ -111,8 +111,8 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
   if (boxes.length === 0) return null;
 
   return (
-    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="pdf-signatures-wrapper avoid-break break-inside-avoid w-full block mt-4 border-t-2 border-slate-300 pt-4 pb-2 text-center">
-      <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break break-inside-avoid flex justify-center items-stretch w-full gap-4 flex-wrap sm:flex-nowrap">
+    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="pdf-signatures-wrapper avoid-break avoid-break-strictly break-inside-avoid w-full block mt-4 border-t-2 border-slate-300 pt-4 pb-2 text-center">
+      <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break avoid-break-strictly break-inside-avoid flex justify-center items-stretch w-full gap-4 flex-wrap sm:flex-nowrap">
         {boxes.map((box, idx) => {
           const isPro = box.isProfessional;
           const borderCol = isPro ? '#86efac' : '#cbd5e1';
@@ -133,7 +133,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                 borderColor: borderCol,
                 backgroundColor: bgCol,
               }}
-              className={`avoid-break break-inside-avoid p-3 text-center rounded-xl border-2 shadow-xs relative min-w-[190px] max-w-[280px] box-border ${
+              className={`avoid-break avoid-break-strictly break-inside-avoid p-3 text-center rounded-xl border-2 shadow-xs relative min-w-[190px] max-w-[280px] box-border ${
                 isPro ? 'ring-1 ring-emerald-400' : ''
               }`}
             >
@@ -159,7 +159,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                 )}
                 {!hasSig && !hasStamp && (
                   <div className="h-[45px] w-full flex flex-col items-center justify-center border-b border-slate-400 border-dashed">
-                    <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">
+                    <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest leading-none">
                       Firma / Sello
                     </span>
                   </div>
@@ -173,12 +173,12 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                 {box.subtitle}
               </p>
               {isPro && (box.profession || actTitle) && (
-                <p className="m-0 text-[9px] font-extrabold text-emerald-800 uppercase tracking-tight">
+                <p className="m-0 text-[9px] font-extrabold text-emerald-800 uppercase tracking-tight leading-tight">
                   {box.profession || actTitle}
                 </p>
               )}
               {box.license && (
-                <div className="mt-1 inline-block px-2.5 py-0.5 bg-emerald-700 text-white rounded font-black text-[10px] tracking-wider uppercase shadow-xs">
+                <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: '1', verticalAlign: 'middle', marginTop: '4px', padding: '3px 10px', backgroundColor: '#15803d', color: '#ffffff', borderRadius: '4px', fontWeight: 900, fontSize: '10px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                   Mat. N° {box.license}
                 </div>
               )}
@@ -188,7 +188,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
       </div>
 
       {/* Footer de verificación QR */}
-      <div className="mt-3 pt-2 border-t border-dashed border-slate-300 flex items-center justify-between px-2 avoid-break break-inside-avoid">
+      <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="mt-3 pt-2 border-t border-dashed border-slate-300 flex items-center justify-between px-2 avoid-break avoid-break-strictly break-inside-avoid">
         <div className="flex items-center gap-2 text-left">
           <div className="w-8 h-8 bg-slate-100 border border-slate-300 rounded p-0.5 flex items-center justify-center shrink-0">
             <img
@@ -197,16 +197,16 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
               className="w-full h-full object-contain"
             />
           </div>
-          <div>
-            <div className="text-[10px] font-black text-slate-800 uppercase tracking-wider">
-              🔒 VERIFICACIÓN DIGITAL H&amp;S
+          <div className="flex flex-col justify-center">
+            <div className="text-[10px] font-black text-slate-800 uppercase tracking-wider leading-tight flex items-center gap-1">
+              <span>🔒</span> <span>VERIFICACIÓN DIGITAL H&amp;S</span>
             </div>
-            <div className="text-[9px] text-slate-500 font-bold">
+            <div className="text-[9px] text-slate-500 font-bold leading-tight">
               Escaneá el código QR para validar la autenticidad del documento.
             </div>
           </div>
         </div>
-        <div className="text-right text-[9px] text-slate-500 font-extrabold">
+        <div className="text-right text-[9px] text-slate-500 font-extrabold flex items-center">
           DOCUMENTO AUDITADO · NORMA ISO 45001
         </div>
       </div>

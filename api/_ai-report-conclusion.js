@@ -20,9 +20,14 @@ export default async function handler(req, res) {
     if (!user) return;
 
     try {
-
         const { reportType, reportData } = req.body;
         if (!reportType || !reportData) return res.status(400).json({ error: 'Faltan datos del reporte' });
+
+        // 🛡️ Seguridad anti-gasto: limitar tamaño de datos enviados
+        const dataStr = typeof reportData === 'string' ? reportData : JSON.stringify(reportData);
+        if (dataStr.length > 10000) {
+            return res.status(400).json({ error: 'Los datos del reporte exceden el límite permitido (10KB).' });
+        }
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });

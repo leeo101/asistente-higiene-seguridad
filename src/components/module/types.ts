@@ -9,6 +9,7 @@ export interface ModuleAction {
   onClick: (e: MouseEvent<HTMLButtonElement>) => void;
   variant?: ModuleActionVariant;
   disabled?: boolean;
+  loading?: boolean;
   hideOnMobile?: boolean;
 }
 

@@ -20,9 +20,15 @@ export default async function handler(req, res) {
     if (!user) return;
 
     try {
-
         const { ley } = req.body;
-        if (!ley) return res.status(400).json({ error: 'Faltan datos de la normativa' });
+        if (!ley || typeof ley !== 'string' || !ley.trim()) {
+            return res.status(400).json({ error: 'Faltan datos de la normativa' });
+        }
+
+        // 🛡️ Seguridad anti-gasto: limitar longitud a 1.000 caracteres
+        if (ley.length > 1000) {
+            return res.status(400).json({ error: 'El nombre o texto de la normativa no puede superar los 1.000 caracteres.' });
+        }
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'Falta API Key' });

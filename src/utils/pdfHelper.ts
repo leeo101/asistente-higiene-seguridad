@@ -156,6 +156,23 @@ export async function printElementAsDocument(
       background: #ffffff;
       font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
     }
+    tr, td, th,
+    .avoid-break,
+    .avoid-break-strictly,
+    .break-inside-avoid,
+    .pdf-signatures-wrapper,
+    .pdf-signatures-container,
+    .pdf-brand-container,
+    .signature-block,
+    .ext-row,
+    .hazard-row,
+    [data-avoid-break] {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    thead { display: table-header-group !important; }
+    tfoot { display: table-footer-group !important; }
+    table { page-break-inside: auto !important; }
     ${pageCss}
   </style>
 </head>
@@ -303,48 +320,94 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
       });
     };
 
-    // ── Inyectar CSS de soporte para saltos de página ─────────────────────────
+    // ── Patch 3: Limpiar alturas mínimas artificiales y max-heights en el clon ────
+    clone.querySelectorAll('*').forEach((el: Element) => {
+      const htmlEl = el as HTMLElement;
+      // Remover min-h-[297mm] y min-h-screen en los hijos para evitar espacios en blanco o desfasajes
+      if (htmlEl.className && typeof htmlEl.className === 'string') {
+        if (htmlEl.className.includes('min-h-')) {
+          htmlEl.style.setProperty('min-height', '0', 'important');
+        }
+      }
+      // Asegurar que contenedores de firmas y bloques críticos tengan break-inside avoid nativo
+      if (
+        htmlEl.matches(
+          '.pdf-signatures-wrapper, .pdf-signatures-container, .pdf-brand-container, .signature-block, .avoid-break, .avoid-break-strictly, .break-inside-avoid, tr, [data-avoid-break]'
+        )
+      ) {
+        htmlEl.style.setProperty('page-break-inside', 'avoid', 'important');
+        htmlEl.style.setProperty('break-inside', 'avoid', 'important');
+      }
+    });
+
+    // ── Inyectar CSS global de soporte para saltos de página en el clon ───────
     const injectStyle = document.createElement('style');
     injectStyle.textContent = `
-      tr, .avoid-break-strictly { page-break-inside: avoid !important; break-inside: avoid !important; }
+      tr, td, th,
+      .avoid-break,
+      .avoid-break-strictly,
+      .break-inside-avoid,
+      .pdf-signatures-wrapper,
+      .pdf-signatures-container,
+      .pdf-brand-container,
+      .signature-block,
+      .ext-row,
+      .hazard-row,
+      [data-avoid-break] {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        -webkit-column-break-inside: avoid !important;
+      }
       thead { display: table-header-group !important; }
       tfoot { display: table-footer-group !important; }
       table { page-break-inside: auto !important; }
-      .pdf-signatures-wrapper { page-break-inside: avoid !important; break-inside: avoid !important; }
+      .page-break-before, .force-page-break {
+        page-break-before: always !important;
+        break-before: page !important;
+      }
     `;
     clone.insertBefore(injectStyle, clone.firstChild);
 
-    // ── Detectar y ajustar saltos de página ───────────────────────────────────
-    const PX_PER_MM = 96 / 25.4;
-    const pdfContentHeightMM = (isLandscape ? 210 : 297) - 20; // margen top+bottom 10mm × 2
-    const pageContentHeightPx = pdfContentHeightMM * PX_PER_MM;
+    // ── Detectar y ajustar saltos de página calibrados con html2pdf ──────────
+    // Dimensiones de corte exactas de html2pdf:
+    // inner.width = pageSize.width - margin.left - margin.right = 210 - 20 = 190mm (portrait)
+    // inner.height = pageSize.height - margin.top - margin.bottom = 297 - 20 = 277mm (portrait)
+    // ratio = inner.height / inner.width
+    // pxPageHeight = Math.floor(targetWidth * ratio)
+    const pageInnerWidthMM = (isLandscape ? 297 : 210) - 20;
+    const pageInnerHeightMM = (isLandscape ? 210 : 297) - 20;
+    const exactPageRatio = pageInnerHeightMM / pageInnerWidthMM;
+    const exactPxPageHeight = Math.floor(targetWidth * exactPageRatio);
 
     const cloneRect = clone.getBoundingClientRect();
     const avoidEls = Array.from(clone.querySelectorAll(
-      '.pdf-signatures-wrapper, .pdf-signatures-container, .pdf-brand-container, .signature-block, .avoid-break-strictly, .ext-row'
+      '.pdf-signatures-wrapper, .pdf-signatures-container, .pdf-brand-container, .signature-block, .avoid-break-strictly, .avoid-break, .break-inside-avoid, .ext-row, [data-avoid-break]'
     )).filter(el => {
       let p = el.parentElement;
       while (p && p !== clone) {
-        if (p.matches('.pdf-signatures-wrapper, .pdf-signatures-container, .pdf-brand-container, .signature-block, .avoid-break-strictly, .ext-row')) return false;
+        if (p.matches('.pdf-signatures-wrapper, .pdf-signatures-container, .pdf-brand-container, .signature-block, .avoid-break-strictly, .avoid-break, .break-inside-avoid, .ext-row, [data-avoid-break]')) return false;
         p = p.parentElement;
       }
       return true;
     });
 
-    if (cloneRect.height > pageContentHeightPx + 20) {
+    if (cloneRect.height > exactPxPageHeight + 20) {
       for (const el of avoidEls) {
         const htmlEl = el as HTMLElement;
         const rect = htmlEl.getBoundingClientRect();
-        const topPx = rect.top - cloneRect.top;
+        const currentCloneRect = clone.getBoundingClientRect();
+        const topPx = rect.top - currentCloneRect.top;
         const heightPx = rect.height;
-        if (topPx > 0 && heightPx > 0 && heightPx < pageContentHeightPx) {
-          const pageAtTop = Math.floor(topPx / pageContentHeightPx);
-          const pageAtBottom = Math.floor((topPx + heightPx - 1) / pageContentHeightPx);
+        if (topPx > 0 && heightPx > 0 && heightPx < exactPxPageHeight) {
+          const pageAtTop = Math.floor(topPx / exactPxPageHeight);
+          const pageAtBottom = Math.floor((topPx + heightPx - 1) / exactPxPageHeight);
           if (pageAtBottom > pageAtTop) {
-            const spaceLeft = (pageAtTop + 1) * pageContentHeightPx - topPx;
-            const spacerHeight = Math.min(spaceLeft + 8, pageContentHeightPx - 20);
+            // El elemento quedaría partido al medio entre 2 páginas.
+            // Insertamos un salto limpio exactamente antes de él para moverlo íntegro a la siguiente página.
+            const spaceLeft = (pageAtTop + 1) * exactPxPageHeight - topPx;
+            const spacerHeight = Math.min(spaceLeft + 8, exactPxPageHeight - 20);
             const spacer = document.createElement('div');
-            spacer.style.cssText = `height: ${Math.round(spacerHeight)}px; display: block; visibility: hidden; width: 100%; flex-shrink: 0; clear: both;`;
+            spacer.style.cssText = `height: ${Math.round(spacerHeight)}px; display: block; visibility: hidden; width: 100%; flex-shrink: 0; clear: both; pointer-events: none;`;
             htmlEl.parentNode?.insertBefore(spacer, htmlEl);
             await new Promise(r => requestAnimationFrame(r));
           }
@@ -394,9 +457,24 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
           orientation: (isLandscape ? 'landscape' : 'portrait') as 'landscape' | 'portrait'
         },
         pagebreak: {
-          mode: ['avoid-all', 'css', 'legacy'],
+          mode: ['css', 'legacy'],
           before: ['.page-break-before', '.force-page-break'],
-          avoid: ['tr', '.avoid-break', '.avoid-break-strictly', '.pdf-signatures-wrapper']
+          avoid: [
+            'tr',
+            'td',
+            'th',
+            '.avoid-break',
+            '.avoid-break-strictly',
+            '.break-inside-avoid',
+            '.pdf-signatures-wrapper',
+            '.pdf-signatures-container',
+            '.pdf-brand-container',
+            '.signature-block',
+            '.ext-row',
+            '.hazard-row',
+            '.card',
+            '[data-avoid-break]'
+          ]
         }
       };
 

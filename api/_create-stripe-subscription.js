@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { setCorsHeaders } from './_cors.js';
+import { setCorsHeaders, verifyToken } from './_verifyToken.js';
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const stripe = stripeSecretKey ? new Stripe(stripeSecretKey) : null;
@@ -16,13 +16,19 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
+    // 🔐 Requiere usuario autenticado para evitar generación masiva de sesiones de cobro
+    const user = await verifyToken(req, res);
+    if (!user) return;
+
     if (!stripe) {
         console.error('Missing STRIPE_SECRET_KEY in environment variables');
         return res.status(500).json({ error: 'Falta configurar STRIPE_SECRET_KEY en el servidor' });
     }
 
     try {
-        const { userId, email, planId } = req.body || {};
+        const { planId } = req.body || {};
+        const userId = user.uid;
+        const email = user.email || req.body?.email;
 
         let amount = 200; // $2.00 USD default
         let planName = 'Plan Profesional (Acceso Total)';

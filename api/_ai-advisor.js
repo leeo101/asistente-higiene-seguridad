@@ -22,7 +22,17 @@ export default async function handler(req, res) {
     try {
         const { taskDescription, contextData } = req.body;
 
-        if (!taskDescription) return res.status(400).json({ error: 'Falta la descripción de la tarea' });
+        if (!taskDescription || typeof taskDescription !== 'string' || !taskDescription.trim()) {
+            return res.status(400).json({ error: 'Falta la descripción de la tarea' });
+        }
+
+        // 🛡️ Seguridad anti-gasto: limitar longitud de entrada para evitar consumo abusivo de tokens
+        if (taskDescription.length > 3000) {
+            return res.status(400).json({ error: 'La descripción de la tarea no puede superar los 3.000 caracteres.' });
+        }
+        if (contextData && typeof contextData === 'string' && contextData.length > 5000) {
+            return res.status(400).json({ error: 'El contexto de datos no puede superar los 5.000 caracteres.' });
+        }
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini (Serverless)' });

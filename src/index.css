@@ -4703,34 +4703,91 @@ html.pdf-export-mode, body.pdf-export-mode {
   display: flex;
   justify-content: space-between;
   padding: 0 4px;
-  gap: 0.25rem;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-.module-form-toolbar__step {
-  font-size: 0.65rem;
-  font-weight: 900;
+.module-form-toolbar__steps::-webkit-scrollbar {
+  display: none;
+}
+
+.module-form-toolbar__step-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 0.75rem;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--color-text-muted);
-  transition: color 0.3s;
-  text-align: center;
-  flex: 1;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
 }
 
-.module-form-toolbar__step--active {
+.module-form-toolbar__step-btn:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.08);
   color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.module-form-toolbar__step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  background: var(--color-background);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  transition: all 0.2s ease;
+}
+
+.module-form-toolbar__step-btn--current {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.module-form-toolbar__step-btn--current .module-form-toolbar__step-badge {
+  background: #3b82f6;
+  color: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+
+.module-form-toolbar__step-btn--completed {
+  color: var(--color-text);
+}
+
+.module-form-toolbar__step-btn--completed .module-form-toolbar__step-badge {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+}
+
+.module-form-toolbar__step-btn--pending {
+  opacity: 0.65;
 }
 
 @media (max-width: 640px) {
   .module-form-toolbar__steps {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.35rem 0.5rem;
+    gap: 0.35rem;
+    padding-bottom: 2px;
   }
 
-  .module-form-toolbar__step {
-    flex: 0 1 auto;
-    font-size: 0.6rem;
+  .module-form-toolbar__step-btn {
+    padding: 0.35rem 0.55rem;
+    font-size: 0.68rem;
   }
 }
 

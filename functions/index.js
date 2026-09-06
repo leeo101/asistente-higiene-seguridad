@@ -26,6 +26,37 @@ setGlobalOptions({
 });
 
 // ==========================================
+// RATE LIMITER FOR CLOUD FUNCTIONS
+// ==========================================
+const userRateLimits = new Map();
+const RATE_LIMIT_MAX_PER_MINUTE = 10;
+const RATE_WINDOW_MS = 60 * 1000;
+
+function checkRateLimit(identifier) {
+    const now = Date.now();
+    const record = userRateLimits.get(identifier);
+    if (!record || now > record.resetAt) {
+        userRateLimits.set(identifier, { count: 1, resetAt: now + RATE_WINDOW_MS });
+        return true;
+    }
+    if (record.count >= RATE_LIMIT_MAX_PER_MINUTE) {
+        return false;
+    }
+    record.count += 1;
+    return true;
+}
+
+// Clean old rate limit entries every 2 minutes
+setInterval(() => {
+    const now = Date.now();
+    for (const [key, record] of userRateLimits.entries()) {
+        if (now > record.resetAt) {
+            userRateLimits.delete(key);
+        }
+    }
+}, RATE_WINDOW_MS * 2);
+
+// ==========================================
 // MERCADO PAGO FUNCTION
 // ==========================================
 exports.createSubscription = onRequest((req, res) => {
@@ -92,14 +123,19 @@ exports.analyzeImage = onRequest({ timeoutSeconds: 300, memory: "1GiB" }, (req, 
             } catch (e) {
                 return res.status(401).json({ error: 'Token inválido' });
             }
-            // Optional: only allow PRO users
-            if (!decodedToken.isPro && !decodedToken.admin) {
-                // Allow anyway but log for monitoring
-                logger.info(`analyzeImage called by non-pro user: ${decodedToken.uid}`);
+            // 🛡️ Rate limit por usuario para evitar consumo abusivo de la API de Gemini
+            const uid = decodedToken.uid;
+            if (!checkRateLimit(uid)) {
+                return res.status(429).json({ error: 'Límite de 10 consultas por minuto alcanzado. Esperá un momento.' });
             }
 
             const { image } = req.body;
-            if (!image) return res.status(400).json({ error: 'No se envió imagen' });
+            if (!image || typeof image !== 'string') return res.status(400).json({ error: 'No se envió imagen' });
+
+            // 🛡️ Límite máximo de imagen (4MB en base64)
+            if (image.length > 4 * 1024 * 1024) {
+                return res.status(413).json({ error: 'La imagen excede el límite máximo permitido (4MB).' });
+            }
 
             const apiKey = process.env.GEMINI_API_KEY;
             if (!apiKey) return res.status(500).json({ error: 'Servicio de IA no disponible' });
@@ -184,16 +220,25 @@ exports.predictAccidents = onRequest((req, res) => {
             if (!authHeader.startsWith('Bearer ')) {
                 return res.status(401).json({ error: 'No autorizado' });
             }
+            let decodedToken;
             try {
-                await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
+                decodedToken = await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
             } catch (e) {
                 return res.status(401).json({ error: 'Token inválido' });
+            }
+
+            // 🛡️ Rate limit por usuario
+            if (!checkRateLimit(decodedToken.uid)) {
+                return res.status(429).json({ error: 'Límite de 10 consultas por minuto alcanzado. Esperá un momento.' });
             }
 
             const { historyData } = req.body;
             if (!historyData || !Array.isArray(historyData)) {
                 return res.status(400).json({ error: 'historyData array requerido' });
             }
+
+            // 🛡️ Limitar tamaño de datos para no desbordar tokens
+            const safeHistory = historyData.slice(0, 30);
 
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
 
@@ -253,14 +298,27 @@ exports.emergencyChat = onRequest((req, res) => {
             if (!authHeader.startsWith('Bearer ')) {
                 return res.status(401).json({ error: 'No autorizado' });
             }
+            let decodedToken;
             try {
-                await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
+                decodedToken = await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
             } catch (e) {
                 return res.status(401).json({ error: 'Token inválido' });
             }
 
+            // 🛡️ Rate limit por usuario
+            if (!checkRateLimit(decodedToken.uid)) {
+                return res.status(429).json({ error: 'Límite de consultas alcanzado. Por favor aguardá un minuto.' });
+            }
+
             const { message, context, companyContext } = req.body;
-            if (!message) return res.status(400).json({ error: 'Mensaje requerido' });
+            if (!message || typeof message !== 'string' || !message.trim()) {
+                return res.status(400).json({ error: 'Mensaje requerido' });
+            }
+
+            // 🛡️ Límite anti-abuso de tokens
+            if (message.length > 2000) {
+                return res.status(400).json({ error: 'El mensaje no puede superar los 2.000 caracteres.' });
+            }
 
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
 
@@ -314,14 +372,23 @@ exports.visionAts = onRequest((req, res) => {
             if (!authHeader.startsWith('Bearer ')) {
                 return res.status(401).json({ error: 'No autorizado' });
             }
+            let decodedToken;
             try {
-                await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
+                decodedToken = await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
             } catch (e) {
                 return res.status(401).json({ error: 'Token inválido' });
             }
 
+            // RATE LIMIT: max 10 calls per minute per user
+            if (!checkRateLimit(decodedToken.uid)) {
+                return res.status(429).json({ error: 'Demasiadas solicitudes. Esperá un minuto antes de reintentar.' });
+            }
+
             const { imageBase64 } = req.body;
             if (!imageBase64) return res.status(400).json({ error: 'Imagen requerida' });
+            if (typeof imageBase64 === 'string' && imageBase64.length > 4 * 1024 * 1024) {
+                return res.status(413).json({ error: 'La imagen excede el límite máximo permitido (4MB).' });
+            }
 
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key_for_build");
 
@@ -730,14 +797,23 @@ exports.analyzeGeneralRisks = onRequest({ timeoutSeconds: 300, memory: "1GiB" },
             if (!authHeader.startsWith('Bearer ')) {
                 return res.status(401).json({ error: 'No autorizado' });
             }
+            let decodedToken;
             try {
-                await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
+                decodedToken = await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
             } catch (e) {
                 return res.status(401).json({ error: 'Token inválido' });
             }
 
+            // RATE LIMIT: max 10 calls per minute per user
+            if (!checkRateLimit(decodedToken.uid)) {
+                return res.status(429).json({ error: 'Demasiadas solicitudes. Esperá un minuto antes de reintentar.' });
+            }
+
             const { image } = req.body;
             if (!image) return res.status(400).json({ error: 'No se envió imagen' });
+            if (typeof image === 'string' && image.length > 4 * 1024 * 1024) {
+                return res.status(413).json({ error: 'La imagen excede el límite máximo permitido (4MB).' });
+            }
 
             const apiKey = process.env.GEMINI_API_KEY || "dummy_key_for_build";
             const genAI = new GoogleGenerativeAI(apiKey);
@@ -795,14 +871,23 @@ exports.analyzeExtinguisher = onRequest({ timeoutSeconds: 300, memory: "1GiB" },
             if (!authHeader.startsWith('Bearer ')) {
                 return res.status(401).json({ error: 'No autorizado' });
             }
+            let decodedToken;
             try {
-                await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
+                decodedToken = await admin.auth().verifyIdToken(authHeader.split('Bearer ')[1]);
             } catch (e) {
                 return res.status(401).json({ error: 'Token inválido' });
             }
 
+            // RATE LIMIT: max 10 calls per minute per user
+            if (!checkRateLimit(decodedToken.uid)) {
+                return res.status(429).json({ error: 'Demasiadas solicitudes. Esperá un minuto antes de reintentar.' });
+            }
+
             const { image } = req.body;
             if (!image) return res.status(400).json({ error: 'No se envió imagen' });
+            if (typeof image === 'string' && image.length > 4 * 1024 * 1024) {
+                return res.status(413).json({ error: 'La imagen excede el límite máximo permitido (4MB).' });
+            }
 
             const apiKey = process.env.GEMINI_API_KEY || "dummy_key_for_build";
             const genAI = new GoogleGenerativeAI(apiKey);
@@ -861,7 +946,7 @@ exports.generatePdf = onRequest({
     timeoutSeconds: 60,
     cpu: 2
 }, (req, res) => {
-    return corsHandler(req, res, async () => {
+    return cors(req, res, async () => {
         if (req.method === 'OPTIONS') {
             res.set('Access-Control-Allow-Origin', '*');
             res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');

@@ -34,7 +34,7 @@ async function fetchGooglePublicKeys() {
 // PER-USER RATE LIMITING (in-memory, per serverless instance)
 // ============================================================
 const userRequestCounts = new Map();
-const AI_RATE_LIMIT = 20;           
+const AI_RATE_LIMIT = 10; // Máximo 10 consultas por minuto por usuario para proteger costos de API
 const RATE_WINDOW_MS = 60 * 1000;   
 
 function checkUserRateLimit(uid) {

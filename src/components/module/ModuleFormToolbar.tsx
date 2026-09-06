@@ -10,6 +10,7 @@ interface ModuleFormToolbarProps {
   steps?: string[];
   currentStep?: number;
   onBack?: () => void;
+  onStepClick?: (step: number) => void;
 }
 
 export function ModuleFormToolbar({
@@ -20,6 +21,7 @@ export function ModuleFormToolbar({
   steps,
   currentStep = 1,
   onBack,
+  onStepClick,
 }: ModuleFormToolbarProps) {
   const stepProgress = steps?.length
     ? Math.round((currentStep / steps.length) * 100)
@@ -30,7 +32,7 @@ export function ModuleFormToolbar({
       <div className="module-form-toolbar__header">
         <div className="module-form-toolbar__title-row">
           {onBack && (
-            <button onClick={onBack} className="p-2 mr-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full cursor-pointer transition-colors">
+            <button onClick={onBack} className="p-2 mr-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full cursor-pointer transition-colors" title="Volver">
               <ArrowLeft size={24} />
             </button>
           )}
@@ -65,16 +67,33 @@ export function ModuleFormToolbar({
 
           {steps && steps.length > 0 && (
             <div className="module-form-toolbar__steps">
-              {steps.map((label, idx) => (
-                <span
-                  key={label}
-                  className={`module-form-toolbar__step${
-                    currentStep >= idx + 1 ? ' module-form-toolbar__step--active' : ''
-                  }`}
-                >
-                  {label}
-                </span>
-              ))}
+              {steps.map((label, idx) => {
+                const stepNum = idx + 1;
+                const isCurrent = currentStep === stepNum;
+                const isPast = currentStep > stepNum;
+                const isClickable = typeof onStepClick === 'function';
+
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    disabled={!isClickable}
+                    onClick={() => isClickable && onStepClick(stepNum)}
+                    className={`module-form-toolbar__step-btn ${
+                      isCurrent
+                        ? 'module-form-toolbar__step-btn--current'
+                        : isPast
+                        ? 'module-form-toolbar__step-btn--completed'
+                        : 'module-form-toolbar__step-btn--pending'
+                    } ${isClickable ? 'cursor-pointer' : 'cursor-default'}`}
+                  >
+                    <span className="module-form-toolbar__step-badge">
+                      {isPast ? '✓' : stepNum}
+                    </span>
+                    <span className="module-form-toolbar__step-text">{label}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>

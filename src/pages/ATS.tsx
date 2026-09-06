@@ -23,6 +23,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import CompanyLogo from '../components/CompanyLogo';
 import PdfSignatures from '../components/PdfSignatures';
@@ -80,52 +81,66 @@ const defaultChecklist = [
 { id: 19, categoria: 'Orden y Limpieza', pregunta: '¿Se dispone de iluminación adecuada en el área?', estado: 'Cumple', observaciones: '' }];
 
 
-const PRESETS = {
+const PRESETS: Record<string, { id: number; paso: string; riesgo: string; control: string; nivelRiesgo: string; normativa: string; realizado: boolean }[]> = {
   'Andamios (Altura)': [
-  { id: 101, paso: 'Verificación de nivelación y apoyos de andamio', riesgo: 'Caída de estructura / Desnivel', control: 'Uso de durmientes y nivelación con burbuja', realizado: false },
-  { id: 102, paso: 'Montaje de tablones y barandas de seguridad', riesgo: 'Caída de personas u objetos', control: 'Doble baranda y rodapié reglamentario', realizado: false },
-  { id: 103, paso: 'Anclaje de arnés a punto estructural', riesgo: 'Caída a distinto nivel', control: 'Arnés de cuerpo completo y doble cabo de vida', realizado: false }],
+    { id: 101, paso: 'Verificación de nivelación, apoyos y rodapiés de andamio', riesgo: 'Caída de estructura / Desnivel / Vuelco', control: 'Uso de durmientes de madera y nivelación con burbuja reglamentaria', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 51-58 (Trabajo en Altura)', realizado: false },
+    { id: 102, paso: 'Montaje de tablones completos y barandas dobles', riesgo: 'Caída de personas u objetos al vacío', control: 'Doble baranda (1m y 0.5m) y rodapié perimetral obligatorio', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 54 / Res. SRT 295/03', realizado: false },
+    { id: 103, paso: 'Anclaje de arnés a línea de vida independiente', riesgo: 'Caída a distinto nivel con consecuencias fatales', control: 'Arnés de cuerpo completo clase A y doble cabo de vida con amortiguador', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 51 / IRAM 3622', realizado: false }
+  ],
 
   'Soldadura (Caliente)': [
-  { id: 201, paso: 'Inspección de equipo y pinzas', riesgo: 'Contacto eléctrico / Incendio', control: 'Verificación de aislación y puesta a tierra', realizado: false },
-  { id: 202, paso: 'Colocación de biombos y despeje de área', riesgo: 'Proyección de partículas / Irradiación', control: 'Careta fotosensible y vestimenta de cuero ignífugo', realizado: false },
-  { id: 203, paso: 'Vigilancia de chispas post-tarea', riesgo: 'Principio de incendio latente', control: 'Matafuego ABC a mano y guardia de cenizas (30 min)', realizado: false }],
+    { id: 201, paso: 'Inspección de equipo de soldar, pinzas y puesta a tierra', riesgo: 'Contacto eléctrico / Sobrecalentamiento / Incendio', control: 'Verificación de aislación íntegra de cables y puesta a tierra del chasis', nivelRiesgo: 'Medio', normativa: 'Dec. 351/79 Anexo VI / Dec. 911/96 Art. 129', realizado: false },
+    { id: 202, paso: 'Colocación de biombos y despeje de material combustible (10m)', riesgo: 'Proyección de partículas incandescentes / Radiación UV/IR', control: 'Careta fotosensible DIN 9-13, delantal, polainas y guantes de descarne', nivelRiesgo: 'Alto', normativa: 'Dec. 351/79 Anexo VII / Dec. 911/96 Art. 130', realizado: false },
+    { id: 203, paso: 'Vigilancia de chispas post-tarea (Guardia de cenizas)', riesgo: 'Principio de incendio latente no detectado', control: 'Extintor ABC 5kg presurizado al alcance y guardia activa de 30 minutos', nivelRiesgo: 'Medio', normativa: 'Dec. 351/79 Cap. 18 / IRAM 3517', realizado: false }
+  ],
 
   'Excavación (Zanjas)': [
-  { id: 301, paso: 'Detección de interferencias', riesgo: 'Rotura de servicios / Explosión', control: 'Cateo manual previo y chequeo de planos', realizado: false },
-  { id: 302, paso: 'Señalización perimetral', riesgo: 'Caída de personas o vehículos', control: 'Cerco rígido y balizamiento nocturno', realizado: false },
-  { id: 303, paso: 'Excavación y entibado', riesgo: 'Derrumbe de paredes', control: 'Perfilado/Escalonamiento de talud según tipo de suelo', realizado: false }],
+    { id: 301, paso: 'Cateo manual y detección de interferencias subterráneas', riesgo: 'Rotura de cañerías de gas, agua o cables con tensión', control: 'Chequeo de planos de interferencias y cateo manual con pala aislada', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 142-145 (Excavaciones)', realizado: false },
+    { id: 302, paso: 'Señalización perimetral y pasarelas de cruce', riesgo: 'Caída de personas o vehículos al interior de la zanja', control: 'Cerco rígido perimetral a 1.5m, balizamiento reflectivo y pasarelas con baranda', nivelRiesgo: 'Medio', normativa: 'Dec. 911/96 Art. 148', realizado: false },
+    { id: 303, paso: 'Perfilado de taludes o instalación de entibado rígido', riesgo: 'Derrumbe de paredes por empuje de tierras o vibraciones', control: 'Entibado metálico/madera si profundidad > 1.20m y acopio a > 1m del borde', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 149-155', realizado: false }
+  ],
 
   'Corte Eléctrico (LOTO)': [
-  { id: 401, paso: 'Identificación de tablero y circuitos', riesgo: 'Corte erróneo', control: 'Uso de diagramas unifilares actualizados', realizado: false },
-  { id: 402, paso: 'Maniobra de corte y bloqueo (LOTO)', riesgo: 'Energización accidental', control: 'Colocación de candado personal y tarjeta de peligro', realizado: false },
-  { id: 403, paso: 'Verificación de ausencia de tensión', riesgo: 'Electrocución por tensión residual', control: 'Uso de multímetro/detector de tensión homologado', realizado: false }],
+    { id: 401, paso: 'Identificación precisa de tablero y circuitos a intervenir', riesgo: 'Corte erróneo de circuito / Interrupción de servicios críticos', control: 'Revisión de diagrama unifilar actualizado y confirmación en campo', nivelRiesgo: 'Medio', normativa: 'Dec. 351/79 Anexo VI / Dec. 911/96 Art. 78', realizado: false },
+    { id: 402, paso: 'Maniobra de corte visible y bloqueo físico (LOTO)', riesgo: 'Energización accidental o maniobra por terceros', control: 'Colocación de candado de bloqueo personal, tarjeta de advertencia y traba', nivelRiesgo: 'Crítico', normativa: 'Res. SRT 592/04 (5 Reglas de Oro)', realizado: false },
+    { id: 403, paso: 'Verificación de ausencia de tensión y puesta a tierra transitoria', riesgo: 'Electrocución por arco eléctrico o tensión de retorno', control: 'Uso de multímetro/detector detector de tensión acústico-luminoso calibrado', nivelRiesgo: 'Crítico', normativa: 'Dec. 351/79 Anexo VI Art. 4', realizado: false }
+  ],
 
   'Espacio Confinado': [
-  { id: 501, paso: 'Medición de gases previa', riesgo: 'Asfixia / Intoxicación / Explosión', control: 'Uso de explosímetro calibrado multigas', realizado: false },
-  { id: 502, paso: 'Ventilación mecánica', riesgo: 'Acumulación de vapores', control: 'Extractor/Insuflador portátil continuo', realizado: false },
-  { id: 503, paso: 'Ingreso supervisado', riesgo: 'Atrapamiento / Desvanecimiento', control: 'Vigía permanente en boca de hombre y trípode de rescate', realizado: false }],
+    { id: 501, paso: 'Medición atmosférica previa (Oxígeno, CO, H2S, LEL)', riesgo: 'Asfixia / Intoxicación aguda / Atmósfera inflamable explosiva', control: 'Explosímetro multigas calibrado con bomba de aspiración desde exterior', nivelRiesgo: 'Crítico', normativa: 'Dec. 351/79 Art. 140 / Dec. 911/96 Art. 138', realizado: false },
+    { id: 502, paso: 'Ventilación forzada mecánica continua', riesgo: 'Consumo o acumulación paulatina de gases pesados', control: 'Insuflador de aire exterior continuo y monitoreo permanente en línea', nivelRiesgo: 'Alto', normativa: 'Res. SRT 295/03 Anexo IV', realizado: false },
+    { id: 503, paso: 'Ingreso supervisado con trípode y vigía permanente', riesgo: 'Atrapamiento / Pérdida de conocimiento sin auxilio', control: 'Vigía exclusivo en boca de acceso, arnés de rescate y línea retráctil a trípode', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 141 (Rescate en Confinados)', realizado: false }
+  ],
 
   'Corte con Amoladora': [
-  { id: 601, paso: 'Inspección de herramienta y disco de corte', riesgo: 'Rotura de disco / Proyección de esquirlas', control: 'Verificación de RPM del disco, guardamotor y carcasa de protección', realizado: false },
-  { id: 602, paso: 'Ajuste de pieza y delimitación de área', riesgo: 'Atrapamiento / Golpe / Chispas a terceros', control: 'Uso de morsa/prensa de fijación y mamparas protectoras', realizado: false },
-  { id: 603, paso: 'Operación de corte o desbaste', riesgo: 'Inhalación de polvo / Daño ocular / Ruido', control: 'Protección facial completa, antiparras, protección auditiva y guantes de descarne', realizado: false }],
+    { id: 601, paso: 'Inspección técnica de disco abrasivo y protección mecánica', riesgo: 'Estallido de disco por fisura o exceso de RPM / Proyección', control: 'Chequeo de vencimiento del disco, RPM máxima del fabricante y guarda a 180°', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 248-254 (Herramientas Mecánicas)', realizado: false },
+    { id: 602, paso: 'Fijación de piezas y delimitación de chispas a terceros', riesgo: 'Atrapamiento / Deslizamiento violento de la herramienta', control: 'Sujeción en morsa/mordaza y colocación de pantalla ignífuga', nivelRiesgo: 'Medio', normativa: 'Dec. 351/79 Art. 103', realizado: false },
+    { id: 603, paso: 'Operación de corte o amolado continuo', riesgo: 'Inhalación de material particulado / Daño auditivo / Lesión ocular', control: 'Pantalla facial completa de policarbonato + anteojos Z87, tapones auditivos y máscara', nivelRiesgo: 'Medio', normativa: 'IRAM 3630 / Dec. 351/79 Anexo V', realizado: false }
+  ],
 
   'Izaje / Grúa': [
-  { id: 701, paso: 'Inspección de elementos de izaje (fajas, grilletes)', riesgo: 'Corte de faja / Caída de carga suspendida', control: 'Checklist previo de fajas con etiqueta de carga máxima y pestillo de seguridad en gancho', realizado: false },
-  { id: 702, paso: 'Estabilización de grúa y vallado de radio de giro', riesgo: 'Vuelco / Golpes por atrapamiento', control: 'Uso de platos de apoyo en gatos hidráulicos y delimitación estricta con conos', realizado: false },
-  { id: 703, paso: 'Maniobra de elevación y guiado con vientos', riesgo: 'Aplastamiento / Balanceo imprevisto', control: 'Prohibición de transitar bajo carga suspendida y uso de sogas guía (vientos)', realizado: false }],
+    { id: 701, paso: 'Inspección de eslingas, grilletes y pestillo de seguridad', riesgo: 'Rotura de eslinga / Desenganche y caída de carga suspendida', control: 'Fajas con etiqueta de capacidad legible, sin cortes, y grilletes roscados al tope', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 301-318 (Aparatos de Izar)', realizado: false },
+    { id: 702, paso: 'Estabilización de grúa y acordonamiento de radio de giro', riesgo: 'Vuelco del equipo por suelo blando o atrapamiento de peatones', control: 'Zapatas de apoyo de madera en gatos hidráulicos y delimitación estricta con vallas', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 312', realizado: false },
+    { id: 703, paso: 'Izaje y guiado de carga mediante sogas vientos', riesgo: 'Aplastamiento / Balanceo imprevisto de carga en suspensión', control: 'Prohibido posicionarse bajo carga; maniobra dirigida exclusivamente por señalero Rigger', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 315', realizado: false }
+  ],
+
+  'Autoelevador / Logística': [
+    { id: 801, paso: 'Checklist pre-operacional de autoelevador', riesgo: 'Falla en frenos, dirección o pérdida de fluido hidráulico', control: 'Verificación diaria de luces, bocina, alarma de retroceso y estado de uñas', nivelRiesgo: 'Medio', normativa: 'Res. SRT 960/15 (Operación Segura de Autoelevadores)', realizado: false },
+    { id: 802, paso: 'Circulación en depósitos y cruces peatonales', riesgo: 'Atropellamiento de personas / Colisión con estructuras', control: 'Velocidad máxima 10 km/h, luces de piso (blue spotlight) y prioridad al peatón', nivelRiesgo: 'Alto', normativa: 'Res. SRT 960/15 Art. 7', realizado: false },
+    { id: 803, paso: 'Elevación y estiba de pallets en racks de altura', riesgo: 'Vuelco por sobrecarga o desmoronamiento de bultos', control: 'Carga centrada contra el respaldo, mástil inclinado hacia atrás y uso de cinturón', nivelRiesgo: 'Alto', normativa: 'Dec. 351/79 Cap. 15 / Res. SRT 960/15', realizado: false }
+  ],
 
   'Manipulación de Químicos': [
-  { id: 801, paso: 'Verificación de HDS y EPPs', riesgo: 'Contacto dérmico / Inhalación de vapores tóxicos', control: 'Revisión de FDS, uso de guantes de nitrilo/neopreno y respirador con vapores orgánicos', realizado: false },
-  { id: 802, paso: 'Trasvase y preparación de solución', riesgo: 'Salpicadura química / Derrame', control: 'Uso de bandeja de contención antiderrame y antiparras estancas', realizado: false },
-  { id: 803, paso: 'Aplicación / Limpieza post-tarea', riesgo: 'Generación de residuos peligrosos', control: 'Ventilación forzada y disposición de residuos en recipientes identificados', realizado: false }],
+    { id: 901, paso: 'Revisión de Ficha de Datos de Seguridad (FDS / SGA)', riesgo: 'Incompatibilidad de sustancias / Inhalación de vapores tóxicos', control: 'Disponibilidad de FDS en el puesto y verificación del diamante/pictograma SGA', nivelRiesgo: 'Medio', normativa: 'Res. SRT 801/15 (Sistema Globalmente Armonizado)', realizado: false },
+    { id: 902, paso: 'Trasvase y preparación en cubas con contención', riesgo: 'Derrame al suelo / Salpicaduras químicas a ojos o piel', control: 'Uso de batea de contención secundaria, delantal PVC y guantes de nitrilo largo', nivelRiesgo: 'Alto', normativa: 'Dec. 351/79 Art. 61 / Res. SRT 295/03', realizado: false },
+    { id: 903, paso: 'Disposición de residuos peligrosos y envases vacíos', riesgo: 'Contaminación ambiental / Reacción residual', control: 'Etiquetado de recipientes, cierre estanco y entrega a operador habilitado', nivelRiesgo: 'Medio', normativa: 'Ley Nacional 24.051 de Residuos Peligrosos', realizado: false }
+  ],
 
   'Demolición / Picado': [
-  { id: 901, paso: 'Desenergización de servicios del sector', riesgo: 'Electrocución / Fuga de gas / Rotura de cañerías', control: 'Corte general verificado de suministros eléctricos, agua y gas', realizado: false },
-  { id: 902, paso: 'Delimitación de nivel inferior y zona de derrumbe', riesgo: 'Caída de escombros sobre personas', control: 'Vallado perimetral, marquesina de protección y aviso de zona de tiro', realizado: false },
-  { id: 903, paso: 'Ejecución de picado progresivo', riesgo: 'Derrumbe imprevisto / Inhalación de sílice / Proyección de cascotes', control: 'Demolición de arriba hacia abajo, humectación de escombros, barbijo P100 y antiparras', realizado: false }]
-
+    { id: 1001, paso: 'Desconexión de servicios del sector a intervenir', riesgo: 'Electrocución / Fuga de gas combustible / Inundación', control: 'Corte general verificado de suministros con constancia de las empresas prestatarias', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 120-128 (Demoliciones)', realizado: false },
+    { id: 1002, paso: 'Colocación de pantallas colectoras y vallado inferior', riesgo: 'Caída de escombros o fragmentos sobre áreas transitadas', control: 'Bandejas colectoras rígidas, marquesinas y prohibición de paso en planta baja', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 122', realizado: false },
+    { id: 1003, paso: 'Demolición manual progresiva de arriba hacia abajo', riesgo: 'Colapso imprevisto de estructuras portantes / Polvo de sílice', control: 'Apuntalamiento preventivo de losas, regado con agua y protección respiratoria P100', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 124 / Res. SRT 295/03', realizado: false }
+  ]
 };
 
 export default function ATS(): React.ReactElement | null {
@@ -164,9 +179,9 @@ export default function ATS(): React.ReactElement | null {
     capatazSignature: '',
     checklist: defaultChecklist,
     tareas: [
-    { id: 1, paso: 'Preparación de área', riesgo: 'Caídas', control: 'Delimitación', nivelRiesgo: 'Medio', realizado: true },
-    { id: 2, paso: 'Ejecución de tarea', riesgo: 'Golpes', control: 'Uso de EPP', nivelRiesgo: 'Bajo', realizado: false }
-  ],
+      { id: 1, paso: 'Preparación de área', riesgo: 'Caídas', control: 'Delimitación', nivelRiesgo: 'Medio', normativa: 'Dec. 911/96 Art. 51', realizado: true },
+      { id: 2, paso: 'Ejecución de tarea', riesgo: 'Golpes', control: 'Uso de EPP', nivelRiesgo: 'Bajo', normativa: 'Dec. 351/79 Anexo V', realizado: false }
+    ] as { id: number; paso: string; riesgo: string; control: string; nivelRiesgo: string; normativa?: string; realizado: boolean }[],
   epps: [],
   fotos: [],
   equiposEmergencia: [] as string[],
@@ -533,28 +548,31 @@ export default function ATS(): React.ReactElement | null {
 
   const handleShare = () => requirePro(() => setShowShare(true));
   const handlePrint = () => {
-    requirePro(() => {
+    requirePro(async () => {
       const element = document.getElementById('pdf-content');
       if (!element) {
         toast.error('No se pudo generar el documento para imprimir.');
         return;
       }
-      document.body.classList.add('printing-isolated');
-      element.classList.add('isolated-print-target');
+      try {
+        await printElementAsDocument('pdf-content', `ATS - ${formData.empresa || 'Reporte'}`, false);
+      } catch (err) {
+        document.body.classList.add('printing-isolated');
+        element.classList.add('isolated-print-target');
 
-      const cleanup = () => {
-        document.body.classList.remove('printing-isolated');
-        element.classList.remove('isolated-print-target');
-        window.removeEventListener('afterprint', cleanup);
-        window.removeEventListener('focus', cleanup);
-      };
+        const cleanup = () => {
+          document.body.classList.remove('printing-isolated');
+          element.classList.remove('isolated-print-target');
+          window.removeEventListener('afterprint', cleanup);
+          window.removeEventListener('focus', cleanup);
+        };
 
-      window.addEventListener('afterprint', cleanup);
-      window.addEventListener('focus', cleanup);
+        window.addEventListener('afterprint', cleanup);
+        window.addEventListener('focus', cleanup);
 
-      // Small timeout for browsers where print() is entirely synchronous and doesn't fire focus
-      setTimeout(cleanup, 1500);
-      window.print();
+        setTimeout(cleanup, 1500);
+        window.print();
+      }
     });
   };
 
@@ -954,6 +972,10 @@ export default function ATS(): React.ReactElement | null {
                   progress={{ percent: progressPct, label: progressLabel, color: progressColor }}
                   steps={ATS_WIZARD_STEPS}
                   currentStep={currentStep}
+                  onStepClick={(step) => {
+                    setCurrentStep(step);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
                 />
 
                 <ModuleFormDocument id="ats-editor-content" className="ats-editor-panel">
@@ -1268,6 +1290,23 @@ export default function ATS(): React.ReactElement | null {
                                             <div className="print-only text-slate-700 text-[0.8rem] whitespace-pre-wrap break-words">
                                                 {t.control}
                                             </div>
+
+                                            {/* Cita Normativa */}
+                                            <div className="no-print mt-1.5 flex items-center gap-1.5">
+                                                <span className="text-[10px] font-black uppercase text-blue-600 dark:text-blue-400">⚖️ Norma:</span>
+                                                <input
+                                                    type="text"
+                                                    value={t.normativa || ''}
+                                                    onChange={(e) => updateTask(t.id, 'normativa', e.target.value)}
+                                                    placeholder="Ej: Dec. 911/96 Art. 51 / Dec. 351/79"
+                                                    className="w-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-blue-500"
+                                                />
+                                            </div>
+                                            {t.normativa && (
+                                                <div className="print-only text-[10px] font-bold text-blue-900 mt-1 italic">
+                                                    ⚖️ {t.normativa}
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="ats-seq-cell ats-seq-cell-riesgo-nivel" style={{flex: 0.5}}>
@@ -1950,7 +1989,7 @@ export default function ATS(): React.ReactElement | null {
               className="hover:bg-slate-50 flex-[1] p-[1rem] rounded-[14px] border-[1.5px_solid_var(--color-border)] bg-[transparent] text-[var(--color-text-muted)] font-[700] cursor-pointer text-[0.9rem] transition-[all_0.2s]">
               
                                     Cancelar
-                                </button>
+                                                        </button>
                                 <button
               onClick={runAIGeneration}
               disabled={!aiTaskInput.trim()}
@@ -1964,62 +2003,125 @@ export default function ATS(): React.ReactElement | null {
                     </div>
       }
       {matrixTask !== null && (
-        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-md w-full border-2 border-slate-700 shadow-2xl">
+        <div className="fixed inset-0 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-[9999] animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 max-w-xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
             <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-200 dark:border-slate-800">
-              <div className="flex items-center gap-2">
-                <Activity size={20} className="text-blue-600" />
-                <h3 className="font-black text-base uppercase text-slate-900 dark:text-white m-0">Matriz de Riesgo PxS</h3>
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
+                  <Activity size={22} />
+                </div>
+                <div>
+                  <h3 className="font-black text-base uppercase text-slate-900 dark:text-white m-0 tracking-tight">Matriz de Riesgo 5×5 (P × S)</h3>
+                  <p className="text-[11px] font-bold text-slate-500 m-0">Seleccioná o tocá directamente la celda de evaluación</p>
+                </div>
               </div>
-              <button onClick={() => setMatrixTask(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border-none bg-transparent cursor-pointer font-extrabold text-lg">✕</button>
+              <button
+                onClick={() => setMatrixTask(null)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border-none bg-transparent cursor-pointer font-black text-xl p-1"
+              >
+                ✕
+              </button>
             </div>
 
-            <div className="flex flex-col gap-4 mb-6">
-              <div>
-                <label className="text-xs font-black uppercase text-slate-700 dark:text-slate-300 block mb-1">1. Probabilidad (P)</label>
-                <select
-                  value={matrixP}
-                  onChange={(e) => setMatrixP(Number(e.target.value))}
-                  className="w-full p-2.5 rounded-lg border-2 border-slate-300 dark:border-slate-700 bg-transparent font-bold text-sm text-slate-900 dark:text-white outline-none"
-                >
-                  <option value={1}>1 - Baja (Rara vez ocurre)</option>
-                  <option value={2}>2 - Media (Ocurrencia ocasional)</option>
-                  <option value={3}>3 - Alta (Muy probable / Frecuente)</option>
-                </select>
+            {/* Cuadrícula Táctil 5x5 */}
+            <div className="mb-5">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                  Severidad / Consecuencia (Columnas 1→5)
+                </span>
+                <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400">
+                  Tocá cualquier celda para seleccionar
+                </span>
               </div>
 
-              <div>
-                <label className="text-xs font-black uppercase text-slate-700 dark:text-slate-300 block mb-1">2. Severidad / Consecuencia (S)</label>
-                <select
-                  value={matrixS}
-                  onChange={(e) => setMatrixS(Number(e.target.value))}
-                  className="w-full p-2.5 rounded-lg border-2 border-slate-300 dark:border-slate-700 bg-transparent font-bold text-sm text-slate-900 dark:text-white outline-none"
-                >
-                  <option value={1}>1 - Leve (Lesión menor / Primeros auxilios)</option>
-                  <option value={2}>2 - Moderada (Incapacidad temporal)</option>
-                  <option value={3}>3 - Grave (Lesión grave / Incapacidad permanente)</option>
-                  <option value={4}>4 - Catastrófica (Fatalidad / Múltiples heridos)</option>
-                </select>
-              </div>
+              <div className="grid grid-cols-6 gap-1 text-center text-[10px] font-bold">
+                <div className="p-1 font-black text-slate-400 flex items-center justify-center">P \ S</div>
+                <div className="p-1 font-extrabold text-slate-700 dark:text-slate-300">1. Insig.</div>
+                <div className="p-1 font-extrabold text-slate-700 dark:text-slate-300">2. Menor</div>
+                <div className="p-1 font-extrabold text-slate-700 dark:text-slate-300">3. Moder.</div>
+                <div className="p-1 font-extrabold text-slate-700 dark:text-slate-300">4. Grave</div>
+                <div className="p-1 font-extrabold text-slate-700 dark:text-slate-300">5. Catast.</div>
 
-              {(() => {
-                const score = matrixP * matrixS;
-                const level = score >= 9 ? 'Crítico' : score >= 5 ? 'Alto' : score >= 3 ? 'Medio' : 'Bajo';
-                const bg = score >= 9 ? 'bg-rose-950 text-white' : score >= 5 ? 'bg-rose-600 text-white' : score >= 3 ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white';
-                return (
-                  <div className={`p-4 rounded-xl text-center ${bg} shadow-md`}>
-                    <div className="text-xs font-extrabold uppercase tracking-wider mb-1">P ( {matrixP} ) × S ( {matrixS} ) = Score {score}</div>
-                    <div className="text-xl font-black uppercase tracking-tight">Riesgo Calculado: {level}</div>
+                {[5, 4, 3, 2, 1].map((pVal) => {
+                  const pLabels: Record<number, string> = { 5: '5. Frec.', 4: '4. Prob.', 3: '3. Posib.', 2: '2. Improb.', 1: '1. Raro' };
+                  return (
+                    <React.Fragment key={pVal}>
+                      <div className="p-1 font-black text-slate-600 dark:text-slate-400 flex items-center justify-start text-[9px] truncate">
+                        {pLabels[pVal]}
+                      </div>
+                      {[1, 2, 3, 4, 5].map((sVal) => {
+                        const cellScore = pVal * sVal;
+                        const isSelected = matrixP === pVal && matrixS === sVal;
+                        let cellBg = 'bg-emerald-500 text-white';
+                        if (cellScore >= 17) cellBg = 'bg-rose-950 text-white';
+                        else if (cellScore >= 10) cellBg = 'bg-rose-600 text-white';
+                        else if (cellScore >= 5) cellBg = 'bg-amber-500 text-white';
+
+                        return (
+                          <button
+                            key={sVal}
+                            type="button"
+                            onClick={() => {
+                              setMatrixP(pVal);
+                              setMatrixS(sVal);
+                            }}
+                            className={`h-8 sm:h-9 rounded-lg font-black text-xs flex items-center justify-center transition-all cursor-pointer border-2 ${
+                              isSelected
+                                ? 'ring-4 ring-blue-500 scale-105 z-10 border-white shadow-lg'
+                                : 'border-transparent hover:opacity-90 hover:scale-102'
+                            } ${cellBg}`}
+                          >
+                            {cellScore}
+                          </button>
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Resultado Dinámico */}
+            {(() => {
+              const score = matrixP * matrixS;
+              let level = 'Bajo';
+              let bg = 'bg-emerald-600 text-white';
+              let badgeText = 'Riesgo Aceptable con controles rutinarios';
+
+              if (score >= 17) {
+                level = 'Crítico';
+                bg = 'bg-rose-950 text-white';
+                badgeText = '🛑 Requiere Detención y Permiso de Trabajo (PT) Exclusivo';
+              } else if (score >= 10) {
+                level = 'Alto';
+                bg = 'bg-rose-600 text-white';
+                badgeText = '⚠️ Requiere Permiso de Trabajo (PT) y Supervisión Permanente';
+              } else if (score >= 5) {
+                level = 'Medio';
+                bg = 'bg-amber-500 text-white';
+                badgeText = 'Requiere Procedimiento Escrito y EPPs Específicos';
+              }
+
+              return (
+                <div className={`p-4 rounded-2xl text-center ${bg} shadow-md mb-5 transition-all`}>
+                  <div className="text-[11px] font-black uppercase tracking-widest opacity-90 mb-0.5">
+                    Índice de Riesgo (NPR): P ({matrixP}) × S ({matrixS}) = Score {score}
                   </div>
-                );
-              })()}
-            </div>
+                  <div className="text-xl sm:text-2xl font-black uppercase tracking-tight mb-1">
+                    Nivel Calculado: {level}
+                  </div>
+                  <div className="text-xs font-bold opacity-95">
+                    {badgeText}
+                  </div>
+                </div>
+              );
+            })()}
 
-            <div className="flex gap-3 justify-end">
+            <div className="flex gap-2 sm:gap-3 justify-end">
               <button
                 type="button"
                 onClick={() => setMatrixTask(null)}
-                className="px-4 py-2 bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 font-bold rounded-lg cursor-pointer border-none text-xs uppercase"
+                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 font-bold rounded-xl cursor-pointer border-none text-xs uppercase transition-colors"
               >
                 Cancelar
               </button>
@@ -2027,14 +2129,18 @@ export default function ATS(): React.ReactElement | null {
                 type="button"
                 onClick={() => {
                   const score = matrixP * matrixS;
-                  const level = score >= 9 ? 'Crítico' : score >= 5 ? 'Alto' : score >= 3 ? 'Medio' : 'Bajo';
+                  let level = 'Bajo';
+                  if (score >= 17) level = 'Crítico';
+                  else if (score >= 10) level = 'Alto';
+                  else if (score >= 5) level = 'Medio';
+
                   updateTask(matrixTask, 'nivelRiesgo', level);
                   setMatrixTask(null);
-                  toast.success(`Riesgo ${level} (Score ${score}) aplicado`);
+                  toast.success(`Riesgo ${level} (Score ${score}) aplicado exitosamente.`);
                 }}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-lg cursor-pointer border-none text-xs uppercase shadow-md"
+                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl cursor-pointer border-none text-xs uppercase shadow-md transition-all active:scale-95"
               >
-                Aplicar Riesgo
+                Aplicar a la Tarea
               </button>
             </div>
           </div>
