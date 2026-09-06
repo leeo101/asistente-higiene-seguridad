@@ -52,13 +52,23 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
   const componentRef = useRef<HTMLDivElement>(null);
   const isLandscape = (extinguishers || []).length > 15; // Auto rotate if many
 
+  const vencidosCount = (extinguishers || []).filter((e) => {
+    const cargaStatus = getStatus(e.vencimientoRecarga || e.ultimaCarga).text;
+    const phStatus = getPHStatus(e.vencimientoPH || e.ultimaPH).text;
+    return cargaStatus === 'Vencido' || phStatus === 'Vencido';
+  }).length;
+
+  const porVencerCount = (extinguishers || []).filter((e) => {
+    const cargaStatus = getStatus(e.vencimientoRecarga || e.ultimaCarga).text;
+    const phStatus = getPHStatus(e.vencimientoPH || e.ultimaPH).text;
+    return cargaStatus === 'Próximo' || phStatus === 'Próximo';
+  }).length;
+
   const stats = {
     total: extinguishers.length,
-    vencidos: extinguishers.filter((e) => {
-      const cargaStatus = getStatus(e.vencimientoRecarga || e.ultimaCarga).text;
-      const phStatus = getPHStatus(e.vencimientoPH || e.ultimaPH).text;
-      return cargaStatus === 'Vencido' || phStatus === 'Vencido';
-    }).length
+    vencidos: vencidosCount,
+    porVencer: porVencerCount,
+    operativos: Math.max(0, extinguishers.length - vencidosCount)
   };
 
   return (
@@ -113,19 +123,87 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                             }
                         `}
                     </style>
-                    {/* Header */}
-                    <div className="border-b-[3px] border-slate-800 pb-[8px] mb-[12px] flex justify-between items-start">
-                        <div>
-                            <h1 style={{ color: '#0f172a' }} className="m-[0_0_4px_0] text-[18pt] font-[900] uppercase">
-                                Planilla de Control de Extintores
+                    {/* Top Accent Line tricolor */}
+                    <div className="w-full h-2 bg-gradient-to-r from-red-700 via-amber-500 to-emerald-600 rounded-t-xl mb-3"></div>
+
+                    {/* Header Ejecutivo */}
+                    <div className="border-b-2 border-slate-900 pb-3 mb-3 flex justify-between items-start">
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <span className="bg-slate-900 text-white font-black text-[8pt] px-2 py-0.5 rounded uppercase tracking-wider">
+                                    PROTECCIÓN CONTRA INCENDIOS
+                                </span>
+                                <span className="bg-slate-100 text-slate-700 font-bold text-[8pt] px-2 py-0.5 rounded border border-slate-300 uppercase">
+                                    NORMA IRAM 3517-II · DEC. 351/79 CAP. 18
+                                </span>
+                                {stats.vencidos > 0 ? (
+                                    <span className="bg-red-600 text-white font-black text-[8pt] px-2 py-0.5 rounded uppercase animate-pulse">
+                                        🚨 {stats.vencidos} EQUIPOS VENCIDOS
+                                    </span>
+                                ) : (
+                                    <span className="bg-emerald-600 text-white font-black text-[8pt] px-2 py-0.5 rounded uppercase">
+                                        ✓ DOTACIÓN EN REGLA
+                                    </span>
+                                )}
+                            </div>
+                            <h1 style={{ color: '#0f172a' }} className="m-0 text-[16pt] font-[900] uppercase tracking-tight">
+                                Planilla de Inspección y Control de Extintores
                             </h1>
-                            <p style={{ color: '#475569' }} className="m-[0] text-[9.5pt] font-[700] flex items-center gap-[1rem]">
-                                <span><Calendar size={14} className="inline align-middle mr-1" /> Fecha: {new Date().toLocaleDateString('es-AR')}</span>
-                                <span><Flame size={14} className="inline align-middle mr-1" /> Equipos: {stats.total}</span>
-                                {stats.vencidos > 0 && <span className="text-red-600 font-[bold]">({stats.vencidos} Vencidos)</span>}
+                            <p style={{ color: '#475569' }} className="m-0 text-[8.5pt] font-[700] flex items-center gap-3">
+                                <span><Calendar size={13} className="inline align-middle mr-1 text-slate-500" /> Fecha de Relevamiento: {new Date().toLocaleDateString('es-AR')}</span>
+                                <span>•</span>
+                                <span>Auditoría Periódica de Parque de Extintores</span>
                             </p>
                         </div>
-                        <CompanyLogo style={{ maxHeight: '40px', maxWidth: '130px', objectFit: 'contain' }} />
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                            <CompanyLogo style={{ maxHeight: '38px', maxWidth: '130px', objectFit: 'contain' }} />
+                            <div className="text-[8pt] font-mono text-slate-500 font-bold">
+                                REVISIÓN MENSUAL
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Resumen KPI de Parque de Matafuegos */}
+                    <div className="grid grid-cols-4 gap-2 mb-3 avoid-break">
+                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-black text-xs shrink-0">
+                                <Flame size={14} />
+                            </div>
+                            <div>
+                                <div className="text-[7pt] font-black text-slate-500 uppercase">Total Parque</div>
+                                <div className="text-[11pt] font-black text-slate-900">{stats.total} Equipos</div>
+                            </div>
+                        </div>
+
+                        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-2 flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black text-xs shrink-0">
+                                ✓
+                            </div>
+                            <div>
+                                <div className="text-[7pt] font-black text-emerald-800 uppercase">Operativos / OK</div>
+                                <div className="text-[11pt] font-black text-emerald-700">{stats.operativos} ({stats.total > 0 ? Math.round((stats.operativos / stats.total) * 100) : 0}%)</div>
+                            </div>
+                        </div>
+
+                        <div className={`rounded-xl p-2 flex items-center gap-2 border ${stats.vencidos > 0 ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200'}`}>
+                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0 ${stats.vencidos > 0 ? 'bg-red-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                                ⚠
+                            </div>
+                            <div>
+                                <div className={`text-[7pt] font-black uppercase ${stats.vencidos > 0 ? 'text-red-700' : 'text-slate-500'}`}>Vencidos</div>
+                                <div className={`text-[11pt] font-black ${stats.vencidos > 0 ? 'text-red-700' : 'text-slate-700'}`}>{stats.vencidos} Equipos</div>
+                            </div>
+                        </div>
+
+                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-2 flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center font-black text-xs shrink-0">
+                                ⏱
+                            </div>
+                            <div>
+                                <div className="text-[7pt] font-black text-amber-800 uppercase">A Vencer (30d)</div>
+                                <div className="text-[11pt] font-black text-amber-700">{stats.porVencer} Equipos</div>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="block">

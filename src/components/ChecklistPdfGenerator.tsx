@@ -289,7 +289,7 @@ export default function ChecklistPdfGenerator({
       </div>
 
       {/* Resumen Estadístico - KPI cards */}
-      <div style={{ display: 'flex', flexDirection: 'row', width: '100%', marginBottom: '1rem', breakInside: 'avoid', pageBreakInside: 'avoid', boxSizing: 'border-box', gap: '0.5rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'row', width: '100%', marginBottom: '0.6rem', breakInside: 'avoid', pageBreakInside: 'avoid', boxSizing: 'border-box', gap: '0.5rem' }}>
         {/* CUMPLE */}
         <div style={{ flex: '1 1 0', background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', border: '1px solid #86efac', borderRadius: '10px', padding: '0.6rem 0.4rem', textAlign: 'center', boxSizing: 'border-box' }}>
           <div style={{ textAlign: 'center', marginBottom: '4px', lineHeight: '1.4' }}>
@@ -332,6 +332,21 @@ export default function ChecklistPdfGenerator({
           </div>
         </div>
       </div>
+
+      {/* Barra de Distribución de Cumplimiento Global (Visual Gauge) */}
+      {totalItems > 0 && (
+        <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid', marginBottom: '0.9rem', backgroundColor: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '6px 10px' }} className="avoid-break avoid-break-strictly break-inside-avoid">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase' }}>
+            <span style={{ color: '#334155' }}>Índice Global de Conformidad Operativa</span>
+            <span style={{ color: globalRiskColor }}>{okPercent}% Cumplimiento Total ({okCount}/{totalItems} ítems)</span>
+          </div>
+          <div style={{ width: '100%', height: '8px', backgroundColor: '#e2e8f0', borderRadius: '999px', overflow: 'hidden', display: 'flex' }}>
+            <div style={{ width: `${okPercent}%`, backgroundColor: '#16a34a', transition: 'width 0.3s' }} />
+            <div style={{ width: `${failPercent}%`, backgroundColor: '#dc2626', transition: 'width 0.3s' }} />
+            <div style={{ width: `${naPercent}%`, backgroundColor: '#94a3b8', transition: 'width 0.3s' }} />
+          </div>
+        </div>
+      )}
 
       {/* EPPs Requeridos */}
       {epps.length > 0 && (

@@ -62,72 +62,124 @@ export default function WorkPermitPdfGenerator({ data, id = "pdf-content" }: { d
           `}
         </style>
 
-        {/* Top Accent Line */}
-        <div className="w-full h-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-800 rounded-t-lg mb-6"></div>
+        {/* Top Accent Line tricolor */}
+        <div className="w-full h-2 bg-gradient-to-r from-blue-900 via-blue-600 via-amber-500 to-emerald-600 rounded-t-xl mb-4"></div>
 
-        {/* Document Header */}
-        <div className="flex justify-between items-center border-b-2 border-slate-800 pb-5 mb-6">
+        {/* Document Header Ejecutivo */}
+        <div className="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-4">
           <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <span className="bg-blue-900 text-white font-black text-[10px] px-2.5 py-0.5 rounded uppercase tracking-wider">
-                SISTEMA DE GESTIÓN HYS
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="bg-slate-900 text-white font-black text-[9px] px-2.5 py-0.5 rounded uppercase tracking-wider">
+                SISTEMA INTEGRADO DE GESTIÓN HYS
               </span>
-              <span className="bg-slate-100 text-slate-700 font-bold text-[10px] px-2 py-0.5 rounded border border-slate-300 uppercase">
-                CONTROL DE RIESGOS
+              <span className="bg-slate-100 text-slate-700 font-black text-[9px] px-2 py-0.5 rounded border border-slate-300 uppercase">
+                LIBERACIÓN DE TAREAS CRÍTICAS
+              </span>
+              <span className="bg-rose-700 text-white font-black text-[9px] px-2.5 py-0.5 rounded uppercase shadow-2xs">
+                TRABAJO DE ALTO RIESGO
               </span>
             </div>
-            <h1 className="m-0 text-2xl font-black text-slate-900 tracking-tight uppercase">
-              PERMISO DE TRABAJO ESPECIAL
+            <h1 className="m-0 text-xl font-black text-slate-950 tracking-tight uppercase flex items-center gap-2">
+              PERMISO DE TRABAJO ESPECIAL <span className="text-blue-700">(PT)</span>
             </h1>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-black text-blue-700 uppercase">
-                {selectedTypeLabel}
-              </span>
+            <div className="text-[10px] font-extrabold text-blue-800 uppercase tracking-wider">
+              {selectedTypeLabel} · VIGENCIA Y CONDICIONES PREVENTIVAS
             </div>
           </div>
 
-          <div className="flex flex-col items-end gap-2">
-            <CompanyLogo style={{ maxHeight: '50px', maxWidth: '160px', objectFit: 'contain' }} />
-            <div className="text-right bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl shadow-xs">
-              <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest">N° PERMISO</div>
-              <div className="text-base font-black text-blue-700">{data.numeroPermiso || 'N/A'}</div>
+          <div className="flex flex-col items-end gap-1.5 shrink-0">
+            <CompanyLogo style={{ maxHeight: '42px', maxWidth: '140px', objectFit: 'contain' }} />
+            <div className="flex items-center gap-2 bg-slate-50 border border-slate-300 px-2.5 py-1 rounded-lg text-right shadow-2xs">
+              <div>
+                <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-tight">N° PERMISO</div>
+                <div className="text-xs font-black text-blue-800 leading-tight">#{data.numeroPermiso || 'S/N'}</div>
+              </div>
+              <div className="h-6 w-px bg-slate-200 mx-0.5" />
+              <div>
+                <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-tight">ESTADO</div>
+                <div className="text-[10px] font-black text-emerald-700 uppercase leading-tight">LIBERADO</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Resumen Ejecutivo KPI */}
+        <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="grid grid-cols-4 gap-2 mb-4">
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-black text-sm shrink-0">
+              ⚡
+            </div>
+            <div>
+              <div className="text-[9px] font-black text-slate-500 uppercase">Actividad</div>
+              <div className="text-xs font-black text-slate-900 truncate max-w-[120px]">{selectedTypeLabel}</div>
+            </div>
+          </div>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-800 flex items-center justify-center font-black text-sm shrink-0">
+              🛡️
+            </div>
+            <div>
+              <div className="text-[9px] font-black text-slate-500 uppercase">Verificaciones</div>
+              <div className="text-xs font-black text-slate-900">{checklist.length} Controles</div>
+            </div>
+          </div>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-blue-900 text-white flex items-center justify-center font-black text-sm shrink-0">
+              👥
+            </div>
+            <div>
+              <div className="text-[9px] font-black text-slate-500 uppercase">Personal Acreditado</div>
+              <div className="text-xs font-black text-slate-900">{personal.length} Operarios</div>
+            </div>
+          </div>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-sm shrink-0">
+              ⏱️
+            </div>
+            <div>
+              <div className="text-[9px] font-black text-slate-500 uppercase">Horario Validez</div>
+              <div className="text-xs font-black text-slate-900">{data.validezDesde || '08:00'} a {data.validezHasta || '18:00'} hs</div>
             </div>
           </div>
         </div>
 
         {/* Datos Principales Box */}
-        <div className="border-2 border-slate-800 rounded-xl overflow-hidden mb-6 bg-white page-break-inside-avoid shadow-xs">
-          <div className="bg-slate-900 text-white font-black text-[11px] px-4 py-1.5 uppercase tracking-wider">
-            DATOS GENERALES DEL TRABAJO Y UBICACIÓN
+        <div className="border-2 border-slate-800 rounded-xl overflow-hidden mb-4 bg-white page-break-inside-avoid shadow-2xs">
+          <div className="bg-slate-900 text-white font-black text-[10px] px-3 py-1.5 uppercase tracking-wider flex justify-between items-center">
+            <span>DATOS GENERALES DEL TRABAJO Y UBICACIÓN</span>
+            <span className="text-slate-400 font-bold text-[9px]">DOC #{data.numeroPermiso || 'S/N'}</span>
           </div>
           <div className="grid grid-cols-2 border-b border-slate-200">
-            <div className="p-3 border-r border-slate-200 flex flex-col gap-0.5 bg-slate-50/50">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">CLIENTE / EMPRESA</span>
-              <span className="font-extrabold text-sm text-slate-900">{data.empresa || '-'}</span>
+            <div className="p-2.5 border-r border-slate-200 flex flex-col gap-0.5 bg-slate-50/50">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">CLIENTE / EMPRESA</span>
+              <span className="font-extrabold text-xs text-slate-900">{data.empresa || '-'}</span>
             </div>
-            <div className="p-3 flex flex-col gap-0.5 bg-slate-50/50">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">OBRA / UBICACIÓN EXACTA</span>
-              <span className="font-extrabold text-sm text-slate-900">{data.obra || '-'}</span>
+            <div className="p-2.5 flex flex-col gap-0.5 bg-slate-50/50">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">OBRA / UBICACIÓN EXACTA</span>
+              <span className="font-extrabold text-xs text-slate-900">{data.obra || '-'}</span>
             </div>
           </div>
           <div className="grid grid-cols-4">
-            <div className="p-3 border-r border-slate-200 flex flex-col gap-0.5">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">FECHA</span>
-              <span className="font-extrabold text-sm text-slate-900">
+            <div className="p-2.5 border-r border-slate-200 flex flex-col gap-0.5">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">FECHA EMISIÓN</span>
+              <span className="font-extrabold text-xs text-slate-900">
                 {data.fecha ? new Date(data.fecha).toLocaleDateString('es-AR') : '-'}
               </span>
             </div>
-            <div className="p-3 border-r border-slate-200 flex flex-col gap-0.5">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">HORA INICIO</span>
-              <span className="font-extrabold text-sm text-slate-900">{data.validezDesde || '-'} HS</span>
+            <div className="p-2.5 border-r border-slate-200 flex flex-col gap-0.5">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">HORA INICIO</span>
+              <span className="font-extrabold text-xs text-slate-900">{data.validezDesde || '-'} HS</span>
             </div>
-            <div className="p-3 border-r border-slate-200 flex flex-col gap-0.5">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">HORA FIN</span>
-              <span className="font-extrabold text-sm text-slate-900">{data.validezHasta || '-'} HS</span>
+            <div className="p-2.5 border-r border-slate-200 flex flex-col gap-0.5">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">HORA FIN</span>
+              <span className="font-extrabold text-xs text-slate-900">{data.validezHasta || '-'} HS</span>
             </div>
-            <div className="p-3 flex flex-col gap-0.5">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">TIPO DE TRABAJO</span>
-              <span className="font-extrabold text-sm text-blue-700">{selectedTypeLabel}</span>
+            <div className="p-2.5 flex flex-col gap-0.5">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">TIPO DE TRABAJO</span>
+              <span className="font-extrabold text-xs text-blue-700">{selectedTypeLabel}</span>
             </div>
           </div>
         </div>

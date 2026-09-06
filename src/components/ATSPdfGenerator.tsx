@@ -191,71 +191,127 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
           .print-area { box-shadow:none!important; margin:0!important; padding:0!important; width:100%!important; max-width:none!important; border:none!important; border-radius:0!important; }
         `}</style>
 
-        {/* Accent top bar */}
-        <div className="w-full h-2 bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-900 rounded-t-lg mb-5" />
+        {/* Accent top bar tricolor de seguridad institucional */}
+        <div className="w-full h-2 bg-gradient-to-r from-blue-900 via-blue-600 via-amber-500 to-emerald-600 rounded-t-xl mb-4" />
 
-        {/* Header */}
-        <div className="flex justify-between items-center border-b-2 border-slate-800 pb-4 mb-5">
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-center gap-2">
-              <span style={{ ...B, backgroundColor: '#0c1a4b', color: '#fff', padding: '4px 10px', borderRadius: '4px', fontSize: '10px' }}>
-                SISTEMA DE GESTIÓN HYS
+        {/* Header Corporativo / ISO */}
+        <div className="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-4">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span style={{ ...B, backgroundColor: '#0f172a', color: '#fff', padding: '3px 8px', borderRadius: '4px', fontSize: '9px', letterSpacing: '0.05em' }}>
+                SISTEMA INTEGRADO DE GESTIÓN HYS
               </span>
-              <span style={{ ...B, backgroundColor: riskBg, color: '#fff', padding: '4px 10px', borderRadius: '4px', fontSize: '10px' }}>
+              <span style={{ ...B, backgroundColor: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1', padding: '3px 8px', borderRadius: '4px', fontSize: '9px' }}>
+                LEGISLACIÓN ARG. LEY 19.587 / DEC. 911/96
+              </span>
+              <span style={{ ...B, backgroundColor: riskBg, color: '#fff', padding: '3px 8px', borderRadius: '4px', fontSize: '9px', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>
                 {riskLabel}
               </span>
             </div>
-            <h1 className="m-0 text-2xl font-black text-slate-900 uppercase tracking-tight">
-              ANÁLISIS DE TRABAJO SEGURO (ATS)
+            <h1 className="m-0 text-xl font-black text-slate-950 uppercase tracking-tight flex items-center gap-2">
+              ANÁLISIS DE TRABAJO SEGURO <span className="text-blue-700">(ATS)</span>
             </h1>
-            <div className="text-xs font-black text-blue-700 uppercase tracking-wide">
-              EVALUACIÓN PREVENTIVA DE RIESGOS OPERATIVOS
+            <div className="text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">
+              EVALUACIÓN PREVENTIVA DE RIESGOS EN TAREA Y LIBERACIÓN OPERATIVA
             </div>
           </div>
-          <div className="flex flex-col items-end gap-2">
-            <CompanyLogo style={{ maxHeight: '50px', maxWidth: '160px', objectFit: 'contain' }} />
-            <div className="text-right bg-slate-50 border border-slate-200 px-3 py-1 rounded-xl shadow-xs">
-              <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest">N° REF / ID</div>
-              <div className="text-sm font-black text-blue-700">{docId}</div>
+          <div className="flex flex-col items-end gap-1.5 shrink-0">
+            <CompanyLogo style={{ maxHeight: '44px', maxWidth: '150px', objectFit: 'contain' }} />
+            <div className="flex items-center gap-2 bg-slate-50 border border-slate-300 px-2.5 py-1 rounded-lg text-right shadow-2xs">
+              <div>
+                <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-tight">DOC REF</div>
+                <div className="text-xs font-black text-blue-800 leading-tight">#{docId}</div>
+              </div>
+              <div className="h-6 w-px bg-slate-200 mx-0.5" />
+              <div>
+                <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-tight">ESTADO</div>
+                <div className="text-[10px] font-black text-emerald-700 uppercase leading-tight">VIGENTE</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Resumen Ejecutivo / Métricas de Control (KPIs) */}
+        <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="grid grid-cols-4 gap-2 mb-4">
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-black text-sm shrink-0">
+              📋
+            </div>
+            <div>
+              <div className="text-[9px] font-black text-slate-500 uppercase">Pasos Analizados</div>
+              <div className="text-sm font-black text-slate-900">{tareas.length} Tareas</div>
+            </div>
+          </div>
+
+          <div className={`border rounded-xl p-2 flex items-center gap-2.5 ${hasCritRisk ? 'bg-rose-50 border-rose-300' : hasHighRisk ? 'bg-amber-50 border-amber-300' : 'bg-slate-50 border-slate-200'}`}>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm shrink-0 ${hasCritRisk ? 'bg-rose-600 text-white' : hasHighRisk ? 'bg-amber-500 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+              {hasCritRisk ? '🛑' : hasHighRisk ? '⚠️' : '✓'}
+            </div>
+            <div>
+              <div className="text-[9px] font-black text-slate-500 uppercase">Nivel Crítico</div>
+              <div className={`text-sm font-black ${hasCritRisk ? 'text-rose-700' : hasHighRisk ? 'text-amber-700' : 'text-emerald-700'}`}>
+                {hasCritRisk ? 'Crítico (PT)' : hasHighRisk ? 'Alto Riesgo' : 'Controlado'}
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-800 flex items-center justify-center font-black text-sm shrink-0">
+              🛡️
+            </div>
+            <div>
+              <div className="text-[9px] font-black text-slate-500 uppercase">EPPs Exigidos</div>
+              <div className="text-sm font-black text-slate-900">{epps.length} Elementos</div>
+            </div>
+          </div>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-blue-900 text-white flex items-center justify-center font-black text-sm shrink-0">
+              👥
+            </div>
+            <div>
+              <div className="text-[9px] font-black text-slate-500 uppercase">Personal Acreditado</div>
+              <div className="text-sm font-black text-slate-900">{trabajadores.length > 0 ? `${trabajadores.length} Operarios` : 'Registrado'}</div>
             </div>
           </div>
         </div>
 
         {/* Datos generales */}
-        <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="border-2 border-slate-800 rounded-xl overflow-hidden mb-5 bg-white shadow-xs">
-          <div className="bg-slate-900 text-white font-black text-[11px] px-4 py-1.5 uppercase tracking-wider">
-            DATOS GENERALES DEL TRABAJO Y UBICACIÓN
+        <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="border-2 border-slate-800 rounded-xl overflow-hidden mb-4 bg-white shadow-2xs">
+          <div className="bg-slate-900 text-white font-black text-[10px] px-3 py-1.5 uppercase tracking-wider flex justify-between items-center">
+            <span>DATOS GENERALES DEL TRABAJO Y UBICACIÓN</span>
+            <span className="text-slate-400 font-bold text-[9px]">ID REGISTRO: {docId}</span>
           </div>
           <div className="grid grid-cols-3 border-b border-slate-200">
-            <div className="p-3 border-r border-slate-200 flex flex-col gap-0.5 bg-slate-50/50">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">CLIENTE / EMPRESA</span>
-              <span className="font-extrabold text-sm text-slate-900">{data.empresa || '-'}</span>
+            <div className="p-2.5 border-r border-slate-200 flex flex-col gap-0.5 bg-slate-50/50">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">CLIENTE / EMPRESA</span>
+              <span className="font-extrabold text-xs text-slate-900">{data.empresa || '-'}</span>
             </div>
-            <div className="p-3 border-r border-slate-200 flex flex-col gap-0.5 bg-slate-50/50">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">CUIT / CUIL</span>
-              <span className="font-extrabold text-sm text-slate-900">{data.cuit || '-'}</span>
+            <div className="p-2.5 border-r border-slate-200 flex flex-col gap-0.5 bg-slate-50/50">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">CUIT / CUIL</span>
+              <span className="font-extrabold text-xs text-slate-900">{data.cuit || '-'}</span>
             </div>
-            <div className="p-3 flex flex-col gap-0.5 bg-slate-50/50">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">UBICACIÓN / OBRA</span>
-              <span className="font-extrabold text-sm text-slate-900">{data.obra || '-'}</span>
+            <div className="p-2.5 flex flex-col gap-0.5 bg-slate-50/50">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">UBICACIÓN / OBRA</span>
+              <span className="font-extrabold text-xs text-slate-900">{data.obra || '-'}</span>
             </div>
           </div>
           <div className="grid grid-cols-2 border-b border-slate-200">
-            <div className="p-3 border-r border-slate-200 flex flex-col gap-0.5">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">FECHA DE EJECUCIÓN</span>
-              <span className="font-extrabold text-sm text-slate-900">{formatDate(data.fecha)}</span>
+            <div className="p-2.5 border-r border-slate-200 flex flex-col gap-0.5">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">FECHA DE EJECUCIÓN</span>
+              <span className="font-extrabold text-xs text-slate-900">{formatDate(data.fecha)}</span>
             </div>
-            <div className="p-3 flex flex-col gap-0.5">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">RESPONSABLE DE TAREA</span>
-              <span className="font-extrabold text-sm text-slate-900">{data.capatazNombre || '-'}</span>
+            <div className="p-2.5 flex flex-col gap-0.5">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">RESPONSABLE DE TAREA</span>
+              <span className="font-extrabold text-xs text-slate-900">{data.capatazNombre || '-'}</span>
             </div>
           </div>
-          <div className="p-3 border-b border-slate-200 bg-white">
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block mb-1">DESCRIPCIÓN DETALLADA DE LA TAREA</span>
+          <div className="p-2.5 border-b border-slate-200 bg-white">
+            <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block mb-1">DESCRIPCIÓN DETALLADA DE LA TAREA</span>
             <span className="font-bold text-xs text-slate-900 leading-relaxed block whitespace-pre-wrap">{data.tarea || '-'}</span>
           </div>
-          <div className="p-3 bg-blue-50/60 flex items-center justify-between">
-            <span className="text-[10px] font-black text-blue-900 uppercase tracking-wider">PROFESIONAL HYS ACTUANTE:</span>
+          <div className="p-2 bg-blue-50/70 flex items-center justify-between">
+            <span className="text-[9px] font-black text-blue-950 uppercase tracking-wider">PROFESIONAL HYS ACTUANTE:</span>
             <span className="font-extrabold text-xs text-blue-900">
               {actName || '-'}{actLic ? ` · MAT. N° ${actLic}` : ''}
             </span>
@@ -264,8 +320,8 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
 
         {/* Advertencia PT */}
         {requiresPT && (
-          <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="mb-5 p-3 bg-rose-600 text-white font-black text-xs rounded-xl text-center uppercase tracking-wider shadow-xs border-2 border-rose-800 flex items-center justify-center gap-2">
-            🛑 ATENCIÓN: TRABAJO DE ALTO RIESGO — REQUIERE PERMISO DE TRABAJO (PT) ADJUNTO OBLIGATORIO
+          <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="mb-4 p-2.5 bg-rose-600 text-white font-black text-[11px] rounded-xl text-center uppercase tracking-wider shadow-2xs border-2 border-rose-800 flex items-center justify-center gap-2">
+            🛑 ATENCIÓN: TAREA CON CONDICIÓN CRÍTICA — REQUIERE PERMISO DE TRABAJO (PT) ADJUNTO OBLIGATORIO
           </div>
         )}
 
@@ -289,12 +345,20 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
         {/* Secuencia de Tareas */}
         {tareas.length > 0 && (
           <div className="mb-5">
-            <div className="flex items-center gap-2 mb-2 pb-1 border-b-2 border-slate-800">
+            <div
+              data-avoid-break="true"
+              style={{ breakInside: 'avoid', pageBreakInside: 'avoid', breakAfter: 'avoid', pageBreakAfter: 'avoid' }}
+              className="flex items-center gap-2 mb-2 pb-1 border-b-2 border-slate-800 avoid-break avoid-break-strictly break-inside-avoid"
+            >
               <span style={secNum}>{nTareas}</span>
               <h3 className="text-xs font-black text-slate-900 m-0 uppercase tracking-wider">SECUENCIA DE TAREAS Y MATRIZ DE CONTROL DE RIESGOS</h3>
             </div>
             <div className="border border-slate-300 rounded-xl overflow-hidden">
-              <div className="grid grid-cols-[40px_2fr_1.8fr_2.2fr_90px] bg-slate-100 p-2.5 border-b-2 border-slate-300 font-black text-[11px] text-slate-700 uppercase tracking-wider items-center">
+              <div
+                data-avoid-break="true"
+                style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
+                className="grid grid-cols-[40px_2fr_1.8fr_2.2fr_90px] bg-slate-100 p-2.5 border-b-2 border-slate-300 font-black text-[11px] text-slate-700 uppercase tracking-wider items-center avoid-break avoid-break-strictly break-inside-avoid"
+              >
                 <div style={{ textAlign: 'center' }}>#</div>
                 <div>PASO DE TAREA</div>
                 <div>RIESGOS ASOCIADOS</div>
@@ -304,6 +368,7 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
               {tareas.map((t, idx) => (
                 <div
                   key={t.id || idx}
+                  data-avoid-break="true"
                   style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
                   className={`grid grid-cols-[40px_2fr_1.8fr_2.2fr_90px] gap-2 p-2.5 items-center border-b border-slate-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}`}
                 >
@@ -331,43 +396,65 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
         {/* Checklist Pre-operativo */}
         {categories.length > 0 && (
           <div className="mb-5">
-            <div className="flex items-center gap-2 mb-2 pb-1 border-b-2 border-slate-800">
-              <span style={secNum}>{nChecklist}</span>
-              <h3 className="text-xs font-black text-slate-900 m-0 uppercase tracking-wider">VERIFICACIÓN DE SEGURIDAD PRE-OPERATIVA</h3>
-            </div>
             {categories.map((cat, catIdx) => {
               const catItems = checklist.filter((item) => item.categoria === cat);
               return (
                 <div
                   key={catIdx}
-                  style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
-                  className="mb-4 border border-slate-300 rounded-xl overflow-hidden shadow-xs avoid-break avoid-break-strictly break-inside-avoid"
+                  className="mb-4"
                 >
-                  <div className="bg-slate-900 text-white p-2 text-xs font-black uppercase tracking-wider flex items-center gap-2">
-                    <span className="text-blue-400">■</span> {cat}
+                  {/* Encabezado de sección si es la primera categoría */}
+                  {catIdx === 0 && (
+                    <div
+                      data-avoid-break="true"
+                      data-orphan-threshold="160"
+                      style={{ breakInside: 'avoid', pageBreakInside: 'avoid', breakAfter: 'avoid', pageBreakAfter: 'avoid' }}
+                      className="flex items-center gap-2 mb-2 pb-1 border-b-2 border-slate-800 avoid-break avoid-break-strictly break-inside-avoid"
+                    >
+                      <span style={secNum}>{nChecklist}</span>
+                      <h3 className="text-xs font-black text-slate-900 m-0 uppercase tracking-wider">VERIFICACIÓN DE SEGURIDAD PRE-OPERATIVA</h3>
+                    </div>
+                  )}
+
+                  {/* Bloque de categoría y encabezado de tabla unidos */}
+                  <div
+                    data-avoid-break="true"
+                    data-orphan-threshold="140"
+                    style={{ breakInside: 'avoid', pageBreakInside: 'avoid', breakAfter: 'avoid', pageBreakAfter: 'avoid' }}
+                    className="border border-slate-300 rounded-t-xl overflow-hidden shadow-xs avoid-break avoid-break-strictly break-inside-avoid"
+                  >
+                    <div className="bg-slate-900 text-white p-2 text-xs font-black uppercase tracking-wider flex items-center gap-2">
+                      <span className="text-blue-400">■</span> {cat}
+                    </div>
+                    <div className="grid grid-cols-[3fr_110px_2fr] bg-slate-100 p-2 border-b border-slate-300 font-black text-[10px] text-slate-700 uppercase tracking-wider items-center">
+                      <div>ÍTEM DE VERIFICACIÓN</div>
+                      <div style={{ textAlign: 'center' }}>ESTADO</div>
+                      <div>OBSERVACIONES</div>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-[3fr_110px_2fr] bg-slate-100 p-2 border-b border-slate-300 font-black text-[10px] text-slate-700 uppercase tracking-wider items-center">
-                    <div>ÍTEM DE VERIFICACIÓN</div>
-                    <div style={{ textAlign: 'center' }}>ESTADO</div>
-                    <div>OBSERVACIONES</div>
-                  </div>
-                  {catItems.map((item, itemIdx) => {
-                    const isSI = item.estado === 'Cumple' || item.estado === 'SI';
-                    const isNO = item.estado === 'No Cumple' || item.estado === 'NO';
-                    return (
-                      <div
-                        key={item.id || itemIdx}
-                        style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
-                        className={`grid grid-cols-[3fr_110px_2fr] gap-3 items-center p-2 border-b border-slate-200 ${itemIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}`}
-                      >
-                        <div className="font-bold text-xs text-slate-900">{item.pregunta}</div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <span style={siStyle(isSI, isNO)}>{isSI ? '✓ SI' : isNO ? '✗ NO' : 'N/A'}</span>
+
+                  {/* Filas de preguntas individuales con salto limpio */}
+                  <div className="border-x border-b border-slate-300 rounded-b-xl overflow-hidden shadow-xs">
+                    {catItems.map((item, itemIdx) => {
+                      const isSI = item.estado === 'Cumple' || item.estado === 'SI';
+                      const isNO = item.estado === 'No Cumple' || item.estado === 'NO';
+                      const isLast = itemIdx === catItems.length - 1;
+                      return (
+                        <div
+                          key={item.id || itemIdx}
+                          data-avoid-break="true"
+                          style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
+                          className={`grid grid-cols-[3fr_110px_2fr] gap-3 items-center p-2 avoid-break avoid-break-strictly break-inside-avoid ${!isLast ? 'border-b border-slate-200' : ''} ${itemIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}`}
+                        >
+                          <div className="font-bold text-xs text-slate-900">{item.pregunta}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <span style={siStyle(isSI, isNO)}>{isSI ? '✓ SI' : isNO ? '✗ NO' : 'N/A'}</span>
+                          </div>
+                          <div className="text-xs font-medium text-slate-600">{item.observaciones || '-'}</div>
                         </div>
-                        <div className="text-xs font-medium text-slate-600">{item.observaciones || '-'}</div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               );
             })}

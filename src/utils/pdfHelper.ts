@@ -398,14 +398,19 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         const currentCloneRect = clone.getBoundingClientRect();
         const topPx = rect.top - currentCloneRect.top;
         const heightPx = rect.height;
-        if (topPx > 0 && heightPx > 0 && heightPx < exactPxPageHeight) {
+        if (topPx > 0 && heightPx > 0) {
           const pageAtTop = Math.floor(topPx / exactPxPageHeight);
+          const spaceLeftOnPage = (pageAtTop + 1) * exactPxPageHeight - topPx;
+          
+          // Si el elemento tiene un umbral para evitar quedar huérfano (ej. un título o encabezado de tabla sin filas suficientes)
+          const customOrphanThreshold = parseInt(htmlEl.getAttribute('data-orphan-threshold') || '0', 10);
+          const needsBreakDueToOrphan = customOrphanThreshold > 0 && spaceLeftOnPage < customOrphanThreshold;
+          
           const pageAtBottom = Math.floor((topPx + heightPx - 1) / exactPxPageHeight);
-          if (pageAtBottom > pageAtTop) {
-            // El elemento quedaría partido al medio entre 2 páginas.
+          if (pageAtBottom > pageAtTop || needsBreakDueToOrphan) {
+            // El elemento quedaría partido al medio entre 2 páginas o dejaría un encabezado huérfano al final de la hoja.
             // Insertamos un salto limpio exactamente antes de él para moverlo íntegro a la siguiente página.
-            const spaceLeft = (pageAtTop + 1) * exactPxPageHeight - topPx;
-            const spacerHeight = Math.min(spaceLeft + 8, exactPxPageHeight - 20);
+            const spacerHeight = Math.min(spaceLeftOnPage + 8, exactPxPageHeight - 20);
             const spacer = document.createElement('div');
             spacer.style.cssText = `height: ${Math.round(spacerHeight)}px; display: block; visibility: hidden; width: 100%; flex-shrink: 0; clear: both; pointer-events: none;`;
             htmlEl.parentNode?.insertBefore(spacer, htmlEl);
