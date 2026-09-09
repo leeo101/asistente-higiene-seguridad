@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Search, UserCircle, Activity, ShieldCheck, FileText, AlertCircle, Award, 
-  CheckCircle2, XCircle, Printer, Share2, HardHat, RefreshCw, FileCheck, Building2, Briefcase
+  CheckCircle2, XCircle, Printer, Share2, HardHat, RefreshCw, FileCheck, Building2, Briefcase, QrCode
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import AnimatedPage from '../components/AnimatedPage';
+import QRModal from '../components/QRModal';
 import toast from 'react-hot-toast';
 
 export default function WorkerPortal() {
@@ -17,6 +18,7 @@ export default function WorkerPortal() {
   const [loading, setLoading] = useState(false);
   const [workerData, setWorkerData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'medical' | 'trainings' | 'ppe' | 'docs'>('medical');
+  const [showQrModal, setShowQrModal] = useState(false);
 
   useEffect(() => {
     if (searchedDni) {
@@ -305,8 +307,14 @@ export default function WorkerPortal() {
                   </div>
                 </div>
 
-                {/* Print & Share Actions */}
-                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-700/60 no-print">
+                {/* Print, Share & QR Actions */}
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-700/60 no-print flex-wrap">
+                  <button
+                    onClick={() => setShowQrModal(true)}
+                    className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer border-none shadow-sm">
+                    <QrCode size={14} />
+                    <span>Pase QR Garita</span>
+                  </button>
                   <button
                     onClick={handleShare}
                     className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer border-none">
@@ -464,6 +472,27 @@ export default function WorkerPortal() {
               )}
 
             </div>
+          )}
+
+          {/* Modal de Pase QR Garita / Acceso */}
+          {showQrModal && workerData && (
+            <QRModal
+              text={window.location.href}
+              title={`Pase de Acceso - ${workerData.name}`}
+              details={
+                <div className="space-y-2 text-center text-xs text-slate-600 dark:text-slate-300">
+                  <p className="font-bold text-sm text-slate-900 dark:text-white">{workerData.name}</p>
+                  <p>DNI: {workerData.dni} • {workerData.jobTitle}</p>
+                  <div className="inline-block px-2.5 py-1 rounded-full text-[11px] font-bold mt-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    ESTADO: {workerData.status}
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-2">
+                    Escaneable por personal de garita, seguridad patrimonial o contratistas.
+                  </p>
+                </div>
+              }
+              onClose={() => setShowQrModal(false)}
+            />
           )}
 
         </div>

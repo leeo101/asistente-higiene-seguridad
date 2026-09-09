@@ -271,6 +271,28 @@ export default function Home(): React.ReactElement {
   const [isMobile, setIsMobile] = useState(false);
   const [recentModulePaths, setRecentModulePaths] = useState<Set<string>>(new Set());
   const [moduleCounts, setModuleCounts] = useState<Record<string, number>>({});
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('user_favorite_modules');
+      return saved ? JSON.parse(saved) : ['/ats', '/work-permit', '/checklists', '/extintores'];
+    } catch {
+      return ['/ats', '/work-permit', '/checklists', '/extintores'];
+    }
+  });
+
+  const toggleFavorite = (e: React.MouseEvent, path: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setFavorites(prev => {
+      const updated = prev.includes(path) ? prev.filter(p => p !== path) : [...prev, path];
+      try {
+        localStorage.setItem('user_favorite_modules', JSON.stringify(updated));
+      } catch (err) {
+        console.error('Error saving favorites:', err);
+      }
+      return updated;
+    });
+  };
 
   const categories = useMemo(() => {
     const cats = new Set(filteredQuickLinks.map(l => l.category));
@@ -635,9 +657,31 @@ export default function Home(): React.ReactElement {
                 <CounterItem value={8500} label="Reportes" suffix="+" />
                 <CounterItem value={5} label="Países" suffix="" />
               </div>
+
+              {/* Respaldo Normativo y Banderas */}
+              <div className="mt-6 pt-4 border-t border-white/5 flex items-center gap-3 flex-wrap" style={{ justifyContent: isMobile ? 'center' : 'flex-start' }}>
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Validado para:</span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                    🇦🇷 <span>Ley 19.587 / Dec. 351</span>
+                  </span>
+                  <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                    🇨🇱 <span>DS 594</span>
+                  </span>
+                  <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                    🇺🇾 <span>Dec. 406/88</span>
+                  </span>
+                  <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                    🇲🇽 <span>STPS</span>
+                  </span>
+                  <span className="px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-xs font-semibold text-blue-400 flex items-center gap-1">
+                    🌐 <span>ISO 45001 / OSHA</span>
+                  </span>
+                </div>
+              </div>
             </div>
             
-            <div className="stagger-item hidden-mobile animation-delay-[0.4s] perspective-[1000px]">
+            <div className="stagger-item w-full flex justify-center animation-delay-[0.4s] perspective-[1000px] mt-6 lg:mt-0">
               <Suspense fallback={<div className="h-[300px]" />}>
                 <InteractiveHeroDemo />
               </Suspense>
@@ -906,12 +950,20 @@ export default function Home(): React.ReactElement {
 
               {!isMobile &&
               <div className="bento-item bento-quick">
-                <h3 className="m-[0_0_0.8rem_0] text-[0.95rem] font-[800] text-[white] flex items-center gap-[0.4rem]">
-                  <Star size={16} color="#f59e0b" weight="fill" />
-                  Acceso Rápido
-                </h3>
+                <div className="flex items-center justify-between mb-[0.8rem]">
+                  <h3 className="m-0 text-[0.95rem] font-[800] text-[white] flex items-center gap-[0.4rem]">
+                    <Star size={16} color="#f59e0b" weight="fill" />
+                    Mis Favoritos
+                  </h3>
+                  <span className="text-[0.65rem] text-[rgba(255,255,255,0.4)] font-[600]">
+                    {favorites.length} fijados
+                  </span>
+                </div>
                 <div className="grid gap-[0.5rem] flex-[1]" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))' }}>
-                  {quickLinks.filter((l) => l.featured).slice(0, 6).map((link, i) => {
+                  {(quickLinks.filter((l) => favorites.includes(l.to)).length > 0
+                    ? quickLinks.filter((l) => favorites.includes(l.to)).slice(0, 8)
+                    : quickLinks.filter((l) => l.featured).slice(0, 6)
+                  ).map((link) => {
                     const hexToRgb = (hex: string) => {
                       const m = hex.replace('#', '').match(/.{2}/g);
                       if (!m) return '59 130 246';
@@ -920,7 +972,7 @@ export default function Home(): React.ReactElement {
                     return (
                       <div
                         key={link.to}
-                        className="bento-quick-card"
+                        className="bento-quick-card relative group"
                         style={{ '--card-accent-rgb': hexToRgb(link.color), padding: '0.6rem 0.4rem' } as React.CSSProperties}
                         onClick={() => navigate(link.to)}>
                         
@@ -954,6 +1006,7 @@ export default function Home(): React.ReactElement {
           <FeaturesShowcase />
           <WallOfLove />
           <BeforeAndAfter />
+          <RoiCalculator />
           <PricingDark onStart={() => navigate('/login', { state: { view: 'register' } })} />
           <FaqAndCtaDark />
           </div>
@@ -977,28 +1030,60 @@ export default function Home(): React.ReactElement {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-[1rem] mb-[2rem] relative z-[5] no-print w-[100%] overflow-hidden">
-                <div className="flex flex-nowrap gap-[0.8rem] overflow-x-auto pb-[0.5rem] w-[100%] hide-scrollbar items-center" style={{ WebkitOverflowScrolling: 'touch', scrollSnapType: 'x mandatory' }}>
+              <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-[1rem] mb-[1.5rem] relative z-[5] no-print w-[100%]">
+                {/* Buscador Rápido de Módulos */}
+                <div className="relative flex-1 max-w-md">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--color-text-muted)]">
+                    <MagnifyingGlass size={18} weight="bold" />
+                  </div>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Buscar herramienta (ej: ATS, extintor, ruido, permiso)..."
+                    className="w-full pl-10 pr-9 py-2.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl text-sm text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-inner"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white bg-transparent border-0 cursor-pointer"
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+
+                {/* Categorías y Modo Campo */}
+                <div className="flex flex-nowrap gap-[0.6rem] overflow-x-auto pb-[0.2rem] hide-scrollbar items-center" style={{ WebkitOverflowScrolling: 'touch', scrollSnapType: 'x mandatory' }}>
                   <button
                     onClick={() => setActiveCategory('all')}
                     style={{ scrollSnapAlign: 'start' }}
-                    className={`whitespace-nowrap px-[1.2rem] py-[0.65rem] rounded-[100px] font-[800] text-[0.9rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'all' ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-[0_4px_15px_rgba(59,130,246,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] hover:border-[rgba(59,130,246,0.3)] shadow-xs'}`}>
+                    className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'all' ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-[0_4px_15px_rgba(59,130,246,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] hover:border-[rgba(59,130,246,0.3)] shadow-xs'}`}>
                     ✨ Todos
                   </button>
-                  {categories.includes('docs') && <button onClick={() => setActiveCategory('docs')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.2rem] py-[0.65rem] rounded-[100px] font-[800] text-[0.9rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'docs' ? 'bg-[#10b981] text-white border-[#10b981] shadow-[0_4px_15px_rgba(16,185,129,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>📋 Documentación</button>}
-                  {categories.includes('critical') && <button onClick={() => setActiveCategory('critical')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.2rem] py-[0.65rem] rounded-[100px] font-[800] text-[0.9rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'critical' ? 'bg-[#ef4444] text-white border-[#ef4444] shadow-[0_4px_15px_rgba(239,68,68,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>🛡️ Riesgo Crítico</button>}
-                  {categories.includes('specific') && <button onClick={() => setActiveCategory('specific')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.2rem] py-[0.65rem] rounded-[100px] font-[800] text-[0.9rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'specific' ? 'bg-[#f59e0b] text-white border-[#f59e0b] shadow-[0_4px_15px_rgba(245,158,11,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>⚙️ Específicos</button>}
-                  {categories.includes('management') && <button onClick={() => setActiveCategory('management')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.2rem] py-[0.65rem] rounded-[100px] font-[800] text-[0.9rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'management' ? 'bg-[#3b82f6] text-white border-[#3b82f6] shadow-[0_4px_15px_rgba(59,130,246,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>📊 Gestión</button>}
-                  {categories.includes('ia') && <button onClick={() => setActiveCategory('ia')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.2rem] py-[0.65rem] rounded-[100px] font-[800] text-[0.9rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'ia' ? 'bg-[#a855f7] text-white border-[#a855f7] shadow-[0_4px_15px_rgba(168,85,247,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>🤖 IA</button>}
+
+                  <button
+                    onClick={() => setActiveCategory('fav')}
+                    style={{ scrollSnapAlign: 'start' }}
+                    className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] flex items-center gap-1.5 ${activeCategory === 'fav' ? 'bg-amber-500 text-white border-amber-500 shadow-[0_4px_15px_rgba(245,158,11,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-amber-400 shadow-xs'}`}>
+                    <Star size={14} weight="fill" className="text-amber-400" />
+                    <span>Favoritos ({favorites.length})</span>
+                  </button>
+
+                  {categories.includes('docs') && <button onClick={() => setActiveCategory('docs')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'docs' ? 'bg-[#10b981] text-white border-[#10b981] shadow-[0_4px_15px_rgba(16,185,129,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>📋 Docs</button>}
+                  {categories.includes('critical') && <button onClick={() => setActiveCategory('critical')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'critical' ? 'bg-[#ef4444] text-white border-[#ef4444] shadow-[0_4px_15px_rgba(239,68,68,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>🛡️ Crítico</button>}
+                  {categories.includes('specific') && <button onClick={() => setActiveCategory('specific')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'specific' ? 'bg-[#f59e0b] text-white border-[#f59e0b] shadow-[0_4px_15px_rgba(245,158,11,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>⚙️ Específicos</button>}
+                  {categories.includes('management') && <button onClick={() => setActiveCategory('management')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'management' ? 'bg-[#3b82f6] text-white border-[#3b82f6] shadow-[0_4px_15px_rgba(59,130,246,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>📊 Gestión</button>}
+                  {categories.includes('ia') && <button onClick={() => setActiveCategory('ia')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'ia' ? 'bg-[#a855f7] text-white border-[#a855f7] shadow-[0_4px_15px_rgba(168,85,247,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>🤖 IA</button>}
                   
                   <button 
                     onClick={handleToggleInspectorMode}
                     style={{ scrollSnapAlign: 'start' }}
-                    className={`flex items-center gap-[0.6rem] px-[1.2rem] py-[0.65rem] rounded-[100px] font-[800] text-[0.9rem] transition-all flex-shrink-0 cursor-pointer border-[1px] outline-none ${isInspectorMode ? 'bg-[#10b981] text-white border-[#10b981] shadow-[0_4px_15px_rgba(16,185,129,0.35)] transform translate-y-[-2px]' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] hover:border-[rgba(16,185,129,0.3)] hover:translate-y-[-1px] shadow-sm'}`}
+                    className={`flex items-center gap-[0.5rem] px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] outline-none ${isInspectorMode ? 'bg-[#10b981] text-white border-[#10b981] shadow-[0_4px_15px_rgba(16,185,129,0.35)] transform translate-y-[-2px]' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] hover:border-[rgba(16,185,129,0.3)] hover:translate-y-[-1px] shadow-sm'}`}
                   >
                     <span>Modo Campo</span>
-                    <div className={`relative w-[34px] h-[20px] rounded-full transition-colors ${isInspectorMode ? 'bg-[rgba(255,255,255,0.4)]' : 'bg-[rgba(100,116,139,0.3)]'}`}>
-                      <div className={`absolute top-[2px] left-[2px] w-[16px] h-[16px] rounded-full bg-[white] transition-transform ${isInspectorMode ? 'translate-x-[14px]' : 'translate-x-[0px]'} shadow-[0_1px_3px_rgba(0,0,0,0.3)]`} />
+                    <div className={`relative w-[30px] h-[18px] rounded-full transition-colors ${isInspectorMode ? 'bg-[rgba(255,255,255,0.4)]' : 'bg-[rgba(100,116,139,0.3)]'}`}>
+                      <div className={`absolute top-[2px] left-[2px] w-[14px] h-[14px] rounded-full bg-[white] transition-transform ${isInspectorMode ? 'translate-x-[12px]' : 'translate-x-[0px]'} shadow-[0_1px_3px_rgba(0,0,0,0.3)]`} />
                     </div>
                   </button>
                 </div>
@@ -1006,12 +1091,35 @@ export default function Home(): React.ReactElement {
             </div>
 
             <div style={{
-
               gridTemplateColumns: isMobile ? 'repeat(auto-fill, minmax(110px, 1fr))' : 'repeat(auto-fill, minmax(180px, 1fr))',
               gap: isMobile ? '0.6rem' : '1.2rem'
-
             }} className="grid grid-auto-rows-[auto]">
-              {filteredQuickLinks.filter((link) => activeCategory === 'all' || link.category === activeCategory).length > 0 ? filteredQuickLinks.filter((link) => activeCategory === 'all' || link.category === activeCategory).map((link, i) => {
+              {filteredQuickLinks
+                .filter((link) => {
+                  if (activeCategory === 'fav') return favorites.includes(link.to);
+                  if (activeCategory !== 'all' && link.category !== activeCategory) return false;
+                  if (!searchQuery.trim()) return true;
+                  const q = searchQuery.toLowerCase();
+                  return (
+                    link.label.toLowerCase().includes(q) ||
+                    link.sub.toLowerCase().includes(q) ||
+                    (link.norm && link.norm.toLowerCase().includes(q))
+                  );
+                })
+                .length > 0 ? (
+                filteredQuickLinks
+                  .filter((link) => {
+                    if (activeCategory === 'fav') return favorites.includes(link.to);
+                    if (activeCategory !== 'all' && link.category !== activeCategory) return false;
+                    if (!searchQuery.trim()) return true;
+                    const q = searchQuery.toLowerCase();
+                    return (
+                      link.label.toLowerCase().includes(q) ||
+                      link.sub.toLowerCase().includes(q) ||
+                      (link.norm && link.norm.toLowerCase().includes(q))
+                    );
+                  })
+                  .map((link, i) => {
                 // Convert hex color to RGB triplet for CSS custom property
                 const hexToRgb = (hex: string) => {
                   const m = hex.replace('#', '').match(/.{2}/g);
@@ -1059,25 +1167,27 @@ export default function Home(): React.ReactElement {
                       e.currentTarget.style.background = 'var(--color-surface)';
                     }}>
                     
-                    {/* Top-right area: badge + recent dot */}
+                    {/* Top-right area: favorite star + badge + count */}
                     <div style={{
+                      top: isMobile ? '0.4rem' : '0.65rem',
+                      right: isMobile ? '0.4rem' : '0.65rem'
+                    }} className="absolute flex items-center gap-[3px] z-[3]">
+                      <button
+                        onClick={(e) => { e.preventDefault(); toggleFavorite(e, link.to); }}
+                        title={favorites.includes(link.to) ? 'Quitar de favoritos' : 'Fijar en favoritos'}
+                        className={`w-6 h-6 rounded-full flex items-center justify-center border-0 p-0 cursor-pointer transition-all ${
+                          favorites.includes(link.to)
+                            ? 'text-amber-400 bg-amber-400/15 hover:bg-amber-400/25 scale-105'
+                            : 'text-gray-500 hover:text-amber-400 bg-black/20 hover:bg-black/40 opacity-0 group-hover:opacity-100 hover:opacity-100'
+                        }`}
+                        style={{ opacity: favorites.includes(link.to) ? 1 : undefined }}
+                      >
+                        <Star size={13} weight={favorites.includes(link.to) ? 'fill' : 'regular'} />
+                      </button>
 
-                      top: isMobile ? '0.45rem' : '0.7rem',
-                      right: isMobile ? '0.45rem' : '0.7rem'
-
-
-
-
-                    }} className="absolute flex items-center gap-[4px] z-[2]">
                       {moduleCounts[link.to] > 0 &&
                       <span style={{
-
-
-
-
                         fontSize: isMobile ? '0.6rem' : '0.65rem'
-
-
                       }} className="bg-[rgba(255,255,255,0.08)] text-[var(--color-text-muted)] p-[2px_6px] rounded-[100px] font-[700] border-[1px_solid_rgba(255,255,255,0.05)]">
                           {moduleCounts[link.to]}
                         </span>
@@ -1088,7 +1198,6 @@ export default function Home(): React.ReactElement {
                         background: `linear-gradient(135deg, ${link.color}, ${link.color}cc)`,
                         fontSize: isMobile ? '0.52rem' : '0.62rem',
                         boxShadow: `0 2px 8px rgba(${accentRgb} / 0.35)`
-
                       }} className="text-[#fff] p-[2px_6px] rounded-[100px] font-[800] letter-spacing-[0.3px] line-height-[1.4]">
                           {link.badge}
                         </span>
@@ -1147,13 +1256,13 @@ export default function Home(): React.ReactElement {
                     }
                   </Link>);
 
-              }) :
+              })) : (
               <div className="grid-column-[1_/_-1] text-center p-[4rem_0] text-[var(--color-text-muted)]">
                   <MagnifyingGlass size={48} className="opacity-[0.2] mb-[1rem]" />
                   <h3 className="m-[0] text-[1.2rem] font-[700]">No se encontraron herramientas</h3>
                   <p className="m-[0.5rem_0_0] text-[0.9rem]">Probá con otro término de búsqueda.</p>
                 </div>
-              }
+              )}
             </div>
           </div>
 

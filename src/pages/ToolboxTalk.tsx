@@ -5,8 +5,9 @@ import {
   MessageSquare, Plus, Trash2, Save, Share2, Printer,
   Users, Calendar, User, Building2, FileText, ChevronDown,
   CheckCircle2, Clock, Search, Eye, Edit3, History, Pencil,
-  Briefcase, MapPin, Award, UserCheck, Download, ArrowLeft } from
+  Briefcase, MapPin, Award, UserCheck, Download, ArrowLeft, Sparkles, Loader2 } from
 'lucide-react';
+import { API_BASE_URL } from '../config';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -204,6 +205,75 @@ export default function ToolboxTalk(): React.ReactElement {
   });
 
   const [isMobile, setIsMobile] = useState(false);
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+
+  const handleGenerateAiTalk = async () => {
+    if (!form.tema.trim()) {
+      toast.error('Primero ingresá o seleccioná un tema para la charla');
+      return;
+    }
+
+    setIsGeneratingAi(true);
+    toast.loading('Redactando charla técnica con IA...', { id: 'ai-talk' });
+
+    try {
+      const prompt = `Actúa como especialista senior en Higiene y Seguridad Laboral. Redacta una Charla de 5 Minutos (Toolbox Talk) para el tema: "${form.tema}". Sector/Área: "${form.area || 'General'}".
+Estructura clara:
+1. OBJETIVO Y RIESGOS CLAVE: Breve explicación del peligro.
+2. MEDIDAS PREVENTIVAS (3 a 5 puntos directos y claros para los trabajadores).
+3. EPP OBLIGATORIO REQUERIDO.
+4. PREGUNTA CLAVE DE COMPROBACIÓN para hacerle al equipo antes de iniciar.
+Tono directo, profesional y aplicable a campo.`;
+
+      const response = await fetch(`${API_BASE_URL}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: prompt })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const text = data.reply || data.response || data.message || '';
+        if (text) {
+          setForm(f => ({
+            ...f,
+            desarrollo: text
+          }));
+          toast.success('¡Charla redactada con éxito por IA!', { id: 'ai-talk' });
+          setIsGeneratingAi(false);
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('Fallback a generador normativo local:', e);
+    }
+
+    // Fallback estructurado de alta calidad
+    const fallbackTemplate = `📌 TEMA: ${form.tema.toUpperCase()}
+📍 ÁREA / SECTOR: ${form.area || 'General'}
+
+1. OBJETIVO Y CONTEXTO DE RIESGO:
+El propósito de esta charla es concientizar a todo el equipo sobre los riesgos inmediatos asociados a ${form.tema.toLowerCase()}, asegurando que las actividades se desarrollen sin incidentes ni desvíos operativos.
+
+2. NORMAS Y MEDIDAS PREVENTIVAS BÁSICAS:
+• Inspección previa: Verificar el estado de herramientas, equipos y el área de trabajo antes de iniciar la labor.
+• Delimitación y orden: Mantener las vías de circulación despejadas y las áreas de maniobra señalizadas.
+• Concentración y comunicación: Informar de inmediato al responsable ante cualquier condición o acto inseguro detectado.
+• Cumplimiento estricto de procedimientos de trabajo seguro (PTS) aprobados.
+
+3. EQUIPO DE PROTECCIÓN PERSONAL (EPP):
+• Obligatorio uso de casco con barbijo (en altura/izaje), calzado de seguridad con puntera de acero, lentes de impacto y guantes específicos para la tarea.
+
+4. COMPROMISO DEL EQUIPO:
+Ninguna tarea es tan urgente como para realizarla sin las condiciones de seguridad adecuadas. Si algo no es seguro: ¡PARE LA TAREA!`;
+
+    setForm(f => ({
+      ...f,
+      desarrollo: fallbackTemplate
+    }));
+    toast.success('Charla generada exitosamente', { id: 'ai-talk' });
+    setIsGeneratingAi(false);
+  };
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -646,13 +716,31 @@ export default function ToolboxTalk(): React.ReactElement {
 
                             {/* ── Desarrollo ── */}
                             <div className="mt-[1.25rem]">
-                                <label className="toolbox-input-label">Desarrollo / Puntos Tratados</label>
+                                <div className="flex items-center justify-between mb-2">
+                                  <label className="toolbox-input-label m-0">Desarrollo / Puntos Tratados</label>
+                                  <button
+                                    type="button"
+                                    onClick={handleGenerateAiTalk}
+                                    disabled={isGeneratingAi}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer border-0 disabled:opacity-50"
+                                  >
+                                    {isGeneratingAi ? (
+                                      <>
+                                        <Loader2 size={13} className="animate-spin" />
+                                        <span>Redactando...</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Sparkles size={13} className="text-amber-300" />
+                                        <span>Redactar con IA</span>
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
                                 <textarea value={form.desarrollo}
               onChange={(e) => setForm((f) => ({ ...f, desarrollo: e.target.value }))}
-              placeholder="Describí los puntos principales de la charla, consultas del personal, acuerdos..."
-              className="toolbox-input-plain toolbox-focus-glow min-h-[120px] resize-[vertical] line-height-[1.5]" />
-
-              
+              placeholder="Describí los puntos principales de la charla, o presioná 'Redactar con IA' para autogenerarla..."
+              className="toolbox-input-plain toolbox-focus-glow min-h-[140px] resize-[vertical] line-height-[1.5]" />
                             </div>
 
                             {/* ── Observaciones ── */}
