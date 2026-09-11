@@ -16,7 +16,7 @@ import { ModuleActionBar } from '../components/module/ModuleActionBar';
 import ShareModal from '../components/ShareModal';
 import ProfessionalReportPdfGenerator from '../components/ProfessionalReportPdfGenerator';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
-import { generatePdfBlob } from '../utils/pdfHelper';
+import { generatePdfBlob, printElementAsDocument } from '../utils/pdfHelper';
 
 class ReportErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
   constructor(props: {children: React.ReactNode}) {
@@ -174,37 +174,37 @@ export default function Reports(): React.ReactElement | null {
     }
   }, [location.state]);
 
-  const handleDirectPrintFromHistory = (item: any) => {
+  const handleDirectPrintFromHistory = async (item: any) => {
       setPrintData(item);
       setIsPrinting(true);
-      setTimeout(() => {
+      const toastId = toast.loading('Preparando impresión...');
+      try {
+          await new Promise((r) => setTimeout(r, 350));
           const element = document.getElementById('pdf-direct-print');
           if (!element) {
-              toast.error('No se pudo generar el documento para imprimir.');
-              setIsPrinting(false);
-              setPrintData(null);
-              return;
+              throw new Error('No se pudo generar el documento para imprimir.');
           }
-          
-          document.body.classList.add('printing-isolated');
-          element.classList.add('isolated-print-target');
-          
-          const cleanup = () => {
-              document.body.classList.remove('printing-isolated');
-              element.classList.remove('isolated-print-target');
-              window.removeEventListener('afterprint', cleanup);
-              window.removeEventListener('focus', cleanup);
-              setIsPrinting(false);
-              setPrintData(null);
-          };
-          
-          window.addEventListener('afterprint', cleanup);
-          window.addEventListener('focus', cleanup);
-          
+          await printElementAsDocument('pdf-direct-print', `Informe - ${item.title || 'Profesional'}`, false);
+          toast.dismiss(toastId);
+      } catch (err) {
+          console.error('[Reports] Error al imprimir:', err);
+          toast.dismiss(toastId);
+          const element = document.getElementById('pdf-direct-print');
+          if (element) {
+              document.body.classList.add('printing-isolated');
+              element.classList.add('isolated-print-target');
+          }
+          window.print();
           setTimeout(() => {
-              window.print();
-          }, 300);
-      }, 500);
+              document.body.classList.remove('printing-isolated');
+              if (element) element.classList.remove('isolated-print-target');
+          }, 1000);
+      } finally {
+          setIsPrinting(false);
+          setTimeout(() => {
+              setPrintData(null);
+          }, 1500);
+      }
   };
 
   const handleAddPerson = () => {
@@ -458,38 +458,38 @@ export default function Reports(): React.ReactElement | null {
                   const data = { id: projectData.id || Date.now(), template, ...projectData, content, extraFields, photos, personnel: template === 'training' || template === 'epp' ? personnel : [], createdAt: new Date().toISOString(), showSignatures, operatorSignature, signature, supervisorSignature, professionalSignature: professional?.signature, professionalName: professional?.name, professionalLicense: professional?.license };
                   setShareItem({ type: 'report', data });
               }},
-              { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'warning', onClick: () => {
+              { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'warning', onClick: async () => {
                   const data = { id: projectData.id || Date.now(), template, ...projectData, content, extraFields, photos, personnel: template === 'training' || template === 'epp' ? personnel : [], createdAt: new Date().toISOString(), showSignatures, operatorSignature, signature, supervisorSignature, professionalSignature: professional?.signature, professionalName: professional?.name, professionalLicense: professional?.license };
                   setPrintData(data);
                   setIsPrinting(true);
-                  setTimeout(() => {
+                  const toastId = toast.loading('Preparando impresión...');
+                  try {
+                      await new Promise((r) => setTimeout(r, 350));
                       const element = document.getElementById('pdf-direct-print');
                       if (!element) {
-                          toast.error('No se pudo generar el documento para imprimir.');
-                          setIsPrinting(false);
-                          setPrintData(null);
-                          return;
+                          throw new Error('No se pudo generar el documento para imprimir.');
                       }
-                      
-                      document.body.classList.add('printing-isolated');
-                      element.classList.add('isolated-print-target');
-                      
-                      const cleanup = () => {
-                          document.body.classList.remove('printing-isolated');
-                          element.classList.remove('isolated-print-target');
-                          window.removeEventListener('afterprint', cleanup);
-                          window.removeEventListener('focus', cleanup);
-                          setIsPrinting(false);
-                          setPrintData(null);
-                      };
-                      
-                      window.addEventListener('afterprint', cleanup);
-                      window.addEventListener('focus', cleanup);
-                      
+                      await printElementAsDocument('pdf-direct-print', `Informe - ${projectData.title || 'Profesional'}`, false);
+                      toast.dismiss(toastId);
+                  } catch (err) {
+                      console.error('[Reports] Error al imprimir:', err);
+                      toast.dismiss(toastId);
+                      const element = document.getElementById('pdf-direct-print');
+                      if (element) {
+                          document.body.classList.add('printing-isolated');
+                          element.classList.add('isolated-print-target');
+                      }
+                      window.print();
                       setTimeout(() => {
-                          window.print();
-                      }, 100);
-                  }, 500);
+                          document.body.classList.remove('printing-isolated');
+                          if (element) element.classList.remove('isolated-print-target');
+                      }, 1000);
+                  } finally {
+                      setIsPrinting(false);
+                      setTimeout(() => {
+                          setPrintData(null);
+                      }, 1500);
+                  }
               }},
               { id: 'save', label: 'GUARDAR', icon: <Save size={18} />, variant: 'primary', onClick: () => requirePro(handleSave) }
             ]}

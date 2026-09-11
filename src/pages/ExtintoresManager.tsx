@@ -28,6 +28,7 @@ import ExcelJS from 'exceljs';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { BulkImportModal } from '../components/BulkImportModal';
 import { ExtinguisherImportRow } from '../utils/dataImporterExporter';
+import { printElementAsDocument } from '../utils/pdfHelper';
 
 const formatType = (tipo: string) => {
   if (!tipo) return 'N/A';
@@ -563,10 +564,27 @@ export default function ExtintoresManager() {
     return <ExtinguisherProfilePdf data={viewingPdf} onBack={() => setViewingPdf(null)} />;
   }
 
-  const handlePrintPdf = () => {
-    setPrintItem(filtered);
+  const handlePrintPdf = async () => {
+    const isLandscape = (filtered || []).length > 15;
+    const title = `Inventario de Extintores - ${filterEmpresa || 'General'}`;
+    const toastId = toast.loading('Preparando impresión...');
 
-    setTimeout(() => {
+    try {
+      setPrintItem(filtered);
+      // Permitir que React monte el componente en el DOM y resuelva firmas/estilos
+      await new Promise((r) => setTimeout(r, 350));
+
+      const element = document.getElementById('pdf-content-print');
+      if (!element) {
+        throw new Error('Elemento de impresión no encontrado');
+      }
+
+      await printElementAsDocument('pdf-content-print', title, isLandscape);
+      toast.dismiss(toastId);
+    } catch (err) {
+      console.error('[ExtintoresManager] Error al imprimir listado:', err);
+      toast.dismiss(toastId);
+      // Fallback a window.print() aislado
       const element = document.getElementById('pdf-content-print');
       if (element) {
         document.body.classList.add('printing-isolated');
@@ -576,14 +594,32 @@ export default function ExtintoresManager() {
       setTimeout(() => {
         document.body.classList.remove('printing-isolated');
         if (element) element.classList.remove('isolated-print-target');
-        setPrintItem(null);
       }, 1000);
-    }, 400);
+    } finally {
+      setTimeout(() => {
+        setPrintItem(null);
+      }, 1500);
+    }
   };
 
-  const handlePrintIndividualForm = (itemData: any) => {
-    setPrintItem(itemData);
-    setTimeout(() => {
+  const handlePrintIndividualForm = async (itemData: any) => {
+    const title = `Ficha Técnica - Extintor #${itemData?.numero || 'S-N'}`;
+    const toastId = toast.loading('Preparando ficha para impresión...');
+
+    try {
+      setPrintItem(itemData);
+      await new Promise((r) => setTimeout(r, 350));
+
+      const element = document.getElementById('pdf-content-print');
+      if (!element) {
+        throw new Error('Elemento de ficha no encontrado');
+      }
+
+      await printElementAsDocument('pdf-content-print', title, false);
+      toast.dismiss(toastId);
+    } catch (err) {
+      console.error('[ExtintoresManager] Error al imprimir ficha:', err);
+      toast.dismiss(toastId);
       const element = document.getElementById('pdf-content-print');
       if (element) {
         document.body.classList.add('printing-isolated');
@@ -593,9 +629,12 @@ export default function ExtintoresManager() {
       setTimeout(() => {
         document.body.classList.remove('printing-isolated');
         if (element) element.classList.remove('isolated-print-target');
-        setPrintItem(null);
       }, 1000);
-    }, 400);
+    } finally {
+      setTimeout(() => {
+        setPrintItem(null);
+      }, 1500);
+    }
   };
 
   const handleExportExcel = async () => {

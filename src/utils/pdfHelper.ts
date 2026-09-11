@@ -138,7 +138,7 @@ export async function printElementAsDocument(
     /style="([^"]*)"/i,
     (match, styleContent) => {
       const sanitized = styleContent
-        .replace(/position\s*:\s*absolute/gi, 'position: static')
+        .replace(/position\s*:\s*(?:absolute|fixed)/gi, 'position: static')
         .replace(/left\s*:\s*-[0-9]+px/gi, 'left: 0')
         .replace(/top\s*:\s*-[0-9]+px/gi, 'top: 0')
         .replace(/z-index\s*:\s*-[0-9]+/gi, 'z-index: 1');

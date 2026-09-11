@@ -4,6 +4,7 @@ import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import ShareModal from './ShareModal';
+import { printElementAsDocument } from '../utils/pdfHelper';
 
 const getRecargaExpirationStatus = (dateStr) => {
   if (!dateStr) return { text: 'Sin Datos', color: '#64748b', expirationDate: null };
@@ -58,7 +59,13 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
 
   if (!data) return null;
 
-  const handlePrint = () => window.print();
+  const handlePrint = async () => {
+    try {
+      await printElementAsDocument('pdf-content', `Ficha Técnica - Extintor #${data.numero || 'Reporte'}`, false);
+    } catch {
+      window.print();
+    }
+  };
 
   const recargaStatus = getRecargaExpirationStatus(data.vencimientoRecarga);
   const phStatus = getPHExpirationStatus(data.vencimientoPH);
