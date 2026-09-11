@@ -189,13 +189,37 @@ export default function ExtintoresManager() {
     } catch (e) {}
   }, []);
 
-  const handlePhotoUpload = async (files) => {
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
     if (!files || !files.length) return;
+    const file = files[0];
+    const toastId = toast.loading('Procesando y optimizando imagen del equipo...');
+    setIsUploadingPhoto(true);
+
     try {
-      const compressed = await compressImage(files[0]);
-      setFormData(prev => ({ ...prev, foto: compressed }));
-    } catch (e) {
-      console.warn('[ExtintoresManager] Error compressing photo:', e);
+      // Comprimir foto con balance ideal para legibilidad de marbete/chapa y almacenamiento liviano
+      const compressed = await compressImage(file, {
+        maxDimension: 800,
+        quality: 0.72,
+        mimeType: 'image/jpeg'
+      });
+      if (compressed) {
+        setFormData(prev => ({ ...prev, foto: compressed }));
+        toast.success('Foto cargada y optimizada con éxito', { id: toastId });
+      } else {
+        toast.error('No se pudo procesar la imagen seleccionada', { id: toastId });
+      }
+    } catch (err) {
+      console.warn('[ExtintoresManager] Error compressing photo:', err);
+      toast.error('Error al procesar la imagen', { id: toastId });
+    } finally {
+      setIsUploadingPhoto(false);
+      // Resetear el input para permitir volver a seleccionar la misma foto si se desea
+      if (e.target) {
+        e.target.value = '';
+      }
     }
   };
 
@@ -360,16 +384,63 @@ export default function ExtintoresManager() {
     }
   }, [searchParams]);
 
-  const saveToStorage = async (data) => {
-    localStorage.setItem('extinguishers_inventory', JSON.stringify(data));
-    setExtintores(data);
-    await syncCollection('extinguishers_inventory', data);
+  const saveToStorage = async (data: any[]) => {
+    try {
+      localStorage.setItem('extinguishers_inventory', JSON.stringify(data));
+      setExtintores(data);
+      await syncCollection('extinguishers_inventory', data);
+    } catch (err: any) {
+      console.warn('[ExtintoresManager] Storage quota exceeded or write failed:', err);
+      // Si el error es de cuota de localStorage (típico cuando hay múltiples fotos base64)
+      if (err?.name === 'QuotaExceededError' || err?.code === 22 || err?.number === -2146828281) {
+        try {
+          // Estrategia de recuperación: conservar los registros y optimizar fotos antiguas
+          const sanitizedData = data.map((item, idx) => {
+            // Dejar intactos los últimos 5 registros; para los más antiguos aligerar la foto si es muy grande
+            if (idx > 5 && item.foto && item.foto.length > 50000) {
+              return { ...item, foto: null };
+            }
+            return item;
+          });
+          localStorage.setItem('extinguishers_inventory', JSON.stringify(sanitizedData));
+          setExtintores(sanitizedData);
+          await syncCollection('extinguishers_inventory', sanitizedData);
+          toast.success('Guardado completado (almacenamiento local optimizado)', { duration: 4000 });
+          return;
+        } catch (subErr) {
+          console.error('[ExtintoresManager] Fallback sanitize storage failed:', subErr);
+        }
+      }
+      // Actualizar de todos modos el estado reactivo en memoria
+      setExtintores(data);
+      toast.error('Atención: El almacenamiento local del navegador está lleno. Los datos están en memoria pero podrían no persistir si recarga sin sincronizar.');
+    }
   };
 
-  const handleSave = async (e) => {
+  const handleSave = async (e: any) => {
     if (e && e.preventDefault) e.preventDefault();
-    const newEntry = { ...formData, id: editingId || Date.now().toString(), updatedAt: new Date().toISOString() };
-    let updated;
+
+    const cleanNumero = (formData.numero || '').trim();
+    if (!cleanNumero) {
+      toast.error('Debe ingresar el Número de Chapa / Identificador del extintor');
+      return;
+    }
+
+    const cleanUbicacion = (formData.ubicacion || '').trim();
+    if (!cleanUbicacion) {
+      toast.error('Debe especificar la ubicación física del extintor');
+      return;
+    }
+
+    const newEntry = {
+      ...formData,
+      numero: cleanNumero,
+      ubicacion: cleanUbicacion,
+      id: editingId || Date.now().toString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    let updated: any[];
     if (editingId) {
       updated = extintores.map((ext) => ext.id === editingId ? newEntry : ext);
       toast.success('Extintor actualizado con éxito');
@@ -377,10 +448,31 @@ export default function ExtintoresManager() {
       updated = [newEntry, ...extintores];
       toast.success('Extintor registrado con éxito');
     }
+
     await saveToStorage(updated);
     setShowForm(false);
     setEditingId(null);
-    setFormData({ numero: '', numeroSerie: '', tipo: 'ABC (PQS)', capacidad: '5 kg', ubicacion: '', marca: '', fechaFabricacion: '', vencimientoRecarga: '', vencimientoPH: '', selloIRAM: '', estadoFisico: 'Operativo', foto: null, empresa: '', showSignatures: { professional: true, supervisor: false, operator: false }, operatorSignature: '', supervisorSignature: '', professionalSignature: '', professionalName: '', professionalLicense: '' });
+    setFormData({
+      numero: '',
+      numeroSerie: '',
+      tipo: 'ABC (PQS)',
+      capacidad: '5 kg',
+      ubicacion: '',
+      marca: '',
+      fechaFabricacion: '',
+      vencimientoRecarga: '',
+      vencimientoPH: '',
+      selloIRAM: '',
+      estadoFisico: 'Operativo',
+      foto: null,
+      empresa: '',
+      showSignatures: { professional: true, supervisor: false, operator: false },
+      operatorSignature: '',
+      supervisorSignature: '',
+      professionalSignature: '',
+      professionalName: '',
+      professionalLicense: ''
+    });
   };
 
   const handleEdit = (ext) => {
@@ -968,9 +1060,9 @@ export default function ExtintoresManager() {
               className="ats-pdf-offscreen"
               aria-hidden="true"
               style={{
-                position: 'absolute',
+                position: 'fixed',
                 left: '-9999px',
-                top: '-99999px',
+                top: 0,
                 width: (Array.isArray(shareItem) && shareItem.length > 15) ? '297mm' : '210mm',
                 height: 'auto',
                 overflow: 'visible',
@@ -996,9 +1088,9 @@ export default function ExtintoresManager() {
               className="ats-pdf-offscreen"
               aria-hidden="true"
               style={{
-                position: 'absolute',
+                position: 'fixed',
                 left: '-9999px',
-                top: '-99999px',
+                top: 0,
                 width: (Array.isArray(printItem) && printItem.length > 15) ? '297mm' : '210mm',
                 height: 'auto',
                 overflow: 'visible',
@@ -1268,16 +1360,16 @@ export default function ExtintoresManager() {
                             <div className="grid-column-[1_/_-1]">
                                 <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">FOTO DEL EQUIPO (OPCIONAL)</label>
                                 <div className="flex items-center gap-4">
-                                    <label className="p-[0.8rem_1.5rem] bg-[rgba(37,99,235,0.1)] text-blue-600 dark:text-blue-400 border-[1px_dashed_rgba(37,99,235,0.3)] rounded-[12px] cursor-pointer flex items-center gap-[0.5rem] font-[800]">
-                                        <Camera size={20} /> Subir Foto
-                                        <input type="file" accept="image/*" onChange={(e) => handlePhotoUpload(e.target.files)} className="hidden" />
+                                    <label className={`p-[0.8rem_1.5rem] bg-[rgba(37,99,235,0.1)] text-blue-600 dark:text-blue-400 border-[1px_dashed_rgba(37,99,235,0.3)] rounded-[12px] cursor-pointer flex items-center gap-[0.5rem] font-[800] transition-opacity ${isUploadingPhoto ? 'opacity-50 pointer-events-none' : 'hover:bg-blue-50 dark:hover:bg-blue-900/30'}`}>
+                                        <Camera size={20} /> {isUploadingPhoto ? 'Optimizando...' : 'Subir Foto'}
+                                        <input type="file" accept="image/*" disabled={isUploadingPhoto} onChange={handlePhotoUpload} className="hidden" />
                                     </label>
                                     {formData.foto &&
-                <div className="relative w-[60px] h-[60px] rounded-[8px] overflow-[hidden] border-[2px_solid_var(--color-border)]">
-                                            <img src={formData.foto} alt="Extintor" className="w-[100%] h-[100%] object-fit-[cover]" />
-                                            <button type="button" onClick={() => setFormData({ ...formData, foto: null })} className="absolute top-[0] right-[0] bg-red-500 hover:bg-red-600 text-[#fff] border-none w-[20px] h-[20px] text-[10px] flex items-center justify-center cursor-pointer">✕</button>
+                                        <div className="relative w-[60px] h-[60px] rounded-[8px] overflow-hidden border-2 border-slate-300 dark:border-slate-600 shadow-sm">
+                                            <img src={formData.foto} alt="Extintor" className="w-full h-full object-cover" />
+                                            <button type="button" onClick={() => setFormData({ ...formData, foto: null })} className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white border-none w-[20px] h-[20px] text-[10px] flex items-center justify-center cursor-pointer transition-colors" title="Eliminar foto">✕</button>
                                         </div>
-                }
+                                    }
                                 </div>
                             </div>
                         </div>

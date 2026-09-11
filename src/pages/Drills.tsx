@@ -45,10 +45,6 @@ export default function DrillsHistory(): React.ReactElement | null {
     toast.success('Acta de simulacro eliminada');
   };
 
-  if (selectedReport) {
-    return <DrillPdfGenerator report={selectedReport} onBack={() => setSelectedReport(null)} />;
-  }
-
   // Resumen Estadístico (KPIs)
   const stats = useMemo(() => {
     const totalDrills = history.length;
@@ -68,6 +64,10 @@ export default function DrillsHistory(): React.ReactElement | null {
 
     return { totalDrills, totalEvacuated, avgMinsFormatted };
   }, [history]);
+
+  if (selectedReport) {
+    return <DrillPdfGenerator report={selectedReport} onBack={() => setSelectedReport(null)} />;
+  }
 
   const getHipotesisBadge = (hipotesis: string) => {
     const h = (hipotesis || '').toLowerCase();

@@ -133,6 +133,19 @@ export async function printElementAsDocument(
     return;
   }
 
+  // Asegurar que el elemento impreso no herede posiciones off-screen (left: -9999px, etc.)
+  const cleanHtml = printHtml.replace(
+    /style="([^"]*)"/i,
+    (match, styleContent) => {
+      const sanitized = styleContent
+        .replace(/position\s*:\s*absolute/gi, 'position: static')
+        .replace(/left\s*:\s*-[0-9]+px/gi, 'left: 0')
+        .replace(/top\s*:\s*-[0-9]+px/gi, 'top: 0')
+        .replace(/z-index\s*:\s*-[0-9]+/gi, 'z-index: 1');
+      return `style="${sanitized}"`;
+    }
+  );
+
   printWindow.document.write(`<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -153,8 +166,22 @@ export async function printElementAsDocument(
     html, body {
       margin: 0;
       padding: 0;
-      background: #ffffff;
+      background: #ffffff !important;
+      color: #0f172a !important;
       font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    }
+    /* Neutralizar cualquier clase o estilo de posición offscreen */
+    .ats-pdf-offscreen, #pdf-portal-container, #pdf-content-print {
+      position: static !important;
+      left: 0 !important;
+      top: 0 !important;
+      z-index: auto !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      width: 100% !important;
+      background: #ffffff !important;
+      margin: 0 !important;
+      padding: 0 !important;
     }
     tr, td, th,
     .avoid-break,
@@ -177,7 +204,7 @@ export async function printElementAsDocument(
   </style>
 </head>
 <body>
-  ${printHtml}
+  ${cleanHtml}
   <script>
     window.onload = function() {
       setTimeout(function() {

@@ -76,13 +76,12 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
             <div className="overflow-x-[visible]">
                 <div
           id="pdf-content"
-          className="pdf-container card print-area p-[15mm] bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box]"
+          className="pdf-container card print-area p-[15mm] bg-white text-slate-900 rounded-[8px]"
           ref={componentRef}
           style={{
-            width: isLandscape ? '297mm' : '210mm'
-
-
-
+            width: isLandscape ? '297mm' : '210mm',
+            backgroundColor: '#ffffff',
+            color: '#0f172a'
           }}>
           
                     <style type="text/css" media="print">

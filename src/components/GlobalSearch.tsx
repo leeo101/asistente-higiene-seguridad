@@ -78,9 +78,9 @@ const SOURCES = [
 { key: 'ats_history', label: 'ATS', color: '#10b981', bg: 'rgba(16,185,129,0.1)', icon: <ShieldCheck size={15} />, nav: '/ats', titleField: 'empresa', subtitleField: 'obra', dateField: 'fecha' },
 { key: 'fireload_history', label: 'Carga Fuego', color: '#f97316', bg: 'rgba(249,115,22,0.1)', icon: <Flame size={15} />, nav: '/fire-load', titleField: 'empresa', subtitleField: 'sector', dateField: 'createdAt' },
 { key: 'tool_checklists_history', label: 'Checklist', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)', icon: <ClipboardList size={15} />, nav: '/checklists', titleField: 'equipo', subtitleField: 'empresa', dateField: 'fecha' },
-{ key: 'lighting_history', label: 'Iluminación', color: '#eab308', bg: 'rgba(234,179,8,0.1)', icon: <Lightbulb size={15} />, nav: '/lighting-history', titleField: 'empresa', subtitleField: 'sector', dateField: 'date' },
-{ key: 'work_permits_history', label: 'Permiso', color: '#2563eb', bg: 'rgba(37,99,235,0.1)', icon: <KeySquare size={15} />, nav: '/work-permit-history', titleField: 'empresa', subtitleField: 'tarea', dateField: 'createdAt' },
-{ key: 'training_history', label: 'Capacitación', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', icon: <Users size={15} />, nav: '/training-history', titleField: 'tema', subtitleField: 'empresa', dateField: 'fecha' },
+{ key: 'lighting_history', label: 'Iluminación', color: '#eab308', bg: 'rgba(234,179,8,0.1)', icon: <Lightbulb size={15} />, nav: '/lighting', titleField: 'empresa', subtitleField: 'sector', dateField: 'date' },
+{ key: 'work_permits_history', label: 'Permiso', color: '#2563eb', bg: 'rgba(37,99,235,0.1)', icon: <KeySquare size={15} />, nav: '/work-permit', titleField: 'empresa', subtitleField: 'tarea', dateField: 'createdAt' },
+{ key: 'training_history', label: 'Capacitación', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', icon: <Users size={15} />, nav: '/training-management', titleField: 'tema', subtitleField: 'empresa', dateField: 'fecha' },
 { key: 'reports_history', label: 'Informe', color: '#ec4899', bg: 'rgba(236,72,153,0.1)', icon: <ScrollText size={15} />, nav: '/history', titleField: 'title', subtitleField: 'company', dateField: 'createdAt' },
 { key: 'ehs_medical_db', label: 'Trabajador', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', icon: <UserCircle size={15} />, nav: '/worker-portal', titleField: 'workerName', subtitleField: 'dni', dateField: 'examDate', isWorker: true }];
 

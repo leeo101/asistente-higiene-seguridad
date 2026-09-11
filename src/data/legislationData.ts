@@ -22,27 +22,6 @@ export const regionalData = {
         'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 'Valparaíso',
         'Metropolitana', "O'Higgins", 'Maule', 'Ñuble', 'Biobío', 'Araucanía', 'Los Ríos',
         'Los Lagos', 'Aysén', 'Magallanes'
-    
-        ,{
-            id: 'ds-44-cl',
-            title: 'DS 44',
-            subtitle: 'Gestión de Riesgos Laborales',
-            description: '⚠️ PLENA VIGENCIA 2026. Reemplaza a DS 40 y 54. Implementación del Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST) para todas las empresas.',
-            url: 'https://www.suseso.gob.cl/',
-            category: 'Decreto Supremo',
-            level: 'national',
-            isNew: true
-        },
-        {
-            id: 'circ-3914-suseso',
-            title: 'Circular 3.914 SUSESO',
-            subtitle: 'Empresas con Lugares Compartidos',
-            description: '⚠️ VIGENTE DESDE MARZO 2026. Nuevas medidas de seguridad e información mutua para empresas que comparten un mismo lugar de trabajo.',
-            url: 'https://www.suseso.gob.cl/',
-            category: 'Circular',
-            level: 'national',
-            isNew: true
-        }
     ],
     bolivia: [
         'La Paz', 'Santa Cruz', 'Cochabamba', 'Oruro', 'Potosí', 'Tarija', 'Chuquisaca', 'Beni', 'Pando'
@@ -579,6 +558,26 @@ export const legislationData = {
             url: 'https://www.bcn.cl/leychile/navegar?idNorma=167766',
             category: 'Decreto Supremo',
             level: 'national'
+        },
+        {
+            id: 'ds-44-cl',
+            title: 'DS 44',
+            subtitle: 'Gestión de Riesgos Laborales',
+            description: '⚠️ PLENA VIGENCIA 2026. Reemplaza a DS 40 y 54. Implementación del Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST) para todas las empresas.',
+            url: 'https://www.suseso.gob.cl/',
+            category: 'Decreto Supremo',
+            level: 'national',
+            isNew: true
+        },
+        {
+            id: 'circ-3914-suseso',
+            title: 'Circular 3.914 SUSESO',
+            subtitle: 'Empresas con Lugares Compartidos',
+            description: '⚠️ VIGENTE DESDE MARZO 2026. Nuevas medidas de seguridad e información mutua para empresas que comparten un mismo lugar de trabajo.',
+            url: 'https://www.suseso.gob.cl/',
+            category: 'Circular',
+            level: 'national',
+            isNew: true
         }
     ],
     bolivia: [

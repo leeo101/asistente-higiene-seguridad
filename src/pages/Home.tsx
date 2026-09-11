@@ -21,12 +21,8 @@ import { usePaywall } from '../hooks/usePaywall';
 import { API_BASE_URL } from '../config';
 import { auth, db } from '../firebase';
 import AnimatedPage from '../components/AnimatedPage';
-import AdBanner from '../components/AdBanner';
 import StarryBackground from '../components/StarryBackground';
 import StickyCtaBanner from '../components/StickyCtaBanner';
-import StatsBar from '../components/StatsBar';
-import NewsWidget from '../components/NewsWidget';
-import UrgentAlertWidget from '../components/UrgentAlertWidget';
 
 // Landing components — lazy porque solo se renderizan para usuarios no autenticados
 const InteractiveHeroDemo = lazy(() => import('../components/landing/InteractiveHeroDemo'));
@@ -306,7 +302,7 @@ export default function Home(): React.ReactElement {
       'Inspección': '/history',
       'Matriz': '/risk-matrix-history',
       'Informe': '/reports',
-      'Checklist': '/tool-inspection-history',
+      'Checklist': '/checklists',
       'Iluminación': '/lighting',
       'Permiso': '/work-permit',
       'Eval. Riesgo': '/risk-assessment-history',
@@ -1362,121 +1358,5 @@ export default function Home(): React.ReactElement {
 
     </div>
     </AnimatedPage>);
-
-}
-
-// FAQ Component — Premium Accordion
-function FaqSection(): React.ReactElement {
-  const [open, setOpen] = React.useState<number | null>(null);
-  const savedData = localStorage.getItem('personalData');
-  let userCountry = 'argentina';
-  try {
-    if (savedData) {
-      const parsed = JSON.parse(savedData);
-      userCountry = parsed.country?.toLowerCase() || 'argentina';
-    }
-  } catch (e) {}
-
-  const items = [
-  { q: '¿Es realmente gratis?', a: 'Sí, la carga de datos y el uso de los módulos es 100% gratuito e ilimitado. Podés completar ATS, hacer mediciones y cargar registros sin pagar. El plan PRO solo es necesario si deseás exportar esos resultados a PDF profesional, compartirlos por WhatsApp o sincronizarlos en la nube.' },
-  { q: '¿Puedo usar la IA gratis?', a: '¡Sí! Podés usar la Cámara IA y el Asesor IA de forma gratuita para ver los resultados y análisis en tiempo real en tu pantalla. La versión PRO te permite incluir esos hallazgos en reportes exportables y compartirlos.' },
-  {
-    q: userCountry === 'argentina' ? '¿Cumple con la normativa argentina?' : '¿Cumple con la normativa local?',
-    a: userCountry === 'argentina' ?
-    'Los cálculos están basados en la Ley 19.587, el Dec. 351/79, resoluciones SRT y normativas vigentes.' :
-    `Los cálculos y módulos están adaptados a las normativas vigentes de ${userCountry.charAt(0).toUpperCase() + userCountry.slice(1)}.`
-  },
-  { q: '¿Mis datos están seguros?', a: 'Sí. Usamos Firebase (Google) para autenticación y almacenamiento cifrado. Tu información está protegida y bajo tu control.' },
-  { q: '¿Funciona en el celular?', a: 'Perfecto. Está optimizada para mobile y podés instalarla directamente en tu pantalla de inicio como una app nativa (PWA).' },
-  { q: '¿Cómo cancelo la suscripción PRO?', a: 'En cualquier momento desde tu perfil, en la sección Suscripción. No hay contratos de permanencia ni cargos ocultos.' }];
-
-
-  return (
-    <div className="flex flex-col gap-[0.75rem] mb-[2rem]">
-      {items.map((item, i) =>
-      <div
-        key={i}
-        style={{
-
-
-          border: open === i ? '1px solid rgba(59,130,246,0.3)' : '1px solid var(--color-border)',
-          background: open === i ? 'rgba(59,130,246,0.04)' : 'var(--color-surface)',
-
-          boxShadow: open === i ? '0 4px 20px rgba(59,130,246,0.08)' : 'none'
-        }} className="rounded-[16px] overflow-[hidden] transition-[all_0.25s_ease]">
-        
-          <button
-          onClick={() => setOpen(open === i ? null : i)}
-          style={{
-
-
-
-
-
-
-
-
-
-
-
-
-            color: open === i ? 'var(--color-primary)' : 'var(--color-text)'
-
-
-          }} className="w-[100%] text-left bg-[none] border-none p-[1.1rem_1.4rem] cursor-pointer flex justify-space-between items-center gap-[1rem] font-[700] text-[0.95rem] transition-[color_0.2s] min-h-[48px]">
-          
-            <span className="flex-[1]">{item.q}</span>
-            <div
-            style={{
-
-
-
-              background: open === i ? 'var(--color-primary)' : 'rgba(59,130,246,0.08)',
-              border: `1px solid ${open === i ? 'var(--color-primary)' : 'rgba(59,130,246,0.15)'}`
-
-
-
-
-
-            }} className="w-[28px] h-[28px] rounded-[50%] flex items-center justify-center flex-shrink-[0] transition-[all_0.3s_ease]">
-            
-              <span
-              style={{
-
-                color: open === i ? 'white' : 'var(--color-primary)',
-
-
-                transform: open === i ? 'rotate(45deg)' : 'rotate(0)'
-
-
-              }} className="text-[1.1rem] line-height-[1] block transition-[transform_0.3s_ease] font-[300]">
-              
-                +
-              </span>
-            </div>
-          </button>
-          <div
-          style={{
-            maxHeight: open === i ? '300px' : '0'
-
-
-          }} className="overflow-[hidden] transition-[max-height_0.35s_cubic-bezier(0.16,_1,_0.3,_1)]">
-          
-            <div className="p-[0_1.4rem_1.2rem] text-[0.9rem] text-[var(--color-text-muted)] line-height-[1.7] border-top-[1px_solid_var(--color-border)] pt-[1rem]">
-
-
-
-
-
-
-
-
-            
-              {item.a}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>);
 
 }
