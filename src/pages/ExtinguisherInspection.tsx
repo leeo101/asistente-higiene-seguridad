@@ -175,59 +175,130 @@ export default function ExtinguisherInspection() {
     const calculatedResult = checklist.every((c) => c.status === 'C' || c.status === 'NA') ? 'APROBADO' : 'RECHAZADO';
 
     setIsSaving(true);
-    const report = {
-      id: Date.now().toString(),
-      extintorId: extintor.id,
-      extintorNum: extintor.numero || extintor.chapa || '',
-      fecha: `${inspectionDate}T12:00:00.000Z`,
-      inspector: inspectorName,
-      items: checklist,
-      fotos: generalPhotos,
-      observaciones: generalObservations,
-      resultado: calculatedResult
-    };
+    const toastId = toast.loading('Guardando inspección...');
 
-    const historyRaw = localStorage.getItem('extintores_history');
-    const history = historyRaw ? JSON.parse(historyRaw) : [];
-    const newHistory = [report, ...history];
+    try {
+      const extNumero = extintor.numero || extintor.chapa || extintor.id || 'S-N';
+      const report = {
+        id: Date.now().toString(),
+        extintorId: extintor.id,
+        extintorNum: extNumero,
+        fecha: `${inspectionDate}T12:00:00.000Z`,
+        inspector: (inspectorName || '').trim() || 'Inspector HSE',
+        items: checklist,
+        fotos: generalPhotos,
+        observaciones: generalObservations,
+        resultado: calculatedResult
+      };
 
-    localStorage.setItem('extintores_history', JSON.stringify(newHistory));
-    await syncCollection('extintores_history', newHistory);
-
-    // Update inventory date and add inspection for PDF
-    const pdfInspection = {
-      fechaVisita: report.fecha.split('T')[0],
-      resultado: report.resultado === 'APROBADO' ? 'C' : 'NC',
-      controles: {
-        acceso: checklist[1]?.status || 'C',
-        manometro: checklist[2]?.status || 'C',
-        manguera: checklist[3]?.status || 'C',
-        cilindro: checklist[6]?.status || 'C',
-        senalizacion: checklist[5]?.status || 'C'
-      },
-      observacion: report.observaciones,
-      fotos: report.fotos
-    };
-
-    const inventoryRaw = localStorage.getItem('extinguishers_inventory');
-    const inventory = inventoryRaw ? JSON.parse(inventoryRaw) : [];
-    const updatedInv = inventory.map((e: any) => {
-      if (e.id === extintor.id) {
-        const insps = e.inspections || [];
-        return {
-          ...e,
-          ultimaInspeccion: report.resultado === 'APROBADO' ? report.fecha : e.ultimaInspeccion,
-          inspections: [...insps, pdfInspection]
+      // 1. Guardar en extintores_history
+      let newHistory: any[] = [];
+      try {
+        const historyRaw = localStorage.getItem('extintores_history');
+        const history = historyRaw ? JSON.parse(historyRaw) : [];
+        newHistory = [report, ...history];
+        localStorage.setItem('extintores_history', JSON.stringify(newHistory));
+      } catch (quotaErr) {
+        console.warn('[ExtinguisherInspection] Quota error on history, sanitizing photos:', quotaErr);
+        // Fallback: aligerar fotos si supera el límite de localStorage
+        const sanitizedReport = {
+          ...report,
+          fotos: [],
+          items: checklist.map(i => ({ ...i, photos: [] }))
         };
+        const historyRaw = localStorage.getItem('extintores_history');
+        const history = historyRaw ? JSON.parse(historyRaw) : [];
+        newHistory = [sanitizedReport, ...history.slice(0, 30)];
+        localStorage.setItem('extintores_history', JSON.stringify(newHistory));
       }
-      return e;
-    });
-    localStorage.setItem('extinguishers_inventory', JSON.stringify(updatedInv));
-    await syncCollection('extinguishers_inventory', updatedInv);
 
-    setIsSaving(false);
-    toast.success(`Inspección guardada: ${report.resultado}`);
-    navigate('/extintores');
+      try {
+        await syncCollection('extintores_history', newHistory);
+      } catch (syncErr) {
+        console.warn('[ExtinguisherInspection] syncCollection history warning:', syncErr);
+      }
+
+      // 2. Actualizar o insertar en extinguishers_inventory
+      const pdfInspection = {
+        fechaVisita: report.fecha.split('T')[0],
+        resultado: report.resultado === 'APROBADO' ? 'C' : 'NC',
+        controles: {
+          acceso: checklist[1]?.status || 'C',
+          manometro: checklist[2]?.status || 'C',
+          manguera: checklist[3]?.status || 'C',
+          cilindro: checklist[6]?.status || 'C',
+          senalizacion: checklist[5]?.status || 'C'
+        },
+        observacion: report.observaciones,
+        fotos: report.fotos
+      };
+
+      const inventoryRaw = localStorage.getItem('extinguishers_inventory');
+      const inventory = inventoryRaw ? JSON.parse(inventoryRaw) : [];
+
+      // Buscar por ID, o por número/chapa
+      let matchFound = false;
+      let updatedInv = inventory.map((e: any) => {
+        const isMatch = (e.id && String(e.id) === String(extintor.id)) ||
+                        (e.numero && String(e.numero) === String(extNumero)) ||
+                        (e.chapa && String(e.chapa) === String(extNumero));
+        if (isMatch) {
+          matchFound = true;
+          const insps = e.inspections || [];
+          return {
+            ...e,
+            ultimaInspeccion: report.resultado === 'APROBADO' ? report.fecha : e.ultimaInspeccion,
+            inspections: [...insps, pdfInspection]
+          };
+        }
+        return e;
+      });
+
+      // Si es un extintor escaneado o simulado que no estaba en el inventario local, incorporarlo
+      if (!matchFound) {
+        const newExtEntry = {
+          ...extintor,
+          id: extintor.id || Date.now().toString(),
+          numero: extNumero,
+          ultimaInspeccion: report.resultado === 'APROBADO' ? report.fecha : undefined,
+          inspections: [pdfInspection]
+        };
+        updatedInv = [newExtEntry, ...inventory];
+      }
+
+      try {
+        localStorage.setItem('extinguishers_inventory', JSON.stringify(updatedInv));
+      } catch (invQuotaErr) {
+        console.warn('[ExtinguisherInspection] Quota error on inventory, optimizing:', invQuotaErr);
+        // Aligerar fotos de inspección
+        const cleanInv = updatedInv.map((item: any, idx: number) => {
+          if (idx > 5 && item.inspections) {
+            return {
+              ...item,
+              inspections: item.inspections.map((i: any) => ({ ...i, fotos: [] }))
+            };
+          }
+          return item;
+        });
+        localStorage.setItem('extinguishers_inventory', JSON.stringify(cleanInv));
+      }
+
+      try {
+        await syncCollection('extinguishers_inventory', updatedInv);
+      } catch (syncInvErr) {
+        console.warn('[ExtinguisherInspection] syncCollection inventory warning:', syncInvErr);
+      }
+
+      toast.success(`Inspección guardada: ${report.resultado}`, { id: toastId });
+      setTimeout(() => {
+        navigate('/extintores');
+      }, 500);
+    } catch (error: any) {
+      console.error('[ExtinguisherInspection] Error al guardar inspección:', error);
+      toast.error('Error al guardar la inspección. Intente nuevamente.', { id: toastId });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!extintor) return <div className="p-8 text-center text-slate-500">Cargando datos del equipo...</div>;

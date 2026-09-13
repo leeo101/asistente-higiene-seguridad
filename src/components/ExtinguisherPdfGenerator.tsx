@@ -72,32 +72,35 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
   };
 
   return (
-    <div id="extinguisher-pdf-wrap" className="pb-[0]">
-            <div className="overflow-x-[visible]">
+    <div id="extinguisher-pdf-wrap" className="pb-[0] w-full" data-orientation={isLandscape ? 'landscape' : 'portrait'}>
+            <div className="overflow-x-[visible] w-full">
                 <div
           id="pdf-content"
-          className="pdf-container card print-area p-[15mm] bg-white text-slate-900 rounded-[8px]"
+          className="pdf-container card print-area bg-white text-slate-900 rounded-[8px] w-full box-border"
           ref={componentRef}
           style={{
-            width: isLandscape ? '297mm' : '210mm',
+            maxWidth: isLandscape ? '297mm' : '210mm',
+            padding: '6mm 4mm',
+            boxSizing: 'border-box',
             backgroundColor: '#ffffff',
             color: '#0f172a'
           }}>
           
                     <style type="text/css" media="print">
                         {`
-                            @page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 15mm; }
+                            @page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 10mm; }
                             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                             .no-print { display: none !important; }
                             .print-area { 
                                 box-shadow: none !important; 
                                 margin: 0 !important; 
-                                padding: 10mm !important; 
+                                padding: 2mm 0 !important; 
                                 width: 100% !important; 
-                                max-width: none !important; 
-                                border: 1px solid #1e293b !important;
+                                max-width: 100% !important; 
+                                border: none !important;
                                 border-radius: 0 !important;
                                 height: auto !important;
+                                box-sizing: border-box !important;
                             }
                             #extinguisher-pdf-wrap {
                                 padding-top: 0 !important;
@@ -231,7 +234,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                   return valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
                 });
 
-                const CHUNK_SIZE = 12; // Número seguro de filas por tabla para evitar recortes
+                const CHUNK_SIZE = 9; // Tamaño óptimo de filas para evitar desbordes en página A4
                 const chunks = [];
                 for (let i = 0; i < group.length; i += CHUNK_SIZE) {
                   chunks.push(group.slice(i, i + CHUNK_SIZE));
@@ -254,16 +257,16 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                 </div>
 
                                                 {/* Compact Table */}
-                                                <table className="table-fixed w-full border-collapse break-words text-[9pt] mt-[0px]" style={{ pageBreakInside: 'auto', breakInside: 'auto' }}>
+                                                <table className="table-fixed w-full border-collapse break-words text-[8.5pt] mt-[0px]" style={{ pageBreakInside: 'auto', breakInside: 'auto', width: '100%', boxSizing: 'border-box' }}>
                                                     <thead>
                                                         <tr style={{ pageBreakInside: 'avoid', breakInside: 'avoid', backgroundColor: '#f1f5f9' }}>
-                                                            <th style={{ color: '#0f172a' }} className="p-[6px_8px] text-center font-[900] w-[10%]">Nº / CHAPA</th>
-                                                            <th style={{ color: '#0f172a' }} className="p-[6px_8px] text-left font-[900]">TIPO / CAP.</th>
-                                                            <th style={{ color: '#0f172a' }} className="p-[6px_8px] text-left font-[900]">F. FABRICACIÓN</th>
-                                                            <th style={{ color: '#0f172a' }} className="p-[6px_8px] text-left font-[900]">UBICACIÓN</th>
-                                                            <th style={{ color: '#0f172a' }} className="p-[6px_8px] text-left font-[900]">VENC. CARGA</th>
-                                                            <th style={{ color: '#0f172a' }} className="p-[6px_8px] text-left font-[900]">VENC. PH</th>
-                                                            <th style={{ color: '#0f172a' }} className="p-[6px_8px] text-left font-[900]">ÚLTIMA INSP.</th>
+                                                            <th style={{ color: '#0f172a', width: '9%' }} className="p-[4px_4px] text-center font-[900]">Nº/CHAPA</th>
+                                                            <th style={{ color: '#0f172a', width: '15%' }} className="p-[4px_6px] text-left font-[900]">TIPO / CAP.</th>
+                                                            <th style={{ color: '#0f172a', width: '15%' }} className="p-[4px_6px] text-left font-[900]">F. FABRICACIÓN</th>
+                                                            <th style={{ color: '#0f172a', width: '17%' }} className="p-[4px_6px] text-left font-[900]">UBICACIÓN</th>
+                                                            <th style={{ color: '#0f172a', width: '15%' }} className="p-[4px_6px] text-left font-[900]">VENC. CARGA</th>
+                                                            <th style={{ color: '#0f172a', width: '14%' }} className="p-[4px_6px] text-left font-[900]">VENC. PH</th>
+                                                            <th style={{ color: '#0f172a', width: '15%' }} className="p-[4px_6px] text-left font-[900]">ÚLTIMA INSP.</th>
                                                         </tr>
                                                     </thead>
                                                     {chunk.map((ext: any, idx: number) => {
@@ -300,42 +303,42 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                           return (
                             <tbody key={`${empresa}-${globalIdx}`} className="ext-row" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                                                                     <tr style={{ background: rowBg, pageBreakInside: 'avoid', breakInside: 'avoid', borderTop: '1px solid #e2e8f0' }}>
-                                                                        <td style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 900, color: '#0f172a', fontSize: '9.5pt' }}>
-                                                                            <div style={{ fontSize: '7pt', color: '#94a3b8', marginBottom: '2px' }}>{globalIdx + 1}</div>
+                                                                        <td style={{ padding: '5px 4px', textAlign: 'center', fontWeight: 900, color: '#0f172a', fontSize: '9pt' }}>
+                                                                            <div style={{ fontSize: '7pt', color: '#94a3b8', marginBottom: '1px' }}>{globalIdx + 1}</div>
                                                                             <div>{ext?.numero || ext?.chapa || '-'}</div>
                                                                         </td>
-                                                                        <td style={{ padding: '6px 8px', color: '#374151', fontWeight: 600, fontSize: '8.5pt' }}>{formatType(ext?.tipo)} {ext?.capacidad ? `- ${ext.capacidad}` : ''}</td>
-                                                                        <td style={{ padding: '6px 8px', fontSize: '8pt' }}>
+                                                                        <td style={{ padding: '5px 6px', color: '#374151', fontWeight: 600, fontSize: '8pt' }}>{formatType(ext?.tipo)} {ext?.capacidad ? `- ${ext.capacidad}` : ''}</td>
+                                                                        <td style={{ padding: '5px 6px', fontSize: '7.5pt' }}>
                                                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
                                                                                 <span style={{ color: '#475569' }}>Fab: <span style={{ fontWeight: 600 }}>{fabInfo.base}</span></span>
                                                                                 <span style={{ color: fFabColor, fontWeight: fabInfo.expired ? 800 : 600 }}>Vto: {fabInfo.vto}</span>
                                                                             </div>
                                                                         </td>
-                                                                        <td style={{ padding: '6px 8px', color: '#475569', fontSize: '8.5pt' }}>{ext?.ubicacion || 'Sin ubicación'}</td>
-                                                                        <td style={{ padding: '6px 8px', fontSize: '8pt' }}>
+                                                                        <td style={{ padding: '5px 6px', color: '#475569', fontSize: '8pt' }}>{ext?.ubicacion || 'Sin ubicación'}</td>
+                                                                        <td style={{ padding: '5px 6px', fontSize: '7.5pt' }}>
                                                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
                                                                                 <span style={{ color: '#475569' }}>Carga: <span style={{ fontWeight: 600 }}>{sCarga.base}</span></span>
                                                                                 <span style={{ color: cargaColor, fontWeight: sCarga.text === 'Vencido' ? 800 : 600 }}>Vto: {sCarga.vto}</span>
                                                                             </div>
                                                                         </td>
-                                                                        <td style={{ padding: '6px 8px', fontSize: '8pt' }}>
+                                                                        <td style={{ padding: '5px 6px', fontSize: '7.5pt' }}>
                                                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
                                                                                 <span style={{ color: '#475569' }}>PH: <span style={{ fontWeight: 600 }}>{sPH.base}</span></span>
                                                                                 <span style={{ color: phColor, fontWeight: sPH.text === 'Vencido' ? 800 : 600 }}>Vto: {sPH.vto}</span>
                                                                             </div>
                                                                         </td>
-                                                                        <td style={{ padding: '6px 8px' }}>
+                                                                        <td style={{ padding: '5px 6px' }}>
                                                                             {lastInspection ?
-                                  <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '8pt' }}>
+                                   <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '7.5pt' }}>
                                                                                         {new Date(lastInspection.fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')}
                                                                                     </span> :
-                                  <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '8pt' }}>Sin inspecciones</span>
-                                  }
+                                   <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '7.5pt' }}>Sin insp.</span>
+                                   }
                                                                         </td>
                                                                     </tr>
                                                                     <tr style={{ background: rowBg, pageBreakInside: 'avoid', breakInside: 'avoid', borderBottom: '1px solid #e2e8f0' }}>
-                                                                        <td colSpan={7} style={{ padding: '0 8px 5px 8px' }}>
-                                                                            <div style={{ border: hasObs ? '1px dashed #dc2626' : '1px dashed #cbd5e1', color: hasObs ? '#dc2626' : '#475569', borderRadius: '4px', padding: '3px 6px', fontSize: '7.5pt', backgroundColor: '#ffffff', minHeight: '18px' }}>
+                                                                        <td colSpan={7} style={{ padding: '0 6px 4px 6px' }}>
+                                                                            <div style={{ border: hasObs ? '1px dashed #dc2626' : '1px dashed #cbd5e1', color: hasObs ? '#dc2626' : '#475569', borderRadius: '4px', padding: '2px 5px', fontSize: '7pt', backgroundColor: '#ffffff', minHeight: '16px' }}>
                                                                                 <strong style={{ color: '#334155' }}>Obs:</strong> <span style={{ color: hasObs ? '#dc2626' : '#64748b', fontWeight: hasObs ? 700 : 400 }}>{hasObs ? lastInspection.observacion : ''}</span>
                                                                             </div>
                                                                         </td>

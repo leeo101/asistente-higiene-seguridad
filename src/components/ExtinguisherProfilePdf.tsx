@@ -131,7 +131,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
   // NO se sintetiza información que el usuario no haya cargado.}
 
   return (
-    <div id="extinguisher-profile-wrap" className="container pb-[3rem] min-h-[100vh] flex flex-col">
+    <div id="extinguisher-profile-wrap" className={isHeadless ? "w-full min-h-0 block p-0 m-0" : "container pb-[3rem] min-h-[100vh] flex flex-col"}>
             {!isHeadless &&
       <div className="no-print flex items-center justify-space-between mb-[1.5rem] z-[10] flex-wrap gap-[1rem]">
                     <div className="flex items-center gap-[1rem]">
@@ -162,11 +162,11 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
         fileName={`Ficha_Extintor_${data.numero || 'Reporte'}.pdf`} />
       
 
-            <div className="flex-[1] flex justify-center">
+            <div className={isHeadless ? "w-full block" : "flex-[1] flex justify-center"}>
                 <div
           id="pdf-content"
-          className="pdf-container card print-area w-full max-w-[210mm] block bg-white text-slate-900 box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box]"
-          style={{ padding: '4mm 10mm 10mm 10mm' }}
+          className={`pdf-container card print-area w-full max-w-[210mm] block bg-white text-slate-900 rounded-[8px] box-sizing-[border-box] ${isHeadless ? 'shadow-none' : 'box-shadow-[0_20px_40px_rgba(0,0,0,0.1)]'}`}
+          style={{ padding: isHeadless ? '0' : '4mm 10mm 10mm 10mm' }}
           ref={componentRef}>
 
                     <style type="text/css">
@@ -444,7 +444,13 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         </div>
                     </div>
 
-                    <div className="mt-[8px]">
+                    {/* Bloque unificado de Firmas y Pie de Documento con protección estricta contra saltos de página */}
+                    <div 
+                        className="avoid-break avoid-break-strictly break-inside-avoid w-full block mt-3" 
+                        data-avoid-break="true"
+                        data-orphan-threshold="260"
+                        style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
+                    >
                         <PdfSignatures
                             data={data}
                             box1={data.showSignatures?.operator ? {
@@ -468,10 +474,9 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                             isProfessional: false
                             } : null} 
                         />
-                    </div>
-
-                    <div className="mt-[6px]">
-                        <PdfBrandingFooter />
+                        <div className="mt-2">
+                            <PdfBrandingFooter />
+                        </div>
                     </div>
                 </div>
             </div>
