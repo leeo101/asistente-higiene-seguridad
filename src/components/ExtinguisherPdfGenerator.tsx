@@ -123,6 +123,14 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                 -webkit-print-color-adjust: exact !important;
                                 print-color-adjust: exact !important;
                             }
+                            tbody.ext-row {
+                                break-inside: avoid !important;
+                                page-break-inside: avoid !important;
+                            }
+                            tbody.ext-row tr {
+                                break-inside: avoid !important;
+                                page-break-inside: avoid !important;
+                            }
                         `}
                     </style>
                     {/* Top Accent Line tricolor */}
@@ -234,21 +242,35 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                   return valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
                 });
 
-                const CHUNK_SIZE = 9; // Tamaño óptimo de filas para evitar desbordes en página A4
-                const chunks = [];
-                for (let i = 0; i < group.length; i += CHUNK_SIZE) {
-                  chunks.push(group.slice(i, i + CHUNK_SIZE));
+                // En la 1ª página están el encabezado ejecutivo, tricolor y KPIs (~100mm),
+                // por lo que entran cómodamente 6 extintores sin cortar filas.
+                // En las páginas subsiguientes entran hasta 8 extintores con sus observaciones.
+                const chunks: any[][] = [];
+                let currentChunk: any[] = [];
+                let isFirstChunkOverall = sortedCompanies.indexOf(empresa) === 0;
+
+                for (let i = 0; i < group.length; i++) {
+                  const limit = (isFirstChunkOverall && chunks.length === 0) ? 6 : 8;
+                  currentChunk.push(group[i]);
+                  if (currentChunk.length === limit || i === group.length - 1) {
+                    chunks.push(currentChunk);
+                    currentChunk = [];
+                  }
                 }
 
                 return (
                   <div key={empresa} className="block mb-[8px]">
-                                        {chunks.map((chunk, chunkIdx) =>
-                    <div key={`${empresa}-chunk-${chunkIdx}`} className="mb-[6px]">
-                                                {/* Company Header */}
-                                                <div style={{ color: '#0f172a', backgroundColor: '#f8fafc', borderColor: '#cbd5e1', pageBreakInside: 'avoid', breakInside: 'avoid', pageBreakAfter: 'avoid', breakAfter: 'avoid' }} className="p-[6px_10px] rounded-[6px] flex items-center gap-[8px] border-[1.5px] mb-[4px]">
-                                                    <span style={{ color: '#0f172a' }} className="text-[10.5pt] font-[900]">
-                                                        🏢 {empresa} {chunkIdx > 0 ? '(Continuación)' : ''}
-                                                    </span>
+                    {chunks.map((chunk, chunkIdx) =>
+                    <div 
+                      key={`${empresa}-chunk-${chunkIdx}`} 
+                      className="mb-[6px]"
+                      style={{ breakInside: 'auto', pageBreakInside: 'auto' }}
+                    >
+                      {/* Company Header */}
+                      <div style={{ color: '#0f172a', backgroundColor: '#f8fafc', borderColor: '#cbd5e1', pageBreakInside: 'avoid', breakInside: 'avoid', pageBreakAfter: 'avoid', breakAfter: 'avoid' }} className="p-[6px_10px] rounded-[6px] flex items-center gap-[8px] border-[1.5px] mb-[4px]">
+                        <span style={{ color: '#0f172a' }} className="text-[10.5pt] font-[900]">
+                          🏢 {empresa} {chunkIdx > 0 ? '(Continuación)' : ''}
+                        </span>
                                                     {chunkIdx === 0 &&
                                                         <span style={{ backgroundColor: '#e2e8f0', color: '#334155' }} className="text-[8.5pt] p-[2px_8px] rounded-[10px] font-[700]">
                                                             {group.length} extintores
@@ -270,7 +292,8 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                         </tr>
                                                     </thead>
                                                     {chunk.map((ext: any, idx: number) => {
-                          const globalIdx = chunkIdx * CHUNK_SIZE + idx;
+                          const prevChunksCount = chunks.slice(0, chunkIdx).reduce((sum, c) => sum + c.length, 0);
+                          const globalIdx = prevChunksCount + idx;
                           const sCarga = getStatus(ext?.vencimientoRecarga || ext?.ultimaCarga);
                           const sPH = getPHStatus(ext?.vencimientoPH || ext?.ultimaPH);
                           const lastInspection = ext?.inspections && ext.inspections.length > 0 ? ext.inspections[ext.inspections.length - 1] : null;

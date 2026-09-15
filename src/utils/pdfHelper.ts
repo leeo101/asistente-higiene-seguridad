@@ -451,24 +451,56 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         const topPx = rect.top - currentCloneRect.top;
         const heightPx = rect.height;
         // Nunca insertar spacer si el elemento está en el primer 30% de la primera página
-        if (topPx > exactPxPageHeight * 0.3 && heightPx > 0) {
+        // ni si es más alto que una página entera (no se puede mover de todos modos)
+        if (topPx > exactPxPageHeight * 0.3 && heightPx > 0 && heightPx < exactPxPageHeight * 0.9) {
           const pageAtTop = Math.floor(topPx / exactPxPageHeight);
-          const spaceLeftOnPage = (pageAtTop + 1) * exactPxPageHeight - topPx;
-          
-          // Si el elemento tiene un umbral para evitar quedar huérfano (ej. firmas completas o encabezado de tabla)
-          const customOrphanThreshold = parseInt(htmlEl.getAttribute('data-orphan-threshold') || '0', 10);
-          const needsBreakDueToOrphan = customOrphanThreshold > 0 && spaceLeftOnPage < customOrphanThreshold;
-          
-          // Margen de seguridad de 25px para evitar cortes subpixel/font-metrics que dividan las firmas por la mitad
-          const safetyBuffer = 25;
+          // Margen de seguridad de 20px para evitar cortes subpixel
+          const safetyBuffer = 20;
           const pageAtBottom = Math.floor((topPx + heightPx + safetyBuffer) / exactPxPageHeight);
-          if (pageAtBottom > pageAtTop || needsBreakDueToOrphan) {
-            // El elemento quedaría partido al medio entre 2 páginas o sobrepasaría el umbral seguro.
+          if (pageAtBottom > pageAtTop) {
+            // El elemento quedaría partido al medio entre 2 páginas.
             // Insertamos un salto limpio exactamente antes de él para moverlo íntegro al inicio de la siguiente página.
+            const spaceLeftOnPage = (pageAtTop + 1) * exactPxPageHeight - topPx;
             const spacerHeight = Math.ceil(spaceLeftOnPage) + 4;
             const spacer = document.createElement('div');
             spacer.style.cssText = `height: ${spacerHeight}px; display: block; visibility: hidden; width: 100%; flex-shrink: 0; clear: both; pointer-events: none;`;
             htmlEl.parentNode?.insertBefore(spacer, htmlEl);
+            await new Promise(r => requestAnimationFrame(r));
+          }
+        }
+      }
+
+      // ── Segundo pase: manejar tbody.ext-row dentro de tablas ─────────────────
+      // html2canvas ignora CSS break-inside en <tbody>/<tr> porque renderiza por screenshot.
+      // La única forma de evitar el corte es insertar un <tbody> spacer (HTML válido dentro de <table>)
+      // justo antes del tbody que se cortaría, empujándolo a la siguiente página.
+      const extRowEls = Array.from(clone.querySelectorAll('tbody.ext-row')) as HTMLElement[];
+      for (const extRow of extRowEls) {
+        // Re-calcular posición después de que spacers anteriores pueden haber movido el DOM
+        const rowRect = extRow.getBoundingClientRect();
+        const freshCloneRect = clone.getBoundingClientRect();
+        const topPx = rowRect.top - freshCloneRect.top;
+        const heightPx = rowRect.height;
+
+        if (topPx > exactPxPageHeight * 0.3 && heightPx > 0 && heightPx < exactPxPageHeight * 0.9) {
+          const pageAtTop = Math.floor(topPx / exactPxPageHeight);
+          const safetyBuffer = 20;
+          const pageAtBottom = Math.floor((topPx + heightPx + safetyBuffer) / exactPxPageHeight);
+          if (pageAtBottom > pageAtTop) {
+            // Este tbody quedaría cortado entre páginas.
+            // Inyectamos un <tbody> spacer antes de él (único elemento válido dentro de <table>).
+            const spaceLeftOnPage = (pageAtTop + 1) * exactPxPageHeight - topPx;
+            const spacerHeight = Math.ceil(spaceLeftOnPage) + 4;
+
+            const colCount = extRow.closest('table')?.querySelectorAll('thead tr th').length ?? 7;
+            const spacerTbody = document.createElement('tbody');
+            const spacerTr = document.createElement('tr');
+            const spacerTd = document.createElement('td');
+            spacerTd.setAttribute('colspan', String(colCount));
+            spacerTd.style.cssText = `height: ${spacerHeight}px; padding: 0; border: none !important; background: transparent !important; visibility: hidden;`;
+            spacerTr.appendChild(spacerTd);
+            spacerTbody.appendChild(spacerTr);
+            extRow.parentNode?.insertBefore(spacerTbody, extRow);
             await new Promise(r => requestAnimationFrame(r));
           }
         }
@@ -539,9 +571,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
       };
 
       const worker = html2pdf().set(opt).from(clone).toPdf();
-
-      // Agregar número de página + pie de página
-      await worker.get('pdf').then((pdf: any) => {
+      const pdfBlob: Blob = await worker.get('pdf').then((pdf: any) => {
         const totalPages = pdf.internal.getNumberOfPages();
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
@@ -562,9 +592,9 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
             { align: 'right' }
           );
         }
+        return pdf.output('blob');
       });
 
-      const pdfBlob: Blob = await worker.output('blob');
       return pdfBlob;
     } finally {
       window.getComputedStyle = originalGetComputedStyle;
