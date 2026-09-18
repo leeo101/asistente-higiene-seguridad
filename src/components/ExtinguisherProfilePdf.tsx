@@ -454,22 +454,22 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                         <PdfSignatures
                             data={data}
                             box1={data.showSignatures?.operator ? {
-                            title: 'OPERADOR',
-                            subtitle: 'Responsable de sector',
+                            title: 'RESPONSABLE DE CONTROL',
+                            subtitle: 'Inspección de Campo',
                             signatureUrl: data.operatorSignature || null,
                             isProfessional: false
                             } : null}
                             box2={data.showSignatures?.professional !== false ? {
-                            title: 'INSPECTOR / PROFESIONAL',
-                            subtitle: (latestInspection?.inspector || actName || 'Profesional HSE').toUpperCase(),
+                            title: 'PROFESIONAL DE HIGIENE Y SEGURIDAD',
+                            subtitle: (latestInspection?.inspector || actName || 'Firma y Sello H&S').toUpperCase(),
                             signatureUrl: actSignature || null,
                             stampUrl: actStamp || null,
                             isProfessional: true,
                             license: actLic || null
                             } : null}
                             box3={data.showSignatures?.supervisor ? {
-                            title: 'SUPERVISOR',
-                            subtitle: 'Aprobación HSE',
+                            title: 'RESPONSABLE DEL ESTABLECIMIENTO',
+                            subtitle: 'Conformidad y Recepción',
                             signatureUrl: data.supervisorSignature || null,
                             isProfessional: false
                             } : null} 

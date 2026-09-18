@@ -381,7 +381,72 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                     {showSignatures && (showSignatures.operator || showSignatures.professional || showSignatures.supervisor) ? (
                         <>
                             <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid', marginTop: '12px' }}>
-                                <PdfSignatures data={{ showSignatures, operatorSignature: globalSignatures?.operatorSignature, supervisorSignature: globalSignatures?.supervisorSignature }} />
+                                {(() => {
+                                    let actSignature = null;
+                                    let actStamp = null;
+                                    let actName = null;
+                                    let actLic = null;
+                                    let actTitle = null;
+
+                                    try {
+                                        const lsStamp = typeof window !== 'undefined' ? localStorage.getItem('signatureStampData') : null;
+                                        const legacySig = typeof window !== 'undefined' ? localStorage.getItem('capturedSignature') : null;
+                                        if (lsStamp) {
+                                            const parsed = JSON.parse(lsStamp);
+                                            actSignature = parsed.signature;
+                                            actStamp = parsed.stamp;
+                                        } else if (legacySig) {
+                                            actSignature = legacySig;
+                                        }
+                                        const lsPersonal = typeof window !== 'undefined' ? localStorage.getItem('personalData') : null;
+                                        if (lsPersonal) {
+                                            const pd = JSON.parse(lsPersonal);
+                                            actName = pd.name || pd.fullName;
+                                            actLic = pd.license || pd.matricula;
+                                            actTitle = pd.profession || pd.profesion || pd.title || pd.titulo;
+                                        }
+                                    } catch (e) {}
+
+                                    if (!actTitle || actTitle === 'Técnico' || actTitle === 'PROFESIONAL') {
+                                        actTitle = 'Técnico Universitario en Higiene y Seguridad Laboral';
+                                    }
+
+                                    return (
+                                        <PdfSignatures
+                                            data={{
+                                                showSignatures,
+                                                operatorSignature: globalSignatures?.operatorSignature,
+                                                supervisorSignature: globalSignatures?.supervisorSignature,
+                                                professionalSignature: actSignature,
+                                                professionalStamp: actStamp,
+                                                professionalName: actName,
+                                                professionalLicense: actLic,
+                                                professionalTitle: actTitle
+                                            }}
+                                            box1={showSignatures?.operator ? {
+                                                title: 'RESPONSABLE DEL RELEVAMIENTO',
+                                                subtitle: 'Inspección y Control de Campo',
+                                                signatureUrl: globalSignatures?.operatorSignature || null,
+                                                isProfessional: false
+                                            } : null}
+                                            box2={showSignatures?.professional !== false ? {
+                                                title: 'PROFESIONAL DE HIGIENE Y SEGURIDAD',
+                                                subtitle: (actName || 'Firma y Sello H&S').toUpperCase(),
+                                                signatureUrl: actSignature,
+                                                stampUrl: actStamp,
+                                                isProfessional: true,
+                                                license: actLic,
+                                                profession: actTitle
+                                            } : null}
+                                            box3={showSignatures?.supervisor ? {
+                                                title: 'RESPONSABLE DEL ESTABLECIMIENTO',
+                                                subtitle: 'Conformidad y Recepción',
+                                                signatureUrl: globalSignatures?.supervisorSignature || null,
+                                                isProfessional: false
+                                            } : null}
+                                        />
+                                    );
+                                })()}
                             </div>
                             <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid', marginTop: '6px' }}>
                                 <PdfBrandingFooter />

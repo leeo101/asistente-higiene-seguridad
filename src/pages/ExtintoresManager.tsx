@@ -1020,11 +1020,11 @@ export default function ExtintoresManager() {
                         </p>
                         
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            {/* Operador */}
+                            {/* Operador / Relevador */}
                             <div style={{ background: globalShowSignatures.operator ? '#f8fafc' : '#f1f5f9', border: globalShowSignatures.operator ? '2px solid #cbd5e1' : '1px solid #e2e8f0', opacity: globalShowSignatures.operator ? 1 : 0.6 }} className="flex flex-col gap-[0.5rem] p-[1rem] rounded-[10px] transition-[all_0.2s]">
                                 <label className="flex items-center gap-[0.4rem] cursor-pointer text-slate-700 dark:text-slate-300 font-[700] text-[0.9rem] border-bottom-[1px_solid_#e2e8f0] pb-[0.4rem]">
                                     <input type="checkbox" checked={globalShowSignatures.operator} onChange={(e) => setGlobalShowSignatures((prev) => ({ ...prev, operator: e.target.checked }))} className="w-[16px] h-[16px] cursor-pointer" />
-                                    Operador / Responsable
+                                    Responsable del Relevamiento
                                 </label>
                                 <div style={{ pointerEvents: globalShowSignatures.operator ? 'auto' : 'none' }} className="bg-white dark:bg-slate-800 rounded-[8px] border-none flex flex-col">
                                     <SignatureCanvas
@@ -1040,7 +1040,7 @@ export default function ExtintoresManager() {
                             <div style={{ background: globalShowSignatures.professional ? '#f0fdf4' : '#f1f5f9', border: globalShowSignatures.professional ? '2px solid #86efac' : '1px solid #e2e8f0', opacity: globalShowSignatures.professional ? 1 : 0.6 }} className="flex flex-col gap-[0.5rem] p-[1rem] rounded-[10px] transition-[all_0.2s]">
                                 <label className="flex items-center gap-[0.4rem] cursor-pointer text-[#166534] font-[700] text-[0.9rem] border-bottom-[1px_solid_#bbf7d0] pb-[0.4rem]">
                                     <input type="checkbox" checked={globalShowSignatures.professional} onChange={(e) => setGlobalShowSignatures((prev) => ({ ...prev, professional: e.target.checked }))} className="w-[16px] h-[16px] cursor-pointer" />
-                                    Profesional Actuante
+                                    Profesional de Higiene y Seguridad
                                     <div className="flex flex-col items-center justify-center flex-1 min-h-[150px] bg-white dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-4 text-center mt-2">
                                         {professionalData?.signature ?
                     <img src={professionalData.signature} alt="Firma Profesional" className="max-h-[65px] object-contain mb-3" /> :
@@ -1053,11 +1053,11 @@ export default function ExtintoresManager() {
                                 </label>
                             </div>
 
-                            {/* Supervisor */}
+                            {/* Supervisor / Responsable del Establecimiento */}
                             <div style={{ background: globalShowSignatures.supervisor ? '#f8fafc' : '#f1f5f9', border: globalShowSignatures.supervisor ? '2px solid #cbd5e1' : '1px solid #e2e8f0', opacity: globalShowSignatures.supervisor ? 1 : 0.6 }} className="flex flex-col gap-[0.5rem] p-[1rem] rounded-[10px] transition-[all_0.2s]">
                                 <label className="flex items-center gap-[0.4rem] cursor-pointer text-slate-700 dark:text-slate-300 font-[700] text-[0.9rem] border-bottom-[1px_solid_#e2e8f0] pb-[0.4rem]">
                                     <input type="checkbox" checked={globalShowSignatures.supervisor} onChange={(e) => setGlobalShowSignatures((prev) => ({ ...prev, supervisor: e.target.checked }))} className="w-[16px] h-[16px] cursor-pointer" />
-                                    Supervisión / Cierre
+                                    Responsable del Establecimiento / Supervisión
                                 </label>
                                 <div style={{ pointerEvents: globalShowSignatures.supervisor ? 'auto' : 'none' }} className="bg-white dark:bg-slate-800 rounded-[8px] border-none flex flex-col">
                                     <SignatureCanvas

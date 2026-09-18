@@ -65,14 +65,14 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
   }
 
   const defaultBox1: SignatureBoxProps = {
-    title: 'SOLICITANTE / OPERADOR',
+    title: 'RESPONSABLE / OPERADOR',
     subtitle: 'Aclaración y Firma',
     signatureUrl: operatorSignature || null,
     isProfessional: false
   };
 
   const defaultBox2: SignatureBoxProps = {
-    title: 'GERENCIA EHS / EMISOR',
+    title: 'PROFESIONAL DE HIGIENE Y SEGURIDAD',
     subtitle: (actName || 'Firma y Sello H&S').toUpperCase(),
     signatureUrl: actSignature,
     stampUrl: actStamp,
@@ -82,8 +82,8 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
   };
 
   const defaultBox3: SignatureBoxProps = {
-    title: 'SUPERVISOR DE TRABAJO',
-    subtitle: 'Aprobación / Autorización',
+    title: 'SUPERVISIÓN / RESPONSABLE',
+    subtitle: 'Aprobación y Conformidad',
     signatureUrl: supervisorSignature,
     isProfessional: false
   };
@@ -100,7 +100,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
     const pBox = box2 || defaultBox2;
     boxes.push({
       ...pBox,
-      title: (pBox.title || 'GERENCIA EHS / EMISOR').replace(' / INSTRUCTOR', '').replace(' / INSTRUCTORA', ''),
+      title: (pBox.title || 'PROFESIONAL DE HIGIENE Y SEGURIDAD').replace(' / INSTRUCTOR', '').replace(' / INSTRUCTORA', ''),
       profession: pBox.profession || actTitle
     });
   }
