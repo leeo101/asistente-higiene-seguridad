@@ -10,7 +10,7 @@ import {
   ChatText, Sun, Moon, Star, ChartPieSlice,
   CreditCard, Crown, Image as ImageIconPh, UploadSimple,
   CheckCircle, Info, Bell, Pulse as Activity,
-  Tent, Drop as Droplets, SpeakerHigh, Flask, MagnifyingGlass, TrendUp as TrendingUp, Truck, Crane, Timer, Sparkle } from
+  Tent, Drop as Droplets, SpeakerHigh, Flask, MagnifyingGlass, TrendUp as TrendingUp, Truck, Crane, Timer, Sparkle, Lightning } from
 '@phosphor-icons/react';
 import { User as FirebaseUser } from 'firebase/auth';
 import { collection, getDocs } from 'firebase/firestore';
@@ -117,8 +117,8 @@ const quickLinks: QuickLink[] = [
 { to: '/fire-load', icon: <Fire weight="duotone" size={26} />, label: 'Carga Fuego', sub: 'Cálculo según Dec. 351/79 y NFPA 13', color: '#f97316', bg: 'rgba(249,115,22,0.1)', premium: true, category: 'specific', norm: 'NFPA 13' },
 { to: '/toolbox-talk', icon: <ChatText weight="duotone" size={26} />, label: 'Charlas 5 Min', sub: 'Toolbox Talks — Registro y Firmas Digitales', color: '#0052CC', bg: 'rgba(0,82,204,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'ISO 45001' },
 { to: '/checklists', icon: <ClipboardText weight="duotone" size={26} />, label: 'Checklists', sub: 'Inspección de Herramientas, Equipos y Áreas', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)', premium: true, category: 'docs', norm: 'ISO 45001' },
-{ to: '/ppe-tracker', icon: <HardHat weight="duotone" size={26} />, label: 'Control EPP', sub: 'Control de EPP y Alertas de Vencimiento', color: '#10b981', bg: 'rgba(16,185,129,0.08)', premium: true, category: 'management', norm: 'ISO 45001' },
-{ to: '/ergonomics', icon: <PersonArmsSpread weight="duotone" size={26} />, label: 'Ergonomía', sub: 'Evaluación Ergonómica — Método REBA/OWAS', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'specific', norm: 'ISO 9241' },
+{ to: '/ppe-tracker', icon: <HardHat weight="duotone" size={26} />, label: 'Control EPP', sub: 'Constancia Oficial Res. 299/11 y Trazabilidad AR', color: '#10b981', bg: 'rgba(16,185,129,0.08)', premium: true, category: 'management', featured: true, badge: 'Res. 299/11', norm: 'Res. 299/11' },
+{ to: '/ergonomics', icon: <PersonArmsSpread weight="duotone" size={26} />, label: 'Ergonomía', sub: 'Protocolo Oficial Planillas 1 y 2 — Res. SRT 886/15', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'specific', featured: true, badge: 'Res. 886/15', norm: 'Res. 886/15' },
 { to: '/confined-space', icon: <Tent weight="duotone" size={26} />, label: 'Espacios Confinados', sub: 'Permisos de Entrada y Monitoreo de Gases', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true, category: 'critical', norm: 'OSHA 1910' },
 { to: '/thermal-stress', icon: <ThermometerHot weight="duotone" size={26} />, label: 'Estrés Térmico', sub: 'Índice WBGT — Cálculo por Norma ISO 7933', color: '#f97316', bg: 'rgba(249,115,22,0.1)', premium: true, category: 'specific', norm: 'ISO 7933' },
 { to: '/extinguisher-ai', icon: <Fire weight="duotone" size={26} />, label: 'Extintores IA', sub: 'Identificación y diagnóstico con IA', color: '#dc2626', bg: 'rgba(220,38,38,0.1)', premium: true, category: 'ia', badge: 'IA', norm: 'NFPA 10' },
@@ -147,7 +147,10 @@ const quickLinks: QuickLink[] = [
 { to: '/medical', icon: <Activity weight="duotone" size={26} />, label: 'Aptitudes Médicas', sub: 'Preocupacionales, Periódicos y Egreso', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'Res. 37/10' },
 { to: '/incident-heatmap', icon: <MapTrifold weight="duotone" size={26} />, label: 'Mapa Calor', sub: 'Mapa de Calor de Incidentes y Accidentes', color: '#f97316', bg: 'rgba(249,115,22,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'ISO 31000' },
 { to: '/emergency-plan', icon: <Siren weight="duotone" size={26} />, label: 'Plan de Emergencias', sub: 'Brigadas, Roles y Plan de Respuesta', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'Ley 19587' },
-{ to: '/contractor-matrix', icon: <Users weight="duotone" size={26} />, label: 'Matriz Contratistas', sub: 'Homologación y Garita de Contratistas', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'Ley 19587' }].
+{ to: '/contractor-matrix', icon: <Users weight="duotone" size={26} />, label: 'Matriz Contratistas', sub: 'Homologación y Garita de Contratistas', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'Ley 19587' },
+{ to: '/grounding', icon: <Lightning weight="duotone" size={26} />, label: 'Puesta a Tierra', sub: 'Protocolo Oficial de PAT y Masas — Res. SRT 900/15', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true, category: 'critical', featured: true, badge: 'Res. 900', norm: 'Res. 900/15' },
+{ to: '/rgrl', icon: <ClipboardText weight="duotone" size={26} />, label: 'RGRL Anual', sub: 'Relevamiento General de Riesgos — Res. SRT 463/09', color: '#2563eb', bg: 'rgba(37,99,235,0.1)', premium: true, category: 'management', featured: true, badge: 'Res. 463', norm: 'Res. 463/09' },
+{ to: '/rar', icon: <Activity weight="duotone" size={26} />, label: 'Nómina RAR', sub: 'Agentes de Riesgo SRT — Res. SRT 37/10', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true, category: 'management', featured: true, badge: 'Res. 37/10', norm: 'Res. 37/10' }].
 sort((a, b) => a.label.localeCompare(b.label, 'es-AR'));
 
 // Counter hook

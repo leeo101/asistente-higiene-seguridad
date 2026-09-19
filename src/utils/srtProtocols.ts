@@ -51,6 +51,106 @@ export function evaluatePATMeasurement(measurement: PATMeasurement): PATEvaluati
   };
 }
 
+import type { GroundingProtocol } from '../types/grounding';
+
+export interface GroundingAuditSummary {
+  totalJabalinas: number;
+  jabalinasConformes: number;
+  promedioResistenciaOhms: number;
+  maxResistenciaMedida: number;
+  totalMasas: number;
+  masasConformes: number;
+  totalDiferenciales: number;
+  diferencialesConformes: number;
+  isFullyCompliant: boolean;
+  autoRecommendations: string[];
+  calibracionVencida: boolean;
+}
+
+export function evaluateFullGroundingProtocol(p: Partial<GroundingProtocol>): GroundingAuditSummary {
+  const recommendations: string[] = [];
+  const jabalinas = p.jabalinas || [];
+  const masas = p.continuidadMasas || [];
+  const diferenciales = p.diferenciales || [];
+
+  let sumRes = 0;
+  let maxRes = 0;
+  let jabalinasConformes = 0;
+
+  jabalinas.forEach(j => {
+    sumRes += j.resistenciaMedida;
+    if (j.resistenciaMedida > maxRes) maxRes = j.resistenciaMedida;
+    const maxPermitido = j.resistenciaMaximaAdmisible || (p.esquemaConexionTierra === 'TT' ? 40 : 10);
+    if (j.resistenciaMedida <= maxPermitido) {
+      jabalinasConformes++;
+    } else {
+      recommendations.push(`Jabalina ${j.codigo} (${j.ubicacion}): Valor de ${j.resistenciaMedida} Ω supera el máximo de ${maxPermitido} Ω. Instalar electrodo auxiliar o aplicar gel activador de suelo.`);
+    }
+
+    if (!j.camaraInspeccion) {
+      recommendations.push(`Punto ${j.codigo}: Instalar cámara de inspección normalizada para permitir el mantenimiento periódico.`);
+    }
+    if (!j.borneDesconexion) {
+      recommendations.push(`Punto ${j.codigo}: Instalar borne/seccionador tomamuestra para permitir la medición individual sin desconectar la planta.`);
+    }
+  });
+
+  const promedioResistenciaOhms = jabalinas.length > 0 ? Number((sumRes / jabalinas.length).toFixed(2)) : 0;
+
+  let masasConformes = 0;
+  masas.forEach(m => {
+    if (m.resistenciaContinuidad <= 1.0) {
+      masasConformes++;
+    } else {
+      recommendations.push(`Continuidad ${m.codigo} (${m.elemento}): Resistencia de ${m.resistenciaContinuidad} Ω supera el límite de 1.0 Ω. Restablecer conductor de equipotencialidad (PE).`);
+    }
+  });
+
+  let diferencialesConformes = 0;
+  diferenciales.forEach(d => {
+    const tiempoOk = d.tiempoDisparoMs > 0 && d.tiempoDisparoMs <= 200;
+    const testOk = d.pulsadorTestFunciona;
+    if (tiempoOk && testOk) {
+      diferencialesConformes++;
+    } else {
+      if (!tiempoOk) recommendations.push(`Disyuntor ${d.codigo} (${d.tableroUbicacion}): Tiempo de disparo (${d.tiempoDisparoMs} ms) supera los 200 ms admisibles según AEA 90364.`);
+      if (!testOk) recommendations.push(`Disyuntor ${d.codigo} (${d.tableroUbicacion}): El botón de test no funciona mecánicamente. Reemplazar interruptor diferencial.`);
+    }
+  });
+
+  // Verificar fecha de calibración del telurímetro (vigencia 12 o 24 meses)
+  let calibracionVencida = false;
+  if (p.instrumentoFechaCalibracion) {
+    const fechaCal = new Date(p.instrumentoFechaCalibracion);
+    const ahora = new Date();
+    const difMeses = (ahora.getFullYear() - fechaCal.getFullYear()) * 12 + (ahora.getMonth() - fechaCal.getMonth());
+    if (difMeses > 24) {
+      calibracionVencida = true;
+      recommendations.push('El certificado de calibración del telurímetro tiene más de 24 meses. Se requiere calibración en laboratorio trazable a patrones nacionales (INTI/SAC).');
+    }
+  }
+
+  const isFullyCompliant = 
+    (jabalinas.length === 0 || jabalinasConformes === jabalinas.length) &&
+    (masas.length === 0 || masasConformes === masas.length) &&
+    (diferenciales.length === 0 || diferencialesConformes === diferenciales.length) &&
+    !calibracionVencida;
+
+  return {
+    totalJabalinas: jabalinas.length,
+    jabalinasConformes,
+    promedioResistenciaOhms,
+    maxResistenciaMedida: maxRes,
+    totalMasas: masas.length,
+    masasConformes,
+    totalDiferenciales: diferenciales.length,
+    diferencialesConformes,
+    isFullyCompliant,
+    autoRecommendations: Array.from(new Set(recommendations)),
+    calibracionVencida
+  };
+}
+
 // ── 2. Res. SRT 84/12 — Iluminación (Dec. 351/79 Anexo IV) ─────────────────
 export interface LightingRequirement {
   taskCategory: 'Vías de circulación / Pasillos' | 'Depósitos / Tareas Brutas' | 'Oficinas / Tareas Normales' | 'Dibajo / Trabajo Fino' | 'Inspección de Alta Precisión';

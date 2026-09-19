@@ -26,6 +26,32 @@ describe('Res. SRT Protocol Calculators', () => {
     expect(resFail.statusText).toBe('No Conforme (Resistencia Alta)');
   });
 
+  it('debe evaluar un protocolo completo de Puesta a Tierra (evaluateFullGroundingProtocol)', async () => {
+    const { evaluateFullGroundingProtocol } = await import('../srtProtocols');
+    const result = evaluateFullGroundingProtocol({
+      esquemaConexionTierra: 'TT',
+      jabalinas: [
+        { id: '1', codigo: 'PAT-01', ubicacion: 'Tablero Principal', tipoElectrodo: 'Jabalina Cobre/Acero (Hincada)', resistenciaMedida: 3.5, resistenciaMaximaAdmisible: 10, camaraInspeccion: true, borneDesconexion: true, estadoFisico: 'Bueno', conforme: true },
+        { id: '2', codigo: 'PAT-02', ubicacion: 'Compresor', tipoElectrodo: 'Jabalina Cobre/Acero (Hincada)', resistenciaMedida: 5.5, resistenciaMaximaAdmisible: 10, camaraInspeccion: true, borneDesconexion: true, estadoFisico: 'Bueno', conforme: true }
+      ],
+      continuidadMasas: [
+        { id: '1', codigo: 'CM-01', elemento: 'Carcasa Tablero', ubicacion: 'Sala Tableros', resistenciaContinuidad: 0.15, continuidadConforme: true }
+      ],
+      diferenciales: [
+        { id: '1', codigo: 'ID-01', tableroUbicacion: 'Tablero Principal', circuitoProtegido: 'Tomas', corrienteSensibilidadMa: 30, tiempoDisparoMs: 25, pulsadorTestFunciona: true, conforme: true }
+      ]
+    });
+
+    expect(result.totalJabalinas).toBe(2);
+    expect(result.jabalinasConformes).toBe(2);
+    expect(result.promedioResistenciaOhms).toBe(4.5);
+    expect(result.maxResistenciaMedida).toBe(5.5);
+    expect(result.masasConformes).toBe(1);
+    expect(result.diferencialesConformes).toBe(1);
+    expect(result.isFullyCompliant).toBe(true);
+    expect(result.autoRecommendations.length).toBe(0);
+  });
+
   it('debe evaluar la iluminación media según Dec. 351/79 (Res. SRT 84/12)', () => {
     const res = evaluateLightingMeasurement([350, 400, 320, 380], 'Oficinas / Tareas Normales');
     expect(res.isCompliant).toBe(true);
@@ -67,3 +93,95 @@ describe('Safety Executive KPIs & CAPA Workflow', () => {
     expect(capa.severity).toBe('Alta');
   });
 });
+
+describe('RGRL Res. SRT 463/09 Engine', () => {
+  it('debe calcular métricas del RGRL y generar el Plan de Regularización', async () => {
+    const { calculateRGRLMetrics, generatePlanRegularizacion, getDefaultQuestionsForAnnex } = await import('../rgrlEngine');
+
+    const baseItems = getDefaultQuestionsForAnnex('anexo1_351');
+    expect(baseItems.length).toBeGreaterThanOrEqual(15);
+
+    // Modificar 2 ítems como no cumple
+    const items = baseItems.map(it => {
+      if (it.codigo === '1.1') return { ...it, estado: 'NO_CUMPLE' as const, observacion: 'Falta contrato con profesional externo' };
+      if (it.codigo === '5.1') return { ...it, estado: 'NO_CUMPLE' as const, observacion: 'Falta protocolo PAT' };
+      return it;
+    });
+
+    const metrics = calculateRGRLMetrics(items);
+    expect(metrics.totalItems).toBe(baseItems.length);
+    expect(metrics.noCumpleCount).toBe(2);
+    expect(metrics.cumpleCount).toBe(baseItems.length - 2);
+    expect(metrics.porcentajeCumplimiento).toBeLessThan(100);
+
+    const plan = generatePlanRegularizacion(metrics.itemsNoCumple, 60);
+    expect(plan.length).toBe(2);
+    expect(plan[0].codigo).toBe('1.1');
+    expect(plan[0].plazoEstimadoDias).toBe(60);
+    expect(plan[1].codigo).toBe('5.1');
+  });
+});
+
+describe('RAR Res. SRT 37/10 Catalog & Engine', () => {
+  it('debe buscar agentes SRT correctamente y calcular estadísticas de nómina', async () => {
+    const { getAgentByCode, calculateRARStats, SRT_RISK_AGENTS_CATALOG } = await import('../rarCatalog');
+
+    expect(SRT_RISK_AGENTS_CATALOG.length).toBeGreaterThanOrEqual(15);
+
+    const ruido = getAgentByCode('80001');
+    expect(ruido).toBeDefined();
+    expect(ruido?.nombre).toContain('Ruido');
+    expect(ruido?.categoria).toBe('Físico');
+
+    const fakeWorkers = [
+      {
+        id: 'w1',
+        cuil: '20-30111222-4',
+        nombre: 'Juan Pérez',
+        fechaIngreso: '2020-01-01',
+        sector: 'Taller',
+        puesto: 'Soldador',
+        horasExposicionDiaria: 8,
+        diasExposicionSemanal: 5,
+        agentesCodigos: ['80001', '40001'],
+        eppAdecuado: true,
+        observaciones: 'Usa copa auditiva y máscara de soldar'
+      },
+      {
+        id: 'w2',
+        cuil: '27-32444555-8',
+        nombre: 'María Gómez',
+        fechaIngreso: '2021-03-15',
+        sector: 'Depósito',
+        puesto: 'Operario de Autoelevador',
+        horasExposicionDiaria: 8,
+        diasExposicionSemanal: 5,
+        agentesCodigos: ['80005'],
+        eppAdecuado: true
+      },
+      {
+        id: 'w3',
+        cuil: '20-40555666-1',
+        nombre: 'Carlos López',
+        fechaIngreso: '2022-05-10',
+        sector: 'Administración',
+        puesto: 'Administrativo',
+        horasExposicionDiaria: 8,
+        diasExposicionSemanal: 5,
+        agentesCodigos: [],
+        eppAdecuado: true
+      }
+    ];
+
+    const stats = calculateRARStats(fakeWorkers);
+    expect(stats.totalTrabajadores).toBe(3);
+    expect(stats.trabajadoresExpuestos).toBe(2);
+    expect(stats.trabajadoresNoExpuestos).toBe(1);
+    expect(stats.porcentajeExpuestos).toBe(67);
+    expect(stats.conteoPorCategoria.Físico).toBe(2);
+    expect(stats.conteoPorCategoria.Químico).toBe(1);
+    expect(stats.conteoPorCategoria.Biológico).toBe(0);
+    expect(stats.topAgentes.length).toBeGreaterThanOrEqual(2);
+  });
+});
+

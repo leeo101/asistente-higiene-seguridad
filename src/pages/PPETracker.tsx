@@ -5,7 +5,7 @@ import {
   ArrowLeft, Plus, Trash2, HardHat, TriangleAlert, CheckCircle, Clock, Shield,
   Download, QrCode, ExternalLink, Info, Footprints, Hand, Glasses, Ear, Shirt,
   Wind, Eye, Flame, Activity, HelpCircle, User, Calendar, ShieldCheck, Award, X,
-  Zap, Thermometer, Droplets, Snowflake, Beaker, Briefcase, Pencil } from
+  Zap, Thermometer, Droplets, Snowflake, Beaker, Briefcase, Pencil, Tag } from
 'lucide-react';
 import toast from 'react-hot-toast';
 import { useSync } from '../contexts/SyncContext';
@@ -85,7 +85,22 @@ function StatusBadge({ days }) {
 
 }
 
-const EMPTY_FORM = { type: '', custom: '', responsible: '', purchaseDate: '', lifeMonths: '', certStandard: '', certNumber: '', id: '', addedAt: '' };
+const EMPTY_FORM = {
+  type: '',
+  custom: '',
+  responsible: '',
+  workerDni: '',
+  puesto: '',
+  brand: '',
+  model: '',
+  quantity: '1',
+  purchaseDate: '',
+  lifeMonths: '',
+  certStandard: '',
+  certNumber: '',
+  id: '',
+  addedAt: ''
+};
 
 export default function PPETracker(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -94,6 +109,17 @@ export default function PPETracker(): React.ReactElement | null {
   const [items, setItems] = useState<any[]>([]);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+  const [receiptFilterWorker, setReceiptFilterWorker] = useState<string>('all');
+  const [receiptMeta, setReceiptMeta] = useState({
+    razonSocial: '',
+    cuit: '',
+    direccion: '',
+    localidad: '',
+    trabajadorNombre: '',
+    trabajadorDni: '',
+    puestoTrabajo: ''
+  });
 
   // Check if device is mobile to adjust padding
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -126,6 +152,11 @@ export default function PPETracker(): React.ReactElement | null {
       id: form.id || Date.now(),
       type: form.type === 'Otro' ? form.custom || 'Otro' : form.type,
       responsible: form.responsible,
+      workerDni: form.workerDni || '',
+      puesto: form.puesto || '',
+      brand: form.brand || '',
+      model: form.model || '',
+      quantity: form.quantity || '1',
       purchaseDate: form.purchaseDate,
       lifeMonths: form.lifeMonths || 12,
       certStandard: form.certStandard,
@@ -144,6 +175,7 @@ export default function PPETracker(): React.ReactElement | null {
   const handleEdit = (item) => {
     const isStandard = EPP_TYPES.includes(item.type);
     setForm({
+      ...EMPTY_FORM,
       ...item,
       type: isStandard ? item.type : 'Otro',
       custom: isStandard ? '' : item.type
@@ -202,15 +234,43 @@ export default function PPETracker(): React.ReactElement | null {
                         <></>
                     </div>
                     {items.length > 0 &&
-        <div className="flex gap-2 relative z-50">
-                            <button type="button" onClick={() => window.print()} style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', boxShadow: '0 8px 20px rgba(59,130,246,0.3)' }} className="text-white border-none rounded-lg px-4 py-2 text-xs font-extrabold cursor-pointer hover:scale-[1.03] active:scale-[0.97] transition-all relative z-50">
-                                <span className="hidden sm:inline">IMPRIMIR RES. 299/11</span><span className="inline sm:hidden">RES 299/11</span>
+                        <div className="flex gap-2 relative z-50">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    // Pre-cargar datos del empleador desde perfil
+                                    try {
+                                        const saved = localStorage.getItem('personalData');
+                                        if (saved) {
+                                            const pd = JSON.parse(saved);
+                                            setReceiptMeta((prev) => ({
+                                                ...prev,
+                                                razonSocial: pd.company || pd.name || '',
+                                                cuit: pd.cuit || '',
+                                                direccion: pd.address || '',
+                                                localidad: pd.city || pd.province || ''
+                                            }));
+                                        }
+                                    } catch (e) {}
+                                    setIsReceiptModalOpen(true);
+                                }}
+                                style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', boxShadow: '0 8px 20px rgba(59,130,246,0.3)' }}
+                                className="text-white border-none rounded-lg px-4 py-2 text-xs font-extrabold cursor-pointer hover:scale-[1.03] active:scale-[0.97] transition-all relative z-50 flex items-center gap-1.5"
+                            >
+                                <Award size={14} />
+                                <span className="hidden sm:inline">CONSTANCIA RES. 299/11</span>
+                                <span className="inline sm:hidden">RES 299/11</span>
                             </button>
-                            <button type="button" onClick={handleExport} style={{ background: 'linear-gradient(135deg, #10b981, #047857)', boxShadow: '0 8px 20px rgba(16,185,129,0.3)' }} className="text-white border-none rounded-lg px-4 py-2 text-xs font-extrabold cursor-pointer hover:scale-[1.03] active:scale-[0.97] flex items-center gap-1 transition-all relative z-50">
+                            <button
+                                type="button"
+                                onClick={handleExport}
+                                style={{ background: 'linear-gradient(135deg, #10b981, #047857)', boxShadow: '0 8px 20px rgba(16,185,129,0.3)' }}
+                                className="text-white border-none rounded-lg px-4 py-2 text-xs font-extrabold cursor-pointer hover:scale-[1.03] active:scale-[0.97] flex items-center gap-1 transition-all relative z-50"
+                            >
                                 <Download size={14} /> <span className="hidden sm:inline">EXCEL</span>
                             </button>
                         </div>
-        }
+                    }
                 </div>
       }
 
@@ -471,7 +531,67 @@ export default function PPETracker(): React.ReactElement | null {
                   className="w-full pl-[2.8rem] pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
                   value={form.responsible}
                   onChange={(e) => setForm({ ...form, responsible: e.target.value })}
-                  placeholder="Nombre del trabajador" />
+                  placeholder="Nombre y Apellido" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="font-bold text-sm mb-1 block">DNI / CUIL del Trabajador</label>
+                                <div className="relative">
+                                    <User size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                    <input
+                  className="w-full pl-[2.8rem] pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
+                  value={form.workerDni}
+                  onChange={(e) => setForm({ ...form, workerDni: e.target.value })}
+                  placeholder="Ej: 35.123.456" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="font-bold text-sm mb-1 block">Puesto / Sector</label>
+                                <div className="relative">
+                                    <Briefcase size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                    <input
+                  className="w-full pl-[2.8rem] pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
+                  value={form.puesto}
+                  onChange={(e) => setForm({ ...form, puesto: e.target.value })}
+                  placeholder="Ej: Operario de Soldadura / Mantenimiento" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="font-bold text-sm mb-1 block">Marca / Fabricante</label>
+                                <div className="relative">
+                                    <Shield size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                    <input
+                  className="w-full pl-[2.8rem] pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
+                  value={form.brand}
+                  onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                  placeholder="Ej: 3M, Libus, MSA, Steelpro" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="font-bold text-sm mb-1 block">Modelo / Tipo</label>
+                                <div className="relative">
+                                    <Tag size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                    <input
+                  className="w-full pl-[2.8rem] pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
+                  value={form.model}
+                  onChange={(e) => setForm({ ...form, model: e.target.value })}
+                  placeholder="Ej: Con visor tonalizado / N95 / Dieléctrico" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="font-bold text-sm mb-1 block">Cantidad Entregada</label>
+                                <div className="relative">
+                                    <CheckCircle size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                    <input
+                  className="w-full pl-[2.8rem] pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium outline-none focus:border-blue-500 transition-colors"
+                  value={form.quantity}
+                  onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+                  placeholder="1 par / 1 unidad" />
                                 </div>
                             </div>
                             
@@ -568,8 +688,146 @@ export default function PPETracker(): React.ReactElement | null {
         </ModuleFormLayout>
       </div>
       
+      {/* Modal para emisión oficial de Constancia Res. SRT 299/11 */}
+      {isReceiptModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-xl w-full p-6 shadow-2xl animate-fade-in relative">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
+                  <Award size={22} />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 m-0">
+                    Constancia Oficial Res. SRT 299/11
+                  </h3>
+                  <p className="text-xs text-slate-500 m-0">
+                    Registro de Entrega de EPP y Ropa de Trabajo
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsReceiptModalOpen(false)}
+                className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 border-none cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="py-4 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                  Filtrar por Trabajador (o imprimir todos)
+                </label>
+                <select
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm font-semibold outline-none focus:border-blue-500"
+                  value={receiptFilterWorker}
+                  onChange={(e) => {
+                    const selected = e.target.value;
+                    setReceiptFilterWorker(selected);
+                    if (selected !== 'all') {
+                      const matchedItem = items.find((i) => i.responsible === selected);
+                      if (matchedItem) {
+                        setReceiptMeta((prev) => ({
+                          ...prev,
+                          trabajadorNombre: matchedItem.responsible || '',
+                          trabajadorDni: matchedItem.workerDni || '',
+                          puestoTrabajo: matchedItem.puesto || ''
+                        }));
+                      }
+                    }
+                  }}
+                >
+                  <option value="all">📋 Todos los EPPs registrados ({items.length} ítems)</option>
+                  {Array.from(new Set(items.map((i) => i.responsible).filter(Boolean))).map((worker) => (
+                    <option key={worker} value={worker}>
+                      👤 {worker} ({items.filter((i) => i.responsible === worker).length} EPPs)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[0.7rem] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    Razón Social Empleador
+                  </label>
+                  <input
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium"
+                    value={receiptMeta.razonSocial}
+                    onChange={(e) => setReceiptMeta({ ...receiptMeta, razonSocial: e.target.value })}
+                    placeholder="Empresa S.A."
+                  />
+                </div>
+                <div>
+                  <label className="block text-[0.7rem] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    C.U.I.T. Empleador
+                  </label>
+                  <input
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium"
+                    value={receiptMeta.cuit}
+                    onChange={(e) => setReceiptMeta({ ...receiptMeta, cuit: e.target.value })}
+                    placeholder="30-XXXXXXXX-X"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[0.7rem] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    Nombre del Trabajador
+                  </label>
+                  <input
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium"
+                    value={receiptMeta.trabajadorNombre}
+                    onChange={(e) => setReceiptMeta({ ...receiptMeta, trabajadorNombre: e.target.value })}
+                    placeholder="Nombre completo"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[0.7rem] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    DNI / CUIL Trabajador
+                  </label>
+                  <input
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium"
+                    value={receiptMeta.trabajadorDni}
+                    onChange={(e) => setReceiptMeta({ ...receiptMeta, trabajadorDni: e.target.value })}
+                    placeholder="35.XXX.XXX"
+                  />
+                </div>
+              </div>
+
+              <div className="p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-2xl text-[0.75rem] text-blue-700 dark:text-blue-300">
+                📄 Se generará la constancia en formato apaisado A4 reglamentaria de la Res. SRT 299/11 lista para ser rubricada por el trabajador y el responsable técnico.
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsReceiptModalOpen(false)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border-none cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  window.print();
+                }}
+                style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)' }}
+                className="px-5 py-2.5 rounded-xl text-xs font-extrabold text-white shadow-lg border-none cursor-pointer flex items-center gap-1.5 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                <Award size={15} /> IMPRIMIR CONSTANCIA A4
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="print-only">
-         <PPEReceiptPdfGenerator items={items} />
+        <PPEReceiptPdfGenerator
+          items={receiptFilterWorker === 'all' ? items : items.filter((i) => i.responsible === receiptFilterWorker)}
+          receiptData={receiptMeta}
+        />
       </div>
     </div>
   );

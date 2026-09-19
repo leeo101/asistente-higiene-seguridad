@@ -154,6 +154,12 @@ const LiftingForm = lazyWithRetry(() => import('./pages/LiftingForm'));
 const FleetForm = lazyWithRetry(() => import('./pages/FleetForm'));
 const EvacuationSimulatorForm = lazyWithRetry(() => import('./pages/EvacuationSimulatorForm'));
 const EvacuationSimulatorHistory = lazyWithRetry(() => import('./pages/EvacuationSimulatorHistory'));
+const GroundingProtocol = lazyWithRetry(() => import('./pages/GroundingProtocol'));
+const GroundingProtocolForm = lazyWithRetry(() => import('./pages/GroundingProtocolForm'));
+const RGRLManager = lazyWithRetry(() => import('./pages/RGRLManager'));
+const RGRLForm = lazyWithRetry(() => import('./pages/RGRLForm'));
+const RARManager = lazyWithRetry(() => import('./pages/RARManager'));
+const RARForm = lazyWithRetry(() => import('./pages/RARForm'));
 
 
 function SubscriptionGuard({ children }: { children: ReactNode }) {
@@ -610,6 +616,18 @@ function App() {
                   
                   <Route path="/chemical-safety" element={<ProtectedRoute><ChemicalSafety /></ProtectedRoute>} />
                   <Route path="/chemical-safety/new" element={<ProtectedRoute><ChemicalSafetyForm /></ProtectedRoute>} />
+                  
+                  <Route path="/grounding" element={<ProtectedRoute><GroundingProtocol /></ProtectedRoute>} />
+                  <Route path="/grounding/new" element={<ProtectedRoute><GroundingProtocolForm /></ProtectedRoute>} />
+                  <Route path="/grounding/edit/:id" element={<ProtectedRoute><GroundingProtocolForm /></ProtectedRoute>} />
+                  
+                  <Route path="/rgrl" element={<ProtectedRoute><RGRLManager /></ProtectedRoute>} />
+                  <Route path="/rgrl/new" element={<ProtectedRoute><RGRLForm /></ProtectedRoute>} />
+                  <Route path="/rgrl/edit/:id" element={<ProtectedRoute><RGRLForm /></ProtectedRoute>} />
+
+                  <Route path="/rar" element={<ProtectedRoute><RARManager /></ProtectedRoute>} />
+                  <Route path="/rar/new" element={<ProtectedRoute><RARForm /></ProtectedRoute>} />
+                  <Route path="/rar/edit/:id" element={<ProtectedRoute><RARForm /></ProtectedRoute>} />
 
                   <Route path="/safety-kpis" element={<ProtectedRoute><SafetyKPIs /></ProtectedRoute>} />
                   <Route path="/toolbox-talk" element={<ProtectedRoute><ToolboxTalk /></ProtectedRoute>} />
