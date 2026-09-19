@@ -4,7 +4,8 @@ import {
   Headphones, Gauge, Ear, Plus, Search,
   FileText, Eye, Edit3, Trash2, CheckCircle2,
   Calendar, Zap, Shield, AlertTriangle, BarChart3,
-  Activity, Share2, Volume2, Download, User, MapPin, Clock
+  Activity, Share2, Volume2, Download, User, MapPin, Clock,
+  ArrowLeft, Printer
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import NoiseAssessmentPdf from '../components/NoiseAssessmentPdf';
@@ -132,22 +133,28 @@ export default function NoiseAssessment(): React.ReactElement | null {
 
   const handleExportCSV = () => {
     const rows = filteredMeasurements.map(item => ({
-      'Fecha': item.date || '',
-      'Trabajador': item.workerName || '',
-      'Puesto / Tarea': item.task || '',
-      'Ubicación': item.location || '',
-      'Tipo Medición': item.type || '',
-      'Nivel Lavg dB(A)': item.levels?.lavg || '0',
-      'Protección Auditiva': item.hearingProtection || 'Sin EPP',
+      'Empresa': item.empresa || item.razonSocial || '',
+      'CUIT': item.cuit || '',
+      'Sector': item.sector || item.location || '',
+      'Puesto': item.puestoTrabajo || item.task || '',
+      'Trabajador': item.workerName || item.trabajadorNombre || '',
+      'CUIL': item.trabajadorCuil || '',
+      'Fecha': item.date ? new Date(item.date).toLocaleDateString('es-AR') : '',
+      'Tipo Medición': item.type || 'personal',
+      'Nivel LAeq dB(A)': item.levels?.lavg || item.levels?.laeq || 0,
+      'Nivel LEX 8h dB(A)': item.levels?.lex8h || item.levels?.lavg || 0,
+      'Dosis %': item.levels?.dose || 0,
+      'EPP Auditivo': typeof item.hearingProtection === 'object' ? item.hearingProtection?.tipoEPP : (item.hearingProtection || 'Sin EPP'),
+      'Dictamen Res. SRT 85/12': item.dictamen || (parseFloat(item.levels?.lavg) > 85 ? 'SUPERA LMPE' : 'CONFORME'),
       'Técnico Evaluador': item.technician || ''
     }));
-    downloadCSV(rows, `Mediciones_Ruido_${new Date().toISOString().split('T')[0]}.csv`);
-    toast.success('📊 Protocolos de ruido exportados');
+    downloadCSV(rows, `Protocolos_Ruido_SRT85_${new Date().toISOString().split('T')[0]}.csv`);
+    toast.success('📊 Protocolos de ruido exportados correctamente');
   };
 
   const columns = [
     {
-      header: 'Fecha / Hora',
+      header: 'Fecha Medición',
       accessor: 'date',
       sortable: true,
       render: (item: any) => (
@@ -158,99 +165,172 @@ export default function NoiseAssessment(): React.ReactElement | null {
       )
     },
     {
+      header: 'Empresa / Sector',
+      accessor: 'empresa',
+      sortable: true,
+      render: (item: any) => (
+        <div>
+          <div style={{ color: '#000000', fontWeight: '900', fontSize: '14px', lineHeight: '1.2' }}>
+            {item.empresa || item.razonSocial || 'Empresa sin especificar'}
+          </div>
+          <div style={{ color: '#475569', fontWeight: '700', fontSize: '12px', marginTop: '2px' }}>
+            📍 {item.sector || item.location || 'General'} {item.cuit ? `• CUIT: ${item.cuit}` : ''}
+          </div>
+        </div>
+      )
+    },
+    {
       header: 'Trabajador / Puesto',
       accessor: 'workerName',
       sortable: true,
       render: (item: any) => (
         <div>
-          <div style={{ color: '#000000', fontWeight: '900', fontSize: '14px', lineHeight: '1.2' }}>{item.workerName || 'Área General'}</div>
-          <div style={{ color: '#1e293b', fontWeight: '800', fontSize: '12px', marginTop: '2px' }}>{item.task ? `Tarea: ${item.task}` : ''} {item.location ? `• ${item.location}` : ''}</div>
+          <div style={{ color: '#000000', fontWeight: '900', fontSize: '13px', lineHeight: '1.2' }}>
+            👤 {item.workerName || item.trabajadorNombre || 'Trabajador del Puesto'}
+          </div>
+          <div style={{ color: '#64748b', fontWeight: '600', fontSize: '11px', marginTop: '1px' }}>
+            🛠️ Puesto: {item.puestoTrabajo || item.task || item.tarea || 'Operativo'}
+          </div>
         </div>
       )
     },
     {
-      header: 'Nivel Lavg dB(A)',
+      header: 'Nivel Sonoro LAeq',
       accessor: 'levels',
       sortable: true,
       render: (item: any) => {
-        const lavgVal = parseFloat(item.levels?.lavg) || 0;
-        const risk = calculateRiskLevel(lavgVal);
+        const lavgVal = parseFloat(item.levels?.lavg || item.levels?.laeq || 0);
+        const dosis = item.levels?.dose || Math.round((8 / (8 / Math.pow(2, (lavgVal - 85)/3))) * 100);
+        const isCritical = lavgVal > 85;
         return (
-          <span style={{ 
-            backgroundColor: `${risk.color}15`, 
-            color: risk.color, 
-            border: `1px solid ${risk.color}40`,
-            padding: '4px 10px', 
-            borderRadius: '6px', 
-            fontWeight: '900', 
-            fontSize: '12px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}>
-            <Volume2 size={14} /> {lavgVal} dB(A) ({risk.label})
-          </span>
+          <div>
+            <span style={{ 
+              backgroundColor: isCritical ? '#fef2f2' : '#f0fdf4', 
+              color: isCritical ? '#dc2626' : '#16a34a', 
+              border: `1px solid ${isCritical ? '#fecdd3' : '#bbf7d0'}`,
+              padding: '3px 8px', 
+              borderRadius: '6px', 
+              fontWeight: '900', 
+              fontSize: '12px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              <Volume2 size={13} /> {lavgVal} dB(A)
+            </span>
+            <span style={{ display: 'block', color: '#64748b', fontSize: '11px', fontWeight: '700', marginTop: '2px' }}>
+              Dosis: {dosis}% • Jornada: {item.duracionJornadaHoras || item.duration || 8}h
+            </span>
+          </div>
         );
       }
     },
     {
       header: 'EPP Auditivo',
       accessor: 'hearingProtection',
-      render: (item: any) => (
-        <span style={{ backgroundColor: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1', padding: '4px 10px', borderRadius: '6px', fontWeight: '800', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <Headphones size={14} className="text-blue-500" /> {item.hearingProtection || 'Sin EPP'}
-        </span>
-      )
+      render: (item: any) => {
+        const eppText = typeof item.hearingProtection === 'object'
+          ? (item.hearingProtection?.tipoEPP || item.hearingProtection?.marcaModelo || 'Sin EPP')
+          : (item.hearingProtection || 'Sin EPP');
+        const nrr = typeof item.hearingProtection === 'object' ? item.hearingProtection?.nrr_snr : null;
+        return (
+          <div>
+            <span style={{ backgroundColor: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1', padding: '3px 8px', borderRadius: '6px', fontWeight: '800', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <Headphones size={13} className="text-blue-500" /> {eppText}
+            </span>
+            {nrr && (
+              <span style={{ display: 'block', color: '#64748b', fontSize: '10px', fontWeight: '700', marginTop: '1px' }}>
+                NRR: {nrr} dB
+              </span>
+            )}
+          </div>
+        );
+      }
     },
     {
-      header: 'Técnico Evaluador',
-      accessor: 'technician',
-      render: (item: any) => (
-        <span style={{ color: '#1e293b', fontWeight: '800', fontSize: '12px' }}>
-          {item.technician || 'Especialista HSE'}
-        </span>
-      )
+      header: 'Dictamen Res. 85/12',
+      accessor: 'dictamen',
+      render: (item: any) => {
+        const lavgVal = parseFloat(item.levels?.lavg || item.levels?.laeq || 0);
+        const isCritical = lavgVal > 85;
+        const isAction = lavgVal >= 80 && lavgVal <= 85;
+        if (isCritical) {
+          return (
+            <span style={{ backgroundColor: '#fef2f2', color: '#dc2626', border: '1px solid #fca5a5', padding: '4px 8px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <AlertTriangle size={12} /> SUPERA LMPE
+            </span>
+          );
+        }
+        if (isAction) {
+          return (
+            <span style={{ backgroundColor: '#fffbeb', color: '#d97706', border: '1px solid #fde68a', padding: '4px 8px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <Activity size={12} /> ALERTA (80-85)
+            </span>
+          );
+        }
+        return (
+          <span style={{ backgroundColor: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', padding: '4px 8px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <CheckCircle2 size={12} /> CONFORME
+          </span>
+        );
+      }
     },
     {
       header: 'Acciones',
       accessor: 'id',
       render: (item: any) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {/* Botón Editar estilo Aptitudes Médicas (Fondo Ámbar Sólido) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          <button 
+            onClick={() => setSelectedMeasurement(item)} 
+            title="Ver Protocolo Oficial Anexo I" 
+            style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '5px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)' }}>
+            <FileText size={12} /> Ver PDF
+          </button>
+
           <button 
             onClick={() => navigate('/noise-assessment/new', { state: { editData: item } })} 
             title="Editar Medición" 
-            style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '5px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(217, 119, 6, 0.2)' }}>
             <Edit3 size={12} /> Editar
           </button>
 
-          {/* Botón Ver (Fondo Azul Sólido) */}
-          <button 
-            onClick={() => setSelectedMeasurement(item)} 
-            title="Ver Detalle de Medición" 
-            style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-            <Eye size={12} /> Ver
-          </button>
-
-          {/* Botón Compartir / PDF (Fondo Esmeralda Sólido) */}
           <button 
             onClick={() => setShareItem(item)} 
             title="Exportar PDF o Compartir" 
-            style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-            <Share2 size={12} /> PDF
+            style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '5px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)' }}>
+            <Share2 size={12} /> Compartir
           </button>
 
-          {/* Botón Eliminar (Fondo Rojo Sólido) */}
           <button 
             onClick={() => setConfirmModal({ isOpen: true, payload: item.id })} 
             title="Eliminar Medición"
-            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '5px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(220, 38, 38, 0.2)' }}>
             <Trash2 size={12} /> Eliminar
           </button>
         </div>
       )
     }
   ];
+
+  if (selectedMeasurement) {
+    return (
+      <div className="print-only-wrapper min-h-[100vh] bg-slate-900 pb-12 pt-4">
+        <div className="no-print flex items-center justify-between max-w-[210mm] mx-auto mb-4 px-4">
+          <button 
+            onClick={() => setSelectedMeasurement(null)} 
+            className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs cursor-pointer border border-slate-700 transition-all">
+            <ArrowLeft size={16} /> Volver al Historial
+          </button>
+          <button 
+            onClick={() => window.print()} 
+            className="flex items-center gap-2 px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-extrabold text-xs cursor-pointer shadow-lg shadow-amber-500/30 transition-all">
+            <Printer size={16} /> Imprimir / PDF
+          </button>
+        </div>
+        <NoiseAssessmentPdf data={selectedMeasurement} />
+      </div>
+    );
+  }
 
   return (
     <AnimatedPage>

@@ -3,26 +3,33 @@ import { usePaywall } from '../hooks/usePaywall';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
-  ChevronRight, ChevronLeft, ArrowLeft,
-  Save, Accessibility, AlertCircle, Info, Building2, Sparkles, Loader2, Printer, Share2, CheckCircle2, Circle } from
-'lucide-react';
+  ChevronRight, ChevronLeft, Save, Accessibility, AlertCircle, Building2,
+  Sparkles, Loader2, Printer, CheckCircle2, Circle, Plus, Trash2, ShieldCheck,
+  Activity, Users, FileText, ArrowLeft, RefreshCw
+} from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../config';
 import { auth } from '../firebase';
-import Breadcrumbs from '../components/Breadcrumbs';
 import {
   ModuleFormLayout,
   ModuleFormToolbar,
   ModuleFormDocument,
   ModuleFormSection,
-  ModuleActionBar,
 } from '../components/module';
 import { getErrorMessage } from '../utils/errorUtils';
 import ErgonomicsPdfGenerator from '../components/ErgonomicsPdfGenerator';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
-import NioshErgonomicsCalculatorWidget from '../components/NioshErgonomicsCalculatorWidget';
+import {
+  OFFICIAL_PLANILLA1_FACTORS,
+  calculateNioshSrt886,
+  evaluateFullErgonomicsProtocol
+} from '../utils/srtProtocols';
+import type {
+  ErgonomicsRiskFactorKey,
+  Planilla3ActionMeasure
+} from '../types/ergonomics';
 
 export default function ErgonomicsForm(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -30,64 +37,109 @@ export default function ErgonomicsForm(): React.ReactElement | null {
   const { syncCollection } = useSync();
   const location = useLocation();
   const editData = location.state?.editData;
+
   const [step, setStep] = useState(1);
   const [profile, setProfile] = useState<any>(null);
   const [signature, setSignature] = useState<any>(null);
   const [showSignatures, setShowSignatures] = useState({ operator: true, supervisor: true, professional: true });
+  const [isGeneratingConclusion, setIsGeneratingConclusion] = useState(false);
 
+  // Perfil del usuario
   useEffect(() => {
     window.scrollTo(0, 0);
     const savedProfile = localStorage.getItem('personalData');
-    if (savedProfile) setProfile(JSON.parse(savedProfile));
+    if (savedProfile) {
+      try {
+        setProfile(JSON.parse(savedProfile));
+      } catch (e) {
+        console.error('Error al parsear personalData', e);
+      }
+    }
 
     const sig = localStorage.getItem('signatureStampData');
-    if (sig) setSignature(JSON.parse(sig));
+    if (sig) {
+      try {
+        setSignature(JSON.parse(sig));
+      } catch (e) {
+        console.error('Error al parsear signatureStampData', e);
+      }
+    }
   }, []);
-  const [formData, setFormData] = useState(editData || {
-    empresa: '',
-    cuit: '',
-    sector: '',
-    puesto: '',
-    descripcionTarea: '',
-    planilla1: {
-      levantamientoCarga: false,
-      transporteCargas: false,
-      empujeArrastre: false,
-      bipedestacion: false,
-      movimientosRepetitivos: false,
-      posturasForzadas: false,
-      vibracionesManoBrazo: false,
-      vibracionesCuerpoEntero: false,
-      estresContacto: false,
-      estresTermico: false,
-    },
-    calculoLevantamiento: {
-      peso: 0,
-      agarre: 'Bueno',
-      distanciaH: 25,
-      distanciaV: 75,
-      frecuencia: 0.2,
-      duracion: 1,
-      torsion: 0
-    },
-    recomendaciones: '',
-    operatorSignature: '',
-    supervisorSignature: ''
+
+  // Inicializar estado del formulario
+  const [formData, setFormData] = useState<any>(() => {
+    if (editData) return editData;
+
+    const savedProfile = localStorage.getItem('personalData');
+    let defaultEmpresa = '';
+    let defaultCuit = '';
+    if (savedProfile) {
+      try {
+        const parsed = JSON.parse(savedProfile);
+        defaultEmpresa = parsed.companyName || parsed.empresa || '';
+        defaultCuit = parsed.cuit || '';
+      } catch (e) {}
+    }
+
+    // Inicializar planilla 1 con los 10 factores
+    const initialPlanilla1: Record<string, boolean> = {};
+    OFFICIAL_PLANILLA1_FACTORS.forEach(f => {
+      initialPlanilla1[f.id] = false;
+    });
+
+    return {
+      cuit: defaultCuit,
+      empresa: defaultEmpresa,
+      direccion: '',
+      localidad: '',
+      art: '',
+      sector: '',
+      puesto: '',
+      descripcionTarea: '',
+      trabajadoresVarones: 1,
+      trabajadoresMujeres: 0,
+      duracionJornadaHoras: 8,
+      fechaEvaluacion: new Date().toISOString().split('T')[0],
+      planilla1: initialPlanilla1,
+      calculoLevantamiento: {
+        pesoCargaKg: 10,
+        distanciaHCm: 35,
+        distanciaVCm: 75,
+        desplazamientoDCm: 50,
+        anguloTorsionDeg: 0,
+        frecuenciaLiftsMin: 1,
+        duracionHoras: 1,
+        calidadAgarre: 'Bueno'
+      },
+      medidasAccion: [] as Planilla3ActionMeasure[],
+      conclusiones: '',
+      recomendaciones: '',
+      operatorSignature: '',
+      supervisorSignature: ''
+    };
   });
 
-  const categories = [
-    { id: 'levantamientoCarga', label: 'Levantamiento / Descenso' },
-    { id: 'transporteCargas', label: 'Transporte manual de cargas' },
-    { id: 'empujeArrastre', label: 'Empuje o arrastre de cargas' },
-    { id: 'bipedestacion', label: 'Bipedestación estática' },
-    { id: 'movimientosRepetitivos', label: 'Movimientos repetitivos' },
-    { id: 'posturasForzadas', label: 'Posturas forzadas' },
-    { id: 'vibracionesManoBrazo', label: 'Vibraciones mano-brazo' },
-    { id: 'vibracionesCuerpoEntero', label: 'Vibraciones cuerpo entero' },
-    { id: 'estresContacto', label: 'Estrés de contacto' },
-    { id: 'estresTermico', label: 'Estrés térmico (Frío/Calor)' }
-  ];
+  // Cálculo en vivo de NIOSH
+  const liveNiosh = calculateNioshSrt886(formData.calculoLevantamiento);
 
+  // Evaluación integral en vivo
+  const liveEvaluation = evaluateFullErgonomicsProtocol({
+    planilla1: formData.planilla1,
+    calculoLevantamiento: formData.calculoLevantamiento
+  });
+
+  // Generar o actualizar medidas automáticas de Planilla 3 si están vacías
+  const handleGenerateDefaultMeasures = () => {
+    if (liveEvaluation.medidasSugeridas.length > 0) {
+      setFormData((prev: any) => ({
+        ...prev,
+        medidasAccion: liveEvaluation.medidasSugeridas
+      }));
+      toast.success('Medidas de acción preventivas cargadas automáticamente');
+    } else {
+      toast('No se detectaron factores de riesgo que requieran medidas');
+    }
+  };
 
   const handleNext = () => setStep(step + 1);
   const handleBack = () => setStep(step - 1);
@@ -120,58 +172,78 @@ export default function ErgonomicsForm(): React.ReactElement | null {
     const id = editData?.id || Date.now().toString();
     let history = JSON.parse(localStorage.getItem('ergonomics_history') || '[]');
 
-    // Simulación de riesgo basado en Planilla 1
-    let riesgo = 'Tolerable';
-    const activeFactors = Object.values(formData.planilla1).filter((v) => v === true).length;
-    if (activeFactors > 2 || formData.planilla1.levantamientoCarga && formData.calculoLevantamiento.peso > 25) {
-      riesgo = 'Moderado';
-    }
-
-    const report = { ...formData, id, riesgo };
+    const finalReport = {
+      ...formData,
+      id,
+      nivelRiesgoGlobal: liveEvaluation.nivelRiesgoGlobal,
+      riesgo: liveEvaluation.riesgoRetro,
+      calculoLevantamiento: {
+        ...formData.calculoLevantamiento,
+        lprKg: liveNiosh.lprKg,
+        indiceLevantamiento: liveNiosh.indiceLevantamiento,
+        multiplicadores: liveNiosh.multiplicadores,
+        nivelRiesgo: liveNiosh.nivelRiesgo
+      },
+      conclusiones: formData.conclusiones || liveEvaluation.conclusionesAutomaticas.join('\n\n'),
+      recomendaciones: formData.recomendaciones || liveEvaluation.conclusionesAutomaticas.slice(1).join('\n')
+    };
 
     if (editData) {
-      history = history.map((item) => item.id === editData.id ? report : item);
+      history = history.map((item: any) => (item.id === editData.id ? finalReport : item));
     } else {
-      history.unshift(report);
+      history.unshift(finalReport);
     }
 
     localStorage.setItem('ergonomics_history', JSON.stringify(history));
     syncCollection('ergonomics_history', history);
 
-    toast.success(editData ? 'Estudio actualizado correctamente.' : 'Estudio registrado con éxito.');
+    toast.success(editData ? 'Estudio ergonómico actualizado correctamente.' : 'Estudio ergonómico guardado con éxito.');
     navigate('/ergonomics');
   };
 
-  const [isGeneratingConclusion, setIsGeneratingConclusion] = useState(false);
-
   const handleGenerateConclusion = async () => {
     setIsGeneratingConclusion(true);
-    const loadingToast = toast.loading('Redactando recomendaciones técnicas...');
+    const loadingToast = toast.loading('Redactando dictamen técnico con IA...');
     try {
+      const token = await auth.currentUser?.getIdToken(true);
       const res = await fetch(`${API_BASE_URL}/api/ai-report-conclusion`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await auth.currentUser?.getIdToken(true)}`
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
         body: JSON.stringify({
-          reportType: 'Estudio de Ergonomía Res 886/15',
+          reportType: 'Estudio de Ergonomía Res SRT 886/15',
           reportData: {
             empresa: formData.empresa,
+            cuit: formData.cuit,
             sector: formData.sector,
             puesto: formData.puesto,
             descripcionTarea: formData.descripcionTarea,
             factoresRiesgo: formData.planilla1,
-            datosLevantamientoCarga: formData.calculoLevantamiento
+            calculoLevantamiento: liveNiosh,
+            nivelRiesgoGlobal: liveEvaluation.nivelRiesgoGlobal,
+            medidasAccion: formData.medidasAccion
           }
         })
       });
+
       if (!res.ok) throw new Error('Error al conectar con la IA');
       const data = await res.json();
-      setFormData((prev) => ({ ...prev, recomendaciones: data.conclusion }));
-      toast.success('Recomendaciones generadas con éxito ✨', { id: loadingToast });
+      setFormData((prev: any) => ({
+        ...prev,
+        conclusiones: data.conclusion || prev.conclusiones,
+        recomendaciones: data.conclusion || prev.recomendaciones
+      }));
+      toast.success('Dictamen técnico redactado con éxito ✨', { id: loadingToast });
     } catch (error) {
-      toast.error(`Error al generar: ${getErrorMessage(error)}`, { id: loadingToast });
+      // Fallback local determinístico conforme a la SRT
+      setFormData((prev: any) => ({
+        ...prev,
+        conclusiones: liveEvaluation.conclusionesAutomaticas.join('\n\n'),
+        recomendaciones: liveEvaluation.conclusionesAutomaticas.slice(1).join('\n')
+      }));
+      toast.success('Conclusiones normativas generadas localmente.', { id: loadingToast });
     } finally {
       setIsGeneratingConclusion(false);
     }
@@ -179,375 +251,818 @@ export default function ErgonomicsForm(): React.ReactElement | null {
 
   return (
     <ModuleFormLayout>
-        <div className="ats-pdf-offscreen" aria-hidden="true">
-            <ErgonomicsPdfGenerator 
-                data={{
-                    ...formData,
-                    riesgo: Object.values(formData.planilla1).filter((v) => v === true).length > 2 || (formData.planilla1.levantamientoCarga && formData.calculoLevantamiento.peso > 25) ? 'Moderado' : 'Tolerable'
-                }} 
-                profile={profile} 
-                signature={signature} 
-                showSignatures={showSignatures} 
-            />
-        </div>
-        <div className="pt-24 no-print"></div>
-        <ModuleFormToolbar
-            title={editData ? 'Editar Estudio Ergonómico' : 'Nuevo Estudio Ergonómico'}
-            subtitle="Protocolo Res. SRT 886/15"
-            icon={<Accessibility size={36} color="#ffffff" />}
-            steps={['Datos Generales', 'Factores de Riesgo', 'NIOSH y Conclusión']}
-            currentStep={step}
-            onStepClick={(s) => {
-              setStep(s);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onBack={() => navigate('/ergonomics')}
+      {/* Componente PDF fuera de pantalla para captura / impresión */}
+      <div className="ats-pdf-offscreen" aria-hidden="true">
+        <ErgonomicsPdfGenerator
+          data={{
+            ...formData,
+            nivelRiesgoGlobal: liveEvaluation.nivelRiesgoGlobal,
+            riesgo: liveEvaluation.riesgoRetro,
+            calculoLevantamiento: {
+              ...formData.calculoLevantamiento,
+              lprKg: liveNiosh.lprKg,
+              indiceLevantamiento: liveNiosh.indiceLevantamiento,
+              multiplicadores: liveNiosh.multiplicadores,
+              nivelRiesgo: liveNiosh.nivelRiesgo
+            }
+          }}
+          profile={profile}
+          signature={signature}
+          showSignatures={showSignatures}
         />
+      </div>
 
-            <div className="my-6 z-10 no-print">
-                <></>
+      <div className="pt-24 no-print"></div>
+
+      <ModuleFormToolbar
+        title={editData ? 'Editar Protocolo de Ergonomía' : 'Nuevo Protocolo de Ergonomía'}
+        subtitle="Resolución S.R.T. N° 886/15 • Planillas 1, 2 y 3"
+        icon={<Accessibility size={36} color="#ffffff" />}
+        steps={['1. Datos Generales', '2. Planilla 1', '3. Planilla 2', '4. Planilla 3 y Dictamen']}
+        currentStep={step}
+        onStepClick={(s) => {
+          setStep(s);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onBack={() => navigate('/ergonomics')}
+      />
+
+      <div className="my-6 z-10 no-print" />
+
+      <ModuleFormDocument>
+        {/* PASO 1: DATOS PATRONALES Y PUESTO */}
+        {step === 1 && (
+          <ModuleFormSection title="I — Datos del Establecimiento y Puesto de Trabajo" icon={<Building2 />}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  Empresa / Razón Social *
+                </label>
+                <input
+                  className="module-form-input"
+                  value={formData.empresa}
+                  onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
+                  placeholder="Ej: Logística Central S.A."
+                />
+              </div>
+
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  C.U.I.T. N° *
+                </label>
+                <input
+                  className="module-form-input font-mono"
+                  value={formData.cuit}
+                  onChange={(e) => setFormData({ ...formData, cuit: e.target.value })}
+                  placeholder="30-XXXXXXXX-X"
+                />
+              </div>
+
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  A.R.T. Contratada
+                </label>
+                <input
+                  className="module-form-input"
+                  value={formData.art}
+                  onChange={(e) => setFormData({ ...formData, art: e.target.value })}
+                  placeholder="Ej: Asociart, Prevención ART..."
+                />
+              </div>
             </div>
 
-        <ModuleFormDocument>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  Sector / Nave *
+                </label>
+                <input
+                  className="module-form-input"
+                  value={formData.sector}
+                  onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
+                  placeholder="Ej: Depósito, Línea de Envasado..."
+                />
+              </div>
 
-            {step === 1 &&
-      <ModuleFormSection title="Datos Generales" icon={<Building2 />}>
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  Puesto de Trabajo *
+                </label>
+                <input
+                  className="module-form-input"
+                  value={formData.puesto}
+                  onChange={(e) => setFormData({ ...formData, puesto: e.target.value })}
+                  placeholder="Ej: Operario de Paletizado"
+                />
+              </div>
 
-                    <div className="mb-6">
-                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Empresa / Establecimiento</label>
-                        <input
-            className="module-form-input"
-            value={formData.empresa}
-            onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
-            placeholder="Nombre de la empresa" />
-          
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  Fecha del Relevamiento
+                </label>
+                <input
+                  type="date"
+                  className="module-form-input"
+                  value={formData.fechaEvaluacion}
+                  onChange={(e) => setFormData({ ...formData, fechaEvaluacion: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  Operarios Varones Expuestos
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  className="module-form-input"
+                  value={formData.trabajadoresVarones}
+                  onChange={(e) => setFormData({ ...formData, trabajadoresVarones: Number(e.target.value) })}
+                />
+              </div>
+
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  Operarias Mujeres Expuestas
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  className="module-form-input"
+                  value={formData.trabajadoresMujeres}
+                  onChange={(e) => setFormData({ ...formData, trabajadoresMujeres: Number(e.target.value) })}
+                />
+              </div>
+
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  Duración Jornada (Horas)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="24"
+                  className="module-form-input"
+                  value={formData.duracionJornadaHoras}
+                  onChange={(e) => setFormData({ ...formData, duracionJornadaHoras: Number(e.target.value) })}
+                />
+              </div>
+            </div>
+
+            <div className="mb-8">
+              <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                Descripción Detallada de Tareas y Ciclos de Trabajo
+              </label>
+              <textarea
+                rows={3}
+                className="module-form-input"
+                value={formData.descripcionTarea}
+                onChange={(e) => setFormData({ ...formData, descripcionTarea: e.target.value })}
+                placeholder="Describa los movimientos, pesos habituales manipulados, herramientas empleadas y descansos del ciclo..."
+              />
+            </div>
+
+            <div className="flex justify-center w-full">
+              <button
+                onClick={handleNext}
+                style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none' }}
+                className="px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm font-extrabold shadow-lg hover:opacity-90 transition-all hover:-translate-y-0.5 cursor-pointer"
+              >
+                Continuar a Planilla 1 <ChevronRight size={18} />
+              </button>
+            </div>
+          </ModuleFormSection>
+        )}
+
+        {/* PASO 2: PLANILLA 1 IDENTIFICACIÓN DE FACTORES */}
+        {step === 2 && (
+          <ModuleFormSection title="II — Planilla 1: Identificación de Factores de Riesgo (Res. SRT 886/15)" icon={<AlertCircle />}>
+            <p className="text-[0.95rem] text-[var(--color-text-muted)] mb-6 font-[600]">
+              Marque la presencia de cada factor de riesgo ergonómico en el puesto. Si el factor está presente, la normativa SRT determina la necesidad de profundizar con la <strong>Planilla 2</strong> correspondiente.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              {OFFICIAL_PLANILLA1_FACTORS.map((factor) => {
+                const isSelected = Boolean(formData.planilla1[factor.id]);
+                return (
+                  <div
+                    key={factor.id}
+                    onClick={() => {
+                      setFormData({
+                        ...formData,
+                        planilla1: {
+                          ...formData.planilla1,
+                          [factor.id]: !isSelected
+                        }
+                      });
+                    }}
+                    className="p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-start gap-3.5 select-none hover:shadow-md"
+                    style={{
+                      background: isSelected ? 'rgba(16, 185, 129, 0.08)' : 'var(--color-surface)',
+                      borderColor: isSelected ? '#10b981' : 'var(--color-border)',
+                      boxShadow: isSelected ? '0 4px 15px rgba(16, 185, 129, 0.15)' : 'none'
+                    }}
+                  >
+                    <div className="mt-1 flex-shrink-0">
+                      {isSelected ? (
+                        <CheckCircle2 size={24} className="text-emerald-500" />
+                      ) : (
+                        <Circle size={24} className="text-slate-300 dark:text-slate-700" />
+                      )}
                     </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                        <div>
-                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Sector</label>
-                            <input
-              className="module-form-input"
-              value={formData.sector}
-              onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
-              placeholder="Logística, Planta, etc." />
-            
-                        </div>
-                        <div>
-                            <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Puesto de Trabajo</label>
-                            <input
-              className="module-form-input"
-              value={formData.puesto}
-              onChange={(e) => setFormData({ ...formData, puesto: e.target.value })}
-              placeholder="Operario, Administrativo..." />
-            
-                        </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
+                        <span className="font-extrabold text-sm text-[var(--color-text)]">
+                          {factor.numero}. {factor.nombre}
+                        </span>
+                        {factor.requierePlanilla2 && (
+                          <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full font-bold bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
+                            {factor.planillaDerivada}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-[var(--color-text-muted)] m-0 leading-relaxed font-medium">
+                        {factor.criterioSrt}
+                      </p>
                     </div>
+                  </div>
+                );
+              })}
+            </div>
 
-                    <div className="mb-[2.5rem]">
-                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Descripción de la Tarea</label>
-                        <textarea
-            className="module-form-input"
-            rows={3}
-            value={formData.descripcionTarea}
-            onChange={(e) => setFormData({ ...formData, descripcionTarea: e.target.value })}
-            placeholder="Describa brevemente las acciones realizadas..." />
-          
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between flex-wrap gap-4 mb-8">
+              <div className="flex items-center gap-3">
+                <ShieldCheck size={28} className="text-emerald-500" />
+                <div>
+                  <h4 className="text-sm font-extrabold text-[var(--color-text)] m-0">
+                    Factores Identificados: {liveEvaluation.factoresIdentificadosCount} de 10
+                  </h4>
+                  <p className="text-xs text-[var(--color-text-muted)] m-0 font-medium">
+                    {liveEvaluation.factoresRequierenPlanilla2.length > 0
+                      ? `Requiere Planilla 2 para: ${liveEvaluation.factoresRequierenPlanilla2.join(', ')}`
+                      : 'No se detectaron factores que requieran Planilla 2'}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-xs font-bold text-[var(--color-text-muted)] uppercase block">Riesgo Inicial Estimado</span>
+                <span className={`text-sm font-black px-3 py-1 rounded-full ${
+                  liveEvaluation.nivelRiesgoGlobal.includes('Nivel 3') ? 'bg-rose-100 text-rose-700' :
+                  liveEvaluation.nivelRiesgoGlobal.includes('Nivel 2') ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
+                }`}>
+                  {liveEvaluation.nivelRiesgoGlobal}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-4 flex-wrap justify-center w-full">
+              <button
+                onClick={handleBack}
+                style={{ background: 'linear-gradient(135deg, #64748b, #475569)', color: 'white', border: 'none' }}
+                className="px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-extrabold text-sm shadow-lg hover:opacity-90 transition-all cursor-pointer"
+              >
+                <ChevronLeft size={18} /> Atrás
+              </button>
+              <button
+                onClick={handleNext}
+                style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none' }}
+                className="px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-extrabold text-sm shadow-lg hover:opacity-90 transition-all cursor-pointer"
+              >
+                Continuar a Planilla 2 <ChevronRight size={18} />
+              </button>
+            </div>
+          </ModuleFormSection>
+        )}
+
+        {/* PASO 3: PLANILLA 2 EVALUACIÓN ESPECÍFICA (NIOSH) */}
+        {step === 3 && (
+          <ModuleFormSection title="III — Planilla 2.A: Evaluación de Levantamiento de Cargas (Ecuación NIOSH)" icon={<Activity />}>
+            {formData.planilla1['1_levantamiento'] ? (
+              <div className="space-y-6">
+                {/* Resumen de Métricas NIOSH */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                  <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900">
+                    <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest block">
+                      Peso Real Manipulado
+                    </span>
+                    <div className="text-3xl font-black text-blue-900 dark:text-blue-200">
+                      {liveNiosh.pesoCargaKg} <span className="text-sm font-bold text-slate-500">kg</span>
                     </div>
+                    {liveNiosh.pesoCargaKg > 25 && (
+                      <p className="text-rose-600 text-xs font-black mt-1 flex items-center gap-1">
+                        <AlertCircle size={14} /> Excede el límite de 25 kg
+                      </p>
+                    )}
+                  </div>
 
-                    <div className="flex justify-center w-full">
-                        <button onClick={handleNext} 
-                            style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none' }}
-                            className="px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm font-extrabold shadow-lg hover:opacity-90 transition-all hover:-translate-y-0.5 cursor-pointer">
-                            Siguiente <ChevronRight size={18} />
-                        </button>
+                  <div className="p-4 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900">
+                    <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest block">
+                      Límite de Peso Recomendado (LPR)
+                    </span>
+                    <div className="text-3xl font-black text-purple-900 dark:text-purple-200">
+                      {liveNiosh.lprKg} <span className="text-sm font-bold text-slate-500">kg</span>
                     </div>
-      </ModuleFormSection>
-      }
+                    <span className="text-[11px] text-slate-500 font-medium block">
+                      Capacidad biomecánica segura
+                    </span>
+                  </div>
 
-            {step === 2 &&
-      <ModuleFormSection title="Planilla 1: Identificación" icon={<AlertCircle />}>
-                    <p className="text-[0.95rem] text-[var(--color-text-muted)] mb-[2rem] font-[600]">
-                        Indique la presencia de factores de riesgo en el puesto:
-                    </p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-10">
-                        {categories.map((cat) =>
-          <div
-            key={cat.id}
-            onClick={() => setFormData({
-              ...formData,
-              planilla1: { ...formData.planilla1, [cat.id as keyof typeof formData.planilla1]: !formData.planilla1[cat.id as keyof typeof formData.planilla1] }
-            })}
-            className="transition-all duration-300 flex flex-col justify-center items-center gap-2 p-3 rounded-[16px] cursor-pointer text-center"
-            style={{
-              background: formData.planilla1[cat.id as keyof typeof formData.planilla1] ? 'linear-gradient(to bottom right, rgba(16,185,129,0.1), rgba(16,185,129,0.02))' : 'var(--color-surface)',
-              border: `1px solid ${formData.planilla1[cat.id as keyof typeof formData.planilla1] ? '#10b981' : 'var(--color-border)'}`,
-              boxShadow: formData.planilla1[cat.id as keyof typeof formData.planilla1] ? '0 8px 20px -4px rgba(16,185,129,0.2)' : '0 2px 10px -2px rgba(0,0,0,0.05)',
-              transform: formData.planilla1[cat.id as keyof typeof formData.planilla1] ? 'translateY(-2px)' : 'none'
-            }}>
-                {formData.planilla1[cat.id as keyof typeof formData.planilla1] ? 
-                    <CheckCircle2 size={24} color="#10b981" /> : 
-                    <Circle size={24} color="var(--color-text-muted)" opacity={0.3} />
-                }
-                <span style={{ color: formData.planilla1[cat.id as keyof typeof formData.planilla1] ? 'var(--color-text)' : 'var(--color-text-muted)' }} className="text-xs font-bold leading-tight">{cat.label}</span>
-          </div>
-          )}
+                  <div className={`p-4 rounded-2xl border ${
+                    liveNiosh.nivelRiesgo.includes('Nivel 3') ? 'bg-rose-50 border-rose-300 dark:bg-rose-950/30' :
+                    liveNiosh.nivelRiesgo.includes('Nivel 2') ? 'bg-amber-50 border-amber-300 dark:bg-amber-950/30' :
+                    'bg-emerald-50 border-emerald-300 dark:bg-emerald-950/30'
+                  }`}>
+                    <span className="text-[10px] font-black uppercase tracking-widest block text-slate-600">
+                      Índice de Levantamiento (IL)
+                    </span>
+                    <div className="text-3xl font-black text-slate-900 dark:text-white">
+                      {liveNiosh.indiceLevantamiento}
                     </div>
+                    <span className="text-xs font-black uppercase block mt-1">
+                      {liveNiosh.nivelRiesgo}
+                    </span>
+                  </div>
+                </div>
 
-                    <div className="flex gap-4 flex-wrap justify-center w-full mt-6">
-                        <button onClick={handleBack} 
-                            style={{ background: 'linear-gradient(135deg, #64748b, #475569)', color: 'white', border: 'none' }}
-                            className="px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-extrabold text-sm shadow-lg hover:opacity-90 transition-all hover:-translate-y-0.5 cursor-pointer">
-                            <ChevronLeft size={18} /> Atrás
-                        </button>
-                        <button onClick={handleNext} 
-                            style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none' }}
-                            className="px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-extrabold text-sm shadow-lg hover:opacity-90 transition-all hover:-translate-y-0.5 cursor-pointer">
-                            Siguiente <ChevronRight size={18} />
-                        </button>
-                    </div>
-      </ModuleFormSection>
-      }
+                {/* Parámetros Operativos de NIOSH */}
+                <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-6">
+                  <h4 className="text-sm font-black uppercase tracking-wider text-[var(--color-text)] m-0">
+                    Variables de Entrada para la Ecuación NIOSH (Res. SRT 886/15)
+                  </h4>
 
-            {step === 3 &&
-      <ModuleFormSection title="Planilla 2.A: Evaluación Ergonómica NIOSH (Res. 886/15)" icon={<Accessibility />}>
-                    <div className="mb-6">
-                      <NioshErgonomicsCalculatorWidget
-                        params={{
-                          pesoReal: Number(formData.calculoLevantamiento?.peso || 0),
-                          distanciaH: Number(formData.calculoLevantamiento?.distanciaH || 25),
-                          distanciaV: Number(formData.calculoLevantamiento?.distanciaV || 75),
-                          desplazamientoD: 25,
-                          anguloTorsionA: Number(formData.calculoLevantamiento?.torsion || 0),
-                          frecuenciaF: Number(formData.calculoLevantamiento?.frecuencia || 0.2),
-                          agarre: (formData.calculoLevantamiento?.agarre as any) || 'Bueno'
-                        }}
-                        onChangeParams={(updated) => {
-                          setFormData((prev: any) => ({
-                            ...prev,
-                            calculoLevantamiento: {
-                              ...prev.calculoLevantamiento,
-                              ...(updated.pesoReal !== undefined ? { peso: updated.pesoReal } : {}),
-                              ...(updated.distanciaH !== undefined ? { distanciaH: updated.distanciaH } : {}),
-                              ...(updated.distanciaV !== undefined ? { distanciaV: updated.distanciaV } : {}),
-                              ...(updated.anguloTorsionA !== undefined ? { torsion: updated.anguloTorsionA } : {})
-                            }
-                          }));
-                        }}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div>
+                      <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                        Peso Efectivo de la Carga (kg) *
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        className="module-form-input font-bold"
+                        value={formData.calculoLevantamiento.pesoCargaKg}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          calculoLevantamiento: { ...formData.calculoLevantamiento, pesoCargaKg: Number(e.target.value) }
+                        })}
                       />
                     </div>
 
-                    {formData.planilla1.levantamientoCarga ?
-        <div className="bg-[rgba(59,_130,_246,_0.05)] border-[1px_solid_rgba(59,_130,_246,_0.15)] p-[1.8rem] rounded-[16px] mb-[2.5rem]">
-                            <h4 className="m-[0_0_1.5rem_0] text-[1.1rem] font-[800] text-[var(--color-text)]">Levantamiento de Cargas</h4>
+                    <div>
+                      <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                        Distancia Horizontal H (cm)
+                      </label>
+                      <input
+                        type="number"
+                        min="25"
+                        max="63"
+                        className="module-form-input"
+                        value={formData.calculoLevantamiento.distanciaHCm}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          calculoLevantamiento: { ...formData.calculoLevantamiento, distanciaHCm: Number(e.target.value) }
+                        })}
+                      />
+                      <span className="text-[10px] text-[var(--color-text-muted)] block mt-1">
+                        Desde el punto medio de los tobillos a las manos (25 a 63 cm).
+                      </span>
+                    </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                                <div>
-                                    <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Peso Efectivo (kg)</label>
-                                    <input
-                className="module-form-input"
-                type="number"
-                value={formData.calculoLevantamiento.peso}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  calculoLevantamiento: { ...formData.calculoLevantamiento, peso: Number(e.target.value) }
-                })}
-                placeholder="Ej: 15" />
-              
-                                    {formData.calculoLevantamiento.peso > 25 &&
-              <p className="text-[#ef4444] text-[0.75rem] mt-[0.4rem] font-[800] flex items-center gap-[0.3rem]">
-                                            <AlertCircle size={12} /> Excede el límite legal de 25 kg
-                                        </p>
-              }
-                                </div>
+                    <div>
+                      <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                        Altura Vertical Inicial V (cm)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="175"
+                        className="module-form-input"
+                        value={formData.calculoLevantamiento.distanciaVCm}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          calculoLevantamiento: { ...formData.calculoLevantamiento, distanciaVCm: Number(e.target.value) }
+                        })}
+                      />
+                      <span className="text-[10px] text-[var(--color-text-muted)] block mt-1">
+                        Altura de las manos desde el suelo al iniciar (óptimo = 75 cm).
+                      </span>
+                    </div>
 
-                                <div>
-                                    <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Distancia Horizontal (Cuerpo-Carga)</label>
-                                    <select
-                className="module-form-input"
-                value={formData.calculoLevantamiento.distanciaH}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  calculoLevantamiento: { ...formData.calculoLevantamiento, distanciaH: e.target.value }
-                })}>
-                
-                                        <option value="cerca">Cerca (menos de 25 cm)</option>
-                                        <option value="media">Media (25 a 50 cm)</option>
-                                        <option value="lejos">Lejos (más de 50 cm)</option>
-                                    </select>
-                                </div>
-                            </div>
+                    <div>
+                      <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                        Desplazamiento Vertical D (cm)
+                      </label>
+                      <input
+                        type="number"
+                        min="25"
+                        max="175"
+                        className="module-form-input"
+                        value={formData.calculoLevantamiento.desplazamientoDCm}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          calculoLevantamiento: { ...formData.calculoLevantamiento, desplazamientoDCm: Number(e.target.value) }
+                        })}
+                      />
+                    </div>
 
-                            <div className="mb-[0.5rem]">
-                                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">Altura de Agarre</label>
-                                <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(120px,_1fr))] gap-[0.8rem]">
-                                    {['Suelo', 'Rodilla', 'Cintura', 'Hombro'].map((h) =>
+                    <div>
+                      <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                        Ángulo de Asimetría / Torsión A (grados)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="135"
+                        className="module-form-input"
+                        value={formData.calculoLevantamiento.anguloTorsionDeg}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          calculoLevantamiento: { ...formData.calculoLevantamiento, anguloTorsionDeg: Number(e.target.value) }
+                        })}
+                      />
+                      <span className="text-[10px] text-[var(--color-text-muted)] block mt-1">
+                        Giro de tronco sin mover los pies (0° a 135°).
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                        Frecuencia de Levantamientos (por minuto)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0.1"
+                        max="15"
+                        className="module-form-input"
+                        value={formData.calculoLevantamiento.frecuenciaLiftsMin}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          calculoLevantamiento: { ...formData.calculoLevantamiento, frecuenciaLiftsMin: Number(e.target.value) }
+                        })}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                        Calidad de Agarre (Acoplamiento)
+                      </label>
+                      <select
+                        className="module-form-input"
+                        value={formData.calculoLevantamiento.calidadAgarre}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          calculoLevantamiento: { ...formData.calculoLevantamiento, calidadAgarre: e.target.value }
+                        })}
+                      >
+                        <option value="Bueno">Bueno (Asas ergonómicas o agarre confortable)</option>
+                        <option value="Regular">Regular (Asas pequeñas o agarre forzado)</option>
+                        <option value="Malo">Malo (Cajas sin asas, bordes afilados, inestables)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                        Duración de la Tarea en la Jornada
+                      </label>
+                      <select
+                        className="module-form-input"
+                        value={formData.calculoLevantamiento.duracionHoras}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          calculoLevantamiento: { ...formData.calculoLevantamiento, duracionHoras: Number(e.target.value) }
+                        })}
+                      >
+                        <option value={1}>Corta duración (≤ 1 hora diaria)</option>
+                        <option value={2}>Moderada duración (1 a 2 horas diarias)</option>
+                        <option value={8}>Larga duración (&gt; 2 horas diarias)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Factores Multiplicadores Calculados */}
+                  <div className="p-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-mono grid grid-cols-2 sm:grid-cols-6 gap-2 text-center">
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold block">HM</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">{liveNiosh.multiplicadores.HM}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold block">VM</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">{liveNiosh.multiplicadores.VM}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold block">DM</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">{liveNiosh.multiplicadores.DM}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold block">AM</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">{liveNiosh.multiplicadores.AM}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold block">FM</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">{liveNiosh.multiplicadores.FM}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold block">CM</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">{liveNiosh.multiplicadores.CM}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center p-12 border-2 border-dashed border-[var(--color-border)] rounded-2xl">
+                <Accessibility size={44} className="mx-auto mb-3 text-slate-400 opacity-60" />
+                <h4 className="text-base font-extrabold text-[var(--color-text)] mb-1">
+                  Levantamiento de cargas no seleccionado en Planilla 1
+                </h4>
+                <p className="text-sm text-[var(--color-text-muted)] max-w-md mx-auto m-0">
+                  Si el puesto implica manipulación manual de cargas ≥ 3 kg, active el factor en la Planilla 1 para habilitar la evaluación biomecánica NIOSH.
+                </p>
+              </div>
+            )}
+
+            <div className="flex gap-4 flex-wrap justify-center w-full mt-8">
               <button
-                key={h}
-                onClick={() => setFormData({
-                  ...formData,
-                  calculoLevantamiento: { ...formData.calculoLevantamiento, altura: h.toLowerCase() }
-                })}
-                className="transition-all p-[0.8rem] text-[0.9rem] rounded-[12px] font-[800] cursor-pointer"
-                style={{
+                onClick={handleBack}
+                style={{ background: 'linear-gradient(135deg, #64748b, #475569)', color: 'white', border: 'none' }}
+                className="px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-extrabold text-sm shadow-lg hover:opacity-90 transition-all cursor-pointer"
+              >
+                <ChevronLeft size={18} /> Atrás
+              </button>
+              <button
+                onClick={handleNext}
+                style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none' }}
+                className="px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-extrabold text-sm shadow-lg hover:opacity-90 transition-all cursor-pointer"
+              >
+                Continuar a Planilla 3 <ChevronRight size={18} />
+              </button>
+            </div>
+          </ModuleFormSection>
+        )}
 
+        {/* PASO 4: PLANILLA 3 MATRIZ DE MEDIDAS, CONCLUSIONES Y FIRMAS */}
+        {step === 4 && (
+          <ModuleFormSection title="IV — Planilla 3: Matriz de Medidas Preventivas y Dictamen" icon={<FileText />}>
+            {/* Cabecera Planilla 3 */}
+            <div className="flex justify-between items-center flex-wrap gap-4 mb-4">
+              <div>
+                <h4 className="text-sm font-black text-[var(--color-text)] m-0 uppercase tracking-wide">
+                  Medidas de Intervención Ergonómica (Res. SRT 886/15)
+                </h4>
+                <p className="text-xs text-[var(--color-text-muted)] m-0 font-medium">
+                  Jerarquía de controles: Ingeniería, Rediseño Organizacional y Capacitación.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleGenerateDefaultMeasures}
+                className="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-xs font-bold flex items-center gap-1.5 hover:bg-blue-100 transition-colors"
+              >
+                <RefreshCw size={14} /> Cargar Medidas Sugeridas SRT
+              </button>
+            </div>
 
-
-                  border: `2px solid ${formData.calculoLevantamiento.altura === h.toLowerCase() ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                  background: formData.calculoLevantamiento.altura === h.toLowerCase() ? 'var(--color-primary)' : 'var(--color-surface)',
-                  color: formData.calculoLevantamiento.altura === h.toLowerCase() ? 'white' : 'var(--color-text)'
-
-
-                }}>
-                
-                                            {h}
-                                        </button>
+            {/* Lista de Medidas */}
+            <div className="space-y-3 mb-6">
+              {(formData.medidasAccion && formData.medidasAccion.length > 0) ? (
+                formData.medidasAccion.map((med: Planilla3ActionMeasure, idx: number) => (
+                  <div key={med.id || idx} className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] grid grid-cols-1 md:grid-cols-5 gap-3 items-center">
+                    <div className="md:col-span-2">
+                      <span className="text-[10px] font-black uppercase text-blue-600 block">{med.factorRiesgo}</span>
+                      <input
+                        className="module-form-input text-xs mt-1"
+                        value={med.medidaPropuesta}
+                        onChange={(e) => {
+                          const updated = [...formData.medidasAccion];
+                          updated[idx].medidaPropuesta = e.target.value;
+                          setFormData({ ...formData, medidasAccion: updated });
+                        }}
+                        placeholder="Descripción de la medida..."
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-black uppercase text-slate-500 block">Tipo</span>
+                      <select
+                        className="module-form-input text-xs mt-1"
+                        value={med.tipoMedida}
+                        onChange={(e) => {
+                          const updated = [...formData.medidasAccion];
+                          updated[idx].tipoMedida = e.target.value as any;
+                          setFormData({ ...formData, medidasAccion: updated });
+                        }}
+                      >
+                        <option value="Ingeniería">Ingeniería</option>
+                        <option value="Administrativa / Organizacional">Administrativa / Org.</option>
+                        <option value="Capacitación">Capacitación</option>
+                        <option value="EPP">EPP</option>
+                      </select>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-black uppercase text-slate-500 block">Plazo / Resp.</span>
+                      <input
+                        className="module-form-input text-xs mt-1"
+                        value={med.plazo}
+                        onChange={(e) => {
+                          const updated = [...formData.medidasAccion];
+                          updated[idx].plazo = e.target.value;
+                          setFormData({ ...formData, medidasAccion: updated });
+                        }}
+                        placeholder="Ej: 30 días"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        className="module-form-input text-xs mt-1 flex-1"
+                        value={med.responsable}
+                        onChange={(e) => {
+                          const updated = [...formData.medidasAccion];
+                          updated[idx].responsable = e.target.value;
+                          setFormData({ ...formData, medidasAccion: updated });
+                        }}
+                        placeholder="Responsable"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = formData.medidasAccion.filter((_: any, i: number) => i !== idx);
+                          setFormData({ ...formData, medidasAccion: updated });
+                        }}
+                        className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 rounded-xl border border-dashed border-[var(--color-border)] text-center text-xs text-[var(--color-text-muted)]">
+                  No hay medidas agregadas aún. Puedes presionar "Cargar Medidas Sugeridas SRT" o agregar una manualmente.
+                </div>
               )}
-                                </div>
-                            </div>
-                        </div> :
 
-        <div className="text-center p-[3rem] border-[2px_dashed_var(--color-border)] bg-[var(--color-background)] rounded-[16px] mb-[2.5rem]">
-                            <Info size={40} color="var(--color-text-muted)" className="m-[0_auto_1rem] opacity-[0.5]" />
-                            <h4 className="m-[0_0_0.5rem] text-[1.1rem] text-[var(--color-text)]">Evaluación no requerida</h4>
-                            <p className="m-[0] text-[0.9rem] text-[var(--color-text-muted)]">
-                                No se identificaron riesgos que requieran evaluación detallada.
-                            </p>
-                        </div>
-        }
+              <button
+                type="button"
+                onClick={() => {
+                  const newMeasure: Planilla3ActionMeasure = {
+                    id: `med_${Date.now()}`,
+                    factorRiesgo: 'Ergonomía General',
+                    medidaPropuesta: '',
+                    tipoMedida: 'Ingeniería',
+                    plazo: '60 días',
+                    responsable: 'Servicio HyS',
+                    estado: 'Pendiente'
+                  };
+                  setFormData({
+                    ...formData,
+                    medidasAccion: [...(formData.medidasAccion || []), newMeasure]
+                  });
+                }}
+                className="w-full py-2 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:border-emerald-500 hover:text-emerald-600 transition-colors flex items-center justify-center gap-1.5"
+              >
+                <Plus size={16} /> Agregar Medida de Acción
+              </button>
+            </div>
 
-                    <div className="mb-[2.5rem]">
-                        <div className="flex justify-space-between items-center mb-[0.8rem] flex-wrap gap-[1rem]">
-                            <label className="m-[0] font-[700] text-[0.95rem] text-[var(--color-text)]">Recomendaciones de Acción</label>
-                            <button
-              className="no-print p-[0.6rem_1.2rem] bg-[linear-gradient(135deg,_#8B5CF6,_#EC4899)] text-[#ffffff] border-none rounded-[10px] font-[800] text-[0.8rem] flex items-center gap-[0.5rem] box-shadow-[0_4px_15px_rgba(236,72,153,0.3)]"
-              onClick={handleGenerateConclusion}
-              disabled={isGeneratingConclusion}
-              style={{ cursor: isGeneratingConclusion ? 'wait' : 'pointer' }}>
-              
-                                {isGeneratingConclusion ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                                {isGeneratingConclusion ? 'REDACTANDO...' : 'REDACTAR CON IA'}
-                            </button>
-                        </div>
-                        <textarea
-            rows={4}
-            className="module-form-input no-print"
-            value={formData.recomendaciones}
-            onInput={(e: any) => {
-              e.target.style.height = 'auto';
-              e.target.style.height = e.target.scrollHeight + 'px';
-            }}
-            onChange={(e) => setFormData({ ...formData, recomendaciones: e.target.value })}
-            placeholder="Proponga medidas correctivas o ingenieriles..." />
-          
-                        <div className="print-only whitespace-pre-wrap break-words mt-2 font-semibold">
-                            {formData.recomendaciones || 'Sin recomendaciones especificadas.'}
-                        </div>
-                    </div>
+            {/* Conclusiones Técnicas y Dictamen */}
+            <div className="mb-8">
+              <div className="flex justify-between items-center mb-2 flex-wrap gap-2">
+                <label className="font-extrabold text-sm text-[var(--color-text)] m-0">
+                  V — Dictamen y Conclusiones Técnicas Oficiales
+                </label>
+                <button
+                  type="button"
+                  className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-bold text-xs flex items-center gap-1.5 shadow hover:opacity-90"
+                  onClick={handleGenerateConclusion}
+                  disabled={isGeneratingConclusion}
+                >
+                  {isGeneratingConclusion ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                  {isGeneratingConclusion ? 'REDACTANDO...' : 'REDACTAR CON IA'}
+                </button>
+              </div>
+              <textarea
+                rows={4}
+                className="module-form-input"
+                value={formData.conclusiones}
+                onChange={(e) => setFormData({ ...formData, conclusiones: e.target.value, recomendaciones: e.target.value })}
+                placeholder="Dictamen técnico del profesional habilitado, encuadre normativo en Res. SRT 886/15 y recomendaciones ergonómicas..."
+              />
+            </div>
 
-                    <div className="mt-[2.5rem] mb-[2rem] no-print">
-                        <div className="flex flex-col mb-[1rem]">
-                            <label className="m-[0] font-[700] text-[0.95rem] text-[var(--color-text)]">Firmas y Autorizaciones</label>
-                            <div className="text-[var(--color-text)] font-[800] text-[0.75rem] uppercase tracking-wider mt-2 mb-3">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                            <div className="flex flex-wrap gap-4 mb-4">
-                                <label className="flex items-center gap-[0.5rem] p-[0.6rem_1rem] bg-[#f8fafc] border-[1px_solid_#e2e8f0] rounded-[8px] cursor-pointer transition-[all_0.2s_ease]">
-                                    <input type="checkbox" className="hidden" checked={showSignatures.operator} onChange={(e) => setShowSignatures({...showSignatures, operator: e.target.checked})} />
-                                    <div style={{ border: showSignatures.operator ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)', background: showSignatures.operator ? 'var(--color-primary)' : 'transparent' }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
-                                        {showSignatures.operator && <CheckCircle2 size={12} color="white" />}
-                                    </div>
-                                    <span className="text-[0.8rem] font-[700] text-[#1e293b]">Operador / Trabajador</span>
-                                </label>
-                                <label className="flex items-center gap-[0.5rem] p-[0.6rem_1rem] bg-[#f8fafc] border-[1px_solid_#e2e8f0] rounded-[8px] cursor-pointer transition-[all_0.2s_ease]">
-                                    <input type="checkbox" className="hidden" checked={showSignatures.supervisor} onChange={(e) => setShowSignatures({...showSignatures, supervisor: e.target.checked})} />
-                                    <div style={{ border: showSignatures.supervisor ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)', background: showSignatures.supervisor ? 'var(--color-primary)' : 'transparent' }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
-                                        {showSignatures.supervisor && <CheckCircle2 size={12} color="white" />}
-                                    </div>
-                                    <span className="text-[0.8rem] font-[700] text-[#1e293b]">Supervisor / Empleador</span>
-                                </label>
-                                <label className="flex items-center gap-[0.5rem] p-[0.6rem_1rem] bg-[#f8fafc] border-[1px_solid_#e2e8f0] rounded-[8px] cursor-pointer transition-[all_0.2s_ease]">
-                                    <input type="checkbox" className="hidden" checked={showSignatures.professional} onChange={(e) => setShowSignatures({...showSignatures, professional: e.target.checked})} />
-                                    <div style={{ border: showSignatures.professional ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)', background: showSignatures.professional ? 'var(--color-primary)' : 'transparent' }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
-                                        {showSignatures.professional && <CheckCircle2 size={12} color="white" />}
-                                    </div>
-                                    <span className="text-[0.8rem] font-[700] text-[#1e293b]">Profesional Actuante</span>
-                                </label>
-                            </div>
-                        </div>
+            {/* Firmas y Autorizaciones */}
+            <div className="mb-8">
+              <label className="font-extrabold text-sm text-[var(--color-text)] block mb-3">
+                VI — Firmas y Validación Institucional
+              </label>
+              <div className="flex flex-wrap gap-4 mb-4">
+                <label className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-900 border rounded-lg cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="hidden"
+                    checked={showSignatures.operator}
+                    onChange={(e) => setShowSignatures({ ...showSignatures, operator: e.target.checked })}
+                  />
+                  <div
+                    className={`w-4 h-4 rounded flex items-center justify-center text-white ${
+                      showSignatures.operator ? 'bg-emerald-500' : 'border border-slate-400'
+                    }`}
+                  >
+                    {showSignatures.operator && <CheckCircle2 size={12} />}
+                  </div>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Operador / Trabajador</span>
+                </label>
 
-                        {/* On-Sheet Visual Preview of PDF signature blocks */}
-                        <PdfSignatures
-                            data={{
-                                ...formData,
-                                professionalSignature: signature?.signature,
-                                professionalName: profile?.name,
-                                professionalLicense: profile?.license
-                            }}
-                            box1={showSignatures.operator ? {
-                                title: 'OPERADOR / TRABAJADOR',
-                                subtitle: 'Toma de conocimiento',
-                                signatureUrl: formData.operatorSignature || null,
-                                isProfessional: false
-                            } : null}
-                            box2={showSignatures.supervisor ? {
-                                title: 'SUPERVISOR / EMPLEADOR',
-                                subtitle: 'Firma Autorizada',
-                                signatureUrl: formData.supervisorSignature || null,
-                                isProfessional: false
-                            } : null}
-                            box3={showSignatures.professional ? {
-                                title: 'PROFESIONAL ACTUANTE',
-                                subtitle: (profile?.name || 'Firma y Sello').toUpperCase(),
-                                signatureUrl: signature?.signature || null,
-                                isProfessional: true,
-                                license: profile?.license
-                            } : null}
-                        />
+                <label className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-900 border rounded-lg cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="hidden"
+                    checked={showSignatures.supervisor}
+                    onChange={(e) => setShowSignatures({ ...showSignatures, supervisor: e.target.checked })}
+                  />
+                  <div
+                    className={`w-4 h-4 rounded flex items-center justify-center text-white ${
+                      showSignatures.supervisor ? 'bg-emerald-500' : 'border border-slate-400'
+                    }`}
+                  >
+                    {showSignatures.supervisor && <CheckCircle2 size={12} />}
+                  </div>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Supervisor / Empleador</span>
+                </label>
 
-                        {/* Interactive Signature Drawing Pads */}
-                        <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {showSignatures.operator && (
-                            <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                <SignatureCanvas
-                                    onSave={(sig) => setFormData((prev) => ({ ...prev, operatorSignature: sig || '' }))}
-                                    initialImage={formData.operatorSignature}
-                                    label="Firma del Operador / Trabajador" />
-                            </div>
-                            )}
-                            {showSignatures.supervisor && (
-                            <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                <SignatureCanvas
-                                    onSave={(sig) => setFormData((prev) => ({ ...prev, supervisorSignature: sig || '' }))}
-                                    initialImage={formData.supervisorSignature}
-                                    label="Firma del Supervisor / Empleador" />
-                            </div>
-                            )}
-                        </div>
-                    </div>
+                <label className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-900 border rounded-lg cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="hidden"
+                    checked={showSignatures.professional}
+                    onChange={(e) => setShowSignatures({ ...showSignatures, professional: e.target.checked })}
+                  />
+                  <div
+                    className={`w-4 h-4 rounded flex items-center justify-center text-white ${
+                      showSignatures.professional ? 'bg-emerald-500' : 'border border-slate-400'
+                    }`}
+                  >
+                    {showSignatures.professional && <CheckCircle2 size={12} />}
+                  </div>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Profesional Actuante</span>
+                </label>
+              </div>
 
-                    <div className="flex flex-row gap-2 justify-between w-full mt-[2.5rem] no-print overflow-x-auto pb-2">
-                        <button onClick={handleBack} 
-                            style={{ background: 'linear-gradient(135deg, #64748b, #475569)', color: 'white', border: 'none' }}
-                            className="flex-1 min-w-[80px] px-2 py-2 rounded-lg flex items-center justify-center gap-1 font-extrabold text-[0.7rem] shadow-md hover:opacity-90 transition-all hover:-translate-y-0.5 cursor-pointer">
-                            <ChevronLeft size={14} /> ATRÁS
-                        </button>
-                        
-                        <button onClick={() => requirePro(handleSave)}
-                            style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none' }}
-                            className="flex-1 min-w-[90px] px-2 py-2 rounded-lg flex items-center justify-center gap-1 font-extrabold text-[0.7rem] shadow-md hover:opacity-90 transition-all hover:-translate-y-0.5 cursor-pointer">
-                            <Save size={14} /> GUARDAR
-                        </button>
-                        
-                        <button onClick={handlePrint}
-                            style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: 'white', border: 'none' }}
-                            className="flex-1 min-w-[90px] px-2 py-2 rounded-lg flex items-center justify-center gap-1 font-extrabold text-[0.7rem] shadow-md hover:opacity-90 transition-all hover:-translate-y-0.5 cursor-pointer">
-                            <Printer size={14} /> PDF
-                        </button>
-                        
+              {/* Paneles interactivos de firma */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[var(--color-border)]">
+                {showSignatures.operator && (
+                  <div className="p-4 bg-slate-50 dark:bg-slate-900/40 border rounded-xl">
+                    <SignatureCanvas
+                      onSave={(sig) => setFormData((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                      initialImage={formData.operatorSignature}
+                      label="Firma del Operador / Trabajador"
+                    />
+                  </div>
+                )}
+                {showSignatures.supervisor && (
+                  <div className="p-4 bg-slate-50 dark:bg-slate-900/40 border rounded-xl">
+                    <SignatureCanvas
+                      onSave={(sig) => setFormData((prev: any) => ({ ...prev, supervisorSignature: sig || '' }))}
+                      initialImage={formData.supervisorSignature}
+                      label="Firma del Supervisor / Empleador"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
 
-                    </div>
-      </ModuleFormSection>
-      }
-        </ModuleFormDocument>
+            {/* Barra de Acciones */}
+            <div className="flex flex-row gap-3 justify-between w-full mt-8 overflow-x-auto pb-2">
+              <button
+                type="button"
+                onClick={handleBack}
+                style={{ background: 'linear-gradient(135deg, #64748b, #475569)', color: 'white', border: 'none' }}
+                className="flex-1 min-w-[90px] px-3 py-2.5 rounded-xl flex items-center justify-center gap-1.5 font-extrabold text-xs shadow hover:opacity-90 cursor-pointer"
+              >
+                <ChevronLeft size={16} /> ATRÁS
+              </button>
 
-    </ModuleFormLayout>);
+              <button
+                type="button"
+                onClick={() => requirePro(handleSave)}
+                style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none' }}
+                className="flex-1 min-w-[110px] px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 font-extrabold text-xs shadow-lg hover:opacity-90 cursor-pointer"
+              >
+                <Save size={16} /> GUARDAR ESTUDIO
+              </button>
+
+              <button
+                type="button"
+                onClick={handlePrint}
+                style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: 'white', border: 'none' }}
+                className="flex-1 min-w-[100px] px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 font-extrabold text-xs shadow-lg hover:opacity-90 cursor-pointer"
+              >
+                <Printer size={16} /> IMPRIMIR PDF
+              </button>
+            </div>
+          </ModuleFormSection>
+        )}
+      </ModuleFormDocument>
+    </ModuleFormLayout>
+  );
 }

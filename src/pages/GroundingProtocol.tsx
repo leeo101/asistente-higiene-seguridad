@@ -20,6 +20,9 @@ const INITIAL_SAMPLE: GroundingProtocol = {
   id: 'PAT-SAMPLE-01',
   razonSocial: 'Logística & Almacenes Centrales S.A.',
   cuit: '30-71458920-4',
+  artNombre: 'Provincia ART',
+  establecimiento: 'Centro Logístico Tortuguitas',
+  tipoInstalacion: 'Industrial',
   direccion: 'Ruta Panamericana Km 38.5, Tortuguitas',
   localidad: 'Malvinas Argentinas',
   provincia: 'Buenos Aires',
@@ -45,6 +48,7 @@ const INITIAL_SAMPLE: GroundingProtocol = {
   potenciaContratadaKw: '50 kW',
   transformadorPropio: false,
   estadoSuelo: 'Húmedo',
+  tensionSeguridadContacto: 50,
   jabalinas: [
     {
       id: '1',
@@ -200,6 +204,9 @@ export default function GroundingProtocol(): React.ReactElement | null {
         ID: p.id,
         'Razón Social': p.razonSocial,
         CUIT: p.cuit,
+        Establecimiento: p.establecimiento || 'Planta Principal',
+        ART: p.artNombre || '-',
+        'Tipo Instalación': p.tipoInstalacion || 'Industrial',
         Dirección: p.direccion,
         'Fecha Medición': p.fechaMedicion,
         'Fecha Vencimiento': p.fechaVencimiento,
@@ -209,6 +216,11 @@ export default function GroundingProtocol(): React.ReactElement | null {
         'Máxima PAT (Ohms)': evalData.maxResistenciaMedida,
         'Continuidad Masas': `${evalData.masasConformes}/${evalData.totalMasas}`,
         'Diferenciales OK': `${evalData.diferencialesConformes}/${evalData.totalDiferenciales}`,
+        'Tensión Contacto Uc (V)': evalData.tensionContactoPresuntaMaxVolts,
+        'Tensión Seguridad UL (V)': p.tensionSeguridadContacto || 50,
+        'Calibración Vencida': evalData.calibracionVencida ? 'SÍ' : 'NO',
+        Dictamen: evalData.dictamenGeneral,
+        'Estado Instalación': evalData.estadoInstalacion,
         Resultado: evalData.isFullyCompliant ? 'CONFORME' : 'NO CONFORME'
       };
     });
@@ -431,6 +443,8 @@ export default function GroundingProtocol(): React.ReactElement | null {
                       </div>
 
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-300">
+                        <span>🏭 {p.establecimiento || 'Planta Principal'} ({p.tipoInstalacion || 'Industrial'})</span>
+                        {p.artNombre && <span>🛡️ ART: {p.artNombre}</span>}
                         <span>📍 {p.direccion}</span>
                         <span>⚡ Esquema {p.esquemaConexionTierra} · {p.tensionSuministro}</span>
                         <span>📅 Ensayo: {new Date(p.fechaMedicion).toLocaleDateString('es-AR')}</span>
@@ -458,6 +472,12 @@ export default function GroundingProtocol(): React.ReactElement | null {
                         <span className="text-[10px] uppercase font-bold text-slate-500 block">Continuidad</span>
                         <span className="text-base font-black text-slate-900 dark:text-white">
                           {evalData.masasConformes}/{evalData.totalMasas}
+                        </span>
+                      </div>
+                      <div className="text-center">
+                        <span className="text-[10px] uppercase font-bold text-slate-500 block">Tensión Uc</span>
+                        <span className={`text-base font-black ${evalData.tensionContactoExcedida ? 'text-red-500' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                          {evalData.tensionContactoPresuntaMaxVolts} V
                         </span>
                       </div>
                     </div>

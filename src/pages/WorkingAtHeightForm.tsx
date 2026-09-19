@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, ArrowDown, Shield, AlertTriangle, Clock, CheckCircle2, XCircle, X, User, MapPin, Ruler, Eye, Printer, Share2, Pencil, HardHat } from 'lucide-react';
+import {
+  ArrowLeft, Save, ArrowDown, Shield, AlertTriangle, Clock, CheckCircle2, XCircle, X, User, MapPin, Ruler, Eye, Printer, Share2, Pencil, HardHat,
+  Wind, Anchor, Sparkles, Building2, FileText
+} from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
@@ -11,63 +14,121 @@ import PdfSignatures from '../components/PdfSignatures';
 import PremiumHeader from '../components/PremiumHeader';
 import AnimatedPage from '../components/AnimatedPage';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
-import { ModuleFormSection, ModuleActionBar } from '../components/module';
+import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
 import WorkerMedicalChecker from '../components/WorkerMedicalChecker';
 import { validateWorkerMedicalStatus } from '../utils/workerValidation';
+import {
+  OFFICIAL_HEIGHT_REGULATORY_LIMITS,
+  calculateFallClearanceDistance,
+  evaluateHeightWorkSafety
+} from '../utils/srtProtocols';
+import type { AnchorCertificationType } from '../types/workingAtHeight';
 
 const WORK_TYPES = [
-{ id: 'scaffolding', name: 'Andamios', icon: '🏗️' },
-{ id: 'ladder', name: 'Escalera', icon: '🪜' },
-{ id: 'roof', name: 'Techos', icon: '🏠' },
-{ id: 'platform', name: 'Plataforma', icon: '📦' },
-{ id: 'lift', name: 'Elevador', icon: '⬆️' },
-{ id: 'structure', name: 'Estructura', icon: '🔩' }];
+  { id: 'scaffolding', name: 'Andamios Tubulares / Multidireccionales', icon: '🏗️' },
+  { id: 'ladder', name: 'Escaleras de Mano / Fijas', icon: '🪜' },
+  { id: 'roof', name: 'Techos y Cubiertas Frágiles', icon: '🏠' },
+  { id: 'platform', name: 'Plataformas Elevadoras (PEMP)', icon: '📦' },
+  { id: 'lift', name: 'Guindolas / Silletas Suspendidas', icon: '⬆️' },
+  { id: 'structure', name: 'Montaje de Estructuras Metálicas', icon: '🔩' },
+  { id: 'rope_access', name: 'Acceso por Cuerdas / Vertical', icon: '🧗' },
+  { id: 'other', name: 'Otro Trabajo en Altura', icon: '📍' }
+];
 
-
-const PRIORITY = {
-  critical: { label: 'CRÍTICA', color: '#dc2626', icon: '🚨' },
-  high: { label: 'ALTA', color: '#f59e0b', icon: '⚠️' },
-  medium: { label: 'MEDIA', color: '#3b82f6', icon: 'ℹ️' },
-  low: { label: 'BAJA', color: '#16a34a', icon: '✅' }
-};
+const ANCHOR_TYPES: { id: AnchorCertificationType; label: string; minKn: number }[] = [
+  { id: 'certified_structural_22kn', label: 'Estructural Certificado (≥ 22 kN / 5000 lbs)', minKn: 22 },
+  { id: 'engineered_lifeline', label: 'Línea de Vida Horizontal/Vertical Certificada', minKn: 22 },
+  { id: 'temporary_strap', label: 'Faja de Anclaje Textil IRAM/EN Certificada', minKn: 22 },
+  { id: 'untested_unapproved', label: 'Punto No Ensayado / Improvisado (PROHIBIDO)', minKn: 0 }
+];
 
 export default function WorkingAtHeightForm(): React.ReactElement | null {
   const { requirePro } = usePaywall();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const { isPro } = usePaywall();
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
 
-  useDocumentTitle(isEdit ? 'Editar Permiso en Altura' : 'Permiso de Trabajo en Altura');
+  useDocumentTitle(isEdit ? 'Editar Permiso en Altura PTSA' : 'Permiso de Trabajo en Altura Res. SRT 61/23');
 
-  const [permit, setPermit] = useState<any>({
-    workerName: '',
-    workType: 'scaffolding',
-    location: '',
-    height: '',
-    priority: 'medium',
-    supervisor: '',
-    observations: '',
-    medicalFitness: false,
-    rescuePlan: '',
-    equipmentCheck: {
-      harness: 'good',
-      lanyard: 'good',
-      anchor: 'good'
-    },
-    ppe: {
-      harness: true,
-      lanyard: true,
-      helmet: true,
-      lifeline: false
-    },
-    signature: '',
-    operatorSignature: '',
-    professionalSignature: '',
-    supervisorSignature: '',
-    showSignatures: { operator: true, professional: true, supervisor: true }
+  // Inicializar estado con datos patronales y parámetros técnicos
+  const [permit, setPermit] = useState<any>(() => {
+    const edit = location.state?.editData;
+    if (edit) return edit;
+
+    let defaultEmpresa = '';
+    let defaultCuit = '';
+    let defaultAddress = '';
+    let defaultArt = '';
+    try {
+      const savedPersonal = localStorage.getItem('personalData');
+      if (savedPersonal) {
+        const pd = JSON.parse(savedPersonal);
+        defaultEmpresa = pd.companyName || pd.empresa || '';
+        defaultCuit = pd.cuit || '';
+        defaultAddress = pd.address || pd.domicilio || '';
+        defaultArt = pd.art || '';
+      }
+    } catch (e) {}
+
+    return {
+      id: '',
+      cuit: defaultCuit,
+      companyName: defaultEmpresa,
+      establishmentAddress: defaultAddress,
+      art: defaultArt,
+      sector: '',
+      workerName: '',
+      workerDni: '',
+      workType: 'scaffolding',
+      location: '',
+      height: '4.5',
+      duration: 'Turno Mañana (08:00 a 14:00 hs)',
+      priority: 'medium',
+      supervisor: '',
+      description: '',
+      medicalFitness: true,
+      rescuePlan: 'Procedimiento de descenso asistido con pértiga y línea de tracción rápida.',
+      rescuePlanDefined: true,
+      // Memoria de cálculo DLC
+      lanyardLength: '1.80',
+      deceleratorDistance: '1.20',
+      workerHeight: '1.50',
+      safetyMargin: '1.00',
+      anchorFactor: 1, // 0 = sobre cabeza, 1 = pecho, 2 = pies
+      // Anclaje
+      anchorType: 'certified_structural_22kn' as AnchorCertificationType,
+      anchorCapacityKn: 22,
+      // Inspección pre-uso arnés
+      harnessCheck: {
+        webbingFreeOfCutsOrBurns: true,
+        stitchingIntact: true,
+        dRingUndamaged: true,
+        bucklesOperateCorrectly: true,
+        impactIndicatorNotTripped: true,
+        lanyardDoubleWithAbsorber: true
+      },
+      // Clima
+      weather: {
+        windSpeedKmh: 18,
+        hasRainOrThunderstorm: false,
+        isSurfaceSlippery: false
+      },
+      ppe: {
+        harness: true,
+        lanyard: true,
+        helmet: true,
+        lifeline: false
+      },
+      observations: '',
+      signature: '',
+      operatorSignature: '',
+      professionalSignature: '',
+      supervisorSignature: '',
+      showSignatures: { operator: true, professional: true, supervisor: true }
+    };
   });
 
   const [professional, setProfessional] = useState<any>({
@@ -87,6 +148,7 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
   const showSignatures = permit.showSignatures || { operator: true, professional: true, supervisor: true };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const savedData = localStorage.getItem('personalData');
     const savedSigData = localStorage.getItem('signatureStampData');
     const legacySignature = localStorage.getItem('capturedSignature');
@@ -94,531 +156,660 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
     let signature = legacySignature || null;
     let stamp = null;
     if (savedSigData) {
-      const parsed = JSON.parse(savedSigData);
-      signature = parsed.signature || signature;
-      stamp = parsed.stamp || null;
+      try {
+        const parsed = JSON.parse(savedSigData);
+        signature = parsed.signature || signature;
+        stamp = parsed.stamp || null;
+      } catch (e) {
+        console.error('Error parsing signatureStampData', e);
+      }
     }
 
     if (savedData) {
-      const data = JSON.parse(savedData);
-      setProfessional({
-        name: data.name || '',
-        license: data.license || '',
-        signature: signature,
-        stamp: stamp
-      });
+      try {
+        const data = JSON.parse(savedData);
+        setProfessional({
+          name: data.name || '',
+          license: data.license || '',
+          signature: signature,
+          stamp: stamp
+        });
+      } catch (e) {
+        console.error('Error parsing personalData', e);
+        setProfessional((prev: any) => ({ ...prev, signature, stamp }));
+      }
     } else {
       setProfessional((prev: any) => ({ ...prev, signature, stamp }));
     }
   }, []);
 
   useEffect(() => {
-    if (location.state?.editData) {
-      const editData = location.state.editData;
-      setPermit({
-        ...editData,
-        operatorSignature: editData.operatorSignature || '',
-        professionalSignature: editData.professionalSignature || '',
-        supervisorSignature: editData.supervisorSignature || editData.signature || '',
-        signature: editData.signature || editData.supervisorSignature || '',
-        showSignatures: editData.showSignatures || { operator: true, professional: true, supervisor: true }
-      });
-      setIsEdit(true);
-    }
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    if (location.state?.editData) setIsEdit(true);
+    return () => window.removeEventListener('resize', handleResize);
   }, [location.state]);
 
+  // Cálculo en vivo de la Distancia Libre de Caída (DLC)
+  const workHeightNum = parseFloat(permit.height) || 0;
+  const liveClearance = calculateFallClearanceDistance({
+    lanyardLengthM: parseFloat(permit.lanyardLength) || 1.8,
+    deceleratorDistanceM: parseFloat(permit.deceleratorDistance) || 1.2,
+    workerHeightM: parseFloat(permit.workerHeight) || 1.5,
+    safetyMarginM: parseFloat(permit.safetyMargin) || 1.0,
+    availableFallHeightM: workHeightNum
+  }, permit.anchorFactor || 1);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // Evaluación integral en vivo de seguridad
+  const liveSafety = evaluateHeightWorkSafety({
+    workHeightMeters: workHeightNum,
+    medicalFitnessOk: permit.medicalFitness,
+    anchorCapacityKn: Number(permit.anchorCapacityKn) || 0,
+    anchorType: permit.anchorType,
+    clearance: liveClearance,
+    harness: permit.harnessCheck || {
+      webbingFreeOfCutsOrBurns: true,
+      stitchingIntact: true,
+      dRingUndamaged: true,
+      bucklesOperateCorrectly: true,
+      impactIndicatorNotTripped: true,
+      lanyardDoubleWithAbsorber: true
+    },
+    weather: permit.weather || {
+      windSpeedKmh: 15,
+      hasRainOrThunderstorm: false,
+      isSurfaceSlippery: false
+    },
+    rescuePlanDefined: permit.rescuePlanDefined
+  });
+
+  const handleGenerateConclusions = () => {
+    setIsGeneratingAi(true);
+    setTimeout(() => {
+      let text = `DICTAMEN TÉCNICO DE HABILITACIÓN PARA TRABAJO EN ALTURA (RES. S.R.T. N° 61/23 & DEC. 911/96):\n\n`;
+
+      if (liveSafety.isAuthorized) {
+        text += `1. EVALUACIÓN DE DISTANCIA LIBRE DE CAÍDA (DLC): CONFORME Y SEGURA.\n`;
+        text += `La altura de trabajo disponible (${workHeightNum} m) supera la DLC requerida (${liveClearance.requiredClearanceM} m) con un margen libre de seguridad de ${liveClearance.safetyMarginRemainingM} m hasta el suelo.\n\n`;
+        text += `2. CONDICIONES OPERATIVAS Y ELEMENTOS DE PROTECCIÓN:\n`;
+        text += `- Punto de anclaje verificado tipo ${permit.anchorType} con resistencia nominal certificada ≥ 22 kN (5000 lbs).\n`;
+        text += `- Inspección pre-uso del arnés de cuerpo completo IRAM 3622-1 aprobada, sin cortes ni activación de testigo de impacto.\n`;
+        text += `- Cabo doble en "Y" con absorbedor de energía de impacto para enganche continuo 100% permanente.\n`;
+        text += `- Condiciones climáticas admisibles (viento ${permit.weather?.windSpeedKmh || 18} km/h ≤ 35 km/h, sin precipitaciones).\n`;
+        text += `- Plan de rescate en altura conocido por el personal para evitar trauma por suspensión.\n\n`;
+        text += `CONCLUSIÓN: Se autoriza la ejecución de las tareas en altura para el operario ${permit.workerName || 'designado'} durante el presente turno de trabajo.`;
+      } else {
+        text += `1. EVALUACIÓN TÉCNICA: NO CONFORME / TRABAJO EN ALTURA NO HABILITADO.\n`;
+        liveSafety.criticalBlockers.forEach(b => {
+          text += `🛑 BLOQUEO CRÍTICO: ${b}\n`;
+        });
+        text += `\nACCIONES CORRECTIVAS INMEDIATAS:\n`;
+        text += `- No iniciar tareas por encima de 2.00 metros hasta subsanar las condiciones señaladas.\n`;
+        if (!liveClearance.isClearanceSafe) {
+          text += `- Utilizar línea de vida autorretráctil o elevar el anclaje para reducir la distancia libre requerida.\n`;
+        }
+      }
+
+      setPermit((prev: any) => ({ ...prev, observations: text }));
+      setIsGeneratingAi(false);
+      toast.success('Conclusiones técnicas generadas conforme a Res. SRT 61/23');
+    }, 400);
+  };
 
   const handleSave = () => {
-    if (!permit.workerName || !permit.height) {
-      toast.error('Por favor complete los campos obligatorios (*)');
+    if (!permit.workerName || !permit.supervisor || !permit.height) {
+      toast.error('Por favor complete los campos obligatorios (*): Operario, Supervisor y Altura.');
       return;
     }
 
-    const medVal = validateWorkerMedicalStatus(permit.workerName, 'height');
-    if (!medVal.isValid) {
-      if (medVal.status === 'no_apto') {
-        toast.error(`⚠️ ATENCIÓN: ${permit.workerName} tiene dictamen NO APTO. Se requiere autorización médica especial para continuar.`);
-      } else if (medVal.status === 'vencido') {
-        toast.error(`⚠️ ATENCIÓN: El apto médico de ${permit.workerName} se encuentra VENCIDO.`);
-      } else if (medVal.status === 'sin_permiso_especifico') {
-        toast.error(`⚠️ ATENCIÓN: ${permit.workerName} no cuenta con habilitación explícita para Trabajo en Altura.`);
-      }
-    }
-
-    const saved = JSON.parse(localStorage.getItem('working_height_permits_db') || '[]');
+    const saved = JSON.parse(localStorage.getItem('working_at_height_permits_db') || '[]');
     let updated;
 
-    const permitWithSignatures = {
+    const saveObj = {
       ...permit,
-      professionalSignature: permit.professionalSignature || professional.signature,
-      professionalName: permit.professionalName || professional.name,
-      professionalLicense: permit.professionalLicense || professional.license,
-      professionalStamp: permit.professionalStamp || professional.stamp
+      cuit: permit.cuit || '',
+      companyName: permit.companyName || '',
+      establishmentAddress: permit.establishmentAddress || permit.location || '',
+      art: permit.art || '',
+      dlcRequired: liveClearance.requiredClearanceM,
+      isClearanceSafe: liveClearance.isClearanceSafe,
+      isAuthorized: liveSafety.isAuthorized,
+      signature: permit.supervisorSignature || permit.signature || '',
+      supervisorSignature: permit.supervisorSignature || permit.signature || ''
     };
 
     if (isEdit) {
-      updated = saved.map((p: any) => p.id === (permit as any).id ? permitWithSignatures : p);
-      toast.success('Permiso actualizado');
+      updated = saved.map((p: any) => p.id === permit.id ? saveObj : p);
+      toast.success('Permiso PTSA actualizado');
     } else {
-      const newPermit = {
-        ...permitWithSignatures,
-        id: `WAH-${Date.now()}`,
+      const newEntry = {
+        ...saveObj,
+        id: `ALT-${Date.now()}`,
         createdAt: new Date().toISOString(),
-        status: 'pending'
+        status: liveSafety.isAuthorized ? 'active' : 'pending'
       };
-      updated = [newPermit, ...saved];
-      toast.success('Permiso guardado');
+      updated = [newEntry, ...saved];
+      toast.success('Permiso PTSA generado con éxito');
     }
 
-    localStorage.setItem('working_height_permits_db', JSON.stringify(updated));
-
-    if (isEdit && (permit as any).status === 'active') {
-      const activeSaved = JSON.parse(localStorage.getItem('working_height_active_db') || '[]');
-      const updatedActive = activeSaved.map((p: any) => p.id === (permit as any).id ? permitWithSignatures : p);
-      localStorage.setItem('working_height_active_db', JSON.stringify(updatedActive));
-    }
-
+    localStorage.setItem('working_at_height_permits_db', JSON.stringify(updated));
     navigate('/working-at-height');
   };
 
-
-  const labelStyle = {
-    display: 'block',
-    marginBottom: '0.5rem',
-    fontSize: '0.9rem',
-    fontWeight: 600,
-    color: 'var(--color-text-muted)'
-  };
-
-  const inputStyle = {
-    width: '100%',
-    padding: '0.75rem 1rem',
-    borderRadius: 'var(--radius-lg)',
-    border: '1px solid var(--color-border)',
-    background: 'var(--color-background)',
-    color: 'var(--color-text)',
-    fontSize: '1rem',
-    boxSizing: 'border-box',
-    transition: 'border-color 0.2s',
-    WebkitAppearance: 'none',
-    MozAppearance: 'none',
-    appearance: 'none'
-  } as any;
-
   return (
-    <AnimatedPage>
-      <div className="container pb-[8rem] space-y-6 min-h-[100vh]">
-        {/* Header Principal Banner */}
-        <PremiumHeader
-          title={isEdit ? 'Editar Permiso en Altura' : 'Permiso de Trabajo en Altura'}
-          subtitle="Gestión de permisos según OSHA 1926.501 • Res. SRT 61/23"
-          icon={<HardHat size={32} color="#ffffff" />}
-          color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
-          onBack={() => navigate('/working-at-height')}
+    <div className="container min-h-[100vh] pb-[8rem]">
+      <ModuleFormLayout>
+        <ModuleFormToolbar
+          title={isEdit ? 'Editar Permiso PTSA' : 'Permiso Trabajo en Altura — Res. S.R.T. N° 61/23'}
+          subtitle="Protocolo Oficial de Prevención de Caídas, Anclajes 22 kN y Cálculo de DLC"
+          icon={<Shield size={36} color="#ffffff" />}
         />
 
-        {/* Botón Volver al Historial */}
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => navigate('/working-at-height')}
-            style={{ backgroundColor: '#475569', color: '#ffffff', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: '800', fontSize: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-          >
-            <ArrowLeft size={16} /> Volver al Historial
-          </button>
-        </div>
+        <ModuleFormDocument>
+          {/* Sección 1: Datos Patronales y Establecimiento */}
+          <ModuleFormSection title="1. Identificación Patronal y del Establecimiento" icon={<Building2 size={20} />}>
+            <div style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)' }} className="grid gap-[1rem] mb-[1.5rem]">
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">C.U.I.T. de la Empresa *</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.cuit || ''}
+                  onChange={(e) => setPermit({ ...permit, cuit: e.target.value })}
+                  placeholder="30-XXXXXXXX-X"
+                />
+              </div>
+              <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Razón Social / Empleador *</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.companyName || ''}
+                  onChange={(e) => setPermit({ ...permit, companyName: e.target.value })}
+                  placeholder="Ej: Constructora del Plata S.A."
+                />
+              </div>
+              <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Domicilio de la Obra / Establecimiento</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.establishmentAddress || ''}
+                  onChange={(e) => setPermit({ ...permit, establishmentAddress: e.target.value })}
+                  placeholder="Av. Corrientes 1500, CABA"
+                />
+              </div>
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">A.R.T.</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.art || ''}
+                  onChange={(e) => setPermit({ ...permit, art: e.target.value })}
+                  placeholder="Prevención ART"
+                />
+              </div>
+            </div>
+          </ModuleFormSection>
 
-        {/* Tarjeta Principal del Formulario */}
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 sm:p-8 shadow-xl space-y-8">
-          <ModuleFormSection title="Información General" icon={<User size={20} />}>
-                    <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem]">
-                        <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
-                            <WorkerMedicalChecker
-                              value={permit.workerName}
-                              riskType="height"
-                              required={true}
-                              onChange={(name, validation) => {
-                                setPermit((prev: any) => ({
-                                  ...prev,
-                                  workerName: name,
-                                  medicalFitness: validation.status === 'apto' ? true : prev.medicalFitness
-                                }));
-                              }}
-                            />
-                        </div>
-                        <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Tipo de Trabajo</label>
-                            <div style={{ gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)' }} className="grid gap-[1rem]">
-                                {WORK_TYPES.map((t) =>
-                <button
-                  key={t.id}
-                  onClick={() => setPermit({ ...permit, workType: t.id })}
-                  style={{
-                    background: permit.workType === t.id ? 'rgba(59, 130, 246, 0.1)' : 'var(--color-background)',
-                    border: `2px solid ${permit.workType === t.id ? 'var(--color-primary)' : 'var(--color-border)'}`
-                  }} className="p-[1rem] rounded-[var(--radius-xl)] cursor-pointer flex flex-col items-center gap-[0.5rem] transition-[all_0.2s]">
-                  
-                                        <span className="text-[2rem]">{t.icon}</span>
-                                        <span style={{ color: permit.workType === t.id ? 'var(--color-primary)' : 'var(--color-text-muted)' }} className="text-[0.8rem] font-[800]">{t.name}</span>
-                                    </button>
-                )}
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Altura estimada (metros) *</label>
-                            <div className="relative">
-                                <input type="number" step="0.1" value={permit.height} onChange={(e) => setPermit({ ...permit, height: e.target.value })} style={{ ...inputStyle }} placeholder="Ej: 3.5" className="pr-[2.5rem]" />
-                                <span className="absolute right-[1rem] top-[50%] transform-[translateY(-50%)] font-[700] text-[var(--color-text-muted)]">m</span>
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Ubicación</label>
-                            <input type="text" value={permit.location} onChange={(e) => setPermit({ ...permit, location: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" placeholder="Ej: Sector B - Nivel 4" />
-                        </div>
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Supervisor a Cargo</label>
-                            <input type="text" value={permit.supervisor} onChange={(e) => setPermit({ ...permit, supervisor: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" placeholder="Nombre del supervisor" />
-                        </div>
-                        <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Prioridad / Riesgo</label>
-                            <div style={{ gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)' }} className="grid gap-[1rem]">
-                                {Object.entries(PRIORITY).map(([k, v]) =>
-                <button
-                  key={k}
-                  onClick={() => setPermit({ ...permit, priority: k })}
-                  style={{
-                    background: permit.priority === k ? `${v.color}15` : 'var(--color-background)',
-                    border: `2px solid ${permit.priority === k ? v.color : 'var(--color-border)'}`,
-                    color: permit.priority === k ? v.color : 'var(--color-text-muted)',
-                    boxShadow: permit.priority === k ? `0 0 15px ${v.color}30` : 'none'
-                  }} className="p-[1rem] rounded-[var(--radius-xl)] cursor-pointer flex items-center justify-center gap-[0.5rem] font-[800] transition-[all_0.2s]">
-                  
-                                        <span className="text-[1.2rem]">{v.icon}</span>
-                                        {v.label}
-                                    </button>
-                )}
-                            </div>
-                        </div>
-                    </div>
-                    </ModuleFormSection>
+          {/* Sección 2: Datos de la Tarea y Operario */}
+          <ModuleFormSection title="2. Tarea en Altura, Operario y Salud Ocupacional" icon={<User size={20} />}>
+            <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1rem] mb-[1.5rem]">
+              <div>
+                <WorkerMedicalChecker
+                  value={permit.workerName}
+                  riskType="height"
+                  label="Operario Asignado a Tarea en Altura *"
+                  placeholder="Nombre y apellido o DNI..."
+                  onChange={(val) => setPermit((prev: any) => ({ ...prev, workerName: val }))}
+                />
+              </div>
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">D.N.I. del Operario</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.workerDni || ''}
+                  onChange={(e) => setPermit({ ...permit, workerDni: e.target.value })}
+                  placeholder="Ej: 34.567.890"
+                />
+              </div>
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Sistema / Tarea en Altura</label>
+                <select
+                  className="input-professional"
+                  value={permit.workType}
+                  onChange={(e) => setPermit({ ...permit, workType: e.target.value })}
+                >
+                  {WORK_TYPES.map((t) => (
+                    <option key={t.id} value={t.id}>{t.icon} {t.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Ubicación / Sector de la Obra *</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.location}
+                  onChange={(e) => setPermit({ ...permit, location: e.target.value })}
+                  placeholder="Ej: Fachada Este - Piso 5"
+                />
+              </div>
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Altura de Caída Libre Disponible (m) *</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  className="input-professional font-black text-lg"
+                  value={permit.height}
+                  onChange={(e) => setPermit({ ...permit, height: e.target.value })}
+                  placeholder="Ej: 4.5"
+                />
+                <span className="text-[10px] text-slate-500 font-bold mt-0.5 block">
+                  Obligatorio a partir de 2.00 m (Dec. 911/96 Art. 54)
+                </span>
+              </div>
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Supervisor de Trabajo Habilitante *</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.supervisor}
+                  onChange={(e) => setPermit({ ...permit, supervisor: e.target.value })}
+                  placeholder="Nombre del supervisor o capataz..."
+                />
+              </div>
+            </div>
+          </ModuleFormSection>
 
-                    <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="mt-[2.5rem] grid gap-[2rem]">
-                        <ModuleFormSection title="Validación Legal (Res. SRT 61/23)" icon={<Shield size={20} />}>
-                            
-                            <div className="flex flex-col gap-4">
-                                <div style={{
-                  background: permit.medicalFitness ? '#dcfce7' : '#fff5f5',
-                  border: `2px solid ${permit.medicalFitness ? '#16a34a' : '#ef4444'}`
-                }} className="p-[1.5rem] rounded-[var(--radius-xl)] flex flex-col gap-[1rem]">
-                                    <div className="flex items-center gap-4">
-                                        <button
-                      type="button"
-                      onClick={() => setPermit({ ...permit, medicalFitness: !permit.medicalFitness })}
-                      style={{
-                        backgroundColor: permit.medicalFitness ? '#16a34a' : '#ef4444'
-                      }} className="w-[40px] h-[40px] rounded-[50%] flex items-center justify-center cursor-pointer transition-all flex-shrink-0 border-none shadow-md">
-                      
-                                            {permit.medicalFitness ? <CheckCircle2 size={24} color="#fff" /> : <XCircle size={24} color="#fff" />}
-                                        </button>
-                                        <div>
-                                            <span style={{ color: permit.medicalFitness ? '#15803d' : '#991b1b' }} className="text-[1.1rem] font-[900] block">
-                                                Apto Médico Vigente: {permit.medicalFitness ? '✓ HABILITADO' : '✕ NO HABILITADO'}
-                                            </span>
-                                            <span style={{ color: permit.medicalFitness ? '#166534' : '#b91c1c' }} className="text-[0.8rem] font-[700]">
-                                                {permit.medicalFitness ? 'Verificado y habilitado para tareas en altura' : '¡ATENCIÓN! No puede realizar tareas sin apto médico'}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
+          {/* Sección 3: Calculadora en Vivo de Distancia Libre de Caída (DLC) */}
+          <ModuleFormSection title="3. Memoria de Cálculo de Distancia Libre de Caída (DLC)" icon={<Ruler size={20} />}>
+            <div className="mb-4">
+              <span className="text-xs font-bold text-slate-600 block mb-2">
+                Fórmula Técnica Oficial: <code className="bg-slate-100 px-2 py-0.5 rounded font-mono text-amber-900">DLC = L_cabo + D_absorbedor + H_operario + Margen</code>
+              </span>
+              <div style={{ gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)' }} className="grid gap-[0.75rem]">
+                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                  <label className="block mb-1 text-[11px] font-black text-slate-700">LONGITUD CABO (m)</label>
+                  <input
+                    type="number"
+                    step="0.05"
+                    className="input-professional font-bold"
+                    value={permit.lanyardLength}
+                    onChange={(e) => setPermit({ ...permit, lanyardLength: e.target.value })}
+                  />
+                  <span className="text-[9px] text-slate-400 block mt-0.5">Máx. 1.80m IRAM</span>
+                </div>
+                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                  <label className="block mb-1 text-[11px] font-black text-slate-700">ELONGACIÓN ABSORBEDOR (m)</label>
+                  <input
+                    type="number"
+                    step="0.05"
+                    className="input-professional font-bold"
+                    value={permit.deceleratorDistance}
+                    onChange={(e) => setPermit({ ...permit, deceleratorDistance: e.target.value })}
+                  />
+                  <span className="text-[9px] text-slate-400 block mt-0.5">Típico 1.20m</span>
+                </div>
+                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                  <label className="block mb-1 text-[11px] font-black text-slate-700">ESTATURA OPERARIO (m)</label>
+                  <input
+                    type="number"
+                    step="0.05"
+                    className="input-professional font-bold"
+                    value={permit.workerHeight}
+                    onChange={(e) => setPermit({ ...permit, workerHeight: e.target.value })}
+                  />
+                  <span className="text-[9px] text-slate-400 block mt-0.5">Argolla a pies (~1.50m)</span>
+                </div>
+                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                  <label className="block mb-1 text-[11px] font-black text-slate-700">MARGEN LIBRE SUELO (m)</label>
+                  <input
+                    type="number"
+                    step="0.05"
+                    className="input-professional font-bold"
+                    value={permit.safetyMargin}
+                    onChange={(e) => setPermit({ ...permit, safetyMargin: e.target.value })}
+                  />
+                  <span className="text-[9px] text-slate-400 block mt-0.5">Mínimo 1.00m</span>
+                </div>
+              </div>
+            </div>
 
-                                <div>
-                                    <label className="block mb-2 text-sm font-semibold text-slate-400">Plan de Rescate (Resumen)</label>
-                                    <textarea
-                    value={permit.rescuePlan}
-                    onChange={(e) => setPermit({ ...permit, rescuePlan: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors min-h-[80px]"
-                    placeholder="Describa brevemente el método de rescate previsto..." />
-                  
-                                </div>
-                            </div>
-                        </ModuleFormSection>
-
-                        <ModuleFormSection title="Inspección de Equipos" icon={<Ruler size={20} />}>
-                            {Object.entries(permit.equipmentCheck).map(([key, value]) =>
-              <div key={key} className="mb-[1rem]">
-                                    <label className="block mb-2 text-sm font-semibold text-slate-400">{key === 'harness' ? 'Arnés' : key === 'lanyard' ? 'Cola de Amarre' : 'Punto de Anclaje'}</label>
-                                    <div className="flex gap-[0.5rem]">
-                                        {[
-                                          { id: 'good', label: '✓ Bueno', bg: '#16a34a' },
-                                          { id: 'bad', label: '✕ Malo', bg: '#dc2626' },
-                                          { id: 'na', label: '— N/A', bg: '#475569' }
-                                        ].map((st) =>
-                  <button
-                    key={st.id}
-                    type="button"
-                    onClick={() => setPermit({ ...permit, equipmentCheck: { ...permit.equipmentCheck, [key]: st.id } })}
-                    style={{
-                      background: value === st.id ? st.bg : 'var(--color-surface)',
-                      color: value === st.id ? 'white' : 'var(--color-text)',
-                      border: value === st.id ? `2px solid ${st.bg}` : '1px solid var(--color-border)',
-                      fontWeight: value === st.id ? '900' : '600'
-                    }} className="flex-1 p-[0.6rem] text-[0.85rem] rounded-[var(--radius-md)] cursor-pointer transition-all">
-                    {st.label}
-                  </button>
+            {/* Resultado de la Distancia Libre de Caída en Vivo */}
+            <div className={`p-4 rounded-xl border mb-6 transition-all ${
+              liveClearance.isClearanceSafe
+                ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
+                : 'bg-rose-50 border-rose-300 text-rose-950'
+            }`}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 font-black text-sm">
+                  {liveClearance.isClearanceSafe ? (
+                    <CheckCircle2 size={20} className="text-emerald-700" />
+                  ) : (
+                    <XCircle size={20} className="text-rose-700" />
                   )}
-                                    </div>
-                                </div>
+                  <span>DLC REQUERIDA: {liveClearance.requiredClearanceM} m | DISPONIBLE: {workHeightNum} m</span>
+                </div>
+                <span className={`px-2.5 py-0.5 rounded text-[11px] font-black uppercase text-white ${
+                  liveClearance.isClearanceSafe ? 'bg-emerald-700' : 'bg-rose-700'
+                }`}>
+                  {liveClearance.isClearanceSafe ? 'ESPACIO LIBRE SEGURO' : 'DISTANCIA INSUFICIENTE'}
+                </span>
+              </div>
+              <p className="text-xs font-semibold leading-relaxed m-0">{liveClearance.recommendation}</p>
+              {liveClearance.warning && (
+                <p className="text-xs font-bold text-rose-800 mt-2 m-0">{liveClearance.warning}</p>
               )}
-                        </ModuleFormSection>
-                    </div>
+            </div>
+          </ModuleFormSection>
 
-                    <div className="mt-[2.5rem]">
-                        <ModuleFormSection title="Equipos de Protección Personal (EPP)" icon={<Shield size={20} />}>
-                        <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1rem]">
-                            {Object.entries(permit.ppe).map(([key, value]) =>
+          {/* Sección 4: Anclajes Certificados y Check pre-uso de Arnés */}
+          <ModuleFormSection title="4. Punto de Anclaje (22 kN) y Verificación de Arnés" icon={<Anchor size={20} />}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {/* Anclaje */}
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <h4 className="font-black text-xs text-slate-800 uppercase mb-3 flex items-center gap-1.5">
+                  <Anchor size={15} className="text-amber-700" />
+                  Punto de Anclaje (Res. SRT 61/23 e IRAM 3626)
+                </h4>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-600 uppercase">Tipo de Anclaje</label>
+                    <select
+                      className="input-professional text-xs"
+                      value={permit.anchorType}
+                      onChange={(e) => setPermit({ ...permit, anchorType: e.target.value })}
+                    >
+                      {ANCHOR_TYPES.map((a) => (
+                        <option key={a.id} value={a.id}>{a.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-600 uppercase">Capacidad Certificada (kN)</label>
+                    <input
+                      type="number"
+                      className="input-professional"
+                      value={permit.anchorCapacityKn}
+                      onChange={(e) => setPermit({ ...permit, anchorCapacityKn: e.target.value })}
+                    />
+                    <span className="text-[10px] text-slate-500 font-bold block mt-1">
+                      Mínimo legal obligatorio: 22 kN (5000 lbf / 2260 kg)
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Check Arnés */}
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <h4 className="font-black text-xs text-slate-800 uppercase mb-3 flex items-center gap-1.5">
+                  <Shield size={15} className="text-emerald-700" />
+                  Inspección Pre-Uso de Arnés (IRAM 3622-1)
+                </h4>
+                <div className="space-y-2 text-xs font-bold text-slate-700">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={permit.harnessCheck?.webbingFreeOfCutsOrBurns || false}
+                      onChange={(e) => setPermit({ ...permit, harnessCheck: { ...permit.harnessCheck, webbingFreeOfCutsOrBurns: e.target.checked } })}
+                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                    />
+                    <span>Cintas textiles libres de cortes, quemaduras o abrasión</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={permit.harnessCheck?.stitchingIntact || false}
+                      onChange={(e) => setPermit({ ...permit, harnessCheck: { ...permit.harnessCheck, stitchingIntact: e.target.checked } })}
+                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                    />
+                    <span>Costuras de seguridad intactas sin hilos sueltos</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={permit.harnessCheck?.impactIndicatorNotTripped || false}
+                      onChange={(e) => setPermit({ ...permit, harnessCheck: { ...permit.harnessCheck, impactIndicatorNotTripped: e.target.checked } })}
+                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                    />
+                    <span>Testigo de caída NO activado (arnés sin impacto previo)</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={permit.harnessCheck?.lanyardDoubleWithAbsorber || false}
+                      onChange={(e) => setPermit({ ...permit, harnessCheck: { ...permit.harnessCheck, lanyardDoubleWithAbsorber: e.target.checked } })}
+                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                    />
+                    <span>Cabo doble en "Y" con absorbedor (100% enganche continuo)</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </ModuleFormSection>
+
+          {/* Sección 5: Clima y Plan de Rescate en Altura */}
+          <ModuleFormSection title="5. Clima y Plan de Rescate (Res. SRT 61/23 Art. 9)" icon={<Wind size={20} />}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <h4 className="font-black text-xs text-slate-800 uppercase mb-3 flex items-center gap-1.5">
+                  <Wind size={15} className="text-blue-700" />
+                  Condiciones Meteorológicas
+                </h4>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block mb-1 text-xs font-bold text-slate-600 uppercase">Velocidad del Viento (km/h)</label>
+                    <input
+                      type="number"
+                      className="input-professional"
+                      value={permit.weather?.windSpeedKmh || ''}
+                      onChange={(e) => setPermit({ ...permit, weather: { ...permit.weather, windSpeedKmh: parseFloat(e.target.value) || 0 } })}
+                    />
+                    <span className="text-[10px] text-slate-500 font-bold block mt-1">
+                      Límite legal: máx. 35 km/h. Suspender tareas si se supera.
+                    </span>
+                  </div>
+                  <label className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={permit.weather?.hasRainOrThunderstorm || false}
+                      onChange={(e) => setPermit({ ...permit, weather: { ...permit.weather, hasRainOrThunderstorm: e.target.checked } })}
+                      className="rounded text-rose-600 focus:ring-rose-500 h-4 w-4"
+                    />
+                    <span className="text-rose-700">Lluvia o Tormenta Eléctrica activa (PROHIBIDO TRABAJAR)</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <h4 className="font-black text-xs text-slate-800 uppercase mb-3 flex items-center gap-1.5">
+                  <Shield size={15} className="text-amber-700" />
+                  Plan de Rescate y Trauma por Suspensión
+                </h4>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={permit.rescuePlanDefined || false}
+                      onChange={(e) => setPermit({ ...permit, rescuePlanDefined: e.target.checked })}
+                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                    />
+                    <span>Procedimiento de rescate definido y medios disponibles in-situ</span>
+                  </label>
+                  <textarea
+                    className="input-professional text-xs min-h-[70px]"
+                    value={permit.rescuePlan || ''}
+                    onChange={(e) => setPermit({ ...permit, rescuePlan: e.target.value })}
+                    placeholder="Detallar medios de descenso rápido, pértiga, escalera o brigada interna..."
+                  />
+                </div>
+              </div>
+            </div>
+          </ModuleFormSection>
+
+          {/* Sección 6: Conclusiones y Dictamen */}
+          <ModuleFormSection title="6. Conclusiones y Dictamen Técnico Oficial" icon={<FileText size={20} />}>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-xs font-bold text-slate-600">Redacción formal según criterios de la Res. SRT 61/23:</span>
               <button
-                key={key}
                 type="button"
-                onClick={() => setPermit({ ...permit, ppe: { ...permit.ppe, [key]: !value } })}
-                style={{
-                  background: value ? '#dcfce7' : '#fff5f5',
-                  border: `2px solid ${value ? '#16a34a' : '#fca5a5'}`
-                }} className="p-[1rem] rounded-[var(--radius-lg)] cursor-pointer flex items-center justify-between transition-all">
-                
-                                    <div className="flex items-center gap-[0.75rem]">
-                                      <div style={{ background: value ? '#16a34a' : '#ef4444' }} className="w-[24px] h-[24px] rounded-[6px] flex items-center justify-center font-black text-white text-xs">
-                                          {value ? '✓' : '✕'}
-                                      </div>
-                                      <span style={{ color: value ? '#15803d' : '#991b1b' }} className="text-[0.9rem] font-[800] capitalize">
-                                          {key === 'harness' && 'Arnés de Seguridad'}
-                                          {key === 'lanyard' && 'Cola de Amarre'}
-                                          {key === 'helmet' && 'Casco con Barbijo'}
-                                          {key === 'lifeline' && 'Línea de Vida'}
-                                      </span>
-                                    </div>
-                                    <span style={{ backgroundColor: value ? '#16a34a' : '#ef4444' }} className="text-white text-[11px] font-black px-2 py-0.5 rounded-full">
-                                      {value ? 'REQUERIDO' : 'NO REQUERIDO'}
-                                    </span>
-                                </button>
-              )}
-                        </div>
-                        </ModuleFormSection>
-                    </div>
-
-                    <div className="mt-[2.5rem]">
-                        <ModuleFormSection title="Observaciones Adicionales" icon={<AlertTriangle size={20} />}>
-                        <textarea
-              value={permit.observations}
+                onClick={handleGenerateConclusions}
+                disabled={isGeneratingAi}
+                className="btn-outline flex items-center gap-1.5 text-xs py-1 px-3 bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100"
+              >
+                <Sparkles size={14} className="text-amber-600" />
+                <span>{isGeneratingAi ? 'Redactando...' : 'Generar Conclusiones Automáticas'}</span>
+              </button>
+            </div>
+            <textarea
+              className="input-professional min-h-[140px] font-mono text-xs leading-relaxed"
+              value={permit.observations || ''}
               onChange={(e) => setPermit({ ...permit, observations: e.target.value })}
-              style={{ ...inputStyle }}
-              placeholder="Describa cualquier detalle relevante del trabajo o riesgos específicos..." className="min-h-[80px] pt-[0.75rem]" />
-            
-                        </ModuleFormSection>
-                    </div>
+              placeholder="El dictamen técnico fundamentará la habilitación del trabajo en altura según cálculo de DLC, anclaje de 22 kN y condiciones climáticas..."
+            />
+          </ModuleFormSection>
 
-                    {/* Firmas y Autorizaciones */}
-                    <div className="mt-[2.5rem]">
-                        <ModuleFormSection title="Firmas y Autorizaciones del Permiso" icon={<Pencil size={20} />}>
+          {/* Sección 7: Firmas Tripartitas */}
+          <div className="mt-8">
+            <ModuleFormSection title="7. Firmas Reglamentarias Tripartitas" icon={<Pencil size={20} />}>
+              <div className="no-print mb-6 p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col gap-3 items-center">
+                <div className="text-slate-700 font-extrabold text-xs uppercase tracking-wider">
+                  Firmas a incluir en el Permiso de Trabajo:
+                </div>
+                <div className="flex gap-4 flex-wrap justify-center text-xs font-bold">
+                  {[
+                    { id: 'operator', label: 'Operario en Altura' },
+                    { id: 'professional', label: 'Responsable HyS' },
+                    { id: 'supervisor', label: 'Supervisor de Trabajo' }
+                  ].map((sig) => {
+                    const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                    return (
+                      <label
+                        key={sig.id}
+                        className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-white border border-slate-300"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))}
+                          className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                        />
+                        <span>{sig.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
 
-                        {/* 1. Recuadros Interáctivos para Dibujar Firmas en Pantalla */}
-                        <div className="no-print mb-8 p-6 bg-slate-50 dark:bg-slate-900/60 border-2 border-slate-200 dark:border-slate-700 rounded-3xl space-y-4 shadow-sm">
-                          <h3 className="m-0 text-base font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                            <span>🖊️</span> FIRMAS DIGITALES (DIBUJAR EN PANTALLA)
-                          </h3>
-                          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 m-0 mb-4">
-                            Dibuje las firmas sobre los recuadros táctiles. Aparecerán automáticamente en la planilla oficial.
-                          </p>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="p-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm">
-                              <SignatureCanvas
-                                onSave={(sig) => setPermit((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
-                                initialImage={permit.operatorSignature}
-                                label="Firma del Operador / Trabajador"
-                              />
-                            </div>
+              {/* Visualización de los bloques de firmas */}
+              <div className="mb-6">
+                <PdfSignatures
+                  data={{
+                    ...permit,
+                    professionalSignature: professional.signature,
+                    professionalName: professional.name,
+                    professionalLicense: professional.license,
+                    professionalStamp: professional.stamp
+                  }}
+                  box1={
+                    showSignatures.operator
+                      ? {
+                          title: 'OPERARIO AUTORIZADO',
+                          subtitle: (permit.workerName || 'Trabajador en Altura').toUpperCase(),
+                          signatureUrl: permit.operatorSignature || permit.signature || null,
+                          isProfessional: false
+                        }
+                      : null
+                  }
+                  box2={
+                    showSignatures.professional
+                      ? {
+                          title: 'RESPONSABLE HIGIENE Y SEGURIDAD',
+                          subtitle: (professional.name || 'Especialista HyS').toUpperCase(),
+                          signatureUrl: permit.professionalSignature || professional.signature || null,
+                          stampUrl: permit.professionalStamp || professional.stamp || null,
+                          isProfessional: true,
+                          license: professional.license
+                        }
+                      : null
+                  }
+                  box3={
+                    showSignatures.supervisor
+                      ? {
+                          title: 'SUPERVISOR HABILITANTE',
+                          subtitle: (permit.supervisor || 'Supervisor de Trabajo').toUpperCase(),
+                          signatureUrl: permit.supervisorSignature || null,
+                          isProfessional: false
+                        }
+                      : null
+                  }
+                />
+              </div>
 
-                            <div className="p-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm">
-                              <SignatureCanvas
-                                onSave={(sig) => setPermit((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
-                                initialImage={permit.professionalSignature || professional.signature}
-                                label="Firma de Especialista H&S"
-                              />
-                            </div>
+              {/* Dibujo interactivo de firmas */}
+              <div className="no-print grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200">
+                {showSignatures.operator && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold text-slate-600 uppercase">Firma del Operario:</label>
+                    <SignatureCanvas
+                      onSave={(sig) => setPermit((prev: any) => ({ ...prev, operatorSignature: sig || '', signature: sig || '' }))}
+                      initialImage={permit.operatorSignature || permit.signature}
+                      label="Firma del Operario"
+                    />
+                  </div>
+                )}
 
-                            <div className="p-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm">
-                              <SignatureCanvas
-                                onSave={(sig) => setPermit((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
-                                initialImage={permit.supervisorSignature || permit.signature}
-                                label="Firma del Supervisor / Autorizante"
-                              />
-                            </div>
-                          </div>
-                        </div>
+                {showSignatures.professional && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold text-slate-600 uppercase">Firma Especialista HyS:</label>
+                    <SignatureCanvas
+                      onSave={(sig) => setPermit((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                      initialImage={permit.professionalSignature || professional.signature}
+                      label="Firma de HyS"
+                    />
+                  </div>
+                )}
 
-                        {/* 2. Botones para Alternar Visibilidad de Firmas en el PDF */}
-                        <div className="no-print mb-[2rem] p-[1.5rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] flex flex-col gap-[1rem] items-center box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.05)]">
-                            <div className="text-[var(--color-text)] text-[0.95rem] font-[800] uppercase letter-spacing-[0.5px]">
-                                <span className="inline-block border-bottom-[2px_solid_var(--color-primary)] pb-[2px]">Mostrar / Ocultar Firmas en Documento PDF</span>
-                            </div>
-                            <div className="flex gap-[1rem] flex-wrap justify-center">
-                                {[
-                                  { id: 'operator', label: 'Operador / Trabajador' },
-                                  { id: 'professional', label: 'Especialista H&S' },
-                                  { id: 'supervisor', label: 'Supervisor' }
-                                ].map((role) => (
-                                  <button
-                                    key={role.id}
-                                    type="button"
-                                    onClick={() => setShowSignatures((s: any) => ({ ...s, [role.id]: !s[role.id] }))}
-                                    style={{
-                                      border: `2px solid ${showSignatures[role.id] ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                                      background: showSignatures[role.id] ? 'var(--color-primary)' : 'transparent',
-                                      color: showSignatures[role.id] ? 'white' : 'var(--color-text-muted)',
-                                      boxShadow: showSignatures[role.id] ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none'
-                                    }}
-                                    className="p-[0.6rem_1.2rem] rounded-[var(--radius-full)] font-[700] text-[0.9rem] cursor-pointer transition-[all_0.2s] flex items-center gap-[0.5rem]"
-                                  >
-                                    <div
-                                      style={{
-                                        border: `2px solid ${showSignatures[role.id] ? 'white' : 'var(--color-border)'}`,
-                                        background: showSignatures[role.id] ? 'white' : 'transparent'
-                                      }}
-                                      className="w-[18px] h-[18px] rounded-[50%] flex items-center justify-center"
-                                    >
-                                      {showSignatures[role.id] && <div className="w-[10px] h-[10px] rounded-[50%] bg-[var(--color-primary)]" />}
-                                    </div>
-                                    {role.label}
-                                  </button>
-                                ))}
-                            </div>
-                        </div>
+                {showSignatures.supervisor && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold text-slate-600 uppercase">Firma del Supervisor:</label>
+                    <SignatureCanvas
+                      onSave={(sig) => setPermit((prev: any) => ({ ...prev, supervisorSignature: sig || '' }))}
+                      initialImage={permit.supervisorSignature}
+                      label="Firma del Supervisor"
+                    />
+                  </div>
+                )}
+              </div>
+            </ModuleFormSection>
+          </div>
+        </ModuleFormDocument>
+      </ModuleFormLayout>
 
-                        {/* 3. Previsualización en Vivo del Documento Imprimible */}
-                        <div className="mb-[2.5rem] bg-white p-4 border border-slate-200 rounded-2xl shadow-sm">
-                            <h4 className="text-xs font-black text-slate-500 uppercase mb-3">Previsualización de Firmas Oficiales</h4>
-                            <PdfSignatures
-                              data={{
-                                ...permit,
-                                professionalSignature: professional.signature,
-                                professionalName: professional.name,
-                                professionalLicense: professional.license,
-                                professionalStamp: professional.stamp
-                              }}
-                              box1={showSignatures.operator ? {
-                                title: 'OPERADOR / TRABAJADOR',
-                                subtitle: (permit.workerName || 'Firma del Operador').toUpperCase(),
-                                signatureUrl: permit.operatorSignature || null,
-                                isProfessional: false
-                              } : null}
-                              box2={showSignatures.professional ? {
-                                title: 'PROFESIONAL H&S',
-                                subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
-                                signatureUrl: permit.professionalSignature || professional.signature || null,
-                                stampUrl: permit.professionalStamp || professional.stamp || null,
-                                isProfessional: true,
-                                license: professional.license
-                              } : null}
-                              box3={showSignatures.supervisor ? {
-                                title: 'SUPERVISOR / AUTORIZANTE',
-                                subtitle: (permit.supervisor || 'Firma del Supervisor').toUpperCase(),
-                                signatureUrl: permit.supervisorSignature || permit.signature || null,
-                                isProfessional: false
-                              } : null}
-                            />
-                            <PdfBrandingFooter />
-                        </div>
+      <ModuleActionBar
+        actions={[
+          { id: 'cancel', label: 'VOLVER', icon: <ArrowLeft size={18} />, variant: 'secondary', onClick: () => navigate(-1) },
+          { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'info', onClick: () => setShowShareModal(true) },
+          { id: 'save', label: 'GENERAR PERMISO PTSA', icon: <Save size={18} />, variant: 'primary', onClick: (e: any) => { e.preventDefault(); requirePro(handleSave); } }
+        ]}
+      />
 
-                        </ModuleFormSection>
-                    </div>
+      <ShareModal
+        isOpen={showShareModal}
+        open={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        elementIdToPrint="pdf-content"
+        title="Permiso de Trabajo Seguro en Altura (PTSA)"
+        text={`Permiso PTSA Res. SRT 61/23: ${permit.workerName || 'Operario'}`}
+        rawMessage={`Permiso PTSA Res. SRT 61/23: ${permit.workerName || 'Operario'}`}
+        fileName={`Permiso_PTSA_${permit.workerName ? permit.workerName.replace(/\s+/g, '_') : 'Altura'}.pdf`}
+      />
 
-                    {/* 4. Botones de Acción In-Line al FINAL ABSOLUTO dentro de la tarjeta */}
-                    <div className="no-print mt-10 pt-6 border-t-2 border-slate-300 dark:border-slate-700 flex flex-wrap items-center justify-between gap-4 bg-slate-100 dark:bg-slate-900/90 p-5 rounded-2xl shadow-lg">
-                      <button
-                        type="button"
-                        onClick={() => navigate('/working-at-height')}
-                        style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '12px 24px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)' }}>
-                        <ArrowLeft size={18} /> Cancelar / Volver
-                      </button>
-                      <div className="flex flex-wrap items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => requirePro(() => window.print())}
-                          style={{ backgroundColor: '#8b5cf6', color: '#ffffff', border: 'none', padding: '12px 22px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)' }}>
-                          <Printer size={18} /> Imprimir PDF
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => requirePro(() => setShowShareModal(true))}
-                          style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '12px 22px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)' }}>
-                          <Share2 size={18} /> Compartir
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
-                          style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '14px 32px', fontSize: '15px', fontWeight: '900', borderRadius: '14px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '10px', boxShadow: '0 6px 20px rgba(5, 150, 105, 0.45)' }}>
-                          <Save size={22} /> Guardar Permiso
-                        </button>
-                      </div>
-                    </div>
-        </div>
-
-        {/* 5. Barra Flotante de Acciones (ModuleActionBar) - SIEMPRE VISIBLE EN PANTALLA */}
-        <ModuleActionBar
-          actions={[
-            {
-              id: 'back',
-              label: 'Cancelar / Volver',
-              variant: 'danger',
-              icon: <ArrowLeft size={16} />,
-              onClick: () => navigate('/working-at-height')
-            },
-            {
-              id: 'print',
-              label: 'Imprimir PDF',
-              variant: 'secondary',
-              icon: <Printer size={16} />,
-              onClick: () => requirePro(() => window.print())
-            },
-            {
-              id: 'share',
-              label: 'Compartir',
-              variant: 'info',
-              icon: <Share2 size={16} />,
-              onClick: () => requirePro(() => setShowShareModal(true))
-            },
-            {
-              id: 'save',
-              label: 'Guardar Permiso',
-              variant: 'primary',
-              icon: <Save size={18} />,
-              onClick: (e: any) => { e.preventDefault(); requirePro(handleSave); }
-            }
-          ]}
-        />
-
-
-
-
-        <ShareModal
-          isOpen={showShareModal}
-          onClose={() => setShowShareModal(false)}
-          elementIdToPrint="pdf-content"
-          title="Permiso Trabajo en Altura"
-          fileName={`Altura_${permit.workerName || 'Sin_Nombre'}.pdf`}
-        />
-
-        <div className="hidden print:block print:w-full">
-          <WorkingAtHeightPdf data={{ ...permit, createdAt: (permit as any).createdAt || new Date().toISOString() } as any} />
-        </div>
+      <div className="print-only fixed left-0 opacity-[0.01] top-0 pointer-events-none">
+        <WorkingAtHeightPdf data={{ ...permit, createdAt: permit.createdAt || new Date().toISOString() }} />
       </div>
-    </AnimatedPage>
+    </div>
   );
 }

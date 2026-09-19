@@ -5,7 +5,7 @@ import {
   FileText, Eye, Edit3, Trash2, CheckCircle2,
   XCircle, Clock, User, Calendar,
   Shield, Zap, Settings, AlertCircle,
-  TrendingUp, BarChart3, Activity, Share2, ArrowLeft, QrCode, Layers
+  TrendingUp, BarChart3, Activity, Share2, ArrowLeft, QrCode, Layers, Download
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAuth } from '../contexts/AuthContext';
@@ -145,6 +145,70 @@ export default function LOTOManager(): React.ReactElement | null {
     saveProcedures(updatedProcedures);
   };
 
+  const handleExportOfficialCsv = () => {
+    if (procedures.length === 0) {
+      alert('No hay procedimientos LOTO registrados para exportar.');
+      return;
+    }
+
+    const headers = [
+      'ID_Registro',
+      'Fecha_Registro',
+      'Razon_Social',
+      'CUIT_Patronal',
+      'Equipo_Maquina',
+      'Tag_Equipo',
+      'Ubicacion_Planta',
+      'Tipo_Bloqueo',
+      'Energias_Peligrosas',
+      'Reglas_Oro_Cumplidas',
+      'Energia_Cero_Verificada',
+      'Metodo_Verificacion',
+      'Supervisor_LOTO',
+      'Estado'
+    ];
+
+    const rows = procedures.map((p) => {
+      const dateStr = p.createdAt ? new Date(p.createdAt).toLocaleDateString('es-AR') : '';
+      const energias = (p.energyTypes || []).join('; ');
+      const gr = p.fiveGoldenRulesElectrical;
+      let grCount = 'N/A';
+      if (gr) {
+        const count = [gr.corteEfectivo, gr.bloqueoEnclavamiento, gr.verificacionAusencia, gr.puestaATierraCorto, gr.senalizacionZona].filter(Boolean).length;
+        grCount = `${count}/5`;
+      }
+      const zeroOk = p.zeroEnergyVerification?.tested ? 'SI' : 'NO';
+      const zeroMethod = p.zeroEnergyVerification?.method || '';
+
+      return [
+        `"${p.id || ''}"`,
+        `"${dateStr}"`,
+        `"${p.companyName || ''}"`,
+        `"${p.cuit || ''}"`,
+        `"${(p.equipmentName || '').replace(/"/g, '""')}"`,
+        `"${p.equipmentTag || ''}"`,
+        `"${(p.location || '').replace(/"/g, '""')}"`,
+        `"${p.lockoutType === 'group' ? 'Grupal' : 'Individual'}"`,
+        `"${energias}"`,
+        `"${grCount}"`,
+        `"${zeroOk}"`,
+        `"${zeroMethod}"`,
+        `"${(p.supervisor || '').replace(/"/g, '""')}"`,
+        `"${p.status || 'pending'}"`
+      ].join(';');
+    });
+
+    const csvContent = '\uFEFF' + [headers.join(';'), ...rows].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `Registro_Oficial_LOTO_Dec351_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const stats = useMemo(() => {
     const total = procedures.length;
     const active = activeLOTOs.length;
@@ -202,7 +266,7 @@ export default function LOTOManager(): React.ReactElement | null {
         {/* Header idéntico a Aptitudes Médicas */}
         <PremiumHeader
           title="Procedimientos LOTO (Lockout/Tagout)"
-          subtitle="Control de energías peligrosas y bloqueo de seguridad según norma OSHA 1910.147"
+          subtitle="Control de energías peligrosas y consignación de equipos según Decreto 351/79 (Cap. 14 y 15) y OSHA 29 CFR 1910.147"
           icon={<Lock size={36} color="#ffffff" />}
         />
 
@@ -287,29 +351,55 @@ export default function LOTOManager(): React.ReactElement | null {
               />
             </div>
 
-            {/* Botón Nuevo Procedimiento SUPER COMPACTO INLINE idéntico a Aptitudes Médicas */}
-            <button
-              onClick={() => requirePro(() => navigate('/loto/new'))}
-              style={{
-                backgroundColor: '#059669',
-                color: '#ffffff',
-                border: 'none',
-                padding: '6px 14px',
-                fontSize: '12px',
-                fontWeight: '800',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                whiteSpace: 'nowrap',
-                height: '34px',
-                boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
-              }}
-            >
-              <Plus size={14} />
-              <span>Nuevo Procedimiento</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleExportOfficialCsv}
+                style={{
+                  backgroundColor: 'transparent',
+                  color: '#3b82f6',
+                  border: '1px solid #3b82f6',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: '800',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  whiteSpace: 'nowrap',
+                  height: '34px'
+                }}
+                className="hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors"
+                title="Exportar base LOTO completa a CSV compatible con Excel"
+              >
+                <Download size={14} />
+                <span>Exportar CSV</span>
+              </button>
+
+              {/* Botón Nuevo Procedimiento SUPER COMPACTO INLINE idéntico a Aptitudes Médicas */}
+              <button
+                onClick={() => requirePro(() => navigate('/loto/new'))}
+                style={{
+                  backgroundColor: '#059669',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: '800',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  whiteSpace: 'nowrap',
+                  height: '34px',
+                  boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
+                }}
+              >
+                <Plus size={14} />
+                <span>Nuevo Procedimiento</span>
+              </button>
+            </div>
           </div>
 
           {/* Filter Tabs idénticos a Aptitudes Médicas */}

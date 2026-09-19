@@ -6,7 +6,7 @@ import {
   FileText, Eye, Edit3, Trash2, CheckCircle2,
   XCircle, Clock, User, Users, Calendar,
   Shield, Wind, Droplets, Thermometer, Activity,
-  BarChart3, AlertCircle, CheckSquare, XSquare, Share2, ArrowLeft } from
+  BarChart3, AlertCircle, CheckSquare, XSquare, Share2, ArrowLeft, Download } from
 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
@@ -15,13 +15,13 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import ConfirmModal from '../components/ConfirmModal';
 
-// Límites atmosféricos según OSHA 1910.146
+// Límites atmosféricos según Resolución S.R.T. N° 953/10 y Res. MTEySS 295/03 Anexo IV
 const ATMOSPHERIC_LIMITS = {
-  oxygen: { min: 19.5, max: 23.5, unit: '%', name: 'Oxígeno' },
-  lel: { min: 0, max: 10, unit: '%', name: 'LEL (Inflamables)' },
-  h2s: { min: 0, max: 10, unit: 'ppm', name: 'H2S (Sulfuro)' },
-  co: { min: 0, max: 35, unit: 'ppm', name: 'CO (Monóxido)' },
-  co2: { min: 0, max: 5000, unit: 'ppm', name: 'CO2 (Dióxido)' }
+  oxygen: { min: 19.5, max: 23.5, unit: '%', name: 'Oxígeno', norm: 'Res. SRT 953/10' },
+  lel: { min: 0, max: 10, unit: '%', name: 'LEL (Inflamabilidad)', norm: 'Res. SRT 953/10' },
+  h2s: { min: 0, max: 10, unit: 'ppm', name: 'H2S (Sulfhídrico)', norm: 'Res. MTEySS 295/03' },
+  co: { min: 0, max: 25, unit: 'ppm', name: 'CO (Monóxido de Carbono)', norm: 'Res. MTEySS 295/03' },
+  co2: { min: 0, max: 5000, unit: 'ppm', name: 'CO2 (Dióxido de Carbono)', norm: 'Res. MTEySS 295/03' }
 };
 
 // Tipos de espacios confinados
@@ -275,9 +275,62 @@ export default function ConfinedSpace(): React.ReactElement | null {
     }, {})
   };
 
+  const exportToCsv = () => {
+    if (permits.length === 0) {
+      alert('No hay permisos registrados para exportar');
+      return;
+    }
+
+    const headers = [
+      'ID_PERMISO',
+      'CUIT',
+      'EMPRESA',
+      'ESPACIO_CONFINADO',
+      'TIPO_RECINTO',
+      'UBICACION',
+      'FECHA',
+      'O2_PCT',
+      'LEL_PCT',
+      'CO_PPM',
+      'H2S_PPM',
+      'ESTADO_ATMOSFERICO',
+      'VIGIA_STANDBY',
+      'SUPERVISOR',
+      'ESTADO_PERMISO'
+    ];
+
+    const rows = permits.map((p: any) => [
+      `"${p.id || ''}"`,
+      `"${p.cuit || ''}"`,
+      `"${(p.companyName || '').replace(/"/g, '""')}"`,
+      `"${(p.spaceName || '').replace(/"/g, '""')}"`,
+      `"${p.spaceType || ''}"`,
+      `"${(p.location || '').replace(/"/g, '""')}"`,
+      `"${p.createdAt ? new Date(p.createdAt).toLocaleDateString('es-AR') : ''}"`,
+      `"${p.gasMonitoring?.o2 || ''}"`,
+      `"${p.gasMonitoring?.lel || ''}"`,
+      `"${p.gasMonitoring?.co || ''}"`,
+      `"${p.gasMonitoring?.h2s || ''}"`,
+      `"${p.atmosphericStatus || (p.isSafeToEnter ? 'SEGURO' : 'ALERTA')}"`,
+      `"${(p.team?.attendant || '').replace(/"/g, '""')}"`,
+      `"${(p.team?.supervisor || '').replace(/"/g, '""')}"`,
+      `"${p.status || ''}"`
+    ]);
+
+    const csvContent = '\uFEFF' + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `permisos_espacios_confinados_srt953_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="container pb-[6rem]">
-            <ShareModal
+      <ShareModal
         isOpen={!!shareItem}
         open={!!shareItem}
         onClose={() => setShareItem(null)}
@@ -285,35 +338,41 @@ export default function ConfinedSpace(): React.ReactElement | null {
         text={shareItem ? `🕳️ Permiso Ingreso Espacio Confinado\n🆔 Espacio: ${shareItem.spaceName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString('es-AR')}` : ''}
         rawMessage={shareItem ? `🕳️ Permiso Ingreso Espacio Confinado\n🆔 Espacio: ${shareItem.spaceName}\n📍 Ubicación: ${shareItem.location}\n📅 Fecha: ${new Date(shareItem.createdAt).toLocaleDateString('es-AR')}` : ''}
         elementIdToPrint="pdf-content-confined"
-        fileName={`Espacio_Confinado_${shareItem?.spaceName || 'Sin_Nombre'}.pdf`} />
-      
+        fileName={`Espacio_Confinado_${shareItem?.spaceName || 'Sin_Nombre'}.pdf`}
+      />
 
-            <div id="pdf-content-confined" className="fixed left-[0] opacity-[0.01] top-[0] pointer-events-[none]">
-                {shareItem && <ConfinedSpacePdf data={shareItem} />}
-            </div>
+      <div id="pdf-content-confined" className="fixed left-[0] opacity-[0.01] top-[0] pointer-events-[none]">
+        {shareItem && <ConfinedSpacePdf data={shareItem} />}
+      </div>
 
-            <PremiumHeader
+      <PremiumHeader
         title="Espacios Confinados"
-        subtitle={`OSHA 1910.146 • ${activePermits.length} activos`}
-        icon={<Tent size={36} color="#ffffff" />} />
-      
+        subtitle={`Res. S.R.T. N° 953/10 & Res. 295/03 • ${activePermits.length} permisos activos`}
+        icon={<Tent size={36} color="#ffffff" />}
+      />
 
-            <div className="flex items-center justify-between gap-[1rem] mb-[1.5rem] flex-wrap w-full">
-                <div className="flex gap-[1rem] items-center">
-                </div>
-                <button
-                    type="button"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        console.log("Navigating to /confined-space/new");
-                        navigate('/confined-space/new');
-                    }} 
-                    style={{ backgroundColor: '#16a34a', color: '#ffffff', zIndex: 50, position: 'relative' }}
-                    className="ml-auto p-[0.8rem_1.5rem] rounded-[12px] border-none font-[800] text-[0.95rem] cursor-pointer flex items-center gap-[0.5rem] shadow-[0_4px_15px_rgba(22,163,74,0.3)] transition-[all_0.2s] whitespace-nowrap"
-                >
-                    <Plus size={20} color="#ffffff" strokeWidth={2.5} /> Nuevo Permiso
-                </button>
-            </div>
+      <div className="flex items-center justify-between gap-[1rem] mb-[1.5rem] flex-wrap w-full">
+        <div className="flex gap-[0.75rem] items-center">
+          <button
+            type="button"
+            onClick={exportToCsv}
+            className="p-[0.7rem_1.2rem] rounded-[12px] border border-slate-300 bg-white hover:bg-slate-50 font-bold text-xs cursor-pointer flex items-center gap-2 shadow-xs text-slate-700 transition-all"
+          >
+            <Download size={16} className="text-emerald-600" /> Exportar CSV Oficial
+          </button>
+        </div>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate('/confined-space/new');
+          }} 
+          style={{ backgroundColor: '#16a34a', color: '#ffffff', zIndex: 50, position: 'relative' }}
+          className="ml-auto p-[0.8rem_1.5rem] rounded-[12px] border-none font-[800] text-[0.95rem] cursor-pointer flex items-center gap-[0.5rem] shadow-[0_4px_15px_rgba(22,163,74,0.3)] transition-[all_0.2s] whitespace-nowrap"
+        >
+          <Plus size={20} color="#ffffff" strokeWidth={2.5} /> Nuevo Permiso PTSEC
+        </button>
+      </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-[1rem] mb-[2rem]">
         
@@ -1038,7 +1097,7 @@ function AtmosphericLimitsPanel({ limits }) {
             <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6">
                 <h3 className="m-[0_0_1.5rem_0] text-[1rem] font-[800]">
                     <Activity size={20} className="display-[inline] mr-[0.5rem]" />
-                    Límites Atmosféricos (OSHA 1910.146)
+                    Límites Atmosféricos Oficiales (Res. S.R.T. N° 953/10 & Res. MTEySS 295/03 Anexo IV)
                 </h3>
                 <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(250px,_1fr))] gap-[1rem]">
                     {Object.entries(limits).map(([key, limitVal]: [string, any]) =>

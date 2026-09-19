@@ -1,202 +1,353 @@
 import React, { useRef } from 'react';
-import { Flame, ShieldCheck, Info, FileText } from 'lucide-react';
+import { Flame, ShieldCheck, Info, FileText, Building2, Droplets, Wind, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
-import { getCountryNormativa } from '../data/legislationData';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import type { FireLoadAssessmentProtocol } from '../types/fireload';
 
-const PDF_STYLES = `
-  @page {
-    size: A4 portrait;
-    margin: 10mm 10mm 12mm 10mm;
-  }
-  .ats-pdf-root {
-    font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
-    font-size: 8pt;
-    line-height: 1.25;
-    color: #0f172a;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  .ats-pdf-root * {
-    box-sizing: border-box;
-    word-break: break-word;
-    overflow-wrap: break-word;
-  }
-  .ats-pdf-section {
-    margin-bottom: 0.8rem;
-  }
-  .ats-pdf-root > .ats-pdf-offscreen-wrap {
-    display: block !important;
-    width: 100% !important;
-  }
-  .company-logo {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    color-adjust: exact !important;
-  }
-  @media print {
-    .ats-pdf-root {
-      box-shadow: none !important;
-      border-radius: 0 !important;
-      min-height: 0 !important;
-      max-width: none !important;
-      width: 100% !important;
-      padding: 0 !important;
-      margin: 0 !important;
-    }
-    .page-break-before {
-      page-break-before: always;
-      break-before: page;
-    }
-    .avoid-break {
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
-  }
-`;
-
-export default function FireLoadPdfGenerator({ data }: {data: any;}): React.ReactElement | null {
+export default function FireLoadPdfGenerator({ data }: { data: any }): React.ReactElement | null {
+  const componentRef = useRef<HTMLDivElement>(null);
 
   if (!data) return null;
 
-  const countryNorms = getCountryNormativa(data.pais || 'Argentina');
-  const { empresa, obra, fecha, sector, superficie, riesgo, materiales, results, conclusion } = data;
+  const report: Partial<FireLoadAssessmentProtocol> & Record<string, any> = data;
+
+  const cuit = report.cuit || report.empresaCuit || 'No informado';
+  const razonSocial = report.razonSocial || report.empresa || report.companyName || 'Empresa No Especificada';
+  const direccion = report.direccion || report.obra || 'Domicilio Legal';
+  const localidad = report.localidad || 'Buenos Aires';
+  const art = report.art || 'Asociart ART';
+  const establecimiento = report.establecimiento || 'Planta Principal';
+
+  const sector = report.sector || 'Sector de Incendio Principal';
+  const superficie = report.superficie || 100;
+  const riesgo = report.riesgo || report.metricas?.clasificacionRiesgo || 'R4';
+  const ventilacion = report.ventilacion || report.metricas?.ventilacion || 'natural';
+  const actividad = report.actividadResumen || report.descripcionActividad || report.actividadGrupo || 'Actividad Comercial / Industrial';
+
+  const materiales = report.materiales || [];
+  const metrics = report.metricas || report.results || {};
+
+  const qf = metrics.cargaFuegoKgM2 ?? metrics.cargaDeFuego ?? metrics.cargaFuego ?? 0;
+  const maderaEq = metrics.maderaEquivalenteKg ?? metrics.maderaEquivalente ?? 0;
+  const totalKcal = metrics.cargaTermicaTotalKcal ?? metrics.cargaTermicaTotal ?? 0;
+  const rf = metrics.resistenciaFuegoRequerida ?? metrics.rfRequerida ?? metrics.resistenciaRequerida ?? 'F60';
+  const minExtintores = metrics.minExtintores ?? metrics.cantidadMatafuegos ?? metrics.minMatafuegos ?? 2;
+  const potNominal = metrics.potencialExtintorNominal ?? metrics.potencialExtintor ?? '2A-10B:C';
+  const reqHidrantes = metrics.requiereRedHidrantes ?? false;
+  const reqSprinklers = metrics.requiereRociadoresAutomaticos ?? false;
+
+  const getRiesgoDescription = (r: string) => {
+    switch (r) {
+      case 'R1': return 'R1 — Explosivo';
+      case 'R2': return 'R2 — Inflamable';
+      case 'R3': return 'R3 — Muy Combustible';
+      case 'R4': return 'R4 — Combustible (Actividades industriales y depósitos generales)';
+      case 'R5': return 'R5 — Poco Combustible';
+      default: return r;
+    }
+  };
 
   return (
-    <div className="ats-pdf-offscreen-wrap w-[100%]">
+    <div className="w-[100%] flex justify-center bg-slate-100 p-2 sm:p-6 print:p-0 print:bg-white">
       <div
         id="pdf-content"
-        className="pdf-container print-area ats-pdf-root w-[100%] max-w-[210mm] min-h-[297mm] p-[10mm_15mm] bg-[#ffffff] text-[#0f172a] shadow-lg rounded-[8px] m-[0_auto]"
+        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[12mm_15mm] bg-[#ffffff] text-[#0f172a] shadow-2xl print:shadow-none rounded-none sm:rounded-xl box-border m-[0_auto] font-sans"
+        ref={componentRef}
       >
-        <style type="text/css">{PDF_STYLES}</style>
+        <style type="text/css" media="print">
+          {`
+            @page { size: A4 portrait; margin: 10mm; }
+            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .no-print { display: none !important; }
+            .print-area { box-shadow: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: none !important; }
+          `}
+        </style>
 
-        <div className="flex justify-between items-center border-b-[3px] border-slate-200 pb-[1rem] mb-[2rem]">
+        {/* Encabezado Oficial Institucional Dec. 351/79 Anexo VII */}
+        <div className="border-b-2 border-slate-900 pb-3 mb-4">
+          <div className="flex justify-between items-start">
             <div className="flex-1">
-                <h1 className="m-[0] text-[24pt] font-[900] text-slate-800 tracking-tight">ESTUDIO DE CARGA DE FUEGO</h1>
-                <p className="m-[0] text-[12pt] font-[800] text-orange-500">CÁLCULO Y RESULTADOS</p>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[9pt] font-black uppercase tracking-wider bg-slate-900 text-white px-2 py-0.5 rounded">
+                  ESTUDIO TÉCNICO OFICIAL
+                </span>
+                <span className="text-[9pt] font-bold text-slate-600">
+                  Decreto PEN N° 351/79 Anexo VII (Capítulo 18) • IRAM 3517-2
+                </span>
+              </div>
+              <h1 className="text-[15pt] font-black text-slate-900 uppercase tracking-tight leading-snug m-0">
+                Memoria de Carga de Fuego y Potencial Extintor
+              </h1>
+              <p className="text-[8pt] text-slate-500 m-0">
+                Determinación de madera equivalente, resistencia al fuego estructural (F) y dotación de protección contra incendios
+              </p>
             </div>
-            <div className="flex flex-col items-end gap-[0.5rem]">
-                <CompanyLogo style={{ maxHeight: '45px', maxWidth: '140px', objectFit: 'contain' }} />
-                <div className="text-right mt-1">
-                    <div className="text-[8pt] font-[800] text-slate-500">SISTEMA DE GESTIÓN HYS</div>
-                    <div className="font-[800] text-slate-800 text-[9pt]">{countryNorms.fire}</div>
-                </div>
+            <div className="ml-4 flex-shrink-0">
+              <CompanyLogo style={{ maxHeight: '44px', maxWidth: '140px', objectFit: 'contain' }} className="p-1 border border-slate-200 rounded" />
             </div>
+          </div>
         </div>
 
-        <div className="border-2 border-slate-200 rounded-lg mb-[2rem] break-inside-avoid avoid-break overflow-hidden">
-            <div className="grid grid-cols-[1.5fr_1fr] border-b-2 border-slate-200">
-                <div className="p-3 flex flex-col gap-1">
-                    <span className="text-[7.5pt] font-[900] text-slate-500 uppercase">EMPRESA / CLIENTE</span>
-                    <span className="font-[800] text-[10.5pt]">{empresa || '-'}</span>
-                </div>
-                <div className="p-3 border-l-2 border-slate-200 flex flex-col gap-1">
-                    <span className="text-[7.5pt] font-[900] text-slate-500 uppercase">OBRA / UBICACIÓN</span>
-                    <span className="font-[800] text-[10.5pt]">{obra || '-'}</span>
-                </div>
-            </div>
-            <div className="grid grid-cols-3">
-                <div className="p-3 flex flex-col gap-1">
-                    <span className="text-[7.5pt] font-[900] text-slate-500 uppercase">FECHA DE ESTUDIO</span>
-                    <span className="font-[800] text-[10pt]">{fecha ? new Date(fecha).toLocaleDateString('es-AR') : '-'}</span>
-                </div>
-                <div className="p-3 border-l-2 border-slate-200 flex flex-col gap-1">
-                    <span className="text-[7.5pt] font-[900] text-slate-500 uppercase">SECTOR EVALUADO</span>
-                    <span className="font-[800] text-[10pt]">{sector || '-'}</span>
-                </div>
-                <div className="p-3 border-l-2 border-slate-200 flex flex-col gap-1">
-                    <span className="text-[7.5pt] font-[900] text-slate-500 uppercase">SUPERFICIE</span>
-                    <span className="font-[800] text-[10pt]">{superficie || 0} m²</span>
-                </div>
-            </div>
+        {/* 1. Datos del Establecimiento y Sector de Incendio */}
+        <div className="mb-3">
+          <div className="bg-slate-900 text-white px-3 py-1 text-[8.5pt] font-black uppercase tracking-wide rounded-t flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <Building2 size={13} className="text-amber-400" />
+              1. IDENTIFICACIÓN DE LA EMPRESA Y SECTOR DE ESTUDIO
+            </span>
+            <span className="text-[7.5pt] text-slate-300 font-normal">
+              Fecha: {report.fecha ? new Date(report.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : new Date().toLocaleDateString('es-AR')}
+            </span>
+          </div>
+          <table className="w-full border-collapse border border-slate-300 text-[8pt]">
+            <tbody>
+              <tr>
+                <td className="bg-slate-100 p-1.5 font-bold w-[20%] border border-slate-300">Razón Social:</td>
+                <td className="p-1.5 font-black text-slate-900 w-[40%] border border-slate-300">{razonSocial}</td>
+                <td className="bg-slate-100 p-1.5 font-bold w-[15%] border border-slate-300">C.U.I.T. N°:</td>
+                <td className="p-1.5 font-black text-slate-900 border border-slate-300">{cuit}</td>
+              </tr>
+              <tr>
+                <td className="bg-slate-100 p-1.5 font-bold border border-slate-300">Ubicación / Planta:</td>
+                <td className="p-1.5 border border-slate-300">{direccion} ({localidad})</td>
+                <td className="bg-slate-100 p-1.5 font-bold border border-slate-300">A.R.T.:</td>
+                <td className="p-1.5 border border-slate-300">{art}</td>
+              </tr>
+              <tr>
+                <td className="bg-slate-100 p-1.5 font-bold border border-slate-300">Sector de Incendio:</td>
+                <td className="p-1.5 font-black text-blue-900 border border-slate-300">{sector}</td>
+                <td className="bg-slate-100 p-1.5 font-bold border border-slate-300">Superficie (S):</td>
+                <td className="p-1.5 font-black text-slate-900 border border-slate-300">{superficie} m²</td>
+              </tr>
+              <tr>
+                <td className="bg-slate-100 p-1.5 font-bold border border-slate-300">Riesgo y Ventilación:</td>
+                <td className="p-1.5 border border-slate-300" colSpan={3}>
+                  <strong className="text-orange-800">{getRiesgoDescription(riesgo)}</strong> • 
+                  <span className="font-semibold text-slate-700 ml-1">
+                    Ventilación: {ventilacion === 'natural' ? 'Ventilado naturalmente (aberturas al exterior ≥ 1/30 de S)' : 'Sin ventilación natural adecuada / Subsuelo'}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <div className="mb-[2rem]">
-            <h3 className="text-[14pt] font-[900] m-[0_0_1rem_0] text-slate-800 flex items-center gap-[0.5rem] border-b-2 border-slate-300 pb-[0.4rem]">
-                <Flame size={20} className="text-orange-500" /> Inventario de Materiales Combustibles
-            </h3>
-            <div className="border-2 border-slate-200 rounded-lg overflow-hidden">
-                <div className="grid grid-cols-[2fr_1fr_1.2fr_1.5fr] bg-slate-50 p-3 border-b-2 border-slate-200 font-[800] text-[8pt] text-slate-500">
-                    <div>Material</div>
-                    <div>Peso (Kg)</div>
-                    <div>Calor (Mcal/Kg)</div>
-                    <div>Total Kcal</div>
-                </div>
-                {(!materiales || materiales.length === 0) ? (
-                    <div className="p-4 text-center text-slate-500 italic">No hay materiales registrados</div>
-                ) : (
-                    materiales.map((m: any, idx: number) => (
-                        <div key={idx} className="grid grid-cols-[2fr_1fr_1.2fr_1.5fr] gap-3 p-3 border-b border-slate-200 last:border-b-0 break-inside-avoid avoid-break items-center text-[9pt]">
-                            <div className="font-[700] text-slate-700 whitespace-pre-wrap break-words">{m.nombre || '-'}</div>
-                            <div className="font-[600]">{m.peso} Kg</div>
-                            <div className="font-[600] text-slate-500">{m.poderCalorifico} Mcal</div>
-                            <div className="font-[800] text-slate-900">{Math.round(m.calorTotal || m.totalKcal || 0).toLocaleString('es-AR')} Kcal</div>
-                        </div>
-                    ))
-                )}
-            </div>
+        {/* 2. Inventario de Materiales Combustibles */}
+        <div className="mb-3">
+          <div className="bg-slate-800 text-white px-3 py-1 text-[8.5pt] font-black uppercase tracking-wide rounded-t flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <Flame size={13} className="text-orange-400" />
+              2. INVENTARIO DE MATERIALES COMBUSTIBLES PONDERADOS
+            </span>
+            <span className="text-[7.5pt] text-slate-300 font-normal">Poder Calorífico Patrón: 4.400 kcal/kg (Madera)</span>
+          </div>
+          <table className="w-full border-collapse border border-slate-300 text-[8pt]">
+            <thead>
+              <tr className="bg-slate-100 text-slate-700 font-bold border-b border-slate-300 text-center">
+                <th className="p-1.5 text-left w-[40%] border-r border-slate-300">Material Combustible</th>
+                <th className="p-1.5 w-[20%] border-r border-slate-300">Masa / Peso (kg)</th>
+                <th className="p-1.5 w-[20%] border-r border-slate-300">Poder Cal. (kcal/kg)</th>
+                <th className="p-1.5 w-[20%]">Calor Total (kcal)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {materiales.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="p-3 text-center text-slate-400 italic">No se registraron materiales en el sector.</td>
+                </tr>
+              ) : (
+                materiales.map((m: any, idx: number) => {
+                  const p = Number(m.peso) || 0;
+                  const c = Number(m.poderCalorifico) || 0;
+                  const subtotal = p * c;
+                  return (
+                    <tr key={idx} className="border-b border-slate-200">
+                      <td className="p-1.5 font-bold text-slate-800 border-r border-slate-300">{m.nombre}</td>
+                      <td className="p-1.5 text-center font-mono border-r border-slate-300">{p.toLocaleString('es-AR')} kg</td>
+                      <td className="p-1.5 text-center font-mono text-slate-600 border-r border-slate-300">{c.toLocaleString('es-AR')}</td>
+                      <td className="p-1.5 text-right font-black text-slate-900 pr-3">{subtotal.toLocaleString('es-AR')}</td>
+                    </tr>
+                  );
+                })
+              )}
+              <tr className="bg-slate-50 font-black text-slate-900 border-t-2 border-slate-400">
+                <td className="p-1.5 border-r border-slate-300">TOTAL CARGA TÉRMICA:</td>
+                <td className="p-1.5 text-center border-r border-slate-300 font-mono">
+                  {materiales.reduce((acc: number, m: any) => acc + (Number(m.peso) || 0), 0).toLocaleString('es-AR')} kg
+                </td>
+                <td className="p-1.5 text-center border-r border-slate-300 font-mono text-slate-600">
+                  {(totalKcal / 1000).toLocaleString('es-AR')} Mcal
+                </td>
+                <td className="p-1.5 text-right pr-3 font-mono text-blue-900">
+                  {Math.round(totalKcal).toLocaleString('es-AR')} kcal
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <div className="mb-[2rem] break-inside-avoid avoid-break">
-            <h3 className="text-[14pt] font-[900] m-[0_0_1rem_0] text-slate-800 flex items-center gap-[0.5rem] border-b-2 border-slate-300 pb-[0.4rem]">
-                <ShieldCheck size={20} className="text-blue-500" /> Resultados del Cálculo Normativo
-            </h3>
-            <div className="grid grid-cols-[1.5fr_1fr_1.5fr] gap-4">
-                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-col justify-center text-center">
-                    <div className="text-[8pt] font-[900] text-slate-500 uppercase mb-2">CARGA DE FUEGO (Qf)</div>
-                    <div className="text-[24pt] font-[900] text-blue-600 tracking-tight leading-none">{(results?.cargaFuego || results?.cargaDeFuego || 0).toFixed(2)}</div>
-                    <div className="text-[9pt] font-bold text-slate-500 mt-1">Kg Madera / m²</div>
-                </div>
-                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-col justify-center text-center">
-                    <div className="text-[8pt] font-[900] text-slate-500 uppercase mb-2">RIESGO DOMINANTE</div>
-                    <div className="text-[14pt] font-[900] text-slate-800 tracking-tight leading-tight">{riesgo || '-'}</div>
-                </div>
-                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-col justify-center text-center">
-                    <div className="text-[8pt] font-[900] text-slate-500 uppercase mb-2">RESISTENCIA REQUERIDA</div>
-                    <div className="text-[24pt] font-[900] text-orange-500 tracking-tight leading-none">{results?.resistenciaRequerida || results?.rfRequerida || '-'}</div>
-                    <div className="text-[9pt] font-bold text-slate-500 mt-1">minutos (RF)</div>
-                </div>
+        {/* 3. Resultados del Cálculo Normativo Qf y Resistencia Estructural (F) */}
+        <div className="mb-3">
+          <div className="bg-slate-800 text-white px-3 py-1 text-[8.5pt] font-black uppercase tracking-wide rounded-t flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck size={13} className="text-emerald-400" />
+              3. RESULTADOS DE CARGA DE FUEGO Y RESISTENCIA AL FUEGO (DEC. 351/79)
+            </span>
+            <span className="text-[7.5pt] text-slate-300 font-normal">Tabla 2.2.1 Anexo VII</span>
+          </div>
+          <div className="border border-t-0 border-slate-300 p-2.5 bg-white">
+            <div className="grid grid-cols-4 gap-2 text-center mb-2">
+              <div className="p-2 bg-blue-50 border border-blue-200 rounded">
+                <div className="text-[7pt] text-blue-900 font-bold uppercase">Carga de Fuego (Qf)</div>
+                <div className="text-[18pt] font-black text-blue-700 leading-tight">{qf}</div>
+                <div className="text-[6.5pt] text-slate-600 font-bold">kg Madera / m²</div>
+              </div>
+              <div className="p-2 bg-slate-50 border border-slate-300 rounded">
+                <div className="text-[7pt] text-slate-700 font-bold uppercase">Madera Equivalente</div>
+                <div className="text-[18pt] font-black text-slate-800 leading-tight">{maderaEq.toLocaleString('es-AR')}</div>
+                <div className="text-[6.5pt] text-slate-500 font-medium">kg madera patrón</div>
+              </div>
+              <div className="p-2 bg-orange-50 border border-orange-200 rounded">
+                <div className="text-[7pt] text-orange-900 font-bold uppercase">Riesgo Dominante</div>
+                <div className="text-[18pt] font-black text-orange-600 leading-tight">{riesgo}</div>
+                <div className="text-[6.5pt] text-slate-500 font-medium">{getRiesgoDescription(riesgo).split('—')[1] || riesgo}</div>
+              </div>
+              <div className="p-2 bg-rose-50 border border-rose-200 rounded">
+                <div className="text-[7pt] text-rose-900 font-bold uppercase">Resistencia Estructural</div>
+                <div className="text-[18pt] font-black text-rose-700 leading-tight">{rf}</div>
+                <div className="text-[6.5pt] text-slate-600 font-bold">Minutos de retardo (F)</div>
+              </div>
             </div>
+            <div className="text-[7.5pt] text-slate-600 bg-slate-50 p-1.5 rounded border border-dashed border-slate-300 flex justify-between items-center">
+              <span>
+                <strong>Fórmula Aplicada:</strong> Qf = ∑(Pi · Ki) / (S · 4.400 kcal/kg) = {Math.round(totalKcal)} / ({superficie} · 4400) = <strong>{qf} kg/m²</strong>
+              </span>
+              <span className="font-bold text-slate-900">
+                Ventilación: {ventilacion === 'natural' ? 'Natural' : 'No ventilado'} → Exigencia {rf}
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div className="mb-[2rem] break-inside-avoid avoid-break">
-            <h3 className="text-[14pt] font-[900] m-[0_0_1rem_0] text-slate-800 flex items-center gap-[0.5rem] border-b-2 border-slate-300 pb-[0.4rem]">
-                <Info size={20} className="text-slate-500" /> Exigencias de Extinción y Condiciones
-            </h3>
-            <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 border-2 border-slate-200 rounded-lg">
-                    <div className="font-[900] text-slate-800 mb-2 text-[10pt]">Extintores Portátiles</div>
-                    <div className="text-slate-700 text-[9pt] leading-tight font-[600]">{results?.extincion?.descripcion || 'No especificado'}</div>
-                    {results?.extincion?.condicion && (
-                        <div className="mt-2 text-[8pt] font-bold text-blue-600 bg-blue-50 p-1 px-2 rounded inline-block">
-                            Condición {results.extincion.condicion}
-                        </div>
-                    )}
-                </div>
-                <div className="p-4 border-2 border-emerald-200 bg-emerald-50 rounded-lg flex flex-col justify-center items-center text-center">
-                    <div className="font-[900] text-emerald-900 mb-1 text-[10pt]">Matafuegos Calculados</div>
-                    <div className="text-[28pt] font-[900] text-emerald-600 leading-none tracking-tight">{results?.cantidadMatafuegos || results?.minMatafuegos || 0}</div>
-                    <div className="text-[8pt] font-[700] text-emerald-700 mt-1">Unidades tipo ABC requeridas (Mín. 2)</div>
-                </div>
-            </div>
+        {/* 4. Dotación de Extintores y Condiciones Específicas de Extinción */}
+        <div className="mb-3">
+          <div className="bg-slate-800 text-white px-3 py-1 text-[8.5pt] font-black uppercase tracking-wide rounded-t flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <Droplets size={13} className="text-cyan-300" />
+              4. PROTECCIÓN ACTIVA, EXTINTORES Y CONDICIONES ESPECÍFICAS
+            </span>
+            <span className="text-[7.5pt] text-cyan-200">IRAM 3517-2 / Cuadros 1 y 2 Cap. 18</span>
+          </div>
+          <table className="w-full border-collapse border border-slate-300 text-[8pt]">
+            <tbody>
+              <tr>
+                <td className="bg-slate-100 p-1.5 font-bold w-[25%] border border-slate-300">Dotación Mínima Extintores:</td>
+                <td className="p-1.5 font-black text-emerald-700 border border-slate-300">
+                  {minExtintores} extintor(es) <span className="font-normal text-slate-600">(1 cada 200 m² de superficie, mín. 2)</span>
+                </td>
+                <td className="bg-slate-100 p-1.5 font-bold w-[20%] border border-slate-300">Potencial Certificado:</td>
+                <td className="p-1.5 font-black text-purple-900 border border-slate-300">{potNominal}</td>
+              </tr>
+              <tr>
+                <td className="bg-slate-100 p-1.5 font-bold border border-slate-300">Distancia Máx. de Traslado:</td>
+                <td className="p-1.5 border border-slate-300">
+                  {(riesgo === 'R1' || riesgo === 'R2') ? '15 metros (Líquidos inflamables)' : '20 metros (Clase A ordinarios)'}
+                </td>
+                <td className="bg-slate-100 p-1.5 font-bold border border-slate-300">Tipo de Agente Recomendado:</td>
+                <td className="p-1.5 font-bold text-slate-800 border border-slate-300">Polvo Químico Seco (PQS) ABC o CO₂</td>
+              </tr>
+              <tr>
+                <td className="bg-slate-100 p-1.5 font-bold border border-slate-300">Condición E1 (Red Hidrantes):</td>
+                <td className="p-1.5 border border-slate-300">
+                  {reqHidrantes ? (
+                    <span className="text-rose-700 font-black">⚠️ EXIGIDA (S &gt; 600m² en R3 o Qf &gt; 60 kg/m²)</span>
+                  ) : (
+                    <span className="text-slate-600 font-medium">No exigida por superficie/carga</span>
+                  )}
+                </td>
+                <td className="bg-slate-100 p-1.5 font-bold border border-slate-300">Condición E2 (Sprinklers):</td>
+                <td className="p-1.5 border border-slate-300">
+                  {reqSprinklers ? (
+                    <span className="text-rose-700 font-black">⚠️ EXIGIDA (Qf elevada en gran superficie)</span>
+                  ) : (
+                    <span className="text-slate-600 font-medium">No exigida reglamentariamente</span>
+                  )}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        {conclusion && (
-            <div className="mb-[2rem] break-inside-avoid avoid-break">
-                <h3 className="text-[14pt] font-[900] m-[0_0_1rem_0] text-slate-800 flex items-center gap-[0.5rem] border-b-2 border-slate-300 pb-[0.4rem]">
-                    <FileText size={20} className="text-violet-500" /> Conclusión Profesional
-                </h3>
-                <div className="bg-violet-50 border border-violet-200 p-4 rounded-lg text-violet-900 text-[10pt] leading-relaxed font-[600]">
-                    {conclusion}
-                </div>
-            </div>
-        )}
+        {/* 5. Memoria Técnica y Conclusiones */}
+        <div className="mb-4">
+          <div className="bg-slate-800 text-white px-3 py-1 text-[8.5pt] font-black uppercase tracking-wide rounded-t flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <FileText size={13} className="text-amber-400" />
+              5. MEMORIA TÉCNICA Y RECOMENDACIONES DE INGENIERÍA
+            </span>
+            <span className="text-[7.5pt] text-slate-300">Validez Legal</span>
+          </div>
+          <div className="border border-t-0 border-slate-300 p-2.5 text-[7.5pt] text-slate-800 leading-relaxed bg-slate-50/50">
+            <ul className="m-0 pl-4 space-y-1 list-disc">
+              <li>
+                <strong>Carga de Fuego Ponderada:</strong> El sector presenta una carga de fuego de <strong>{qf} kg/m²</strong> de madera equivalente. Los muros perimetrales y elementos portantes deben garantizar una resistencia al fuego no inferior a <strong>{rf}</strong> según la Tabla 2.2.1 del Anexo VII del Decreto 351/79.
+              </li>
+              <li>
+                <strong>Extintores Manuales:</strong> Se requiere instalar como mínimo <strong>{minExtintores} extintores</strong> de Polvo Químico Seco (PQS) de 5 kg o 10 kg con sello IRAM y potencial extintor mínimo certificado de <strong>{potNominal}</strong>, distribuidos a distancias no superiores a 20 metros.
+              </li>
+              <li>
+                <strong>Señalización y Montaje:</strong> Los equipos deben colocarse a una altura entre 1.20 m y 1.50 m respecto del suelo, en lugares visibles, de fácil acceso y señalizados con balizas normalizadas según norma IRAM 10005-2.
+              </li>
+              {reqHidrantes && (
+                <li className="text-rose-900 font-bold">
+                  <strong>Instalación Fija contra Incendio (Condición E1):</strong> El predio debe contar con red húmeda presurizada de hidrantes con reserva de agua exclusiva y sistema motobomba para abastecer el caudal de extinción simultáneo.
+                </li>
+              )}
+              {report.conclusion && (
+                <li>
+                  <strong>Observaciones del Profesional:</strong> {report.conclusion}
+                </li>
+              )}
+            </ul>
+          </div>
+        </div>
 
-        <PdfSignatures data={data} />
-        
-        <div className="mt-[1rem] pt-[0.75rem] border-t border-slate-200 text-[7pt] text-slate-400 text-center font-[600]">
-          Documento generado por Asistente HYS · {new Date().toLocaleDateString('es-AR')} · Uso exclusivo técnico-profesional
+        {/* 6. Firmas Profesionales */}
+        <div className="mt-4">
+          <PdfSignatures
+            data={report}
+            box1={report.showSignatures?.operator !== false ? {
+              title: 'RESPONSABLE TÉCNICO DEL SECTOR',
+              subtitle: 'Recepción del Estudio Técnico',
+              signatureUrl: report.operatorSignature || null,
+              isProfessional: false
+            } : null}
+            box2={report.showSignatures?.professional !== false ? {
+              title: 'PROFESIONAL DE HIGIENE Y SEGURIDAD',
+              subtitle: (report.professionalName || 'Profesional Actuante').toUpperCase(),
+              signatureUrl: report.professionalSignature || null,
+              stampUrl: report.professionalStamp || null,
+              isProfessional: true,
+              license: report.professionalLicense || 'Matrícula Profesional H&S'
+            } : null}
+            box3={report.showSignatures?.supervisor !== false ? {
+              title: 'DIRECCIÓN DE LA EMPRESA',
+              subtitle: 'Conformidad y Plan de Adecuación',
+              signatureUrl: report.supervisorSignature || report.signature || null,
+              isProfessional: false
+            } : null}
+          />
+        </div>
+
+        {/* Pie de Página Institucional */}
+        <div className="mt-4 pt-2 border-t border-slate-200 flex justify-between items-center text-[7pt] text-slate-500">
+          <div>
+            Estudio de Carga de Fuego y Extintores • Decreto PEN N° 351/79 Anexo VII • Normas IRAM 3517-2
+          </div>
+          <div>
+            Emisión: {new Date().toLocaleDateString('es-AR')} {new Date().toLocaleTimeString()}
+          </div>
         </div>
 
         <PdfBrandingFooter />

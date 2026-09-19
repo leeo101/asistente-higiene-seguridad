@@ -24,6 +24,18 @@ import {
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import RootCauseAnalyzer from '../components/RootCauseAnalyzer';
+import {
+  AccidentInvestigationProtocol,
+  AccidentSeverity,
+  AccidentType,
+  ControlHierarchy,
+  CorrectiveActionCAPA
+} from '../types/accident';
+import {
+  OFFICIAL_ACCIDENT_REGULATORY_CRITERIA,
+  calculateSiniestralityRates,
+  evaluateAccidentInvestigationCompliance
+} from '../utils/srtProtocols';
 
 const SECTIONS = ['Datos Generales', 'Accidentado', 'Descripción y Testigos', 'Análisis Causal', 'Medidas Preventivas', 'Firmas'];
 
@@ -158,21 +170,29 @@ const ACCIDENT_PRESETS = [
   {
     id: 'corte',
     label: '🔨 Corte por Amoladora / Herramienta',
+    tipoAccidente: 'accidente_trabajo',
     empresa: 'Planta Industrial SRL',
+    cuitEmpresa: '30-71234567-8',
     ubicacion: 'Taller de Mecanizado',
     gravedad: 'Moderado',
     victimaNombre: 'Carlos Gómez',
     victimaDni: '34567890',
     victimaPuesto: 'Oficial Metalúrgico',
     victimaAntiguedad: '3 años',
+    aptoMedicoVigente: true,
+    capacitadoEnRiesgo: true,
+    formaAccidente: 'Atrapamiento / contacto con elementos cortantes o punzantes',
+    agenteMaterial: 'Herramientas de mano motrices o eléctricas',
     lesion: 'Herida cortante incisa en palma de mano',
-    parteCuerpo: 'Mano Derecha / Dedos',
+    parteCuerpo: 'Mano / Dedos',
     mecanismoAccidente: 'Contacto con objeto cortante en movimiento',
     parteCuerpoEspecifica: 'Mano / Dedos',
     artNombre: 'Provincia ART',
     numeroSiniestro: 'SIN-884920',
     centroMedico: 'Sanatorio Central',
     diasIltEstimados: '14',
+    dotacionExpuesta: '35',
+    hhtTotal: '70000',
     descripcionHecho: 'Al manipular la amoladora angular sin la guarda fijada correctamente, se produjo el trabamiento del disco provocando un contragolpe (kickback) que hizo contacto con la mano del trabajador.',
     problemaCentral: 'Contragolpe de amoladora provocando corte en mano derecha',
     porques: [
@@ -180,18 +200,28 @@ const ACCIDENT_PRESETS = [
       'Inexistencia de guarda de protección instalada en la herramienta.',
       'Retiro intencional de la guarda para mayor velocidad de corte.',
       'Falta de supervisión efectiva en el taller y falta de procedimiento de trabajo seguro.'
+    ],
+    medidas: [
+      { accion: 'Instalar guarda de protección fija con bloqueo mecánico en todas las amoladoras', jerarquia: 'ingenieria', responsable: 'Jefe de Mantenimiento', fechaLimite: '2026-10-15' },
+      { accion: 'Reinducción obligatoria en POE de corte y uso de guantes anticorte nivel 5', jerarquia: 'administrativo', responsable: 'Servicio HyS', fechaLimite: '2026-10-05' }
     ]
   },
   {
     id: 'lumbago',
     label: '📦 Lumbalgia por Carga Física (Res. 886/15)',
+    tipoAccidente: 'accidente_trabajo',
     empresa: 'Logística & Depósito SA',
+    cuitEmpresa: '30-68901234-9',
     ubicacion: 'Sector Expedición',
     gravedad: 'Moderado',
     victimaNombre: 'Marcos Juárez',
     victimaDni: '38123456',
     victimaPuesto: 'Operario de Depósito',
     victimaAntiguedad: '1 año 6 meses',
+    aptoMedicoVigente: true,
+    capacitadoEnRiesgo: true,
+    formaAccidente: 'Esfuerzo físico excesivo o falso movimiento',
+    agenteMaterial: 'Cajas, bultos y embalajes manuales',
     lesion: 'Lumbalgia aguda por esfuerzo biomecánico',
     parteCuerpo: 'Columna Lumbar / Espalda',
     mecanismoAccidente: 'Sobreesfuerzo ergonómico / Levantamiento manual',
@@ -200,6 +230,8 @@ const ACCIDENT_PRESETS = [
     numeroSiniestro: 'SIN-991204',
     centroMedico: 'Clínica de Traumatología',
     diasIltEstimados: '10',
+    dotacionExpuesta: '20',
+    hhtTotal: '40000',
     descripcionHecho: 'El operario levantó manualmente una caja de 32 kg desde el nivel del suelo girando el tronco sin ayuda mecánica ni apoyo de un compañero.',
     problemaCentral: 'Sobreesfuerzo muscular en levantamiento de carga pesada',
     porques: [
@@ -207,18 +239,28 @@ const ACCIDENT_PRESETS = [
       'Rotación del tronco durante el levantamiento.',
       'Indisponibilidad momentánea de la apiladora eléctrica.',
       'Incumplimiento de la Res. 886/15 y falta de pausas activas.'
+    ],
+    medidas: [
+      { accion: 'Incorporar transpaleta eléctrica adicional y límite de bulto individual a 20 kg', jerarquia: 'ingenieria', responsable: 'Gerente de Operaciones', fechaLimite: '2026-10-20' },
+      { accion: 'Capacitación ergonómica en levantamiento seguro según Res. SRT 886/15', jerarquia: 'administrativo', responsable: 'Ergónomo HyS', fechaLimite: '2026-10-10' }
     ]
   },
   {
     id: 'altura',
     label: '🪜 Caída a Distinto Nivel (>1.5m)',
+    tipoAccidente: 'accidente_trabajo',
     empresa: 'Constructora del Plata',
+    cuitEmpresa: '33-54321098-9',
     ubicacion: 'Frente de Obra - Piso 2',
     gravedad: 'Grave',
     victimaNombre: 'Roberto Rossi',
     victimaDni: '31987654',
     victimaPuesto: 'Montador de Estructuras',
     victimaAntiguedad: '4 años',
+    aptoMedicoVigente: true,
+    capacitadoEnRiesgo: true,
+    formaAccidente: 'Caída de personas con desnivelación (a distinto nivel)',
+    agenteMaterial: 'Andamios, pasarelas y plataformas de trabajo',
     lesion: 'Politraumatismo y fractura de tobillo',
     parteCuerpo: 'Miembro Inferior Izquierdo / Tobillo',
     mecanismoAccidente: 'Caída a distinto nivel',
@@ -227,6 +269,8 @@ const ACCIDENT_PRESETS = [
     numeroSiniestro: 'SIN-440192',
     centroMedico: 'Hospital de Urgencias',
     diasIltEstimados: '45',
+    dotacionExpuesta: '50',
+    hhtTotal: '100000',
     descripcionHecho: 'Durante el armado del andamio tubular a 2.80m de altura, el trabajador tropezó con un tablón suelto y cayó al vacío sin haber amarrado su arnés a la línea de vida.',
     problemaCentral: 'Caída desde andamio a 2.80 metros de altura',
     porques: [
@@ -234,26 +278,38 @@ const ACCIDENT_PRESETS = [
       'Ausencia de rodapiés y barandas perimetrales completas en el andamio.',
       'Falta de enganche del cabo de vida al punto de anclaje.',
       'Supervisión deficiente del permiso de trabajo en altura.'
+    ],
+    medidas: [
+      { accion: 'Instalar sistema de línea de vida fija certificada y barandas perimetrales rígidas a 1.00m', jerarquia: 'ingenieria', responsable: 'Jefe de Obra', fechaLimite: '2026-10-02' },
+      { accion: 'Procedimiento de Permiso de Trabajo Seguro en Altura estricto con verificación previa de anclaje', jerarquia: 'administrativo', responsable: 'Servicio HyS', fechaLimite: '2026-10-01' }
     ]
   },
   {
     id: 'electrico',
     label: '⚡ Descarga Eléctrica en Tablero',
+    tipoAccidente: 'accidente_trabajo',
     empresa: 'Servicios Industriales SA',
+    cuitEmpresa: '30-70891234-5',
     ubicacion: 'Sala de Máquinas Principal',
     gravedad: 'Grave',
     victimaNombre: 'Gonzalo Fernández',
     victimaDni: '36543210',
     victimaPuesto: 'Electricista de Mantenimiento',
     victimaAntiguedad: '5 años',
+    aptoMedicoVigente: true,
+    capacitadoEnRiesgo: true,
+    formaAccidente: 'Contacto con corriente eléctrica directa o indirecta',
+    agenteMaterial: 'Tableros e instalaciones de distribución eléctrica',
     lesion: 'Quemadura de 2do grado en mano e inflamación',
-    parteCuerpo: 'Mano Izquierda / Cuello',
+    parteCuerpo: 'Mano / Dedos',
     mecanismoAccidente: 'Contacto eléctrico directo / Arco eléctrico',
     parteCuerpoEspecifica: 'Mano / Dedos',
     artNombre: 'Galeno ART',
     numeroSiniestro: 'SIN-776512',
     centroMedico: 'Instituto del Quemado',
     diasIltEstimados: '21',
+    dotacionExpuesta: '40',
+    hhtTotal: '80000',
     descripcionHecho: 'Al intervenir en el tablero eléctrico secundario para reemplazar un térmico sin haber realizado el bloqueo LOTO previo, se generó un arco eléctrico al rozar la barra energizada con el destornillador.',
     problemaCentral: 'Descarga y arco eléctrico en tablero con tensión',
     porques: [
@@ -261,6 +317,10 @@ const ACCIDENT_PRESETS = [
       'Intervención con tensión sin aplicar procedimiento de bloqueo LOTO.',
       'No utilización de guantes dieléctricos ni máscara de protección facial.',
       'Falta de verificación con multímetro del estado de tensión cero.'
+    ],
+    medidas: [
+      { accion: 'Adquirir e implementar candados y aldabas LOTO con enclavamiento en interruptor principal', jerarquia: 'ingenieria', responsable: 'Jefe de Planta', fechaLimite: '2026-10-03' },
+      { accion: 'Regla de las 5 de Oro de Seguridad Eléctrica con auditoría semanal en sitio', jerarquia: 'administrativo', responsable: 'Responsable Eléctrico / HyS', fechaLimite: '2026-10-02' }
     ]
   }
 ];
@@ -316,10 +376,29 @@ export default function AccidentInvestigation(): React.ReactElement | null {
   const [isEdit, setIsEdit] = useState(false);
   const [formData, setFormData] = useState<any>({
     fecha: new Date().toISOString().split('T')[0],
-    hora: '', empresa: '', ubicacion: '', gravedad: 'Leve',
-    artNombre: '', numeroSiniestro: '', centroMedico: '', diasIltEstimados: '',
-    victimaNombre: '', victimaDni: '', victimaPuesto: '', victimaAntiguedad: '', lesion: '', parteCuerpo: '',
-    mecanismoAccidente: '', parteCuerpoEspecifica: '',
+    hora: '',
+    tipoAccidente: 'accidente_trabajo',
+    empresa: '',
+    cuitEmpresa: '',
+    ubicacion: '',
+    gravedad: 'Leve',
+    artNombre: '',
+    numeroSiniestro: '',
+    centroMedico: '',
+    diasIltEstimados: '',
+    dotacionExpuesta: '25',
+    victimaNombre: '',
+    victimaDni: '',
+    victimaPuesto: '',
+    victimaAntiguedad: '',
+    aptoMedicoVigente: true,
+    capacitadoEnRiesgo: true,
+    formaAccidente: '',
+    agenteMaterial: '',
+    lesion: '',
+    parteCuerpo: '',
+    mecanismoAccidente: '',
+    parteCuerpoEspecifica: '',
     condicionesAmbientales: {
       iluminacionDeficiente: false,
       ordenLimpiezaDeficiente: false,
@@ -330,11 +409,15 @@ export default function AccidentInvestigation(): React.ReactElement | null {
       faltaGuardaProteccion: false
     },
     hhtTotal: '100000',
-    descripcionHecho: '', testigos: [{ nombre: '', declaracion: '' }],
-    problemaCentral: '', porques: [''],
-    medidas: [{ accion: '', responsable: '', fechaLimite: '' }],
+    descripcionHecho: '',
+    testigos: [{ nombre: '', declaracion: '' }],
+    problemaCentral: '',
+    porques: [''],
+    medidas: [{ accion: '', jerarquia: 'ingenieria', responsable: '', fechaLimite: '' }],
     fotos: [],
-    operatorSignature: '', supervisorSignature: '', signature: '',
+    operatorSignature: '',
+    supervisorSignature: '',
+    signature: '',
     showSignatures: { operator: true, professional: true, supervisor: true }
   });
 
@@ -544,13 +627,49 @@ export default function AccidentInvestigation(): React.ReactElement | null {
 
     // Reset and close form
     setFormData({
-      fecha: new Date().toISOString().split('T')[0], hora: '', empresa: '', ubicacion: '', gravedad: 'Leve',
-      victimaNombre: '', victimaDni: '', victimaPuesto: '', victimaAntiguedad: '', lesion: '', parteCuerpo: '',
-      descripcionHecho: '', testigos: [{ nombre: '', declaracion: '' }],
-      problemaCentral: '', porques: [''],
-      medidas: [{ accion: '', responsable: '', fechaLimite: '' }],
+      fecha: new Date().toISOString().split('T')[0],
+      hora: '',
+      tipoAccidente: 'accidente_trabajo',
+      empresa: '',
+      cuitEmpresa: '',
+      ubicacion: '',
+      gravedad: 'Leve',
+      artNombre: '',
+      numeroSiniestro: '',
+      centroMedico: '',
+      diasIltEstimados: '',
+      dotacionExpuesta: '25',
+      victimaNombre: '',
+      victimaDni: '',
+      victimaPuesto: '',
+      victimaAntiguedad: '',
+      aptoMedicoVigente: true,
+      capacitadoEnRiesgo: true,
+      formaAccidente: '',
+      agenteMaterial: '',
+      lesion: '',
+      parteCuerpo: '',
+      mecanismoAccidente: '',
+      parteCuerpoEspecifica: '',
+      condicionesAmbientales: {
+        iluminacionDeficiente: false,
+        ordenLimpiezaDeficiente: false,
+        pisoResbaladizo: false,
+        ruidoElevado: false,
+        eppAusenteOInadecuado: false,
+        ventilacionInsuficiente: false,
+        faltaGuardaProteccion: false
+      },
+      hhtTotal: '100000',
+      descripcionHecho: '',
+      testigos: [{ nombre: '', declaracion: '' }],
+      problemaCentral: '',
+      porques: [''],
+      medidas: [{ accion: '', jerarquia: 'ingenieria', responsable: '', fechaLimite: '' }],
       fotos: [],
-      operatorSignature: '', supervisorSignature: '', signature: '',
+      operatorSignature: '',
+      supervisorSignature: '',
+      signature: '',
       showSignatures: { operator: true, professional: true, supervisor: true }
     });
     setIsEdit(false);
@@ -571,12 +690,60 @@ export default function AccidentInvestigation(): React.ReactElement | null {
   };
 
   const handleExportCSV = () => {
-    requirePro(() => downloadCSV(history.map((i) => ({
-      victima: i.victimaNombre, empresa: i.empresa, fecha: i.date,
-      lesion: i.lesion || '', sector: i.ubicacion || '', gravedad: i.gravedad || ''
-    })), 'historial_accidentes', {
-      victima: 'Víctima', empresa: 'Empresa', fecha: 'Fecha',
-      lesion: 'Tipo de Lesión', sector: 'Sector/Área', gravedad: 'Gravedad'
+    requirePro(() => downloadCSV(history.map((i) => {
+      const hht = Number(i.hhtTotal) || 100000;
+      const ilt = Number(i.diasIltEstimados) || 0;
+      const dot = Number(i.dotacionExpuesta) || 25;
+      const accCount = (i.gravedad === 'Leve' && ilt === 0) ? 0 : 1;
+      const rates = calculateSiniestralityRates(accCount, ilt, hht, dot);
+
+      return {
+        fecha: i.fecha || i.date || '',
+        empresa: i.empresa || '',
+        cuit: i.cuitEmpresa || '',
+        tipo: i.tipoAccidente === 'in_itinere' ? 'In Itinere' : i.tipoAccidente === 'incidente_sin_lesion' ? 'Incidente Sin Lesión' : 'Accidente de Trabajo',
+        victima: i.victimaNombre || '',
+        dni: i.victimaDni || '',
+        puesto: i.victimaPuesto || '',
+        aptoMedico: i.aptoMedicoVigente !== false ? 'Sí' : 'No',
+        capacitado: i.capacitadoEnRiesgo !== false ? 'Sí' : 'No',
+        sector: i.ubicacion || '',
+        gravedad: i.gravedad || 'Leve',
+        art: i.artNombre || '',
+        siniestro: i.numeroSiniestro || '',
+        formaAccidente: i.formaAccidente || i.mecanismoAccidente || '',
+        agenteMaterial: i.agenteMaterial || '',
+        lesion: i.lesion || '',
+        zonaAnatomica: i.parteCuerpoEspecifica || i.parteCuerpo || '',
+        diasIlt: ilt,
+        indiceFrecuencia: rates.indiceFrecuencia,
+        indiceGravedad: rates.indiceGravedad,
+        indiceIncidencia: rates.indiceIncidencia,
+        causaRaiz: (i.porques || []).filter(Boolean).pop() || i.problemaCentral || ''
+      };
+    }), 'registro_siniestros_srt475', {
+      fecha: 'Fecha Siniestro',
+      empresa: 'Razón Social',
+      cuit: 'CUIT Empleador',
+      tipo: 'Tipo de Evento',
+      victima: 'Trabajador Afectado',
+      dni: 'DNI / CUIL',
+      puesto: 'Puesto / Tarea',
+      aptoMedico: 'Apto Res. 37/10',
+      capacitado: 'Capacitado en Riesgo',
+      sector: 'Sector / Establecimiento',
+      gravedad: 'Gravedad (Res. 475/06)',
+      art: 'Aseguradora ART',
+      siniestro: 'N° Denuncia ART',
+      formaAccidente: 'Forma del Accidente (SRT)',
+      agenteMaterial: 'Agente Material (SRT)',
+      lesion: 'Naturaleza Lesión',
+      zonaAnatomica: 'Ubicación Anatómica',
+      diasIlt: 'Días Baja ILT',
+      indiceFrecuencia: 'IF (Frecuencia)',
+      indiceGravedad: 'IG (Gravedad)',
+      indiceIncidencia: 'II (Incidencia ‰)',
+      causaRaiz: 'Causa Raíz Árbol Causas'
     }));
   };
 
@@ -867,6 +1034,43 @@ export default function AccidentInvestigation(): React.ReactElement | null {
 
                     {currentStep === 0 && (
                       <div className="space-y-6">
+                        {/* 🚨 Banner de Cumplimiento Normativo Res. S.R.T. N° 475/2006 y Siniestralidad Res. 503/14 */}
+                        {(() => {
+                          const evalRes = evaluateAccidentInvestigationCompliance(formData);
+                          const isGraveOrMortal = formData.gravedad === 'Grave' || formData.gravedad === 'Mortal';
+                          return (
+                            <div className="space-y-3">
+                              {isGraveOrMortal && (
+                                <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-500 shadow-sm flex gap-3 items-start">
+                                  <AlertTriangle size={22} className="text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                                  <div>
+                                    <h4 className="m-0 text-xs font-black text-rose-900 dark:text-rose-200 uppercase tracking-wider">
+                                      🚨 NOTIFICACIÓN OBLIGATORIA INMEDIATA (Res. S.R.T. N° 475/2006)
+                                    </h4>
+                                    <p className="m-0 mt-1 text-xs font-medium text-rose-950 dark:text-rose-100 leading-relaxed">
+                                      Accidente clasificado como <strong>{formData.gravedad.toUpperCase()}</strong>. Debe formalizarse la denuncia ante la Aseguradora de Riesgos del Trabajo (A.R.T.) dentro de las <strong>48 horas</strong> hábiles y remitirse informe circunstanciado a la S.R.T.
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+
+                              {evalRes.alerts.length > 0 && !isGraveOrMortal && (
+                                <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 flex gap-2.5 items-start text-xs">
+                                  <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
+                                  <div className="text-amber-950 dark:text-amber-200">
+                                    <span className="font-extrabold block mb-0.5">Control de Auditoría S.R.T.:</span>
+                                    <ul className="m-0 pl-4 list-disc space-y-0.5 font-semibold">
+                                      {evalRes.alerts.map((al, idx) => (
+                                        <li key={idx}>{al}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+
                         {/* ⚡ Plantillas Rápidas de Accidentes Frecuentes */}
                         <div className="bg-blue-50/70 dark:bg-blue-950/30 p-4 rounded-2xl border border-blue-200 dark:border-blue-900/50">
                           <p className="m-0 mb-2 text-xs font-black text-blue-800 dark:text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -901,22 +1105,43 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Hora Aprox. *</label>
                             <input type="time" value={formData.hora} onChange={(e) => handleInputChange('hora', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                           </div>
-                          <div className="md:col-span-2">
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Razón Social / Empresa *</label>
-                            <input type="text" placeholder="Ej. Constructora SRL" value={formData.empresa} onChange={(e) => handleInputChange('empresa', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
-                          </div>
-                          <div className="md:col-span-2">
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ubicación / Sector *</label>
-                            <input type="text" placeholder="Ej. Obra Centro, Sector Hormigonado" value={formData.ubicacion} onChange={(e) => handleInputChange('ubicacion', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
-                          </div>
-                          <div className="md:col-span-2">
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Gravedad Estimada</label>
-                            <select value={formData.gravedad} onChange={(e) => handleInputChange('gravedad', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm">
-                              <option value="Leve">Leve (Sin baja)</option>
-                              <option value="Moderado">Moderado (Con baja médica corta)</option>
-                              <option value="Grave">Grave (Internación, amputaciones)</option>
-                              <option value="Mortal">Mortal</option>
+                          
+                          <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tipo de Suceso (Ley 24.557)</label>
+                            <select
+                              value={formData.tipoAccidente || 'accidente_trabajo'}
+                              onChange={(e) => handleInputChange('tipoAccidente', e.target.value)}
+                              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm font-semibold"
+                            >
+                              <option value="accidente_trabajo">Accidente de Trabajo (Típico / En Ocasión del Trabajo)</option>
+                              <option value="in_itinere">Accidente In Itinere (Trayecto Casa-Trabajo)</option>
+                              <option value="incidente_sin_lesion">Incidente sin Lesión / Cuasi-accidente (HIPPO)</option>
                             </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Gravedad Estimada (Res. SRT 475/06) *</label>
+                            <select value={formData.gravedad} onChange={(e) => handleInputChange('gravedad', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm font-bold">
+                              <option value="Leve">Leve (Primeros auxilios / Sin baja médica ILT)</option>
+                              <option value="Moderado">Moderado (Con baja médica corta &lt; 20 días)</option>
+                              <option value="Grave">Grave (Internación &gt; 24hs, fracturas, secuelas)</option>
+                              <option value="Mortal">Mortal (Fallecimiento en ocasión de trabajo)</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Razón Social / Empresa *</label>
+                            <input type="text" placeholder="Ej. Constructora del Plata SRL" value={formData.empresa} onChange={(e) => handleInputChange('empresa', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">C.U.I.T. Empresa</label>
+                            <input type="text" placeholder="30-XXXXXXXX-X" value={formData.cuitEmpresa} onChange={(e) => handleInputChange('cuitEmpresa', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
+                          </div>
+
+                          <div className="md:col-span-2">
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ubicación / Sector / Obra *</label>
+                            <input type="text" placeholder="Ej. Taller de Mantenimiento, Planta Zárate" value={formData.ubicacion} onChange={(e) => handleInputChange('ubicacion', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                           </div>
                         </div>
 
@@ -981,9 +1206,9 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                             </span>
                           </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
                             <div>
-                              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Horas Hombre Trabajadas (HHT Anual)</label>
+                              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Horas Hombre (HHT)</label>
                               <input
                                 type="number"
                                 value={formData.hhtTotal || '100000'}
@@ -993,7 +1218,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                             </div>
 
                             <div>
-                              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Días de Baja / ILT Estimados</label>
+                              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Días ILT (Baja)</label>
                               <input
                                 type="number"
                                 value={formData.diasIltEstimados || '0'}
@@ -1002,21 +1227,36 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                               />
                             </div>
 
+                            <div>
+                              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Dotación Expuesta</label>
+                              <input
+                                type="number"
+                                value={formData.dotacionExpuesta || '25'}
+                                onChange={(e) => handleInputChange('dotacionExpuesta', e.target.value)}
+                                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
+                              />
+                            </div>
+
                             <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-emerald-200 dark:border-emerald-800 flex flex-col justify-center text-xs">
                               {(() => {
                                 const hht = parseFloat(formData.hhtTotal) || 100000;
                                 const ilt = parseFloat(formData.diasIltEstimados) || 0;
-                                const ifVal = ((1 * 1000000) / hht).toFixed(2);
-                                const igVal = ((ilt * 1000000) / hht).toFixed(2);
+                                const dot = parseFloat(formData.dotacionExpuesta) || 25;
+                                const accCount = (formData.gravedad === 'Leve' && ilt === 0) ? 0 : 1;
+                                const rates = calculateSiniestralityRates(accCount, ilt, hht, dot);
                                 return (
                                   <div className="space-y-1">
                                     <div className="flex justify-between">
-                                      <span className="text-slate-500 font-bold">Índice Frecuencia (IF):</span>
-                                      <span className="font-black text-emerald-600 dark:text-emerald-400">{ifVal}</span>
+                                      <span className="text-slate-500 font-bold">IF (Frecuencia):</span>
+                                      <span className="font-black text-emerald-600 dark:text-emerald-400">{rates.indiceFrecuencia}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                      <span className="text-slate-500 font-bold">Índice Gravedad (IG):</span>
-                                      <span className="font-black text-blue-600 dark:text-blue-400">{igVal}</span>
+                                      <span className="text-slate-500 font-bold">IG (Gravedad):</span>
+                                      <span className="font-black text-blue-600 dark:text-blue-400">{rates.indiceGravedad}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-slate-500 font-bold">II (Incidencia):</span>
+                                      <span className="font-black text-purple-600 dark:text-purple-400">{rates.indiceIncidencia} ‰</span>
                                     </div>
                                   </div>
                                 );
@@ -1046,44 +1286,94 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                           <input type="text" placeholder="Ej. 2 años" value={formData.victimaAntiguedad} onChange={(e) => handleInputChange('victimaAntiguedad', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mecanismo del Siniestro (Res. SRT 7/2026)</label>
-                          <select value={formData.mecanismoAccidente} onChange={(e) => handleInputChange('mecanismoAccidente', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm">
-                            <option value="">Seleccionar mecanismo...</option>
-                            <option value="Contacto con objeto cortante en movimiento">Contacto con objeto cortante / herramienta en movimiento</option>
-                            <option value="Atrapamiento en máquinas o equipos">Atrapamiento por/entre partes móviles de máquinas</option>
-                            <option value="Caída a distinto nivel">Caída de altura / a distinto nivel</option>
-                            <option value="Caída al mismo nivel">Caída al mismo nivel / resbalón / tropiezo</option>
-                            <option value="Golpe por objeto caído o en movimiento">Golpe por objeto o herramienta en movimiento</option>
-                            <option value="Contacto eléctrico directo / indirecto">Contacto eléctrico / Arco eléctrico</option>
-                            <option value="Sobreesfuerzo ergonómico / Levantamiento manual">Sobreesfuerzo ergonómico / Levantamiento manual de carga (Res. 886/15)</option>
-                            <option value="Exposición o contacto con sustancias químicas">Exposición / Contacto con agente químico o tóxico</option>
-                            <option value="Quemadura térmica o por fricción">Quemadura térmica o por fricción</option>
+                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Forma del Accidente (SRT / OIT)</label>
+                          <select 
+                            value={formData.formaAccidente || formData.mecanismoAccidente || ''} 
+                            onChange={(e) => {
+                              handleInputChange('formaAccidente', e.target.value);
+                              handleInputChange('mecanismoAccidente', e.target.value);
+                            }} 
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm font-semibold"
+                          >
+                            <option value="">Seleccionar forma según tabla SRT...</option>
+                            {OFFICIAL_ACCIDENT_REGULATORY_CRITERIA.formasAccidenteSRT.map((fa, idx) => (
+                              <option key={idx} value={fa}>{fa}</option>
+                            ))}
                           </select>
                         </div>
+
                         <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Parte del Cuerpo Afectada (Normalizada)</label>
-                          <select value={formData.parteCuerpoEspecifica} onChange={(e) => handleInputChange('parteCuerpoEspecifica', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm">
+                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Agente Material Causante (SRT / OIT)</label>
+                          <select 
+                            value={formData.agenteMaterial || ''} 
+                            onChange={(e) => handleInputChange('agenteMaterial', e.target.value)} 
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm font-semibold"
+                          >
+                            <option value="">Seleccionar agente material SRT...</option>
+                            {OFFICIAL_ACCIDENT_REGULATORY_CRITERIA.agentesMaterialesSRT.map((am, idx) => (
+                              <option key={idx} value={am}>{am}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Parte Anatómica Afectada (Normalizada SRT)</label>
+                          <select 
+                            value={formData.parteCuerpoEspecifica || formData.parteCuerpo || ''} 
+                            onChange={(e) => {
+                              handleInputChange('parteCuerpoEspecifica', e.target.value);
+                              handleInputChange('parteCuerpo', e.target.value);
+                            }} 
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm font-semibold"
+                          >
                             <option value="">Seleccionar región corporal...</option>
-                            <option value="Cabeza / Rostro">Cabeza / Cráneo / Rostro</option>
-                            <option value="Ojos / Visión">Ojos / Visión</option>
-                            <option value="Cuello / Cervical">Cuello / Columna Cervical</option>
-                            <option value="Columna Lumbar / Espalda">Columna Lumbar / Dorsal / Espalda</option>
-                            <option value="Miembro Superior Izquierdo">Miembro Superior Izquierdo (Hombro / Brazo / Codo)</option>
-                            <option value="Miembro Superior Derecho">Miembro Superior Derecho (Hombro / Brazo / Codo)</option>
-                            <option value="Mano / Dedos">Mano / Muñeca / Dedos</option>
-                            <option value="Tórax / Abdomen">Tórax / Abdomen / Pelvis</option>
-                            <option value="Miembro Inferior Izquierdo">Miembro Inferior Izquierdo (Muslo / Rodilla / Tobillo)</option>
-                            <option value="Miembro Inferior Derecho">Miembro Inferior Derecho (Muslo / Rodilla / Tobillo)</option>
-                            <option value="Pie / Dedos Pie">Pie / Dedos del Pie</option>
+                            {OFFICIAL_ACCIDENT_REGULATORY_CRITERIA.partesCuerpoSRT.map((ua, idx) => (
+                              <option key={idx} value={ua}>{ua}</option>
+                            ))}
                           </select>
                         </div>
+
                         <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tipo de Lesión Diagnóstica</label>
-                          <input type="text" placeholder="Ej. Corte profundo, contusión, fractura..." value={formData.lesion} onChange={(e) => handleInputChange('lesion', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
+                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Naturaleza de la Lesión Clínica (SRT)</label>
+                          <select 
+                            value={formData.lesion || ''} 
+                            onChange={(e) => handleInputChange('lesion', e.target.value)} 
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm font-semibold"
+                          >
+                            <option value="">Seleccionar naturaleza diagnóstica...</option>
+                            {OFFICIAL_ACCIDENT_REGULATORY_CRITERIA.naturalezaLesionesSRT.map((nl, idx) => (
+                              <option key={idx} value={nl}>{nl}</option>
+                            ))}
+                          </select>
                         </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Detalle de Ubicación Anatómica</label>
-                          <input type="text" placeholder="Ej. Mano derecha, falange distal índice" value={formData.parteCuerpo} onChange={(e) => handleInputChange('parteCuerpo', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
+
+                        {/* Verificaciones Médico-Laborales Legales */}
+                        <div className="md:col-span-2 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <label className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={formData.aptoMedicoVigente !== false}
+                              onChange={(e) => handleInputChange('aptoMedicoVigente', e.target.checked)}
+                              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                            />
+                            <div>
+                              <span className="block text-xs font-black text-slate-800 dark:text-slate-200">Apto Médico Ocupacional Vigente</span>
+                              <span className="text-[11px] text-slate-500">Exámenes periódicos según Res. SRT 37/10</span>
+                            </div>
+                          </label>
+
+                          <label className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={formData.capacitadoEnRiesgo !== false}
+                              onChange={(e) => handleInputChange('capacitadoEnRiesgo', e.target.checked)}
+                              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                            />
+                            <div>
+                              <span className="block text-xs font-black text-slate-800 dark:text-slate-200">Capacitado en el Riesgo Específico</span>
+                              <span className="text-[11px] text-slate-500">Constancia firmada de inducción / POE</span>
+                            </div>
+                          </label>
                         </div>
                       </div>
                     )}
@@ -1329,7 +1619,21 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                                         <input type="text" placeholder="Ej. Instalar guardas fijas, dar capacitación" value={m.accion} onChange={(e) => handleArrayChange('medidas', i, 'accion', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
                                     </div>
 
-                                    <div className="grid grid-template-columns-[1fr_1fr] gap-[1rem]">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Jerarquía de Control (SRT)</label>
+                                            <select
+                                                value={m.jerarquia || 'ingenieria'}
+                                                onChange={(e) => handleArrayChange('medidas', i, 'jerarquia', e.target.value)}
+                                                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm font-semibold"
+                                            >
+                                                <option value="eliminacion">1. Eliminación del Peligro</option>
+                                                <option value="sustitucion">2. Sustitución</option>
+                                                <option value="ingenieria">3. Controles de Ingeniería / Guardas</option>
+                                                <option value="administrativo">4. Procedimiento / Administrativo</option>
+                                                <option value="epp">5. EPP Certificado (Res. 299/11)</option>
+                                            </select>
+                                        </div>
                                         <div>
                                             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Responsable</label>
                                             <input type="text" placeholder="Ej. Jefe de Mantenimiento" value={m.responsable} onChange={(e) => handleArrayChange('medidas', i, 'responsable', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-900 dark:text-white text-sm" />
@@ -1343,7 +1647,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
             )}
 
                             <div className="flex flex-col sm:flex-row gap-3 mt-2">
-                                <button type="button" className="btn-outline hover-lift p-[0.8rem] text-[0.85rem] flex-1 justify-center rounded-[12px]" onClick={() => addArrayItem('medidas', { accion: '', responsable: '', fechaLimite: '' })}>
+                                <button type="button" className="btn-outline hover-lift p-[0.8rem] text-[0.85rem] flex-1 justify-center rounded-[12px]" onClick={() => addArrayItem('medidas', { accion: '', jerarquia: 'ingenieria', responsable: '', fechaLimite: '' })}>
                                     <Plus size={16} /> Añadir otra Medida
                                 </button>
                                 <button type="button" style={{ background: 'linear-gradient(135deg, #059669, #10b981)', color: '#fff', border: 'none', fontWeight: 800, cursor: 'pointer', padding: '0.8rem 1.2rem', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 4px 12px rgba(16,185,129,0.3)' }} onClick={() => {

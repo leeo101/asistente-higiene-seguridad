@@ -1,628 +1,1011 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, FlaskConical, Shield, AlertTriangle, Printer, Share2, Pencil, CheckCircle2, Building2, Package } from 'lucide-react';
+import {
+  ArrowLeft, Save, FlaskConical, Shield, AlertTriangle, Printer, Share2,
+  CheckCircle2, Building2, Package, Sparkles, Loader2, RefreshCw, ChevronLeft, ChevronRight,
+  MapPin, Activity, HelpCircle
+} from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import ChemicalSafetyPdf from '../components/ChemicalSafetyPdf';
-import PdfSignatures from '../components/PdfSignatures';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
-import PdfBrandingFooter from '../components/PdfBrandingFooter';
-import PremiumHeader from '../components/PremiumHeader';
-import AnimatedPage from '../components/AnimatedPage';
+import {
+  ModuleFormLayout,
+  ModuleFormToolbar,
+  ModuleFormDocument,
+  ModuleFormSection,
+} from '../components/module';
+import {
+  COMMON_CHEMICAL_SUBSTANCES,
+  evaluateChemicalAgentExposure
+} from '../utils/srtProtocols';
+import { API_BASE_URL } from '../config';
+import { auth } from '../firebase';
+import type { ChemicalAgentAssessment, CarcinogenicityClassification, GHSWordSignal } from '../types/chemical';
 
-const GHS_PICTOGRAMS = {
-  explosive: { icon: '🧨', name: 'Explosivo', color: '#dc2626' },
-  flammable: { icon: '🔥', name: 'Inflamable', color: '#dc2626' },
-  oxidizing: { icon: '🔥', name: 'Comburente', color: '#dc2626' },
-  corrosive: { icon: '🧪', name: 'Corrosivo', color: '#dc2626' },
-  toxic: { icon: '💀', name: 'Tóxico', color: '#dc2626' },
-  harmful: { icon: '⚠️', name: 'Nocivo', color: '#f59e0b' },
-  irritant: { icon: '⚠️', name: 'Irritante', color: '#f59e0b' },
-  sensitizing: { icon: '🫁', name: 'Sensibilizante', color: '#f59e0b' },
-  carcinogenic: { icon: '🫁', name: 'Carcinógeno', color: '#dc2626' },
-  environmental: { icon: '🌊', name: 'Peligro Ambiente', color: '#16a34a' },
-  pressure: { icon: '📦', name: 'Gas a Presión', color: '#dc2626' }
-};
-
-const HAZARD_CATEGORIES = [
-  { id: 'fisico', name: 'Peligro Físico', icon: '🔥' },
-  { id: 'salud', name: 'Peligro para la Salud', icon: '🏥' },
-  { id: 'ambiental', name: 'Peligro Ambiental', icon: '🌍' }
+const GHS_PICTOGRAMS_OPTIONS = [
+  { id: 'explosive', code: 'GHS01', name: 'Explosivo', icon: '🧨' },
+  { id: 'flammable', code: 'GHS02', name: 'Inflamable', icon: '🔥' },
+  { id: 'oxidizing', code: 'GHS03', name: 'Comburente', icon: '⭕' },
+  { id: 'pressure', code: 'GHS04', name: 'Gas a Presión', icon: '🍾' },
+  { id: 'corrosive', code: 'GHS05', name: 'Corrosivo', icon: '🧪' },
+  { id: 'toxic', code: 'GHS06', name: 'Toxicidad Aguda', icon: '☠️' },
+  { id: 'harmful', code: 'GHS07', name: 'Nocivo / Irritante', icon: '⚠️' },
+  { id: 'carcinogenic', code: 'GHS08', name: 'Peligro Salud / Carcinógeno', icon: '🗣️' },
+  { id: 'environmental', code: 'GHS09', name: 'Peligro Ambiente', icon: '🐟' }
 ];
 
 export default function ChemicalSafetyForm(): React.ReactElement | null {
   const { requirePro } = usePaywall();
   const navigate = useNavigate();
   const location = useLocation();
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [isEdit, setIsEdit] = useState(false);
+  const editData = location.state?.editData;
+  const isEdit = Boolean(editData);
 
-  useDocumentTitle(isEdit ? 'Editar Producto Químico' : 'Nuevo Producto Químico');
+  useDocumentTitle(isEdit ? 'Editar Protocolo de Sustancia Química' : 'Nuevo Protocolo Químico');
 
-  const [chemical, setChemical] = useState<any>({
-    name: '',
-    casNumber: '',
-    unNumber: '',
-    category: 'fisico',
-    hazards: [],
-    pictograms: [],
-    storage: '',
-    location: '',
-    quantity: '',
-    unit: 'L',
-    supplier: '',
-    sdsDate: '',
-    expiryDate: '',
-    hazardStatements: [],
-    precautionaryStatements: [],
-    ppe: {
-      gloves: false,
-      mask: false,
-      goggles: false,
-      apron: false
-    },
-    firstAid: {
-      inhalation: '',
-      skin: '',
-      eyes: '',
-      ingestion: ''
-    },
-    signature: '',
-    operatorSignature: '',
-    supervisorSignature: '',
-    professionalSignature: '',
-    showSignatures: { operator: true, professional: true, supervisor: true }
-  });
-
-  const [professional, setProfessional] = useState<any>({
-    name: '',
-    license: '',
-    signature: null,
-    stamp: null
-  });
-
-  const setShowSignatures = (updater: any) => {
-    setChemical((prev: any) => {
-      const currentObj = (prev && typeof prev.showSignatures === 'object' && prev.showSignatures !== null)
-        ? prev.showSignatures
-        : { operator: true, professional: true, supervisor: true };
-      const updated = typeof updater === 'function' ? updater(currentObj) : updater;
-      return { ...prev, showSignatures: updated };
-    });
-  };
-
-  const showSignatures = (chemical && typeof chemical.showSignatures === 'object' && chemical.showSignatures !== null)
-    ? chemical.showSignatures
-    : { operator: true, professional: true, supervisor: true };
-
-  useEffect(() => {
-    try {
-      const savedData = localStorage.getItem('personalData');
-      const savedSigData = localStorage.getItem('signatureStampData');
-      const legacySignature = localStorage.getItem('capturedSignature');
-
-      let signature = legacySignature || null;
-      let stamp = null;
-      if (savedSigData) {
-        const parsed = JSON.parse(savedSigData);
-        signature = parsed?.signature || signature;
-        stamp = parsed?.stamp || null;
-      }
-
-      if (savedData) {
-        const data = JSON.parse(savedData);
-        setProfessional({
-          name: data?.name || '',
-          license: data?.license || '',
-          signature: signature,
-          stamp: stamp
-        });
-      } else {
-        setProfessional((prev: any) => ({ ...prev, signature, stamp }));
-      }
-    } catch (e) {
-      console.error('Error al cargar datos profesionales:', e);
-    }
-  }, []);
+  const [step, setStep] = useState(1);
+  const [profile, setProfile] = useState<any>(null);
+  const [signature, setSignature] = useState<any>(null);
+  const [isGeneratingConclusion, setIsGeneratingConclusion] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    if (location.state?.editData) {
-      const editData = location.state.editData;
-      setChemical({
-        ...editData,
-        showSignatures: editData.showSignatures || { operator: true, professional: true, supervisor: true }
-      });
-      setIsEdit(true);
-    }
-  }, [location.state]);
-
-  const handleSave = () => {
-    if (!chemical.name.trim()) {
-      toast.error('Por favor complete el Nombre del Producto');
-      return;
+    const savedProfile = localStorage.getItem('personalData');
+    if (savedProfile) {
+      try {
+        setProfile(JSON.parse(savedProfile));
+      } catch (e) {}
     }
 
-    try {
-      const saved = JSON.parse(localStorage.getItem('chemical_safety_db') || '[]');
-      let updated;
-
-      const entryToSave = {
-        ...chemical,
-        professionalSignature: chemical.professionalSignature || professional.signature,
-        professionalName: chemical.professionalName || professional.name,
-        professionalLicense: chemical.professionalLicense || professional.license,
-        professionalStamp: chemical.professionalStamp || professional.stamp,
-        updatedAt: new Date().toISOString()
-      };
-
-      if (isEdit) {
-        updated = saved.map((c: any) => (c.id === chemical.id ? entryToSave : c));
-        toast.success('Ficha actualizada correctamente');
-      } else {
-        const newEntry = {
-          ...entryToSave,
-          id: `CHEM-${Date.now()}`,
-          createdAt: new Date().toISOString()
-        };
-        updated = [newEntry, ...saved];
-        toast.success('Ficha guardada correctamente');
-      }
-
-      localStorage.setItem('chemical_safety_db', JSON.stringify(updated));
-      navigate('/chemical-safety');
-    } catch (e) {
-      console.error('Error al guardar producto químico:', e);
-      toast.error('Error al guardar el producto');
+    const sig = localStorage.getItem('signatureStampData');
+    if (sig) {
+      try {
+        setSignature(JSON.parse(sig));
+      } catch (e) {}
     }
+  }, []);
+
+  const [formData, setFormData] = useState<any>(() => {
+    if (editData) return editData;
+
+    const savedProfile = localStorage.getItem('personalData');
+    let defaultEmpresa = '';
+    let defaultCuit = '';
+    if (savedProfile) {
+      try {
+        const p = JSON.parse(savedProfile);
+        defaultEmpresa = p.companyName || p.empresa || '';
+        defaultCuit = p.cuit || '';
+      } catch (e) {}
+    }
+
+    return {
+      cuit: defaultCuit,
+      empresa: defaultEmpresa,
+      art: '',
+      sector: '',
+      puesto: '',
+      fechaMuestreo: new Date().toISOString().split('T')[0],
+      name: 'Tolueno (Metilbenceno)',
+      nombreComercial: '',
+      casNumber: '108-88-3',
+      unNumber: '1294',
+      supplier: '',
+      estadoFisico: 'Líquido',
+      storage: 'Armario ignífugo bajo llave',
+      location: 'Depósito Químico',
+      signalWord: 'PELIGRO' as GHSWordSignal,
+      pictograms: ['flammable', 'harmful', 'carcinogenic'],
+      hazardStatements: ['H225: Líquido y vapores muy inflamables', 'H304: Puede ser mortal en caso de ingestión'],
+      precautionaryStatements: ['P210: Mantener alejado de fuentes de calor y chispas', 'P280: Llevar guantes y protección ocular'],
+      nfpa704: {
+        health: 2,
+        flammability: 3,
+        instability: 0,
+        special: ''
+      },
+      unidadMedicion: 'ppm',
+      cmp: 50,
+      cmpCpt: 0,
+      cmpC: 0,
+      viaDermica: true,
+      sensibilizante: false,
+      carcinogenicidad: 'A4 (No clasificable en humanos)' as CarcinogenicityClassification,
+      bei: 'Ácido hipúrico en orina (1.6 g/g creatinina al final del turno)',
+      concentracionMedida: 22,
+      duracionMuestreoMinutos: 480,
+      metodoMuestreo: 'Muestreo con tubo de carbón activo y desorción por cromatografía gaseosa (NIOSH 1501)',
+      instrumento: 'Bomba gravimétrica personal calibrada',
+      ppe: {
+        gloves: true,
+        mask: true,
+        goggles: true,
+        apron: false,
+        especificaciones: 'Guantes de nitrilo resistente, semimáscara con filtro para vapores orgánicos (A1).'
+      },
+      firstAid: {
+        inhalation: 'Trasladar al aire libre inmediatamente. Suministrar oxígeno si hay disnea.',
+        skin: 'Retirar ropa contaminada y lavar profusamente con agua y jabón 15 minutos.',
+        eyes: 'Lavar con abundante agua durante 15 minutos manteniendo los párpados separados.',
+        ingestion: 'NO provocar el vómito. Requerir asistencia médica urgente.'
+      },
+      conclusiones: '',
+      recomendaciones: '',
+      operatorSignature: '',
+      supervisorSignature: '',
+      showSignatures: { operator: true, supervisor: true, professional: true }
+    };
+  });
+
+  // Cálculo higiénico en vivo
+  const liveExposure = evaluateChemicalAgentExposure({
+    cmp: Number(formData.cmp || 0),
+    concentracionMedida: Number(formData.concentracionMedida || 0),
+    unidadMedicion: formData.unidadMedicion,
+    viaDermica: formData.viaDermica,
+    carcinogenicidad: formData.carcinogenicidad,
+    bei: formData.bei
+  });
+
+  // Selección rápida de sustancia precargada
+  const handleSelectPreloadedSubstance = (substanceId: string) => {
+    const found = COMMON_CHEMICAL_SUBSTANCES.find(s => s.id === substanceId);
+    if (!found) return;
+
+    setFormData((prev: any) => ({
+      ...prev,
+      name: found.nombreQuimico,
+      nombreComercial: found.nombreComercial || prev.nombreComercial,
+      casNumber: found.casNumber,
+      unNumber: found.unNumber || prev.unNumber,
+      cmp: prev.unidadMedicion === 'ppm' ? (found.cmpPpm ?? found.cmpMgM3) : (found.cmpMgM3 ?? found.cmpPpm),
+      cmpCpt: prev.unidadMedicion === 'ppm' ? (found.cmpCptPpm ?? 0) : (found.cmpCptMgM3 ?? 0),
+      viaDermica: found.viaDermica,
+      sensibilizante: found.sensibilizante,
+      carcinogenicidad: found.carcinogenicidad,
+      bei: found.bei || ''
+    }));
+
+    toast.success(`Datos de ${found.nombreQuimico} cargados según Res. MTEySS 295/03`);
   };
 
-  const togglePictogram = (pictoKey: string) => {
-    const current = chemical.pictograms || [];
-    const updated = current.includes(pictoKey)
-      ? current.filter((p: string) => p !== pictoKey)
-      : [...current, pictoKey];
-    setChemical({ ...chemical, pictograms: updated });
+  const handleNext = () => setStep(step + 1);
+  const handleBack = () => setStep(step - 1);
+
+  const handlePrint = () => {
+    requirePro(() => {
+      const element = document.getElementById('pdf-content');
+      if (!element) {
+        toast.error('No se pudo generar el documento para imprimir.');
+        return;
+      }
+      document.body.classList.add('printing-isolated');
+      element.classList.add('isolated-print-target');
+
+      const cleanup = () => {
+        document.body.classList.remove('printing-isolated');
+        element.classList.remove('isolated-print-target');
+        window.removeEventListener('afterprint', cleanup);
+        window.removeEventListener('focus', cleanup);
+      };
+
+      window.addEventListener('afterprint', cleanup);
+      window.addEventListener('focus', cleanup);
+      setTimeout(cleanup, 1500);
+      window.print();
+    });
+  };
+
+  const handleSave = () => {
+    const id = editData?.id || Date.now().toString();
+    const history = JSON.parse(localStorage.getItem('chemical_safety_db') || '[]');
+
+    const finalReport = {
+      ...formData,
+      id,
+      indiceExposicion: liveExposure.indiceExposicion,
+      dictamenExposicion: liveExposure.dictamenExposicion,
+      conclusiones: formData.conclusiones || liveExposure.recomendacionesTecnicas.join('\n\n'),
+      recomendaciones: formData.recomendaciones || liveExposure.recomendacionesTecnicas.slice(1).join('\n')
+    };
+
+    let updatedHistory;
+    if (editData) {
+      updatedHistory = history.map((item: any) => (item.id === editData.id ? finalReport : item));
+    } else {
+      updatedHistory = [finalReport, ...history];
+    }
+
+    localStorage.setItem('chemical_safety_db', JSON.stringify(updatedHistory));
+    toast.success(editData ? 'Sustancia actualizada con éxito' : 'Sustancia registrada con éxito');
+    navigate('/chemical-safety');
+  };
+
+  const handleGenerateConclusion = async () => {
+    setIsGeneratingConclusion(true);
+    const loadingToast = toast.loading('Redactando dictamen higiénico con IA...');
+    try {
+      const token = await auth.currentUser?.getIdToken(true);
+      const res = await fetch(`${API_BASE_URL}/api/ai-report-conclusion`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({
+          reportType: 'Estudio de Contaminantes Químicos Res MTEySS 295/03 Anexo IV',
+          reportData: {
+            empresa: formData.empresa,
+            cuit: formData.cuit,
+            sector: formData.sector,
+            puesto: formData.puesto,
+            sustancia: formData.name,
+            cas: formData.casNumber,
+            cmp: formData.cmp,
+            concentracionMedida: formData.concentracionMedida,
+            unidad: formData.unidadMedicion,
+            indiceExposicion: liveExposure.indiceExposicion,
+            dictamen: liveExposure.dictamenExposicion,
+            viaDermica: formData.viaDermica,
+            carcinogenicidad: formData.carcinogenicidad
+          }
+        })
+      });
+
+      if (!res.ok) throw new Error('Error de conexión con la IA');
+      const data = await res.json();
+      setFormData((prev: any) => ({
+        ...prev,
+        conclusiones: data.conclusion || prev.conclusiones,
+        recomendaciones: data.conclusion || prev.recomendaciones
+      }));
+      toast.success('Dictamen redactado con éxito ✨', { id: loadingToast });
+    } catch (e) {
+      // Fallback local determinístico según normativa
+      setFormData((prev: any) => ({
+        ...prev,
+        conclusiones: liveExposure.recomendacionesTecnicas.join('\n\n'),
+        recomendaciones: liveExposure.recomendacionesTecnicas.slice(1).join('\n')
+      }));
+      toast.success('Dictamen normativo generado localmente.', { id: loadingToast });
+    } finally {
+      setIsGeneratingConclusion(false);
+    }
   };
 
   return (
-    <AnimatedPage>
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-4 pb-28 px-3 sm:px-6 lg:px-8 text-slate-900 dark:text-slate-100">
+    <ModuleFormLayout>
+      {/* Componente PDF fuera de pantalla para captura / impresión */}
+      <div className="ats-pdf-offscreen" aria-hidden="true">
+        <ChemicalSafetyPdf
+          data={{
+            ...formData,
+            indiceExposicion: liveExposure.indiceExposicion,
+            dictamenExposicion: liveExposure.dictamenExposicion
+          }}
+          professional={profile}
+        />
+      </div>
 
-        {/* Estilo estricto de impresión */}
-        <style type="text/css">
-          {`
-            @media print {
-              @page { size: A4 portrait; margin: 4mm; }
-              body { background: #ffffff !important; color: #0f172a !important; margin: 0 !important; padding: 0 !important; }
-              .screen-only, .no-print, header, nav, aside, .sidebar { display: none !important; }
-              .ats-pdf-offscreen {
-                position: static !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                height: auto !important;
-                opacity: 1 !important;
-                overflow: visible !important;
-              }
-              #pdf-portal-container {
-                display: block !important;
-                position: static !important;
-                left: 0 !important;
-                top: 0 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-              }
-            }
-          `}
-        </style>
+      <div className="pt-24 no-print" />
 
-        <div className="max-w-[1000px] mx-auto space-y-4 screen-only">
+      <ModuleFormToolbar
+        title={isEdit ? 'Editar Protocolo Químico' : 'Nuevo Protocolo de Seguridad Química'}
+        subtitle="Res. MTEySS 295/03 Anexo IV • Res. SRT 801/15 SGA"
+        icon={<FlaskConical size={36} color="#ffffff" />}
+        steps={['1. Establecimiento & Sustancia', '2. SGA & NFPA 704', '3. Límites Res. 295/03', '4. EPP & Dictamen']}
+        currentStep={step}
+        onStepClick={(s) => {
+          setStep(s);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onBack={() => navigate('/chemical-safety')}
+      />
 
-          {/* Modal de Compartir / Exportar PDF */}
-          <ShareModal
-            isOpen={showShareModal}
-            open={showShareModal}
-            onClose={() => setShowShareModal(false)}
-            elementIdToPrint="pdf-portal-container"
-            title="Ficha Técnica Química (SDS)"
-            text={`Ficha de Seguridad: ${chemical.name || 'Sustancia Quíimica'}`}
-            rawMessage={`Ficha de Seguridad: ${chemical.name || 'Sustancia Química'}`}
-            fileName={`Quimico_${chemical.name || 'Sin_Nombre'}.pdf`}
-          />
+      <div className="my-6 z-10 no-print" />
 
-          {/* Header Principal Limpio */}
-          <PremiumHeader
-            title={isEdit ? 'Editar Producto Químico' : 'Nuevo Producto Químico'}
-            subtitle="Ficha Técnica de Seguridad basada en el Sistema Globalmente Armonizado (SGA/GHS)"
-            icon={<FlaskConical size={32} color="#ffffff" />}
-          />
-
-          {/* Botón Volver Chiquito Arriba */}
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => navigate('/chemical-safety')}
-              style={{ backgroundColor: '#475569', color: '#ffffff', border: 'none', padding: '6px 14px', borderRadius: '8px', fontWeight: '800', fontSize: '11px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-            >
-              <ArrowLeft size={14} /> Volver al Historial
-            </button>
-          </div>
-
-          {/* Sección 1: Datos del Producto */}
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm space-y-3">
-            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
-              <FlaskConical size={18} className="text-indigo-600 dark:text-indigo-400" />
-              <h2 className="m-0 text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide">
-                1. Identificación del Producto
-              </h2>
+      <ModuleFormDocument>
+        {/* PASO 1: ESTABLECIMIENTO Y SUSTANCIA */}
+        {step === 1 && (
+          <ModuleFormSection title="I — Establecimiento y Sustancia Química" icon={<Building2 />}>
+            {/* Precarga de sustancias Res. 295/03 */}
+            <div className="p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-900 mb-6">
+              <span className="text-[0.7rem] font-black uppercase text-indigo-700 dark:text-indigo-300 block mb-2">
+                ⚡ Carga Rápida desde Catálogo Oficial Res. MTEySS 295/03:
+              </span>
+              <div className="flex gap-2 flex-wrap">
+                {COMMON_CHEMICAL_SUBSTANCES.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => handleSelectPreloadedSubstance(s.id)}
+                    className="px-3 py-1 bg-white dark:bg-slate-900 border border-indigo-300 dark:border-indigo-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 hover:bg-indigo-50 transition-colors cursor-pointer"
+                  >
+                    {s.nombreQuimico.split(' ')[0]}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="sm:col-span-3">
-                <label className="block mb-1 text-[11px] font-extrabold uppercase text-slate-700 dark:text-slate-300">
-                  Nombre Comercial / Químico *
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  Empresa / Razón Social *
                 </label>
                 <input
-                  type="text"
-                  value={chemical.name || ''}
-                  onChange={(e) => setChemical({ ...chemical, name: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all"
-                  placeholder="Ej: Acetona, Ácido Sulfúrico, Cloro..."
+                  className="module-form-input"
+                  value={formData.empresa}
+                  onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
+                  placeholder="Nombre de la empresa"
                 />
               </div>
 
               <div>
-                <label className="block mb-1 text-[11px] font-extrabold uppercase text-slate-700 dark:text-slate-300">
-                  Número CAS
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  C.U.I.T. N° *
                 </label>
                 <input
-                  type="text"
-                  value={chemical.casNumber || ''}
-                  onChange={(e) => setChemical({ ...chemical, casNumber: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  placeholder="Ej: 67-64-1"
+                  className="module-form-input font-mono"
+                  value={formData.cuit}
+                  onChange={(e) => setFormData({ ...formData, cuit: e.target.value })}
+                  placeholder="30-XXXXXXXX-X"
                 />
               </div>
 
               <div>
-                <label className="block mb-1 text-[11px] font-extrabold uppercase text-slate-700 dark:text-slate-300">
-                  Número UN
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  A.R.T. Contratada
                 </label>
                 <input
-                  type="text"
-                  value={chemical.unNumber || ''}
-                  onChange={(e) => setChemical({ ...chemical, unNumber: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  placeholder="Ej: UN1090"
+                  className="module-form-input"
+                  value={formData.art}
+                  onChange={(e) => setFormData({ ...formData, art: e.target.value })}
+                  placeholder="Aseguradora"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  Sector / Nave *
+                </label>
+                <input
+                  className="module-form-input"
+                  value={formData.sector}
+                  onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
+                  placeholder="Ej: Pintura, Laboratorio, Depósito"
                 />
               </div>
 
               <div>
-                <label className="block mb-1 text-[11px] font-extrabold uppercase text-slate-700 dark:text-slate-300">
-                  Categoría de Peligro
-                </label>
-                <select
-                  value={chemical.category || 'fisico'}
-                  onChange={(e) => setChemical({ ...chemical, category: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                >
-                  {HAZARD_CATEGORIES.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.icon} {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block mb-1 text-[11px] font-extrabold uppercase text-slate-700 dark:text-slate-300">
-                  Ubicación / Depósito
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  Puesto de Trabajo *
                 </label>
                 <input
-                  type="text"
-                  value={chemical.location || ''}
-                  onChange={(e) => setChemical({ ...chemical, location: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  placeholder="Ej: Almacén Inflamables"
+                  className="module-form-input"
+                  value={formData.puesto}
+                  onChange={(e) => setFormData({ ...formData, puesto: e.target.value })}
+                  placeholder="Ej: Operario de Cabina de Pintura"
                 />
               </div>
 
               <div>
-                <label className="block mb-1 text-[11px] font-extrabold uppercase text-slate-700 dark:text-slate-300">
-                  Cantidad en Stock
-                </label>
-                <div className="flex gap-1">
-                  <input
-                    type="text"
-                    value={chemical.quantity || ''}
-                    onChange={(e) => setChemical({ ...chemical, quantity: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                    placeholder="Ej: 100"
-                  />
-                  <select
-                    value={chemical.unit || 'L'}
-                    onChange={(e) => setChemical({ ...chemical, unit: e.target.value })}
-                    className="px-2 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs"
-                  >
-                    <option value="L">Litros (L)</option>
-                    <option value="kg">Kilos (kg)</option>
-                    <option value="m3">m³</option>
-                    <option value="unidades">Unid.</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block mb-1 text-[11px] font-extrabold uppercase text-slate-700 dark:text-slate-300">
-                  Proveedor
-                </label>
-                <input
-                  type="text"
-                  value={chemical.supplier || ''}
-                  onChange={(e) => setChemical({ ...chemical, supplier: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  placeholder="Nombre del proveedor"
-                />
-              </div>
-
-              <div>
-                <label className="block mb-1 text-[11px] font-extrabold uppercase text-slate-700 dark:text-slate-300">
-                  Fecha Vencimiento SDS
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  Fecha de Muestreo
                 </label>
                 <input
                   type="date"
-                  value={chemical.expiryDate || chemical.sdsDate || ''}
-                  onChange={(e) => setChemical({ ...chemical, expiryDate: e.target.value, sdsDate: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="module-form-input"
+                  value={formData.fechaMuestreo}
+                  onChange={(e) => setFormData({ ...formData, fechaMuestreo: e.target.value })}
                 />
               </div>
             </div>
-          </div>
 
-          {/* Sección 2: Pictogramas SGA */}
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm space-y-3">
-            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
-              <AlertTriangle size={18} className="text-red-600 dark:text-red-400" />
-              <h2 className="m-0 text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide">
-                2. Pictogramas SGA (Sistema Globalmente Armonizado)
-              </h2>
+            <div className="border-t border-slate-200 dark:border-slate-800 pt-6 mt-6">
+              <h4 className="text-sm font-black uppercase tracking-wider text-[var(--color-text)] mb-4">
+                Identificación de la Sustancia Química
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+                <div>
+                  <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                    Nombre Químico de la Sustancia *
+                  </label>
+                  <input
+                    className="module-form-input"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Ej: Tolueno"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                    Número CAS
+                  </label>
+                  <input
+                    className="module-form-input font-mono"
+                    value={formData.casNumber}
+                    onChange={(e) => setFormData({ ...formData, casNumber: e.target.value })}
+                    placeholder="Ej: 108-88-3"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                    Número ONU (UN)
+                  </label>
+                  <input
+                    className="module-form-input font-mono"
+                    value={formData.unNumber}
+                    onChange={(e) => setFormData({ ...formData, unNumber: e.target.value })}
+                    placeholder="Ej: 1294"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+                <div>
+                  <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                    Estado Físico en el Puesto
+                  </label>
+                  <select
+                    className="module-form-input"
+                    value={formData.estadoFisico}
+                    onChange={(e) => setFormData({ ...formData, estadoFisico: e.target.value })}
+                  >
+                    <option value="Líquido">Líquido</option>
+                    <option value="Vapor / Gas">Vapor / Gas</option>
+                    <option value="Polvo / Partículas">Polvo / Partículas</option>
+                    <option value="Aerosol / Niebla">Aerosol / Niebla</option>
+                    <option value="Sólido">Sólido</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                    Proveedor / Fabricante
+                  </label>
+                  <input
+                    className="module-form-input"
+                    value={formData.supplier}
+                    onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
+                    placeholder="Ej: Distribuidora Química S.A."
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                    Lugar de Almacenamiento
+                  </label>
+                  <input
+                    className="module-form-input"
+                    value={formData.storage}
+                    onChange={(e) => setFormData({ ...formData, storage: e.target.value })}
+                    placeholder="Ej: Depósito de Inflamables"
+                  />
+                </div>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2">
-              {Object.entries(GHS_PICTOGRAMS).map(([key, item]) => {
-                const isSelected = (chemical.pictograms || []).includes(key);
-                return (
+            <div className="flex justify-center w-full mt-6">
+              <button
+                type="button"
+                onClick={handleNext}
+                style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none' }}
+                className="px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm font-extrabold shadow-lg hover:opacity-90 transition-all cursor-pointer"
+              >
+                Continuar a SGA & NFPA <ChevronRight size={18} />
+              </button>
+            </div>
+          </ModuleFormSection>
+        )}
+
+        {/* PASO 2: SGA / GHS Y DIAMANTE NFPA 704 */}
+        {step === 2 && (
+          <ModuleFormSection title="II — Clasificación SGA (Res. SRT 801/15) & NFPA 704" icon={<Shield />}>
+            {/* Palabra de Advertencia */}
+            <div className="mb-6">
+              <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                Palabra de Advertencia Oficial (Res. SRT 801/15)
+              </label>
+              <div className="flex gap-4">
+                {(['PELIGRO', 'ATENCIÓN', 'SIN CLASIFICAR'] as GHSWordSignal[]).map((w) => (
                   <button
-                    key={key}
+                    key={w}
                     type="button"
-                    onClick={() => togglePictogram(key)}
-                    className={`p-3 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 ${
-                      isSelected
-                        ? 'bg-red-500/10 border-red-500 text-red-700 dark:text-red-300 ring-2 ring-red-500'
-                        : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100'
+                    onClick={() => setFormData({ ...formData, signalWord: w })}
+                    className={`px-4 py-2 rounded-xl text-xs font-black uppercase transition-all cursor-pointer ${
+                      formData.signalWord === w
+                        ? w === 'PELIGRO'
+                          ? 'bg-rose-600 text-white shadow-md'
+                          : w === 'ATENCIÓN'
+                          ? 'bg-amber-500 text-white shadow-md'
+                          : 'bg-slate-600 text-white'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                     }`}
                   >
-                    <span className="text-2xl">{item.icon}</span>
-                    <span className="text-[10px] font-extrabold uppercase block">{item.name}</span>
+                    {w}
                   </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Sección 3: Indicaciones Frases H y P */}
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm space-y-3">
-            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
-              <Shield size={18} className="text-amber-600 dark:text-amber-400" />
-              <h2 className="m-0 text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide">
-                3. Indicaciones de Peligro y Prudencia (Frases H & P)
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label className="block mb-1 text-[11px] font-extrabold uppercase text-red-700 dark:text-red-400">
-                  ⚠️ Indicaciones de Peligro (Frases H)
-                </label>
-                <textarea
-                  rows={3}
-                  value={
-                    Array.isArray(chemical.hazardStatements)
-                      ? chemical.hazardStatements.join(', ')
-                      : chemical.hazardStatements || chemical.riskPhrases || ''
-                  }
-                  onChange={(e) => setChemical({ ...chemical, hazardStatements: e.target.value })}
-                  className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-red-500"
-                  placeholder="Ej: H225 Líquido y vapores muy inflamables. H319 Provoca irritación ocular grave."
-                />
-              </div>
-
-              <div>
-                <label className="block mb-1 text-[11px] font-extrabold uppercase text-indigo-700 dark:text-indigo-400">
-                  🛡️ Consejos de Prudencia (Frases P)
-                </label>
-                <textarea
-                  rows={3}
-                  value={
-                    Array.isArray(chemical.precautionaryStatements)
-                      ? chemical.precautionaryStatements.join(', ')
-                      : chemical.precautionaryStatements || chemical.safetyPhrases || ''
-                  }
-                  onChange={(e) => setChemical({ ...chemical, precautionaryStatements: e.target.value })}
-                  className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  placeholder="Ej: P210 Mantener alejado del calor. P305 EN CASO DE CONTACTO CON LOS OJOS Aclarar cuidadosamente con agua."
-                />
+                ))}
               </div>
             </div>
-          </div>
 
-          {/* Sección 4: Firmas y Autorizaciones */}
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm space-y-4">
-            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
-              <Pencil size={18} className="text-purple-600 dark:text-purple-400" />
-              <h2 className="m-0 text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide">
-                4. Firmas y Autorizaciones del Reporte
-              </h2>
-            </div>
-
-            <div className="p-4 bg-slate-900 dark:bg-slate-950 rounded-2xl border border-slate-700 shadow-lg space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-black text-sm shadow-inner">
-                  ✍️
-                </div>
-                <div>
-                  <span className="text-amber-400 text-xs font-black uppercase tracking-wider block">
-                    Visibilidad de Bloques de Firma en el PDF
-                  </span>
-                  <span className="text-slate-400 text-[11px] font-medium block">
-                    Selecciona las firmas que deseas incluir en el documento imprimible
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex gap-2.5 flex-wrap pt-1">
-                {[
-                  { id: 'operator', label: 'Personal Afectado', color: '#2563eb', icon: '👤' },
-                  { id: 'professional', label: 'Especialista H&S', color: '#9333ea', icon: '🛡️' },
-                  { id: 'supervisor', label: 'Supervisión / Cierre', color: '#059669', icon: '📋' }
-                ].map((sig) => {
-                  const isChecked = !!showSignatures[sig.id as keyof typeof showSignatures];
+            {/* Pictogramas SGA */}
+            <div className="mb-8">
+              <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                Pictogramas de Peligro GHS/SGA Aplicables
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {GHS_PICTOGRAMS_OPTIONS.map((pic) => {
+                  const isSelected = (formData.pictograms || []).includes(pic.id);
                   return (
-                    <button
-                      type="button"
-                      key={sig.id}
-                      onClick={() => setShowSignatures((s: any) => ({ ...s, [sig.id]: !isChecked }))}
-                      style={{
-                        backgroundColor: isChecked ? sig.color : '#1e293b',
-                        color: '#ffffff',
-                        border: isChecked ? 'none' : '1px solid #334155',
-                        boxShadow: isChecked ? `0 4px 14px ${sig.color}60` : 'none',
-                        transform: isChecked ? 'scale(1.02)' : 'scale(1)'
+                    <div
+                      key={pic.id}
+                      onClick={() => {
+                        const current = formData.pictograms || [];
+                        const updated = isSelected
+                          ? current.filter((x: string) => x !== pic.id)
+                          : [...current, pic.id];
+                        setFormData({ ...formData, pictograms: updated });
                       }}
-                      className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-black cursor-pointer transition-all duration-200 hover:brightness-110 active:scale-95">
-                      <div style={{
-                        backgroundColor: isChecked ? 'rgba(255,255,255,0.25)' : '#0f172a',
-                        borderColor: isChecked ? 'transparent' : '#475569'
-                      }} className="w-5 h-5 rounded-md flex items-center justify-center border transition-all">
-                        {isChecked ? (
-                          <CheckCircle2 size={13} className="text-white" />
-                        ) : (
-                          <span className="text-[10px]">{sig.icon}</span>
-                        )}
+                      className="p-3 rounded-xl border-2 transition-all cursor-pointer flex items-center gap-2.5 select-none hover:shadow-sm"
+                      style={{
+                        background: isSelected ? 'rgba(239, 68, 68, 0.08)' : 'var(--color-surface)',
+                        borderColor: isSelected ? '#ef4444' : 'var(--color-border)'
+                      }}
+                    >
+                      <span className="text-xl">{pic.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-extrabold text-xs text-[var(--color-text)] block truncate">
+                          {pic.name}
+                        </span>
+                        <span className="text-[10px] font-mono font-bold text-rose-600">
+                          {pic.code}
+                        </span>
                       </div>
-                      <span>{sig.label}</span>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
             </div>
 
-            {/* Canvas de Dibujo de Firma */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {showSignatures.operator && (
-                <div className="bg-slate-50 dark:bg-slate-900/40 rounded-xl p-3 border border-slate-200 dark:border-slate-700 space-y-1">
-                  <div className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase">
-                    Firma Personal Afectado
-                  </div>
-                  <SignatureCanvas
-                    onSave={(sig) => setChemical((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
-                    initialImage={chemical.operatorSignature}
-                    label=""
-                  />
-                </div>
-              )}
+            {/* Diamante NFPA 704 Interactivo */}
+            <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 mb-8">
+              <h4 className="text-sm font-black uppercase tracking-wider text-[var(--color-text)] mb-4">
+                Diamante NFPA 704 (Identificación Rápida de Riesgo en Almacenamiento)
+              </h4>
 
-              {showSignatures.professional && (
-                <div className="bg-slate-50 dark:bg-slate-900/40 rounded-xl p-3 border border-slate-200 dark:border-slate-700 space-y-1">
-                  <div className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase">
-                    Firma Especialista H&S
-                  </div>
-                  <SignatureCanvas
-                    onSave={(sig) => setChemical((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
-                    initialImage={chemical.professionalSignature || professional?.signature}
-                    label=""
-                  />
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                <div>
+                  <label className="text-[0.7rem] font-[800] text-blue-600 uppercase tracking-wider block mb-2">
+                    Salud (Azul: 0 a 4)
+                  </label>
+                  <select
+                    className="module-form-input font-bold"
+                    value={formData.nfpa704?.health ?? 0}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      nfpa704: { ...formData.nfpa704, health: Number(e.target.value) }
+                    })}
+                  >
+                    <option value={0}>0 - Sin riesgo</option>
+                    <option value={1}>1 - Poco peligroso</option>
+                    <option value={2}>2 - Peligroso</option>
+                    <option value={3}>3 - Muy peligroso</option>
+                    <option value={4}>4 - Mortal</option>
+                  </select>
                 </div>
-              )}
 
-              {showSignatures.supervisor && (
-                <div className="bg-slate-50 dark:bg-slate-900/40 rounded-xl p-3 border border-slate-200 dark:border-slate-700 space-y-1">
-                  <div className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase">
-                    Firma Supervisor / Cierre
-                  </div>
-                  <SignatureCanvas
-                    onSave={(sig) => setChemical((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
-                    initialImage={chemical.supervisorSignature || chemical.signature}
-                    label=""
-                  />
+                <div>
+                  <label className="text-[0.7rem] font-[800] text-rose-600 uppercase tracking-wider block mb-2">
+                    Inflamabilidad (Rojo: 0 a 4)
+                  </label>
+                  <select
+                    className="module-form-input font-bold"
+                    value={formData.nfpa704?.flammability ?? 0}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      nfpa704: { ...formData.nfpa704, flammability: Number(e.target.value) }
+                    })}
+                  >
+                    <option value={0}>0 - No arde</option>
+                    <option value={1}>1 - Arde &gt; 93°C</option>
+                    <option value={2}>2 - Arde &lt; 93°C</option>
+                    <option value={3}>3 - Arde &lt; 37°C</option>
+                    <option value={4}>4 - Arde &lt; 23°C</option>
+                  </select>
                 </div>
-              )}
+
+                <div>
+                  <label className="text-[0.7rem] font-[800] text-amber-500 uppercase tracking-wider block mb-2">
+                    Inestabilidad (Amarillo: 0 a 4)
+                  </label>
+                  <select
+                    className="module-form-input font-bold"
+                    value={formData.nfpa704?.instability ?? 0}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      nfpa704: { ...formData.nfpa704, instability: Number(e.target.value) }
+                    })}
+                  >
+                    <option value={0}>0 - Estable</option>
+                    <option value={1}>1 - Inestable al calor</option>
+                    <option value={2}>2 - Cambio violento</option>
+                    <option value={3}>3 - Puede detonar</option>
+                    <option value={4}>4 - Detona fácil</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-[0.7rem] font-[800] text-slate-600 uppercase tracking-wider block mb-2">
+                    Riesgo Especial (Blanco)
+                  </label>
+                  <select
+                    className="module-form-input font-bold"
+                    value={formData.nfpa704?.special || ''}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      nfpa704: { ...formData.nfpa704, special: e.target.value }
+                    })}
+                  >
+                    <option value="">Ninguno</option>
+                    <option value="W">W (Reactivo con agua)</option>
+                    <option value="OX">OX (Comburente/Oxidante)</option>
+                    <option value="SA">SA (Gas asfixiante simple)</option>
+                    <option value="COR">COR (Corrosivo)</option>
+                  </select>
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Botones de Acción Chiquitos Únicamente al Pie */}
-          <div className="flex items-center justify-end gap-2 pt-2 pb-6">
-            <button
-              type="button"
-              onClick={() => requirePro(() => setShowShareModal(true))}
-              style={{ backgroundColor: '#7c3aed', color: '#ffffff', border: 'none', padding: '6px 12px', fontSize: '12px', fontWeight: '800', borderRadius: '8px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-            >
-              <Share2 size={13} /> Compartir
-            </button>
+            <div className="flex gap-4 flex-wrap justify-center w-full">
+              <button
+                type="button"
+                onClick={handleBack}
+                style={{ background: 'linear-gradient(135deg, #64748b, #475569)', color: 'white', border: 'none' }}
+                className="px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-extrabold text-sm shadow-lg hover:opacity-90 transition-all cursor-pointer"
+              >
+                <ChevronLeft size={18} /> Atrás
+              </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none' }}
+                className="px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-extrabold text-sm shadow-lg hover:opacity-90 transition-all cursor-pointer"
+              >
+                Continuar a Límites Res. 295/03 <ChevronRight size={18} />
+              </button>
+            </div>
+          </ModuleFormSection>
+        )}
 
-            <button
-              type="button"
-              onClick={() => requirePro(() => window.print())}
-              style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '6px 12px', fontSize: '12px', fontWeight: '800', borderRadius: '8px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-            >
-              <Printer size={13} /> PDF
-            </button>
+        {/* PASO 3: LÍMITES HIGIÉNICOS Y MONITOREO RES. 295/03 */}
+        {step === 3 && (
+          <ModuleFormSection title="III — Límites Higiénicos y Monitoreo Ambiental (Res. MTEySS 295/03 Anexo IV)" icon={<Activity />}>
+            {/* Panel de Métricas en Vivo */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+              <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900">
+                <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest block">
+                  Concentración Medida
+                </span>
+                <div className="text-3xl font-black text-blue-900 dark:text-blue-200">
+                  {formData.concentracionMedida} <span className="text-sm font-bold text-slate-500">{formData.unidadMedicion}</span>
+                </div>
+                <span className="text-[11px] text-slate-500 font-medium block">
+                  Monitoreo en el puesto
+                </span>
+              </div>
 
-            <button
-              type="button"
-              onClick={() => requirePro(handleSave)}
-              style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '6px 16px', fontSize: '12px', fontWeight: '800', borderRadius: '8px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-            >
-              <CheckCircle2 size={14} /> Guardar Ficha
-            </button>
-          </div>
+              <div className="p-4 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900">
+                <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest block">
+                  C.M.P. Normativo (8 Horas)
+                </span>
+                <div className="text-3xl font-black text-purple-900 dark:text-purple-200">
+                  {formData.cmp} <span className="text-sm font-bold text-slate-500">{formData.unidadMedicion}</span>
+                </div>
+                <span className="text-[11px] text-slate-500 font-medium block">
+                  Límite Permisible Res. 295/03
+                </span>
+              </div>
 
-        </div>
+              <div className={`p-4 rounded-2xl border ${
+                liveExposure.superaCMP ? 'bg-rose-50 border-rose-300 dark:bg-rose-950/30' :
+                liveExposure.alcanzaNivelAccion ? 'bg-amber-50 border-amber-300 dark:bg-amber-950/30' :
+                'bg-emerald-50 border-emerald-300 dark:bg-emerald-950/30'
+              }`}>
+                <span className="text-[10px] font-black uppercase tracking-widest block text-slate-600">
+                  Índice Exposición (IE)
+                </span>
+                <div className="text-3xl font-black text-slate-900 dark:text-white">
+                  IE = {liveExposure.indiceExposicion}
+                </div>
+                <span className="text-xs font-black uppercase block mt-1">
+                  {liveExposure.dictamenExposicion} ({liveExposure.porcentajeCMP}%)
+                </span>
+              </div>
+            </div>
 
-        {/* Portal Offscreen para PDF Vectorial (Compartir e Imprimir) */}
-        <div
-          id="pdf-portal-container"
-          className="ats-pdf-offscreen"
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            left: '-9999px',
-            top: '-99999px',
-            width: '210mm',
-            height: 'auto',
-            overflow: 'visible',
-            opacity: 1,
-            pointerEvents: 'none',
-            zIndex: -9999,
-            background: '#ffffff'
-          }}
-        >
-          <ChemicalSafetyPdf
-            data={{
-              ...chemical,
-              id: (chemical as any).id || Date.now().toString(),
-              createdAt: (chemical as any).createdAt || new Date().toISOString(),
-              professionalSignature: chemical.professionalSignature || professional?.signature,
-              professionalName: chemical.professionalName || professional?.name,
-              professionalLicense: chemical.professionalLicense || professional?.license,
-              professionalStamp: chemical.professionalStamp || professional?.stamp
-            }}
-          />
-        </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  Unidad de Medición *
+                </label>
+                <select
+                  className="module-form-input font-bold"
+                  value={formData.unidadMedicion}
+                  onChange={(e) => setFormData({ ...formData, unidadMedicion: e.target.value })}
+                >
+                  <option value="ppm">ppm (Partes por millón)</option>
+                  <option value="mg/m3">mg/m³ (Miligramos por metro cúbico)</option>
+                </select>
+              </div>
 
-      </div>
-    </AnimatedPage>
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  Concentración Máxima Permisible (CMP) *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.001"
+                  className="module-form-input font-bold"
+                  value={formData.cmp}
+                  onChange={(e) => setFormData({ ...formData, cmp: Number(e.target.value) })}
+                />
+              </div>
+
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  Concentración Ambiental Medida *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  className="module-form-input font-black"
+                  value={formData.concentracionMedida}
+                  onChange={(e) => setFormData({ ...formData, concentracionMedida: Number(e.target.value) })}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  CMP-CPT (Corto Período - 15 min)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  className="module-form-input"
+                  value={formData.cmpCpt || ''}
+                  onChange={(e) => setFormData({ ...formData, cmpCpt: Number(e.target.value) })}
+                  placeholder="Opcional"
+                />
+              </div>
+
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                  Carcinogenicidad (Res. 295/03)
+                </label>
+                <select
+                  className="module-form-input"
+                  value={formData.carcinogenicidad}
+                  onChange={(e) => setFormData({ ...formData, carcinogenicidad: e.target.value })}
+                >
+                  <option value="No clasificado">No clasificado</option>
+                  <option value="A1 (Carcinógeno humano confirmado)">A1 - Humano Confirmado</option>
+                  <option value="A2 (Sospechoso en humanos)">A2 - Sospechoso en Humanos</option>
+                  <option value="A3 (Animal confirmado)">A3 - Animal Confirmado</option>
+                  <option value="A4 (No clasificable en humanos)">A4 - No Clasificable</option>
+                  <option value="A5 (No sospechoso)">A5 - No Sospechoso</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col justify-end">
+                <label className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900 border rounded-xl cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 accent-rose-600 cursor-pointer"
+                    checked={formData.viaDermica}
+                    onChange={(e) => setFormData({ ...formData, viaDermica: e.target.checked })}
+                  />
+                  <div>
+                    <span className="text-xs font-black text-rose-600 block">Notación Vía Dérmica (Skin)</span>
+                    <span className="text-[10px] text-slate-500">Absorción importante por la piel</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                Índice Biológico de Exposición (BEI) Aplicable
+              </label>
+              <input
+                className="module-form-input"
+                value={formData.bei || ''}
+                onChange={(e) => setFormData({ ...formData, bei: e.target.value })}
+                placeholder="Ej: Ácido hipúrico en orina (1.6 g/g creatinina)"
+              />
+            </div>
+
+            <div className="flex gap-4 flex-wrap justify-center w-full mt-6">
+              <button
+                type="button"
+                onClick={handleBack}
+                style={{ background: 'linear-gradient(135deg, #64748b, #475569)', color: 'white', border: 'none' }}
+                className="px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-extrabold text-sm shadow-lg hover:opacity-90 transition-all cursor-pointer"
+              >
+                <ChevronLeft size={18} /> Atrás
+              </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none' }}
+                className="px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 font-extrabold text-sm shadow-lg hover:opacity-90 transition-all cursor-pointer"
+              >
+                Continuar a EPP y Firmas <ChevronRight size={18} />
+              </button>
+            </div>
+          </ModuleFormSection>
+        )}
+
+        {/* PASO 4: EPP, PRIMEROS AUXILIOS, DICTAMEN Y FIRMAS */}
+        {step === 4 && (
+          <ModuleFormSection title="IV — EPP, Primeros Auxilios y Dictamen Profesional" icon={<Shield />}>
+            {/* EPP */}
+            <div className="mb-6">
+              <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-2">
+                Elementos de Protección Personal Específicos
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { key: 'mask', label: 'Protección Respiratoria' },
+                  { key: 'gloves', label: 'Guantes Químicos' },
+                  { key: 'goggles', label: 'Gafas Herméticas' },
+                  { key: 'apron', label: 'Traje / Delantal Químico' }
+                ].map((item) => (
+                  <label
+                    key={item.key}
+                    className="flex items-center gap-2.5 p-3 rounded-xl border bg-slate-50 dark:bg-slate-900 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.ppe?.[item.key]}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        ppe: { ...formData.ppe, [item.key]: e.target.checked }
+                      })}
+                      className="accent-indigo-600 w-4 h-4"
+                    />
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{item.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Primeros Auxilios */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-1">
+                  En caso de Inhalación
+                </label>
+                <textarea
+                  rows={2}
+                  className="module-form-input text-xs"
+                  value={formData.firstAid?.inhalation}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    firstAid: { ...formData.firstAid, inhalation: e.target.value }
+                  })}
+                />
+              </div>
+
+              <div>
+                <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider block mb-1">
+                  En caso de Contacto con la Piel
+                </label>
+                <textarea
+                  rows={2}
+                  className="module-form-input text-xs"
+                  value={formData.firstAid?.skin}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    firstAid: { ...formData.firstAid, skin: e.target.value }
+                  })}
+                />
+              </div>
+            </div>
+
+            {/* Conclusiones y Dictamen */}
+            <div className="mb-8">
+              <div className="flex justify-between items-center mb-2 flex-wrap gap-2">
+                <label className="font-extrabold text-sm text-[var(--color-text)] m-0">
+                  Dictamen Higiénico y Recomendaciones (Res. MTEySS 295/03)
+                </label>
+                <button
+                  type="button"
+                  className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-bold text-xs flex items-center gap-1.5 shadow hover:opacity-90 cursor-pointer"
+                  onClick={handleGenerateConclusion}
+                  disabled={isGeneratingConclusion}
+                >
+                  {isGeneratingConclusion ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                  {isGeneratingConclusion ? 'REDACTANDO...' : 'REDACTAR CON IA'}
+                </button>
+              </div>
+              <textarea
+                rows={4}
+                className="module-form-input"
+                value={formData.conclusiones}
+                onChange={(e) => setFormData({ ...formData, conclusiones: e.target.value, recomendaciones: e.target.value })}
+                placeholder="Dictamen técnico del higienista, cumplimiento del CMP, adecuación de ventilación y medidas preventivas..."
+              />
+            </div>
+
+            {/* Firmas Digitales */}
+            <div className="mb-8">
+              <label className="font-extrabold text-sm text-[var(--color-text)] block mb-3">
+                Firmas y Validación Institucional
+              </label>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <div className="p-4 bg-slate-50 dark:bg-slate-900/40 border rounded-xl">
+                  <SignatureCanvas
+                    onSave={(sig) => setFormData((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                    initialImage={formData.operatorSignature}
+                    label="Firma del Operador / Trabajador"
+                  />
+                </div>
+                <div className="p-4 bg-slate-50 dark:bg-slate-900/40 border rounded-xl">
+                  <SignatureCanvas
+                    onSave={(sig) => setFormData((prev: any) => ({ ...prev, supervisorSignature: sig || '' }))}
+                    initialImage={formData.supervisorSignature}
+                    label="Firma del Supervisor / Empleador"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Barra de Acciones */}
+            <div className="flex flex-row gap-3 justify-between w-full mt-8 overflow-x-auto pb-2">
+              <button
+                type="button"
+                onClick={handleBack}
+                style={{ background: 'linear-gradient(135deg, #64748b, #475569)', color: 'white', border: 'none' }}
+                className="flex-1 min-w-[90px] px-3 py-2.5 rounded-xl flex items-center justify-center gap-1.5 font-extrabold text-xs shadow hover:opacity-90 cursor-pointer"
+              >
+                <ChevronLeft size={16} /> ATRÁS
+              </button>
+
+              <button
+                type="button"
+                onClick={() => requirePro(handleSave)}
+                style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none' }}
+                className="flex-1 min-w-[110px] px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 font-extrabold text-xs shadow-lg hover:opacity-90 cursor-pointer"
+              >
+                <Save size={16} /> GUARDAR SUSTANCIA
+              </button>
+
+              <button
+                type="button"
+                onClick={handlePrint}
+                style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: 'white', border: 'none' }}
+                className="flex-1 min-w-[100px] px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 font-extrabold text-xs shadow-lg hover:opacity-90 cursor-pointer"
+              >
+                <Printer size={16} /> IMPRIMIR PDF
+              </button>
+            </div>
+          </ModuleFormSection>
+        )}
+      </ModuleFormDocument>
+    </ModuleFormLayout>
   );
 }

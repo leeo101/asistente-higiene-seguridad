@@ -58,15 +58,18 @@ export interface ProtocolPhoto {
 
 export interface GroundingProtocol {
   id: string;
-  // Datos Generales de la Empresa
+  // Datos Generales de la Empresa / Establecimiento (Res. SRT 900/15 Anexo I)
   razonSocial: string;
   cuit: string;
+  artNombre?: string;
+  establecimiento?: string;
   direccion: string;
   localidad: string;
   provincia: string;
   actividadPrincipal: string;
+  tipoInstalacion?: 'Industrial' | 'Comercial' | 'Obra en Construcción (Dec. 911/96)' | 'Hospitalaria / Crítica';
   fechaMedicion: string;
-  fechaVencimiento: string; // 1 año desde la fecha de medición
+  fechaVencimiento: string; // 1 año desde la fecha de medición (Art. 3°)
 
   // Datos del Profesional actuante
   profesionalNombre: string;
@@ -89,6 +92,7 @@ export interface GroundingProtocol {
   potenciaContratadaKw?: string;
   transformadorPropio: boolean;
   estadoSuelo: SoilCondition;
+  tensionSeguridadContacto?: 24 | 50; // 24V ambientes húmedos/mojados, 50V locales secos (AEA 90364)
 
   // Tablas del Anexo I Res. SRT 900/15
   jabalinas: JabalinaMeasurement[];

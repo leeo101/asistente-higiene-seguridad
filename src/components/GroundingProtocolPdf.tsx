@@ -84,20 +84,34 @@ export default function GroundingProtocolPdf({ data }: Props): React.ReactElemen
               <ShieldAlert size={32} className="text-red-600 flex-shrink-0" />
             )}
             <div>
-              <div className="text-[11pt] font-black uppercase tracking-wide">
-                DICTAMEN TÉCNICO: {isConforme ? 'INSTALACIÓN CONFORME' : 'CON NO CONFORMIDADES / DESVÍOS'}
+              <div className="text-[11pt] font-black uppercase tracking-wide flex items-center gap-2">
+                <span>DICTAMEN: {evaluation.dictamenGeneral || (isConforme ? 'CONFORME' : 'NO CONFORME')}</span>
+                <span className={`text-[7pt] px-2 py-0.5 rounded font-bold uppercase ${
+                  isConforme ? 'bg-emerald-200 text-emerald-900' : 'bg-red-200 text-red-900'
+                }`}>
+                  {evaluation.estadoInstalacion || (isConforme ? 'Excelente' : 'Peligro Eléctrico')}
+                </span>
               </div>
-              <div className="text-[8pt] font-medium opacity-90">
+              <div className="text-[8pt] font-medium opacity-90 mt-0.5">
                 {isConforme
-                  ? 'Los valores de resistencia de puesta a tierra, continuidad de masas y dispositivos diferenciales cumplen las exigencias legales.'
-                  : 'Se detectaron parámetros fuera de los límites máximos permisibles de la Res. SRT 900/15. Requiere adecuaciones.'}
+                  ? 'Los valores de resistencia de puesta a tierra, continuidad de masas y dispositivos diferenciales cumplen las exigencias legales del Anexo I Res. SRT 900/15.'
+                  : 'Se detectaron parámetros fuera de los límites máximos permisibles de la Res. SRT 900/15 y AEA 90364. Requiere adecuaciones técnicas.'}
               </div>
             </div>
           </div>
-          <div className="text-right pl-4 border-l border-slate-300">
-            <div className="text-[7.5pt] font-bold uppercase text-slate-600">Promedio PAT</div>
-            <div className="text-[1.3rem] font-black">{evaluation.promedioResistenciaOhms} Ω</div>
-            <div className="text-[7pt] text-slate-500">Máx: {evaluation.maxResistenciaMedida} Ω</div>
+          <div className="text-right pl-4 border-l border-slate-300 flex items-center gap-4">
+            <div>
+              <div className="text-[7.5pt] font-bold uppercase text-slate-600">Promedio PAT</div>
+              <div className="text-[1.3rem] font-black">{evaluation.promedioResistenciaOhms} Ω</div>
+              <div className="text-[7pt] text-slate-500">Máx: {evaluation.maxResistenciaMedida} Ω</div>
+            </div>
+            <div>
+              <div className="text-[7.5pt] font-bold uppercase text-slate-600">Tensión Contacto Uc</div>
+              <div className={`text-[1.2rem] font-black ${evaluation.tensionContactoExcedida ? 'text-red-600' : 'text-slate-900'}`}>
+                {evaluation.tensionContactoPresuntaMaxVolts} V
+              </div>
+              <div className="text-[7pt] text-slate-500">Límite: {data.tensionSeguridadContacto || 50} V</div>
+            </div>
           </div>
         </div>
 
@@ -113,6 +127,12 @@ export default function GroundingProtocolPdf({ data }: Props): React.ReactElemen
               <span className="col-span-2 font-semibold text-slate-900">{data.razonSocial || '-'}</span>
               <span className="font-bold text-slate-600">CUIT:</span>
               <span className="col-span-2 font-semibold font-mono text-slate-900">{data.cuit || '-'}</span>
+              <span className="font-bold text-slate-600">Establecimiento:</span>
+              <span className="col-span-2 font-semibold text-slate-800">{data.establecimiento || 'Planta Principal'}</span>
+              <span className="font-bold text-slate-600">ART Afiliada:</span>
+              <span className="col-span-2 text-slate-800">{data.artNombre || 'No declarada'}</span>
+              <span className="font-bold text-slate-600">Tipo Instalación:</span>
+              <span className="col-span-2 font-semibold text-blue-800">{data.tipoInstalacion || 'Industrial'}</span>
               <span className="font-bold text-slate-600">Dirección:</span>
               <span className="col-span-2 text-slate-800">{data.direccion || '-'} ({data.localidad}, {data.provincia})</span>
               <span className="font-bold text-slate-600">Actividad:</span>
@@ -140,11 +160,17 @@ export default function GroundingProtocolPdf({ data }: Props): React.ReactElemen
                 {data.instrumentoFechaCalibracion || '-'} (Cert: {data.instrumentoCertificadoNro || 'S/N'})
               </span>
               <span className="font-bold text-slate-600">Laboratorio:</span>
-              <span className="col-span-2 text-slate-800">{data.instrumentoLaboratorio || 'Oficial Trazable'}</span>
+              <span className="col-span-2 text-slate-800">{data.instrumentoLaboratorio || 'Oficial Trazable INTI / SAC'}</span>
               <span className="font-bold text-slate-600">Régimen Tierra:</span>
               <span className="col-span-2 font-black text-blue-700">
                 Esquema {data.esquemaConexionTierra || 'TT'} · {data.tensionSuministro || '380V/220V'}
               </span>
+              <span className="font-bold text-slate-600">Tensión Seguridad:</span>
+              <span className="col-span-2 font-semibold text-slate-900">
+                UL = {data.tensionSeguridadContacto || 50} V (AEA 90364-4-41)
+              </span>
+              <span className="font-bold text-slate-600">Estado del Suelo:</span>
+              <span className="col-span-2 text-slate-800">{data.estadoSuelo || 'Normal'}</span>
             </div>
           </div>
         </div>

@@ -374,6 +374,11 @@ export default function RARManager(): React.ReactElement | null {
                         <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-mono">
                           Póliza: {s.nroPoliza || 'S/N'}
                         </span>
+                        {stats.trabajadoresConCancerigenos > 0 && (
+                          <span className="px-2 py-0.5 rounded bg-rose-100 text-rose-800 text-[10px] font-black uppercase">
+                            ☣️ {stats.trabajadoresConCancerigenos} c/ Cancerígenos (Res. 81/19)
+                          </span>
+                        )}
                       </div>
 
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-300">

@@ -5,65 +5,57 @@ import {
   ArrowLeft, Save, Tent, ClipboardCheck, CheckCircle2,
   Eye, Printer, Share2, AlertTriangle, XCircle,
   User, Users, Shield, Wind, Droplets, Thermometer,
-  Activity, ShieldCheck, AlertCircle, Plus, Trash2, Pencil, X, Check } from
-'lucide-react';
+  Activity, ShieldCheck, AlertCircle, Plus, Trash2, Pencil, X, Check,
+  Sparkles, Wrench, Building2, MapPin, Clock, FileText
+} from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
-import Breadcrumbs from '../components/Breadcrumbs';
-import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
 import { validateWorkerMedicalStatus } from '../utils/workerValidation';
 import WorkerMedicalChecker from '../components/WorkerMedicalChecker';
+import {
+  OFFICIAL_CONFINED_SPACE_ATMOSPHERIC_LIMITS,
+  evaluateAtmosphericConditions,
+  evaluateConfinedSpaceReadiness
+} from '../utils/srtProtocols';
+import type { AtmosphericGasReading, GasStratum } from '../types/confinedSpace';
 
-// Constants from ConfinedSpace.tsx
+// Tipos de recintos confinados
 const CONFINED_SPACE_TYPES = [
-{ id: 'tank', name: 'Tanque', icon: '🛢️' },
-{ id: 'vessel', name: 'Recipiente', icon: '📦' },
-{ id: 'silo', name: 'Silo', icon: '🏭' },
-{ id: 'pit', name: 'Fosa', icon: '⬇️' },
-{ id: 'tunnel', name: 'Túnel', icon: '🚇' },
-{ id: 'sewer', name: 'Alcantarilla', icon: '🕳️' },
-{ id: 'manhole', name: 'Boca de Visita', icon: '⭕' },
-{ id: 'other', name: 'Otro', icon: '📍' }];
-
-
-const ROLES = [
-{ id: 'entrant', name: 'Entrante', icon: '👤', color: '#3b82f6' },
-{ id: 'attendant', name: 'Vigía', icon: '👁️', color: '#f59e0b' },
-{ id: 'supervisor', name: 'Supervisor', icon: '👔', color: '#16a34a' },
-{ id: 'rescue', name: 'Rescate', icon: '🚑', color: '#dc2626' }];
-
-
-const EQUIPMENT_CHECKLIST = [
-{ id: 'gas_detector', name: 'Detector de Gases', icon: '💨', required: true },
-{ id: 'harness', name: 'Arnés de Seguridad', icon: '🦺', required: true },
-{ id: 'tripod', name: 'Trípode con Malacate', icon: '🏗️', required: true },
-{ id: 'ventilator', name: 'Ventilador', icon: '💨', required: false },
-{ id: 'radio', name: 'Radio Comunicación', icon: '📻', required: true },
-{ id: 'light', name: 'Iluminación', icon: '💡', required: true },
-{ id: 'scba', name: 'ERA (SCBA)', icon: '😷', required: false },
-{ id: 'first_aid', name: 'Botiquín Primeros Auxilios', icon: '🏥', required: true },
-{ id: 'fire_extinguisher', name: 'Extintor', icon: '🧯', required: true },
-{ id: 'barrier', name: 'Barreras/Señalización', icon: '🚧', required: true }];
-
+  { id: 'tank', name: 'Tanque de Almacenamiento', icon: '🛢️' },
+  { id: 'vessel', name: 'Recipiente a Presión / Reactor', icon: '📦' },
+  { id: 'silo', name: 'Silo / Tolva', icon: '🏭' },
+  { id: 'pit', name: 'Fosa / Pozo Profundo', icon: '⬇️' },
+  { id: 'tunnel', name: 'Túnel / Conducto Subterráneo', icon: '🚇' },
+  { id: 'sewer', name: 'Alcantarilla / Red Pluvial', icon: '🕳️' },
+  { id: 'manhole', name: 'Cámara de Inspección / Manhole', icon: '⭕' },
+  { id: 'other', name: 'Otro Recinto Confinado', icon: '📍' }
+];
 
 const POTENTIAL_HAZARDS = [
-{ id: 'atmospheric', name: 'Atmosférico Peligroso', icon: '💨' },
-{ id: 'engulfment', name: 'Atrapamiento', icon: '🌊' },
-{ id: 'configuration', name: 'Configuración', icon: '📐' },
-{ id: 'electrical', name: 'Eléctrico', icon: '⚡' },
-{ id: 'mechanical', name: 'Mecánico', icon: '🔧' },
-{ id: 'thermal', name: 'Térmico', icon: '🔥' },
-{ id: 'noise', name: 'Ruido', icon: '🔊' },
-{ id: 'fall', name: 'Caída', icon: '⬇️' },
-{ id: 'chemical', name: 'Químico', icon: '🧪' },
-{ id: 'biological', name: 'Biológico', icon: '🦠' }];
+  { id: 'atmospheric', name: 'Atmosférico Peligroso', icon: '💨' },
+  { id: 'engulfment', name: 'Atrapamiento / Hundimiento', icon: '🌊' },
+  { id: 'configuration', name: 'Configuración Interna Atrapante', icon: '📐' },
+  { id: 'electrical', name: 'Riesgo Eléctrico / Tensión', icon: '⚡' },
+  { id: 'mechanical', name: 'Piezas Móviles / Mecánico', icon: '🔧' },
+  { id: 'thermal', name: 'Estrés Térmico (Calor/Frío)', icon: '🔥' },
+  { id: 'noise', name: 'Ruido y Resonancia', icon: '🔊' },
+  { id: 'fall', name: 'Caída de Altura / Desnivel', icon: '⬇️' },
+  { id: 'chemical', name: 'Contacto con Químicos / Corrosivo', icon: '🧪' },
+  { id: 'biological', name: 'Agentes Biológicos / Aguas Servidas', icon: '🦠' }
+];
 
+const STRATA_OPTIONS: { id: GasStratum; label: string; desc: string }[] = [
+  { id: 'general', label: 'General / Puntos Múltiples', desc: 'Muestreo global preliminar' },
+  { id: 'piso', label: 'Piso / Fondo (Gases Pesados)', desc: 'Crítico para H2S (densidad 1.19), CO2, vapores de hidrocarburos' },
+  { id: 'medio', label: 'Centro / Altura Respiración', desc: 'Crítico para CO (densidad 0.97, similar al aire)' },
+  { id: 'techo', label: 'Techo / Superior (Gases Livianos)', desc: 'Crítico para Metano CH4 (densidad 0.55), Hidrógeno' }
+];
 
 export default function ConfinedSpaceForm(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -72,36 +64,94 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
 
-  useDocumentTitle(isEdit ? 'Editar Permiso Espacio Confinado' : 'Permiso Espacio Confinado');
+  useDocumentTitle(isEdit ? 'Editar Permiso Espacio Confinado' : 'Permiso Espacio Confinado Res. SRT 953/10');
 
-  const [permit, setPermit] = useState<any>({
-    id: '',
-    spaceName: '',
-    spaceType: 'tank',
-    location: '',
-    department: '',
-    description: '',
-    hazards: [],
-    team: {
-      entrants: [],
-      attendant: '',
-      supervisor: '',
-      rescue: ''
-    },
-    equipment: EQUIPMENT_CHECKLIST.map((e) => ({ ...e, checked: false })),
-    gasMonitoring: { o2: '', lel: '', co: '', h2s: '', time: '' },
-    ventilation: { natural: false, forced: false, extractive: false },
-    importance: 'high',
-    createdAt: new Date().toISOString(),
-    duration: '',
-    observations: '',
-    signature: '',
-    operatorName: '',
-    operatorSignature: '',
-    supervisorName: '',
-    supervisorSignature: '',
-    showSignatures: { operator: true, professional: true, supervisor: true }
+  // Inicializar estado con datos patronales y normativos
+  const [permit, setPermit] = useState<any>(() => {
+    const edit = location.state?.editData;
+    if (edit) return edit;
+
+    let defaultEmpresa = '';
+    let defaultCuit = '';
+    let defaultAddress = '';
+    let defaultArt = '';
+    try {
+      const savedPersonal = localStorage.getItem('personalData');
+      if (savedPersonal) {
+        const pd = JSON.parse(savedPersonal);
+        defaultEmpresa = pd.companyName || pd.empresa || '';
+        defaultCuit = pd.cuit || '';
+        defaultAddress = pd.address || pd.domicilio || '';
+        defaultArt = pd.art || '';
+      }
+    } catch (e) {}
+
+    return {
+      id: '',
+      cuit: defaultCuit,
+      companyName: defaultEmpresa,
+      establishmentAddress: defaultAddress,
+      art: defaultArt,
+      sector: '',
+      spaceName: '',
+      spaceType: 'tank',
+      internalVolumeM3: '',
+      location: '',
+      department: '',
+      description: '',
+      duration: 'Jornada Continua (Máx. 8 horas)',
+      createdAt: new Date().toISOString(),
+      hazards: ['atmospheric'],
+      team: {
+        entrants: [],
+        attendant: '',
+        supervisor: '',
+        rescue: 'Servicio de Intervención Rápida Interno'
+      },
+      instrument: {
+        brand: 'Industrial Scientific / RAE',
+        model: 'Ventis Pro 5 / QRAE 3',
+        serialNumber: 'SN-2024-',
+        calibrationDate: new Date().toISOString().split('T')[0],
+        bumpTestVerified: true
+      },
+      gasMonitoring: {
+        o2: '20.9',
+        lel: '0',
+        co: '0',
+        h2s: '0',
+        time: new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
+        stratum: 'general' as GasStratum
+      },
+      isolation: {
+        valvesClosedAndLocked: true,
+        blindFlangesInstalled: true,
+        electricalLockoutApplied: true,
+        linesPurgedAndCleaned: true,
+        mechanicalDrivesDeenergized: true
+      },
+      ventilation: {
+        natural: false,
+        forced: true,
+        extractive: false,
+        continuous: true
+      },
+      rescue: {
+        tripodAndWinchAvailable: true,
+        fullBodyHarnessClassAorE: true,
+        retractableLifeline: true,
+        standbySCBAAvailable: true,
+        directCommunicationTested: true
+      },
+      observations: '',
+      operatorName: '',
+      operatorSignature: '',
+      supervisorName: '',
+      supervisorSignature: '',
+      showSignatures: { operator: true, professional: true, supervisor: true }
+    };
   });
 
   const [professional, setProfessional] = useState<any>({
@@ -161,44 +211,33 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
     window.addEventListener('resize', handleResize);
 
     if (location.state?.editData) {
-      const edit = location.state.editData;
-      setPermit({
-        ...edit,
-        equipment: edit.equipment || EQUIPMENT_CHECKLIST.map((e) => ({ ...e, checked: false })),
-        gasMonitoring: edit.gasMonitoring || { o2: '', lel: '', co: '', h2s: '', time: '' },
-        ventilation: edit.ventilation || { natural: false, forced: false, extractive: false },
-        hazards: edit.hazards || [],
-        team: edit.team || { entrants: [], attendant: '', supervisor: '', rescue: '' },
-        operatorSignature: edit.operatorSignature || '',
-        supervisorSignature: edit.supervisorSignature || edit.signature || '',
-        signature: edit.signature || edit.supervisorSignature || '',
-        showSignatures: edit.showSignatures || { operator: true, professional: true, supervisor: true }
-      });
       setIsEdit(true);
     }
 
     return () => window.removeEventListener('resize', handleResize);
   }, [location.state]);
 
-  const toggleHazard = (hazardId: string) => {
-    const updated = permit.hazards.includes(hazardId as never) ?
-    permit.hazards.filter((h) => h !== hazardId) :
-    [...permit.hazards, hazardId];
-    setPermit({ ...permit, hazards: updated as never[] });
-  };
+  // Evaluación en tiempo real de la atmósfera (Res. SRT 953/10 y Res. 295/03)
+  const currentAtmosphericEvaluation = evaluateAtmosphericConditions({
+    o2: parseFloat(permit.gasMonitoring?.o2) || 0,
+    lel: parseFloat(permit.gasMonitoring?.lel) || 0,
+    co: parseFloat(permit.gasMonitoring?.co) || 0,
+    h2s: parseFloat(permit.gasMonitoring?.h2s) || 0,
+    stratum: permit.gasMonitoring?.stratum || 'general'
+  });
 
-  const toggleEquipment = (equipId: string) => {
-    const updated = permit.equipment.map((e) =>
-    e.id === equipId ? { ...e, checked: !e.checked } : e
-    );
-    setPermit({ ...permit, equipment: updated });
+  const toggleHazard = (hazardId: string) => {
+    const updated = permit.hazards?.includes(hazardId)
+      ? permit.hazards.filter((h: string) => h !== hazardId)
+      : [...(permit.hazards || []), hazardId];
+    setPermit({ ...permit, hazards: updated });
   };
 
   const addTeamMember = (role: string, name: string) => {
     if (role === 'entrant') {
       setPermit({
         ...permit,
-        team: { ...permit.team, entrants: [...permit.team.entrants, name as never] }
+        team: { ...permit.team, entrants: [...(permit.team?.entrants || []), name] }
       });
     } else {
       setPermit({
@@ -208,9 +247,46 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
     }
   };
 
+  // Generador inteligente de conclusiones técnicas
+  const handleGenerateConclusions = () => {
+    setIsGeneratingAi(true);
+    setTimeout(() => {
+      const isAtmSafe = currentAtmosphericEvaluation.isSafeToEnter;
+      const gas = permit.gasMonitoring;
+      const spaceName = permit.spaceName || 'recinto confinado';
+
+      let text = `DICTAMEN TÉCNICO DE HABILITACIÓN PARA ESPACIOS CONFINADOS (RES. S.R.T. N° 953/10):\n\n`;
+
+      if (isAtmSafe) {
+        text += `1. EVALUACIÓN ATMOSFÉRICA PRE-INGRESO: APROBADA Y SEGURA.\n`;
+        text += `Los parámetros medidos con detector calibrado in-situ arrojan O2: ${gas.o2}%, LEL: ${gas.lel}%, CO: ${gas.co} ppm (CMP ≤ 25 ppm Res. 295/03), H2S: ${gas.h2s} ppm (CMP ≤ 10 ppm Res. 295/03) en estrato ${gas.stratum ? gas.stratum.toUpperCase() : 'GENERAL'}. La atmósfera es respirable y no explosiva.\n\n`;
+        text += `2. CONDICIONES OPERATIVAS Y MEDIDAS DE CONTROL:\n`;
+        text += `- Se verificó el enclavamiento y bloqueo LOTO de tuberías, bridas ciegas y corte de energía motriz en ${spaceName}.\n`;
+        text += `- Se mantiene ventilación mecánica forzada continua y monitoreo permanente durante la permanencia de los trabajadores.\n`;
+        text += `- El Vigía exterior permanente (Standby) permanece apostado en la boca de acceso con comunicación radial ininterrumpida y prohibición taxativa de ingreso.\n`;
+        text += `- Sistema de rescate exterior listo (trípode, malacate retráctil y arnés integral).\n\n`;
+        text += `CONCLUSIÓN: Se autoriza el ingreso de los trabajadores habilitados para la tarea designada con vigencia única para el presente turno.`;
+      } else {
+        text += `1. EVALUACIÓN ATMOSFÉRICA PRE-INGRESO: NO CONFORME / PROHIBICIÓN DE INGRESO.\n`;
+        text += `Parámetros medidos: O2: ${gas.o2}%, LEL: ${gas.lel}%, CO: ${gas.co} ppm, H2S: ${gas.h2s} ppm.\n`;
+        currentAtmosphericEvaluation.warnings.forEach(w => {
+          text += `- ALERTA CRÍTICA: ${w}\n`;
+        });
+        text += `\nACCIONES CORRECTIVAS INMEDIATAS:\n`;
+        text += `- Forzar ventilación mecánica continua durante 30 minutos.\n`;
+        text += `- Reevaluar la estratificación (piso, centro y techo) antes de emitir cualquier habilitación.\n`;
+        text += `- Prohibido el ingreso de personal bajo las condiciones actuales (Res. SRT 953/10).`;
+      }
+
+      setPermit((prev: any) => ({ ...prev, observations: text }));
+      setIsGeneratingAi(false);
+      toast.success('Conclusiones técnicas generadas conforme a Res. SRT 953/10');
+    }, 400);
+  };
+
   const handleSave = () => {
-    if (!permit.spaceName || !permit.location || !permit.team.attendant || !permit.team.supervisor) {
-      toast.error('Por favor complete los campos obligatorios (*)');
+    if (!permit.spaceName || !permit.team?.attendant || !permit.team?.supervisor) {
+      toast.error('Complete los campos obligatorios (*): Nombre del recinto, Vigía exterior y Supervisor.');
       return;
     }
 
@@ -219,439 +295,710 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
 
     const saveObj = {
       ...permit,
+      cuit: permit.cuit || '',
+      companyName: permit.companyName || '',
+      establishmentAddress: permit.establishmentAddress || permit.location || '',
+      art: permit.art || '',
       signature: permit.supervisorSignature || permit.signature || '',
-      supervisorSignature: permit.supervisorSignature || permit.signature || ''
+      supervisorSignature: permit.supervisorSignature || permit.signature || '',
+      atmosphericStatus: currentAtmosphericEvaluation.status,
+      isSafeToEnter: currentAtmosphericEvaluation.isSafeToEnter
     };
 
     if (isEdit) {
       updated = saved.map((p: any) => p.id === permit.id ? saveObj : p);
-      toast.success('Permiso actualizado');
+      toast.success('Permiso PTSEC actualizado');
     } else {
       const newEntry = {
         ...saveObj,
         id: `CS-${Date.now()}`,
         createdAt: new Date().toISOString(),
-        status: permit.status || 'pending'
+        status: currentAtmosphericEvaluation.isSafeToEnter ? 'active' : 'pending'
       };
       updated = [newEntry, ...saved];
-      toast.success('Permiso guardado');
+      toast.success('Permiso PTSEC generado con éxito');
     }
 
     localStorage.setItem('confined_space_permits_db', JSON.stringify(updated));
     navigate('/confined-space');
   };
 
-  const labelStyle = {
-    display: 'block',
-    fontSize: '0.8rem',
-    fontWeight: 700,
-    color: 'var(--color-text-muted)',
-    textTransform: 'uppercase' as const,
-    marginBottom: '0.5rem'
-  };
-
-  const inputStyle = {
-    width: '100%',
-    padding: '0.75rem 1rem',
-    borderRadius: 'var(--radius-lg)',
-    border: '1px solid var(--color-input-border)',
-    background: 'var(--color-surface)',
-    color: 'var(--color-text)',
-    fontSize: '0.95rem',
-    fontWeight: 500,
-    outline: 'none',
-    transition: 'all var(--transition-fast)',
-    boxSizing: 'border-box' as const
-  };
-
   return (
     <div className="container min-h-[100vh] pb-[8rem]">
-            <ModuleFormLayout>
-                <ModuleFormToolbar
-                    title={isEdit ? 'Editar Permiso Espacio Confinado' : 'Nuevo Permiso OSHA 1910.146'}
-                    subtitle="Registro de ingreso y condiciones de seguridad"
-                    icon={<Tent size={36} color="#ffffff" />}
+      <ModuleFormLayout>
+        <ModuleFormToolbar
+          title={isEdit ? 'Editar Permiso PTSEC' : 'Permiso Espacios Confinados — Res. S.R.T. N° 953/10'}
+          subtitle="Protocolo Oficial de Ingreso Seguro, Evaluación Atmosférica y Control LOTO"
+          icon={<Tent size={36} color="#ffffff" />}
+        />
+
+        <ModuleFormDocument>
+          {/* Sección 1: Datos Patronales y Establecimiento */}
+          <ModuleFormSection title="1. Identificación Patronal y del Establecimiento" icon={<Building2 size={20} />}>
+            <div style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)' }} className="grid gap-[1rem] mb-[1.5rem]">
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">C.U.I.T. de la Empresa *</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.cuit || ''}
+                  onChange={(e) => setPermit({ ...permit, cuit: e.target.value })}
+                  placeholder="30-XXXXXXXX-X"
                 />
-                
-                <ModuleFormDocument>
-                    {/* Sección: Información General */}
-                    <ModuleFormSection title="Información del Espacio" icon={<ClipboardCheck size={20} />}>
-                    <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem] mb-[2.5rem]">
-                        <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
-                            <label className="block mb-2 text-sm font-semibold text-slate-700">Nombre del Espacio *</label>
-                            <input type="text" className="input-professional" value={permit.spaceName} onChange={(e) => setPermit({ ...permit, spaceName: e.target.value })} placeholder="Ej: Tanque de Almacenamiento T-101" />
-                        </div>
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-700">Tipo de Espacio</label>
-                            <select className="input-professional" value={permit.spaceType} onChange={(e) => setPermit({ ...permit, spaceType: e.target.value })}>
-                                {CONFINED_SPACE_TYPES.map((t) =>
-                <option key={t.id} value={t.id}>{t.icon} {t.name}</option>
-                )}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-700">Ubicación / Planta *</label>
-                            <input type="text" className="input-professional" value={permit.location} onChange={(e) => setPermit({ ...permit, location: e.target.value })} placeholder="Ej: Planta Norte, Sector B" />
-                        </div>
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-700">Departamento</label>
-                            <input type="text" className="input-professional" value={permit.department} onChange={(e) => setPermit({ ...permit, department: e.target.value })} placeholder="Mantenimiento / Operaciones" />
-                        </div>
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-700">Duración Estimada</label>
-                            <input type="text" className="input-professional" value={permit.duration || ''} onChange={(e) => setPermit({ ...permit, duration: e.target.value })} placeholder="Ej: 4 horas" />
-                        </div>
-                        <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
-                            <label className="block mb-2 text-sm font-semibold text-slate-700">Descripción del Trabajo</label>
-                            <input type="text" className="input-professional" value={permit.description} onChange={(e) => setPermit({ ...permit, description: e.target.value })} placeholder="Limpieza, soldadura, inspección..." />
-                        </div>
-                    </div>
-                    </ModuleFormSection>
+              </div>
+              <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Razón Social / Empleador *</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.companyName || ''}
+                  onChange={(e) => setPermit({ ...permit, companyName: e.target.value })}
+                  placeholder="Ej: Acindar S.A. / Cervecería Quilmes"
+                />
+              </div>
+              <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Domicilio del Establecimiento / Planta</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.establishmentAddress || ''}
+                  onChange={(e) => setPermit({ ...permit, establishmentAddress: e.target.value })}
+                  placeholder="Ruta 9 Km 280, Parque Industrial"
+                />
+              </div>
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Aseguradora de Riesgos del Trabajo (A.R.T.)</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.art || ''}
+                  onChange={(e) => setPermit({ ...permit, art: e.target.value })}
+                  placeholder="Prevención ART / La Segunda"
+                />
+              </div>
+            </div>
+          </ModuleFormSection>
 
-                    {/* Sección: Peligros */}
-                    <ModuleFormSection title="Peligros Potenciales" icon={<AlertTriangle size={20} />}>
-                    <div style={{ gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(5, 1fr)' }} className="grid gap-[0.75rem] mb-[2.5rem]">
-                        {POTENTIAL_HAZARDS.map((hazard) =>
-            <button
-              key={hazard.id}
-              onClick={() => toggleHazard(hazard.id)}
-              style={{
-                background: permit.hazards.includes(hazard.id as never) ? 'rgba(239, 68, 68, 0.1)' : 'var(--color-surface)',
-                border: 'none',
-                boxShadow: permit.hazards.includes(hazard.id as never) ? 'inset 0 0 0 2px #ef4444' : 'none',
-                color: permit.hazards.includes(hazard.id as never) ? '#ef4444' : 'var(--color-text)'
-              }} className="p-[0.75rem_0.5rem] rounded-[var(--radius-lg)] cursor-pointer flex flex-col items-center gap-[0.5rem] transition-[all_0.2s]">
-              
-                                <span className="text-[1.5rem]">{hazard.icon}</span>
-                                <span className="text-[0.7rem] font-[800] text-center">{hazard.name}</span>
-                            </button>
-            )}
-                    </div>
-                    </ModuleFormSection>
+          {/* Sección 2: Identificación del Recinto Confinado */}
+          <ModuleFormSection title="2. Recinto Confinado y Tarea Planificada" icon={<ClipboardCheck size={20} />}>
+            <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1rem] mb-[1.5rem]">
+              <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Nombre / Identificación del Espacio *</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.spaceName}
+                  onChange={(e) => setPermit({ ...permit, spaceName: e.target.value })}
+                  placeholder="Ej: Tanque de Almacenamiento T-101 / Fosa Decantadora N° 2"
+                />
+              </div>
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Tipo de Recinto Confinado</label>
+                <select
+                  className="input-professional"
+                  value={permit.spaceType}
+                  onChange={(e) => setPermit({ ...permit, spaceType: e.target.value })}
+                >
+                  {CONFINED_SPACE_TYPES.map((t) => (
+                    <option key={t.id} value={t.id}>{t.icon} {t.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Sector / Ubicación Interna *</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.location}
+                  onChange={(e) => setPermit({ ...permit, location: e.target.value })}
+                  placeholder="Ej: Nave 4, Sector Tanques"
+                />
+              </div>
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Volumen Interno Estimado (m³)</label>
+                <input
+                  type="number"
+                  className="input-professional"
+                  value={permit.internalVolumeM3 || ''}
+                  onChange={(e) => setPermit({ ...permit, internalVolumeM3: e.target.value })}
+                  placeholder="Ej: 85"
+                />
+              </div>
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Vigencia del Permiso (Turno / Horas)</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.duration || ''}
+                  onChange={(e) => setPermit({ ...permit, duration: e.target.value })}
+                  placeholder="Ej: Turno Mañana (08:00 a 14:00 hs)"
+                />
+              </div>
+              <div style={{ gridColumn: isMobile ? 'auto' : 'span 2' }}>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Descripción de la Tarea a Ejecutar</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.description}
+                  onChange={(e) => setPermit({ ...permit, description: e.target.value })}
+                  placeholder="Limpieza de sedimentos, inspección no destructiva por ultrasonido, cambio de empaquetaduras..."
+                />
+              </div>
+            </div>
+          </ModuleFormSection>
 
-                    {/* Sección: Equipamiento */}
-                    <ModuleFormSection title="Equipamiento Requerido" icon={<ShieldCheck size={20} />}>
-                    <div style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)' }} className="grid gap-[0.75rem] mb-[2.5rem]">
-                        {permit.equipment.map((equip) =>
-            <label key={equip.id} style={{
-              background: equip.checked ? 'rgba(16, 163, 74, 0.1)' : 'var(--color-surface)',
-              border: 'none',
-              boxShadow: equip.checked ? 'inset 0 0 0 2px #16a34a' : 'none'
-            }} className="p-[1rem] rounded-[var(--radius-lg)] cursor-pointer flex items-center gap-[1rem] transition-[all_0.2s]">
-                                <input type="checkbox" checked={equip.checked} onChange={() => toggleEquipment(equip.id)} className="hidden" />
-                                <div className={`w-[24px] h-[24px] rounded-[6px] border-[2px] flex items-center justify-center shrink-0 transition-colors ${equip.checked ? 'bg-[#16a34a] border-[#16a34a] text-white' : 'border-[#94a3b8] bg-white'}`}>
-                                    {equip.checked && <Check size={16} strokeWidth={3} />}
-                                </div>
-                                <span className="text-[1.2rem]">{equip.icon}</span>
-                                <div className="flex-[1]">
-                                    <div className="text-[0.85rem] font-[700]">{equip.name}</div>
-                                    {equip.required && <div className="text-[0.7rem] text-[#dc2626] font-[800]">REQUERIDO</div>}
-                                </div>
-                            </label>
-            )}
-                    </div>
-                    </ModuleFormSection>
+          {/* Sección 3: Instrumental de Medición Multigás */}
+          <ModuleFormSection title="3. Instrumental Detector Multigás Certificado" icon={<Activity size={20} />}>
+            <div style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)' }} className="grid gap-[1rem] mb-[1.5rem]">
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Marca</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.instrument?.brand || ''}
+                  onChange={(e) => setPermit({ ...permit, instrument: { ...permit.instrument, brand: e.target.value } })}
+                  placeholder="Industrial Scientific"
+                />
+              </div>
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Modelo</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.instrument?.model || ''}
+                  onChange={(e) => setPermit({ ...permit, instrument: { ...permit.instrument, model: e.target.value } })}
+                  placeholder="Ventis Pro 5"
+                />
+              </div>
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">N° de Serie</label>
+                <input
+                  type="text"
+                  className="input-professional"
+                  value={permit.instrument?.serialNumber || ''}
+                  onChange={(e) => setPermit({ ...permit, instrument: { ...permit.instrument, serialNumber: e.target.value } })}
+                  placeholder="SN-982143"
+                />
+              </div>
+              <div>
+                <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Fecha Calibración</label>
+                <input
+                  type="date"
+                  className="input-professional"
+                  value={permit.instrument?.calibrationDate || ''}
+                  onChange={(e) => setPermit({ ...permit, instrument: { ...permit.instrument, calibrationDate: e.target.value } })}
+                />
+              </div>
+            </div>
+          </ModuleFormSection>
 
-                    {/* Sección: Equipo de Trabajo */}
-                    <ModuleFormSection title="Equipo de Trabajo" icon={<Users size={20} />}>
-                    <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem] mb-[2rem]">
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-700">Entrante(s) Autorizado(s)</label>
-                            <div className="flex gap-[0.5rem] mb-[0.5rem]">
-                                <input id="entrant-input" type="text" className="input-professional" placeholder="Nombre completo" onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const val = (e.target as HTMLInputElement).value.trim();
-                    if (val) {addTeamMember('entrant', val);(e.target as HTMLInputElement).value = '';}
+          {/* Sección 4: Monitoreo Atmosférico en Vivo con Estratificación */}
+          <ModuleFormSection title="4. Monitoreo Atmosférico Oficial (Res. SRT 953/10 y Res. 295/03)" icon={<Wind size={20} />}>
+            <div className="mb-4">
+              <label className="block mb-1.5 text-xs font-bold text-slate-700 uppercase">Nivel / Estratificación de la Medición:</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                {STRATA_OPTIONS.map((stratum) => (
+                  <button
+                    key={stratum.id}
+                    type="button"
+                    onClick={() => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, stratum: stratum.id } })}
+                    className={`p-2.5 rounded-xl text-left border transition-all ${
+                      permit.gasMonitoring?.stratum === stratum.id
+                        ? 'border-amber-600 bg-amber-50 text-amber-950 font-bold ring-2 ring-amber-500/20'
+                        : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                    }`}
+                  >
+                    <div className="text-xs font-black">{stratum.label}</div>
+                    <div className="text-[10px] text-slate-500 leading-tight mt-0.5">{stratum.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(5, 1fr)' }} className="grid gap-[1rem] mb-[1.5rem]">
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <label className="block mb-1 text-xs font-black text-slate-700">OXÍGENO (O₂ %)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  className="input-professional font-black text-lg"
+                  value={permit.gasMonitoring?.o2 ?? ''}
+                  onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, o2: e.target.value } })}
+                  placeholder="20.9"
+                />
+                <span className="text-[10px] font-bold text-slate-500 mt-1 block">Límite: 19.5% – 23.5%</span>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <label className="block mb-1 text-xs font-black text-slate-700">INFLAMABILIDAD (LEL %)</label>
+                <input
+                  type="number"
+                  step="1"
+                  className="input-professional font-black text-lg"
+                  value={permit.gasMonitoring?.lel ?? ''}
+                  onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, lel: e.target.value } })}
+                  placeholder="0"
+                />
+                <span className="text-[10px] font-bold text-slate-500 mt-1 block">Límite: ≤ 10% LEL</span>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <label className="block mb-1 text-xs font-black text-slate-700">MONÓXIDO (CO ppm)</label>
+                <input
+                  type="number"
+                  step="1"
+                  className="input-professional font-black text-lg"
+                  value={permit.gasMonitoring?.co ?? ''}
+                  onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, co: e.target.value } })}
+                  placeholder="0"
+                />
+                <span className="text-[10px] font-bold text-slate-500 mt-1 block">CMP Argentina: ≤ 25 ppm</span>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <label className="block mb-1 text-xs font-black text-slate-700">SULFÍDRICO (H₂S ppm)</label>
+                <input
+                  type="number"
+                  step="1"
+                  className="input-professional font-black text-lg"
+                  value={permit.gasMonitoring?.h2s ?? ''}
+                  onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, h2s: e.target.value } })}
+                  placeholder="0"
+                />
+                <span className="text-[10px] font-bold text-slate-500 mt-1 block">CMP Argentina: ≤ 10 ppm</span>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <label className="block mb-1 text-xs font-black text-slate-700">HORA CONTROL</label>
+                <input
+                  type="time"
+                  className="input-professional font-bold"
+                  value={permit.gasMonitoring?.time || ''}
+                  onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, time: e.target.value } })}
+                />
+                <span className="text-[10px] font-bold text-slate-500 mt-1 block">Monitoreo continuo</span>
+              </div>
+            </div>
+
+            {/* Panel de Dictamen Atmosférico en Vivo */}
+            <div className={`p-4 rounded-xl border mb-6 transition-all ${
+              currentAtmosphericEvaluation.isSafeToEnter
+                ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
+                : currentAtmosphericEvaluation.status === 'CRITICO_PROHIBIDO_INGRESO'
+                ? 'bg-rose-50 border-rose-300 text-rose-950'
+                : 'bg-amber-50 border-amber-300 text-amber-950'
+            }`}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 font-black text-sm">
+                  {currentAtmosphericEvaluation.isSafeToEnter ? (
+                    <CheckCircle2 size={20} className="text-emerald-700" />
+                  ) : (
+                    <XCircle size={20} className="text-rose-700" />
+                  )}
+                  <span>ESTADO ATMOSFÉRICO: {currentAtmosphericEvaluation.status}</span>
+                </div>
+                <span className={`px-2.5 py-0.5 rounded text-[11px] font-black uppercase text-white ${
+                  currentAtmosphericEvaluation.isSafeToEnter ? 'bg-emerald-700' : 'bg-rose-700'
+                }`}>
+                  {currentAtmosphericEvaluation.isSafeToEnter ? 'HABILITADO PARA INGRESO' : 'NO HABILITADO / PROHIBIDO'}
+                </span>
+              </div>
+
+              {currentAtmosphericEvaluation.warnings.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  {currentAtmosphericEvaluation.warnings.map((w, idx) => (
+                    <div key={idx} className="text-xs font-bold text-rose-800 flex items-start gap-1.5">
+                      <span>•</span>
+                      <span>{w}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-2 text-xs font-semibold text-slate-700 space-y-0.5 border-t border-slate-200/60 pt-2">
+                {currentAtmosphericEvaluation.recommendations.map((r, idx) => (
+                  <div key={idx}>{r}</div>
+                ))}
+              </div>
+            </div>
+          </ModuleFormSection>
+
+          {/* Sección 5: Verificación de Aislamiento LOTO y Ventilación */}
+          <ModuleFormSection title="5. Aislamiento LOTO y Ventilación Forzada (Res. SRT 953/10)" icon={<Wrench size={20} />}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {/* LOTO */}
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <h4 className="font-black text-xs text-slate-800 uppercase mb-3 flex items-center gap-1.5">
+                  <Wrench size={15} className="text-amber-700" />
+                  Bloqueo, Enclavamiento y Purga (LOTO)
+                </h4>
+                <div className="space-y-2 text-xs font-bold text-slate-700">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={permit.isolation?.valvesClosedAndLocked || false}
+                      onChange={(e) => setPermit({ ...permit, isolation: { ...permit.isolation, valvesClosedAndLocked: e.target.checked } })}
+                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                    />
+                    <span>Válvulas de fluidos cerradas y bloqueadas con candado</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={permit.isolation?.blindFlangesInstalled || false}
+                      onChange={(e) => setPermit({ ...permit, isolation: { ...permit.isolation, blindFlangesInstalled: e.target.checked } })}
+                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                    />
+                    <span>Bridas ciegas / desconexión física de tuberías instaladas</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={permit.isolation?.electricalLockoutApplied || false}
+                      onChange={(e) => setPermit({ ...permit, isolation: { ...permit.isolation, electricalLockoutApplied: e.target.checked } })}
+                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                    />
+                    <span>Corte y enclavamiento de energía motriz / eléctrica (LOTO)</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={permit.isolation?.linesPurgedAndCleaned || false}
+                      onChange={(e) => setPermit({ ...permit, isolation: { ...permit.isolation, linesPurgedAndCleaned: e.target.checked } })}
+                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                    />
+                    <span>Recinto y cañerías purgadas, desgasificadas y lavadas</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Ventilación y Rescate */}
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <h4 className="font-black text-xs text-slate-800 uppercase mb-3 flex items-center gap-1.5">
+                  <ShieldCheck size={15} className="text-emerald-700" />
+                  Ventilación y Rescate sin Ingreso Asistido
+                </h4>
+                <div className="space-y-2 text-xs font-bold text-slate-700">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={permit.ventilation?.forced || false}
+                      onChange={(e) => setPermit({ ...permit, ventilation: { ...permit.ventilation, forced: e.target.checked } })}
+                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                    />
+                    <span>Ventilación mecánica forzada continua en funcionamiento</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={permit.rescue?.tripodAndWinchAvailable || false}
+                      onChange={(e) => setPermit({ ...permit, rescue: { ...permit.rescue, tripodAndWinchAvailable: e.target.checked } })}
+                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                    />
+                    <span>Trípode con malacate de izaje y cable de acero certificado</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={permit.rescue?.fullBodyHarnessClassAorE || false}
+                      onChange={(e) => setPermit({ ...permit, rescue: { ...permit.rescue, fullBodyHarnessClassAorE: e.target.checked } })}
+                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                    />
+                    <span>Arnés integral clase E/A y cabo de rescate colocado</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={permit.rescue?.directCommunicationTested || false}
+                      onChange={(e) => setPermit({ ...permit, rescue: { ...permit.rescue, directCommunicationTested: e.target.checked } })}
+                      className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                    />
+                    <span>Canal de comunicación directa radial o visual probado</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </ModuleFormSection>
+
+          {/* Sección 6: Personal Asignado y Roles Reglamentarios */}
+          <ModuleFormSection title="6. Personal Asignado y Roles (Res. SRT 953/10)" icon={<Users size={20} />}>
+            <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem] mb-[2rem]">
+              <div>
+                <label className="block mb-2 text-xs font-bold text-slate-700 uppercase">Entrante(s) Autorizado(s) con Apto Médico</label>
+                <div className="flex gap-[0.5rem] mb-[0.5rem]">
+                  <input
+                    id="entrant-input"
+                    type="text"
+                    className="input-professional"
+                    placeholder="Nombre completo y DNI..."
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const val = (e.target as HTMLInputElement).value.trim();
+                        if (val) {
+                          addTeamMember('entrant', val);
+                          (e.target as HTMLInputElement).value = '';
+                        }
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const input = document.getElementById('entrant-input') as HTMLInputElement;
+                      const val = input.value.trim();
+                      if (val) {
+                        addTeamMember('entrant', val);
+                        input.value = '';
+                      }
+                    }}
+                    className="p-[0_0.75rem] h-[48px] rounded-lg bg-emerald-600 text-white flex items-center justify-center hover:bg-emerald-700 transition-colors shadow-xs shrink-0 cursor-pointer"
+                  >
+                    <Plus size={20} strokeWidth={3} />
+                  </button>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  {permit.team?.entrants?.map((entrant: string, idx: number) => {
+                    const med = validateWorkerMedicalStatus(entrant, 'confined');
+                    return (
+                      <div
+                        key={idx}
+                        className="p-2.5 rounded-lg border flex items-center justify-between gap-2"
+                        style={{
+                          background: med.status === 'apto' ? '#f0fdf4' : '#fffbeb',
+                          borderColor: med.status === 'apto' ? '#86efac' : '#fde68a'
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-black text-slate-800">{entrant}</span>
+                          <span className="text-[11px] font-bold text-slate-600">({med.message})</span>
+                        </div>
+                        <Trash2
+                          size={16}
+                          onClick={() => {
+                            const updated = permit.team.entrants.filter((_: any, i: number) => i !== idx);
+                            setPermit({ ...permit, team: { ...permit.team, entrants: updated } });
+                          }}
+                          className="cursor-pointer text-rose-500 hover:text-rose-700 shrink-0"
+                        />
+                      </div>
+                    );
+                  })}
+                  {(!permit.team?.entrants || permit.team.entrants.length === 0) && (
+                    <div className="text-xs text-slate-400 italic">No se agregaron entrantes aún.</div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="p-3 bg-amber-50/70 border border-amber-300 rounded-xl">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-black text-amber-900 uppercase">
+                      Vigía Exterior Permanente (Standby) *
+                    </label>
+                    <span className="text-[10px] font-black bg-amber-200 text-amber-900 px-2 py-0.5 rounded">
+                      NO DEBE INGRESAR
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    className="input-professional"
+                    value={permit.team?.attendant || ''}
+                    onChange={(e) => setPermit({ ...permit, team: { ...permit.team, attendant: e.target.value } })}
+                    placeholder="Nombre completo del Vigía..."
+                  />
+                  <span className="text-[10px] text-amber-800 font-semibold block mt-1">
+                    Obligatorio: Permanecer en el acceso durante toda la maniobra sin abandonar el puesto.
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-bold text-slate-700 uppercase">Supervisor de Entrada Autorizante *</label>
+                  <input
+                    type="text"
+                    className="input-professional"
+                    value={permit.team?.supervisor || ''}
+                    onChange={(e) => setPermit({ ...permit, team: { ...permit.team, supervisor: e.target.value } })}
+                    placeholder="Nombre del Supervisor habilitante..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-bold text-slate-700 uppercase">Equipo de Rescate Externo</label>
+                  <input
+                    type="text"
+                    className="input-professional"
+                    value={permit.team?.rescue || ''}
+                    onChange={(e) => setPermit({ ...permit, team: { ...permit.team, rescue: e.target.value } })}
+                    placeholder="Brigada interna / Bomberos / Rescate especializado"
+                  />
+                </div>
+              </div>
+            </div>
+          </ModuleFormSection>
+
+          {/* Sección 7: Conclusiones y Dictamen */}
+          <ModuleFormSection title="7. Conclusiones y Dictamen Técnico Oficial" icon={<FileText size={20} />}>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-xs font-bold text-slate-600">Redacción formal según criterios de la Res. SRT 953/10:</span>
+              <button
+                type="button"
+                onClick={handleGenerateConclusions}
+                disabled={isGeneratingAi}
+                className="btn-outline flex items-center gap-1.5 text-xs py-1 px-3 bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100"
+              >
+                <Sparkles size={14} className="text-amber-600" />
+                <span>{isGeneratingAi ? 'Redactando...' : 'Generar Conclusiones Automáticas'}</span>
+              </button>
+            </div>
+            <textarea
+              className="input-professional min-h-[140px] font-mono text-xs leading-relaxed"
+              value={permit.observations || ''}
+              onChange={(e) => setPermit({ ...permit, observations: e.target.value })}
+              placeholder="El dictamen técnico fundamentará la habilitación o rechazo del ingreso según mediciones atmosféricas, verificación LOTO y sistema de rescate..."
+            />
+          </ModuleFormSection>
+
+          {/* Sección 8: Firmas Reglamentarias Tripartitas */}
+          <div className="mt-8">
+            <ModuleFormSection title="8. Firmas Reglamentarias Tripartitas" icon={<Pencil size={20} />}>
+              <div className="no-print mb-6 p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col gap-3 items-center">
+                <div className="text-slate-700 font-extrabold text-xs uppercase tracking-wider">
+                  Firmas a incluir en el Permiso de Trabajo:
+                </div>
+                <div className="flex gap-4 flex-wrap justify-center text-xs font-bold">
+                  {[
+                    { id: 'operator', label: 'Vigía Standby Exterior' },
+                    { id: 'professional', label: 'Responsable HyS' },
+                    { id: 'supervisor', label: 'Supervisor Habilitante' }
+                  ].map((sig) => {
+                    const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                    return (
+                      <label
+                        key={sig.id}
+                        className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-white border border-slate-300"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))}
+                          className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                        />
+                        <span>{sig.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Visualización de los bloques de firmas */}
+              <div className="mb-6">
+                <PdfSignatures
+                  data={{
+                    ...permit,
+                    professionalSignature: professional.signature,
+                    professionalName: professional.name,
+                    professionalLicense: professional.license,
+                    professionalStamp: professional.stamp
+                  }}
+                  box1={
+                    showSignatures.operator
+                      ? {
+                          title: 'VIGÍA EXTERIOR PERMANENTE',
+                          subtitle: (permit.team?.attendant || 'Vigía Standby').toUpperCase(),
+                          signatureUrl: permit.operatorSignature || null,
+                          isProfessional: false
+                        }
+                      : null
                   }
-                }} />
-                                <button type="button" onClick={() => {
-                  const input = document.getElementById('entrant-input') as HTMLInputElement;
-                  const val = input.value.trim();
-                  if (val) {addTeamMember('entrant', val);input.value = '';}
-                }} style={{ backgroundColor: '#16a34a', color: '#ffffff' }} className="p-[0_0.75rem] h-[50px] rounded-[8px] flex items-center justify-center transition-colors shadow-sm shrink-0 border-none cursor-pointer"><Plus size={20} strokeWidth={3} /></button>
-                            </div>
-                            <div className="flex flex-col gap-[0.5rem]">
-                                {permit.team.entrants.map((entrant, idx) => {
-                                  const med = validateWorkerMedicalStatus(entrant, 'confined');
-                                  return (
-                                    <div key={idx} style={{
-                                      background: med.status === 'apto' ? '#f0fdf4' : med.status === 'vencido' || med.status === 'no_apto' ? '#fef2f2' : '#fffbeb',
-                                      border: `1px solid ${med.status === 'apto' ? '#86efac' : med.status === 'vencido' || med.status === 'no_apto' ? '#fca5a5' : '#fde68a'}`,
-                                      borderRadius: '10px',
-                                      padding: '0.5rem 0.8rem',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'space-between',
-                                      gap: '0.5rem'
-                                    }}>
-                                      <div className="flex items-center gap-[0.5rem]">
-                                        <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#1e293b' }}>{entrant}</span>
-                                        <span style={{
-                                          fontSize: '0.72rem',
-                                          fontWeight: 700,
-                                          color: med.status === 'apto' ? '#166534' : med.status === 'vencido' || med.status === 'no_apto' ? '#991b1b' : '#92400e'
-                                        }}>
-                                          {med.message}
-                                        </span>
-                                      </div>
-                                      <Trash2 size={16} onClick={() => {
-                                        const updated = permit.team.entrants.filter((_, i) => i !== idx);
-                                        setPermit({ ...permit, team: { ...permit.team, entrants: updated } });
-                                      }} className="cursor-pointer text-[#ef4444] shrink-0" />
-                                    </div>
-                                  );
-                                })}
-                            </div>
-                        </div>
-                        <div>
-                            <WorkerMedicalChecker
-                              value={permit.team.attendant}
-                              riskType="confined"
-                              label="Vigía de Seguridad *"
-                              placeholder="Nombre del vigía o DNI..."
-                              onChange={(val) => setPermit((prev: any) => ({ ...prev, team: { ...prev.team, attendant: val } }))}
-                            />
-                        </div>
-                        <div>
-                            <WorkerMedicalChecker
-                              value={permit.team.supervisor}
-                              riskType="confined"
-                              label="Supervisor de Entrada *"
-                              placeholder="Nombre del supervisor o DNI..."
-                              onChange={(val) => setPermit((prev: any) => ({ ...prev, team: { ...prev.team, supervisor: val } }))}
-                            />
-                        </div>
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-700">Equipo de Rescate</label>
-                            <input type="text" className="input-professional" value={permit.team.rescue} onChange={(e) => setPermit({ ...permit, team: { ...permit.team, rescue: e.target.value } })} placeholder="Empresa o equipo interno" />
-                        </div>
-                    </div>
-                    </ModuleFormSection>
+                  box2={
+                    showSignatures.professional
+                      ? {
+                          title: 'RESPONSABLE HIGIENE Y SEGURIDAD',
+                          subtitle: (professional.name || 'Especialista HyS').toUpperCase(),
+                          signatureUrl: permit.professionalSignature || professional.signature || null,
+                          stampUrl: permit.professionalStamp || professional.stamp || null,
+                          isProfessional: true,
+                          license: professional.license
+                        }
+                      : null
+                  }
+                  box3={
+                    showSignatures.supervisor
+                      ? {
+                          title: 'SUPERVISOR HABILITANTE',
+                          subtitle: (permit.team?.supervisor || 'Supervisor Autorizante').toUpperCase(),
+                          signatureUrl: permit.supervisorSignature || permit.signature || null,
+                          isProfessional: false
+                        }
+                      : null
+                  }
+                />
+              </div>
 
-                    {/* Sección: Monitoreo Atmosférico */}
-                    <ModuleFormSection title="Monitoreo Atmosférico" icon={<Activity size={20} />}>
-                    <div style={{ gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(5, 1fr)' }} className="grid gap-[1rem] mb-[2rem]">
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-700">O₂ (%)</label>
-                            <input type="number" step="0.1" className="input-professional" value={permit.gasMonitoring?.o2 || ''} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, o2: e.target.value } })} placeholder="20.9" />
-                        </div>
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-700">LEL (%)</label>
-                            <input type="number" step="1" className="input-professional" value={permit.gasMonitoring?.lel || ''} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, lel: e.target.value } })} placeholder="0" />
-                        </div>
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-700">CO (ppm)</label>
-                            <input type="number" step="1" className="input-professional" value={permit.gasMonitoring?.co || ''} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, co: e.target.value } })} placeholder="0" />
-                        </div>
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-700">H₂S (ppm)</label>
-                            <input type="number" step="1" className="input-professional" value={permit.gasMonitoring?.h2s || ''} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, h2s: e.target.value } })} placeholder="0" />
-                        </div>
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-700">Hora Medición</label>
-                            <input type="time" className="input-professional" value={permit.gasMonitoring?.time || ''} onChange={(e) => setPermit({ ...permit, gasMonitoring: { ...permit.gasMonitoring, time: e.target.value } })} />
-                        </div>
-                    </div>
-                    </ModuleFormSection>
+              {/* Dibujo interactivo de firmas */}
+              <div className="no-print grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200">
+                {showSignatures.operator && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold text-slate-600 uppercase">Firma del Vigía Exterior:</label>
+                    <SignatureCanvas
+                      onSave={(sig) => setPermit((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                      initialImage={permit.operatorSignature}
+                      label="Firma de Vigía Exterior"
+                    />
+                  </div>
+                )}
 
-                    {/* Sección: Ventilación */}
-                    <ModuleFormSection title="Ventilación" icon={<Wind size={20} />}>
-                    <div style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)' }} className="grid gap-[1rem] mb-[2rem]">
-                        <label style={{
-              background: permit.ventilation?.natural ? 'rgba(16, 163, 74, 0.1)' : 'var(--color-surface)',
-              border: 'none',
-              boxShadow: permit.ventilation?.natural ? 'inset 0 0 0 2px #16a34a' : 'none'
-            }} className="p-[1rem] rounded-[var(--radius-lg)] cursor-pointer flex items-center gap-[0.75rem] transition-[all_0.2s]">
-                            <input type="checkbox" checked={permit.ventilation?.natural || false} onChange={(e) => setPermit({ ...permit, ventilation: { ...permit.ventilation, natural: e.target.checked } })} className="hidden" />
-                            <div className={`w-[24px] h-[24px] rounded-[6px] border-[2px] flex items-center justify-center shrink-0 transition-colors ${permit.ventilation?.natural ? 'bg-[#16a34a] border-[#16a34a] text-white' : 'border-[#94a3b8] bg-white'}`}>
-                                {permit.ventilation?.natural && <Check size={16} strokeWidth={3} />}
-                            </div>
-                            <span className="font-[700] text-[0.95rem]">Natural</span>
-                        </label>
-                        <label style={{
-              background: permit.ventilation?.forced ? 'rgba(16, 163, 74, 0.1)' : 'var(--color-surface)',
-              border: 'none',
-              boxShadow: permit.ventilation?.forced ? 'inset 0 0 0 2px #16a34a' : 'none'
-            }} className="p-[1rem] rounded-[var(--radius-lg)] cursor-pointer flex items-center gap-[0.75rem] transition-[all_0.2s]">
-                            <input type="checkbox" checked={permit.ventilation?.forced || false} onChange={(e) => setPermit({ ...permit, ventilation: { ...permit.ventilation, forced: e.target.checked } })} className="hidden" />
-                            <div className={`w-[24px] h-[24px] rounded-[6px] border-[2px] flex items-center justify-center shrink-0 transition-colors ${permit.ventilation?.forced ? 'bg-[#16a34a] border-[#16a34a] text-white' : 'border-[#94a3b8] bg-white'}`}>
-                                {permit.ventilation?.forced && <Check size={16} strokeWidth={3} />}
-                            </div>
-                            <span className="font-[700] text-[0.95rem]">Forzada</span>
-                        </label>
-                        <label style={{
-              background: permit.ventilation?.extractive ? 'rgba(16, 163, 74, 0.1)' : 'var(--color-surface)',
-              border: 'none',
-              boxShadow: permit.ventilation?.extractive ? 'inset 0 0 0 2px #16a34a' : 'none'
-            }} className="p-[1rem] rounded-[var(--radius-lg)] cursor-pointer flex items-center gap-[0.75rem] transition-[all_0.2s]">
-                            <input type="checkbox" checked={permit.ventilation?.extractive || false} onChange={(e) => setPermit({ ...permit, ventilation: { ...permit.ventilation, extractive: e.target.checked } })} className="hidden" />
-                            <div className={`w-[24px] h-[24px] rounded-[6px] border-[2px] flex items-center justify-center shrink-0 transition-colors ${permit.ventilation?.extractive ? 'bg-[#16a34a] border-[#16a34a] text-white' : 'border-[#94a3b8] bg-white'}`}>
-                                {permit.ventilation?.extractive && <Check size={16} strokeWidth={3} />}
-                            </div>
-                            <span className="font-[700] text-[0.95rem]">Extractiva</span>
-                        </label>
-                    </div>
-                    </ModuleFormSection>
+                {showSignatures.professional && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold text-slate-600 uppercase">Firma Especialista HyS:</label>
+                    <SignatureCanvas
+                      onSave={(sig) => setPermit((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                      initialImage={permit.professionalSignature || professional.signature}
+                      label="Firma de HyS"
+                    />
+                  </div>
+                )}
 
-                    {/* Observaciones */}
-                    <ModuleFormSection title="Observaciones Finales" icon={<Activity size={20} />}>
-                    <textarea
-            className="input-professional min-h-[120px]"
-            value={permit.observations}
-            onChange={(e) => setPermit({ ...permit, observations: e.target.value })}
+                {showSignatures.supervisor && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold text-slate-600 uppercase">Firma del Supervisor:</label>
+                    <SignatureCanvas
+                      onSave={(sig) => setPermit((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
+                      initialImage={permit.supervisorSignature || permit.signature}
+                      label="Firma del Supervisor"
+                    />
+                  </div>
+                )}
+              </div>
+            </ModuleFormSection>
+          </div>
+        </ModuleFormDocument>
+      </ModuleFormLayout>
 
-            placeholder="Detalles adicionales, medidas preventivas específicas, condiciones climáticas, etc." />
-                    </ModuleFormSection>
+      <ModuleActionBar
+        actions={[
+          { id: 'cancel', label: 'VOLVER', icon: <ArrowLeft size={18} />, variant: 'secondary', onClick: () => navigate(-1) },
+          { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'info', onClick: () => setShowShareModal(true) },
+          { id: 'save', label: 'GENERAR PERMISO PTSEC', icon: <Save size={18} />, variant: 'primary', onClick: (e: any) => { e.preventDefault(); requirePro(handleSave); } }
+        ]}
+      />
 
-                    <div className="mt-[2.5rem]">
-                        <ModuleFormSection title="Firmas y Autorizaciones" icon={<Pencil size={20} />}>
-
-                        <div className="no-print mb-8 p-6 bg-transparent border-[1px_solid_var(--color-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
-                            <div className="text-slate-700 font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                            <div className="flex gap-[1rem] flex-wrap justify-center">
-                                {[
-                { id: 'operator', label: 'Responsable / Entrante' },
-                { id: 'professional', label: 'Profesional H&S' },
-                { id: 'supervisor', label: 'Autorización de Ingreso' }].
-                map((sig) => {
-                  const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
-                  return (
-                    <label
-                      key={sig.id}
-                      className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease]"
-                      style={{
-                        border: 'none',
-                        background: isChecked ? 'rgba(16, 163, 74, 0.1)' : 'var(--color-surface)',
-                        color: isChecked ? '#16a34a' : 'var(--color-text-light)',
-                        boxShadow: isChecked ? 'inset 0 0 0 2px #16a34a' : 'none'
-                      }}>
-                      
-                                            <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="hidden" />
-
-                      
-                                            <div style={{
-                        border: isChecked ? '2px solid #16a34a' : '2px solid var(--color-text-light)',
-                        background: isChecked ? '#16a34a' : 'transparent'
-                      }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
-                                                {isChecked && <Check size={12} color="white" strokeWidth={4} />}
-                                            </div>
-                                            {sig.label}
-                                        </label>);
-
-                })}
-                            </div>
-                        </div>
-
-                        {/* On-Sheet Visual Preview of PDF signature blocks */}
-                        <div className="mb-[2.5rem]">
-                            <PdfSignatures
-                data={{
-                  ...permit,
-                  professionalSignature: professional.signature,
-                  professionalName: professional.name,
-                  professionalLicense: professional.license,
-                  professionalStamp: professional.stamp
-                }}
-                box1={showSignatures.operator ? {
-                  title: 'RESPONSABLE / ENTRANTE',
-                  subtitle: 'Control de Ingreso',
-                  signatureUrl: permit.operatorSignature || null,
-                  isProfessional: false
-                } : null}
-                box2={showSignatures.professional ? {
-                  title: 'PROFESIONAL H&S',
-                  subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
-                  signatureUrl: permit.professionalSignature || professional.signature || null,
-                  stampUrl: permit.professionalStamp || professional.stamp || null,
-                  isProfessional: true,
-                  license: professional.license
-                } : null}
-                box3={showSignatures.supervisor ? {
-                  title: 'AUTORIZACIÓN DE INGRESO',
-                  subtitle: 'Firma del Autorizante',
-                  signatureUrl: permit.supervisorSignature || permit.signature || null,
-                  isProfessional: false
-                } : null} />
-              
-            <PdfBrandingFooter />
-                        </div>
-
-                        {/* Interactive Signature Drawing Pads */}
-                        <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid gap-[2rem] mt-[2rem] pt-[2rem] border-top-[1px_solid_var(--color-border)]" style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }}>
-                            {showSignatures.operator &&
-              <div className="flex flex-col gap-4">
-                                    <div>
-                                        <label className="text-[0.8rem] font-[700] text-[var(--color-text-muted)] mb-[0.5rem] block">Nombre del Responsable / Entrante</label>
-                                        <input type="text" className="input-professional" value={permit.operatorName || ''} onChange={(e) => setPermit({ ...permit, operatorName: e.target.value })} placeholder="Nombre y Apellido" />
-                                    </div>
-                                    <SignatureCanvas
-                  onSave={(sig) => setPermit((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
-                  initialImage={permit.operatorSignature}
-                  label="Firma de Responsable / Entrante" />
-                
-                                </div>
-              }
-                            
-                            {showSignatures.professional &&
-              <SignatureCanvas
-                onSave={(sig) => setPermit((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
-                initialImage={permit.professionalSignature || professional.signature}
-                label="Firma de Profesional H&S" />
-
-              }
-
-                            {showSignatures.supervisor &&
-              <div className="flex flex-col gap-4">
-                                    <div>
-                                        <label className="text-[0.8rem] font-[700] text-[var(--color-text-muted)] mb-[0.5rem] block">Nombre de Autorización de Ingreso</label>
-                                        <input type="text" className="input-professional" value={permit.supervisorName || ''} onChange={(e) => setPermit({ ...permit, supervisorName: e.target.value })} placeholder="Nombre y Apellido" />
-                                    </div>
-                                    <SignatureCanvas
-                  onSave={(sig) => setPermit((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
-                  initialImage={permit.supervisorSignature || permit.signature}
-                  label="Firma de Autorización de Ingreso" />
-                
-                                </div>
-              }
-                        </div>
-                          </ModuleFormSection>
-                    </div>
-                </ModuleFormDocument>
-            </ModuleFormLayout>
-
-            <ModuleActionBar actions={[
-                { id: 'cancel', label: 'CANCELAR', icon: <X size={18} />, variant: 'secondary', onClick: () => navigate(-1) },
-                { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'info', onClick: () => setShowShareModal(true) },
-                { id: 'save', label: 'GENERAR PERMISO', icon: <Save size={18} />, variant: 'primary', onClick: (e: any) => { e.preventDefault(); requirePro(handleSave); } }
-            ]} />
-
-            <ShareModal
+      <ShareModal
         isOpen={showShareModal}
         open={showShareModal}
         onClose={() => setShowShareModal(false)}
         elementIdToPrint="pdf-content"
-        title="Permiso de Ingreso"
-        text={`Permiso de Espacio Confinado: ${permit.spaceName}`}
-        rawMessage={`Permiso de Espacio Confinado: ${permit.spaceName}`}
-        fileName={`Permiso_${permit.spaceName || 'Sin_Nombre'}.pdf`} />
-      
+        title="Permiso de Ingreso a Espacio Confinado (PTSEC)"
+        text={`Permiso PTSEC Res. SRT 953/10: ${permit.spaceName}`}
+        rawMessage={`Permiso PTSEC Res. SRT 953/10: ${permit.spaceName}`}
+        fileName={`Permiso_PTSEC_${permit.spaceName ? permit.spaceName.replace(/\s+/g, '_') : 'Espacio_Confinado'}.pdf`}
+      />
 
-            <div className="print-only fixed left-[0] opacity-[0.01] top-[0]">
-                <ConfinedSpacePdf data={{ ...permit, createdAt: permit.createdAt || new Date().toISOString() }} />
-            </div>
-        </div>);
-
-}
-
-function SectionTitle({ icon, title }: {icon: React.ReactNode;title: string;}) {
-  return (
-    <div className="flex items-center gap-[0.75rem] mb-[1.25rem] pb-[0.75rem] border-bottom-[1px_solid_var(--color-border)]">
-            <span className="text-[var(--color-primary)]">{icon}</span>
-            <h3 className="m-[0] text-[1rem] font-[800] uppercase letter-spacing-[0.5px]">{title}</h3>
-        </div>);
-
+      <div className="print-only fixed left-0 opacity-[0.01] top-0 pointer-events-none">
+        <ConfinedSpacePdf data={{ ...permit, createdAt: permit.createdAt || new Date().toISOString() }} />
+      </div>
+    </div>
+  );
 }

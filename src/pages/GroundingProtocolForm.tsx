@@ -55,6 +55,9 @@ export default function GroundingProtocolForm(): React.ReactElement | null {
     id: `PAT-${Date.now()}`,
     razonSocial: '',
     cuit: '',
+    artNombre: '',
+    establecimiento: '',
+    tipoInstalacion: 'Industrial',
     direccion: '',
     localidad: '',
     provincia: 'Buenos Aires',
@@ -74,13 +77,14 @@ export default function GroundingProtocolForm(): React.ReactElement | null {
     instrumentoNroSerie: 'MG-884210',
     instrumentoFechaCalibracion: new Date().toISOString().split('T')[0],
     instrumentoCertificadoNro: 'CAL-2025-900',
-    instrumentoLaboratorio: 'Laboratorio de Metrología Eléctrica Trazable',
+    instrumentoLaboratorio: 'Laboratorio de Metrología Eléctrica Trazable INTI / SAC',
     tensionSuministro: '380 V Trifásico + Neutro / 220 V',
     esquemaConexionTierra: 'TT',
     tipoAcometida: 'Subterránea',
     potenciaContratadaKw: '25 kW',
     transformadorPropio: false,
     estadoSuelo: 'Húmedo',
+    tensionSeguridadContacto: 50,
     jabalinas: [
       {
         id: '1',
@@ -392,8 +396,8 @@ export default function GroundingProtocolForm(): React.ReactElement | null {
   const handleAutoConclusions = () => {
     const isOk = evaluation.isFullyCompliant;
     let text = isOk
-      ? `Se concluye que la instalación eléctrica del establecimiento "${protocol.razonSocial || 'analizado'}" CUMPLE con las condiciones reglamentarias de seguridad eléctrica respecto a la Resistencia de Puesta a Tierra y Continuidad de las Masas establecidas en el Anexo I de la Resolución S.R.T. N° 900/15 y la Reglamentación AEA 90364.\n\nLos valores de puesta a tierra registrados presentan un promedio de ${evaluation.promedioResistenciaOhms} Ω (siendo el valor máximo registrado de ${evaluation.maxResistenciaMedida} Ω, inferior al límite admisible legal). Asimismo, la totalidad de los circuitos ensayados cuentan con conductor de protección PE continuo y los interruptores diferenciales verificados responden con tiempos de corte inferiores a los 200 milisegundos admisibles.`
-      : `Se concluye que la instalación eléctrica del establecimiento "${protocol.razonSocial || 'analizado'}" PRESENTA DESVÍOS Y NO CONFORMIDADES frente a las exigencias del Anexo I de la Resolución S.R.T. N° 900/15 y la Reglamentación AEA 90364.\n\nSe detectaron puntos con resistencia de puesta a tierra superior a los límites máximos admisibles y/o falta de continuidad del conductor de protección en masas metálicas. Se establece un plazo perentorio para la ejecución de las medidas correctivas señaladas a continuación para restablecer las condiciones seguras de operación.`;
+      ? `Se concluye que la instalación eléctrica del establecimiento "${protocol.razonSocial || 'analizado'}" CUMPLE con las condiciones reglamentarias de seguridad eléctrica respecto a la Resistencia de Puesta a Tierra y Continuidad de las Masas establecidas en el Anexo I de la Resolución S.R.T. N° 900/15 y la Reglamentación AEA 90364.\n\nLos valores de puesta a tierra registrados presentan un promedio de ${evaluation.promedioResistenciaOhms} Ω (siendo el valor máximo registrado de ${evaluation.maxResistenciaMedida} Ω, inferior al límite admisible legal). La tensión presunta de contacto calculada es de ${evaluation.tensionContactoPresuntaMaxVolts} V (límite de seguridad: ${protocol.tensionSeguridadContacto || 50} V). Asimismo, la totalidad de los circuitos ensayados cuentan con conductor de protección PE continuo (≤ 1.0 Ω) y los interruptores diferenciales verificados responden con tiempos de corte inferiores a los 200 milisegundos admisibles.`
+      : `Se concluye que la instalación eléctrica del establecimiento "${protocol.razonSocial || 'analizado'}" PRESENTA DESVÍOS Y NO CONFORMIDADES frente a las exigencias del Anexo I de la Resolución S.R.T. N° 900/15 y la Reglamentación AEA 90364 (Dictamen: ${evaluation.dictamenGeneral}, Estado: ${evaluation.estadoInstalacion}).\n\nSe detectaron puntos con resistencia de puesta a tierra superior a los límites máximos admisibles, tensión de contacto presunta excedida (${evaluation.tensionContactoPresuntaMaxVolts} V) y/o falta de continuidad del conductor de protección en masas metálicas. Se establece un plazo perentorio de ${protocol.plazoAdecuacionDias || 30} días para la ejecución de las medidas correctivas señaladas a continuación para restablecer las condiciones seguras de operación.`;
 
     setProtocol(prev => ({
       ...prev,
@@ -504,12 +508,22 @@ export default function GroundingProtocolForm(): React.ReactElement | null {
               <ShieldAlert size={32} className="text-amber-600 dark:text-amber-400 flex-shrink-0" />
             )}
             <div>
-              <div className="text-sm font-black uppercase tracking-wide text-slate-900 dark:text-slate-100">
-                Estado Actual: {evaluation.isFullyCompliant ? 'INSTALACIÓN CONFORME' : 'CON OBSERVACIONES TÉCNICAS'}
+              <div className="text-sm font-black uppercase tracking-wide text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <span>Dictamen: {evaluation.dictamenGeneral}</span>
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                  evaluation.isFullyCompliant ? 'bg-emerald-200 text-emerald-900' : 'bg-amber-200 text-amber-900'
+                }`}>
+                  {evaluation.estadoInstalacion}
+                </span>
               </div>
-              <div className="text-xs text-slate-600 dark:text-slate-300">
-                {evaluation.jabalinasConformes} de {evaluation.totalJabalinas} jabalinas aptas · {evaluation.masasConformes} de {evaluation.totalMasas} masas con continuidad · {evaluation.diferencialesConformes} de {evaluation.totalDiferenciales} disyuntores ensayados.
+              <div className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                {evaluation.jabalinasConformes} de {evaluation.totalJabalinas} jabalinas aptas · {evaluation.masasConformes} de {evaluation.totalMasas} masas continuas · {evaluation.diferencialesConformes} de {evaluation.totalDiferenciales} disyuntores ensayados.
               </div>
+              {evaluation.calibracionVencida && (
+                <div className="text-xs font-bold text-red-600 dark:text-red-400 mt-1">
+                  ⚠️ Certificado de calibración de instrumental con más de 24 meses de antigüedad.
+                </div>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-4 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-700 pt-2 md:pt-0 md:pl-4">
@@ -519,9 +533,16 @@ export default function GroundingProtocolForm(): React.ReactElement | null {
             </div>
             <div className="text-center">
               <span className="text-[10px] uppercase font-bold text-slate-500 block">Máximo</span>
-              <span className={`text-xl font-black ${evaluation.maxResistenciaMedida > 10 ? 'text-red-500' : 'text-slate-900 dark:text-white'}`}>
+              <span className={`text-xl font-black ${evaluation.maxResistenciaMedida > (protocol.esquemaConexionTierra === 'TT' ? 40 : 10) ? 'text-red-500' : 'text-slate-900 dark:text-white'}`}>
                 {evaluation.maxResistenciaMedida} Ω
               </span>
+            </div>
+            <div className="text-center">
+              <span className="text-[10px] uppercase font-bold text-slate-500 block">Tensión Uc</span>
+              <span className={`text-xl font-black ${evaluation.tensionContactoExcedida ? 'text-red-500' : 'text-slate-900 dark:text-white'}`}>
+                {evaluation.tensionContactoPresuntaMaxVolts} V
+              </span>
+              <span className="text-[9px] text-slate-400 block font-mono">Máx: {protocol.tensionSeguridadContacto || 50}V</span>
             </div>
           </div>
         </div>
@@ -548,6 +569,43 @@ export default function GroundingProtocolForm(): React.ReactElement | null {
                 placeholder="30-12345678-9"
                 className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-mono"
               />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Establecimiento / Sucursal</label>
+              <input
+                type="text"
+                value={protocol.establecimiento || ''}
+                onChange={e => setProtocol(p => ({ ...p, establecimiento: e.target.value }))}
+                placeholder="Planta Principal / Nave 2"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">ART Afiliada</label>
+              <input
+                type="text"
+                value={protocol.artNombre || ''}
+                onChange={e => setProtocol(p => ({ ...p, artNombre: e.target.value }))}
+                placeholder="Ej: Provincia ART / La Segunda"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tipo de Instalación</label>
+              <select
+                value={protocol.tipoInstalacion || 'Industrial'}
+                onChange={e => setProtocol(p => ({
+                  ...p,
+                  tipoInstalacion: e.target.value as any,
+                  tensionSeguridadContacto: e.target.value === 'Obra en Construcción (Dec. 911/96)' ? 24 : p.tensionSeguridadContacto
+                }))}
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold"
+              >
+                <option value="Industrial">Industrial (Manufactura, Talleres, Depósitos)</option>
+                <option value="Comercial">Comercial / Administrativa (Oficinas, Locales)</option>
+                <option value="Obra en Construcción (Dec. 911/96)">Obra en Construcción (Dec. 911/96 - UL 24V)</option>
+                <option value="Hospitalaria / Crítica">Hospitalaria / Crítica (Salas de grupo 2, Quirófanos)</option>
+              </select>
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Actividad Principal</label>
@@ -589,7 +647,7 @@ export default function GroundingProtocolForm(): React.ReactElement | null {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Fecha de Vencimiento</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Fecha de Vencimiento (12 meses)</label>
               <input
                 type="date"
                 value={protocol.fechaVencimiento}
@@ -656,6 +714,26 @@ export default function GroundingProtocolForm(): React.ReactElement | null {
               />
             </div>
             <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">N° Certificado Calibración</label>
+              <input
+                type="text"
+                value={protocol.instrumentoCertificadoNro || ''}
+                onChange={e => setProtocol(p => ({ ...p, instrumentoCertificadoNro: e.target.value }))}
+                placeholder="INTI-CAL-2025-900"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-mono"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Laboratorio Calibrador</label>
+              <input
+                type="text"
+                value={protocol.instrumentoLaboratorio || ''}
+                onChange={e => setProtocol(p => ({ ...p, instrumentoLaboratorio: e.target.value }))}
+                placeholder="Laboratorio INTI / Red SAC Trazable"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+              />
+            </div>
+            <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Esquema de Tierra (Régimen de Neutro)</label>
               <select
                 value={protocol.esquemaConexionTierra}
@@ -666,6 +744,17 @@ export default function GroundingProtocolForm(): React.ReactElement | null {
                 <option value="TN-S">Esquema TN-S (Neutro y protección separados)</option>
                 <option value="TN-C">Esquema TN-C (Neutro y protección combinados PEN)</option>
                 <option value="IT">Esquema IT (Neutro aislado - Hospitales / Industrias continuas)</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tensión Seguridad de Contacto UL</label>
+              <select
+                value={protocol.tensionSeguridadContacto || 50}
+                onChange={e => setProtocol(p => ({ ...p, tensionSeguridadContacto: Number(e.target.value) as 24 | 50 }))}
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold"
+              >
+                <option value={50}>50 V - Locales secos / condiciones normales (AEA 90364-4-41)</option>
+                <option value={24}>24 V - Locales húmedos, mojados, obras o áreas críticas (AEA / Dec. 911/96)</option>
               </select>
             </div>
             <div>

@@ -5,7 +5,7 @@ import {
   FileText, Eye, Edit3, Trash2, CheckCircle2,
   XCircle, Clock, User, Users, Calendar,
   Shield, ArrowDown, Ruler, Anchor, CheckSquare,
-  BarChart3, AlertCircle, Activity, Layers, Share2, ArrowLeft } from
+  BarChart3, AlertCircle, Activity, Layers, Share2, ArrowLeft, Download } from
 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
@@ -16,13 +16,13 @@ import ConfirmModal from '../components/ConfirmModal';
 import { DataTable } from '../components/DataTable';
 
 
-// Límites según OSHA 1926.501 y normas internacionales
+// Límites según Resolución S.R.T. N° 61/2023, Decreto 911/96 y Norma IRAM 3626
 const HEIGHT_LIMITS = {
-  general: { min: 1.8, unit: 'm', name: 'Altura General (OSHA)' },
-  construction: { min: 1.8, unit: 'm', name: 'Construcción (OSHA 1926)' },
-  scaffolding: { min: 3.0, unit: 'm', name: 'Andamios' },
-  steel: { min: 2.4, unit: 'm', name: 'Estructuras de Acero' },
-  ladder: { min: 1.2, unit: 'm', name: 'Escaleras Fijas' }
+  general: { min: 2.0, unit: 'm', name: 'Altura General (Dec. 911/96 & Res. SRT 61/23)' },
+  construction: { min: 2.0, unit: 'm', name: 'Construcción (Dec. 911/96 Art. 54)' },
+  scaffolding: { min: 2.0, unit: 'm', name: 'Andamios (Dec. 911/96)' },
+  anchor: { min: 22.0, unit: 'kN', name: 'Anclaje Mínimo (IRAM 3626 - 22 kN / 5000 lbs)' },
+  wind: { max: 35.0, unit: 'km/h', name: 'Límite Viento Operativo (Res. SRT 61/23)' }
 };
 
 // Tipos de trabajo en altura
@@ -312,6 +312,61 @@ export default function WorkingAtHeight(): React.ReactElement | null {
     }
   ];
 
+  const exportToCsv = () => {
+    if (permits.length === 0) {
+      alert('No hay permisos registrados para exportar');
+      return;
+    }
+
+    const headers = [
+      'ID_PERMISO',
+      'CUIT',
+      'EMPRESA',
+      'OPERARIO',
+      'DNI',
+      'APTO_MEDICO',
+      'TIPO_TRABAJO',
+      'UBICACION',
+      'ALTURA_M',
+      'DLC_REQUERIDA_M',
+      'ESPACIO_SEGURO',
+      'TIPO_ANCLAJE',
+      'VIENTO_KMH',
+      'FECHA',
+      'SUPERVISOR',
+      'ESTADO'
+    ];
+
+    const rows = permits.map((p: any) => [
+      `"${p.id || ''}"`,
+      `"${p.cuit || ''}"`,
+      `"${(p.companyName || '').replace(/"/g, '""')}"`,
+      `"${(p.workerName || '').replace(/"/g, '""')}"`,
+      `"${p.workerDni || ''}"`,
+      `"${p.medicalFitness ? 'APTO' : 'NO APTO'}"`,
+      `"${p.workType || ''}"`,
+      `"${(p.location || '').replace(/"/g, '""')}"`,
+      `"${p.height || ''}"`,
+      `"${p.dlcRequired || ''}"`,
+      `"${p.isClearanceSafe !== false ? 'SEGURO' : 'INSUFICIENTE'}"`,
+      `"${p.anchorType || ''}"`,
+      `"${p.weather?.windSpeedKmh || ''}"`,
+      `"${p.createdAt ? new Date(p.createdAt).toLocaleDateString('es-AR') : ''}"`,
+      `"${(p.supervisor || '').replace(/"/g, '""')}"`,
+      `"${p.status || ''}"`
+    ]);
+
+    const csvContent = '\uFEFF' + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `permisos_trabajo_altura_srt61_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="container pb-[6rem]">
       <ShareModal
@@ -332,7 +387,7 @@ export default function WorkingAtHeight(): React.ReactElement | null {
       <div className="no-print mb-6">
         <PremiumHeader
           title="Trabajo en Altura"
-          subtitle={`OSHA 1926.501 • ${activePermits.length} activos`}
+          subtitle={`Res. S.R.T. N° 61/23 & Dec. 911/96 • ${activePermits.length} permisos activos`}
           icon={<HardHat size={32} color="#ffffff" />}
           color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
         />
@@ -397,28 +452,38 @@ export default function WorkingAtHeight(): React.ReactElement | null {
           />
         </div>
 
-        {/* Botón Nuevo Permiso de Altura */}
-        <button 
-          onClick={handleCreatePermit} 
-          style={{
-            backgroundColor: '#059669',
-            color: '#ffffff',
-            border: 'none',
-            padding: '6px 14px',
-            fontSize: '12px',
-            fontWeight: '800',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            whiteSpace: 'nowrap',
-            height: '34px',
-            boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
-          }}>
-          <Plus size={14} />
-          <span>Nuevo Permiso de Altura</span>
-        </button>
+        {/* Botón Exportar CSV y Nuevo Permiso */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={exportToCsv}
+            className="border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-700 dark:text-slate-200 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-2xs cursor-pointer h-[34px]"
+          >
+            <Download size={14} className="text-emerald-600" />
+            <span>Exportar CSV</span>
+          </button>
+          <button 
+            onClick={handleCreatePermit} 
+            style={{
+              backgroundColor: '#059669',
+              color: '#ffffff',
+              border: 'none',
+              padding: '6px 14px',
+              fontSize: '12px',
+              fontWeight: '800',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              whiteSpace: 'nowrap',
+              height: '34px',
+              boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
+            }}>
+            <Plus size={14} />
+            <span>Nuevo Permiso PTSA</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter Tabs — IDÉNTICO A APTITUDES MÉDICAS */}

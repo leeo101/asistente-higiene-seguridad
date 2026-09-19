@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Shield, Plus, Search, Calendar, HeartPulse, UserCheck, AlertTriangle, 
   FileText, CheckCircle2, XCircle, QrCode, ExternalLink, Trash2, Filter, 
-  Building2, User, HardHat, FileSpreadsheet, Sparkles, Zap, Truck, ArrowUpRight, ArrowLeft, X
+  Building2, User, HardHat, FileSpreadsheet, Sparkles, Zap, Truck, ArrowUpRight, ArrowLeft, X,
+  Download, Clock, AlertOctagon, Info
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -14,13 +15,18 @@ import toast from 'react-hot-toast';
 import { QRCodeSVG } from 'qrcode.react';
 import ShareModal from '../components/ShareModal';
 import MedicalPdfGenerator from '../components/MedicalPdfGenerator';
+import type { MedicalRecord, MedicalExamType, MedicalFitnessVerdict } from '../types/medical';
+import { 
+  evaluateMedicalFitnessCompliance, 
+  OFFICIAL_MEDICAL_APTITUDE_REGULATORY_CRITERIA 
+} from '../utils/srtProtocols';
 
 export default function MedicalAptitudes() {
   const { currentUser } = useAuth();
   const { syncCollection } = useSync();
   const navigate = useNavigate();
   
-  const [exams, setExams] = useState<any[]>([]);
+  const [exams, setExams] = useState<MedicalRecord[]>([]);
   const [legajos, setLegajos] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,18 +38,45 @@ export default function MedicalAptitudes() {
   const defaultExamDate = new Date().toISOString().split('T')[0];
   const defaultExpDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    id: string;
+    workerName: string;
+    dni: string;
+    jobTitle: string;
+    company: string;
+    cuitEmpresa: string;
+    artNombre: string;
+    examType: MedicalExamType;
+    examDate: string;
+    expirationDate: string;
+    result: MedicalFitnessVerdict;
+    clinic: string;
+    doctor: string;
+    doctorLicense: string;
+    preexistencias: string;
+    restricciones: string;
+    notes: string;
+    allowHeight: boolean;
+    allowConfined: boolean;
+    allowMachinery: boolean;
+    allowElectrical: boolean;
+  }>({
     id: '',
     workerName: '',
     dni: '',
     jobTitle: '',
     company: '',
+    cuitEmpresa: '',
+    artNombre: '',
     examType: 'periodico',
     examDate: defaultExamDate,
     expirationDate: defaultExpDate,
     result: 'apto',
     clinic: '',
     doctor: '',
+    doctorLicense: '',
+    preexistencias: '',
+    restricciones: '',
     notes: '',
     allowHeight: false,
     allowConfined: false,
@@ -114,12 +147,20 @@ export default function MedicalAptitudes() {
       return;
     }
 
-    const newRecord = {
+    // Validación normativa Res. SRT 37/10
+    const compliance = evaluateMedicalFitnessCompliance(formData);
+    if ((formData.result === 'no_apto' || formData.result === 'no_apto_temporario') && 
+        (formData.allowHeight || formData.allowConfined || formData.allowMachinery || formData.allowElectrical)) {
+      toast.error('Contradicción clínica: No se pueden habilitar tareas de alto riesgo para un operario NO APTO.');
+      return;
+    }
+
+    const newRecord: MedicalRecord = {
       ...formData,
       id: formData.id || `MED-${Date.now()}`
     };
 
-    let updated;
+    let updated: MedicalRecord[];
     if (formData.id) {
       updated = exams.map((e) => e.id === formData.id ? newRecord : e);
       toast.success('Examen actualizado correctamente.');
@@ -152,12 +193,17 @@ export default function MedicalAptitudes() {
       dni: '',
       jobTitle: '',
       company: '',
+      cuitEmpresa: '',
+      artNombre: '',
       examType: 'periodico',
       examDate: new Date().toISOString().split('T')[0],
       expirationDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       result: 'apto',
       clinic: '',
       doctor: '',
+      doctorLicense: '',
+      preexistencias: '',
+      restricciones: '',
       notes: '',
       allowHeight: false,
       allowConfined: false,
@@ -166,7 +212,7 @@ export default function MedicalAptitudes() {
     });
   };
 
-  // Metrics
+  // Metrics (Res. SRT 37/10)
   const metrics = useMemo(() => {
     const total = exams.length;
     const now = new Date();
@@ -178,11 +224,11 @@ export default function MedicalAptitudes() {
 
     exams.forEach(e => {
       const isExp = e.expirationDate && new Date(e.expirationDate) < now;
-      if (e.result === 'no_apto') {
+      if (e.result === 'no_apto' || e.result === 'no_apto_temporario') {
         noApto++;
       } else if (isExp) {
         expired++;
-      } else if (e.result === 'preexistencias') {
+      } else if (e.result === 'apto_con_preexistencias' || (e.result as any) === 'preexistencias' || e.result === 'apto_con_restricciones') {
         preexistencia++;
       } else {
         valid++;
@@ -194,7 +240,7 @@ export default function MedicalAptitudes() {
 
   const getResultBadge = (result: string, expirationDate?: string) => {
     const isExpired = expirationDate && new Date(expirationDate) < new Date();
-    if (isExpired && result !== 'no_apto') {
+    if (isExpired && result !== 'no_apto' && result !== 'no_apto_temporario') {
       return (
         <span style={{ backgroundColor: '#fef2f2', color: '#dc2626', border: '1px solid #fecdd3', padding: '4px 10px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
           <XCircle size={14} /> Vencido
@@ -209,10 +255,23 @@ export default function MedicalAptitudes() {
             <CheckCircle2 size={14} /> Apto
           </span>
         );
+      case 'apto_con_preexistencias':
       case 'preexistencias':
         return (
           <span style={{ backgroundColor: '#fffbeb', color: '#d97706', border: '1px solid #fde68a', padding: '4px 10px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
             <AlertTriangle size={14} /> Apto c/ Preexistencias
+          </span>
+        );
+      case 'apto_con_restricciones':
+        return (
+          <span style={{ backgroundColor: '#fff7ed', color: '#ea580c', border: '1px solid #fed7aa', padding: '4px 10px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <AlertTriangle size={14} /> Apto c/ Restricciones
+          </span>
+        );
+      case 'no_apto_temporario':
+        return (
+          <span style={{ backgroundColor: '#fdf4ff', color: '#a21caf', border: '1px solid #f0abfc', padding: '4px 10px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Clock size={14} /> No Apto Temporario
           </span>
         );
       case 'no_apto':
@@ -222,36 +281,129 @@ export default function MedicalAptitudes() {
           </span>
         );
       default:
-        return null;
+        return (
+          <span style={{ backgroundColor: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0', padding: '4px 10px', borderRadius: '6px', fontWeight: '900', fontSize: '11px' }}>
+            {result}
+          </span>
+        );
     }
   };
 
   const buildMedicalShareMessage = (item: any) => {
     if (!item) return '';
     const isExpired = item.expirationDate && new Date(item.expirationDate) < new Date();
-    const resultLabel = item.result === 'no_apto' ? '🔴 NO APTO' : isExpired ? '🔴 VENCIDO' : item.result === 'preexistencias' ? '🟡 APTO C/ PREEXISTENCIAS' : '🟢 APTO SIN RESTRICCIONES';
+    const verdictMap: Record<string, string> = {
+      apto: '🟢 APTO SIN RESTRICCIONES',
+      apto_con_preexistencias: '🟡 APTO CON PREEXISTENCIAS (Art. 2° y 3°)',
+      preexistencias: '🟡 APTO CON PREEXISTENCIAS',
+      apto_con_restricciones: '🟠 APTO CON RESTRICCIONES',
+      no_apto: '🔴 NO APTO',
+      no_apto_temporario: '⏳ NO APTO TEMPORARIO'
+    };
+    const resultLabel = isExpired && item.result !== 'no_apto' && item.result !== 'no_apto_temporario'
+      ? `🔴 VENCIDO (${verdictMap[item.result] || item.result})`
+      : (verdictMap[item.result] || item.result || 'APTO');
 
-    const heightText = item.allowHeight ? '✓ Altura' : '✕ Altura';
+    const heightText = item.allowHeight ? '✓ Altura (>2m)' : '✕ Altura';
     const confinedText = item.allowConfined ? '✓ Confinados' : '✕ Confinados';
-    const machineryText = item.allowMachinery ? '✓ Maquinaria' : '✕ Maquinaria';
-    const electricalText = item.allowElectrical ? '✓ Eléctrico' : '✕ Eléctrico';
+    const machineryText = item.allowMachinery ? '✓ Maquinaria/Clark' : '✕ Maquinaria';
+    const electricalText = item.allowElectrical ? '✓ Tensión/Eléctrico' : '✕ Eléctrico';
 
-    return `🏥 *DECLARACIÓN DE APTITUD MÉDICA LABORAL*
+    const examTypeLabel = OFFICIAL_MEDICAL_APTITUDE_REGULATORY_CRITERIA.examTypesMap[item.examType as MedicalExamType] || item.examType;
+
+    return `🏥 *DECLARACIÓN DE APTITUD MÉDICA LABORAL (Res. S.R.T. N° 37/2010)*
 👤 *Trabajador:* ${item.workerName || '-'} (DNI: ${item.dni || '-'})
 👷 *Puesto:* ${item.jobTitle || '-'}
-🏢 *Empresa:* ${item.company || '-'}
+🏢 *Empresa:* ${item.company || '-'} ${item.cuitEmpresa ? `(CUIT: ${item.cuitEmpresa})` : ''}
+🛡️ *A.R.T.:* ${item.artNombre || '-'}
+📋 *Tipo de Examen:* ${examTypeLabel}
 
 📊 *Dictamen Clínico:* ${resultLabel}
 📅 *Fecha Examen:* ${item.examDate || '-'}
 ⏳ *Vencimiento:* ${item.expirationDate || '-'}
-🩺 *Médico/Clínica:* ${item.doctor || '-'} (${item.clinic || '-'})
+🩺 *Médico/Clínica:* ${item.doctor || '-'} ${item.doctorLicense ? `(MN/MP: ${item.doctorLicense})` : ''} - ${item.clinic || '-'}
 
 🛡️ *Habilitaciones de Alto Riesgo:*
 • ${heightText} | ${confinedText}
 • ${machineryText} | ${electricalText}
 
-${item.notes ? `📝 *Observaciones:* ${item.notes}\n` : ''}
-_Generado con Asistente H&S_`;
+${item.preexistencias ? `⚠️ *Preexistencias Registradas:* ${item.preexistencias}\n` : ''}${item.restricciones ? `⚠️ *Restricciones Operativas:* ${item.restricciones}\n` : ''}${item.notes ? `📝 *Observaciones:* ${item.notes}\n` : ''}
+_Generado con Asistente H&S - Conforme Res. SRT 37/2010 y Ley 19.587_`;
+  };
+
+  const exportToCsv = () => {
+    if (!exams.length) {
+      toast.error('No hay exámenes registrados para exportar.');
+      return;
+    }
+
+    const headers = [
+      'ID Registro',
+      'DNI / CUIL',
+      'Trabajador',
+      'Puesto / Tarea',
+      'Empresa',
+      'CUIT Empresa',
+      'A.R.T.',
+      'Tipo de Examen (Res. 37/10)',
+      'Fecha Examen',
+      'Fecha Vencimiento',
+      'Dictamen Clínico',
+      'Vigencia',
+      'Habilitado Altura (>2m)',
+      'Habilitado Espacio Confinado',
+      'Habilitado Autoelevador/Clark',
+      'Habilitado Riesgo Eléctrico',
+      'Preexistencias',
+      'Restricciones Operativas',
+      'Clínica / Centro Evaluador',
+      'Médico Evaluador',
+      'Matrícula Médico',
+      'Observaciones'
+    ];
+
+    const rows = exams.map(e => {
+      const isExp = e.expirationDate && new Date(e.expirationDate) < new Date();
+      const tipoLabel = OFFICIAL_MEDICAL_APTITUDE_REGULATORY_CRITERIA.examTypesMap[e.examType as MedicalExamType] || e.examType || '';
+      const verdictLabel = OFFICIAL_MEDICAL_APTITUDE_REGULATORY_CRITERIA.verdictsMap[e.result as MedicalFitnessVerdict] || e.result || '';
+      const vigenciaLabel = isExp ? 'VENCIDO' : 'VIGENTE';
+
+      return [
+        `"${e.id || ''}"`,
+        `"${e.dni || ''}"`,
+        `"${(e.workerName || '').replace(/"/g, '""')}"`,
+        `"${(e.jobTitle || '').replace(/"/g, '""')}"`,
+        `"${(e.company || '').replace(/"/g, '""')}"`,
+        `"${e.cuitEmpresa || ''}"`,
+        `"${(e.artNombre || '').replace(/"/g, '""')}"`,
+        `"${tipoLabel.replace(/"/g, '""')}"`,
+        `"${e.examDate || ''}"`,
+        `"${e.expirationDate || ''}"`,
+        `"${verdictLabel.replace(/"/g, '""')}"`,
+        `"${vigenciaLabel}"`,
+        `"${e.allowHeight ? 'SÍ' : 'NO'}"`,
+        `"${e.allowConfined ? 'SÍ' : 'NO'}"`,
+        `"${e.allowMachinery ? 'SÍ' : 'NO'}"`,
+        `"${e.allowElectrical ? 'SÍ' : 'NO'}"`,
+        `"${(e.preexistencias || '').replace(/"/g, '""')}"`,
+        `"${(e.restricciones || '').replace(/"/g, '""')}"`,
+        `"${(e.clinic || '').replace(/"/g, '""')}"`,
+        `"${(e.doctor || '').replace(/"/g, '""')}"`,
+        `"${e.doctorLicense || ''}"`,
+        `"${(e.notes || '').replace(/"/g, '""')}"`
+      ].join(';');
+    });
+
+    const csvContent = '\uFEFF' + [headers.join(';'), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Aptitudes_Medicas_Res_SRT_37_10_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Padrón de aptitudes médicas exportado en CSV.');
   };
 
   const columns = [
@@ -270,18 +422,76 @@ _Generado con Asistente H&S_`;
       render: (item: any) => (
         <div>
           <div style={{ color: '#000000', fontWeight: '900', fontSize: '14px', lineHeight: '1.2' }}>{item.workerName}</div>
-          <div style={{ color: '#1e293b', fontWeight: '800', fontSize: '12px', marginTop: '2px' }}>DNI: {item.dni} {item.jobTitle ? `• ${item.jobTitle}` : ''}</div>
+          <div style={{ color: '#1e293b', fontWeight: '800', fontSize: '12px', marginTop: '2px' }}>
+            DNI: {item.dni} {item.jobTitle ? `• ${item.jobTitle}` : ''}
+          </div>
+          {item.company && (
+            <div style={{ color: '#64748b', fontSize: '11px', fontWeight: '600', marginTop: '1px' }}>
+              {item.company}
+            </div>
+          )}
         </div>
       )
     },
     {
       header: 'Tipo Examen',
       accessor: 'examType',
+      render: (item: any) => {
+        const label = OFFICIAL_MEDICAL_APTITUDE_REGULATORY_CRITERIA.examTypesMap[item.examType as MedicalExamType] || item.examType.replace('_', ' ');
+        return (
+          <span style={{ color: '#0f172a', fontWeight: '800', fontSize: '12px', display: 'block' }}>
+            {label}
+          </span>
+        );
+      }
+    },
+    {
+      header: 'Dictamen Clínico',
+      accessor: 'result',
       render: (item: any) => (
-        <span style={{ color: '#0f172a', fontWeight: '800', fontSize: '12px', textTransform: 'capitalize' }}>
-          {item.examType.replace('_', ' ')}
-        </span>
+        <div>
+          {getResultBadge(item.result, item.expirationDate)}
+          {(item.preexistencias || item.restricciones) && (
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={item.preexistencias || item.restricciones}>
+              {item.preexistencias ? `Preex: ${item.preexistencias}` : `Restric: ${item.restricciones}`}
+            </div>
+          )}
+        </div>
       )
+    },
+    {
+      header: 'Habilitaciones Especiales',
+      accessor: 'clearances',
+      render: (item: any) => {
+        const hasAny = item.allowHeight || item.allowConfined || item.allowMachinery || item.allowElectrical;
+        if (!hasAny) {
+          return <span style={{ color: '#94a3b8', fontSize: '11px', fontStyle: 'italic' }}>Sin habilitaciones críticas</span>;
+        }
+        return (
+          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', maxWidth: '210px' }}>
+            {item.allowHeight && (
+              <span style={{ backgroundColor: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>
+                🏗️ Altura
+              </span>
+            )}
+            {item.allowConfined && (
+              <span style={{ backgroundColor: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>
+                🛡️ Confinados
+              </span>
+            )}
+            {item.allowMachinery && (
+              <span style={{ backgroundColor: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>
+                🚜 Clark
+              </span>
+            )}
+            {item.allowElectrical && (
+              <span style={{ backgroundColor: '#fdf4ff', color: '#86198f', border: '1px solid #f5d0fe', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>
+                ⚡ Eléctrico
+              </span>
+            )}
+          </div>
+        );
+      }
     },
     {
       header: 'Vencimiento',
@@ -296,11 +506,6 @@ _Generado con Asistente H&S_`;
           </span>
         );
       }
-    },
-    {
-      header: 'Resultado',
-      accessor: 'result',
-      render: (item: any) => getResultBadge(item.result, item.expirationDate)
     },
     {
       header: 'Acciones',
@@ -353,15 +558,16 @@ _Generado con Asistente H&S_`;
     const name = String(e?.workerName || '').toLowerCase();
     const term = String(searchTerm || '').toLowerCase();
     const dniStr = String(e?.dni || '');
-    const matchesSearch = name.includes(term) || dniStr.includes(term);
+    const companyStr = String(e?.company || '').toLowerCase();
+    const matchesSearch = name.includes(term) || dniStr.includes(term) || companyStr.includes(term);
 
     if (!matchesSearch) return false;
 
     const isExp = e.expirationDate && new Date(e.expirationDate) < new Date();
     if (statusFilter === 'valid') return !isExp && e.result === 'apto';
-    if (statusFilter === 'preexistencia') return !isExp && e.result === 'preexistencias';
-    if (statusFilter === 'expired') return isExp && e.result !== 'no_apto';
-    if (statusFilter === 'no_apto') return e.result === 'no_apto';
+    if (statusFilter === 'preexistencia') return !isExp && (e.result === 'apto_con_preexistencias' || (e.result as any) === 'preexistencias' || e.result === 'apto_con_restricciones');
+    if (statusFilter === 'expired') return isExp && e.result !== 'no_apto' && e.result !== 'no_apto_temporario';
+    if (statusFilter === 'no_apto') return e.result === 'no_apto' || e.result === 'no_apto_temporario';
 
     return true;
   });
@@ -478,6 +684,31 @@ _Generado con Asistente H&S_`;
             </div>
 
 
+            {/* Live Regulatory Assessment Banner */}
+            {(() => {
+              const comp = evaluateMedicalFitnessCompliance(formData);
+              if (comp.alerts.length > 0) {
+                return (
+                  <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 space-y-2">
+                    <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-extrabold text-xs uppercase tracking-wider">
+                      <AlertOctagon size={16} /> Auditoría Regulatoria Res. S.R.T. N° 37/2010
+                    </div>
+                    <ul className="m-0 pl-4 space-y-1 text-xs text-amber-900 dark:text-amber-200 font-semibold list-disc">
+                      {comp.alerts.map((alert, idx) => (
+                        <li key={idx}>{alert}</li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              }
+              return (
+                <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-700/50 flex items-center gap-2.5 text-xs text-emerald-800 dark:text-emerald-300 font-bold">
+                  <CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                  <span>Aptitud clínica y vigencia conforme a los requerimientos de la Res. S.R.T. N° 37/2010 y Ley N° 19.587.</span>
+                </div>
+              );
+            })()}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
               <div>
                 <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Nombre del Trabajador *</label>
@@ -497,7 +728,7 @@ _Generado con Asistente H&S_`;
                   value={formData.dni} 
                   onChange={(e) => setFormData({ ...formData, dni: e.target.value })} 
                   className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-emerald-500 outline-none font-semibold text-sm text-slate-900 dark:text-white" 
-                  placeholder="Sin puntos ni guiones" 
+                  placeholder="Sin puntos ni guiones (o XX-XXXXXXXX-X)" 
                 />
               </div>
 
@@ -508,7 +739,40 @@ _Generado con Asistente H&S_`;
                   value={formData.jobTitle} 
                   onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })} 
                   className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-emerald-500 outline-none font-semibold text-sm text-slate-900 dark:text-white" 
-                  placeholder="Ej. Operador de Montacargas, Chofer..." 
+                  placeholder="Ej. Operador de Montacargas, Soldador..." 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Razón Social Empleador</label>
+                <input 
+                  type="text" 
+                  value={formData.company} 
+                  onChange={(e) => setFormData({ ...formData, company: e.target.value })} 
+                  className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-emerald-500 outline-none font-semibold text-sm text-slate-900 dark:text-white" 
+                  placeholder="Ej. Logística Industrial S.A." 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">CUIT Empresa</label>
+                <input 
+                  type="text" 
+                  value={formData.cuitEmpresa} 
+                  onChange={(e) => setFormData({ ...formData, cuitEmpresa: e.target.value })} 
+                  className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-emerald-500 outline-none font-semibold text-sm text-slate-900 dark:text-white" 
+                  placeholder="Ej. 30-71234567-9" 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Aseguradora de Riesgos (A.R.T.)</label>
+                <input 
+                  type="text" 
+                  value={formData.artNombre} 
+                  onChange={(e) => setFormData({ ...formData, artNombre: e.target.value })} 
+                  className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-emerald-500 outline-none font-semibold text-sm text-slate-900 dark:text-white" 
+                  placeholder="Ej. La Segunda ART, Prevención ART..." 
                 />
               </div>
 
@@ -539,29 +803,49 @@ _Generado con Asistente H&S_`;
               </div>
 
               <div>
-                <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Tipo de Examen</label>
+                <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Tipo de Examen (Res. SRT 37/10)</label>
                 <select 
                   value={formData.examType} 
-                  onChange={(e) => setFormData({ ...formData, examType: e.target.value })} 
+                  onChange={(e) => setFormData({ ...formData, examType: e.target.value as MedicalExamType })} 
                   className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-emerald-500 outline-none font-semibold text-sm text-slate-900 dark:text-white cursor-pointer">
-                  <option value="preocupacional">Preocupacional (Ingreso)</option>
-                  <option value="periodico">Periódico de Salud</option>
-                  <option value="egreso">De Egreso</option>
-                  <option value="cambio_tarea">Cambio de Tareas</option>
-                  <option value="reincorporacion">Reincorporación Post-Licencia</option>
+                  <option value="preocupacional">Preocupacional o de Ingreso (Art. 2°)</option>
+                  <option value="periodico">Periódico de Salud Ocupacional (Art. 3°)</option>
+                  <option value="transferencia">Previo a Transferencia de Tareas (Art. 4°)</option>
+                  <option value="ausencia_prolongada">Posterior a Ausencia Prolongada (Art. 5°)</option>
+                  <option value="egreso">De Egreso o Cese Laboral (Art. 6°)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Resultado Clínico</label>
+                <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Dictamen Clínico (Res. SRT 37/10)</label>
                 <select 
                   value={formData.result} 
-                  onChange={(e) => setFormData({ ...formData, result: e.target.value })} 
+                  onChange={(e) => {
+                    const nextResult = e.target.value as MedicalFitnessVerdict;
+                    setFormData(prev => {
+                      // Si pasa a no apto, deshabilitamos tareas críticas automáticamente
+                      const isNoApto = nextResult === 'no_apto' || nextResult === 'no_apto_temporario';
+                      return {
+                        ...prev,
+                        result: nextResult,
+                        allowHeight: isNoApto ? false : prev.allowHeight,
+                        allowConfined: isNoApto ? false : prev.allowConfined,
+                        allowMachinery: isNoApto ? false : prev.allowMachinery,
+                        allowElectrical: isNoApto ? false : prev.allowElectrical
+                      };
+                    });
+                  }} 
                   className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-emerald-500 outline-none font-extrabold text-sm cursor-pointer"
-                  style={{ color: formData.result === 'apto' ? '#10b981' : formData.result === 'no_apto' ? '#ef4444' : '#f59e0b' }}>
-                  <option value="apto">APTO SIN RESTRICCIONES</option>
-                  <option value="preexistencias">APTO CON PREEXISTENCIAS / RESTRICCIONES</option>
-                  <option value="no_apto">NO APTO</option>
+                  style={{
+                    color: formData.result === 'apto' ? '#10b981' : 
+                           formData.result === 'no_apto' ? '#ef4444' : 
+                           formData.result === 'no_apto_temporario' ? '#a21caf' : '#f59e0b'
+                  }}>
+                  <option value="apto">🟢 APTO SIN RESTRICCIONES</option>
+                  <option value="apto_con_preexistencias">🟡 APTO CON PREEXISTENCIAS (Art. 2° y 3°)</option>
+                  <option value="apto_con_restricciones">🟠 APTO CON RESTRICCIONES (Tareas acotadas)</option>
+                  <option value="no_apto_temporario">⏳ NO APTO TEMPORARIO (Tratamiento agudo)</option>
+                  <option value="no_apto">🔴 NO APTO (Incompatibilidad laboral)</option>
                 </select>
               </div>
 
@@ -586,7 +870,7 @@ _Generado con Asistente H&S_`;
               </div>
 
               <div>
-                <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Clínica / Centro Médico</label>
+                <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Clínica / Centro Evaluador</label>
                 <input 
                   type="text" 
                   value={formData.clinic} 
@@ -597,27 +881,90 @@ _Generado con Asistente H&S_`;
               </div>
 
               <div>
-                <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Médico / Matrícula</label>
+                <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Médico Evaluador Laboral</label>
                 <input 
                   type="text" 
                   value={formData.doctor} 
                   onChange={(e) => setFormData({ ...formData, doctor: e.target.value })} 
                   className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-emerald-500 outline-none font-semibold text-sm text-slate-900 dark:text-white" 
-                  placeholder="Dr. Nombre Apellido (MP 12345)" 
+                  placeholder="Dr. Nombre Apellido" 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Matrícula Profesional (MN / MP)</label>
+                <input 
+                  type="text" 
+                  value={formData.doctorLicense} 
+                  onChange={(e) => setFormData({ ...formData, doctorLicense: e.target.value })} 
+                  className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-emerald-500 outline-none font-semibold text-sm text-slate-900 dark:text-white" 
+                  placeholder="Ej. MN 123456 / MP 9876" 
                 />
               </div>
             </div>
 
+            {/* Asiento de Preexistencias (Condicional) */}
+            {(formData.result === 'apto_con_preexistencias' || (formData.result as any) === 'preexistencias') && (
+              <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 space-y-2">
+                <label className="block text-xs font-black text-amber-800 dark:text-amber-300 uppercase tracking-wider">
+                  ⚠️ Declaración de Preexistencias Clínicas (Obligatorio Res. SRT 37/10 Art. 2° y 3°)
+                </label>
+                <textarea 
+                  value={formData.preexistencias} 
+                  onChange={(e) => setFormData({ ...formData, preexistencias: e.target.value })} 
+                  rows={2} 
+                  className="w-full p-3 rounded-xl bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 focus:border-amber-500 outline-none font-semibold text-sm text-slate-900 dark:text-white" 
+                  placeholder="Detallar patologías preexistentes, secuelas quirúrgicas, cicatrices, prótesis o alteraciones congénitas asentadas para deslinde legal..." 
+                />
+                <span className="text-[11px] text-amber-700 dark:text-amber-400 font-medium block">
+                  Nota legal: Las preexistencias no impiden la contratación pero eximen a la ART y al empleador de contingencias incapacitantes preconstituidas.
+                </span>
+              </div>
+            )}
+
+            {/* Asiento de Restricciones Operativas (Condicional) */}
+            {formData.result === 'apto_con_restricciones' && (
+              <div className="p-4 rounded-2xl bg-orange-50 dark:bg-orange-950/40 border border-orange-300 dark:border-orange-700 space-y-2">
+                <label className="block text-xs font-black text-orange-800 dark:text-orange-300 uppercase tracking-wider">
+                  ⚠️ Detalle de Restricciones Operativas en Puesto de Trabajo
+                </label>
+                <textarea 
+                  value={formData.restricciones} 
+                  onChange={(e) => setFormData({ ...formData, restricciones: e.target.value })} 
+                  rows={2} 
+                  className="w-full p-3 rounded-xl bg-white dark:bg-slate-900 border border-orange-300 dark:border-orange-700 focus:border-orange-500 outline-none font-semibold text-sm text-slate-900 dark:text-white" 
+                  placeholder="Ej. Prohibido levantar cargas superiores a 10 kg; uso obligatorio de protección auditiva doble; pausas activas cada 2 horas..." 
+                />
+                <span className="text-[11px] text-orange-700 dark:text-orange-400 font-medium block">
+                  El Servicio de Higiene y Seguridad debe verificar el estricto cumplimiento de estas limitaciones operativas en la línea de trabajo.
+                </span>
+              </div>
+            )}
+
             {/* Rediseño de Habilitaciones Clínicas Especiales con tarjetas activas redondeadas e iconos */}
             <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 space-y-3">
-              <span className="block text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                Habilitaciones Clínicas Especiales para Tareas de Alto Riesgo
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="block text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Habilitaciones Clínicas Especiales para Tareas de Alto Riesgo
+                </span>
+                {(formData.result === 'no_apto' || formData.result === 'no_apto_temporario') && (
+                  <span className="text-[11px] font-extrabold text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-950/60 px-2 py-0.5 rounded-md">
+                    ⛔ Inhabilitadas por Dictamen NO APTO
+                  </span>
+                )}
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 
                 {/* Altura */}
                 <div 
-                  onClick={() => setFormData(prev => ({ ...prev, allowHeight: !prev.allowHeight }))}
+                  onClick={() => {
+                    if (formData.result === 'no_apto' || formData.result === 'no_apto_temporario') {
+                      toast.error('Contradicción clínica: Operario calificado como NO APTO no puede realizar trabajos en altura.');
+                      return;
+                    }
+                    setFormData(prev => ({ ...prev, allowHeight: !prev.allowHeight }));
+                  }}
                   style={{
                     backgroundColor: formData.allowHeight ? '#dcfce7' : '#fff5f5',
                     border: formData.allowHeight ? '2px solid #16a34a' : '1px solid #fca5a5',
@@ -627,12 +974,13 @@ _Generado con Asistente H&S_`;
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    cursor: 'pointer',
-                    userSelect: 'none'
+                    cursor: (formData.result === 'no_apto' || formData.result === 'no_apto_temporario') ? 'not-allowed' : 'pointer',
+                    userSelect: 'none',
+                    opacity: (formData.result === 'no_apto' || formData.result === 'no_apto_temporario') ? 0.6 : 1
                   }}>
                   <div className="flex items-center gap-2.5">
                     <ArrowUpRight size={18} style={{ color: formData.allowHeight ? '#16a34a' : '#dc2626' }} />
-                    <span style={{ fontSize: '12px', fontWeight: '800' }}>Trabajo en Altura</span>
+                    <span style={{ fontSize: '12px', fontWeight: '800' }}>Trabajo en Altura (&gt;2m)</span>
                   </div>
                   <div style={{
                     width: '22px',
@@ -652,7 +1000,13 @@ _Generado con Asistente H&S_`;
 
                 {/* Confinados */}
                 <div 
-                  onClick={() => setFormData(prev => ({ ...prev, allowConfined: !prev.allowConfined }))}
+                  onClick={() => {
+                    if (formData.result === 'no_apto' || formData.result === 'no_apto_temporario') {
+                      toast.error('Contradicción clínica: Operario calificado como NO APTO no puede ingresar a espacios confinados.');
+                      return;
+                    }
+                    setFormData(prev => ({ ...prev, allowConfined: !prev.allowConfined }));
+                  }}
                   style={{
                     backgroundColor: formData.allowConfined ? '#dcfce7' : '#fff5f5',
                     border: formData.allowConfined ? '2px solid #16a34a' : '1px solid #fca5a5',
@@ -662,8 +1016,9 @@ _Generado con Asistente H&S_`;
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    cursor: 'pointer',
-                    userSelect: 'none'
+                    cursor: (formData.result === 'no_apto' || formData.result === 'no_apto_temporario') ? 'not-allowed' : 'pointer',
+                    userSelect: 'none',
+                    opacity: (formData.result === 'no_apto' || formData.result === 'no_apto_temporario') ? 0.6 : 1
                   }}>
                   <div className="flex items-center gap-2.5">
                     <Shield size={18} style={{ color: formData.allowConfined ? '#16a34a' : '#dc2626' }} />
@@ -687,7 +1042,13 @@ _Generado con Asistente H&S_`;
 
                 {/* Maquinaria */}
                 <div 
-                  onClick={() => setFormData(prev => ({ ...prev, allowMachinery: !prev.allowMachinery }))}
+                  onClick={() => {
+                    if (formData.result === 'no_apto' || formData.result === 'no_apto_temporario') {
+                      toast.error('Contradicción clínica: Operario calificado como NO APTO no puede operar autoelevadores ni maquinaria.');
+                      return;
+                    }
+                    setFormData(prev => ({ ...prev, allowMachinery: !prev.allowMachinery }));
+                  }}
                   style={{
                     backgroundColor: formData.allowMachinery ? '#dcfce7' : '#fff5f5',
                     border: formData.allowMachinery ? '2px solid #16a34a' : '1px solid #fca5a5',
@@ -697,12 +1058,13 @@ _Generado con Asistente H&S_`;
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    cursor: 'pointer',
-                    userSelect: 'none'
+                    cursor: (formData.result === 'no_apto' || formData.result === 'no_apto_temporario') ? 'not-allowed' : 'pointer',
+                    userSelect: 'none',
+                    opacity: (formData.result === 'no_apto' || formData.result === 'no_apto_temporario') ? 0.6 : 1
                   }}>
                   <div className="flex items-center gap-2.5">
                     <Truck size={18} style={{ color: formData.allowMachinery ? '#16a34a' : '#dc2626' }} />
-                    <span style={{ fontSize: '12px', fontWeight: '800' }}>Maquinaria / Flota</span>
+                    <span style={{ fontSize: '12px', fontWeight: '800' }}>Maquinaria / Clark</span>
                   </div>
                   <div style={{
                     width: '22px',
@@ -722,7 +1084,13 @@ _Generado con Asistente H&S_`;
 
                 {/* Eléctrico */}
                 <div 
-                  onClick={() => setFormData(prev => ({ ...prev, allowElectrical: !prev.allowElectrical }))}
+                  onClick={() => {
+                    if (formData.result === 'no_apto' || formData.result === 'no_apto_temporario') {
+                      toast.error('Contradicción clínica: Operario calificado como NO APTO no puede intervenir instalaciones con tensión.');
+                      return;
+                    }
+                    setFormData(prev => ({ ...prev, allowElectrical: !prev.allowElectrical }));
+                  }}
                   style={{
                     backgroundColor: formData.allowElectrical ? '#dcfce7' : '#fff5f5',
                     border: formData.allowElectrical ? '2px solid #16a34a' : '1px solid #fca5a5',
@@ -732,8 +1100,9 @@ _Generado con Asistente H&S_`;
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    cursor: 'pointer',
-                    userSelect: 'none'
+                    cursor: (formData.result === 'no_apto' || formData.result === 'no_apto_temporario') ? 'not-allowed' : 'pointer',
+                    userSelect: 'none',
+                    opacity: (formData.result === 'no_apto' || formData.result === 'no_apto_temporario') ? 0.6 : 1
                   }}>
                   <div className="flex items-center gap-2.5">
                     <Zap size={18} style={{ color: formData.allowElectrical ? '#16a34a' : '#dc2626' }} />
@@ -758,15 +1127,15 @@ _Generado con Asistente H&S_`;
               </div>
             </div>
 
-            {/* Observaciones y Restricciones */}
+            {/* Observaciones Generales */}
             <div>
-              <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Observaciones, Diagnósticos o Restricciones Médicas</label>
+              <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Observaciones Generales y Recomendaciones Clínicas</label>
               <textarea 
                 value={formData.notes} 
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })} 
                 rows={3} 
                 className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-emerald-500 outline-none font-semibold text-sm text-slate-900 dark:text-white" 
-                placeholder="Ej. Uso de lentes recetados obligatorio durante la jornada laboral..." 
+                placeholder="Ej. Se sugiere control oftalmológico anual. Uso de lentes recetados obligatorio durante la jornada laboral..." 
               />
             </div>
 
@@ -817,28 +1186,54 @@ _Generado con Asistente H&S_`;
                 />
               </div>
 
-              {/* Botón Nuevo Examen SUPER COMPACTO FORZADO INLINE */}
-              <button 
-                onClick={() => { resetForm(); setShowForm(true); }} 
-                style={{
-                  backgroundColor: '#059669',
-                  color: '#ffffff',
-                  border: 'none',
-                  padding: '6px 14px',
-                  fontSize: '12px',
-                  fontWeight: '800',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  whiteSpace: 'nowrap',
-                  height: '34px',
-                  boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
-                }}>
-                <Plus size={14} />
-                <span>Nuevo Examen Médico</span>
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Botón Exportar CSV Res. SRT 37/10 */}
+                <button 
+                  onClick={exportToCsv}
+                  title="Exportar base de aptitudes médicas en formato CSV oficial"
+                  style={{
+                    backgroundColor: '#0284c7',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '6px 14px',
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    whiteSpace: 'nowrap',
+                    height: '34px',
+                    boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)'
+                  }}>
+                  <FileSpreadsheet size={14} />
+                  <span>Exportar CSV</span>
+                </button>
+
+                {/* Botón Nuevo Examen SUPER COMPACTO FORZADO INLINE */}
+                <button 
+                  onClick={() => { resetForm(); setShowForm(true); }} 
+                  style={{
+                    backgroundColor: '#059669',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '6px 14px',
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    whiteSpace: 'nowrap',
+                    height: '34px',
+                    boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
+                  }}>
+                  <Plus size={14} />
+                  <span>Nuevo Examen Médico</span>
+                </button>
+              </div>
             </div>
 
             {/* Filter Tabs */}
@@ -880,7 +1275,7 @@ _Generado con Asistente H&S_`;
                   fontWeight: '800',
                   cursor: 'pointer'
                 }}>
-                Preexistencias ({metrics.preexistencia})
+                Preexistencias / Restricciones ({metrics.preexistencia})
               </button>
               <button
                 onClick={() => setStatusFilter('expired')}
@@ -894,6 +1289,19 @@ _Generado con Asistente H&S_`;
                   cursor: 'pointer'
                 }}>
                 Vencidos ({metrics.expired})
+              </button>
+              <button
+                onClick={() => setStatusFilter('no_apto')}
+                style={{
+                  backgroundColor: statusFilter === 'no_apto' ? '#7f1d1d' : '#ffffff',
+                  color: statusFilter === 'no_apto' ? '#ffffff' : '#334155',
+                  border: statusFilter === 'no_apto' ? '1px solid #7f1d1d' : '1px solid #cbd5e1',
+                  padding: '6px 12px',
+                  borderRadius: '8px',
+                  fontWeight: '800',
+                  cursor: 'pointer'
+                }}>
+                No Aptos ({metrics.noApto})
               </button>
             </div>
 

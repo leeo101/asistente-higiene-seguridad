@@ -1,20 +1,29 @@
 import React from 'react';
-import { ArrowLeft, Printer, MapPin, Calendar, Clock, TriangleAlert, User, FileText, Building2, Search, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Printer, MapPin, Calendar, Clock, TriangleAlert, User, FileText, Building2, Search, CheckCircle, AlertTriangle, ShieldAlert, ShieldCheck } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
+import { calculateSiniestralityRates, OFFICIAL_ACCIDENT_REGULATORY_CRITERIA } from '../utils/srtProtocols';
 
 export default function AccidentPdfGenerator({ report, onBack, isHeadless = false }: { report: any; onBack?: any; isHeadless?: boolean; }): React.ReactElement | null {
 
   const getSeverityStyle = (sev: any) => {
     if (sev === 'Leve') return { color: '#1d4ed8', bg: '#eff6ff', border: '#bfdbfe', borderTop: '#3b82f6', label: 'LEVE — Sin Baja' };
     if (sev === 'Moderado') return { color: '#b45309', bg: '#fffbeb', border: '#fde68a', borderTop: '#f59e0b', label: 'MODERADO — Con Baja' };
-    if (sev === 'Grave') return { color: '#c2410c', bg: '#fff7ed', border: '#fed7aa', borderTop: '#f97316', label: 'GRAVE — Internación' };
-    if (sev === 'Mortal') return { color: '#991b1b', bg: '#fef2f2', border: '#fca5a5', borderTop: '#dc2626', label: 'MORTAL' };
-    return { color: '#475569', bg: '#f8fafc', border: '#e2e8f0', borderTop: '#64748b', label: sev };
+    if (sev === 'Grave') return { color: '#c2410c', bg: '#fff7ed', border: '#fed7aa', borderTop: '#f97316', label: 'GRAVE — Res. SRT 475/06' };
+    if (sev === 'Mortal') return { color: '#991b1b', bg: '#fef2f2', border: '#fca5a5', borderTop: '#dc2626', label: 'MORTAL — Res. SRT 475/06' };
+    return { color: '#475569', bg: '#f8fafc', border: '#e2e8f0', borderTop: '#64748b', label: sev || 'Siniestro Laboral' };
   };
 
   const sev = getSeverityStyle(report?.gravedad);
+
+  // Cálculo riguroso de Índices de Siniestralidad (Res. SRT 503/14)
+  const isBaja = report?.gravedad !== 'Leve' || (Number(report?.diasIltEstimados) > 0);
+  const accidentsCount = isBaja ? 1 : 0;
+  const lostDays = Number(report?.diasIltEstimados) || 0;
+  const hht = Number(report?.hhtTotal) || 100000;
+  const dotacion = Number(report?.dotacionExpuesta) || 25;
+  const siniestrality = calculateSiniestralityRates(accidentsCount, lostDays, hht, dotacion);
 
   // Obtener firma profesional desde report o localStorage
   let actSignature: string | null = report?.professionalSignature || null;
@@ -96,13 +105,13 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
               </div>
               <div>
                 <span className="text-[0.55rem] font-black text-blue-700 uppercase tracking-widest block">
-                  SISTEMA DE GESTIÓN DE HIGIENE Y SEGURIDAD EN EL TRABAJO
+                  SISTEMA DE GESTIÓN DE HIGIENE Y SEGURIDAD EN EL TRABAJO — LEY N° 19.587
                 </span>
                 <h1 style={{ color: '#0f172a' }} className="m-0 text-xs font-black uppercase tracking-tight leading-none">
-                  INFORME DE INVESTIGACIÓN DE ACCIDENTE
+                  INFORME DE INVESTIGACIÓN DE ACCIDENTES E INCIDENTES LABORALES
                 </h1>
                 <span className="text-[0.58rem] text-slate-600 font-bold block mt-0.5">
-                  Res. SRT 7/2026 · Dec. 549/2025 · Metodología Árbol de Causas (SRT)
+                  Res. S.R.T. N° 475/2006 · Ley N° 24.557 (L.R.T.) · Res. S.R.T. N° 503/2014 · Método del Árbol de Causas
                 </span>
               </div>
             </div>
@@ -122,7 +131,7 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
               <div className="flex items-center gap-1.5">
                 <TriangleAlert size={12} className="text-amber-600" />
                 <span style={{ color: '#0f172a' }} className="font-black text-[0.68rem] uppercase tracking-wider">
-                  1 — DATOS DEL SINIESTRO Y REGISTRO ART
+                  1 — DATOS DEL SINIESTRO Y REGISTRO FORMAL A.R.T. / S.R.T.
                 </span>
               </div>
               {report?.artNombre && (
@@ -132,10 +141,12 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
               )}
             </div>
 
-            <div className="grid grid-cols-3 bg-slate-50 border-b border-slate-200 divide-x divide-slate-200">
-              <div className="p-1.5 col-span-1">
+            <div className="grid grid-cols-4 bg-slate-50 border-b border-slate-200 divide-x divide-slate-200">
+              <div className="p-1.5 col-span-2">
                 <span className="text-[0.54rem] font-black text-slate-500 uppercase block">EMPRESA / RAZÓN SOCIAL</span>
-                <div style={{ color: '#0f172a' }} className="font-extrabold text-[0.8rem] mt-0.5">{report?.empresa || '-'}</div>
+                <div style={{ color: '#0f172a' }} className="font-extrabold text-[0.8rem] mt-0.5">
+                  {report?.empresa || '-'} {report?.cuitEmpresa ? `(CUIT: ${report.cuitEmpresa})` : ''}
+                </div>
               </div>
               <div className="p-1.5 col-span-1">
                 <span className="text-[0.54rem] font-black text-slate-500 uppercase block">FECHA DEL HECHO</span>
@@ -145,7 +156,7 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
               </div>
               <div className="p-1.5 col-span-1">
                 <span className="text-[0.54rem] font-black text-slate-500 uppercase block">HORA APROX.</span>
-                <div style={{ color: '#0f172a' }} className="font-bold text-[0.78rem] mt-0.5">{report?.hora || 'N/E'}</div>
+                <div style={{ color: '#0f172a' }} className="font-bold text-[0.78rem] mt-0.5">{report?.hora || 'N/E'} hs</div>
               </div>
             </div>
 
@@ -156,77 +167,95 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
               </div>
               <div className="p-1.5">
                 <span className="text-[0.54rem] font-black text-slate-500 uppercase block">N° SINIESTRO / DENUNCIA ART</span>
-                <div style={{ color: '#0f172a' }} className="font-extrabold text-[0.78rem] mt-0.5">{report?.numeroSiniestro || 'Sin denuncia'}</div>
+                <div style={{ color: '#0f172a' }} className="font-extrabold text-[0.78rem] mt-0.5">{report?.numeroSiniestro || 'Sin denuncia asentada'}</div>
               </div>
               <div className="p-1.5">
-                <span className="text-[0.54rem] font-black text-slate-500 uppercase block">SANATORIO / CENTRO MÉDICO</span>
-                <div style={{ color: '#0f172a' }} className="font-bold text-[0.78rem] mt-0.5">{report?.centroMedico || 'N/E'}</div>
+                <span className="text-[0.54rem] font-black text-slate-500 uppercase block">SANATORIO / CENTRO ASISTENCIAL</span>
+                <div style={{ color: '#0f172a' }} className="font-bold text-[0.78rem] mt-0.5">{report?.centroMedico || 'Atención ambulatoria'}</div>
               </div>
             </div>
 
-            {report?.hhtTotal && (
-              <div className="px-2.5 py-0.5 bg-emerald-50 text-emerald-900 flex justify-between items-center text-[0.6rem] font-bold border-t border-emerald-200">
-                <span style={{ color: '#065f46' }}>📊 ÍNDICORES SRT (RES. 503/14):</span>
-                <div className="flex gap-3" style={{ color: '#065f46' }}>
-                  <span>IF: <strong>{((1 * 1000000) / (parseFloat(report.hhtTotal) || 100000)).toFixed(2)}</strong></span>
-                  <span>IG: <strong>{(((parseFloat(report.diasIltEstimados) || 0) * 1000000) / (parseFloat(report.hhtTotal) || 100000)).toFixed(2)}</strong></span>
-                  <span>HHT ANUAL: {report.hhtTotal} hrs</span>
-                </div>
+            {/* Panel de Indicadores Oficiales de Siniestralidad Res. SRT 503/14 */}
+            <div className="px-2.5 py-1 bg-emerald-50 text-emerald-950 flex flex-wrap justify-between items-center text-[0.62rem] font-bold border-t border-emerald-300">
+              <span style={{ color: '#065f46' }}>📊 ÍNDICES DE SINIESTRALIDAD (RES. S.R.T. N° 503/2014):</span>
+              <div className="flex gap-4" style={{ color: '#065f46' }}>
+                <span>IF (Frecuencia): <strong>{siniestrality.indiceFrecuencia}</strong></span>
+                <span>IG (Gravedad): <strong>{siniestrality.indiceGravedad}</strong></span>
+                <span>II (Incidencia): <strong>{siniestrality.indiceIncidencia} ‰</strong></span>
+                <span>HHT Período: <strong>{siniestrality.hhtTotal.toLocaleString('es-AR')} hs</strong></span>
               </div>
-            )}
+            </div>
           </div>
 
-          {/* 2 - Datos del Accidentado y Lesión */}
+          {/* 2 - Datos del Accidentado y Clasificación OIT / SRT */}
           <div className="border border-slate-300 rounded-lg mb-2 overflow-hidden">
             <div className="bg-slate-100 border-b border-slate-300 border-l-4 border-l-red-600 px-2.5 py-1 flex justify-between items-center">
               <div className="flex items-center gap-1.5">
                 <User size={12} className="text-red-600" />
                 <span style={{ color: '#0f172a' }} className="font-black text-[0.68rem] uppercase tracking-wider">
-                  2 — DATOS DEL ACCIDENTADO Y VALORACIÓN DE LA LESIÓN (RES. SRT 7/2026)
+                  2 — DATOS DEL TRABAJADOR Y CLASIFICACIÓN OFICIAL (O.I.T. / S.R.T.)
                 </span>
               </div>
               {report?.diasIltEstimados && (
                 <span className="px-2 py-0.5 rounded text-[0.55rem] font-black bg-red-100 text-red-900 border border-red-300 uppercase">
-                  ILT: {report.diasIltEstimados} días de baja
+                  ILT: {report.diasIltEstimados} días de baja médica
                 </span>
               )}
             </div>
 
-            <div className="grid grid-cols-2 bg-slate-50 border-b border-slate-200 divide-x divide-slate-200">
-              <div className="p-1.5">
-                <span className="text-[0.54rem] font-black text-slate-500 uppercase block">NOMBRE Y APELLIDO</span>
+            <div className="grid grid-cols-4 bg-slate-50 border-b border-slate-200 divide-x divide-slate-200">
+              <div className="p-1.5 col-span-2">
+                <span className="text-[0.54rem] font-black text-slate-500 uppercase block">TRABAJADOR AFECTADO</span>
                 <div style={{ color: '#0f172a' }} className="font-extrabold text-[0.8rem] mt-0.5">{report?.victimaNombre || '-'}</div>
               </div>
-              <div className="p-1.5">
-                <span className="text-[0.54rem] font-black text-slate-500 uppercase block">DNI / CUIL</span>
+              <div className="p-1.5 col-span-1">
+                <span className="text-[0.54rem] font-black text-slate-500 uppercase block">DNI / C.U.I.L.</span>
                 <div style={{ color: '#0f172a' }} className="font-bold text-[0.78rem] mt-0.5">{report?.victimaDni || '-'}</div>
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 bg-white border-b border-slate-200 divide-x divide-slate-200">
-              <div className="p-1.5">
-                <span className="text-[0.54rem] font-black text-slate-500 uppercase block">PUESTO DE TRABAJO</span>
-                <div style={{ color: '#0f172a' }} className="font-bold text-[0.78rem] mt-0.5">{report?.victimaPuesto || '-'}</div>
-              </div>
-              <div className="p-1.5">
-                <span className="text-[0.54rem] font-black text-slate-500 uppercase block">ANTIGÜEDAD EN EL PUESTO</span>
+              <div className="p-1.5 col-span-1">
+                <span className="text-[0.54rem] font-black text-slate-500 uppercase block">ANTIGÜEDAD EN PUESTO</span>
                 <div style={{ color: '#0f172a' }} className="font-bold text-[0.78rem] mt-0.5">{report?.victimaAntiguedad || '-'}</div>
               </div>
             </div>
 
-            {report?.mecanismoAccidente && (
-              <div className="px-2.5 py-0.5 bg-blue-50 text-blue-900 border-b border-blue-200 text-[0.62rem] font-bold">
-                ⚙️ MECANISMO DE ACCIDENTE: <span style={{ color: '#1e3a8a' }} className="font-extrabold">{report.mecanismoAccidente}</span>
+            <div className="grid grid-cols-3 bg-white border-b border-slate-200 divide-x divide-slate-200">
+              <div className="p-1.5">
+                <span className="text-[0.54rem] font-black text-slate-500 uppercase block">PUESTO / OCUPACIÓN</span>
+                <div style={{ color: '#0f172a' }} className="font-bold text-[0.78rem] mt-0.5">{report?.victimaPuesto || '-'}</div>
               </div>
-            )}
+              <div className="p-1.5">
+                <span className="text-[0.54rem] font-black text-slate-500 uppercase block">APTO MÉDICO OCUPACIONAL (RES. 37/10)</span>
+                <div style={{ color: report?.aptoMedicoVigente !== false ? '#15803d' : '#b91c1c' }} className="font-extrabold text-[0.75rem] mt-0.5">
+                  {report?.aptoMedicoVigente !== false ? '✓ Apto Médico Vigente' : '✕ No Acreditado / A Verificar'}
+                </div>
+              </div>
+              <div className="p-1.5">
+                <span className="text-[0.54rem] font-black text-slate-500 uppercase block">CAPACITACIÓN EN EL PUESTO</span>
+                <div style={{ color: report?.capacitadoEnRiesgo !== false ? '#15803d' : '#b91c1c' }} className="font-extrabold text-[0.75rem] mt-0.5">
+                  {report?.capacitadoEnRiesgo !== false ? '✓ Capacitación Acreditada' : '✕ Pendiente / No Registrada'}
+                </div>
+              </div>
+            </div>
 
-            <div className="grid grid-cols-2 bg-red-50/50 p-1.5 gap-2">
+            {/* Clasificación Codificada OIT/SRT */}
+            <div className="grid grid-cols-2 bg-slate-50 border-b border-slate-200 divide-x divide-slate-200 text-[0.62rem] p-1.5">
               <div>
-                <span className="text-[0.54rem] font-black text-red-800 uppercase block">DIAGNÓSTICO / TIPO DE LESIÓN</span>
+                <span className="text-[0.54rem] font-black text-slate-500 uppercase block">FORMA DEL ACCIDENTE (S.R.T. / O.I.T.)</span>
+                <span style={{ color: '#1e3a8a' }} className="font-extrabold block mt-0.5">{report?.formaAccidente || report?.mecanismoAccidente || 'No especificada'}</span>
+              </div>
+              <div>
+                <span className="text-[0.54rem] font-black text-slate-500 uppercase block">AGENTE MATERIAL CAUSANTE (S.R.T. / O.I.T.)</span>
+                <span style={{ color: '#1e3a8a' }} className="font-extrabold block mt-0.5">{report?.agenteMaterial || 'Herramientas / Maquinarias / Superficie'}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 bg-red-50/60 p-1.5 gap-2 border-t border-red-200">
+              <div>
+                <span className="text-[0.54rem] font-black text-red-800 uppercase block">DIAGNÓSTICO CLÍNICO / NATURALEZA DE LA LESIÓN</span>
                 <div style={{ color: '#7f1d1d' }} className="font-extrabold text-[0.78rem] mt-0.5">{report?.lesion || 'No especificada'}</div>
               </div>
               <div>
-                <span className="text-[0.54rem] font-black text-red-800 uppercase block">PARTE ANATÓMICA AFECTADA</span>
+                <span className="text-[0.54rem] font-black text-red-800 uppercase block">UBICACIÓN / PARTE ANATÓMICA AFECTADA</span>
                 <div style={{ color: '#7f1d1d' }} className="font-extrabold text-[0.78rem] mt-0.5">
                   {report?.parteCuerpoEspecifica || report?.parteCuerpo || 'No especificada'}
                 </div>
@@ -334,25 +363,47 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
             <table className="w-full border-collapse text-[7.5pt]">
               <thead>
                 <tr className="bg-amber-50/70 border-b border-amber-200">
-                  <th className="p-1 text-left font-extrabold text-amber-950 w-1/2 uppercase text-[0.55rem]">Acción Correctiva</th>
-                  <th className="p-1 text-left font-extrabold text-amber-950 w-1/4 uppercase text-[0.55rem]">Responsable</th>
-                  <th className="p-1 text-center font-extrabold text-amber-950 w-1/4 uppercase text-[0.55rem]">Fecha Límite</th>
+                  <th className="p-1 text-left font-extrabold text-amber-950 w-5/12 uppercase text-[0.55rem]">Acción Correctiva / Preventiva</th>
+                  <th className="p-1 text-center font-extrabold text-amber-950 w-3/12 uppercase text-[0.55rem]">Jerarquía de Control (SRT)</th>
+                  <th className="p-1 text-left font-extrabold text-amber-950 w-2/12 uppercase text-[0.55rem]">Responsable</th>
+                  <th className="p-1 text-center font-extrabold text-amber-950 w-2/12 uppercase text-[0.55rem]">Fecha Límite</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
                 {report?.medidas?.filter((m: any) => m.accion).length > 0 ? (
-                  report.medidas.filter((m: any) => m.accion).map((m: any, idx: number) => (
-                    <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
-                      <td style={{ color: '#0f172a' }} className="p-1 font-bold">{m.accion}</td>
-                      <td className="p-1 font-semibold text-slate-700">{m.responsable || '-'}</td>
-                      <td className="p-1 text-center font-semibold text-slate-700">
-                        {m.fechaLimite ? new Date(m.fechaLimite + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}
-                      </td>
-                    </tr>
-                  ))
+                  report.medidas.filter((m: any) => m.accion).map((m: any, idx: number) => {
+                    const jerarquiaLabel = 
+                      m.jerarquia === 'eliminacion' ? '1. Eliminación' :
+                      m.jerarquia === 'sustitucion' ? '2. Sustitución' :
+                      m.jerarquia === 'ingenieria' ? '3. Ing. / Barrera' :
+                      m.jerarquia === 'administrativo' ? '4. Procedimiento / Adm.' :
+                      m.jerarquia === 'epp' ? '5. EPP Certificado' : '3. Barrera / Ing.';
+                    
+                    const jerarquiaBg = 
+                      m.jerarquia === 'eliminacion' ? 'bg-purple-100 text-purple-900 border-purple-300' :
+                      m.jerarquia === 'sustitucion' ? 'bg-indigo-100 text-indigo-900 border-indigo-300' :
+                      m.jerarquia === 'ingenieria' ? 'bg-blue-100 text-blue-900 border-blue-300' :
+                      m.jerarquia === 'administrativo' ? 'bg-amber-100 text-amber-900 border-amber-300' :
+                      'bg-emerald-100 text-emerald-900 border-emerald-300';
+
+                    return (
+                      <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+                        <td style={{ color: '#0f172a' }} className="p-1 font-bold">{m.accion}</td>
+                        <td className="p-1 text-center">
+                          <span className={`inline-block px-1.5 py-0.5 rounded text-[0.54rem] font-black border ${jerarquiaBg}`}>
+                            {jerarquiaLabel}
+                          </span>
+                        </td>
+                        <td className="p-1 font-semibold text-slate-700">{m.responsable || '-'}</td>
+                        <td className="p-1 text-center font-semibold text-slate-700">
+                          {m.fechaLimite ? new Date(m.fechaLimite + 'T12:00:00Z').toLocaleDateString('es-AR') : '-'}
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
-                    <td colSpan={3} className="p-1.5 text-center text-slate-400 italic">No se definieron medidas correctivas.</td>
+                    <td colSpan={4} className="p-1.5 text-center text-slate-400 italic">No se definieron medidas correctivas.</td>
                   </tr>
                 )}
               </tbody>

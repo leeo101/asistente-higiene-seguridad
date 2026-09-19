@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-
 import {
-  Calculator, Info, RefreshCw, Printer, Search, Settings2, CheckCircle2, TriangleAlert, Share2, Save, ArrowLeft, ThermometerSun, Pencil, MapPin, Trash2, QrCode, Plus } from
-'lucide-react';
+  Calculator, Info, RefreshCw, Printer, Search, Settings2, CheckCircle2, 
+  TriangleAlert, Share2, Save, ArrowLeft, ThermometerSun, Pencil, MapPin, 
+  Trash2, QrCode, Plus, Download, Building2, Wrench, Shirt, Wind, Droplets,
+  ShieldAlert, Clock, AlertCircle
+} from 'lucide-react';
 import AnimatedPage from '../components/AnimatedPage';
 import ShareModal from '../components/ShareModal';
 import ThermalStressPdfGenerator from '../components/ThermalStressPdfGenerator';
@@ -11,67 +13,60 @@ import PdfSignatures from '../components/PdfSignatures';
 import SignatureCanvas from '../components/SignatureCanvas';
 import { DataTable } from '../components/DataTable';
 import QRModal from '../components/QRModal';
-import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import toast from 'react-hot-toast';
-import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
-import { getCountryNormativa } from '../data/legislationData';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import ThermalStressRegimenCalculator from '../components/ThermalStressRegimenCalculator';
+import { 
+  CLOTHING_CAV_OPTIONS, 
+  evaluateFullThermalStressProtocol, 
+  evaluateColdStressWindChill 
+} from '../utils/srtProtocols';
+import type { 
+  MetabolicWorkload, 
+  WorkRestCycle, 
+  ThermalAssessmentProtocol,
+  ThermalEvaluationMetrics
+} from '../types/thermal';
 
-// Res. SRT 30/2023 — Valores Límite de Exposición (VLE) TGBH en °C
-// Reemplaza el Anexo II del Dec. 351/79 (vigente desde 2024, prórroga Res. 7/2024)
-const LIMITS_30_2023 = {
-  'continuo': { 'liviano': 29.0, 'moderado': 26.7, 'pesado': 25.0 },
-  '75_25': { 'liviano': 30.6, 'moderado': 27.5, 'pesado': 25.9 },
-  '50_50': { 'liviano': 31.4, 'moderado': 29.4, 'pesado': 27.9 },
-  '25_75': { 'liviano': 32.2, 'moderado': 31.1, 'pesado': 30.0 }
-};
-// VLA (Valor Límite de Acción) = VLE − 1.5°C (criterio ACGIH adoptado por Res. 30/2023)
-const VLA_OFFSET = 1.5;
-
-// Tabla legado Res. 295/03 (DEROGADA — solo referencia histórica)
-const LIMITS_295 = {
-  'continuo': { 'liviano': 30.0, 'moderado': 26.7, 'pesado': 25.0 },
-  '75_25': { 'liviano': 30.6, 'moderado': 28.0, 'pesado': 25.9 },
-  '50_50': { 'liviano': 31.4, 'moderado': 29.4, 'pesado': 27.9 },
-  '25_75': { 'liviano': 32.2, 'moderado': 31.1, 'pesado': 30.0 }
-};
-
-// Carga metabólica por tipo de tarea (según Res. SRT 30/2023 / ACGIH)
-const METABOLIC_PREFS = [
-{ id: 'liviano', label: 'Liviana (≤ 200 W) — sentado, trabajo fino', watts: 175 },
-{ id: 'moderado', label: 'Moderada (200–350 W) — caminar, empuje', watts: 275 },
-{ id: 'pesado', label: 'Pesada (> 350 W) — pico/pala, cargas pesadas', watts: 400 }];
-
+const METABOLIC_PREFS: { id: MetabolicWorkload; label: string; watts: number; kcal: number }[] = [
+  { id: 'liviano', label: 'Liviano (≤ 200 W / ≤ 172 kcal/h) — Sentado, trabajo fino en banco', watts: 175, kcal: 150 },
+  { id: 'moderado', label: 'Moderado (200–350 W / 172–300 kcal/h) — De pie, caminar con carga ligera', watts: 275, kcal: 235 },
+  { id: 'pesado', label: 'Pesado (350–500 W / 300–430 kcal/h) — Trabajo intenso, pico y pala', watts: 400, kcal: 345 },
+  { id: 'muy_pesado', label: 'Muy Pesado (> 500 W / > 430 kcal/h) — Actividad física extrema', watts: 550, kcal: 470 }
+];
 
 export default function ThermalStress(): React.ReactElement | null {
   const { requirePro } = usePaywall();
   const navigate = useNavigate();
   const location = useLocation();
   const { currentUser } = useAuth();
-  const { syncCollection } = useSync();
+  const { syncCollection, syncing } = useSync();
   const [currentEditItem, setCurrentEditItem] = useState(location.state?.editData || null);
 
-  useDocumentTitle(currentEditItem ? 'Editar Estrés Térmico' : 'Cálculo Estrés Térmico');
+  useDocumentTitle(currentEditItem ? 'Editar Protocolo de Estrés Térmico' : 'Protocolo Oficial Estrés Térmico — Res. 295/03 & SRT 30/23');
 
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
   const [isFormVisible, setIsFormVisible] = useState(!!currentEditItem);
+  const [selectedForPrint, setSelectedForPrint] = useState<any>(null);
 
   const [history, setHistory] = useState<any[]>([]);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [qrTarget, setQrTarget] = useState<any>(null);
-  const { syncing } = useSync();
 
   useEffect(() => {
     const loadHistory = () => {
-      const h = JSON.parse(localStorage.getItem('thermal_history') || '[]');
-      setHistory(h.sort((a: any, b: any) => (new Date(b.fecha) as any) - (new Date(a.fecha) as any)));
+      try {
+        const h = JSON.parse(localStorage.getItem('thermal_history') || '[]');
+        setHistory(h.sort((a: any, b: any) => (new Date(b.fecha || b.date) as any) - (new Date(a.fecha || a.date) as any)));
+      } catch (err) {
+        console.error('[ThermalStress] Error loading history:', err);
+      }
     };
     loadHistory();
     window.addEventListener('storage', loadHistory);
@@ -84,38 +79,105 @@ export default function ThermalStress(): React.ReactElement | null {
     localStorage.setItem('thermal_history', JSON.stringify(updated));
     syncCollection('thermal_history', updated);
     setDeleteTarget(null);
+    toast.success('Evaluación eliminada correctamente.');
   };
 
-  const [formData, setFormData] = useState(() => {
+  // Carga de metadatos de empresa de localStorage
+  const getInitialCompanyDefaults = () => {
+    try {
+      const savedCompany = localStorage.getItem('companyData');
+      const savedPersonal = localStorage.getItem('personalData');
+      const comp = savedCompany ? JSON.parse(savedCompany) : {};
+      const pers = savedPersonal ? JSON.parse(savedPersonal) : {};
+      return {
+        cuit: comp.cuit || pers.cuit || '',
+        razonSocial: comp.name || comp.razonSocial || pers.company || '',
+        direccion: comp.address || pers.address || '',
+        localidad: comp.city || pers.city || 'Buenos Aires',
+        art: comp.art || pers.art || 'Asociart ART',
+        establecimiento: comp.branch || 'Planta Principal'
+      };
+    } catch {
+      return { cuit: '', razonSocial: '', direccion: '', localidad: '', art: '', establecimiento: '' };
+    }
+  };
+
+  const initialDefaults = getInitialCompanyDefaults();
+
+  const [formData, setFormData] = useState<any>(() => {
     if (currentEditItem) {
       return {
         ...currentEditItem,
+        cuit: currentEditItem.cuit || currentEditItem.empresaCuit || initialDefaults.cuit,
+        razonSocial: currentEditItem.razonSocial || currentEditItem.empresa || initialDefaults.razonSocial,
+        direccion: currentEditItem.direccion || initialDefaults.direccion,
+        localidad: currentEditItem.localidad || initialDefaults.localidad,
+        art: currentEditItem.art || initialDefaults.art,
+        establecimiento: currentEditItem.establecimiento || initialDefaults.establecimiento,
+
+        instMarca: currentEditItem.instrumento?.marca || currentEditItem.instMarca || 'Quest Technologies / 3M',
+        instModelo: currentEditItem.instrumento?.modelo || currentEditItem.instModelo || 'QUESTemp° 34',
+        instSerie: currentEditItem.instrumento?.numeroSerie || currentEditItem.instSerie || 'QT-34-8841',
+        fechaCalibracion: currentEditItem.instrumento?.fechaCalibracionLaboratorio || currentEditItem.fechaCalibracion || '2025-06-15',
+        verifPre: currentEditItem.instrumento?.verificacionInSituPre ?? currentEditItem.verifPre ?? 25.0,
+        verifPost: currentEditItem.instrumento?.verificacionInSituPost ?? currentEditItem.verifPost ?? 25.1,
+
+        cantTrabajadores: currentEditItem.trabajador?.cantTrabajadoresExpuestos || currentEditItem.cantTrabajadores || 1,
+        indumentariaId: currentEditItem.trabajador?.indumentariaId || currentEditItem.indumentariaId || 'standard',
+        cav: currentEditItem.trabajador?.cav ?? currentEditItem.cav ?? 0,
+
+        evaluarFrio: currentEditItem.frio?.evaluarFrio ?? currentEditItem.evaluarFrio ?? false,
+        tempAireSeco: currentEditItem.frio?.temperaturaAireSeco ?? currentEditItem.tempAireSeco ?? '',
+        velocidadVientoKmH: currentEditItem.frio?.velocidadVientoKmH ?? currentEditItem.velocidadVientoKmH ?? '',
+
         operatorSignature: currentEditItem.operatorSignature || '',
         supervisorSignature: currentEditItem.supervisorSignature || currentEditItem.signature || '',
         signature: currentEditItem.signature || currentEditItem.supervisorSignature || '',
         showSignatures: currentEditItem.showSignatures || { operator: true, professional: true, supervisor: true }
       };
     }
+
     return {
+      cuit: initialDefaults.cuit,
+      razonSocial: initialDefaults.razonSocial,
+      direccion: initialDefaults.direccion,
+      localidad: initialDefaults.localidad,
+      art: initialDefaults.art,
+      establecimiento: initialDefaults.establecimiento,
+
       puesto: '',
       sector: '',
       tarea: '',
       fecha: new Date().toISOString().split('T')[0],
+      cantTrabajadores: 1,
+
+      // Instrumental
+      instMarca: 'Quest Technologies / 3M',
+      instModelo: 'QUESTemp° 34',
+      instSerie: 'QT-34-8841',
+      fechaCalibracion: '2025-06-15',
+      verifPre: 25.0,
+      verifPost: 25.1,
 
       // Mediciones ambientales
       cargaSolar: false,
-      tbh: '', // Temperatura Bulbo Húmedo natural
-      tg: '', // Temperatura de Globo
-      tbs: '', // Temperatura Bulbo Seco (solo con carga solar)
-      viento: '', // Velocidad del aire m/s — Res. 30/2023
+      tbh: '24.5',
+      tg: '31.0',
+      tbs: '30.0',
+      viento: '0.3',
 
       // Condiciones del trabajador
-      aptaMedica: false, // Apto médico específico — obligatorio Res. 30/2023
-      aclimatado: false, // Aclimatación 5-14 días — Res. 30/2023
+      aptaMedica: true,
+      aclimatado: true,
+      ritmo: 'moderado' as MetabolicWorkload,
+      ciclo: 'continuo' as WorkRestCycle,
+      indumentariaId: 'standard',
+      cav: 0.0,
 
-      // Exigencia física
-      ritmo: 'moderado', // liviano, moderado, pesado
-      ciclo: 'continuo', // continuo, 75_25, 50_50, 25_75
+      // Estrés por Frío opcional
+      evaluarFrio: false,
+      tempAireSeco: '',
+      velocidadVientoKmH: '',
 
       // Firmas
       operatorSignature: '',
@@ -153,19 +215,23 @@ export default function ThermalStress(): React.ReactElement | null {
     let signature = legacySignature || null;
     let stamp = null;
     if (savedSigData) {
-      const parsed = JSON.parse(savedSigData);
-      signature = parsed.signature || signature;
-      stamp = parsed.stamp || null;
+      try {
+        const parsed = JSON.parse(savedSigData);
+        signature = parsed.signature || signature;
+        stamp = parsed.stamp || null;
+      } catch (e) {}
     }
 
     if (savedData) {
-      const data = JSON.parse(savedData);
-      setProfessional({
-        name: data.name || '',
-        license: data.license || '',
-        signature: signature,
-        stamp: stamp
-      });
+      try {
+        const data = JSON.parse(savedData);
+        setProfessional({
+          name: data.name || '',
+          license: data.license || '',
+          signature: signature,
+          stamp: stamp
+        });
+      } catch (e) {}
     } else {
       setProfessional((prev: any) => ({ ...prev, signature, stamp }));
     }
@@ -173,714 +239,1134 @@ export default function ThermalStress(): React.ReactElement | null {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const [resultados, setResultados] = useState({
-    tgbh: null as number | null,
-    vle: null as number | null,
-    vla: null as number | null,
-    admisible: null as boolean | null,
-    enVLA: null as boolean | null
-  });
-
   const [shareItem, setShareItem] = useState<any>(null);
 
-  const columns = [
-  {
-    header: 'Fecha',
-    accessor: 'fecha',
-    sortable: true,
-    render: (item: any) =>
-    <span className="flex items-center gap-[0.4rem] text-[var(--color-text-muted)] white-space-[nowrap]">
-                    {new Date(item.fecha + 'T12:00:00Z').toLocaleDateString('es-AR')}
-                </span>
-
-  },
-  {
-    header: 'Puesto',
-    accessor: 'puesto',
-    sortable: true,
-    render: (item: any) =>
-    <div className="flex items-center gap-[0.8rem]">
-                    <div style={{ background: item.resultados?.admisible ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: item.resultados?.admisible ? '#10b981' : '#ef4444' }} className="p-[0.5rem] rounded-[8px]">
-                        <ThermometerSun size={16} />
-                    </div>
-                    <span className="font-[700]">{item.puesto}</span>
-                </div>
-
-  },
-  {
-    header: 'Sector',
-    accessor: 'sector',
-    render: (item: any) =>
-    <span className="flex items-center gap-[0.4rem]">
-                    <MapPin size={14} /> {item.sector}
-                </span>
-
-  },
-  {
-    header: 'TGBH',
-    accessor: 'resultados',
-    sortable: true,
-    render: (item: any) =>
-    <span className="p-[0.2rem_0.6rem] bg-[var(--color-background)] rounded-[999px] font-[800]">
-                    {item.resultados?.tgbh}°C
-                </span>
-
-  },
-  {
-    header: 'Resultado',
-    accessor: 'id',
-    render: (item: any) => {
-      const ok = item.resultados?.admisible;
-      return (
-        <span style={{ color: ok ? '#10b981' : '#ef4444' }} className="flex items-center gap-[0.4rem] font-[800] text-[0.8rem]">
-                        {ok ? <CheckCircle2 size={15} /> : <TriangleAlert size={15} />}
-                        {ok ? 'ADMISIBLE' : 'NO ADMISIBLE'}
-                    </span>);
-
-    }
-  },
-  {
-    header: 'Acciones',
-    accessor: 'id',
-    render: (item: any) =>
-    <div className="flex gap-[0.4rem]">
-                    <button onClick={() => {
-        setCurrentEditItem(item);
-        setFormData({
-          ...item,
-          operatorSignature: item.operatorSignature || '',
-          supervisorSignature: item.supervisorSignature || item.signature || '',
-          signature: item.signature || item.supervisorSignature || '',
-          showSignatures: item.showSignatures || { operator: true, professional: true, supervisor: true }
-        });
-        setIsFormVisible(true);
-        window.scrollTo(0, 0);
-      }} title="Editar" style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Pencil size={16} /></button>
-                    <button onClick={() => requirePro(() => {const url = `${window.location.origin}/v/${currentUser?.uid}/thermal/${item.id}?print=true`;setQrTarget({ text: url, title: `Estrés Térmico — ${item.puesto}` });})} title="QR" style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><QrCode size={16} /></button>
-                    <button onClick={() => requirePro(() => setShareItem(item))} title="Compartir" style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Share2 size={16} /></button>
-                    <button onClick={() => setDeleteTarget(item.id)} title="Eliminar" style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform"><Trash2 size={16} /></button>
-                </div>
-
-  }];
-
-
-  let userCountry = 'argentina';
-  try {
-    const savedData = localStorage.getItem('personalData');
-    if (savedData) {
-      const parsed = JSON.parse(savedData);
-      userCountry = parsed.country || 'argentina';
-    }
-  } catch (error) {
-    console.error('[ThermalStress] Error parsing personalData:', error);
-  }
-  const countryNorms = getCountryNormativa(userCountry);
-
-  const handleInput = (field, value) => {
-    setFormData((p) => ({ ...p, [field]: value }));
+  const handleInput = (field: string, value: any) => {
+    setFormData((p: any) => {
+      const updated = { ...p, [field]: value };
+      if (field === 'indumentariaId') {
+        const cloth = CLOTHING_CAV_OPTIONS.find(c => c.id === value);
+        if (cloth) updated.cav = cloth.cav;
+      }
+      return updated;
+    });
   };
 
-  // Cálculo automático según Res. SRT 30/2023
-  useEffect(() => {
-    const tbh = parseFloat(formData.tbh);
-    const tg = parseFloat(formData.tg);
-    const tbs = formData.cargaSolar ? parseFloat(formData.tbs) : 0;
-
-    if (!isNaN(tbh) && !isNaN(tg)) {
-      let tgbhCalc = 0;
-      if (formData.cargaSolar && !isNaN(tbs)) {
-        // Al aire libre con carga solar directa
-        tgbhCalc = 0.7 * tbh + 0.2 * tg + 0.1 * tbs;
-      } else {
-        // Interior o al aire libre sin carga solar
-        tgbhCalc = 0.7 * tbh + 0.3 * tg;
+  // Motor de cálculo unificado oficial Res. 295/03 y Res. SRT 30/2023
+  const [evalResult, setEvalResult] = useState<ThermalEvaluationMetrics>(() => {
+    return evaluateFullThermalStressProtocol({
+      ambiental: {
+        tbh: parseFloat(formData.tbh) || 0,
+        tg: parseFloat(formData.tg) || 0,
+        tbs: formData.cargaSolar ? (parseFloat(formData.tbs) || 0) : undefined,
+        cargaSolar: formData.cargaSolar,
+        velocidadViento: parseFloat(formData.viento) || 0
+      },
+      trabajador: {
+        puesto: formData.puesto,
+        sector: formData.sector,
+        tarea: formData.tarea,
+        ritmo: formData.ritmo,
+        ciclo: formData.ciclo,
+        indumentariaId: formData.indumentariaId,
+        cav: parseFloat(formData.cav) || 0,
+        aclimatado: formData.aclimatado,
+        aptaMedica: formData.aptaMedica
+      },
+      instrumento: {
+        marca: formData.instMarca,
+        modelo: formData.instModelo,
+        numeroSerie: formData.instSerie,
+        fechaCalibracionLaboratorio: formData.fechaCalibracion
       }
+    });
+  });
 
-      const vleCalc = LIMITS_30_2023[formData.ciclo][formData.ritmo];
-      const vlaCalc = parseFloat((vleCalc - VLA_OFFSET).toFixed(1));
-
-      setResultados({
-        tgbh: parseFloat(tgbhCalc.toFixed(1)),
-        vle: vleCalc,
-        vla: vlaCalc,
-        admisible: tgbhCalc <= vleCalc,
-        enVLA: tgbhCalc > vlaCalc && tgbhCalc <= vleCalc
-      });
-    } else {
-      setResultados({ tgbh: null, vle: null, vla: null, admisible: null, enVLA: null });
-    }
-  }, [formData.tbh, formData.tg, formData.tbs, formData.cargaSolar, formData.ritmo, formData.ciclo]);
+  useEffect(() => {
+    const res = evaluateFullThermalStressProtocol({
+      ambiental: {
+        tbh: parseFloat(formData.tbh) || 0,
+        tg: parseFloat(formData.tg) || 0,
+        tbs: formData.cargaSolar ? (parseFloat(formData.tbs) || 0) : undefined,
+        cargaSolar: formData.cargaSolar,
+        velocidadViento: parseFloat(formData.viento) || 0
+      },
+      trabajador: {
+        puesto: formData.puesto,
+        sector: formData.sector,
+        tarea: formData.tarea,
+        ritmo: formData.ritmo,
+        ciclo: formData.ciclo,
+        indumentariaId: formData.indumentariaId,
+        cav: parseFloat(formData.cav) || 0,
+        aclimatado: formData.aclimatado,
+        aptaMedica: formData.aptaMedica
+      },
+      instrumento: {
+        marca: formData.instMarca,
+        modelo: formData.instModelo,
+        numeroSerie: formData.instSerie,
+        fechaCalibracionLaboratorio: formData.fechaCalibracion
+      }
+    });
+    setEvalResult(res);
+  }, [
+    formData.tbh, formData.tg, formData.tbs, formData.cargaSolar, formData.viento,
+    formData.ritmo, formData.ciclo, formData.indumentariaId, formData.cav,
+    formData.aclimatado, formData.aptaMedica, formData.fechaCalibracion
+  ]);
 
   const doSave = () => {
-    if (!formData.puesto) {
-      toast.error('Debe indicar el nombre del puesto/estudio.');
+    if (!formData.puesto?.trim()) {
+      toast.error('Debe indicar el nombre del puesto evaluado.');
       return;
     }
-    if (resultados.tgbh === null) {
-      toast.error('Faltan datos ambientales para calcular el TGBH.');
+    if (!formData.tbh || !formData.tg) {
+      toast.error('Faltan temperaturas ambientales (Tbh y Tg) para el cálculo.');
       return;
-    }
-    if (!formData.aptaMedica) {
-      toast(`⚠️ Res. 30/2023 exige apto médico específico para exposición al calor. Verifique.`, { icon: '📋', duration: 4000 });
     }
 
-    const report = {
+    let coldData = undefined;
+    if (formData.evaluarFrio && formData.tempAireSeco !== '') {
+      coldData = evaluateColdStressWindChill(
+        parseFloat(formData.tempAireSeco) || 0,
+        parseFloat(formData.velocidadVientoKmH) || 0
+      );
+    }
+
+    const report: ThermalAssessmentProtocol & Record<string, any> = {
       id: currentEditItem?.id || Date.now(),
-      date: currentEditItem?.date || new Date().toISOString(),
-      evaluador: currentEditItem?.evaluador || currentUser?.displayName || 'Profesional HSE',
-      normativa: 'Res. SRT 30/2023',
-      ...formData,
+      fecha: formData.fecha,
+      normativa: 'Res. MTEySS 295/03 & Res. SRT 30/2023',
+      cuit: formData.cuit,
+      razonSocial: formData.razonSocial,
+      direccion: formData.direccion,
+      localidad: formData.localidad,
+      art: formData.art,
+      establecimiento: formData.establecimiento,
+
+      instrumento: {
+        marca: formData.instMarca,
+        modelo: formData.instModelo,
+        numeroSerie: formData.instSerie,
+        fechaCalibracionLaboratorio: formData.fechaCalibracion,
+        verificacionInSituPre: parseFloat(formData.verifPre) || undefined,
+        verificacionInSituPost: parseFloat(formData.verifPost) || undefined,
+        derivaCalibracionInSitu: Math.abs((parseFloat(formData.verifPost) || 0) - (parseFloat(formData.verifPre) || 0))
+      },
+
+      ambiental: {
+        tbh: parseFloat(formData.tbh) || 0,
+        tg: parseFloat(formData.tg) || 0,
+        tbs: formData.cargaSolar ? (parseFloat(formData.tbs) || 0) : undefined,
+        cargaSolar: formData.cargaSolar,
+        velocidadViento: parseFloat(formData.viento) || 0
+      },
+
+      trabajador: {
+        puesto: formData.puesto,
+        sector: formData.sector,
+        tarea: formData.tarea,
+        ritmo: formData.ritmo,
+        ciclo: formData.ciclo,
+        indumentariaId: formData.indumentariaId,
+        cav: parseFloat(formData.cav) || 0,
+        aclimatado: formData.aclimatado,
+        aptaMedica: formData.aptaMedica,
+        cantTrabajadoresExpuestos: parseInt(formData.cantTrabajadores) || 1
+      },
+
+      frio: coldData,
+      metricas: evalResult,
+
+      // Compatibilidad con registros legados
+      puesto: formData.puesto,
+      sector: formData.sector,
+      tarea: formData.tarea,
+      tbh: formData.tbh,
+      tg: formData.tg,
+      tbs: formData.tbs,
+      cargaSolar: formData.cargaSolar,
+      viento: formData.viento,
+      ritmo: formData.ritmo,
+      ciclo: formData.ciclo,
+      cav: formData.cav,
+      aclimatado: formData.aclimatado,
+      aptaMedica: formData.aptaMedica,
+      resultados: {
+        tgbh: evalResult.tgbhEfectivo,
+        vle: evalResult.vlePermisible,
+        vla: evalResult.vlaAccion,
+        limite: evalResult.vlePermisible,
+        admisible: !evalResult.limiteExcedido,
+        enVLA: evalResult.nivelAccionAlcanzado
+      },
+
+      evaluador: currentUser?.displayName || professional.name || 'Profesional HSE',
+      professionalName: professional.name,
+      professionalLicense: professional.license,
       professionalSignature: formData.professionalSignature || professional.signature,
-      professionalName: formData.professionalName || professional.name,
-      professionalLicense: formData.professionalLicense || professional.license,
       professionalStamp: formData.professionalStamp || professional.stamp,
-      resultados
+      operatorSignature: formData.operatorSignature || null,
+      supervisorSignature: formData.supervisorSignature || formData.signature || null,
+      showSignatures: formData.showSignatures
     };
 
-    let history = [];
+    let historyList = [];
     try {
       const savedHistory = localStorage.getItem('thermal_history');
-      if (savedHistory) history = JSON.parse(savedHistory);
-    } catch (error) {
-      console.error('[ThermalStress] Error parsing thermal_history:', error);
+      if (savedHistory) historyList = JSON.parse(savedHistory);
+    } catch (e) {
+      console.error('[ThermalStress] Error reading thermal_history:', e);
     }
 
     if (currentEditItem) {
-      history = history.map((item) => item.id === currentEditItem.id ? report : item);
+      historyList = historyList.map((item: any) => item.id === currentEditItem.id ? report : item);
     } else {
-      history.unshift(report);
+      historyList.unshift(report);
     }
 
-    localStorage.setItem('thermal_history', JSON.stringify(history));
-    syncCollection('thermal_history', history);
-    setHistory(history);
+    localStorage.setItem('thermal_history', JSON.stringify(historyList));
+    syncCollection('thermal_history', historyList);
+    setHistory(historyList);
 
-    toast.success(currentEditItem ? 'Evaluación térmica actualizada.' : 'Medición guardada en el historial.');
+    toast.success(currentEditItem ? 'Protocolo térmico actualizado.' : 'Medición guardada en el historial oficial.');
     setIsFormVisible(false);
     window.scrollTo(0, 0);
   };
 
-  const [showUpdateAlert, setShowUpdateAlert] = useState(() => {
-    return localStorage.getItem('thermal_stress_alert_dismissed') !== 'true';
-  });
+  const handlePrint = (itemToPrint?: any) => {
+    const target = itemToPrint || {
+      id: Date.now(),
+      fecha: formData.fecha,
+      ...formData,
+      metricas: evalResult,
+      resultados: {
+        tgbh: evalResult.tgbhEfectivo,
+        vle: evalResult.vlePermisible,
+        vla: evalResult.vlaAccion,
+        limite: evalResult.vlePermisible,
+        admisible: !evalResult.limiteExcedido,
+        enVLA: evalResult.nivelAccionAlcanzado
+      }
+    };
+    setSelectedForPrint(target);
+    requirePro(() => {
+      setTimeout(() => {
+        window.print();
+      }, 150);
+    });
+  };
 
-  const handleSave = doSave;
-  const handlePrint = () => requirePro(() => window.print());
+  const exportCsv = () => {
+    if (!history.length) {
+      toast.error('No hay datos registrados para exportar.');
+      return;
+    }
+    const headers = [
+      'Fecha', 'CUIT', 'Razon Social', 'Puesto', 'Sector', 'Tarea',
+      'Tbh (°C)', 'Tg (°C)', 'Tbs (°C)', 'Carga Solar', 'Viento (m/s)',
+      'TGBH Medido (°C)', 'Indumentaria', 'CAV (°C)', 'TGBH Efectivo (°C)',
+      'VLE (°C)', 'VLA (°C)', 'Aclimatado', 'Apto Medico', 'Dictamen',
+      'Regimen', 'Hidratacion (ml/h)'
+    ];
+    const rows = history.map((item) => {
+      const amb = item.ambiental || item;
+      const wrk = item.trabajador || item;
+      const met = item.metricas || item.resultados || {};
+      return [
+        item.fecha || item.date || '',
+        `"${item.cuit || item.empresaCuit || ''}"`,
+        `"${item.razonSocial || item.empresa || ''}"`,
+        `"${wrk.puesto || item.puesto || ''}"`,
+        `"${wrk.sector || item.sector || ''}"`,
+        `"${wrk.tarea || item.tarea || ''}"`,
+        amb.tbh ?? '',
+        amb.tg ?? '',
+        amb.tbs ?? '',
+        amb.cargaSolar ? 'SI' : 'NO',
+        amb.velocidadViento || amb.viento || '',
+        met.tgbhMedido ?? amb.tbh ?? '',
+        `"${wrk.indumentariaId || ''}"`,
+        wrk.cav ?? item.cav ?? 0,
+        met.tgbhEfectivo ?? met.tgbh ?? '',
+        met.vlePermisible ?? met.vle ?? met.limite ?? '',
+        met.vlaAccion ?? met.vla ?? '',
+        wrk.aclimatado ? 'SI' : 'NO',
+        wrk.aptaMedica ? 'SI' : 'NO',
+        `"${met.dictamenGeneral || (met.admisible ? 'CONFORME' : 'SUPERA LMPE')}"`,
+        `"${met.regimenRecomendado || wrk.ciclo || ''}"`,
+        met.tasaHidratacionMlPorHora || ''
+      ].join(';');
+    });
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(';'), ...rows].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `Protocolo_Estres_Termico_SRT30_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Archivo CSV oficial exportado.');
+  };
+
+  const columns = [
+    {
+      header: 'Fecha',
+      accessor: 'fecha',
+      sortable: true,
+      render: (item: any) => (
+        <span className="text-slate-600 dark:text-slate-400 font-medium whitespace-nowrap">
+          {item.fecha ? new Date(item.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : 'S/F'}
+        </span>
+      )
+    },
+    {
+      header: 'Puesto / Empresa',
+      accessor: 'puesto',
+      sortable: true,
+      render: (item: any) => {
+        const puesto = item.trabajador?.puesto || item.puesto || 'Puesto S/N';
+        const emp = item.razonSocial || item.empresa || 'Empresa S/N';
+        const cuit = item.cuit || item.empresaCuit || '';
+        return (
+          <div>
+            <div className="font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
+              <ThermometerSun size={15} className="text-amber-500" />
+              {puesto}
+            </div>
+            <div className="text-[11px] text-slate-500 flex items-center gap-1">
+              <span>{emp}</span>
+              {cuit && <span className="font-mono text-slate-400">({cuit})</span>}
+            </div>
+          </div>
+        );
+      }
+    },
+    {
+      header: 'Sector',
+      accessor: 'sector',
+      render: (item: any) => (
+        <span className="flex items-center gap-1 text-slate-600 dark:text-slate-400 text-xs">
+          <MapPin size={13} className="text-slate-400 shrink-0" />
+          {item.trabajador?.sector || item.sector || 'N/A'}
+        </span>
+      )
+    },
+    {
+      header: 'TGBH Efectivo',
+      accessor: 'resultados',
+      sortable: true,
+      render: (item: any) => {
+        const val = item.metricas?.tgbhEfectivo ?? item.resultados?.tgbh ?? '--';
+        const cav = item.trabajador?.cav ?? item.cav ?? 0;
+        return (
+          <div className="flex items-center gap-1.5">
+            <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded-md font-black text-slate-900 dark:text-white text-xs">
+              {val}°C
+            </span>
+            {cav > 0 && (
+              <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 px-1 rounded">
+                +{cav}°C
+              </span>
+            )}
+          </div>
+        );
+      }
+    },
+    {
+      header: 'Dictamen Oficial',
+      accessor: 'id',
+      render: (item: any) => {
+        const dictamen = item.metricas?.dictamenGeneral || (
+          item.resultados?.admisible ? 'CONFORME' : item.resultados?.enVLA ? 'ZONA DE ACCIÓN' : 'SUPERA LMPE'
+        );
+        const isOk = dictamen.includes('CONFORME');
+        const isVla = dictamen.includes('ACCIÓN') || dictamen.includes('VLA');
+        const isCrit = dictamen.includes('CRÍTICO') || dictamen.includes('SUSPENDIDO');
+
+        return (
+          <span className={`inline-flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-full border ${
+            isCrit
+              ? 'bg-rose-50 text-rose-700 border-rose-300'
+              : !isOk && !isVla
+              ? 'bg-red-50 text-red-700 border-red-300'
+              : isVla
+              ? 'bg-amber-50 text-amber-700 border-amber-300'
+              : 'bg-emerald-50 text-emerald-700 border-emerald-300'
+          }`}>
+            {isOk ? <CheckCircle2 size={13} /> : <TriangleAlert size={13} />}
+            {dictamen}
+          </span>
+        );
+      }
+    },
+    {
+      header: 'Acciones',
+      accessor: 'id',
+      render: (item: any) => (
+        <div className="flex gap-1.5">
+          <button
+            onClick={() => {
+              setCurrentEditItem(item);
+              setFormData({
+                ...item,
+                cuit: item.cuit || item.empresaCuit || '',
+                razonSocial: item.razonSocial || item.empresa || '',
+                direccion: item.direccion || '',
+                localidad: item.localidad || '',
+                art: item.art || '',
+                establecimiento: item.establecimiento || '',
+                instMarca: item.instrumento?.marca || item.instMarca || 'Quest Technologies / 3M',
+                instModelo: item.instrumento?.modelo || item.instModelo || 'QUESTemp° 34',
+                instSerie: item.instrumento?.numeroSerie || item.instSerie || 'QT-34-8841',
+                fechaCalibracion: item.instrumento?.fechaCalibracionLaboratorio || item.fechaCalibracion || '2025-06-15',
+                verifPre: item.instrumento?.verificacionInSituPre ?? item.verifPre ?? 25.0,
+                verifPost: item.instrumento?.verificacionInSituPost ?? item.verifPost ?? 25.1,
+                tbh: item.ambiental?.tbh ?? item.tbh ?? '',
+                tg: item.ambiental?.tg ?? item.tg ?? '',
+                tbs: item.ambiental?.tbs ?? item.tbs ?? '',
+                cargaSolar: item.ambiental?.cargaSolar ?? item.cargaSolar ?? false,
+                viento: item.ambiental?.velocidadViento ?? item.viento ?? '',
+                puesto: item.trabajador?.puesto || item.puesto || '',
+                sector: item.trabajador?.sector || item.sector || '',
+                tarea: item.trabajador?.tarea || item.tarea || '',
+                ritmo: item.trabajador?.ritmo || item.ritmo || 'moderado',
+                ciclo: item.trabajador?.ciclo || item.ciclo || 'continuo',
+                indumentariaId: item.trabajador?.indumentariaId || item.indumentariaId || 'standard',
+                cav: item.trabajador?.cav ?? item.cav ?? 0,
+                aclimatado: item.trabajador?.aclimatado ?? item.aclimatado ?? true,
+                aptaMedica: item.trabajador?.aptaMedica ?? item.aptaMedica ?? true,
+                cantTrabajadores: item.trabajador?.cantTrabajadoresExpuestos || item.cantTrabajadores || 1,
+                evaluarFrio: item.frio?.evaluarFrio ?? item.evaluarFrio ?? false,
+                tempAireSeco: item.frio?.temperaturaAireSeco ?? item.tempAireSeco ?? '',
+                velocidadVientoKmH: item.frio?.velocidadVientoKmH ?? item.velocidadVientoKmH ?? '',
+                operatorSignature: item.operatorSignature || '',
+                supervisorSignature: item.supervisorSignature || item.signature || '',
+                signature: item.signature || item.supervisorSignature || '',
+                showSignatures: item.showSignatures || { operator: true, professional: true, supervisor: true }
+              });
+              setIsFormVisible(true);
+              window.scrollTo(0, 0);
+            }}
+            title="Editar Protocolo"
+            className="p-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors"
+          >
+            <Pencil size={15} />
+          </button>
+          <button
+            onClick={() => handlePrint(item)}
+            title="Imprimir / PDF Oficial"
+            className="p-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"
+          >
+            <Printer size={15} />
+          </button>
+          <button
+            onClick={() => requirePro(() => {
+              const url = `${window.location.origin}/v/${currentUser?.uid}/thermal/${item.id}?print=true`;
+              setQrTarget({ text: url, title: `Estrés Térmico — ${item.trabajador?.puesto || item.puesto}` });
+            })}
+            title="Código QR"
+            className="p-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white transition-colors"
+          >
+            <QrCode size={15} />
+          </button>
+          <button
+            onClick={() => requirePro(() => setShareItem(item))}
+            title="Compartir Informe"
+            className="p-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
+          >
+            <Share2 size={15} />
+          </button>
+          <button
+            onClick={() => setDeleteTarget(item.id)}
+            title="Eliminar"
+            className="p-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors"
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      )
+    }
+  ];
 
   return (
     <AnimatedPage>
-    <div className="container mx-auto">
-            {showUpdateAlert &&
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-slate-800 m-auto p-8 rounded-2xl max-w-[400px] text-center shadow-2xl">
-                        <div className="bg-red-50 dark:bg-red-900/30 text-red-500 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <TriangleAlert size={32} />
-                        </div>
-                        <h2 className="m-0 mb-4 font-black text-slate-900 dark:text-white text-xl">Actualización Normativa</h2>
-                        <p className="m-0 mb-6 text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                            Hemos actualizado la calculadora a la <strong>Res. SRT 30/2023</strong>. Los límites de tolerancia térmica ahora son más restrictivos. Revisa cuidadosamente el dictamen VLA y VLE.
-                        </p>
-                        <button
-            onClick={() => {setShowUpdateAlert(false);localStorage.setItem('thermal_stress_alert_dismissed', 'true');}}
-            className="bg-red-500 hover:bg-red-600 text-white border-none py-3 px-8 rounded-xl font-extrabold cursor-pointer w-full transition-colors">
-            
-                            ENTENDIDO
-                        </button>
-                    </div>
-                </div>
-      }
-            
-            {deleteTarget &&
-      <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="p-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl max-w-[320px] text-center">
-                        <Trash2 size={48} className="text-[#ef4444] mb-[1rem]" />
-                        <h3>¿Eliminar evaluación?</h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Esta acción no se puede deshacer.</p>
-                        <div className="flex gap-4 mt-6">
-                            <button onClick={() => setDeleteTarget(null)} className="flex-1 p-3 rounded-xl bg-slate-100 dark:bg-slate-700 border-none cursor-pointer font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Cancelar</button>
-                            <button onClick={confirmDelete} className="flex-1 p-3 rounded-xl bg-red-500 hover:bg-red-600 text-white border-none cursor-pointer font-bold transition-colors">Eliminar</button>
-                        </div>
-                    </div>
-                </div>
-      }
-            
-            <ShareModal
-        isOpen={!!shareItem}
-        open={!!shareItem}
-        onClose={() => setShareItem(null)}
-        title="Compartir Informe de Estrés Térmico"
-        text={shareItem ? `🌡️ Evaluación Estrés Térmico (TGBH) | Res. SRT 30/2023\n📍 Puesto: ${shareItem.puesto}\n📊 TGBH: ${shareItem.resultados?.tgbh}°C | VLE: ${shareItem.resultados?.vle}°C\n✅ Dictamen: ${!shareItem.resultados?.admisible ? 'RIESGO TÉRMICO' : shareItem.resultados?.enVLA ? 'ZONA DE ALERTA' : 'ADMISIBLE'}\n\nEnviado desde Asistente HYS` : ''}
-        rawMessage={shareItem ? `🌡️ Evaluación Estrés Térmico (TGBH) | Res. SRT 30/2023\n📍 Puesto: ${shareItem.puesto}\n📊 TGBH: ${shareItem.resultados?.tgbh}°C | VLE: ${shareItem.resultados?.vle}°C\n✅ Dictamen: ${!shareItem.resultados?.admisible ? 'RIESGO TÉRMICO' : shareItem.resultados?.enVLA ? 'ZONA DE ALERTA' : 'ADMISIBLE'}\n\nEnviado desde Asistente HYS` : ''}
-        elementIdToPrint="pdf-content"
-        fileName={`Estres_Termico_${shareItem?.puesto || 'report'}.pdf`} />
-      
-
-            <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
-                {shareItem && <ThermalStressPdfGenerator data={shareItem} isHeadless={true} onBack={() => {}} />}
+      <div className="container mx-auto px-3 sm:px-6 py-4">
+        {/* Modal de Eliminación */}
+        {deleteTarget && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl max-w-sm w-full text-center shadow-2xl">
+              <Trash2 size={44} className="text-red-500 mx-auto mb-3" />
+              <h3 className="text-lg font-black text-slate-900 dark:text-white m-0 mb-1">
+                ¿Eliminar protocolo?
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">
+                Esta acción no se puede deshacer. Se removerá del historial local.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeleteTarget(null)}
+                  className="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 font-bold text-slate-700 dark:text-slate-200 text-xs"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold text-xs"
+                >
+                  Eliminar
+                </button>
+              </div>
             </div>
-      
+          </div>
+        )}
 
-            {!isFormVisible ?
-      <div className="animate-fade-in p-[0_1rem] w-[100%] max-w-[1200px] m-[0_auto]">
-                    <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
-        title="Evaluaciones de Estrés Térmico"
-        subtitle={`Res. SRT 30/2023 • ${history.length} registros`}
-        icon={<ThermometerSun size={36} color="#ffffff" />} />
-        
-                    
-                    <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap justify-end bg-[var(--color-surface,_#fff)] p-[1.5rem] rounded-[24px] box-shadow-[0_10px_40px_rgba(0,0,0,0.04)] border-[1px_solid_rgba(0,0,0,0.05)]">
-                        <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              try {
-                setCurrentEditItem(null);
-                setFormData({
-                  puesto: '', sector: '', tarea: '', fecha: new Date().toISOString().split('T')[0],
-                  cargaSolar: false, tbh: '', tg: '', tbs: '', viento: '',
-                  aptaMedica: false, aclimatado: false, ritmo: 'moderado', ciclo: 'continuo',
-                  operatorSignature: '', supervisorSignature: '', signature: '',
-                  showSignatures: { operator: true, professional: true, supervisor: true }
-                });
-                setIsFormVisible(true);
-                window.scrollTo(0, 0);
-              } catch (err: any) {
-                alert("Error al abrir: " + err.message);
-              }
-            }}
-            className="hover:scale-105 active:scale-95"
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '0 1.5rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', fontWeight: 800, borderRadius: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(16,185,129,0.3)', whiteSpace: 'nowrap', transition: 'transform 0.2s ease, box-shadow 0.2s ease', height: '100%', minHeight: '3.5rem' }}>
-                            <Plus size={22} strokeWidth={2.5} className="pointer-events-none" /> <span className="pointer-events-none">Nuevo Estudio</span>
-                        </button>
-                    </div>
+        {/* Modal Compartir */}
+        <ShareModal
+          isOpen={!!shareItem}
+          open={!!shareItem}
+          onClose={() => setShareItem(null)}
+          title="Compartir Protocolo Oficial de Estrés Térmico"
+          text={shareItem ? `🌡️ Protocolo Oficial Estrés Térmico (Res. MTEySS 295/03 & Res. SRT 30/2023)\n🏢 Empresa: ${shareItem.razonSocial || shareItem.empresa || 'S/N'}\n📍 Puesto: ${shareItem.trabajador?.puesto || shareItem.puesto}\n📊 TGBH Efectivo: ${shareItem.metricas?.tgbhEfectivo ?? shareItem.resultados?.tgbh}°C | VLE: ${shareItem.metricas?.vlePermisible ?? shareItem.resultados?.vle}°C\n✅ Dictamen: ${shareItem.metricas?.dictamenGeneral || (shareItem.resultados?.admisible ? 'CONFORME' : 'SUPERA LMPE')}\n\nGenerado con Asistente de Higiene y Seguridad` : ''}
+          rawMessage={shareItem ? `🌡️ Protocolo Oficial Estrés Térmico (Res. MTEySS 295/03 & Res. SRT 30/2023)\n🏢 Empresa: ${shareItem.razonSocial || shareItem.empresa || 'S/N'}\n📍 Puesto: ${shareItem.trabajador?.puesto || shareItem.puesto}\n📊 TGBH Efectivo: ${shareItem.metricas?.tgbhEfectivo ?? shareItem.resultados?.tgbh}°C | VLE: ${shareItem.metricas?.vlePermisible ?? shareItem.resultados?.vle}°C\n✅ Dictamen: ${shareItem.metricas?.dictamenGeneral || (shareItem.resultados?.admisible ? 'CONFORME' : 'SUPERA LMPE')}\n\nGenerado con Asistente de Higiene y Seguridad` : ''}
+          elementIdToPrint="pdf-content"
+          fileName={`Protocolo_Termico_${shareItem?.trabajador?.puesto || shareItem?.puesto || 'report'}.pdf`}
+        />
 
-                    <DataTable
-          data={history}
-          columns={columns}
-          searchPlaceholder="Buscar por puesto o sector..."
-          searchFields={['puesto', 'sector', 'tarea']}
-          emptyMessage="No hay evaluaciones térmicas registradas."
-          emptyIcon={<ThermometerSun size={48} />} />
-        
-
-                    {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
-                </div> :
-
-      <>
-
-
-                    <div className="no-print animate-fade-in">
-                        <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
-          title={currentEditItem ? 'Editar Estrés Térmico' : 'Estrés Térmico Calculadora'}
-          subtitle="Res. SRT 30/2023 — reemplaza Res. 295/03 (derogada)"
-          icon={<ThermometerSun size={36} color="#ffffff" />} />
-          
-
-                        <div className="no-print mt-[1.5rem] mb-[1.5rem] z-[10]">
-                            <></>
-                        </div>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-
-                    {/* ─── Columna Izquierda: Formulario ─── */}
-                    <div className="flex flex-col gap-6">
-
-                        {/* Metadatos */}
-                        <div className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl">
-                            <h2 className="text-lg font-bold m-0 mb-4 flex items-center gap-2 text-blue-600 dark:text-blue-400">
-                                <Settings2 size={20} /> Metadatos del Puesto
-                            </h2>
-                            <div className="flex flex-col gap-4">
-                                <div>
-                                    <label>Puesto de Trabajo a Evaluar</label>
-                                    <input type="text" value={formData.puesto} onChange={(e) => handleInput('puesto', e.target.value)} placeholder="Ej. Operador de Horno 3" className="font-[bold]" />
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label>Sector / Área</label>
-                                        <input type="text" value={formData.sector} onChange={(e) => handleInput('sector', e.target.value)} placeholder="Ej. Fundición" />
-                                    </div>
-                                    <div>
-                                        <label>Fecha de Medición</label>
-                                        <input type="date" value={formData.fecha} onChange={(e) => handleInput('fecha', e.target.value)} />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label>Tarea Principal que Realiza</label>
-                                    <input type="text" value={formData.tarea} onChange={(e) => handleInput('tarea', e.target.value)} placeholder="Ej. Carga manual de lingotes y control visual" />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Simulación Interactiva TGBH con Res. SRT 30/2023 */}
-                        <ThermalStressRegimenCalculator
-                          onCalculate={(res) => {
-                            setFormData((prev: any) => ({
-                              ...prev,
-                              tbh: res.tgbhMeasured.toString()
-                            }));
-                          }}
-                        />
-
-                        {/* Mediciones Ambientales */}
-                        <div className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl">
-                            <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
-                                <h2 className="text-lg font-bold m-0 flex items-center gap-2 text-orange-500">
-                                    <ThermometerSun size={20} /> Mediciones Ambientales
-                                </h2>
-                                <label className={`flex items-center gap-3 text-[0.85rem] cursor-pointer px-4 py-2 rounded-xl font-bold transition-colors ${formData.cargaSolar ? 'bg-orange-500 text-white shadow-md shadow-orange-500/30' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600'}`}>
-                                    <div className={`relative w-10 h-5 rounded-full transition-colors ${formData.cargaSolar ? 'bg-white/30' : 'bg-slate-300 dark:bg-slate-500'}`}>
-                                        <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${formData.cargaSolar ? 'translate-x-5 shadow-sm' : ''}`} />
-                                    </div>
-                                    <input type="checkbox" checked={formData.cargaSolar} onChange={(e) => handleInput('cargaSolar', e.target.checked)} className="sr-only" /> 
-                                    Al sol / Carga Solar
-                                </label>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label>Temp. Bulbo Húmedo natural (Tbh) °C</label>
-                                    <input type="number" step="0.1" value={formData.tbh} onChange={(e) => handleInput('tbh', e.target.value)} placeholder="Ej: 22.5" />
-                                </div>
-                                <div>
-                                    <label>Temp. Globo (Tg) °C</label>
-                                    <input type="number" step="0.1" value={formData.tg} onChange={(e) => handleInput('tg', e.target.value)} placeholder="Ej: 28.1" />
-                                </div>
-                                <div>
-                                    <label>Velocidad del Aire (m/s) <span className="text-[0.65rem] text-[#f97316] font-[700]">🆕 Res. 30/2023</span></label>
-                                    <input type="number" step="0.1" min="0" value={formData.viento} onChange={(e) => handleInput('viento', e.target.value)} placeholder="Ej: 0.3" />
-                                    <span className="text-[0.72rem] text-[var(--color-text-muted)]">Ingresarlo permite calcular la carga térmica ambiental completa.</span>
-                                </div>
-                                <div>
-                                    <label>¿Trabajador aclimatado? <span className="text-[0.65rem] text-[#f97316] font-[700]">🆕 Res. 30/2023</span></label>
-                                    <label className={`flex items-center gap-3 text-[0.85rem] cursor-pointer p-3 rounded-xl font-bold transition-all border-2 ${formData.aclimatado ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 shadow-sm' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
-                                        <div className={`relative w-10 h-5 rounded-full transition-colors shrink-0 ${formData.aclimatado ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
-                                            <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${formData.aclimatado ? 'translate-x-5 shadow-sm' : ''}`} />
-                                        </div>
-                                        <input type="checkbox" checked={formData.aclimatado} onChange={(e) => handleInput('aclimatado', e.target.checked)} className="sr-only" />
-                                        {formData.aclimatado ? 'Sí — 5-14 días completados' : 'No aclimatado'}
-                                    </label>
-                                    <span className="text-[0.72rem] text-[var(--color-text-muted)] mt-1 block">La aclimatación gradual eleva la tolerancia fisiológica al calor.</span>
-                                </div>
-                                {formData.cargaSolar &&
-                  <div className="grid-column-[1_/_-1]">
-                                        <label>Temp. Bulbo Seco (Tbs) °C</label>
-                                        <input type="number" step="0.1" value={formData.tbs} onChange={(e) => handleInput('tbs', e.target.value)} placeholder="Temp. Aire seco" className="border-color-[#f97316]" />
-                                        <span className="text-[0.75rem] text-[var(--color-text-muted)]">Requerido para la ecuación de ponderación con carga solar.</span>
-                                    </div>
-                  }
-                            </div>
-                        </div>
-
-                        {/* Exigencia Física y Régimen */}
-                        <div className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl">
-                            <h2 className="text-lg font-bold m-0 mb-4 flex items-center gap-2 text-purple-500">
-                                <RefreshCw size={20} /> Exigencia Física y Régimen
-                            </h2>
-                            <div className="flex flex-col gap-4">
-                                <div>
-                                    <label>Metabolismo / Carga de Trabajo <span className="text-[0.65rem] text-[#f97316] font-[700]">Res. 30/2023</span></label>
-                                    <select value={formData.ritmo} onChange={(e) => handleInput('ritmo', e.target.value)} className="p-[0.8rem] w-[100%] rounded-[12px] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)]">
-                                        {METABOLIC_PREFS.map((m) =>
-                      <option key={m.id} value={m.id}>{m.label}</option>
-                      )}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label>Ciclo Trabajo / Descanso (por hora)</label>
-                                    <select value={formData.ciclo} onChange={(e) => handleInput('ciclo', e.target.value)} className="p-[0.8rem] w-[100%] rounded-[12px] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)]">
-                                        <option value="continuo">Trabajo Continuo (o &lt; 25% descanso/hr)</option>
-                                        <option value="75_25">75% Trabajo, 25% Descanso c/hora</option>
-                                        <option value="50_50">50% Trabajo, 50% Descanso c/hora</option>
-                                        <option value="25_75">25% Trabajo, 75% Descanso c/hora</option>
-                                    </select>
-                                </div>
-
-                                {/* Apto médico — obligatorio Res. 30/2023 */}
-                                <div className={`rounded-xl p-4 border-2 transition-all ${formData.aptaMedica ? 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-500 shadow-sm' : 'bg-red-50 dark:bg-red-900/10 border-red-400'}`}>
-                                    <label className={`flex items-center gap-3 cursor-pointer font-extrabold text-[0.9rem] ${formData.aptaMedica ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                                        <div className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${formData.aptaMedica ? 'bg-emerald-500' : 'bg-red-400'}`}>
-                                            <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${formData.aptaMedica ? 'translate-x-6 shadow-sm' : ''}`} />
-                                        </div>
-                                        <input type="checkbox" checked={formData.aptaMedica} onChange={(e) => handleInput('aptaMedica', e.target.checked)} className="sr-only" />
-                                        <span>{formData.aptaMedica ? '✅ Apto Médico Presentado' : '❌ Falta Apto Médico'}</span>
-                                    </label>
-                                    <p className="mt-2 text-[0.75rem] font-medium text-slate-600 dark:text-slate-400">Obligatorio por Res. SRT 30/2023. El trabajador debe tener apto médico antes de operar en ambientes con riesgo térmico.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* ─── Columna Derecha: Panel de Resultados ─── */}
-                    <div className="flex flex-col gap-6">
-
-                        {/* Card Dictamen */}
-                        <div className="bg-slate-50 dark:bg-slate-900 border-2 border-indigo-600 dark:border-indigo-500 rounded-[28px] overflow-hidden shadow-2xl">
-                            <div className="bg-indigo-600 text-white p-5 flex items-center gap-3 font-black tracking-wide text-lg shadow-md">
-                                <Calculator size={24} /> DICTAMEN TÉCNICO — {countryNorms.thermal}
-                            </div>
-
-                            <div className="p-8 text-center bg-white dark:bg-slate-800">
-                                {/* TGBH grande */}
-                                <div className="text-[1.1rem] text-black dark:text-white font-black uppercase mb-2 tracking-wider">
-                                    Índice TGBH Calculado
-                                </div>
-                                <div className="text-[4rem] font-black leading-none text-black dark:text-white mb-8 drop-shadow-sm">
-                                    {resultados.tgbh !== null ? `${resultados.tgbh}°C` : '--'}
-                                </div>
-
-                                {/* VLA y VLE */}
-                                <div className="grid grid-cols-2 gap-2 mb-4">
-                                    <div className="flex flex-col items-center p-2.5 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
-                                        <span className="text-[0.65rem] font-black uppercase text-amber-700 dark:text-amber-400 mb-1">VLA (Acción)</span>
-                                        <span className="font-black text-[1.1rem] text-amber-700 dark:text-amber-400">{resultados.vla !== null ? `${resultados.vla}°C` : '--'}</span>
-                                    </div>
-                                    <div className="flex flex-col items-center p-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800">
-                                        <span className="text-[0.65rem] font-black uppercase text-red-700 dark:text-red-400 mb-1">VLE (Límite)</span>
-                                        <span className="font-black text-[1.1rem] text-red-700 dark:text-red-400">{resultados.vle !== null ? `${resultados.vle}°C` : '--'}</span>
-                                    </div>
-                                    <div className="flex justify-between px-4 py-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 col-span-full items-center">
-                                        <span className="text-blue-800 dark:text-blue-300 font-bold text-[0.9rem]">Carga Solar Aplicada:</span>
-                                        <span className={`font-black text-[0.9rem] px-2 py-0.5 rounded-md ${formData.cargaSolar ? 'bg-orange-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}`}>{formData.cargaSolar ? 'SÍ' : 'NO'}</span>
-                                    </div>
-                                </div>
-
-                                {/* Dictamen 3 niveles: OK / ALERTA VLA / RIESGO VLE */}
-                                {resultados.admisible !== null ?
-                  <div className={`p-5 rounded-2xl flex items-center justify-center gap-3 border-2 ${!resultados.admisible ? 'bg-red-50 dark:bg-red-900/20 text-red-600 border-red-500' : resultados.enVLA ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 border-amber-500' : 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 border-emerald-500'}`}>
-                                        {!resultados.admisible ?
-                    <TriangleAlert size={28} /> :
-                    resultados.enVLA ? <Info size={28} /> : <CheckCircle2 size={28} />
-                    }
-                                        <div className="text-left">
-                                            <div className="text-base font-black uppercase">
-                                                {!resultados.admisible ?
-                        'RIESGO TÉRMICO' :
-                        resultados.enVLA ? 'ZONA DE ALERTA (VLA)' : 'ADMISIBLE'
-                        }
-                                            </div>
-                                            <div className="text-xs font-bold opacity-90">
-                                                {!resultados.admisible ?
-                        'Supera VLE. Rotación o control urgente (Res. 30/2023).' :
-                        resultados.enVLA ?
-                        'Supera VLA: activar monitoreo personal obligatorio.' :
-                        'Por debajo del VLA. Condición segura.'
-                        }
-                                            </div>
-                                        </div>
-                                    </div> :
-
-                  <div className="p-6 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-800 dark:text-indigo-300 border-2 border-indigo-200 dark:border-indigo-800/50 font-bold shadow-inner">
-                                        <Info size={28} className="mx-auto mb-3 opacity-90 text-indigo-500" />
-                                        <p className="m-0 text-[0.95rem]">Ingresá las temperaturas de globo y bulbo húmedo para ver el resultado técnico.</p>
-                                    </div>
-                  }
-
-                                {/* Advertencia aclimatación pendiente */}
-                                {!formData.aclimatado && resultados.tgbh !== null &&
-                  <div className="mt-[0.8rem] p-[0.75rem_1rem] bg-[rgba(245,158,11,0.07)] border-[1px_solid_rgba(245,158,11,0.25)] rounded-[12px] text-left">
-                                        <div className="text-[0.7rem] font-[900] text-[#d97706] mb-[0.25rem]">⚠️ ACLIMATACIÓN PENDIENTE — Res. SRT 30/2023</div>
-                                        <p className="m-[0] text-[0.7rem] text-[var(--color-text-muted)] line-height-[1.5]">
-                                            Trabajador no aclimatado. Implementar plan progresivo de <strong>5 a 14 días</strong> antes de exposición completa al calor.
-                                        </p>
-                                    </div>
-                  }
-                            </div>
-                        </div>
-
-                        {/* Card Fundamento Legal */}
-                        <div className="p-7 rounded-[28px] bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/40 dark:to-amber-950/40 border-2 border-orange-200 dark:border-orange-800/60 shadow-inner">
-                            <h3 className="text-base text-orange-700 dark:text-orange-400 m-0 mb-4 flex items-center gap-2 font-black uppercase tracking-wide">
-                                <Info size={20} strokeWidth={2.5} /> Fundamento Legal Aplicado
-                            </h3>
-                            <p className="text-[0.9rem] text-slate-800 dark:text-slate-200 m-0 mb-4 leading-relaxed font-medium">
-                                <strong className="text-orange-900 dark:text-orange-300 font-extrabold bg-orange-200/50 dark:bg-orange-900/50 px-2 py-0.5 rounded-md">{countryNorms.thermal} ({countryNorms.general})</strong> — Vigente desde 2024 (prórroga Res. 7/2024).
-                                Reemplazó el Anexo II del Dec. 351/79 y art. relacionados en Dec. 911/96 y 249/07.
-                                El índice adoptado es el TGBH (Temperatura de Globo y Bulbo Húmedo).
-                            </p>
-                            <div className="bg-white/80 dark:bg-black/40 p-4 rounded-2xl border border-orange-100 dark:border-orange-900/50 shadow-sm">
-                                <code className="text-[0.8rem] block text-slate-800 dark:text-slate-200 font-mono font-bold leading-loose">
-                                    <span className="text-emerald-700 dark:text-emerald-400">Interior:</span> TGBH = 0.7·Tbh + 0.3·Tg<br />
-                                    <span className="text-orange-600 dark:text-orange-400">Exterior (sol):</span> TGBH = 0.7·Tbh + 0.2·Tg + 0.1·Tbs<br />
-                                    <span className="text-indigo-600 dark:text-indigo-400">Límites:</span> VLA = VLE &minus; 1.5°C &nbsp;<span className="text-slate-500 text-[0.7rem]">(ACGIH)</span>
-                                </code>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Firmas y Autorizaciones */}
-                <div className="mt-8 p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl">
-                    <h2 className="text-[1.1rem] m-[0_0_1.5rem] flex items-center gap-[0.5rem] text-[var(--color-primary)]">
-                        <Pencil size={20} /> Firmas y Autorizaciones
-                    </h2>
-
-                    <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
-                        <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase tracking-wide">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                        <div className="flex gap-4 flex-wrap justify-center">
-                            {[
-                { id: 'operator', label: 'Trabajador Evaluado' },
-                { id: 'professional', label: 'Profesional Actuante' },
-                { id: 'supervisor', label: 'Responsable / Sector' }].
-                map((sig) => {
-                  const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
-                  return (
-                    <label
-                      key={sig.id}
-                      className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease] whitespace-nowrap"
-                      style={{
-                        border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
-                        background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
-                        color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
-                        boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
-                      }}>
-                      
-                                        <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={(e) => setShowSignatures((s: any) => ({ ...s, [sig.id]: e.target.checked }))} className="hidden" />
-
-                      
-                                        <div style={{
-                        border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
-                        background: isChecked ? 'var(--color-primary)' : 'transparent'
-                      }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
-                                            {isChecked && <CheckCircle2 size={12} color="white" />}
-                                        </div>
-                                        {sig.label}
-                                    </label>);
-
-                })}
-                        </div>
-                    </div>
-
-                    {/* On-Sheet Visual Preview of PDF signature blocks */}
-                    <div className="mb-[2.5rem]">
-                        <PdfSignatures
-                data={{
-                  ...formData,
-                  professionalSignature: professional.signature,
-                  professionalName: professional.name,
-                  professionalLicense: professional.license,
-                  professionalStamp: professional.stamp
-                }}
-                box1={showSignatures.operator ? {
-                  title: 'TRABAJADOR EVALUADO',
-                  subtitle: 'Firma de Conformidad',
-                  signatureUrl: formData.operatorSignature || null,
-                  isProfessional: false
-                } : null}
-                box2={showSignatures.professional ? {
-                  title: 'PROFESIONAL H&S',
-                  subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
-                  signatureUrl: formData.professionalSignature || professional.signature || null,
-                  stampUrl: formData.professionalStamp || professional.stamp || null,
-                  isProfessional: true,
-                  license: professional.license
-                } : null}
-                box3={showSignatures.supervisor ? {
-                  title: 'RESPONSABLE / SECTOR',
-                  subtitle: 'Validación de Medidas',
-                  signatureUrl: formData.supervisorSignature || formData.signature || null,
-                  isProfessional: false
-                } : null} />
-              
-            <PdfBrandingFooter />
-                    </div>
-
-                    {/* Interactive Signature Drawing Pads */}
-                    <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid gap-[2rem] mt-[2rem] pt-[2rem] border-top-[1px_solid_var(--color-border)]" style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr' }}>
-                        {showSignatures.operator &&
-              <SignatureCanvas
-                onSave={(sig) => setFormData((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
-                initialImage={formData.operatorSignature}
-                label="Firma del Trabajador Evaluado" />
-
-              }
-                        
-                        {showSignatures.professional &&
-              <SignatureCanvas
-                onSave={(sig) => setFormData((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
-                initialImage={formData.professionalSignature || professional.signature}
-                label="Firma de Profesional Actuante" />
-
-              }
-
-                        {showSignatures.supervisor &&
-              <SignatureCanvas
-                onSave={(sig) => setFormData((prev: any) => ({ ...prev, supervisorSignature: sig || '', signature: sig || '' }))}
-                initialImage={formData.supervisorSignature || formData.signature}
-                label="Firma de Responsable / Sector" />
-
-              }
-                    </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-3 justify-between items-center mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
-                    <div className="flex gap-3 w-full sm:w-auto">
-                        <button type="button" onClick={() => setIsFormVisible(false)} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-sm" style={{ backgroundColor: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }}>
-                            <ArrowLeft size={18} /> Cancelar
-                        </button>
-                    </div>
-
-                    <div className="flex gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap justify-end">
-                        <button type="button" onClick={handlePrint} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md" style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }}>
-                            <Printer size={18} /> Generar PDF
-                        </button>
-                        <button type="button" onClick={() => {
-                            setFormData({
-                                ...formData,
-                                professionalSignature: formData.professionalSignature || professional.signature,
-                                professionalName: formData.professionalName || professional.name,
-                                professionalLicense: formData.professionalLicense || professional.license,
-                                professionalStamp: formData.professionalStamp || professional.stamp
-                            });
-                            requirePro(() => {
-                                const report = {
-                                    id: currentEditItem?.id || Date.now(),
-                                    date: currentEditItem?.date || new Date().toISOString(),
-                                    evaluador: currentUser?.displayName || 'Profesional HSE',
-                                    normativa: 'Res. SRT 30/2023',
-                                    ...formData,
-                                    professionalSignature: formData.professionalSignature || professional.signature,
-                                    professionalName: formData.professionalName || professional.name,
-                                    professionalLicense: formData.professionalLicense || professional.license,
-                                    professionalStamp: formData.professionalStamp || professional.stamp,
-                                    resultados
-                                };
-                                setShareItem(report);
-                            });
-                        }} className="flex-1 sm:flex-none p-[0.8rem_1.5rem] rounded-xl font-[800] cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-md" style={{ backgroundColor: '#8b5cf6', color: '#ffffff', border: 'none' }}>
-                            <Share2 size={18} /> Compartir
-                        </button>
-                        <button type="button" onClick={(e) => {e.preventDefault(); requirePro(handleSave);}} className="w-full sm:w-auto p-[0.8rem_1.5rem] rounded-xl font-black cursor-pointer flex justify-center items-center gap-2 transition-transform hover:-translate-y-0.5 shadow-lg" style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#ffffff', border: 'none' }}>
-                            <Save size={18} /> Guardar Evaluación
-                        </button>
-                    </div>
-                </div>
-            </div>
-            </>
-      }
-
-            {/* PRO upgrade banner */}
-            {!isFormVisible && <AdBanner />}
-            {isFormVisible && <AdBanner />}
-
-            {/* Reporte oculto para impresión directa */}
-            {isFormVisible && (
-            <div className="print-only">
-                <ThermalStressPdfGenerator
-          data={{
-            id: Date.now(),
-            date: new Date().toISOString(),
-            evaluador: currentUser?.displayName || 'Profesional HSE',
-            ...formData,
-            resultados
-          }}
-          onBack={() => {}} />
-            </div>
-            )}
+        {/* Elemento Oculto para Renderizar ShareModal */}
+        <div className="absolute left-0 opacity-[0.001] top-[-9999px] pointer-events-none">
+          {shareItem && <ThermalStressPdfGenerator data={shareItem} isHeadless={true} onBack={() => {}} />}
         </div>
-    </AnimatedPage>);
 
+        {/* Elemento para Imprimir Seleccionado */}
+        {selectedForPrint && (
+          <div className="print-only">
+            <ThermalStressPdfGenerator data={selectedForPrint} onBack={() => {}} />
+          </div>
+        )}
+
+        {!isFormVisible ? (
+          /* ─── VISTA 1: LISTADO DE HISTORIAL Y BOTÓN NUEVO ─── */
+          <div className="animate-fade-in w-full max-w-6xl mx-auto space-y-6">
+            <PremiumHeader
+              title="Protocolos de Carga Térmica y Frío"
+              subtitle={`Res. MTEySS 295/03 Anexo II & Res. SRT 30/2023 • ${history.length} relevamientos`}
+              icon={<ThermometerSun size={36} className="text-white" />}
+            />
+
+            {/* Barra de Acciones */}
+            <div className="flex gap-3 flex-wrap justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Estándar Vigente:
+                </span>
+                <span className="text-xs font-black bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-lg">
+                  Res. SRT 30/2023 (TGBH + CAV + VLA/VLE)
+                </span>
+              </div>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={exportCsv}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 font-bold text-xs rounded-xl text-slate-700 dark:text-slate-200 transition-colors"
+                >
+                  <Download size={16} /> Exportar CSV
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentEditItem(null);
+                    setFormData({
+                      cuit: initialDefaults.cuit,
+                      razonSocial: initialDefaults.razonSocial,
+                      direccion: initialDefaults.direccion,
+                      localidad: initialDefaults.localidad,
+                      art: initialDefaults.art,
+                      establecimiento: initialDefaults.establecimiento,
+                      puesto: '',
+                      sector: '',
+                      tarea: '',
+                      fecha: new Date().toISOString().split('T')[0],
+                      cantTrabajadores: 1,
+                      instMarca: 'Quest Technologies / 3M',
+                      instModelo: 'QUESTemp° 34',
+                      instSerie: 'QT-34-8841',
+                      fechaCalibracion: '2025-06-15',
+                      verifPre: 25.0,
+                      verifPost: 25.1,
+                      cargaSolar: false,
+                      tbh: '24.5',
+                      tg: '31.0',
+                      tbs: '30.0',
+                      viento: '0.3',
+                      aptaMedica: true,
+                      aclimatado: true,
+                      ritmo: 'moderado',
+                      ciclo: 'continuo',
+                      indumentariaId: 'standard',
+                      cav: 0.0,
+                      evaluarFrio: false,
+                      tempAireSeco: '',
+                      velocidadVientoKmH: '',
+                      operatorSignature: '',
+                      supervisorSignature: '',
+                      signature: '',
+                      showSignatures: { operator: true, professional: true, supervisor: true }
+                    });
+                    setIsFormVisible(true);
+                    window.scrollTo(0, 0);
+                  }}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <Plus size={18} strokeWidth={2.5} /> Nuevo Relevamiento
+                </button>
+              </div>
+            </div>
+
+            {/* Tabla de Historial */}
+            <DataTable
+              data={history}
+              columns={columns}
+              searchPlaceholder="Buscar por puesto, empresa o sector..."
+              searchFields={['puesto', 'sector', 'tarea', 'razonSocial', 'cuit']}
+              emptyMessage="No hay evaluaciones térmicas registradas. Inicie una nueva con el botón superior."
+              emptyIcon={<ThermometerSun size={48} />}
+            />
+
+            {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
+          </div>
+        ) : (
+          /* ─── VISTA 2: FORMULARIO OFICIAL EN DOS COLUMNAS ─── */
+          <div className="no-print animate-fade-in w-full max-w-6xl mx-auto space-y-6">
+            <PremiumHeader
+              onBack={() => setIsFormVisible(false)}
+              title={currentEditItem ? 'Editar Protocolo de Estrés Térmico' : 'Nuevo Protocolo de Estrés Térmico y Frío'}
+              subtitle="Res. MTEySS 295/03 Anexo II & Res. SRT 30/2023 • Carga Térmica y Aclimatación"
+              icon={<ThermometerSun size={36} className="text-white" />}
+            />
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Columna Izquierda: Formulario (7 columnas) */}
+              <div className="lg:col-span-7 space-y-6">
+                {/* 1. Datos del Establecimiento */}
+                <div className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm space-y-4">
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2 m-0 border-b border-slate-100 dark:border-slate-700/60 pb-3">
+                    <Building2 size={18} className="text-blue-500" />
+                    1. Identificación de la Empresa y Puesto
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">C.U.I.T. N°</label>
+                      <input
+                        type="text"
+                        value={formData.cuit}
+                        onChange={(e) => handleInput('cuit', e.target.value)}
+                        placeholder="30-12345678-9"
+                        className="w-full text-xs font-mono p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Razón Social</label>
+                      <input
+                        type="text"
+                        value={formData.razonSocial}
+                        onChange={(e) => handleInput('razonSocial', e.target.value)}
+                        placeholder="Ej. Industrias Metalúrgicas S.A."
+                        className="w-full text-xs font-bold p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Puesto de Trabajo a Evaluar *</label>
+                      <input
+                        type="text"
+                        value={formData.puesto}
+                        onChange={(e) => handleInput('puesto', e.target.value)}
+                        placeholder="Ej. Operador de Horno de Fundición"
+                        className="w-full text-xs font-black p-2.5 rounded-xl border border-blue-300 dark:border-blue-700 bg-blue-50/30 dark:bg-blue-900/10"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Sector / Área</label>
+                      <input
+                        type="text"
+                        value={formData.sector}
+                        onChange={(e) => handleInput('sector', e.target.value)}
+                        placeholder="Ej. Nave 2 - Fundición"
+                        className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Tarea Principal Realizada</label>
+                      <input
+                        type="text"
+                        value={formData.tarea}
+                        onChange={(e) => handleInput('tarea', e.target.value)}
+                        placeholder="Ej. Carga y colada de lingotes en cubilote con pala y empuje manual"
+                        className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Fecha del Relevamiento</label>
+                      <input
+                        type="date"
+                        value={formData.fecha}
+                        onChange={(e) => handleInput('fecha', e.target.value)}
+                        className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">N° Trabajadores Expuestos</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={formData.cantTrabajadores}
+                        onChange={(e) => handleInput('cantTrabajadores', e.target.value)}
+                        className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Instrumental y Calibración */}
+                <div className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm space-y-4">
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2 m-0 border-b border-slate-100 dark:border-slate-700/60 pb-3">
+                    <Wrench size={18} className="text-amber-500" />
+                    2. Instrumental de Medición y Calibración
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Marca y Modelo</label>
+                      <input
+                        type="text"
+                        value={`${formData.instMarca} ${formData.instModelo}`}
+                        onChange={(e) => handleInput('instModelo', e.target.value)}
+                        className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">N° de Serie</label>
+                      <input
+                        type="text"
+                        value={formData.instSerie}
+                        onChange={(e) => handleInput('instSerie', e.target.value)}
+                        className="w-full text-xs font-mono p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Calibración Lab.</label>
+                      <input
+                        type="date"
+                        value={formData.fechaCalibracion}
+                        onChange={(e) => handleInput('fechaCalibracion', e.target.value)}
+                        className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900"
+                      />
+                    </div>
+                  </div>
+                  {evalResult.calibracionLaboratorioVencida && (
+                    <div className="p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center gap-2 text-xs text-amber-700 dark:text-amber-400 font-bold">
+                      <AlertCircle size={16} /> Certificado de calibración con más de 24 meses de antigüedad.
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Variables Ambientales */}
+                <div className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm space-y-4">
+                  <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/60 pb-3 flex-wrap gap-2">
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2 m-0">
+                      <ThermometerSun size={18} className="text-orange-500" />
+                      3. Variables Ambientales Medidas
+                    </h3>
+                    <label className={`flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-xl cursor-pointer transition-colors border ${
+                      formData.cargaSolar
+                        ? 'bg-orange-500 text-white border-orange-600 shadow-sm'
+                        : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600'
+                    }`}>
+                      <input
+                        type="checkbox"
+                        checked={formData.cargaSolar}
+                        onChange={(e) => handleInput('cargaSolar', e.target.checked)}
+                        className="sr-only"
+                      />
+                      <span>☀️ {formData.cargaSolar ? 'Con Carga Solar Directa' : 'Interior / Sombra'}</span>
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-blue-700 dark:text-blue-400 mb-1">
+                        Bulbo Húmedo (Tbh) °C *
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={formData.tbh}
+                        onChange={(e) => handleInput('tbh', e.target.value)}
+                        placeholder="24.5"
+                        className="w-full text-sm font-black p-2.5 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-900/10 text-blue-700 dark:text-blue-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-orange-700 dark:text-orange-400 mb-1">
+                        Globo Térmico (Tg) °C *
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={formData.tg}
+                        onChange={(e) => handleInput('tg', e.target.value)}
+                        placeholder="31.0"
+                        className="w-full text-sm font-black p-2.5 rounded-xl border border-orange-200 dark:border-orange-800 bg-orange-50/30 dark:bg-orange-900/10 text-orange-700 dark:text-orange-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-red-700 dark:text-red-400 mb-1">
+                        Bulbo Seco (Tbs) °C
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        disabled={!formData.cargaSolar}
+                        value={formData.cargaSolar ? formData.tbs : ''}
+                        onChange={(e) => handleInput('tbs', e.target.value)}
+                        placeholder={formData.cargaSolar ? "30.0" : "N/A"}
+                        className={`w-full text-sm font-black p-2.5 rounded-xl border ${
+                          formData.cargaSolar 
+                            ? 'border-red-300 dark:border-red-800 bg-red-50/30 dark:bg-red-900/10 text-red-700' 
+                            : 'border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-400 cursor-not-allowed'
+                        }`}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        Viento (m/s)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        value={formData.viento}
+                        onChange={(e) => handleInput('viento', e.target.value)}
+                        placeholder="0.3"
+                        className="w-full text-sm font-bold p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Carga Metabólica, Indumentaria (CAV) y Condiciones Médicas */}
+                <div className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm space-y-4">
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2 m-0 border-b border-slate-100 dark:border-slate-700/60 pb-3">
+                    <Shirt size={18} className="text-purple-500" />
+                    4. Exigencia Física, Indumentaria (CAV) y Salud
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        Carga Metabólica (Gasto Energético)
+                      </label>
+                      <select
+                        value={formData.ritmo}
+                        onChange={(e) => handleInput('ritmo', e.target.value)}
+                        className="w-full text-xs font-bold p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900"
+                      >
+                        {METABOLIC_PREFS.map(m => (
+                          <option key={m.id} value={m.id}>{m.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        Régimen Trabajo / Descanso Declarado
+                      </label>
+                      <select
+                        value={formData.ciclo}
+                        onChange={(e) => handleInput('ciclo', e.target.value)}
+                        className="w-full text-xs font-bold p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900"
+                      >
+                        <option value="continuo">Continuo (100% Trabajo)</option>
+                        <option value="75_25">75% Trabajo / 25% Descanso c/hora</option>
+                        <option value="50_50">50% Trabajo / 50% Descanso c/hora</option>
+                        <option value="25_75">25% Trabajo / 75% Descanso c/hora</option>
+                      </select>
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        Indumentaria de Trabajo (Factor de Ajuste CAV — Res. SRT 30/23)
+                      </label>
+                      <select
+                        value={formData.indumentariaId}
+                        onChange={(e) => handleInput('indumentariaId', e.target.value)}
+                        className="w-full text-xs font-bold p-2.5 rounded-xl border border-indigo-300 dark:border-indigo-700 bg-indigo-50/20 dark:bg-indigo-900/10 text-indigo-950 dark:text-indigo-200"
+                      >
+                        {CLOTHING_CAV_OPTIONS.map(c => (
+                          <option key={c.id} value={c.id}>
+                            {c.label} (CAV: +{c.cav}°C)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Toggles Aclimatado y Apto Médico */}
+                    <div>
+                      <label className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer font-bold text-xs transition-colors ${
+                        formData.aclimatado
+                          ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300'
+                          : 'border-amber-400 bg-amber-50/50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300'
+                      }`}>
+                        <input
+                          type="checkbox"
+                          checked={formData.aclimatado}
+                          onChange={(e) => handleInput('aclimatado', e.target.checked)}
+                          className="w-4 h-4 rounded text-emerald-600"
+                        />
+                        <div>
+                          <div>{formData.aclimatado ? '✅ Personal Aclimatado' : '⚠️ No Aclimatado (-2.0°C)'}</div>
+                          <div className="text-[10px] opacity-80 font-normal">Plan de 5 a 14 días cumplido</div>
+                        </div>
+                      </label>
+                    </div>
+
+                    <div>
+                      <label className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer font-bold text-xs transition-colors ${
+                        formData.aptaMedica
+                          ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300'
+                          : 'border-red-400 bg-red-50/50 dark:bg-red-950/20 text-red-800 dark:text-red-300'
+                      }`}>
+                        <input
+                          type="checkbox"
+                          checked={formData.aptaMedica}
+                          onChange={(e) => handleInput('aptaMedica', e.target.checked)}
+                          className="w-4 h-4 rounded text-emerald-600"
+                        />
+                        <div>
+                          <div>{formData.aptaMedica ? '✅ Apto Médico Específico' : '❌ Falta Apto Médico'}</div>
+                          <div className="text-[10px] opacity-80 font-normal">Obligatorio por Res. SRT 30/23</div>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 5. Módulo Opcional: Estrés por Frío (Wind Chill) */}
+                <div className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm space-y-4">
+                  <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/60 pb-3">
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2 m-0">
+                      <Wind size={18} className="text-sky-500" />
+                      5. Estrés por Frío (Sensación Térmica / Wind Chill)
+                    </h3>
+                    <label className="flex items-center gap-2 text-xs font-bold cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.evaluarFrio}
+                        onChange={(e) => handleInput('evaluarFrio', e.target.checked)}
+                        className="w-4 h-4 rounded text-sky-600"
+                      />
+                      <span>Evaluar Frío</span>
+                    </label>
+                  </div>
+
+                  {formData.evaluarFrio && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                      <div>
+                        <label className="block text-[11px] font-bold text-sky-700 dark:text-sky-300 mb-1">
+                          Temperatura de Aire Seco (°C)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={formData.tempAireSeco}
+                          onChange={(e) => handleInput('tempAireSeco', e.target.value)}
+                          placeholder="Ej. -5.0"
+                          className="w-full text-xs font-black p-2.5 rounded-xl border border-sky-300 dark:border-sky-800 bg-sky-50/20"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-sky-700 dark:text-sky-300 mb-1">
+                          Velocidad del Viento (km/h)
+                        </label>
+                        <input
+                          type="number"
+                          step="1"
+                          min="0"
+                          value={formData.velocidadVientoKmH}
+                          onChange={(e) => handleInput('velocidadVientoKmH', e.target.value)}
+                          placeholder="Ej. 25"
+                          className="w-full text-xs font-black p-2.5 rounded-xl border border-sky-300 dark:border-sky-800 bg-sky-50/20"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Columna Derecha: Tarjeta de Dictamen y Previsualización (5 columnas) */}
+              <div className="lg:col-span-5 space-y-6">
+                {/* Tarjeta de Dictamen Oficial */}
+                <div className={`rounded-3xl border-2 overflow-hidden shadow-xl transition-all ${
+                  evalResult.trabajoCriticoSuspendido
+                    ? 'border-rose-600 bg-rose-50/40 dark:bg-rose-950/20'
+                    : evalResult.limiteExcedido
+                    ? 'border-red-500 bg-red-50/40 dark:bg-red-950/20'
+                    : evalResult.nivelAccionAlcanzado
+                    ? 'border-amber-500 bg-amber-50/40 dark:bg-amber-950/20'
+                    : 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20'
+                }`}>
+                  <div className={`p-4 text-white font-black text-sm uppercase tracking-wider flex items-center justify-between ${
+                    evalResult.trabajoCriticoSuspendido
+                      ? 'bg-rose-600'
+                      : evalResult.limiteExcedido
+                      ? 'bg-red-600'
+                      : evalResult.nivelAccionAlcanzado
+                      ? 'bg-amber-600'
+                      : 'bg-emerald-600'
+                  }`}>
+                    <span className="flex items-center gap-2">
+                      <Calculator size={18} /> Dictamen Oficial Res. SRT 30/23
+                    </span>
+                    <span className="text-[10px] font-mono bg-white/20 px-2 py-0.5 rounded">
+                      ACGIH
+                    </span>
+                  </div>
+
+                  <div className="p-6 text-center space-y-4">
+                    <div>
+                      <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                        TGBH EFECTIVO (CON CAV)
+                      </div>
+                      <div className="text-5xl font-black text-slate-900 dark:text-white my-1">
+                        {evalResult.tgbhEfectivo}°C
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        Base: {evalResult.tgbhMedido}°C • CAV: +{evalResult.cavAplicado}°C
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40">
+                        <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 block uppercase">
+                          VLA (Acción)
+                        </span>
+                        <span className="text-lg font-black text-amber-800 dark:text-amber-300">
+                          {evalResult.vlaAccion}°C
+                        </span>
+                      </div>
+                      <div className="p-2 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/40">
+                        <span className="text-[10px] font-bold text-red-700 dark:text-red-400 block uppercase">
+                          VLE (Límite)
+                        </span>
+                        <span className="text-lg font-black text-red-800 dark:text-red-300">
+                          {evalResult.vlePermisible}°C
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Badge Dictamen */}
+                    <div className={`p-4 rounded-2xl flex items-center justify-center gap-3 border text-left ${
+                      evalResult.trabajoCriticoSuspendido
+                        ? 'bg-rose-100 dark:bg-rose-900/30 border-rose-300 text-rose-950 dark:text-rose-200'
+                        : evalResult.limiteExcedido
+                        ? 'bg-red-100 dark:bg-red-900/30 border-red-300 text-red-950 dark:text-red-200'
+                        : evalResult.nivelAccionAlcanzado
+                        ? 'bg-amber-100 dark:bg-amber-900/30 border-amber-300 text-amber-950 dark:text-amber-200'
+                        : 'bg-emerald-100 dark:bg-emerald-900/30 border-emerald-300 text-emerald-950 dark:text-emerald-200'
+                    }`}>
+                      {evalResult.dictamenGeneral === 'CONFORME' ? (
+                        <CheckCircle2 size={32} className="text-emerald-600 shrink-0" />
+                      ) : (
+                        <ShieldAlert size={32} className="shrink-0 text-red-600" />
+                      )}
+                      <div>
+                        <div className="text-xs font-black uppercase tracking-tight">
+                          {evalResult.dictamenGeneral}
+                        </div>
+                        <div className="text-[11px] font-medium opacity-90 mt-0.5">
+                          {evalResult.regimenRecomendado}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Hidratación Requerida */}
+                    <div className="p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/40 rounded-xl text-left flex items-center gap-3">
+                      <Droplets size={22} className="text-blue-500 shrink-0" />
+                      <div>
+                        <div className="text-[10px] font-bold text-blue-900 dark:text-blue-300 uppercase">
+                          Hidratación Obligatoria
+                        </div>
+                        <div className="text-xs font-black text-blue-950 dark:text-blue-200">
+                          {evalResult.tasaHidratacionMlPorHora} ml/hora (1 vaso cada 15-20 min)
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Firmas Digitales */}
+                <div className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm space-y-4">
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2 m-0 border-b border-slate-100 dark:border-slate-700/60 pb-3">
+                    <Pencil size={18} className="text-blue-500" />
+                    Firmas y Validación
+                  </h3>
+
+                  <div className="space-y-4">
+                    {showSignatures.operator && (
+                      <SignatureCanvas
+                        label="Firma del Trabajador Evaluado"
+                        initialImage={formData.operatorSignature}
+                        onSave={(sig) => handleInput('operatorSignature', sig || '')}
+                      />
+                    )}
+                    {showSignatures.professional && (
+                      <SignatureCanvas
+                        label="Firma del Profesional H&S"
+                        initialImage={formData.professionalSignature || professional.signature}
+                        onSave={(sig) => handleInput('professionalSignature', sig || '')}
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Barra Inferior de Guardar y Generar PDF */}
+            <div className="sticky bottom-4 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl flex justify-between items-center flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => setIsFormVisible(false)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 font-bold text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <ArrowLeft size={16} /> Volver al Listado
+              </button>
+
+              <div className="flex gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => handlePrint()}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-colors"
+                >
+                  <Printer size={16} /> Imprimir / PDF
+                </button>
+                <button
+                  type="button"
+                  onClick={() => requirePro(doSave)}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs rounded-xl shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <Save size={16} /> Guardar Protocolo
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Banner Publicitario PRO */}
+        <div className="mt-8">
+          <AdBanner />
+        </div>
+      </div>
+    </AnimatedPage>
+  );
 }
