@@ -152,6 +152,8 @@ export function evaluateFullGroundingProtocol(p: Partial<GroundingProtocol>): Gr
 }
 
 // ── 2. Res. SRT 84/12 — Iluminación (Dec. 351/79 Anexo IV) ─────────────────
+import type { LightingPointMeasurement, LightingProtocolSRT84, LightingAuditMetrics } from '../types/lighting';
+
 export interface LightingRequirement {
   taskCategory: 'Vías de circulación / Pasillos' | 'Depósitos / Tareas Brutas' | 'Oficinas / Tareas Normales' | 'Dibajo / Trabajo Fino' | 'Inspección de Alta Precisión';
   minLuxRequired: number;
@@ -164,6 +166,17 @@ export const LIGHTING_STANDARDS: Record<LightingRequirement['taskCategory'], num
   'Dibajo / Trabajo Fino': 500,
   'Inspección de Alta Precisión': 1000
 };
+
+export const OFFICIAL_SRT_VISUAL_TASKS = [
+  { id: 'circulacion', label: 'Vías de circulación, pasillos y escaleras', minLux: 100, norma: 'Dec. 351/79 Anexo IV' },
+  { id: 'depositos', label: 'Depósitos, almacenes, zonas de carga y vestuarios', minLux: 200, norma: 'Dec. 351/79 Anexo IV' },
+  { id: 'maquinaria_gruesa', label: 'Trabajos con maquinaria pesada y soldadura bruta', minLux: 200, norma: 'Dec. 351/79 Anexo IV' },
+  { id: 'oficinas_gral', label: 'Oficinas, tareas administrativas, lectura y computación', minLux: 500, norma: 'Dec. 351/79 Anexo IV' },
+  { id: 'mecanizado_medio', label: 'Mecanizado en tornos, fresadoras y bancos de ajuste', minLux: 500, norma: 'Dec. 351/79 Anexo IV' },
+  { id: 'laboratorios', label: 'Laboratorios de control de calidad y ensayos', minLux: 500, norma: 'Dec. 351/79 Anexo IV' },
+  { id: 'dibujo_tecnico', label: 'Dibujo técnico, diseño e inspección de piezas finas', minLux: 1000, norma: 'Dec. 351/79 Anexo IV' },
+  { id: 'electronica_relojeria', label: 'Montaje electrónico fino, microcirugía y relojería', minLux: 2000, norma: 'Dec. 351/79 Anexo IV' }
+];
 
 export function evaluateLightingMeasurement(
   measuredLuxValues: number[],
@@ -192,6 +205,73 @@ export function evaluateLightingMeasurement(
     summaryText: isLuxCompliant
       ? `Iluminación media conforme (${avgLux} lux de ${minLuxRequired} lux requeridos).`
       : `Iluminación insuficiente (${avgLux} lux). Se requieren mínimo ${minLuxRequired} lux según Res. SRT 84/12.`
+  };
+}
+
+export function evaluateFullLightingProtocolSRT84(
+  puntos: LightingPointMeasurement[],
+  instrumentoFechaCalibracion?: string
+): LightingAuditMetrics {
+  const total = puntos.length;
+  if (total === 0) {
+    return {
+      totalPuntos: 0,
+      puntosConformes: 0,
+      puntosDeficientes: 0,
+      porcentajeConformidad: 0,
+      iluminanciaMedia: 0,
+      iluminanciaMinima: 0,
+      iluminanciaMaxima: 0,
+      factorUniformidad: 0,
+      uniformidadConforme: false,
+      calibracionVencida: false,
+      dictamenGeneral: 'DEFICIENTE'
+    };
+  }
+
+  const luxValues = puntos.map(p => Number(p.luxMedido) || 0);
+  const eMin = Math.min(...luxValues);
+  const eMax = Math.max(...luxValues);
+  const sum = luxValues.reduce((a, b) => a + b, 0);
+  const eMed = Math.round(sum / total);
+  const factorUniformidad = eMed > 0 ? Number((eMin / eMed).toFixed(2)) : 0;
+  const uniformidadConforme = factorUniformidad >= 0.50;
+
+  let conformes = 0;
+  puntos.forEach(p => {
+    if (p.luxMedido >= p.luxRequeridoNorma) conformes++;
+  });
+  const deficientes = total - conformes;
+  const porcentaje = Math.round((conformes / total) * 100);
+
+  // Calibración de luxómetro (vigencia 24 meses según INTI / Res. 84/12)
+  let calibracionVencida = false;
+  if (instrumentoFechaCalibracion) {
+    const fCal = new Date(instrumentoFechaCalibracion);
+    const ahora = new Date();
+    const difMeses = (ahora.getFullYear() - fCal.getFullYear()) * 12 + (ahora.getMonth() - fCal.getMonth());
+    if (difMeses > 24) calibracionVencida = true;
+  }
+
+  let dictamen: LightingAuditMetrics['dictamenGeneral'] = 'CONFORME';
+  if (deficientes > 0) {
+    dictamen = 'DEFICIENTE';
+  } else if (!uniformidadConforme) {
+    dictamen = 'OBSERVADO (UNIFORMIDAD)';
+  }
+
+  return {
+    totalPuntos: total,
+    puntosConformes: conformes,
+    puntosDeficientes: deficientes,
+    porcentajeConformidad: porcentaje,
+    iluminanciaMedia: eMed,
+    iluminanciaMinima: eMin,
+    iluminanciaMaxima: eMax,
+    factorUniformidad,
+    uniformidadConforme,
+    calibracionVencida,
+    dictamenGeneral: dictamen
   };
 }
 

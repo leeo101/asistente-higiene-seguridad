@@ -29,6 +29,7 @@ import { Search } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
 import { ModuleActionBar } from '../components/module';
 import { evaluateLightingLevel } from '../utils/hygieneCalculators';
+import { OFFICIAL_SRT_VISUAL_TASKS, evaluateFullLightingProtocolSRT84 } from '../utils/srtProtocols';
 import LightingCalculatorWidget from '../components/LightingCalculatorWidget';
 const inputStyle: React.CSSProperties = {
   width: '100%',
@@ -45,14 +46,12 @@ const inputStyle: React.CSSProperties = {
   boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
 };
 
-// Tipos de tareas visuales basados en el Decreto 351/79 (Anexo IV) - Resumido
+// Tipos de tareas visuales oficiales basados en Dec. 351/79 (Anexo IV) y Res. SRT 84/12
 const visualTasks = [
-{ id: 'exteriores', label: 'Áreas exteriores generales y patios', minLux: 20 },
-{ id: 'circulacion', label: 'Zonas de circulación, pasillos y escaleras', minLux: 100 },
-{ id: 'simples', label: 'Tareas visuales simples (Depósitos, vestuarios)', minLux: 200 },
-{ id: 'moderadas', label: 'Distinción moderada de detalles (Oficinas, lectura general)', minLux: 500 },
-{ id: 'finos', label: 'Distinción de detalles finos (Dibujo, inspección fina)', minLux: 1000 },
-{ id: 'muy_finos', label: 'Detalles muy finos (Relojería, electrónica, microcirugía)', minLux: 2000 }];
+  ...OFFICIAL_SRT_VISUAL_TASKS,
+  { id: 'exteriores', label: 'Áreas exteriores generales y patios', minLux: 20 },
+  { id: 'simples', label: 'Tareas visuales simples (Depósitos, vestuarios)', minLux: 200 }
+];
 
 
 export default function LightingReport(): React.ReactElement | null {
@@ -61,20 +60,36 @@ export default function LightingReport(): React.ReactElement | null {
   const location = useLocation();
   const { currentUser } = useAuth();
   const { syncCollection } = useSync();
-  const { isPro } = usePaywall();
-
   const [formData, setFormData] = useState({
     empresa: '',
+    cuit: '',
     sector: '',
     descripcionActividad: '',
-    tipoTarea: '',
+    tipoTarea: 'Oficinas, tareas administrativas, lectura y computación',
     luxRequerido: 500,
     conclusion: '',
     operatorSignature: '',
     supervisorSignature: '',
+    instrumento: {
+      marca: '',
+      modelo: '',
+      numeroSerie: '',
+      fechaCalibracion: ''
+    },
+    largoLocalM: '' as any,
+    anchoLocalM: '' as any,
+    alturaMontajeM: '' as any,
+    condicionMeteorologica: 'Despejado',
     mediciones: [
-    { id: Date.now().toString(), ubicacion: 'Puesto 1', luxMedido: 0 as any }]
-
+      {
+        id: Date.now().toString(),
+        codigoPunto: 'P1',
+        ubicacion: 'Puesto 1',
+        alturaPlanoTrabajoM: 0.8,
+        tipoIluminacion: 'Artificial' as 'Natural' | 'Artificial' | 'Mixta',
+        luxMedido: 0 as any
+      }
+    ]
   });
 
   const [isFormVisible, setIsFormVisible] = useState(false);
@@ -263,7 +278,13 @@ export default function LightingReport(): React.ReactElement | null {
     promedioLux: 0,
     cumplePromedio: false,
     puntosCumplen: 0,
-    puntosNoCumplen: 0
+    puntosNoCumplen: 0,
+    minLux: 0,
+    maxLux: 0,
+    factorUniformidad: 0,
+    uniformidadConforme: false,
+    calibracionVencida: false,
+    dictamenGeneral: 'DEFICIENTE' as 'CONFORME' | 'DEFICIENTE' | 'OBSERVADO (UNIFORMIDAD)'
   });
 
   // Actualizar lux requerido cuando cambia la tarea Y NO SE ESCRIBIÓ MANUALMENTE
@@ -275,50 +296,99 @@ export default function LightingReport(): React.ReactElement | null {
     }
   }, [formData.tipoTarea]);
 
-  // Calcular promedios y cumplimiento
+  // Calcular promedios, factor de uniformidad y cumplimiento normativo (Res. SRT 84/12)
   useEffect(() => {
     const meds = formData.mediciones || [];
     if (meds.length === 0) {
-      setResults({ promedioLux: 0, cumplePromedio: false, puntosCumplen: 0, puntosNoCumplen: 0 });
+      setResults({
+        promedioLux: 0,
+        cumplePromedio: false,
+        puntosCumplen: 0,
+        puntosNoCumplen: 0,
+        minLux: 0,
+        maxLux: 0,
+        factorUniformidad: 0,
+        uniformidadConforme: false,
+        calibracionVencida: false,
+        dictamenGeneral: 'DEFICIENTE'
+      });
       return;
     }
 
-    const totalLux = meds.reduce((acc, curr) => acc + (parseFloat(curr.luxMedido) || 0), 0);
-    const promedio = totalLux / meds.length;
+    const puntosFormatted = meds.map((m: any, idx: number) => ({
+      id: m.id || String(idx + 1),
+      codigoPunto: m.codigoPunto || `P${idx + 1}`,
+      sector: formData.sector || 'General',
+      puestoTrabajo: m.ubicacion || `Puesto ${idx + 1}`,
+      tareaVisual: formData.tipoTarea || 'Tarea General',
+      alturaPlanoTrabajoM: Number(m.alturaPlanoTrabajoM) || 0.8,
+      tipoIluminacion: (m.tipoIluminacion as any) || 'Artificial',
+      luxRequeridoNorma: Number(formData.luxRequerido) || 500,
+      luxMedido: parseFloat(m.luxMedido) || 0,
+      conformeNivel: (parseFloat(m.luxMedido) || 0) >= (Number(formData.luxRequerido) || 500)
+    }));
 
-    const cumpleProm = promedio >= formData.luxRequerido;
-    const cumplen = meds.filter((m) => (parseFloat(m.luxMedido) || 0) >= formData.luxRequerido).length;
-    const noCumplen = meds.length - cumplen;
+    const evalResult = evaluateFullLightingProtocolSRT84(
+      puntosFormatted,
+      formData.instrumento?.fechaCalibracion
+    );
 
     setResults({
-      promedioLux: Math.round(promedio),
-      cumplePromedio: cumpleProm,
-      puntosCumplen: cumplen,
-      puntosNoCumplen: noCumplen
+      promedioLux: evalResult.iluminanciaMedia,
+      cumplePromedio: evalResult.dictamenGeneral === 'CONFORME',
+      puntosCumplen: evalResult.puntosConformes,
+      puntosNoCumplen: evalResult.puntosDeficientes,
+      minLux: evalResult.iluminanciaMinima,
+      maxLux: evalResult.iluminanciaMaxima,
+      factorUniformidad: evalResult.factorUniformidad,
+      uniformidadConforme: evalResult.uniformidadConforme,
+      calibracionVencida: evalResult.calibracionVencida,
+      dictamenGeneral: evalResult.dictamenGeneral
     });
 
-  }, [formData.mediciones, formData.luxRequerido]);
+  }, [formData.mediciones, formData.luxRequerido, formData.instrumento?.fechaCalibracion, formData.sector, formData.tipoTarea]);
 
-  const handleDataChange = (field, value) => {
+  const handleDataChange = (field: string, value: any) => {
     setFormData({ ...formData, [field]: value });
   };
 
+  const handleInstrumentChange = (field: string, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      instrumento: {
+        ...prev.instrumento,
+        [field]: value
+      }
+    }));
+  };
+
   const addMedicion = () => {
+    const nextIdx = formData.mediciones.length + 1;
     setFormData({
       ...formData,
-      mediciones: [...formData.mediciones, { id: Date.now().toString(), ubicacion: `Puesto ${formData.mediciones.length + 1}`, luxMedido: '' }]
+      mediciones: [
+        ...formData.mediciones,
+        {
+          id: Date.now().toString(),
+          codigoPunto: `P${nextIdx}`,
+          ubicacion: `Puesto ${nextIdx}`,
+          alturaPlanoTrabajoM: 0.8,
+          tipoIluminacion: 'Artificial',
+          luxMedido: '' as any
+        }
+      ]
     });
   };
 
-  const removeMedicion = (index) => {
+  const removeMedicion = (index: number) => {
     const newMeds = [...formData.mediciones];
     newMeds.splice(index, 1);
     setFormData({ ...formData, mediciones: newMeds });
   };
 
-  const updateMedicion = (index, field, value) => {
+  const updateMedicion = (index: number, field: string, value: any) => {
     const newMeds = [...formData.mediciones];
-    newMeds[index][field] = value;
+    (newMeds[index] as any)[field] = value;
     setFormData({ ...formData, mediciones: newMeds });
   };
 
@@ -456,7 +526,7 @@ export default function LightingReport(): React.ReactElement | null {
         render: (item: any) => (
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
             <button 
-              onClick={() => setSelectedReport(item.datos || item)} 
+              onClick={() => setSelectedReport(item.datos ? { ...item.datos, results: item.results, fecha: item.date } : item)} 
               style={{ backgroundColor: '#475569', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(71, 85, 105, 0.2)' }}>
               <FileText size={12} /> Ver PDF
             </button>
@@ -481,7 +551,7 @@ export default function LightingReport(): React.ReactElement | null {
             </button>
 
             <button 
-              onClick={() => requirePro(() => setShareItem(item.datos || item))} 
+              onClick={() => requirePro(() => setShareItem(item.datos ? { ...item.datos, results: item.results, fecha: item.date } : item))} 
               style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)' }}>
               <Share2 size={12} /> Compartir
             </button>
@@ -608,8 +678,35 @@ export default function LightingReport(): React.ReactElement | null {
                 <button 
                   onClick={() => {
                     setFormData({
-                      empresa: '', sector: '', descripcionActividad: '', tipoTarea: '', luxRequerido: 500, conclusion: '',
-                      operatorSignature: '', supervisorSignature: '', mediciones: [{ id: Date.now().toString(), ubicacion: 'Puesto 1', luxMedido: 0 as any }]
+                      empresa: '',
+                      cuit: '',
+                      sector: '',
+                      descripcionActividad: '',
+                      tipoTarea: 'Oficinas, tareas administrativas, lectura y computación',
+                      luxRequerido: 500,
+                      conclusion: '',
+                      operatorSignature: '',
+                      supervisorSignature: '',
+                      instrumento: {
+                        marca: '',
+                        modelo: '',
+                        numeroSerie: '',
+                        fechaCalibracion: ''
+                      },
+                      largoLocalM: '' as any,
+                      anchoLocalM: '' as any,
+                      alturaMontajeM: '' as any,
+                      condicionMeteorologica: 'Despejado',
+                      mediciones: [
+                        {
+                          id: Date.now().toString(),
+                          codigoPunto: 'P1',
+                          ubicacion: 'Puesto 1',
+                          alturaPlanoTrabajoM: 0.8,
+                          tipoIluminacion: 'Artificial',
+                          luxMedido: 0 as any
+                        }
+                      ]
                     });
                     setIsFormVisible(true);
                   }} 
@@ -714,29 +811,38 @@ export default function LightingReport(): React.ReactElement | null {
             }
 
             <div className="grid md:grid-cols-2 gap-8">
-                    {/* COLUMNA 1: DATOS GENERALES */}
+                    {/* COLUMNA 1: DATOS GENERALES, INSTRUMENTAL Y REQUERIMIENTO */}
                     <div>
                         <h3 className="flex items-center gap-[0.5rem] mb-[1rem] text-amber-500 dark:text-amber-400 font-extrabold text-[1.1rem] border-b border-slate-700/40 pb-[0.5rem]">
                             <Building2 size={20} className="text-amber-500" /> Datos del Establecimiento
                         </h3>
 
                         <div className="card p-[2rem] mb-[1.5rem] bg-[var(--gradient-card)] border-[1px_solid_var(--glass-border)] rounded-[20px]">
-                            <div className="mb-6">
+                            <div className="mb-4">
                                 <label className="block text-[0.9rem] mb-[0.5rem] font-[700]">Razón Social / Obra</label>
                                 <input
                                   type="text"
                                   value={formData.empresa}
                                   onChange={(e) => handleDataChange('empresa', e.target.value)}
-                                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
                                   placeholder="Nombre de la empresa..." />
                             </div>
-                            <div className="mb-6">
+                            <div className="mb-4">
+                                <label className="block text-[0.9rem] mb-[0.5rem] font-[700]">C.U.I.T. N°</label>
+                                <input
+                                  type="text"
+                                  value={formData.cuit}
+                                  onChange={(e) => handleDataChange('cuit', e.target.value)}
+                                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
+                                  placeholder="Ej: 30-12345678-9" />
+                            </div>
+                            <div className="mb-4">
                                 <label className="block text-[0.9rem] mb-[0.5rem] font-[700]">Sector / Área de Estudio</label>
                                 <input
                                   type="text"
                                   value={formData.sector}
                                   onChange={(e) => handleDataChange('sector', e.target.value)}
-                                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
                                   placeholder="Ej: Nave Industrial, Administración..." />
                             </div>
                             <div>
@@ -745,23 +851,107 @@ export default function LightingReport(): React.ReactElement | null {
                                   type="text"
                                   value={formData.descripcionActividad}
                                   onChange={(e) => handleDataChange('descripcionActividad', e.target.value)}
-                                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
                                   placeholder="Ej: Trabajo en escritorio, torno mecánico..." />
                             </div>
                         </div>
 
-                        <h3 className="flex items-center gap-[0.5rem] mb-[1rem] text-amber-500 dark:text-amber-400 font-extrabold text-[1.1rem] border-b border-slate-700/40 pb-[0.5rem] mt-[2rem]">
+                        {/* Instrumental y Recinto - Exigencia Res. SRT 84/12 */}
+                        <h3 className="flex items-center gap-[0.5rem] mb-[1rem] text-amber-500 dark:text-amber-400 font-extrabold text-[1.1rem] border-b border-slate-700/40 pb-[0.5rem]">
+                            <Lightbulb size={20} className="text-amber-500" /> Instrumental y Recinto (Res. SRT 84/12)
+                        </h3>
+
+                        <div className="card p-[2rem] mb-[1.5rem] bg-[var(--gradient-card)] border-[1px_solid_var(--glass-border)] rounded-[20px]">
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label className="block text-[0.85rem] mb-[0.3rem] font-[700]">Marca Luxómetro</label>
+                                    <input
+                                      type="text"
+                                      value={formData.instrumento?.marca || ''}
+                                      onChange={(e) => handleInstrumentChange('marca', e.target.value)}
+                                      className="w-full px-3 py-2.5 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-sm focus:border-amber-500"
+                                      placeholder="Ej: Testo / Lutron" />
+                                </div>
+                                <div>
+                                    <label className="block text-[0.85rem] mb-[0.3rem] font-[700]">Modelo</label>
+                                    <input
+                                      type="text"
+                                      value={formData.instrumento?.modelo || ''}
+                                      onChange={(e) => handleInstrumentChange('modelo', e.target.value)}
+                                      className="w-full px-3 py-2.5 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-sm focus:border-amber-500"
+                                      placeholder="Ej: 540 / LX-1108" />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label className="block text-[0.85rem] mb-[0.3rem] font-[700]">N° de Serie</label>
+                                    <input
+                                      type="text"
+                                      value={formData.instrumento?.numeroSerie || ''}
+                                      onChange={(e) => handleInstrumentChange('numeroSerie', e.target.value)}
+                                      className="w-full px-3 py-2.5 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-sm focus:border-amber-500"
+                                      placeholder="S/N: 2049102" />
+                                </div>
+                                <div>
+                                    <label className="block text-[0.85rem] mb-[0.3rem] font-[700]">Fecha Calibración</label>
+                                    <input
+                                      type="date"
+                                      value={formData.instrumento?.fechaCalibracion || ''}
+                                      onChange={(e) => handleInstrumentChange('fechaCalibracion', e.target.value)}
+                                      className="w-full px-3 py-2.5 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-sm focus:border-amber-500" />
+                                </div>
+                            </div>
+
+                            {results.calibracionVencida && (
+                              <div className="p-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold flex items-center gap-2">
+                                <TriangleAlert size={16} className="shrink-0" />
+                                <span>Certificado de calibración con más de 24 meses de antigüedad. Exigido por Res. SRT 84/12 patrón INTI/SAC.</span>
+                              </div>
+                            )}
+
+                            <div className="grid grid-cols-3 gap-3">
+                                <div>
+                                    <label className="block text-[0.8rem] mb-[0.2rem] font-[600]">Largo (m)</label>
+                                    <input
+                                      type="number"
+                                      value={formData.largoLocalM}
+                                      onChange={(e) => handleDataChange('largoLocalM', e.target.value)}
+                                      placeholder="Ej: 12"
+                                      className="w-full px-2 py-2 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-xs text-center" />
+                                </div>
+                                <div>
+                                    <label className="block text-[0.8rem] mb-[0.2rem] font-[600]">Ancho (m)</label>
+                                    <input
+                                      type="number"
+                                      value={formData.anchoLocalM}
+                                      onChange={(e) => handleDataChange('anchoLocalM', e.target.value)}
+                                      placeholder="Ej: 8"
+                                      className="w-full px-2 py-2 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-xs text-center" />
+                                </div>
+                                <div>
+                                    <label className="block text-[0.8rem] mb-[0.2rem] font-[600]">H. Montaje (m)</label>
+                                    <input
+                                      type="number"
+                                      value={formData.alturaMontajeM}
+                                      onChange={(e) => handleDataChange('alturaMontajeM', e.target.value)}
+                                      placeholder="Ej: 3.5"
+                                      className="w-full px-2 py-2 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-xs text-center" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 className="flex items-center gap-[0.5rem] mb-[1rem] text-amber-500 dark:text-amber-400 font-extrabold text-[1.1rem] border-b border-slate-700/40 pb-[0.5rem]">
                             <Layout size={20} className="text-amber-500" /> Requerimiento Legal
                         </h3>
 
                         <div className="card p-[2rem] bg-[var(--gradient-card)] border-[1px_solid_var(--glass-border)] rounded-[20px]">
                             <div className="mb-6">
-                                <label className="block text-[0.9rem] mb-[0.5rem] font-[700]">Tipo de Tarea Visual ({countryNorms.lighting.split(' ')[0]} o Especial)</label>
+                                <label className="block text-[0.9rem] mb-[0.5rem] font-[700]">Tipo de Tarea Visual ({countryNorms.lighting.split(' ')[0]} / Res. 84/12)</label>
                                 <input
                                   list="visualTasksList"
                                   value={formData.tipoTarea}
                                   onChange={(e) => handleDataChange('tipoTarea', e.target.value)}
-                                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
                                   placeholder="Seleccione o escriba el tipo de tarea..." />
                                 <datalist id="visualTasksList">
                                     {visualTasks.map((t) =>
@@ -770,9 +960,9 @@ export default function LightingReport(): React.ReactElement | null {
                                 </datalist>
                             </div>
                             <div className="flex items-center gap-[1rem] p-[1.2rem] bg-[rgba(59,_130,_246,_0.05)] rounded-[12px] border-[1px_solid_rgba(59,_130,_246,_0.2)]">
-                                <Sun size={32} className="text-amber-500" />
+                                <Sun size={32} className="text-amber-500 shrink-0" />
                                 <div className="flex-[1]">
-                                    <p className="m-[0] text-[0.85rem] text-[var(--color-text-muted)] font-[700] uppercase mb-[0.3rem]">Iluminación Mínima Exigida</p>
+                                    <p className="m-[0] text-[0.85rem] text-[var(--color-text-muted)] font-[700] uppercase mb-[0.3rem]">Iluminación Mínima Exigida (Emin)</p>
                                     <div className="flex items-center gap-[0.5rem]">
                                         <input
                                           type="number"
@@ -780,7 +970,7 @@ export default function LightingReport(): React.ReactElement | null {
                                           onChange={(e) => handleDataChange('luxRequerido', e.target.value === '' ? '' : Number(e.target.value))}
                                           style={{ ...inputStyle }}
                                           min="0"
-                                          className="w-[100px] text-[1.5rem] font-[900] text-amber-500 p-[0.5rem] bg-[var(--color-surface)]" />
+                                          className="w-[110px] text-[1.5rem] font-[900] text-amber-500 p-[0.5rem] bg-[var(--color-surface)]" />
                                         <span className="text-[1.2rem] font-[700] text-[var(--color-text)]">Lux</span>
                                     </div>
                                 </div>
@@ -788,88 +978,154 @@ export default function LightingReport(): React.ReactElement | null {
                         </div>
                     </div>
 
-                    {/* COLUMNA 2: MEDICIONES Y RESULTADOS */}
+                    {/* COLUMNA 2: MEDICIONES Y EVALUACIÓN RES. SRT 84/12 */}
                     <div>
                         <h3 className="flex items-center justify-between mb-[1rem] text-amber-500 dark:text-amber-400 font-extrabold text-[1.1rem] border-b border-slate-700/40 pb-[0.5rem]">
                             <div className="flex items-center gap-[0.5rem]">
-                                <Lightbulb size={20} className="text-amber-500" /> Puntos de Medición
+                                <Lightbulb size={20} className="text-amber-500" /> Puntos de Medición ({formData.mediciones.length})
                             </div>
-                            <button onClick={addMedicion} className="btn-secondary m-[0] p-[0.4rem_0.8rem] text-[0.8rem] flex items-center gap-[0.3rem]">
+                            <button onClick={addMedicion} className="btn-secondary m-[0] p-[0.4rem_0.8rem] text-[0.8rem] flex items-center gap-[0.3rem] cursor-pointer">
                                 <Plus size={14} /> Añadir Punto
                             </button>
                         </h3>
 
-                        <div className="card p-[1rem] mb-[1.5rem] bg-[var(--gradient-card)] border-[1px_solid_var(--glass-border)] rounded-[20px]">
-                            <div className="overflow-x-[auto]">
-                                <table className="w-[100%] border-collapse-[collapse] text-[0.9rem] min-width-[350px]">
-                                    <thead>
-                                        <tr className="bg-[rgba(255,255,255,0.02)] text-[var(--color-text-muted)]">
-                                            <th className="p-[1rem] text-left border-bottom-[2px_solid_var(--color-border)] font-[800]">Punto Exacto / Puesto</th>
-                                            <th className="p-[1rem] text-center border-bottom-[2px_solid_var(--color-border)] font-[800]">Lux Medido</th>
-                                            <th className="p-[1rem] text-center border-bottom-[2px_solid_var(--color-border)] font-[800]">Acción</th>
+                        <div className="card p-[1rem] mb-[1.5rem] bg-[var(--gradient-card)] border-[1px_solid_var(--glass-border)] rounded-[20px] overflow-hidden">
+                            <div className="overflow-x-auto max-h-[360px] overflow-y-auto">
+                                <table className="w-full border-collapse text-xs min-w-[500px]">
+                                    <thead className="sticky top-0 bg-slate-900/90 backdrop-blur-sm z-10">
+                                        <tr className="border-b border-slate-700 text-slate-400 font-extrabold text-left">
+                                            <th className="p-2 w-12 text-center">Pto</th>
+                                            <th className="p-2">Ubicación / Puesto</th>
+                                            <th className="p-2 w-24 text-center">H. Plano</th>
+                                            <th className="p-2 w-28 text-center">Fuente</th>
+                                            <th className="p-2 w-24 text-center">Lux Medido</th>
+                                            <th className="p-2 w-16 text-center">Estado</th>
+                                            <th className="p-2 w-12 text-center"></th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        {formData.mediciones.map((med, index) =>
-                                          <tr key={med.id} className="hover-lift transition-[all_0.2s]">
-                                                <td className="p-[0.8rem] border-bottom-[1px_solid_var(--color-border)]">
+                                    <tbody className="divide-y divide-slate-800">
+                                        {formData.mediciones.map((med: any, index: number) => {
+                                          const val = parseFloat(med.luxMedido) || 0;
+                                          const isConforme = val >= formData.luxRequerido;
+                                          return (
+                                            <tr key={med.id} className="hover:bg-slate-800/40 transition-colors">
+                                                <td className="p-2 text-center">
+                                                    <input
+                                                      type="text"
+                                                      value={med.codigoPunto || `P${index + 1}`}
+                                                      onChange={(e) => updateMedicion(index, 'codigoPunto', e.target.value)}
+                                                      className="w-10 text-center font-bold px-1 py-1 rounded bg-slate-800 border border-slate-700 text-amber-400 text-xs" />
+                                                </td>
+                                                <td className="p-2">
                                                     <input
                                                       type="text"
                                                       value={med.ubicacion}
                                                       onChange={(e) => updateMedicion(index, 'ubicacion', e.target.value)}
-                                                      placeholder="Puesto X" className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" />
+                                                      placeholder={`Puesto ${index + 1}`}
+                                                      className="w-full px-2 py-1.5 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-xs" />
                                                 </td>
-                                                <td className="p-[0.8rem] border-bottom-[1px_solid_var(--color-border)] w-[120px]">
+                                                <td className="p-2 text-center">
+                                                    <input
+                                                      type="number"
+                                                      step="0.05"
+                                                      value={med.alturaPlanoTrabajoM ?? 0.8}
+                                                      onChange={(e) => updateMedicion(index, 'alturaPlanoTrabajoM', e.target.value)}
+                                                      className="w-16 text-center px-1 py-1 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-xs" />
+                                                </td>
+                                                <td className="p-2 text-center">
+                                                    <select
+                                                      value={med.tipoIluminacion || 'Artificial'}
+                                                      onChange={(e) => updateMedicion(index, 'tipoIluminacion', e.target.value)}
+                                                      className="w-24 px-1.5 py-1 rounded-lg border border-slate-700 bg-slate-900 text-slate-200 text-xs">
+                                                        <option value="Artificial">Artificial</option>
+                                                        <option value="Natural">Natural</option>
+                                                        <option value="Mixta">Mixta</option>
+                                                    </select>
+                                                </td>
+                                                <td className="p-2 text-center">
                                                     <input
                                                       type="number"
                                                       value={med.luxMedido}
                                                       onChange={(e) => updateMedicion(index, 'luxMedido', e.target.value)}
-                                                      style={{ ...inputStyle }}
                                                       placeholder="0"
                                                       min="0"
-                                                      className="text-center font-[800] text-amber-500" />
+                                                      className="w-20 text-center font-black px-2 py-1 rounded-lg border border-slate-700 bg-slate-900 text-amber-400 text-xs" />
                                                 </td>
-                                                <td className="p-[0.8rem] border-bottom-[1px_solid_var(--color-border)] text-center w-[60px]">
+                                                <td className="p-2 text-center">
+                                                    {val > 0 ? (
+                                                      isConforme ? (
+                                                        <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">APTO</span>
+                                                      ) : (
+                                                        <span className="text-[10px] font-black text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20">DEFIC.</span>
+                                                      )
+                                                    ) : (
+                                                      <span className="text-[10px] text-slate-500">-</span>
+                                                    )}
+                                                </td>
+                                                <td className="p-2 text-center">
                                                     <button
                                                       onClick={() => removeMedicion(index)}
-                                                      className="hover-lift bg-[rgba(239,_68,_68,_0.1)] border-none text-[#ef4444] cursor-pointer p-[0.5rem] rounded-[10px] display-[inline-flex]">
-                                                        <Trash2 size={18} />
+                                                      className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-500/10 transition-colors">
+                                                        <Trash2 size={14} />
                                                     </button>
                                                 </td>
                                             </tr>
-                                        )}
+                                          );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
 
+                        {/* Caja de Evaluación y Uniformidad Res. SRT 84/12 */}
                         <h3 className="flex items-center gap-[0.5rem] mb-[1rem] text-amber-500 dark:text-amber-400 font-extrabold text-[1.1rem] border-b border-slate-700/40 pb-[0.5rem]">
-                            <Calculator size={20} className="text-amber-500" /> Evaluación Normativa
+                            <Calculator size={20} className="text-amber-500" /> Evaluación Res. SRT 84/12
                         </h3>
 
-                        <div className="grid grid-template-columns-[minmax(0,_1fr)] gap-[1rem]">
-                            <div className="card p-[1.5rem]" style={{ border: results.cumplePromedio ? '2px solid #10b981' : '2px solid #ef4444', background: results.cumplePromedio ? 'rgba(16, 185, 129, 0.05)' : 'rgba(239, 68, 68, 0.05)' }}>
-                                <div className="flex justify-space-between items-center mb-[1rem]">
+                        <div className="grid gap-3">
+                            <div className="card p-5" style={{
+                              border: results.cumplePromedio ? '2px solid #10b981' : results.dictamenGeneral === 'OBSERVADO (UNIFORMIDAD)' ? '2px solid #f59e0b' : '2px solid #ef4444',
+                              background: results.cumplePromedio ? 'rgba(16, 185, 129, 0.05)' : results.dictamenGeneral === 'OBSERVADO (UNIFORMIDAD)' ? 'rgba(245, 158, 11, 0.05)' : 'rgba(239, 68, 68, 0.05)'
+                            }}>
+                                <div className="flex justify-between items-center mb-4">
                                     <div>
-                                        <p className="m-[0] text-[0.85rem] text-[var(--color-text-muted)] font-[600] uppercase">Nivel Promedio Registrado</p>
-                                        <p style={{ color: results.cumplePromedio ? '#10b981' : '#ef4444' }} className="m-[0] text-[2rem] font-[800]">{results.promedioLux} Lux</p>
+                                        <p className="m-0 text-xs text-slate-400 font-bold uppercase tracking-wider">Iluminancia Media (Emed)</p>
+                                        <p style={{
+                                          color: results.cumplePromedio ? '#10b981' : results.dictamenGeneral === 'OBSERVADO (UNIFORMIDAD)' ? '#f59e0b' : '#ef4444'
+                                        }} className="m-0 text-3xl font-black">{results.promedioLux} <span className="text-sm font-bold">Lux</span></p>
                                     </div>
-                                    <div className="result-badge-print text-[white] p-[0.5rem_1rem] rounded-[20px] font-[800] text-[0.85rem]" style={{ background: results.cumplePromedio ? '#10b981' : '#ef4444' }}>
-                                        {results.cumplePromedio ? 'CUMPLE' : 'NO CUMPLE'}
+                                    <div className="text-white px-3 py-1.5 rounded-full font-black text-xs shadow-md" style={{
+                                      background: results.cumplePromedio ? '#10b981' : results.dictamenGeneral === 'OBSERVADO (UNIFORMIDAD)' ? '#f59e0b' : '#ef4444'
+                                    }}>
+                                        {results.dictamenGeneral}
                                     </div>
                                 </div>
-                                <div className="text-[0.85rem]">
-                                    <div className="flex justify-space-between mb-[0.4rem]">
-                                        <span>Requerido s/ {countryNorms.lighting}:</span>
-                                        <span className="font-[700]">{formData.luxRequerido} Lux</span>
+
+                                <div className="grid grid-cols-2 gap-3 text-xs bg-slate-900/60 p-3 rounded-xl border border-slate-700/50 mb-3">
+                                    <div>
+                                        <span className="text-slate-400 block font-semibold">Emin / Emax:</span>
+                                        <span className="font-extrabold text-slate-200">{results.minLux} Lux / {results.maxLux} Lux</span>
                                     </div>
-                                    <div className="flex justify-space-between mb-[0.4rem]">
-                                        <span>Puntos que Cumplen:</span>
-                                        <span className="font-[700] text-[#10b981]">{results.puntosCumplen}</span>
+                                    <div>
+                                        <span className="text-slate-400 block font-semibold">Uniformidad U (Emin/Emed):</span>
+                                        <span className={`font-black ${results.uniformidadConforme ? 'text-emerald-400' : 'text-amber-400'}`}>
+                                          U = {results.factorUniformidad} ({results.uniformidadConforme ? '≥ 0.50 OK' : '< 0.50 No Conforme'})
+                                        </span>
                                     </div>
-                                    <div className="flex justify-space-between">
-                                        <span>Puntos Deficientes:</span>
-                                        <span style={{ color: results.puntosNoCumplen > 0 ? '#ef4444' : 'var(--color-text)' }} className="font-[700]">{results.puntosNoCumplen}</span>
+                                </div>
+
+                                <div className="text-xs space-y-1">
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-400">Requerido por Dec. 351/79:</span>
+                                        <span className="font-bold text-slate-200">{formData.luxRequerido} Lux</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-400">Puntos Conformes:</span>
+                                        <span className="font-extrabold text-emerald-400">{results.puntosCumplen} de {formData.mediciones.length}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-400">Puntos Deficientes:</span>
+                                        <span style={{ color: results.puntosNoCumplen > 0 ? '#ef4444' : '#94a3b8' }} className="font-extrabold">{results.puntosNoCumplen}</span>
                                     </div>
                                 </div>
                             </div>

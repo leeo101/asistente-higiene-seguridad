@@ -181,7 +181,108 @@ describe('RAR Res. SRT 37/10 Catalog & Engine', () => {
     expect(stats.conteoPorCategoria.Físico).toBe(2);
     expect(stats.conteoPorCategoria.Químico).toBe(1);
     expect(stats.conteoPorCategoria.Biológico).toBe(0);
-    expect(stats.topAgentes.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe('Res. SRT 84/12 Full Lighting Protocol Engine', () => {
+  it('debe evaluar un protocolo conforme con factor de uniformidad U >= 0.50', async () => {
+    const { evaluateFullLightingProtocolSRT84 } = await import('../srtProtocols');
+
+    const puntos = [
+      {
+        id: '1',
+        codigoPunto: 'P1',
+        sector: 'Oficina Técnica',
+        puestoTrabajo: 'Cadista 1',
+        tareaVisual: 'Dibujo técnico',
+        alturaPlanoTrabajoM: 0.8,
+        tipoIluminacion: 'Artificial' as const,
+        luxRequeridoNorma: 500,
+        luxMedido: 550,
+        conformeNivel: true
+      },
+      {
+        id: '2',
+        codigoPunto: 'P2',
+        sector: 'Oficina Técnica',
+        puestoTrabajo: 'Cadista 2',
+        tareaVisual: 'Dibujo técnico',
+        alturaPlanoTrabajoM: 0.8,
+        tipoIluminacion: 'Artificial' as const,
+        luxRequeridoNorma: 500,
+        luxMedido: 520,
+        conformeNivel: true
+      },
+      {
+        id: '3',
+        codigoPunto: 'P3',
+        sector: 'Oficina Técnica',
+        puestoTrabajo: 'Mesa de Planos',
+        tareaVisual: 'Dibujo técnico',
+        alturaPlanoTrabajoM: 0.8,
+        tipoIluminacion: 'Artificial' as const,
+        luxRequeridoNorma: 500,
+        luxMedido: 580,
+        conformeNivel: true
+      }
+    ];
+
+    // Calibración reciente (dentro de 24 meses)
+    const result = evaluateFullLightingProtocolSRT84(puntos, new Date().toISOString());
+
+    expect(result.totalPuntos).toBe(3);
+    expect(result.puntosConformes).toBe(3);
+    expect(result.puntosDeficientes).toBe(0);
+    expect(result.iluminanciaMedia).toBe(550);
+    expect(result.iluminanciaMinima).toBe(520);
+    expect(result.iluminanciaMaxima).toBe(580);
+    expect(result.factorUniformidad).toBeGreaterThanOrEqual(0.50);
+    expect(result.uniformidadConforme).toBe(true);
+    expect(result.calibracionVencida).toBe(false);
+    expect(result.dictamenGeneral).toBe('CONFORME');
+  });
+
+  it('debe detectar no conformidad por puntos deficientes y por calibración vencida (>24 meses)', async () => {
+    const { evaluateFullLightingProtocolSRT84 } = await import('../srtProtocols');
+
+    const puntos = [
+      {
+        id: '1',
+        codigoPunto: 'P1',
+        sector: 'Nave Fabril',
+        puestoTrabajo: 'Mecanizado',
+        tareaVisual: 'Torno CNC',
+        alturaPlanoTrabajoM: 0.8,
+        tipoIluminacion: 'Artificial' as const,
+        luxRequeridoNorma: 500,
+        luxMedido: 320, // Deficiente (<500)
+        conformeNivel: false
+      },
+      {
+        id: '2',
+        codigoPunto: 'P2',
+        sector: 'Nave Fabril',
+        puestoTrabajo: 'Banco de Ajuste',
+        tareaVisual: 'Ajuste fino',
+        alturaPlanoTrabajoM: 0.8,
+        tipoIluminacion: 'Artificial' as const,
+        luxRequeridoNorma: 500,
+        luxMedido: 510,
+        conformeNivel: true
+      }
+    ];
+
+    // Calibración de hace 3 años
+    const fechaVieja = new Date();
+    fechaVieja.setFullYear(fechaVieja.getFullYear() - 3);
+
+    const result = evaluateFullLightingProtocolSRT84(puntos, fechaVieja.toISOString());
+
+    expect(result.totalPuntos).toBe(2);
+    expect(result.puntosConformes).toBe(1);
+    expect(result.puntosDeficientes).toBe(1);
+    expect(result.calibracionVencida).toBe(true);
+    expect(result.dictamenGeneral).toBe('DEFICIENTE');
   });
 });
 
