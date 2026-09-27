@@ -15,6 +15,7 @@ import { downloadCSV } from '../services/exportCsv';
 import toast from 'react-hot-toast';
 import type { RGRLSurvey } from '../types/rgrl';
 import { getDefaultQuestionsForAnnex, calculateRGRLMetrics, generatePlanRegularizacion } from '../utils/rgrlEngine';
+import { exportRGRLToOfficialExcel } from '../services/artExcelExporter';
 
 const INITIAL_RGRL_SAMPLE: RGRLSurvey = (() => {
   const baseItems = getDefaultQuestionsForAnnex('anexo1_351');
@@ -151,6 +152,22 @@ export default function RGRLManager(): React.ReactElement | null {
     toast.success('Archivo CSV descargado');
   };
 
+  const handleExportExcelArt = async (survey?: RGRLSurvey) => {
+    const target = survey || surveys[0];
+    if (!target) {
+      toast.error('No hay relevamiento para exportar');
+      return;
+    }
+    const tId = toast.loading('Generando planilla oficial Excel SRT...');
+    try {
+      await exportRGRLToOfficialExcel(target);
+      toast.success('Planilla oficial Excel (.xlsx) descargada ✨', { id: tId });
+    } catch (err: any) {
+      console.error(err);
+      toast.error('Error al generar el archivo Excel', { id: tId });
+    }
+  };
+
   const filteredSurveys = useMemo(() => {
     return surveys.filter(s => {
       const matchesSearch =
@@ -194,26 +211,11 @@ export default function RGRLManager(): React.ReactElement | null {
         <PremiumHeader
           title="Relevamiento General de Riesgos (RGRL)"
           subtitle="Declaración Jurada Anual obligatoria ante ART · Res. S.R.T. N° 463/09, 529/09 y 74/10"
-          icon={<ClipboardCheck size={28} className="text-blue-400" />}
+          badge="Res. SRT 463/09 & 529/09"
+          icon={<ClipboardCheck size={36} color="#ffffff" />}
+          gradient="linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)"
           onBack={() => navigate('/')}
-        >
-          <div className="flex items-center gap-2 mt-2 justify-center">
-            <button
-              type="button"
-              onClick={handleExportCSV}
-              className="px-3 py-2 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
-            >
-              <Download size={15} /> Exportar CSV
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/rgrl/new')}
-              className="px-4 py-2 rounded-lg bg-white hover:bg-slate-100 text-slate-900 text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
-            >
-              <Plus size={16} className="text-blue-600" /> Nuevo Relevamiento RGRL
-            </button>
-          </div>
-        </PremiumHeader>
+        />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4 space-y-6">
           {/* Métricas */}
@@ -259,50 +261,158 @@ export default function RGRLManager(): React.ReactElement | null {
             </div>
           </div>
 
-          {/* Filtros */}
-          <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="relative w-full sm:w-80">
-              <Search size={16} className="absolute left-3 top-2.5 text-slate-400" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                placeholder="Buscar por Empresa, CUIT, ART..."
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
-              />
+          {/* Toolbar de Búsqueda y Botones estilo Aptitudes Médicas */}
+          <div className="space-y-4">
+            <div className="flex flex-row items-center justify-between gap-3">
+              <div className="relative flex-1 max-w-xs h-[38px]">
+                <Search
+                  size={16}
+                  className="text-slate-400 pointer-events-none z-10"
+                  style={{
+                    position: 'absolute',
+                    left: '0.75rem',
+                    top: 0,
+                    bottom: 0,
+                    marginTop: 'auto',
+                    marginBottom: 'auto',
+                    display: 'block'
+                  }}
+                />
+                <input
+                  type="text"
+                  placeholder="Buscar por Empresa, CUIT, ART..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className="w-full h-[38px] pl-9 pr-3 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500 shadow-sm"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleExportCSV}
+                  title="Exportar listado a CSV"
+                  style={{
+                    backgroundColor: '#0284c7',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '0 14px',
+                    height: '38px',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    minHeight: 'unset'
+                  }}
+                >
+                  <Download size={14} />
+                  <span>CSV</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleExportExcelArt()}
+                  title="Exportar a Planilla Excel Oficial ART (.xlsx)"
+                  style={{
+                    backgroundColor: '#0d9488',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '0 14px',
+                    height: '38px',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    minHeight: 'unset'
+                  }}
+                >
+                  <Download size={14} />
+                  <span>Excel ART</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => navigate('/rgrl/new')}
+                  style={{
+                    backgroundColor: '#059669',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '0 16px',
+                    height: '38px',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    minHeight: 'unset'
+                  }}
+                >
+                  <Plus size={16} />
+                  <span>Nuevo Relevamiento</span>
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-center gap-1 w-full sm:w-auto overflow-x-auto">
+            {/* Pastillas de Filtro con Fondo Sólido */}
+            <div className="flex gap-2 flex-wrap">
               <button
                 type="button"
                 onClick={() => setFilterStatus('all')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-                  filterStatus === 'all'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
-                }`}
+                style={{
+                  backgroundColor: filterStatus === 'all' ? '#0f172a' : '#f1f5f9',
+                  color: filterStatus === 'all' ? '#ffffff' : '#475569',
+                  border: 'none',
+                  padding: '5px 12px',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  minHeight: 'unset'
+                }}
               >
                 Todos ({surveys.length})
               </button>
+
               <button
                 type="button"
                 onClick={() => setFilterStatus('optimo')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-                  filterStatus === 'optimo'
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
-                }`}
+                style={{
+                  backgroundColor: filterStatus === 'optimo' ? '#059669' : '#f1f5f9',
+                  color: filterStatus === 'optimo' ? '#ffffff' : '#475569',
+                  border: 'none',
+                  padding: '5px 12px',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  minHeight: 'unset'
+                }}
               >
                 Óptimos ≥ 90% ({stats.optimos})
               </button>
+
               <button
                 type="button"
                 onClick={() => setFilterStatus('critico')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-                  filterStatus === 'critico'
-                    ? 'bg-red-600 text-white'
-                    : 'bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
-                }`}
+                style={{
+                  backgroundColor: filterStatus === 'critico' ? '#dc2626' : '#f1f5f9',
+                  color: filterStatus === 'critico' ? '#ffffff' : '#475569',
+                  border: 'none',
+                  padding: '5px 12px',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  minHeight: 'unset'
+                }}
               >
                 Críticos &lt; 75%
               </button>
@@ -380,6 +490,14 @@ export default function RGRLManager(): React.ReactElement | null {
                         className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-blue-50 hover:text-blue-600 transition-colors cursor-pointer"
                       >
                         <Eye size={17} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleExportExcelArt(s)}
+                        title="Descargar Planilla Oficial Excel SRT / ART (.xlsx)"
+                        className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors cursor-pointer"
+                      >
+                        <Download size={17} />
                       </button>
                       <button
                         type="button"

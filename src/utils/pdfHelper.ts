@@ -116,7 +116,6 @@ export async function printElementAsDocument(
             .map(r => r.cssText)
             .join('\n');
         } catch {
-          // Hojas cross-origin: omitir (no accesibles)
           return '';
         }
       })
@@ -126,12 +125,6 @@ export async function printElementAsDocument(
   }
 
   const printHtml = el.outerHTML;
-  const printWindow = window.open('', '_blank', 'width=900,height=700');
-  if (!printWindow) {
-    // Popup bloqueado — intentar window.print() directo
-    window.print();
-    return;
-  }
 
   // Asegurar que el elemento impreso no herede posiciones off-screen (left: -9999px, etc.)
   const cleanHtml = printHtml.replace(
@@ -146,7 +139,7 @@ export async function printElementAsDocument(
     }
   );
 
-  printWindow.document.write(`<!DOCTYPE html>
+  const htmlDocument = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -215,17 +208,59 @@ export async function printElementAsDocument(
 </head>
 <body>
   ${cleanHtml}
-  <script>
-    window.onload = function() {
-      setTimeout(function() {
-        window.print();
-        setTimeout(function() { window.close(); }, 800);
-      }, 600);
-    };
-  </script>
 </body>
-</html>`);
-  printWindow.document.close();
+</html>`;
+
+  // Usar iframe oculto en el DOM actual: es 100% confiable, inmune a bloqueadores de popups y carga imágenes antes de imprimir
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow?.document;
+  if (!doc) {
+    document.body.removeChild(iframe);
+    window.print();
+    return;
+  }
+
+  doc.open();
+  doc.write(htmlDocument);
+  doc.close();
+
+  // Esperar a que todas las imágenes dentro del iframe terminen de cargarse
+  const images = Array.from(doc.querySelectorAll('img'));
+  await Promise.all(
+    images.map(img => {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return new Promise<void>(resolve => {
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+        setTimeout(resolve, 2500);
+      });
+    })
+  );
+
+  // Margen de seguridad para que el motor de renderizado calcule fuentes y layout
+  await new Promise(r => setTimeout(r, 300));
+
+  try {
+    iframe.contentWindow?.focus();
+    iframe.contentWindow?.print();
+  } catch (err) {
+    console.error('Error imprimiendo desde iframe, fallback a window.print:', err);
+    window.print();
+  } finally {
+    setTimeout(() => {
+      try {
+        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+      } catch {}
+    }, 60000);
+  }
 }
 
 /**
@@ -628,16 +663,14 @@ function waitForImages(element: HTMLElement): Promise<void> {
   if (images.length === 0) return Promise.resolve();
 
   const promises = images.map(img => {
+    if (!img.crossOrigin && img.src && !img.src.startsWith('data:')) {
+      img.crossOrigin = 'anonymous';
+    }
     if (img.complete && img.naturalWidth > 0) return Promise.resolve();
     return new Promise<void>(resolve => {
-      const timeout = setTimeout(() => resolve(), 3000);
+      const timeout = setTimeout(() => resolve(), 3500);
       img.onload = () => { clearTimeout(timeout); resolve(); };
       img.onerror = () => { clearTimeout(timeout); resolve(); };
-      if (img.src && !img.complete) {
-        const src = img.src;
-        img.src = '';
-        img.src = src;
-      }
     });
   });
 

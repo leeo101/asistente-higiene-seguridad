@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Zap, Plus, Search, FileText, Eye, Edit3, Trash2, CheckCircle2,
   Calendar, ShieldAlert, BarChart3, Share2, Download, Copy,
-  Building2, Gauge, AlertTriangle, ShieldCheck, Printer, X
+  Building2, Gauge, AlertTriangle, ShieldCheck, Printer, X, TrendingUp
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import GroundingProtocolPdf from '../components/GroundingProtocolPdf';
@@ -15,6 +15,7 @@ import { downloadCSV } from '../services/exportCsv';
 import toast from 'react-hot-toast';
 import type { GroundingProtocol } from '../types/grounding';
 import { evaluateFullGroundingProtocol } from '../utils/srtProtocols';
+import MeasurementTrendChart from '../components/MeasurementTrendChart';
 
 const INITIAL_SAMPLE: GroundingProtocol = {
   id: 'PAT-SAMPLE-01',
@@ -141,6 +142,23 @@ export default function GroundingProtocol(): React.ReactElement | null {
     isOpen: false,
     id: null
   });
+  const [showTrendChart, setShowTrendChart] = useState(false);
+
+  const patTrendData = useMemo(() => {
+    const points: { date: string; value: number; label: string }[] = [];
+    protocols.forEach(p => {
+      (p.jabalinas || []).forEach(j => {
+        if (j.resistenciaMedida !== undefined && j.resistenciaMedida !== null) {
+          points.push({
+            date: p.fechaMedicion,
+            value: Number(j.resistenciaMedida),
+            label: `${j.codigo || 'PAT'} - ${j.ubicacion || ''}`
+          });
+        }
+      });
+    });
+    return points;
+  }, [protocols]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -276,7 +294,18 @@ export default function GroundingProtocol(): React.ReactElement | null {
           icon={<Zap size={28} className="text-amber-400" />}
           onBack={() => navigate('/')}
         >
-          <div className="flex items-center gap-2 mt-2 justify-center">
+          <div className="flex items-center gap-2 mt-2 justify-center flex-wrap">
+            <button
+              type="button"
+              onClick={() => setShowTrendChart(prev => !prev)}
+              className={`px-3 py-2 rounded-lg border text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer ${
+                showTrendChart
+                  ? 'bg-amber-500 text-white border-amber-400'
+                  : 'border-white/20 bg-white/10 hover:bg-white/20 text-white'
+              }`}
+            >
+              <TrendingUp size={15} /> {showTrendChart ? 'Ocultar Tendencias' : '📈 Tendencias Históricas'}
+            </button>
             <button
               type="button"
               onClick={handleExportCSV}
@@ -337,6 +366,19 @@ export default function GroundingProtocol(): React.ReactElement | null {
               </div>
             </div>
           </div>
+
+          {/* Gráfico de Tendencias Comparativas PAT */}
+          {showTrendChart && (
+            <MeasurementTrendChart
+              title="Evolución Histórica de Resistencia de Puesta a Tierra"
+              subtitle="Res. S.R.T. 900/15 & Reglamentación AEA 90364 (Máximo admisible: 10 Ω)"
+              unit="Ω"
+              legalLimit={10}
+              limitLabel="Máx. reglamentario (10 Ω)"
+              limitType="max"
+              data={patTrendData}
+            />
+          )}
 
           {/* Barra de Filtros y Búsqueda */}
           <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CompanyLogo from './CompanyLogo';
+import { calculatePPEExpiryDays } from '../utils/srtProtocols';
 
 export interface PPEReceiptData {
   razonSocial?: string;
@@ -81,6 +82,7 @@ export default function PPEReceiptPdfGenerator({ items = [], receiptData }: PPER
             <h2 className="m-[0] text-[11pt] font-[bold] uppercase tracking-wide">CONSTANCIA DE ENTREGA DE ROPA DE TRABAJO Y</h2>
             <h2 className="m-[0] text-[11pt] font-[bold] uppercase tracking-wide">ELEMENTOS DE PROTECCIÓN PERSONAL</h2>
             <p className="m-[4px_0_0_0] text-[8.5pt] font-[bold] text-[#333]">Resolución S.R.T. N° 299/11 — Anexo I</p>
+            <p className="m-[2px_0_0_0] text-[7pt] text-[#555]">Res. SIyC 18/25 — Marcado AR y Trazabilidad QR</p>
           </div>
           <div className="w-[150px] text-right text-[8pt] font-bold">
             Hoja N°: 1 / 1
@@ -120,24 +122,27 @@ export default function PPEReceiptPdfGenerator({ items = [], receiptData }: PPER
         </table>
 
         <p className="text-[7.5pt] text-justify mb-[8px] leading-[1.25] text-[#222]">
-          Con la firma del presente documento el trabajador declara conocer los riesgos a los que está expuesto en su puesto de trabajo, y haber recibido información y capacitación respecto del uso adecuado, conservación, mantenimiento y cuidado de los elementos de protección personal provistos (conforme Ley 19.587 Dec. 351/79 y Res. SRT 299/11). El trabajador se compromete a utilizarlos durante la jornada laboral y a solicitar su reemplazo ante deterioro o pérdida de capacidad de protección.
+          Con la firma del presente documento el trabajador declara conocer los riesgos a los que está expuesto en su puesto de trabajo, y haber recibido información y capacitación respecto del uso adecuado, conservación, mantenimiento y cuidado de los elementos de protección personal provistos (conforme Ley 19.587 Art. 8-9, Dec. 351/79 Cap. 19 y Res. SRT 299/11 Art. 3°). El trabajador se compromete a utilizarlos durante la jornada laboral y a solicitar su reemplazo ante deterioro o pérdida de capacidad de protección. Los EPP entregados cumplen con el marcado AR y trazabilidad QR exigidos por la Res. SIyC 18/25 vigente.
         </p>
 
         {/* Tabla de EPPs */}
         <table className="w-[100%] table-layout-[fixed] border-collapse-[collapse]">
           <thead>
             <tr className="avoid-break bg-[#f0f0f0] text-[7pt] text-center font-bold">
-              <th className="w-[20%]">PRODUCTO / EPP</th>
-              <th className="w-[12%]">TIPO / MODELO</th>
-              <th className="w-[15%]">MARCA</th>
-              <th className="w-[18%]">CERTIFICACIÓN (IRAM / AR)</th>
-              <th className="w-[7%]">CANT.</th>
-              <th className="w-[13%]">FECHA ENTREGA</th>
-              <th className="w-[15%]">FIRMA TRABAJADOR</th>
+              <th className="w-[18%]">PRODUCTO / EPP</th>
+              <th className="w-[10%]">TIPO / MODELO</th>
+              <th className="w-[12%]">MARCA</th>
+              <th className="w-[15%]">CERTIFICACIÓN (IRAM / AR)</th>
+              <th className="w-[6%]">CANT.</th>
+              <th className="w-[11%]">FECHA ENTREGA</th>
+              <th className="w-[11%]">FECHA VENC.</th>
+              <th className="w-[17%]">FIRMA TRABAJADOR</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((item, i) => (
+            {rows.map((item, i) => {
+              const expiry = item ? calculatePPEExpiryDays(item.purchaseDate || '', Number(item.lifeMonths) || 12) : null;
+              return (
               <tr className="avoid-break h-[22px] text-[7.5pt]" key={i}>
                 <td className="px-2 font-medium">{item ? item.type : ''}</td>
                 <td className="px-2 text-center">{item ? (item.model || item.custom || '-') : ''}</td>
@@ -147,11 +152,12 @@ export default function PPEReceiptPdfGenerator({ items = [], receiptData }: PPER
                 </td>
                 <td className="px-1 text-center font-bold">{item ? (item.quantity || '1') : ''}</td>
                 <td className="px-2 text-center">{item ? item.purchaseDate : ''}</td>
+                <td className="px-2 text-center">{expiry?.expiryDate || ''}</td>
                 <td className="text-center font-mono text-[7pt] text-slate-400">
                   {item ? (item.signature ? '✓ Firmado' : '') : ''}
                 </td>
-              </tr>
-            ))}
+              </tr>);
+            })}
           </tbody>
         </table>
 

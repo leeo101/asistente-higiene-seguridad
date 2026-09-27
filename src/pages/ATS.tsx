@@ -1,6 +1,8 @@
 import {
   useNavigate, useLocation } from 'react-router-dom';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { evaluateATSSafetyCompliance } from '../utils/srtProtocols';
+import type { ATSAuditResult } from '../types/workPermit';
 import {
   ArrowLeft, Save, Plus, Trash2, Printer,
   ShieldCheck, Building2, User, Calendar,
@@ -40,6 +42,7 @@ import {
   ModuleFormSection,
   ModuleWizardFooter,
 } from '../components/module';
+import { generateAtsStepsWithAi } from '../services/aiFormAssistant';
 
 const ATS_WIZARD_STEPS = ['Datos', 'Tareas', 'EPPs & Fotos', 'Checklist', 'Firmas'];
 
@@ -349,6 +352,10 @@ export default function ATS(): React.ReactElement | null {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
 
+  const atsCompliance = useMemo<ATSAuditResult>(() => {
+    return evaluateATSSafetyCompliance(formData);
+  }, [formData]);
+
   const nextStep = () => {if (currentStep < totalSteps) {setCurrentStep((c) => c + 1);window.scrollTo(0, 0);}};
   const prevStep = () => {if (currentStep > 1) {setCurrentStep((c) => c - 1);window.scrollTo(0, 0);}};
 
@@ -366,42 +373,26 @@ export default function ATS(): React.ReactElement | null {
     const loadingToast = toast.loading('Calculando pasos, riesgos y protocolos...');
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/ai-ats-generator`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await auth.currentUser?.getIdToken(true)}`
-        },
-        body: JSON.stringify({ taskTitle })
-      });
+      const { steps, suggestedEpps } = await generateAtsStepsWithAi(taskTitle);
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || 'Fallo en la conexión');
-      }
-
-      const data = await res.json();
-
-      if (!Array.isArray(data) || data.length === 0) {
-        throw new Error('La respuesta de la IA no tiene el formato correcto');
-      }
-
-      // Map AI result to internal task structure
-      const newTasks = data.map((item, index) => ({
+      const newTasks = steps.map((item, index) => ({
         id: Date.now() + index,
         paso: item.paso || '',
         riesgo: item.riesgo || '',
         control: item.control || '',
         nivelRiesgo: item.nivelRiesgo || 'Medio',
+        normativa: item.normativa || 'Dec. 351/79',
         realizado: false
       }));
 
       setFormData((prev) => ({
         ...prev,
-        tareas: newTasks
+        tarea: prev.tarea || taskTitle,
+        tareas: newTasks,
+        epps: Array.from(new Set([...prev.epps, ...(suggestedEpps as any)]))
       }));
 
-      toast.success('ATS Autocompletado con IA ✨', { id: loadingToast });
+      toast.success('ATS y EPPs autocompletados con IA ✨', { id: loadingToast });
     } catch (error) {
       console.error('Error generating ATS:', error);
       toast.error(`Error al generar: ${getErrorMessage(error)}`, { id: loadingToast });
@@ -1110,6 +1101,53 @@ export default function ATS(): React.ReactElement | null {
                                 <div className="font-[900] text-[1.5rem] text-[var(--color-text)]">01 / 01</div>
                             </div>
                         </div>
+                    </div>
+
+                    {/* 🔬 Banner Normativo Jerarquía de Controles Ley 19.587 / Dec. 911/96 */}
+                    <div className={`mb-6 p-4 rounded-2xl border shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
+                      atsCompliance.dictamen === 'CONFORME'
+                        ? 'bg-emerald-50/80 dark:bg-emerald-950/20 border-emerald-500/20'
+                        : atsCompliance.dictamen === 'OBSERVADO'
+                        ? 'bg-amber-50/80 dark:bg-amber-950/20 border-amber-500/20'
+                        : 'bg-red-50/80 dark:bg-red-950/20 border-red-500/20'
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm text-white shrink-0 ${
+                          atsCompliance.dictamen === 'CONFORME' ? 'bg-emerald-600' : atsCompliance.dictamen === 'OBSERVADO' ? 'bg-amber-600' : 'bg-red-600'
+                        }`}>
+                          {atsCompliance.dictamen === 'CONFORME' ? '✓' : atsCompliance.dictamen === 'OBSERVADO' ? '⚠️' : '🛑'}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">
+                              AUDITORÍA DE RIESGOS · LEY 19.587 / DEC. 911/96
+                            </span>
+                            <span className={`px-2 py-0.5 rounded-full text-[0.65rem] font-black uppercase tracking-wider border ${
+                              atsCompliance.dictamen === 'CONFORME'
+                                ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'
+                                : atsCompliance.dictamen === 'OBSERVADO'
+                                ? 'bg-amber-50/10 text-amber-600 border-amber-500/30'
+                                : 'bg-red-50/10 text-red-600 border-red-500/30'
+                            }`}>
+                              {atsCompliance.dictamen}
+                            </span>
+                          </div>
+                          <p className="m-0 text-xs font-bold text-slate-800 dark:text-slate-200">
+                            {atsCompliance.dictamen === 'CONFORME'
+                              ? 'Matriz de tareas con controles adecuados y jerarquía preventiva'
+                              : atsCompliance.alerts[0] || 'Revisar medidas preventivas'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 self-end sm:self-auto text-xs font-bold">
+                        <span className="bg-white/80 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
+                          🏗️ Ingeniería: <strong className="text-blue-600">{atsCompliance.engineeringRatio}%</strong>
+                        </span>
+                        <span className="bg-white/80 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
+                          📋 Pasos: <strong>{atsCompliance.stepsWithControls}/{atsCompliance.totalSteps}</strong>
+                        </span>
+                      </div>
                     </div>
 
                     {/* STEP 1 */}

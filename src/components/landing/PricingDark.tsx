@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CheckCircle,
   ShieldCheck,
@@ -8,6 +8,17 @@ import {
   GraduationCap,
   ArrowRight,
 } from '@phosphor-icons/react';
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
+}
 
 interface PricingDarkProps {
   onStart: () => void;
@@ -67,10 +78,11 @@ const plansData = [
 ];
 
 export default function PricingDark({ onStart }: PricingDarkProps) {
+  const isMobile = useIsMobile();
   return (
     <div
       style={{
-        padding: '5rem 1.2rem',
+        padding: isMobile ? '3.5rem 1rem' : '5rem 1.2rem',
         background: 'linear-gradient(180deg, #020617 0%, #0a0f1e 100%)',
         position: 'relative',
         overflow: 'hidden',
@@ -169,7 +181,7 @@ export default function PricingDark({ onStart }: PricingDarkProps) {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
             gap: '1.8rem',
             alignItems: 'stretch',
           }}
@@ -188,7 +200,7 @@ export default function PricingDark({ onStart }: PricingDarkProps) {
                 position: 'relative',
                 overflow: 'hidden',
                 boxShadow: plan.popular ? '0 20px 40px rgba(59,130,246,0.2)' : '0 10px 25px rgba(0,0,0,0.2)',
-                transform: plan.popular ? 'scale(1.02)' : 'none',
+                transform: (plan.popular && !isMobile) ? 'scale(1.02)' : 'none',
                 transition: 'transform 0.25s ease, border-color 0.25s ease',
               }}
             >

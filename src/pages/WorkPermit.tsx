@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { evaluateWorkPermitCompliance } from '../utils/srtProtocols';
+import type { WorkPermitAuditResult } from '../types/workPermit';
 
 import {
   ArrowLeft, Save, Plus, Trash2, Printer, Download,
@@ -375,6 +377,10 @@ export default function WorkPermit(): React.ReactElement | null {
     toast.success(`Plantilla ${tpl.label} aplicada`);
   };
 
+  const compliance = useMemo<WorkPermitAuditResult>(() => {
+    return evaluateWorkPermitCompliance(formData);
+  }, [formData]);
+
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     const updated = history.filter((item: any) => item.id !== deleteTarget);
@@ -386,14 +392,36 @@ export default function WorkPermit(): React.ReactElement | null {
   };
 
   const handleExportCSV = () => {
-    downloadCSV(history.map((i: any) => ({
-      id: i.id, fecha: i.fecha, empresa: i.empresa, obra: i.obra,
-      tipo: permitTypes.find((t) => t.id === i.tipoPermiso)?.label || 'Permiso',
-      desde: i.validezDesde, hasta: i.validezHasta
-    })), 'permisos_de_trabajo', {
-      id: 'ID Permiso', fecha: 'Fecha', empresa: 'Empresa', obra: 'Obra',
-      tipo: 'Tipo de Tarea', desde: 'Hora Inicio', hasta: 'Hora Fin'
-    }, 'Reporte de Permisos');
+    downloadCSV(history.map((i: any) => {
+      const comp = evaluateWorkPermitCompliance(i);
+      return {
+        id: i.id,
+        numeroPermiso: i.numeroPermiso || 'S/N',
+        fecha: i.fecha,
+        empresa: i.empresa,
+        obra: i.obra,
+        tipo: permitTypes.find((t) => t.id === i.tipoPermiso)?.label || 'Permiso',
+        desde: i.validezDesde,
+        hasta: i.validezHasta,
+        duracionHoras: comp.validityHours,
+        dictamen: comp.verdict,
+        controlesConformes: `${comp.compliantControls}/${comp.totalControls}`,
+        firmasCompletas: comp.hasRequiredSignatures ? 'SÍ' : 'NO'
+      };
+    }), 'permisos_de_trabajo_legal', {
+      id: 'ID Permiso',
+      numeroPermiso: 'N° Permiso',
+      fecha: 'Fecha',
+      empresa: 'Empresa',
+      obra: 'Obra',
+      tipo: 'Tipo de Tarea',
+      desde: 'Hora Inicio',
+      hasta: 'Hora Fin',
+      duracionHoras: 'Duración (Horas)',
+      dictamen: 'Dictamen Legal',
+      controlesConformes: 'Controles Cumplidos',
+      firmasCompletas: 'Firmas Obligatorias'
+    }, 'Reporte de Permisos de Trabajo');
   };
 
   const columns = [
@@ -439,6 +467,27 @@ export default function WorkPermit(): React.ReactElement | null {
                     {permitTypes.find((t) => t.id === item.tipoPermiso)?.label || 'Permiso'}
                 </span>
 
+  },
+  {
+    header: 'Dictamen Legal',
+    accessor: 'dictamen',
+    sortable: true,
+    render: (item: any) => {
+      const comp = evaluateWorkPermitCompliance(item);
+      const isOk = comp.verdict === 'LIBERADO';
+      const isWarn = comp.verdict === 'CONDICIONADO';
+      return (
+        <span className={`px-2.5 py-1 rounded-full text-[0.7rem] font-black uppercase tracking-wider border inline-flex items-center gap-1 ${
+          isOk
+            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+            : isWarn
+            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+            : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
+        }`}>
+          {isOk ? '✓ LIBERADO' : isWarn ? '⚠️ CONDICIONADO' : '🛑 BLOQUEADO'}
+        </span>
+      );
+    }
   },
   {
     header: 'Acciones',
@@ -784,6 +833,81 @@ export default function WorkPermit(): React.ReactElement | null {
               )}
                     </div>
                 </div>
+            </div>
+
+            {/* 🔬 Banner Normativo Oficial Res. SRT 953/10 · Res. SRT 61/23 · Dec. 351/79 */}
+            <div className={`no-print mb-8 rounded-3xl p-6 border shadow-md transition-all ${
+              compliance.verdict === 'LIBERADO'
+                ? 'bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-500/30'
+                : compliance.verdict === 'CONDICIONADO'
+                ? 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-500/30'
+                : 'bg-red-50/80 dark:bg-red-950/30 border-red-500/30'
+            }`}>
+              <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-black ${
+                    compliance.verdict === 'LIBERADO'
+                      ? 'bg-emerald-500 text-white shadow-emerald-500/30'
+                      : compliance.verdict === 'CONDICIONADO'
+                      ? 'bg-amber-500 text-white shadow-amber-500/30'
+                      : 'bg-red-500 text-white shadow-red-500/30'
+                  }`}>
+                    {compliance.verdict === 'LIBERADO' ? '✓' : compliance.verdict === 'CONDICIONADO' ? '⚠️' : '🛑'}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        AUDITORÍA LEGAL PREVIA AL INGRESO
+                      </span>
+                      <span className={`px-2.5 py-0.5 rounded-full text-[0.7rem] font-black uppercase tracking-wider border ${
+                        compliance.verdict === 'LIBERADO'
+                          ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/40'
+                          : compliance.verdict === 'CONDICIONADO'
+                          ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40'
+                          : 'bg-red-500/20 text-red-700 dark:text-red-300 border-red-500/40'
+                      }`}>
+                        {compliance.verdict}
+                      </span>
+                    </div>
+                    <h3 className="m-0 text-base font-black text-slate-900 dark:text-white">
+                      {compliance.verdict === 'LIBERADO'
+                        ? 'Permiso de Trabajo Liberado para Ejecución'
+                        : compliance.verdict === 'CONDICIONADO'
+                        ? 'Permiso Condicionado: Requiere completar firmas o controles'
+                        : 'Permiso Bloqueado: Peligro Crítico No Mitigado'}
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 text-xs font-bold">
+                  <div className="bg-white/80 dark:bg-slate-800/80 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                    ⏱️ Validez: <span className={compliance.isShiftExceeded ? 'text-red-500 font-black' : 'text-blue-600 font-black'}>{compliance.validityHours} hs</span> / 12 hs máx
+                  </div>
+                  <div className="bg-white/80 dark:bg-slate-800/80 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                    🛡️ Controles: <span className="font-black text-emerald-600">{compliance.compliantControls}/{compliance.totalControls}</span>
+                  </div>
+                </div>
+              </div>
+
+              {compliance.criticalNonCompliances.length > 0 && (
+                <div className="mt-3 p-3.5 bg-red-100/80 dark:bg-red-900/40 rounded-2xl border border-red-200 dark:border-red-800 text-xs text-red-800 dark:text-red-200 space-y-1">
+                  <div className="font-black uppercase tracking-wide flex items-center gap-1.5">
+                    <AlertCircle size={14} /> Desvíos Críticos que Bloquean la Tarea:
+                  </div>
+                  <ul className="list-disc pl-5 m-0 space-y-0.5 font-medium">
+                    {compliance.criticalNonCompliances.map((cnc, idx) => (
+                      <li key={idx}>{cnc}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {compliance.missingSignatures.length > 0 && (
+                <div className="mt-2 text-xs font-semibold text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+                  <span>✍️ Firmas obligatorias pendientes:</span>
+                  <span className="font-black">{compliance.missingSignatures.join(', ')}</span>
+                </div>
+              )}
             </div>
 
             {/* Print Area */}

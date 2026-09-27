@@ -4,9 +4,12 @@ import { ShieldCheck, Users } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
+import { evaluateWorkPermitCompliance } from '../utils/srtProtocols';
 
 export default function WorkPermitPdfGenerator({ data, id = "pdf-content" }: { data: any; id?: string; }): React.ReactElement | null {
   if (!data) return null;
+
+  const compliance = evaluateWorkPermitCompliance(data);
 
   // Obtener firma profesional desde data o localStorage
   let actSignature: string | null = data?.professionalSignature || null;
@@ -56,7 +59,7 @@ export default function WorkPermitPdfGenerator({ data, id = "pdf-content" }: { d
               padding: 0 !important; 
               width: 100% !important; 
               max-width: none !important; 
-              border: none !important;
+              border: none !important; 
               border-radius: 0 !important; 
             }
           `}
@@ -76,7 +79,7 @@ export default function WorkPermitPdfGenerator({ data, id = "pdf-content" }: { d
                 LIBERACIÓN DE TAREAS CRÍTICAS
               </span>
               <span className="bg-rose-700 text-white font-black text-[9px] px-2.5 py-0.5 rounded uppercase shadow-2xs">
-                TRABAJO DE ALTO RIESGO
+                DEC. 351/79 · DEC. 911/96 · RES. SRT 953/10
               </span>
             </div>
             <h1 className="m-0 text-xl font-black text-slate-950 tracking-tight uppercase flex items-center gap-2">
@@ -96,8 +99,12 @@ export default function WorkPermitPdfGenerator({ data, id = "pdf-content" }: { d
               </div>
               <div className="h-6 w-px bg-slate-200 mx-0.5" />
               <div>
-                <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-tight">ESTADO</div>
-                <div className="text-[10px] font-black text-emerald-700 uppercase leading-tight">LIBERADO</div>
+                <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-tight">DICTAMEN LEGAL</div>
+                <div className={`text-[10px] font-black uppercase leading-tight ${
+                  compliance.verdict === 'LIBERADO' ? 'text-emerald-700' : compliance.verdict === 'CONDICIONADO' ? 'text-amber-700' : 'text-red-700'
+                }`}>
+                  {compliance.verdict}
+                </div>
               </div>
             </div>
           </div>

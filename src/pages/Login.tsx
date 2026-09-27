@@ -1,6 +1,6 @@
 import { useNavigate, useLocation, NavigateFunction, Location } from 'react-router-dom';
 import React, { useEffect, useState, useRef, ChangeEvent, FormEvent } from 'react';
-import { User, Lock, LogIn, Mail, ArrowLeft, CheckCircle2, AlertCircle, ShieldCheck, CreditCard, Award, GraduationCap, Phone, MapPin, Smartphone, ExternalLink, Eye, EyeOff, Shield, LucideIcon, Check } from 'lucide-react';
+import { User, Lock, LogIn, Mail, ArrowLeft, ArrowRight, CheckCircle2, AlertCircle, ShieldCheck, CreditCard, Award, GraduationCap, Phone, MapPin, Smartphone, ExternalLink, Eye, EyeOff, Shield, LucideIcon, Check, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 
 // ─── Brute-force protection constants ────────────────────────────────────────
 const MAX_ATTEMPTS = 5;
@@ -115,6 +115,7 @@ export default function Login(): React.ReactElement {
   const [country, setCountry] = useState<string>('argentina');
   const [view, setView] = useState<ViewType>(location.state?.view || 'login');
   const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
+  const [showOptionalProfile, setShowOptionalProfile] = useState<boolean>(false);
   const [status, setStatus] = useState<Status>({ type: '', message: '', resetLink: '', code: '' });
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>({
@@ -337,657 +338,579 @@ export default function Login(): React.ReactElement {
     }
   };
 
+  const strengthScore = [
+    passwordStrength.length,
+    passwordStrength.uppercase,
+    passwordStrength.lowercase,
+    passwordStrength.number,
+    passwordStrength.special
+  ].filter(Boolean).length;
+
   return (
-    <div className="login-page-wrapper min-h-[100vh] bg-[linear-gradient(135deg,_#f8fafc_0%,_#e2e8f0_100%)] flex items-center justify-center p-[1.5rem] w-[100%] box-sizing-[border-box] relative overflow-[hidden]">
-
-
-
-
-
-
-
-
-
-
-      
-      {/* Background enhancement: Mesh Gradient Effect */}
-      <div className="absolute top-[0] left-[0] right-[0] bottom-[0] bg-[radial-gradient(circle_at_top_right,_rgba(139,_92,_246,_0.4)_0%,_transparent_40%),_radial-gradient(circle_at_bottom_left,_rgba(59,_130,_246,_0.4)_0%,_transparent_40%),_radial-gradient(circle_at_50%_50%,_rgba(16,_185,_129,_0.2)_0%,_transparent_50%)] opacity-[0.8] filter-[blur(60px)] pointer-events-[none]" />
-
-
-
-
-
-
-      
-
-      {/* Decorative Orbs */}
-      <div className="absolute top-[10%] left-[15%] w-[300px] h-[300px] bg-[rgba(139,_92,_246,_0.3)] rounded-[50%] filter-[blur(80px)] animation-[float_10s_ease-in-out_infinite]" />
-      <div className="absolute bottom-[10%] right-[15%] w-[250px] h-[250px] bg-[rgba(59,_130,_246,_0.3)] rounded-[50%] filter-[blur(80px)] animation-[float_12s_ease-in-out_infinite_reverse]" />
-
-      <div className="login-card w-[100%] max-w-[480px] rounded-[24px] text-center bg-[rgba(255,_255,_255,_0.7)] backdrop-filter-[blur(20px)] webkit-backdrop-filter-[blur(20px)] border-[1px_solid_rgba(255,_255,_255,_0.5)] box-shadow-[0_25px_50px_-12px_rgba(0,_0,_0,_0.15)] animation-[fadeIn_0.6s_ease-out,_slideUp_0.6s_ease-out] m-[0_auto] relative z-[1] box-sizing-[border-box]">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-        <img
-          src="/logo.png"
-          alt="Logo de Asistente HYS"
-          className="floating-logo w-[auto] h-[90px] m-[0_auto_2rem_auto] block filter-[drop-shadow(0_0_15px_var(--color-primary))]" />
-
-
-
-
-
-
-
-        
-
-        <style>
-          {`
-            @keyframes floatingLogo {
-              0%, 100% { transform: translateY(0); filter: drop-shadow(0 10px 15px rgba(59, 130, 246, 0.4)); }
-              50% { transform: translateY(-10px); filter: drop-shadow(0 15px 25px rgba(59, 130, 246, 0.6)); }
-            }
-            .floating-logo {
-              animation: floatingLogo 4s infinite ease-in-out;
-            }
-
-            .login-card {
-              padding: 2.5rem 2rem;
-            }
-
-            @media (max-width: 600px) {
-              .login-card {
-                padding: 2rem 1.2rem !important;
-              }
-              .login-page-wrapper {
-                padding: 1rem !important;
-              }
-              .floating-logo {
-                height: 70px !important;
-                margin-bottom: 1.5rem !important;
-              }
-            }
-            
-            /* Glassmorphism Inputs */
-            .login-page-wrapper input, .login-page-wrapper select {
-              display: block !important;
-              width: 100% !important;
-              box-sizing: border-box !important;
-              background: rgba(255, 255, 255, 0.6) !important;
-              border: 1px solid rgba(255, 255, 255, 0.8) !important;
-              color: #1e293b !important;
-              border-radius: 14px;
-              padding: 0.85rem;
-              padding-left: 45px !important;
-              transition: all 0.3s ease;
-              box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-            }
-            
-            .dark .login-page-wrapper input, .dark .login-page-wrapper select {
-               background: rgba(15, 23, 42, 0.6) !important;
-               border: 1px solid rgba(255, 255, 255, 0.1) !important;
-               color: #f8fafc !important;
-            }
-
-            .login-page-wrapper input:focus, .login-page-wrapper select:focus {
-              background: rgba(255, 255, 255, 0.9) !important;
-              border-color: #3b82f6 !important;
-              box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15) !important;
-              transform: translateY(-2px);
-            }
-
-            .dark .login-page-wrapper input:focus, .dark .login-page-wrapper select:focus {
-               background: rgba(15, 23, 42, 0.9) !important;
-            }
-
-            .login-page-wrapper label {
-              color: #475569;
-              font-weight: 700;
-              font-size: 0.9rem;
-              margin-bottom: 0.4rem;
-              display: block;
-            }
-            
-            .dark .login-page-wrapper label {
-               color: #cbd5e1;
-            }
-
-            .login-page-wrapper h1, .login-page-wrapper h2 {
-              color: #0f172a;
-              font-family: var(--font-heading);
-              font-weight: 900;
-              letter-spacing: -0.5px;
-            }
-            
-            .dark .login-page-wrapper h1, .dark .login-page-wrapper h2 {
-               color: #f8fafc;
-            }
-            
-            .btn-glass-primary {
-              background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-              color: white;
-              border: none;
-              padding: 0.9rem;
-              border-radius: 14px;
-              font-weight: 700;
-              font-size: 1rem;
-              width: 100%;
-              cursor: pointer;
-              transition: all 0.3s ease;
-              box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.4);
-              margin-top: 1rem;
-            }
-            
-            .btn-glass-primary:hover {
-              transform: translateY(-3px);
-              box-shadow: 0 15px 25px -5px rgba(59, 130, 246, 0.5);
-            }
-            
-            .btn-glass-primary:active {
-              transform: translateY(0);
-            }
-            
-            .dark .login-page-wrapper > div:last-child {
-               background: rgba(15, 23, 42, 0.7) !important;
-               border: 1px solid rgba(255, 255, 255, 0.1) !important;
-               box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
-            }
-          `}
-        </style>
-
-        {view === 'login' &&
-        <>
-            <h1 className="text-[1.8rem] mb-[0.5rem]">Bienvenido</h1>
-            <p className="text-[var(--color-text-muted)] mb-[2rem]">Inicia sesión para continuar</p>
-
-            <form onSubmit={handleLogin} className="text-left">
-              {/* Lockout banner */}
-              {isLockedOut && (
-                <div style={{
-                  background: 'rgba(239,68,68,0.08)',
-                  border: '1px solid rgba(239,68,68,0.3)',
-                  borderRadius: '12px',
-                  padding: '1rem',
-                  marginBottom: '1.25rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem'
-                }}>
-                  <Shield size={22} color="#ef4444" style={{ flexShrink: 0 }} />
-                  <div>
-                    <div style={{ color: '#ef4444', fontWeight: 800, fontSize: '0.9rem' }}>
-                      Cuenta bloqueada temporalmente
-                    </div>
-                    <div style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.2rem' }}>
-                      Demasiados intentos fallidos. Podés volver a intentar en{' '}
-                      <strong style={{ color: '#ef4444' }}>
-                        {Math.floor(lockoutSecondsLeft / 60)}:{String(lockoutSecondsLeft % 60).padStart(2, '0')}
-                      </strong>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Attempt indicator */}
-              {!isLockedOut && loginAttempts > 0 && loginAttempts < MAX_ATTEMPTS && (
-                <div style={{
-                  background: 'rgba(245,158,11,0.08)',
-                  border: '1px solid rgba(245,158,11,0.25)',
-                  borderRadius: '8px',
-                  padding: '0.5rem 0.75rem',
-                  marginBottom: '0.75rem',
-                  fontSize: '0.78rem',
-                  color: '#b45309',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}>
-                  <AlertCircle size={14} />
-                  {MAX_ATTEMPTS - loginAttempts} intento{MAX_ATTEMPTS - loginAttempts !== 1 ? 's' : ''} restante{MAX_ATTEMPTS - loginAttempts !== 1 ? 's' : ''} antes del bloqueo
-                </div>
-              )}
-
-              <div className="mb-6">
-                <label htmlFor="email">Correo Electrónico</label>
-                <div className="relative w-[100%]">
-                  <User size={18} className="absolute left-[14px] top-[50%] transform-[translateY(-50%)] text-[#64748b] pointer-events-[none]" />
-                  <input
-                  type="email"
-                  id="email"
-                  placeholder="tu@email.com"
-
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required className="pl-[40px]" />
-                
-                </div>
-              </div>
-
-              <div className="mb-8">
-                <label htmlFor="password">Contraseña</label>
-                <div className="relative w-[100%]">
-                  <Lock size={18} className="absolute left-[14px] top-[50%] transform-[translateY(-50%)] text-[#64748b] pointer-events-[none]" />
-                  <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  placeholder="••••••••"
-
-                  value={password}
-                  onChange={handlePasswordChange}
-                  required className="pl-[40px] pr-[40px]" />
-                
-                  <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-[14px] top-[50%] transform-[translateY(-50%)] bg-[none] border-none cursor-pointer text-[#64748b] flex items-center p-[0]">
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Recordar usuario y Olvidé contraseña */}
-              <div className="flex items-center justify-between mb-6 gap-2 flex-wrap">
-                <label className="flex items-center gap-2.5 cursor-pointer select-none group p-2 px-3 rounded-xl bg-slate-100/70 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 hover:border-blue-500/50 transition-all">
-                  <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                    rememberMe 
-                      ? 'bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-500/30' 
-                      : 'border-slate-300 dark:border-slate-600 bg-transparent group-hover:border-blue-400'
-                  }`}>
-                    <input
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="sr-only"
-                    />
-                    {rememberMe && <Check size={13} strokeWidth={3} className="text-white" />}
-                  </div>
-                  <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Recordar usuario</span>
-                </label>
-
-                <button
-                  type="button"
-                  onClick={() => setView('forgot')}
-                  className="text-blue-600 dark:text-blue-400 hover:underline font-bold bg-transparent border-none cursor-pointer text-[0.85rem] p-1">
-                  ¿Olvidaste tu contraseña?
-                </button>
-              </div>
-
-              {status.message &&
-                <div style={{
-                  background: status.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
-                  color: status.type === 'error' ? '#ef4444' : 'var(--color-text-muted)'
-                }} className="p-[0.8rem] rounded-[8px] text-[0.9rem] mb-[1rem] flex items-center gap-[0.5rem]">
-                  {status.type === 'error' && <AlertCircle size={18} />}
-                  {status.message}
-                </div>
-              }
-
-              <button type="submit" className="btn-glass-primary" disabled={status.type === 'loading' || isLockedOut} style={isLockedOut ? { opacity: 0.5, cursor: 'not-allowed' } : {}}>
-                {isLockedOut ? `Bloqueado (${Math.floor(lockoutSecondsLeft / 60)}:${String(lockoutSecondsLeft % 60).padStart(2, '0')})` : status.type === 'loading' ? 'Cargando...' : 'Ingresar'}
-              </button>
-            </form>
-
-            {/* Google Sign-In */}
-
-            <div className="flex items-center gap-[1rem] m-[1.5rem_0] text-[var(--color-text-muted)] text-[0.85rem]">
-
-
-
-
-
-
-            
-              <div className="flex-[1] h-[1px] bg-[var(--color-border)]" />
-              <span>o continuá con</span>
-              <div className="flex-[1] h-[1px] bg-[var(--color-border)]" />
-            </div>
-
+    <div className="min-h-screen bg-[#020617] text-white flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden selection:bg-blue-600 selection:text-white">
+      {/* Ambient background glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[500px] bg-blue-600/15 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 translate-y-1/2 w-[500px] h-[400px] bg-indigo-600/15 rounded-full blur-[140px] pointer-events-none" />
+
+      {/* Main Centered Container */}
+      <div className="relative z-10 w-full max-w-[500px] mx-auto rounded-3xl border border-white/10 bg-slate-900/90 backdrop-blur-2xl shadow-2xl p-5 sm:p-8 my-4 sm:my-6">
+        {/* Top Brand Logo */}
+        <div className="flex items-center justify-between mb-5 sm:mb-6">
+          <div
+            className="flex items-center gap-2 sm:gap-2.5 cursor-pointer group"
+            onClick={() => navigate('/')}
+          >
+            <img
+              src="/logo.png"
+              alt="Logo Asistente H&S"
+              className="w-8 h-8 sm:w-9 sm:h-9 object-contain rounded-xl border border-white/10 shadow-md group-hover:scale-105 transition-transform"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            />
+            <span className="font-black text-lg sm:text-xl tracking-tight text-white flex items-center gap-1.5">
+              Asistente H&S
+              <span className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">PRO</span>
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-1 transition-colors bg-transparent border-none cursor-pointer"
+          >
+            <span>Volver</span>
+            <ArrowRight size={14} />
+          </button>
+        </div>
+
+        {/* View Switcher Tabs (Only if not in forgot view) */}
+        {view !== 'forgot' && (
+          <div className="grid grid-cols-2 p-1 bg-white/5 border border-white/10 rounded-2xl mb-5 sm:mb-6">
             <button
-            onClick={handleGoogleSignIn}
+              type="button"
+              onClick={() => { setView('login'); setStatus({ type: '', message: '' }); }}
+              className={`py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer border-none flex items-center justify-center gap-1.5 sm:gap-2 ${
+                view === 'login'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/30'
+                  : 'text-slate-400 hover:text-white bg-transparent'
+              }`}
+            >
+              <LogIn size={15} />
+              <span>Iniciar Sesión</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => { setView('register'); setStatus({ type: '', message: '' }); }}
+              className={`py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer border-none flex items-center justify-center gap-1.5 sm:gap-2 ${
+                view === 'register'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/30'
+                  : 'text-slate-400 hover:text-white bg-transparent'
+              }`}
+            >
+              <User size={15} />
+              <span>Crear Cuenta</span>
+            </button>
+          </div>
+        )}
 
+        {/* Back Button for Forgot Password */}
+        {view === 'forgot' && (
+          <button
+            type="button"
+            onClick={() => { setView('login'); setStatus({ type: '', message: '' }); }}
+            className="inline-flex items-center gap-2 text-sm font-bold text-blue-400 hover:text-blue-300 mb-6 transition-colors bg-transparent border-none cursor-pointer"
+          >
+            <ArrowLeft size={16} />
+            <span>Volver a Iniciar Sesión</span>
+          </button>
+        )}
 
+        {/* HEADINGS BY VIEW */}
+        {view === 'login' && (
+          <div className="mb-6 text-center sm:text-left">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight" style={{ color: '#ffffff' }}>
+              Bienvenido de nuevo
+            </h1>
+            <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>
+              Ingresá a tu Centro de Control de Higiene y Seguridad.
+            </p>
+          </div>
+        )}
 
+        {view === 'register' && (
+          <div className="mb-6 text-center sm:text-left">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight" style={{ color: '#ffffff' }}>
+              Creá tu Cuenta Profesional
+            </h1>
+            <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>
+              Empezá gratis en 30 segundos • Sin tarjeta requerida.
+            </p>
+          </div>
+        )}
 
+        {view === 'forgot' && (
+          <div className="mb-6 text-center sm:text-left">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight" style={{ color: '#ffffff' }}>
+              Recuperar Contraseña
+            </h1>
+            <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>
+              Te enviaremos un enlace seguro a tu casilla de correo para restablecerla.
+            </p>
+          </div>
+        )}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            onMouseOver={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';e.currentTarget.style.background = '#ffffff';}}
-            onMouseOut={(e) => {e.currentTarget.style.transform = 'translateY(0)';e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.05)';e.currentTarget.style.background = 'rgba(255, 255, 255, 0.8)';}} className="w-[100%] p-[0.9rem] bg-[rgba(255,_255,_255,_0.8)] backdrop-filter-[blur(10px)] text-[#1e293b] border-[1px_solid_rgba(203,_213,_225,_0.8)] rounded-[14px] font-[700] text-[0.95rem] cursor-pointer flex items-center justify-center gap-[0.8rem] transition-[all_0.3s_ease] mb-[1rem] box-shadow-[0_4px_6px_-1px_rgba(0,_0,_0,_0.05)]">
-            
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        {/* GOOGLE SIGN IN BUTTON (Only for login and register) */}
+        {view !== 'forgot' && (
+          <div className="mb-6">
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              className="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm flex items-center justify-center gap-3 shadow-md hover:shadow-lg transition-all cursor-pointer border-none"
+            >
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
                 <path d="M18.125 8.125H10V11.875H14.6875C14.3125 13.875 12.875 15.5 10 15.5C6.6875 15.5 4.0625 12.8125 4.0625 10C4.0625 7.1875 6.6875 4.5 10 4.5C11.5625 4.5 12.875 5.0625 13.875 6.0625L16.5625 3.375C14.875 1.8125 12.5625 1 10 1C4.5625 1 0 5.5625 0 11C0 16.4375 4.5625 21 10 21C15.4375 21 19.375 17 19.375 12.5C19.375 11.6875 19.3125 10.9375 19.1875 10.1875H18.125V8.125Z" fill="#4285F4" />
               </svg>
-              Continuar con Google
+              <span>Continuar con Google</span>
             </button>
 
-            <div className="mt-[1.5rem] text-[0.9rem] text-[var(--color-text-muted)]">
-              <p className="mb-[0.5rem]">
-                ¿No tienes cuenta?{' '}
-                <a href="#" onClick={(e) => {e.preventDefault();setView('register');setStatus({ type: '', message: '' });}} className="text-[var(--color-primary)] font-[bold]">Regístrate</a>
-              </p>
-              <p>
-                ¿Olvidaste tu contraseña?{' '}
-                <a href="#" onClick={(e) => {e.preventDefault();setView('forgot');setStatus({ type: '', message: '' });}} className="text-[var(--color-primary)]">Recupérala aquí</a>
-              </p>
+            <div className="flex items-center gap-3 my-5 text-[11px] text-slate-500 font-bold uppercase tracking-wider">
+              <div className="flex-1 h-px bg-white/10" />
+              <span>o con tu correo</span>
+              <div className="flex-1 h-px bg-white/10" />
             </div>
-          </>
-        }
+          </div>
+        )}
 
-        {view === 'register' &&
-        <>
-            <></>
-
-            <h1 className="text-[1.8rem] mb-[0.5rem]">Crear Cuenta</h1>
-            <p className="text-[var(--color-text-muted)] mb-[2rem]">Comienza gratis</p>
-
-            <form onSubmit={handleRegister} className="text-left">
-              <div className="mb-6">
-                <label htmlFor="name">Nombre Completo</label>
-                <div className="relative w-[100%]">
-                  <User size={18} className="absolute left-[14px] top-[50%] transform-[translateY(-50%)] text-[#64748b] pointer-events-[none]" />
-                  <input
-                  type="text"
-                  id="name"
-                  placeholder="Tu Nombre"
-
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required className="pl-[40px]" />
-                
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <label htmlFor="email">Correo Electrónico</label>
-                <div className="relative w-[100%]">
-                  <Mail size={18} className="absolute left-[14px] top-[50%] transform-[translateY(-50%)] text-[#64748b] pointer-events-[none]" />
-                  <input
-                  type="email"
-                  id="email"
-                  placeholder="tu@email.com"
-
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required className="pl-[40px]" />
-                
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <label htmlFor="password">Contraseña</label>
-                <div className="relative w-[100%]">
-                  <Lock size={18} className="absolute left-[14px] top-[50%] transform-[translateY(-50%)] text-[#64748b] pointer-events-[none]" />
-                  <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  placeholder="••••••••"
-
-                  value={password}
-                  onChange={handlePasswordChange}
-                  required className="pl-[40px] pr-[40px]" />
-                
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-[12px] top-[50%] transform-[translateY(-50%)] bg-[none] border-none cursor-pointer text-[var(--color-text-muted)]">
-
-
-
-
-
-
-
-
-
-
-                  
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-                {/* Password strength indicator */}
-                <div className="mt-[0.5rem] text-[0.75rem] text-[var(--color-text-muted)]">
-                  <div className="flex gap-[0.3rem] flex-wrap">
-                    <span style={{ color: passwordStrength.length ? '#10b981' : 'inherit' }}>• 8 caracteres</span>
-                    <span style={{ color: passwordStrength.uppercase ? '#10b981' : 'inherit' }}>• Mayúscula</span>
-                    <span style={{ color: passwordStrength.lowercase ? '#10b981' : 'inherit' }}>• Minúscula</span>
-                    <span style={{ color: passwordStrength.number ? '#10b981' : 'inherit' }}>• Número</span>
-                    <span style={{ color: passwordStrength.special ? '#10b981' : 'inherit' }}>• Especial</span>
+        {/* FORM 1: LOGIN */}
+        {view === 'login' && (
+          <form onSubmit={handleLogin} className="space-y-4">
+            {/* Lockout banner */}
+            {isLockedOut && (
+              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center gap-3 text-left">
+                <Shield size={22} className="text-red-400 shrink-0" />
+                <div>
+                  <div className="text-sm font-bold text-red-400">Cuenta bloqueada temporalmente</div>
+                  <div className="text-xs text-slate-400 mt-0.5">
+                    Demasiados intentos fallidos. Podés reintentar en{' '}
+                    <strong className="text-red-400 font-bold">
+                      {Math.floor(lockoutSecondsLeft / 60)}:{String(lockoutSecondsLeft % 60).padStart(2, '0')}
+                    </strong>
                   </div>
                 </div>
               </div>
+            )}
 
-              <div className="mb-6">
-                <label htmlFor="confirmPassword">Confirmar Contraseña</label>
-                <div className="relative w-[100%]">
-                  <Lock size={18} className="absolute left-[14px] top-[50%] transform-[translateY(-50%)] text-[#64748b] pointer-events-[none]" />
-                  <input
+            {/* Remaining attempts indicator */}
+            {!isLockedOut && loginAttempts > 0 && loginAttempts < MAX_ATTEMPTS && (
+              <div className="p-2.5 px-3 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-400 text-xs flex items-center gap-2">
+                <AlertCircle size={14} className="shrink-0" />
+                <span>Te quedan {MAX_ATTEMPTS - loginAttempts} intento{MAX_ATTEMPTS - loginAttempts !== 1 ? 's' : ''} antes del bloqueo temporal.</span>
+              </div>
+            )}
+
+            <div>
+              <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#cbd5e1' }}>
+                Correo Electrónico
+              </label>
+              <div className="flex items-center rounded-xl bg-white/5 border border-white/15 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all overflow-hidden px-3.5 py-1">
+                <Mail size={18} className="text-slate-400 shrink-0 mr-2.5" />
+                <input
+                  type="email"
+                  id="email"
+                  placeholder="nombre@empresa.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full py-2 bg-transparent text-white placeholder-slate-500 text-sm focus:outline-none border-none shadow-none"
+                  style={{ background: 'transparent', border: 'none', color: '#ffffff', outline: 'none', boxShadow: 'none', margin: 0, padding: '0.6rem 0' }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#cbd5e1' }}>
+                Contraseña
+              </label>
+              <div className="flex items-center rounded-xl bg-white/5 border border-white/15 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all overflow-hidden px-3.5 py-1">
+                <Lock size={18} className="text-slate-400 shrink-0 mr-2.5" />
+                <input
                   type={showPassword ? 'text' : 'password'}
-                  id="confirmPassword"
+                  id="password"
                   placeholder="••••••••"
+                  value={password}
+                  onChange={handlePasswordChange}
+                  required
+                  className="w-full py-2 bg-transparent text-white placeholder-slate-500 text-sm focus:outline-none border-none shadow-none"
+                  style={{ background: 'transparent', border: 'none', color: '#ffffff', outline: 'none', boxShadow: 'none', margin: 0, padding: '0.6rem 0' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="p-1 text-slate-400 hover:text-white transition-colors bg-transparent border-none cursor-pointer shrink-0 ml-1"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
 
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required className="pl-[40px]" />
-                
+            {/* Remember Me and Forgot Password */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-white/20 bg-white/10 text-blue-600 focus:ring-0 cursor-pointer"
+                />
+                <span className="text-xs font-medium" style={{ color: '#cbd5e1' }}>Recordarme</span>
+              </label>
+
+              <button
+                type="button"
+                onClick={() => { setView('forgot'); setStatus({ type: '', message: '' }); }}
+                className="text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors bg-transparent border-none cursor-pointer p-0"
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
+            </div>
+
+            {/* Status Message */}
+            {status.message && (
+              <div className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+                status.type === 'error' ? 'bg-red-500/10 border border-red-500/30 text-red-400' : 'bg-white/5 border border-white/10 text-slate-300'
+              }`}>
+                {status.type === 'error' && <AlertCircle size={16} className="shrink-0" />}
+                <span>{status.message}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={status.type === 'loading' || isLockedOut}
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-sm shadow-xl shadow-blue-600/30 transition-all cursor-pointer border-none disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+            >
+              {isLockedOut ? `Bloqueado (${lockoutSecondsLeft}s)` : status.type === 'loading' ? 'Iniciando sesión...' : 'Ingresar a mi cuenta'}
+            </button>
+          </form>
+        )}
+
+        {/* FORM 2: REGISTER */}
+        {view === 'register' && (
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#cbd5e1' }}>
+                Nombre Completo
+              </label>
+              <div className="flex items-center rounded-xl bg-white/5 border border-white/15 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all overflow-hidden px-3.5 py-1">
+                <User size={18} className="text-slate-400 shrink-0 mr-2.5" />
+                <input
+                  type="text"
+                  id="name"
+                  placeholder="Lic. María González"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="w-full py-2 bg-transparent text-white placeholder-slate-500 text-sm focus:outline-none border-none shadow-none"
+                  style={{ background: 'transparent', border: 'none', color: '#ffffff', outline: 'none', boxShadow: 'none', margin: 0, padding: '0.6rem 0' }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#cbd5e1' }}>
+                Correo Electrónico
+              </label>
+              <div className="flex items-center rounded-xl bg-white/5 border border-white/15 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all overflow-hidden px-3.5 py-1">
+                <Mail size={18} className="text-slate-400 shrink-0 mr-2.5" />
+                <input
+                  type="email"
+                  id="email"
+                  placeholder="tu@empresa.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full py-2 bg-transparent text-white placeholder-slate-500 text-sm focus:outline-none border-none shadow-none"
+                  style={{ background: 'transparent', border: 'none', color: '#ffffff', outline: 'none', boxShadow: 'none', margin: 0, padding: '0.6rem 0' }}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#cbd5e1' }}>
+                  Contraseña
+                </label>
+                <div className="flex items-center rounded-xl bg-white/5 border border-white/15 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all overflow-hidden px-3.5 py-1">
+                  <Lock size={18} className="text-slate-400 shrink-0 mr-2.5" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={handlePasswordChange}
+                    required
+                    className="w-full py-2 bg-transparent text-white placeholder-slate-500 text-sm focus:outline-none border-none shadow-none"
+                    style={{ background: 'transparent', border: 'none', color: '#ffffff', outline: 'none', boxShadow: 'none', margin: 0, padding: '0.6rem 0' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="p-1 text-slate-400 hover:text-white bg-transparent border-none cursor-pointer shrink-0 ml-1"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
                 </div>
               </div>
 
-              <div className="mb-6">
-                <label htmlFor="country">País</label>
-                <div className="relative w-[100%]">
-                  <MapPin size={18} className="absolute left-[14px] top-[50%] transform-[translateY(-50%)] text-[#64748b] pointer-events-[none]" />
-                  <select
+              <div>
+                <label htmlFor="confirmPassword" className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#cbd5e1' }}>
+                  Confirmar Contraseña
+                </label>
+                <div className="flex items-center rounded-xl bg-white/5 border border-white/15 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all overflow-hidden px-3.5 py-1">
+                  <Lock size={18} className="text-slate-400 shrink-0 mr-2.5" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="confirmPassword"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    className="w-full py-2 bg-transparent text-white placeholder-slate-500 text-sm focus:outline-none border-none shadow-none"
+                    style={{ background: 'transparent', border: 'none', color: '#ffffff', outline: 'none', boxShadow: 'none', margin: 0, padding: '0.6rem 0' }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Password Strength Meter */}
+            {password && (
+              <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">Seguridad de la clave:</span>
+                  <span className={`font-bold ${
+                    strengthScore <= 2 ? 'text-red-400' : strengthScore <= 4 ? 'text-amber-400' : 'text-emerald-400'
+                  }`}>
+                    {strengthScore <= 2 ? 'Débil' : strengthScore <= 4 ? 'Media' : 'Excelente'}
+                  </span>
+                </div>
+                <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full transition-all duration-300 ${
+                      strengthScore <= 2 ? 'w-2/5 bg-red-500' : strengthScore <= 4 ? 'w-4/5 bg-amber-500' : 'w-full bg-emerald-500'
+                    }`}
+                  />
+                </div>
+                <div className="flex flex-wrap gap-2 text-[10px]">
+                  <span className={passwordStrength.length ? 'text-emerald-400' : 'text-slate-500'}>✓ 8+ carácteres</span>
+                  <span className={passwordStrength.uppercase ? 'text-emerald-400' : 'text-slate-500'}>✓ Mayúscula</span>
+                  <span className={passwordStrength.lowercase ? 'text-emerald-400' : 'text-slate-500'}>✓ Minúscula</span>
+                  <span className={passwordStrength.number ? 'text-emerald-400' : 'text-slate-500'}>✓ Número</span>
+                  <span className={passwordStrength.special ? 'text-emerald-400' : 'text-slate-500'}>✓ Símbolo</span>
+                </div>
+              </div>
+            )}
+
+            <div>
+              <label htmlFor="country" className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#cbd5e1' }}>
+                País & Normativa Aplicable
+              </label>
+              <div className="flex items-center rounded-xl bg-white/5 border border-white/15 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all overflow-hidden px-3.5 py-1">
+                <MapPin size={18} className="text-slate-400 shrink-0 mr-2.5" />
+                <select
                   id="country"
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
-
-                  required className="pl-[40px] w-[100%]">
-                  
-                    {countryList.map((c) =>
-                  <option key={c.code} value={c.code}>{c.name}</option>
-                  )}
-                  </select>
-                </div>
+                  required
+                  className="w-full py-2 bg-transparent text-white text-sm focus:outline-none border-none shadow-none cursor-pointer"
+                  style={{ background: 'transparent', border: 'none', color: '#ffffff', outline: 'none', boxShadow: 'none', margin: 0, padding: '0.6rem 0' }}
+                >
+                  {countryList.map((c) => (
+                    <option key={c.code} value={c.code} className="bg-slate-900 text-white">
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
               </div>
+            </div>
 
-              {/* Optional Professional Info Section */}
-              <div className="m-[2.5rem_0_1.5rem] p-[1.5rem] border-[1px_solid_var(--color-border)] rounded-[16px] bg-[rgba(59,_130,_246,_0.03)]">
-                <div className="flex items-center gap-[0.6rem] mb-[1.2rem] text-[var(--color-primary)]">
-                  <Award size={20} />
-                  <h3 className="m-[0] text-[1rem] font-[800]">Información Profesional (Opcional)</h3>
-                </div>
-
-                <div className="mb-[1.2rem]">
-                  <label htmlFor="profession">Profesión / Título</label>
-                  <div className="relative w-[100%]">
-                    <GraduationCap size={18} className="absolute left-[14px] top-[50%] transform-[translateY(-50%)] text-[#64748b] pointer-events-[none]" />
-                    <select
-                    id="profession"
-                    value={profession}
-                    onChange={(e) => setProfession(e.target.value)} className="pl-[40px] w-[100%]">
-
-                    
-                      <option value="">Seleccione su título</option>
-                      <option value="Técnico">Técnico</option>
-                      <option value="Licenciado">Licenciado</option>
-                      <option value="Ingeniero">Ingeniero</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="mb-[1.2rem]">
-                  <label htmlFor="license">Matrícula Profesional</label>
-                  <div className="relative w-[100%]">
-                    <Award size={18} className="absolute left-[14px] top-[50%] transform-[translateY(-50%)] text-[#64748b] pointer-events-[none]" />
-                    <input
-                    type="text"
-                    id="license"
-                    placeholder="Ej: MP 1234"
-
-                    value={license}
-                    onChange={(e) => setLicense(e.target.value)} className="pl-[40px]" />
-                  
-                  </div>
-                </div>
-
-                <div className="mb-[1.2rem]">
-                  <label htmlFor="dni">DNI / Cédula</label>
-                  <div className="relative w-[100%]">
-                    <CreditCard size={18} className="absolute left-[14px] top-[50%] transform-[translateY(-50%)] text-[#64748b] pointer-events-[none]" />
-                    <input
-                    type="text"
-                    id="dni"
-                    placeholder="Identificación"
-
-                    value={dni}
-                    onChange={(e) => setDni(e.target.value)} className="pl-[40px]" />
-                  
-                  </div>
-                </div>
-
-                <div className="mb-[0]">
-                  <label htmlFor="phone">Teléfono de Contacto</label>
-                  <div className="relative w-[100%]">
-                    <Phone size={18} className="absolute left-[14px] top-[50%] transform-[translateY(-50%)] text-[#64748b] pointer-events-[none]" />
-                    <input
-                    type="tel"
-                    id="phone"
-                    placeholder="+54 9..."
-
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)} className="pl-[40px]" />
-                  
-                  </div>
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <label className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all cursor-pointer select-none ${
-                  acceptedTerms
-                    ? 'bg-emerald-500/10 border-emerald-500/50 shadow-sm shadow-emerald-500/10'
-                    : 'bg-slate-100/70 dark:bg-slate-800/50 border-slate-200/80 dark:border-slate-700/60 hover:border-blue-500/50'
-                }`}>
-                  <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                    acceptedTerms
-                      ? 'bg-emerald-500 border-emerald-500 text-white shadow-sm shadow-emerald-500/30'
-                      : 'border-slate-300 dark:border-slate-600 bg-transparent'
-                  }`}>
-                    <input
-                      type="checkbox"
-                      checked={acceptedTerms}
-                      onChange={(e) => setAcceptedTerms(e.target.checked)}
-                      className="sr-only"
-                    />
-                    {acceptedTerms && <Check size={13} strokeWidth={3} className="text-white" />}
-                  </div>
-
-                  <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium leading-tight">
-                    Acepto las{' '}
-                    <a
-                      href="/privacy"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-blue-600 dark:text-blue-400 font-bold hover:underline"
-                    >
-                      Políticas de Privacidad
-                    </a>
-                  </span>
-                </label>
-              </div>
-
-              {status.message &&
-            <div style={{
-
-
-
-
-              background: status.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
-              color: status.type === 'error' ? '#ef4444' : 'var(--color-text-muted)'
-
-
-
-            }} className="p-[0.8rem] rounded-[8px] text-[0.9rem] mb-[1rem] flex items-center gap-[0.5rem]">
-                  {status.type === 'error' && <AlertCircle size={18} />}
-                  {status.message}
-                </div>
-            }
-
-              <button type="submit" className="btn-glass-primary" disabled={status.type === 'loading'}>
-                {status.type === 'loading' ? 'Creando...' : 'Registrarme'}
+            {/* Optional Collapsible Profile Block */}
+            <div className="rounded-xl border border-white/10 bg-white/5 overflow-hidden transition-all">
+              <button
+                type="button"
+                onClick={() => setShowOptionalProfile(!showOptionalProfile)}
+                className="w-full p-3.5 flex items-center justify-between text-left text-xs font-bold text-blue-400 hover:text-blue-300 bg-transparent border-none cursor-pointer transition-colors"
+              >
+                <span className="flex items-center gap-2">
+                  <Award size={16} />
+                  <span>Preconfigurar Membrete de Informes (Opcional)</span>
+                </span>
+                {showOptionalProfile ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
               </button>
-            </form>
-          </>
-        }
 
-        {view === 'forgot' &&
-        <>
-            <></>
+              {showOptionalProfile && (
+                <div className="p-4 pt-1 space-y-3 border-t border-white/10 text-left">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 mb-1">Título / Profesión</label>
+                      <div className="flex items-center rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-0.5">
+                        <Award size={14} className="text-slate-400 shrink-0 mr-2" />
+                        <select
+                          value={profession}
+                          onChange={(e) => setProfession(e.target.value)}
+                          className="w-full py-1.5 bg-transparent text-white text-xs focus:outline-none border-none"
+                          style={{ background: 'transparent', border: 'none', color: '#ffffff', outline: 'none', margin: 0, padding: '0.4rem 0' }}
+                        >
+                          <option value="" className="bg-slate-900 text-white">Seleccionar...</option>
+                          <option value="Técnico" className="bg-slate-900 text-white">Técnico Superior HyS</option>
+                          <option value="Licenciado" className="bg-slate-900 text-white">Licenciado en HyS</option>
+                          <option value="Ingeniero" className="bg-slate-900 text-white">Ingeniero Especialista</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 mb-1">Matrícula Profesional</label>
+                      <div className="flex items-center rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-0.5">
+                        <Award size={14} className="text-slate-400 shrink-0 mr-2" />
+                        <input
+                          type="text"
+                          placeholder="Ej: MP 8421"
+                          value={license}
+                          onChange={(e) => setLicense(e.target.value)}
+                          className="w-full py-1.5 bg-transparent text-white text-xs placeholder-slate-600 focus:outline-none border-none"
+                          style={{ background: 'transparent', border: 'none', color: '#ffffff', outline: 'none', margin: 0, padding: '0.4rem 0' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
 
-            <h1 className="text-[1.8rem] mb-[0.5rem]">Recuperar Contraseña</h1>
-            <p className="text-[var(--color-text-muted)] mb-[2rem]">Te enviaremos un enlace</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 mb-1">DNI / Cédula</label>
+                      <div className="flex items-center rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-0.5">
+                        <CreditCard size={14} className="text-slate-400 shrink-0 mr-2" />
+                        <input
+                          type="text"
+                          placeholder="Identificación"
+                          value={dni}
+                          onChange={(e) => setDni(e.target.value)}
+                          className="w-full py-1.5 bg-transparent text-white text-xs placeholder-slate-600 focus:outline-none border-none"
+                          style={{ background: 'transparent', border: 'none', color: '#ffffff', outline: 'none', margin: 0, padding: '0.4rem 0' }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 mb-1">Teléfono</label>
+                      <div className="flex items-center rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-0.5">
+                        <Phone size={14} className="text-slate-400 shrink-0 mr-2" />
+                        <input
+                          type="tel"
+                          placeholder="+54 9..."
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          className="w-full py-1.5 bg-transparent text-white text-xs placeholder-slate-600 focus:outline-none border-none"
+                          style={{ background: 'transparent', border: 'none', color: '#ffffff', outline: 'none', margin: 0, padding: '0.4rem 0' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
-            <form onSubmit={handleForgotPassword} className="text-left">
-              <div className="mb-6">
-                <label htmlFor="email">Correo Electrónico</label>
-                <div className="relative w-[100%]">
-                  <Mail size={18} className="absolute left-[14px] top-[50%] transform-[translateY(-50%)] text-[#64748b] pointer-events-[none]" />
-                  <input
+            {/* Terms and Privacy Checkbox */}
+            <label className="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="w-4 h-4 rounded border-white/20 bg-white/10 text-blue-600 focus:ring-0 cursor-pointer"
+              />
+              <span className="text-xs font-medium" style={{ color: '#cbd5e1' }}>
+                Acepto los Términos de Servicio y las{' '}
+                <a
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-blue-400 font-bold hover:underline"
+                >
+                  Políticas de Privacidad
+                </a>
+              </span>
+            </label>
+
+            {/* Status Message */}
+            {status.message && (
+              <div className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+                status.type === 'error' ? 'bg-red-500/10 border border-red-500/30 text-red-400' : 'bg-white/5 border border-white/10 text-slate-300'
+              }`}>
+                {status.type === 'error' && <AlertCircle size={16} className="shrink-0" />}
+                <span>{status.message}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={status.type === 'loading'}
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-sm shadow-xl shadow-blue-600/30 transition-all cursor-pointer border-none disabled:opacity-50 mt-2"
+            >
+              {status.type === 'loading' ? 'Creando cuenta...' : 'Crear Cuenta Profesional'}
+            </button>
+          </form>
+        )}
+
+        {/* FORM 3: FORGOT PASSWORD */}
+        {view === 'forgot' && (
+          <form onSubmit={handleForgotPassword} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#cbd5e1' }}>
+                Correo Electrónico
+              </label>
+              <div className="flex items-center rounded-xl bg-white/5 border border-white/15 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all overflow-hidden px-3.5 py-1">
+                <Mail size={18} className="text-slate-400 shrink-0 mr-2.5" />
+                <input
                   type="email"
                   id="email"
-                  placeholder="tu@email.com"
-
+                  placeholder="nombre@empresa.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required className="pl-[40px]" />
-                
-                </div>
+                  required
+                  className="w-full py-2 bg-transparent text-white placeholder-slate-500 text-sm focus:outline-none border-none shadow-none"
+                  style={{ background: 'transparent', border: 'none', color: '#ffffff', outline: 'none', boxShadow: 'none', margin: 0, padding: '0.6rem 0' }}
+                />
               </div>
+            </div>
 
-              {status.message &&
-            <div style={{
+            {status.message && (
+              <div className={`p-3.5 rounded-xl text-xs flex items-start gap-2.5 ${
+                status.type === 'error'
+                  ? 'bg-red-500/10 border border-red-500/30 text-red-400'
+                  : 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
+              }`}>
+                {status.type === 'error' ? <AlertCircle size={16} className="shrink-0 mt-0.5" /> : <CheckCircle2 size={16} className="text-emerald-400 shrink-0 mt-0.5" />}
+                <span className="leading-relaxed">{status.message}</span>
+              </div>
+            )}
 
+            <button
+              type="submit"
+              disabled={status.type === 'loading'}
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-sm shadow-xl shadow-blue-600/30 transition-all cursor-pointer border-none disabled:opacity-50 mt-2"
+            >
+              {status.type === 'loading' ? 'Enviando...' : 'Enviar Enlace de Recuperación'}
+            </button>
+          </form>
+        )}
 
-
-
-              background: status.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : status.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
-              color: status.type === 'error' ? '#ef4444' : status.type === 'success' ? '#10b981' : 'var(--color-text-muted)'
-
-
-
-            }} className="p-[0.8rem] rounded-[8px] text-[0.9rem] mb-[1rem] flex items-center gap-[0.5rem]">
-                  {status.type === 'error' && <AlertCircle size={18} />}
-                  {status.type === 'success' && <CheckCircle2 size={18} />}
-                  {status.message}
-                </div>
-            }
-
-              <button type="submit" className="btn-glass-primary" disabled={status.type === 'loading'}>
-                {status.type === 'loading' ? 'Enviando...' : 'Enviar Enlace'}
-              </button>
-            </form>
-          </>
-        }
+        {/* Form Bottom Micro-copy & Trust */}
+        <div className="pt-6 mt-6 border-t border-white/10 text-center text-xs text-slate-400 flex items-center justify-center gap-4">
+          <span className="flex items-center gap-1.5">
+            <ShieldCheck size={14} className="text-emerald-400" />
+            <span>Conexión Segura TLS 256-bit</span>
+          </span>
+          <span>•</span>
+          <span>Soporte HyS</span>
+        </div>
       </div>
-    </div>);
-
+    </div>
+  );
 }

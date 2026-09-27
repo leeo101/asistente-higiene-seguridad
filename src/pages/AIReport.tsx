@@ -9,6 +9,7 @@ import CompanyLogo from '../components/CompanyLogo';
 import PdfSignatures from '../components/PdfSignatures';
 import { toast } from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { printElementAsDocument } from '../utils/pdfHelper';
 
 export default function AIReport(): React.ReactElement | null {
   const { requirePro, isPro, loading } = usePaywall();
@@ -61,17 +62,25 @@ export default function AIReport(): React.ReactElement | null {
 
   if (!data) return <div className="container">Cargando...</div>;
 
-  const handlePrint = () => requirePro(() => {
-    const el = document.getElementById('pdf-content');
-    if (el) {
-      document.body.classList.add('printing-isolated');
-      el.classList.add('isolated-print-target');
+  const handlePrint = () => requirePro(async () => {
+    try {
+      toast.loading('Preparando impresión...', { id: 'pdf-print' });
+      await printElementAsDocument('pdf-content', `Informe IA – ${company || 'Seguridad'}`);
+      toast.dismiss('pdf-print');
+    } catch (err) {
+      toast.dismiss('pdf-print');
+      console.error('Error al imprimir con iframe, usando fallback nativo:', err);
+      const el = document.getElementById('pdf-content');
+      if (el) {
+        document.body.classList.add('printing-isolated');
+        el.classList.add('isolated-print-target');
+      }
+      window.print();
+      setTimeout(() => {
+        document.body.classList.remove('printing-isolated');
+        if (el) el.classList.remove('isolated-print-target');
+      }, 1000);
     }
-    window.print();
-    setTimeout(() => {
-      document.body.classList.remove('printing-isolated');
-      if (el) el.classList.remove('isolated-print-target');
-    }, 1000);
   });
 
   return (
@@ -87,87 +96,14 @@ export default function AIReport(): React.ReactElement | null {
         fileName={`Informe_IA_${company?.replace(/\s+/g, '_') || 'Sin_Nombre'}.pdf`} 
       />
       
-      <div className="no-print flex justify-between items-center mb-8">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-none py-3 px-6 rounded-2xl font-black text-xs transition-all shadow-lg shadow-blue-500/25 cursor-pointer hover:scale-105 active:scale-95">
-          <ArrowLeft size={18} className="text-white" /> VOLVER AL HISTORIAL
+      <div className="no-print flex justify-between items-center mb-6">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white border-none py-2 px-4 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer">
+          <ArrowLeft size={16} className="text-white" /> VOLVER AL HISTORIAL
         </button>
       </div>
 
             <div id="pdf-content" className="card report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0 p-[1.5rem] sm:p-[2.5rem] min-h-0 h-auto bg-[#ffffff] text-[#1e293b] box-shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] relative">
 
-                {/* Header */}
-                <div className="grid grid-template-columns-[1fr_2fr_1fr] items-center border-bottom-[4px_solid_var(--color-primary)] pb-[1rem] mb-[1.2rem] w-[100%] gap-[1rem]">
-                    <div className="text-left">
-                        <p className="m-[0] font-[700] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.05em]">Sistema de Gestión</p>
-                        <p className="m-[0] font-[900] text-[0.75rem] uppercase text-[#1e293b]">Control H&S</p>
-                    </div>
-
-                    <div className="text-center">
-                        <h2 className="m-[0] text-[1.2rem] font-[900] text-[var(--color-primary)] uppercase letter-spacing-[1px] line-height-[1.2]">
-                            Informe de Inspección IA
-                        </h2>
-                        <p className="m-[4px_0_0_0] text-[0.65rem] text-[#64748b] font-[600]">Detección de Riesgos y EPP</p>
-                    </div>
-
-                    <div className="flex justify-end">
-                        <CompanyLogo className="h-[45px] w-[auto] max-w-[140px] object-fit-[contain]" />
-                    </div>
-                </div>
-
-                {profile &&
-        <div className="no-print mb-[1rem] text-right text-[0.8rem] text-[#64748b]">
-                        <p className="m-[0] font-[700]">Profesional: {profile.name} | Mat: {profile.license}</p>
-                    </div>
-        }
-
-                {/* Info Block */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-3 mb-6 bg-slate-50 p-4 rounded-lg border border-slate-200">
-                    <div>
-                        <p className="m-[0] text-[0.7rem] text-[#64748b]">Tipo de Inspección</p>
-                        <p className="m-[0] font-[800] text-[0.85rem] text-[var(--color-primary)]">
-                            {data.type === 'general_risks' ? 'DETECTAR RIESGOS GENERALES' : 'VERIFICAR EPP'}
-                        </p>
-                    </div>
-                    <div>
-                        <p className="m-[0] text-[0.7rem] text-[#64748b]">Empresa / Planta</p>
-                        <input
-              type="text"
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              className="no-print m-[0] p-[0.2rem_0] font-[600] text-[0.85rem] border-none border-bottom-[1px_solid_#e2e8f0] bg-[transparent] w-[100%]" />
-
-            
-                        <p className="print-only m-[0] font-[600] text-[0.85rem]">{company}</p>
-                    </div>
-                    <div>
-                        <p className="m-[0] text-[0.7rem] text-[#64748b]">Fecha del Escaneo</p>
-                        <p className="m-[0] font-[600] text-[0.85rem]">{new Date(data.date).toLocaleString()}</p>
-                    </div>
-                </div>
-
-                {/* Evidence Photo */}
-                <div className="mb-[1.5rem] text-center">
-                    <div className="relative inline-block border-[3px_solid_#fff] box-shadow-[0_5px_15px_rgba(0,0,0,0.1)] rounded-[12px] overflow-[hidden]">
-                        <img src={data.image} alt="Evidencia" className="max-w-[100%] max-h-[260px] object-contain block mx-auto" />
-                        {/* Simplified Overlay for Report */}
-                        {data.type === 'general_risks' ?
-            <div className="absolute top-[10px] right-[10px] bg-[rgba(59,_130,_246,_0.9)] text-[#fff] text-[0.8rem] font-[800] p-[4px_10px] rounded-[20px] border-[2px_solid_#fff]">ANÁLISIS ENTORNO</div> :
-            data.analysis?.ppeComplete ?
-            <div className="absolute top-[10px] right-[10px] bg-[rgba(16,_185,_129,_0.9)] text-[#fff] text-[0.8rem] font-[800] p-[4px_10px] rounded-[20px] border-[2px_solid_#fff]">✓ EPP O.K.</div> :
-
-            <div className="absolute top-[10px] right-[10px] bg-[rgba(239,_68,_68,_0.9)] text-[#fff] text-[0.8rem] font-[800] p-[4px_10px] rounded-[20px] border-[2px_solid_#fff]">⚠️ FALTA EPP</div>
-            }
-                    </div>
-                    <p className="mt-[0.5rem] text-[0.75rem] text-[#64748b] font-style-[italic]">Captura fotográfica del sistema de inspección ocular</p>
-                </div>
-
-
-
-
-
-
-
-        
                 {/* Header */}
                 <div className="grid grid-template-columns-[1fr_2fr_1fr] items-center border-bottom-[4px_solid_var(--color-primary)] pb-[1.5rem] mb-[2rem] w-[100%] gap-[1.5rem]">
                     <div className="text-left">
@@ -187,14 +123,14 @@ export default function AIReport(): React.ReactElement | null {
                     </div>
                 </div>
 
-                {profile &&
-        <div className="no-print mb-[1.5rem] text-right text-[0.8rem] text-[#64748b]">
+                {profile && (
+                    <div className="no-print mb-[1.5rem] text-right text-[0.8rem] text-[#64748b]">
                         <p className="m-[0] font-[700]">Profesional: {profile.name} | Mat: {profile.license}</p>
                     </div>
-        }
+                )}
 
                 {/* Info Block */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-4 mb-10 bg-slate-50 p-5 rounded-lg border border-slate-200">
+                <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-lg border border-slate-200">
                     <div>
                         <p className="m-[0] text-[0.7rem] text-[#64748b]">Tipo de Inspección</p>
                         <p className="m-[0] font-[800] text-[0.9rem] text-[var(--color-primary)]">
@@ -204,34 +140,52 @@ export default function AIReport(): React.ReactElement | null {
                     <div>
                         <p className="m-[0] text-[0.7rem] text-[#64748b]">Empresa / Planta</p>
                         <input
-              type="text"
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              className="no-print m-[0] p-[0.2rem_0] font-[600] text-[0.9rem] border-none border-bottom-[1px_solid_#e2e8f0] bg-[transparent] w-[100%]" />
-
-            
+                            type="text"
+                            value={company}
+                            onChange={(e) => setCompany(e.target.value)}
+                            className="no-print m-[0] p-[0.2rem_0] font-[600] text-[0.9rem] border-none border-bottom-[1px_solid_#e2e8f0] bg-[transparent] w-[100%]" 
+                        />
                         <p className="print-only m-[0] font-[600] text-[0.9rem]">{company}</p>
                     </div>
                     <div>
                         <p className="m-[0] text-[0.7rem] text-[#64748b]">Fecha del Escaneo</p>
-                        <p className="m-[0] font-[600] text-[0.9rem]">{new Date(data.date).toLocaleString()}</p>
+                        <p className="m-[0] font-[600] text-[0.9rem]">{new Date(data.date).toLocaleString('es-AR')}</p>
                     </div>
                 </div>
 
-                {/* Evidence Photo */}
-                <div className="mb-[3rem] text-center">
-                    <div className="relative inline-block border-[4px_solid_#fff] box-shadow-[0_5px_15px_rgba(0,0,0,0.1)] rounded-[12px] overflow-[hidden]">
-                        <img src={data.image} alt="Evidencia" className="max-w-[100%] max-height-[450px] block" />
-                        {/* Simplified Overlay for Report */}
-                        {data.type === 'general_risks' ?
-            <div className="absolute top-[10px] right-[10px] bg-[rgba(59,_130,_246,_0.9)] text-[#fff] text-[0.8rem] font-[800] p-[4px_10px] rounded-[20px] border-[2px_solid_#fff]">ANÁLISIS ENTORNO</div> :
-            data.analysis?.ppeComplete ?
-            <div className="absolute top-[10px] right-[10px] bg-[rgba(16,_185,_129,_0.9)] text-[#fff] text-[0.8rem] font-[800] p-[4px_10px] rounded-[20px] border-[2px_solid_#fff]">✓ EPP O.K.</div> :
-
-            <div className="absolute top-[10px] right-[10px] bg-[rgba(239,_68,_68,_0.9)] text-[#fff] text-[0.8rem] font-[800] p-[4px_10px] rounded-[20px] border-[2px_solid_#fff]">⚠️ FALTA EPP</div>
-            }
+                {/* Evidence Photo (Única foto con protección de salto de página y CORS) */}
+                <div className="mb-6 text-center avoid-break break-inside-avoid">
+                    <div className="relative inline-block border-2 border-slate-200 shadow-md rounded-xl overflow-hidden bg-slate-50">
+                        {data.image ? (
+                            <img 
+                                src={data.image} 
+                                alt="Evidencia fotográfica" 
+                                crossOrigin="anonymous"
+                                className="max-w-full block mx-auto object-contain rounded-lg" 
+                                style={{ maxHeight: '280px', width: 'auto', margin: '0 auto' }} 
+                            />
+                        ) : (
+                            <div className="text-slate-400 text-xs p-8 flex flex-col items-center justify-center">
+                                <Info size={32} className="mb-2 text-slate-300" />
+                                <span>Imagen no disponible localmente</span>
+                            </div>
+                        )}
+                        {/* Overlay sobre la foto */}
+                        {data.type === 'general_risks' ? (
+                            <div className="absolute top-2.5 right-2.5 bg-blue-600/90 text-white text-xs font-black px-3 py-1 rounded-full border border-white shadow">
+                                ANÁLISIS ENTORNO
+                            </div>
+                        ) : data.analysis?.ppeComplete ? (
+                            <div className="absolute top-2.5 right-2.5 bg-emerald-600/90 text-white text-xs font-black px-3 py-1 rounded-full border border-white shadow">
+                                ✓ EPP O.K.
+                            </div>
+                        ) : (
+                            <div className="absolute top-2.5 right-2.5 bg-rose-600/90 text-white text-xs font-black px-3 py-1 rounded-full border border-white shadow">
+                                ⚠️ FALTA EPP
+                            </div>
+                        )}
                     </div>
-                    <p className="mt-[0.8rem] text-[0.8rem] text-[#64748b] font-style-[italic]">Captura fotográfica del sistema de inspección ocular</p>
+                    <p className="mt-2 text-xs text-slate-500 italic">Captura fotográfica del sistema de inspección ocular</p>
                 </div>
 
                 {/* Analysis Results */}
@@ -484,16 +438,15 @@ export default function AIReport(): React.ReactElement | null {
                 </div>
             </div>
 
-            {/* Floating Action Buttons Modernos */}
-            <div className="no-print floating-action-bar fixed bottom-[2rem] left-[50%] transform-[translateX(-50%)] flex gap-[1rem] z-[100] bg-[rgba(255,255,255,0.8)] backdrop-filter-[blur(15px)] p-[0.8rem_1.5rem] rounded-[100px] box-shadow-[0_10px_40px_rgba(0,0,0,0.1)] border-[1px_solid_rgba(255,255,255,0.5)]">
-                <button onClick={() => toast.success('Los reportes de IA se guardan automáticamente en tu Historial.')} className="h-[46px] p-[0_1.5rem] rounded-[23px] flex items-center gap-[0.5rem] font-[800] text-[0.8rem] text-white bg-[linear-gradient(135deg,_#10b981_0%,_#059669_100%)] border-none cursor-pointer box-shadow-[0_4px_15px_rgba(16,185,129,0.4)] transition-all duration-300 hover:scale-[1.05] hover:box-shadow-[0_6px_20px_rgba(16,185,129,0.6)]">
-                    <CheckCircle2 size={18} /> GUARDADO
+            <div className="no-print floating-action-bar fixed bottom-[2rem] left-[50%] -translate-x-1/2 flex gap-3 z-[100] bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-2 px-4 rounded-full shadow-2xl border border-slate-200 dark:border-slate-700">
+                <button onClick={() => toast.success('Los reportes de IA se guardan automáticamente en tu Historial.')} className="h-[38px] px-4 rounded-full flex items-center gap-2 font-bold text-xs text-white bg-slate-700 hover:bg-slate-600 border-none cursor-pointer shadow-sm transition-all">
+                    <CheckCircle2 size={16} /> GUARDADO
                 </button>
-                <button onClick={() => requirePro(() => setShowShare(true))} className="h-[46px] p-[0_1.5rem] rounded-[23px] flex items-center gap-[0.5rem] font-[800] text-[0.8rem] text-white bg-[linear-gradient(135deg,_#3b82f6_0%,_#1d4ed8_100%)] border-none cursor-pointer box-shadow-[0_4px_15px_rgba(59,130,246,0.4)] transition-all duration-300 hover:scale-[1.05] hover:box-shadow-[0_6px_20px_rgba(59,130,246,0.6)]">
-                    <Share2 size={18} /> COMPARTIR
+                <button onClick={() => requirePro(() => setShowShare(true))} className="h-[38px] px-4 rounded-full flex items-center gap-2 font-bold text-xs text-white bg-[#0284c7] hover:bg-sky-500 border-none cursor-pointer shadow-sm transition-all">
+                    <Share2 size={16} /> COMPARTIR
                 </button>
-                <button onClick={handlePrint} className="h-[46px] p-[0_1.5rem] rounded-[23px] flex items-center gap-[0.5rem] font-[800] text-[0.8rem] text-white bg-[linear-gradient(135deg,_#ec4899_0%,_#be185d_100%)] border-none cursor-pointer box-shadow-[0_4px_15px_rgba(236,72,153,0.4)] transition-all duration-300 hover:scale-[1.05] hover:box-shadow-[0_6px_20px_rgba(236,72,153,0.6)]">
-                    <Printer size={18} /> IMPRIMIR PDF
+                <button onClick={handlePrint} className="h-[38px] px-4 rounded-full flex items-center gap-2 font-bold text-xs text-white bg-[#059669] hover:bg-emerald-500 border-none cursor-pointer shadow-sm transition-all">
+                    <Printer size={16} /> IMPRIMIR PDF
                 </button>
             </div>
 

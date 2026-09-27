@@ -19,13 +19,13 @@ export function ModuleActionBar({ actions, className = '' }: ModuleActionBarProp
         className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 p-2 sm:p-2.5 rounded-full bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 shadow-[0_10px_30px_rgba(0,0,0,0.18)] max-w-fit mx-auto transition-all"
       >
         {actions.map((action) => {
-          let bgColor = '#3b82f6';
-          let hoverColor = '#2563eb';
-          if (action.variant === 'secondary') { bgColor = '#8b5cf6'; hoverColor = '#7c3aed'; }
-          if (action.variant === 'danger') { bgColor = '#ef4444'; hoverColor = '#dc2626'; }
-          if (action.variant === 'warning') { bgColor = '#f59e0b'; hoverColor = '#d97706'; }
-          if (action.variant === 'info') { bgColor = '#0ea5e9'; hoverColor = '#0284c7'; }
-          if (action.variant === 'primary') { bgColor = '#10b981'; hoverColor = '#059669'; }
+          let bgColor = '#2563eb';
+          let hoverColor = '#1d4ed8';
+          if (action.variant === 'secondary') { bgColor = '#475569'; hoverColor = '#334155'; }
+          if (action.variant === 'danger') { bgColor = '#dc2626'; hoverColor = '#b91c1c'; }
+          if (action.variant === 'warning') { bgColor = '#d97706'; hoverColor = '#b45309'; }
+          if (action.variant === 'info') { bgColor = '#0284c7'; hoverColor = '#0369a1'; }
+          if (action.variant === 'primary') { bgColor = '#059669'; hoverColor = '#047857'; }
 
           const isDisabled = action.disabled || action.loading;
 

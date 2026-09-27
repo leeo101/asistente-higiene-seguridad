@@ -60,7 +60,17 @@ const MODULES = [
 { nav: '/lifting-form', icon: <Truck size={17} />, label: 'Izaje y Grúas', sub: 'Plan de Izaje Crítico', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
 { nav: '/fleet-form', icon: <Truck size={17} />, label: 'Flota y Vehículos', sub: 'Inspección Pre-Operacional', color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)' },
 { nav: '/evacuation-history', icon: <Timer size={17} />, label: 'Simulador de Evacuación', sub: 'Cálculo de Tiempos', color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },
-{ nav: '/legajos', icon: <FileText size={17} />, label: 'Legajos Técnicos', sub: 'Decreto 351/79', color: '#eab308', bg: 'rgba(234,179,8,0.1)' }];
+{ nav: '/legajos', icon: <FileText size={17} />, label: 'Legajos Técnicos', sub: 'Decreto 351/79', color: '#eab308', bg: 'rgba(234,179,8,0.1)' },
+
+// 8 Nuevos Módulos Suite Integral
+{ nav: '/hot-work', icon: <Flame size={17} />, label: 'Trabajo en Caliente', sub: 'Permiso NFPA 51B y Vigía', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+{ nav: '/construction-safety-program', icon: <HardHat size={17} />, label: 'Programa de Seguridad Obra', sub: 'Dec. 911/96 y Res. SRT 51/97', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+{ nav: '/hazardous-waste', icon: <Beaker size={17} />, label: 'Residuos Peligrosos', sub: 'Libro Ley 24.051 y Manifiestos', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)' },
+{ nav: '/excavations', icon: <AlertTriangle size={17} />, label: 'Excavaciones y Zanjas', sub: 'Estabilidad y Entibados Dec. 911/96', color: '#d97706', bg: 'rgba(217,119,6,0.1)' },
+{ nav: '/atex', icon: <Zap size={17} />, label: 'Atmósferas Explosivas (ATEX)', sub: 'Zonas IEC 60079 y Equipos Ex', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+{ nav: '/first-aid-aed', icon: <ShieldAlert size={17} />, label: 'Primeros Auxilios y DEA', sub: 'Cardioprotección Ley 27.159', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+{ nav: '/arc-flash', icon: <Zap size={17} />, label: 'Arco Eléctrico (Arc Flash)', sub: 'NFPA 70E y Res. SRT 3068/14', color: '#eab308', bg: 'rgba(234,179,8,0.1)' },
+{ nav: '/industrial-environment', icon: <Droplets size={17} />, label: 'Efluentes y Emisiones', sub: 'Monitoreo Ambiental Ley 25.675', color: '#0d9488', bg: 'rgba(13,148,136,0.1)' }];
 
 
 // ─── Acciones Rápidas ─────────────────────────────────────────────────────────

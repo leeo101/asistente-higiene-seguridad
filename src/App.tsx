@@ -17,6 +17,9 @@ import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider, useSync } from './contexts/SyncContext';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { CompanyProvider, useCompany } from './contexts/CompanyContext';
+import CompanySelectorModal from './components/CompanySelectorModal';
+import OfflineStatusBar from './components/OfflineStatusBar';
 import LanguageSelector from './components/LanguageSelector';
 import SyncStatusIndicator from './components/SyncStatusIndicator';
 import { Toaster, toast } from 'react-hot-toast';
@@ -25,6 +28,7 @@ import { usePaywall } from './hooks/usePaywall';
 import NativePermissionRequester from './components/NativePermissionRequester';
 import AutoAdsManager from './components/ads/AutoAdsManager';
 import OnboardingTour from './components/OnboardingTour';
+import { Building2 } from 'lucide-react';
 // Custom lazy loader that catches chunk errors and reloads
 const lazyWithRetry = (componentImport: () => Promise<any>) =>
   lazy(async () => {
@@ -139,6 +143,24 @@ const IncidentHeatmap = lazyWithRetry(() => import('./pages/IncidentHeatmap'));
 const AccidentHistory = lazyWithRetry(() => import('./pages/AccidentHistory'));
 const TrustCenter = lazyWithRetry(() => import('./pages/TrustCenter'));
 const AssetQRScanner = lazyWithRetry(() => import('./pages/AssetQRScanner'));
+const AuditorPortal = lazyWithRetry(() => import('./pages/AuditorPortal'));
+
+// 8 NUEVOS MÓDULOS SUITE INTEGRAL
+const HotWorkPermit = lazyWithRetry(() => import('./pages/HotWorkPermit'));
+const HotWorkPermitForm = lazyWithRetry(() => import('./pages/HotWorkPermitForm'));
+const ConstructionSafetyProgram = lazyWithRetry(() => import('./pages/ConstructionSafetyProgram'));
+const ConstructionSafetyProgramForm = lazyWithRetry(() => import('./pages/ConstructionSafetyProgramForm'));
+const HazardousWasteManager = lazyWithRetry(() => import('./pages/HazardousWasteManager'));
+const HazardousWasteForm = lazyWithRetry(() => import('./pages/HazardousWasteForm'));
+const ExcavationSafetyManager = lazyWithRetry(() => import('./pages/ExcavationSafetyManager'));
+const ExcavationSafetyForm = lazyWithRetry(() => import('./pages/ExcavationSafetyForm'));
+const ATEXManager = lazyWithRetry(() => import('./pages/ATEXManager'));
+const ATEXAssessmentForm = lazyWithRetry(() => import('./pages/ATEXAssessmentForm'));
+const FirstAidAEDManager = lazyWithRetry(() => import('./pages/FirstAidAEDManager'));
+const ArcFlashManager = lazyWithRetry(() => import('./pages/ArcFlashManager'));
+const ArcFlashPermitForm = lazyWithRetry(() => import('./pages/ArcFlashPermitForm'));
+const IndustrialEnvironmentManager = lazyWithRetry(() => import('./pages/IndustrialEnvironmentManager'));
+const IndustrialEnvironmentForm = lazyWithRetry(() => import('./pages/IndustrialEnvironmentForm'));
 
 // SAFETY MODULE FORMS
 const AuditForm = lazyWithRetry(() => import('./pages/AuditForm'));
@@ -394,6 +416,8 @@ function ScrollToTop() {
 
 function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v: boolean) => void, setIsSearchOpen: (v: boolean) => void }) {
   const { currentUser } = useAuth();
+  const { activeCompany } = useCompany();
+  const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const location = useLocation();
   const showMenuButton = !!currentUser && location.pathname !== '/login' && location.pathname !== '/subscribe' && location.pathname !== '/ai-camera';
   
@@ -402,83 +426,120 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
   if (!showMenuButton) return null;
 
   return (
-    <div
-      className="glass-panel top-header-panel no-print"
-      style={{
-        position: 'fixed',
-        top: '1rem',
-        left: '1rem',
-        right: '1rem',
-        display: 'flex',
-        alignItems: 'center',
-        zIndex: 10,
-        background: isDashboard ? 'rgba(2, 6, 23, 0.5)' : 'var(--glass-bg-header)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderRadius: 'var(--radius-2xl)',
-        border: isDashboard ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid var(--glass-border)',
-        boxShadow: isDashboard ? '0 4px 30px rgba(0, 0, 0, 0.1)' : 'var(--glass-shadow)',
-        transition: 'all var(--transition-base)'
-      }}>
-      <button
-        className="hide-on-mobile"
-        onClick={() => setIsSidebarOpen(true)}
-        aria-label="Abrir menú"
+    <>
+      <div
+        className="glass-panel top-header-panel no-print"
         style={{
-          background: isDashboard ? 'rgba(255, 255, 255, 0.05)' : 'var(--color-background)',
-          border: isDashboard ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid var(--color-border)',
-          borderRadius: '12px',
-          width: '42px',
-          height: '42px',
-          padding: '0',
-          cursor: 'pointer',
+          position: 'fixed',
+          top: '1rem',
+          left: '1rem',
+          right: '1rem',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          color: isDashboard ? '#ffffff' : 'var(--color-primary)',
-          boxShadow: isDashboard ? 'none' : 'var(--shadow-sm)',
+          zIndex: 10,
+          background: isDashboard ? 'rgba(2, 6, 23, 0.5)' : 'var(--glass-bg-header)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderRadius: 'var(--radius-2xl)',
+          border: isDashboard ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid var(--glass-border)',
+          boxShadow: isDashboard ? '0 4px 30px rgba(0, 0, 0, 0.1)' : 'var(--glass-shadow)',
           transition: 'all var(--transition-base)'
-        }}
-      >
-        <Menu weight="bold" size={22} />
-      </button>
-      <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: isDashboard ? '#ffffff' : 'var(--color-text)', flex: 1, minWidth: 0, transition: 'opacity var(--transition-fast)' }}>
-        <img src={localStorage.getItem('companyLogo') || "/logo.png"} alt="Logo" style={{ width: '44px', height: '44px', flexShrink: 0, objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(59, 130, 246, 0.2))' }} />
-        <h1 className="header-title" style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: isDashboard ? '#ffffff' : 'var(--color-text)', letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Asistente HYS</h1>
-      </Link>
-      <button
-        onClick={() => setIsSearchOpen(true)}
-        aria-label="Buscar"
-        title="Buscar (Ctrl+K)"
-        style={{
-          background: isDashboard ? 'rgba(255, 255, 255, 0.08)' : 'var(--color-background)',
-          border: isDashboard ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid var(--color-border)',
-          borderRadius: '12px',
-          height: '42px',
-          padding: '0 0.8rem',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.6rem',
-          color: isDashboard ? 'rgba(255, 255, 255, 0.8)' : 'var(--color-text-muted)',
-          flexShrink: 0,
-          boxShadow: isDashboard ? 'none' : 'var(--shadow-sm)',
-          transition: 'all var(--transition-base)'
-        }}
-        className="hover:scale-[1.02] active:scale-[0.98]"
-      >
-        <Search weight="bold" size={20} />
-        <span className="hide-on-mobile text-[0.82rem] font-[600] opacity-80">Buscar…</span>
-        <kbd className="hide-on-mobile ml-1 px-1.5 py-0.5 text-[0.65rem] font-[800] rounded-md bg-[rgba(255,255,255,0.12)] text-[var(--color-text-muted)] border border-[rgba(255,255,255,0.15)] shadow-xs">
-          Ctrl K
-        </kbd>
-      </button>
-      <HeaderNotifications />
-      <div className="flex items-center gap-2">
-        <LanguageSelector />
-        <SyncStatusIndicator />
+        }}>
+        <button
+          className="hide-on-mobile"
+          onClick={() => setIsSidebarOpen(true)}
+          aria-label="Abrir menú"
+          style={{
+            background: isDashboard ? 'rgba(255, 255, 255, 0.05)' : 'var(--color-background)',
+            border: isDashboard ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid var(--color-border)',
+            borderRadius: '12px',
+            width: '42px',
+            height: '42px',
+            padding: '0',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: isDashboard ? '#ffffff' : 'var(--color-primary)',
+            boxShadow: isDashboard ? 'none' : 'var(--shadow-sm)',
+            transition: 'all var(--transition-base)'
+          }}
+        >
+          <Menu weight="bold" size={22} />
+        </button>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: isDashboard ? '#ffffff' : 'var(--color-text)', flex: 1, minWidth: 0, transition: 'opacity var(--transition-fast)' }}>
+          <img src={localStorage.getItem('companyLogo') || "/logo.png"} alt="Logo" style={{ width: '44px', height: '44px', flexShrink: 0, objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(59, 130, 246, 0.2))' }} />
+          <h1 className="header-title" style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: isDashboard ? '#ffffff' : 'var(--color-text)', letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Asistente HYS</h1>
+        </Link>
+
+        {/* Global Company Selector Chip */}
+        <button
+          type="button"
+          onClick={() => setIsCompanyModalOpen(true)}
+          className="hide-on-mobile"
+          style={{
+            background: isDashboard ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.08)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: '12px',
+            height: '42px',
+            padding: '0 0.8rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            color: isDashboard ? '#93c5fd' : '#2563eb',
+            fontSize: '0.8rem',
+            fontWeight: 800,
+            maxWidth: '220px',
+            transition: 'all var(--transition-base)'
+          }}
+          title="Cambiar empresa activa (Multi-empresa)"
+        >
+          <Building2 size={16} style={{ flexShrink: 0 }} />
+          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {activeCompany ? activeCompany.name : 'Todas las Empresas'}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setIsSearchOpen(true)}
+          aria-label="Buscar"
+          title="Buscar (Ctrl+K)"
+          style={{
+            background: isDashboard ? 'rgba(255, 255, 255, 0.08)' : 'var(--color-background)',
+            border: isDashboard ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid var(--color-border)',
+            borderRadius: '12px',
+            height: '42px',
+            padding: '0 0.8rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.6rem',
+            color: isDashboard ? 'rgba(255, 255, 255, 0.8)' : 'var(--color-text-muted)',
+            flexShrink: 0,
+            boxShadow: isDashboard ? 'none' : 'var(--shadow-sm)',
+            transition: 'all var(--transition-base)'
+          }}
+          className="hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <Search weight="bold" size={20} />
+          <span className="hide-on-mobile text-[0.82rem] font-[600] opacity-80">Buscar…</span>
+          <kbd className="hide-on-mobile ml-1 px-1.5 py-0.5 text-[0.65rem] font-[800] rounded-md bg-[rgba(255,255,255,0.12)] text-[var(--color-text-muted)] border border-[rgba(255,255,255,0.15)] shadow-xs">
+            Ctrl K
+          </kbd>
+        </button>
+        <HeaderNotifications />
+        <div className="flex items-center gap-2">
+          <LanguageSelector />
+          <SyncStatusIndicator />
+        </div>
       </div>
-    </div>
+
+      <CompanySelectorModal
+        isOpen={isCompanyModalOpen}
+        onClose={() => setIsCompanyModalOpen(false)}
+      />
+    </>
   );
 }
 
@@ -520,15 +581,17 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <NativePermissionRequester />
-        <SyncProvider>
-          <ScrollToTop />
-          <GlobalPrintGuard />
-          <PushNotificationEnabler />
-          <ThemeApplier />
-          <OnboardingTour />
-          <NetworkBadge />
-        <OfflineIndicator />
+        <CompanyProvider>
+          <NativePermissionRequester />
+          <SyncProvider>
+            <ScrollToTop />
+            <GlobalPrintGuard />
+            <PushNotificationEnabler />
+            <ThemeApplier />
+            <OnboardingTour />
+            <NetworkBadge />
+            <OfflineIndicator />
+            <OfflineStatusBar />
         <Toaster
           position="top-center"
           reverseOrder={false}
@@ -636,6 +699,30 @@ function App() {
                   <Route path="/ai-general-camera-manager" element={<AIGeneralCameraManager />} />
                   <Route path="/lighting" element={<LightingReport />} />
 
+                  {/* 8 NUEVOS MÓDULOS SUITE INTEGRAL */}
+                  <Route path="/hot-work" element={<ProtectedRoute><HotWorkPermit /></ProtectedRoute>} />
+                  <Route path="/hot-work/new" element={<ProtectedRoute><HotWorkPermitForm /></ProtectedRoute>} />
+
+                  <Route path="/construction-safety-program" element={<ProtectedRoute><ConstructionSafetyProgram /></ProtectedRoute>} />
+                  <Route path="/construction-safety-program/new" element={<ProtectedRoute><ConstructionSafetyProgramForm /></ProtectedRoute>} />
+
+                  <Route path="/hazardous-waste" element={<ProtectedRoute><HazardousWasteManager /></ProtectedRoute>} />
+                  <Route path="/hazardous-waste/new" element={<ProtectedRoute><HazardousWasteForm /></ProtectedRoute>} />
+
+                  <Route path="/excavations" element={<ProtectedRoute><ExcavationSafetyManager /></ProtectedRoute>} />
+                  <Route path="/excavations/new" element={<ProtectedRoute><ExcavationSafetyForm /></ProtectedRoute>} />
+
+                  <Route path="/atex" element={<ProtectedRoute><ATEXManager /></ProtectedRoute>} />
+                  <Route path="/atex/new" element={<ProtectedRoute><ATEXAssessmentForm /></ProtectedRoute>} />
+
+                  <Route path="/first-aid-aed" element={<ProtectedRoute><FirstAidAEDManager /></ProtectedRoute>} />
+
+                  <Route path="/arc-flash" element={<ProtectedRoute><ArcFlashManager /></ProtectedRoute>} />
+                  <Route path="/arc-flash/new" element={<ProtectedRoute><ArcFlashPermitForm /></ProtectedRoute>} />
+
+                  <Route path="/industrial-environment" element={<ProtectedRoute><IndustrialEnvironmentManager /></ProtectedRoute>} />
+                  <Route path="/industrial-environment/new" element={<ProtectedRoute><IndustrialEnvironmentForm /></ProtectedRoute>} />
+
                   {/* Dashboard & Tools */}
                   <Route path="/risk" element={<RiskAssessment />} />
                   <Route path="/report" element={<Report />} />
@@ -701,6 +788,7 @@ function App() {
                   <Route path="/legajos/nuevo" element={<ProtectedRoute><LegajoForm /></ProtectedRoute>} />
                   <Route path="/legajos/editar/:id" element={<ProtectedRoute><LegajoForm /></ProtectedRoute>} />
 
+                  <Route path="/auditor/:token" element={<AuditorPortal />} />
                   <Route path="/risk-matrix-history" element={<ProtectedRoute><History view="matrices" /></ProtectedRoute>} />
                   <Route path="/matrices" element={<Navigate to="/risk-matrix" replace />} />
                   <Route path="*" element={<NotFound />} />
@@ -718,8 +806,9 @@ function App() {
           <AutoAdsManager />
         </div>
       </SyncProvider>
-    </AuthProvider >
-  </LanguageProvider>
+    </CompanyProvider>
+  </AuthProvider>
+</LanguageProvider>
   );
 }
 

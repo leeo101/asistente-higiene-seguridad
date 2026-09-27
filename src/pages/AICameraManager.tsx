@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import ConfirmModal from '../components/ConfirmModal';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Search, Trash2, Camera, Calendar, Building2, ShieldCheck, TriangleAlert, Share2, FileText, QrCode, Download, BarChart2, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Camera, Search, Download, FileSpreadsheet,
+  FileText, Share2, QrCode, Trash2, Calendar, Building2,
+  AlertTriangle, CheckCircle2, BarChart2, Eye, ShieldCheck,
+  Plus, Layers, ShieldAlert, Sparkles, TriangleAlert
+} from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
@@ -11,20 +15,10 @@ import { downloadCSV } from '../services/exportCsv';
 import ShareModal from '../components/ShareModal';
 import AiReportPdfGenerator from '../components/AiReportPdfGenerator';
 import PremiumHeader from '../components/PremiumHeader';
+import AnimatedPage from '../components/AnimatedPage';
+import ConfirmModal from '../components/ConfirmModal';
+import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import { usePaywall } from '../hooks/usePaywall';
-
-function DeleteConfirm({ onConfirm, onCancel }: any) {
-  return (
-    <ConfirmModal
-      isOpen={true}
-      onClose={onCancel}
-      onConfirm={onConfirm}
-      title="¿Eliminar registro?"
-      message="Esta acción eliminará el informe de inspección EPP permanentemente."
-      iconEmoji="🗑️" 
-    />
-  );
-}
 
 export default function AICameraManager(): React.ReactElement | null {
   const { isPro, loading } = usePaywall();
@@ -33,9 +27,10 @@ export default function AICameraManager(): React.ReactElement | null {
   const { currentUser } = useAuth();
   const [history, setHistory] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [deleteTarget, setDeleteTarget] = useState<any>(null);
-  const [qrTarget, setQrTarget] = useState<any>(null);
-  const [shareItem, setShareItem] = useState<any>(null);
+  const [filterStatus, setFilterStatus] = useState<'all' | 'ok' | 'fail'>('all');
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [qrTarget, setQrTarget] = useState<{ text: string; title: string } | null>(null);
+  const [shareItem, setShareItem] = useState<any | null>(null);
 
   useEffect(() => {
     if (!loading && !isPro) {
@@ -61,30 +56,17 @@ export default function AICameraManager(): React.ReactElement | null {
     } catch {
       setHistory([]);
     }
-  }, [syncPulse]);
+  }, [syncPulse, loading, isPro]);
 
-  const confirmDelete = () => {
-    const raw = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
-    const updated = raw.filter((item: any) => item.id !== deleteTarget);
+  // Métricas para las 4 KPI cards estilo Aptitudes Médicas
+  const metrics = useMemo(() => {
+    const total = history.length;
+    const eppOk = history.filter((i: any) => i.ppeComplete).length;
+    const eppFail = history.filter((i: any) => i.ppeComplete === false).length;
+    const compliance = total > 0 ? Math.round((eppOk / Math.max(eppOk + eppFail, 1)) * 100) : 0;
 
-    localStorage.setItem('ai_camera_history', JSON.stringify(updated));
-    localStorage.removeItem(`ai_report_full_${deleteTarget}`);
-    syncCollection('ai_camera_history', updated);
-
-    setHistory(history.filter((item) => item.id !== deleteTarget));
-    setDeleteTarget(null);
-    toast.success("Inspección eliminada correctamente");
-  };
-
-  const filtered = history.filter((item) =>
-    item.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.location?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const total = history.length;
-  const eppOk = history.filter((i) => i.ppeComplete).length;
-  const eppFail = history.filter((i) => i.ppeComplete === false).length;
-  const compliance = total > 0 ? Math.round(eppOk / Math.max(eppOk + eppFail, 1) * 100) : 0;
+    return { total, eppOk, eppFail, compliance };
+  }, [history]);
 
   const getWeeklyStats = () => {
     const stats = [];
@@ -97,15 +79,15 @@ export default function AICameraManager(): React.ReactElement | null {
       end.setDate(now.getDate() - i * 7);
       end.setHours(23, 59, 59, 999);
 
-      const weekItems = history.filter((item) => {
+      const weekItems = history.filter((item: any) => {
         const d = new Date(item.date);
         return d >= start && d <= end;
       });
 
       const wTotal = weekItems.length;
-      const wOk = weekItems.filter((item) => item.ppeComplete).length;
-      const wFail = weekItems.filter((item) => item.ppeComplete === false).length;
-      const wComp = wTotal > 0 ? Math.round(wOk / Math.max(wOk + wFail, 1) * 100) : 0;
+      const wOk = weekItems.filter((item: any) => item.ppeComplete).length;
+      const wFail = weekItems.filter((item: any) => item.ppeComplete === false).length;
+      const wComp = wTotal > 0 ? Math.round((wOk / Math.max(wOk + wFail, 1)) * 100) : 0;
 
       stats.push({ label: i === 0 ? 'Esta sem.' : `Hace ${i} sem.`, value: wComp, count: wTotal });
     }
@@ -113,15 +95,53 @@ export default function AICameraManager(): React.ReactElement | null {
   };
   const weeklyStats = getWeeklyStats();
 
+  const filtered = useMemo(() => {
+    return history.filter((item: any) => {
+      if (filterStatus === 'ok' && !item.ppeComplete) return false;
+      if (filterStatus === 'fail' && item.ppeComplete) return false;
+
+      if (searchTerm) {
+        const q = searchTerm.toLowerCase();
+        return (
+          item.company?.toLowerCase().includes(q) ||
+          item.location?.toLowerCase().includes(q)
+        );
+      }
+      return true;
+    });
+  }, [history, filterStatus, searchTerm]);
+
+  const confirmDelete = () => {
+    if (!deleteTarget) return;
+    const raw = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
+    const updated = raw.filter((item: any) => item.id !== deleteTarget);
+
+    localStorage.setItem('ai_camera_history', JSON.stringify(updated));
+    localStorage.removeItem(`ai_report_full_${deleteTarget}`);
+    syncCollection('ai_camera_history', updated);
+
+    setHistory(history.filter((item: any) => item.id !== deleteTarget));
+    setDeleteTarget(null);
+    toast.success("Inspección de EPP eliminada");
+  };
+
   const handleExportCSV = () => {
-    downloadCSV(filtered.map((i) => ({
-      empresa: i.company, 
+    if (filtered.length === 0) {
+      toast.error('No hay inspecciones para exportar.');
+      return;
+    }
+    downloadCSV(filtered.map((i: any) => ({
+      empresa: i.company,
       ubicacion: i.location,
       fecha: i.date ? new Date(i.date).toLocaleDateString('es-AR') : '',
       resultado: i.ppeComplete ? 'EPP OK' : 'Falta EPP'
     })), 'camara_epp_historial', {
-      empresa: 'Empresa', ubicacion: 'Ubicación', fecha: 'Fecha', resultado: 'Resultado'
+      empresa: 'Empresa',
+      ubicacion: 'Ubicación',
+      fecha: 'Fecha',
+      resultado: 'Resultado'
     });
+    toast.success('CSV de Inspecciones EPP exportado');
   };
 
   if (loading) {
@@ -135,350 +155,475 @@ export default function AICameraManager(): React.ReactElement | null {
   if (!isPro) return null;
 
   return (
-    <div className="container max-w-5xl mx-auto pt-8 md:pt-12 pb-24 px-4">
-      {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
-      {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
+    <AnimatedPage>
+      <div className="container pb-[6rem] min-h-[100vh] flex flex-col pt-4">
+        {/* Modales de soporte */}
+        {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
 
-      <ShareModal
-        isOpen={!!shareItem && !document.body.classList.contains('printing-isolated')}
-        open={!!shareItem && !document.body.classList.contains('printing-isolated')}
-        onClose={() => setShareItem(null)}
-        title={`Inspección EPP IA - ${shareItem?.company || ''}`}
-        text={shareItem ? `📸 Inspección de EPP con IA\n🏗️ Empresa: ${shareItem.company || 'Local'}\n🛡️ Resultado: ${shareItem.ppeComplete ? '✅ EPP OK' : '⚠️ Falta EPP'}` : ''}
-        rawMessage={shareItem ? `📸 Inspección de EPP con IA\n🏗️ Empresa: ${shareItem.company || 'Local'}\n🛡️ Resultado: ${shareItem.ppeComplete ? '✅ EPP OK' : '⚠️ Falta EPP'}` : ''}
-        elementIdToPrint="pdf-content"
-        fileName={`Inspeccion_EPP_${shareItem?.company || 'Sin_Nombre'}.pdf`}
-      />
-
-      {typeof document !== 'undefined' && createPortal(
-        <div className="ats-pdf-offscreen">
-          {shareItem && <AiReportPdfGenerator item={shareItem} />}
-        </div>,
-        document.body
-      )}
-
-      {/* Header Premium - Color Dorado Solicitado */}
-      <div className="no-print mb-8">
-        <PremiumHeader
-          title="Cámara IA (EPP)"
-          subtitle="Detección y cumplimiento de EPP en tiempo real"
-          icon={<Camera size={36} color="#ffffff" />}
-          color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+        <ShareModal
+          isOpen={!!shareItem && !document.body.classList.contains('printing-isolated')}
+          open={!!shareItem && !document.body.classList.contains('printing-isolated')}
+          onClose={() => setShareItem(null)}
+          title={`Inspección EPP IA - ${shareItem?.company || ''}`}
+          text={shareItem ? `📸 Inspección de EPP con IA\n🏗️ Empresa: ${shareItem.company || 'Local'}\n🛡️ Resultado: ${shareItem.ppeComplete ? '✅ EPP OK' : '⚠️ Falta EPP'}` : ''}
+          rawMessage={shareItem ? `📸 Inspección de EPP con IA\n🏗️ Empresa: ${shareItem.company || 'Local'}\n🛡️ Resultado: ${shareItem.ppeComplete ? '✅ EPP OK' : '⚠️ Falta EPP'}` : ''}
+          elementIdToPrint="pdf-content"
+          fileName={`Inspeccion_EPP_${shareItem?.company || 'Sin_Nombre'}.pdf`}
         />
-        
-        <div className="flex justify-between items-center flex-wrap gap-4 mt-6">
-          <div className="flex items-center gap-2 font-bold text-sm" style={{ color: 'var(--color-text)' }}>
-            <Sparkles size={20} style={{ color: '#f59e0b' }} />
-            <span>Red Neuronal de Visión Artificial EHS</span>
+
+        {typeof document !== 'undefined' && createPortal(
+          <div className="ats-pdf-offscreen">
+            {shareItem && <AiReportPdfGenerator item={shareItem} />}
+          </div>,
+          document.body
+        )}
+
+        {/* Encabezado Premium Sobrio y Profesional */}
+        <PremiumHeader
+          title="Cámara IA — Detección de EPP"
+          subtitle="Verificación automatizada en tiempo real de cascos y elementos de protección personal"
+          badge="ISO 45001 & Dec. 351/79"
+          icon={<Camera size={36} color="#ffffff" />}
+          gradient="linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #075985 100%)"
+          onBack={() => navigate('/')}
+        />
+
+        {/* 4 Tarjetas KPI interactivas estilo Aptitudes Médicas */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div
+            onClick={() => setFilterStatus('all')}
+            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              filterStatus === 'all'
+                ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 shadow-md'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-blue-400'
+            }`}
+          >
+            <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Total Escaneos</span>
+              <Layers size={20} />
+            </div>
+            <div className="text-2xl font-black text-slate-900 dark:text-white">{metrics.total}</div>
+            <span className="text-[11px] text-slate-500">Inspecciones EPP</span>
           </div>
 
-          <div className="flex gap-3 flex-wrap">
-            <Link
-              to="/ai-camera"
-              style={{
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)',
-                color: '#ffffff',
-                border: 'none',
-                boxShadow: '0 8px 25px -5px rgba(16, 185, 129, 0.5)'
-              }}
-              className="flex items-center gap-2.5 py-3.5 px-6 rounded-2xl font-black cursor-pointer transition-all hover:scale-105 active:scale-95 text-sm no-underline"
-            >
-              <Camera size={20} className="text-white" />
-              NUEVA DETECCIÓN EPP
-            </Link>
+          <div
+            onClick={() => setFilterStatus('ok')}
+            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              filterStatus === 'ok'
+                ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 shadow-md'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-emerald-400'
+            }`}
+          >
+            <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">EPP Conforme</span>
+              <CheckCircle2 size={20} />
+            </div>
+            <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{metrics.eppOk}</div>
+            <span className="text-[11px] text-slate-500">Con casco verificado</span>
+          </div>
 
-            {history.length > 0 && (
-              <button 
-                type="button" 
-                onClick={handleExportCSV} 
-                style={{
-                  background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-                  color: '#ffffff',
-                  border: 'none',
-                  boxShadow: '0 8px 20px -5px rgba(99, 102, 241, 0.4)'
-                }}
-                className="flex items-center gap-2 py-3.5 px-5 rounded-2xl font-black text-sm cursor-pointer transition-all hover:scale-105 active:scale-95"
-              >
-                <Download size={18} /> EXPORTAR CSV
-              </button>
-            )}
+          <div
+            onClick={() => setFilterStatus('fail')}
+            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              filterStatus === 'fail'
+                ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-500 shadow-md'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-rose-400'
+            }`}
+          >
+            <div className="flex items-center justify-between text-rose-600 dark:text-rose-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Sin EPP / Desvíos</span>
+              <TriangleAlert size={20} />
+            </div>
+            <div className="text-2xl font-black text-rose-600 dark:text-rose-400">{metrics.eppFail}</div>
+            <span className="text-[11px] text-slate-500">Alertas de protección</span>
+          </div>
+
+          <div
+            onClick={() => setFilterStatus('all')}
+            className="p-4 rounded-2xl border transition-all cursor-pointer bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-slate-400"
+          >
+            <div className="flex items-center justify-between text-slate-600 dark:text-slate-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Cumplimiento</span>
+              <BarChart2 size={20} />
+            </div>
+            <div className="text-2xl font-black text-slate-700 dark:text-slate-300">{metrics.compliance}%</div>
+            <span className="text-[11px] text-slate-500">Tasa de uso EPP</span>
           </div>
         </div>
-      </div>
 
-      {/* KPI Stats Grid */}
-      {total > 0 && (
-        <div className="mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <div 
-              style={{ 
-                background: 'rgba(245, 158, 11, 0.08)', 
-                border: '1px solid rgba(245, 158, 11, 0.25)' 
-              }} 
-              className="p-5 rounded-2xl flex items-center gap-4 shadow-sm"
-            >
-              <div 
-                style={{ background: 'rgba(245, 158, 11, 0.2)', color: '#f59e0b' }} 
-                className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-              >
-                <Camera size={24} />
-              </div>
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: 'var(--color-text-muted)' }}>Escaneos EPP</span>
-                <span className="text-2xl font-black" style={{ color: '#f59e0b' }}>{total} <span className="text-xs font-normal" style={{ color: 'var(--color-text-muted)' }}>inspecciones</span></span>
-              </div>
-            </div>
-
-            <div 
-              style={{ 
-                background: 'rgba(16, 185, 129, 0.08)', 
-                border: '1px solid rgba(16, 185, 129, 0.25)' 
-              }} 
-              className="p-5 rounded-2xl flex items-center gap-4 shadow-sm"
-            >
-              <div 
-                style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#10b981' }} 
-                className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-              >
-                <ShieldCheck size={24} />
-              </div>
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: 'var(--color-text-muted)' }}>Conformidad</span>
-                <span className="text-2xl font-black" style={{ color: '#10b981' }}>{compliance}% <span className="text-xs font-normal" style={{ color: 'var(--color-text-muted)' }}>cumplido</span></span>
-              </div>
-            </div>
-
-            <div 
-              style={{ 
-                background: eppFail > 0 ? 'rgba(239, 68, 68, 0.08)' : 'rgba(16, 185, 129, 0.08)', 
-                border: `1px solid ${eppFail > 0 ? 'rgba(239, 68, 68, 0.25)' : 'rgba(16, 185, 129, 0.25)'}` 
-              }} 
-              className="p-5 rounded-2xl flex items-center gap-4 shadow-sm"
-            >
-              <div 
-                style={{ 
-                  background: eppFail > 0 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)', 
-                  color: eppFail > 0 ? '#ef4444' : '#10b981' 
-                }} 
-                className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-              >
-                <TriangleAlert size={24} />
-              </div>
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: 'var(--color-text-muted)' }}>Sin EPP / Desvíos</span>
-                <span className="text-2xl font-black" style={{ color: eppFail > 0 ? '#ef4444' : '#10b981' }}>{eppFail} <span className="text-xs font-normal" style={{ color: 'var(--color-text-muted)' }}>alertas</span></span>
-              </div>
-            </div>
-          </div>
-
-          {/* Weekly Trend Chart Card */}
-          <div 
-            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }} 
-            className="p-6 rounded-2xl shadow-sm"
-          >
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="m-0 text-sm font-extrabold flex items-center gap-2" style={{ color: 'var(--color-text)' }}>
-                <BarChart2 size={18} style={{ color: '#f59e0b' }} />
+        {/* Gráfico Semanal Limpio y Sobrio */}
+        {metrics.total > 0 && (
+          <div className="mt-6 p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="m-0 text-xs font-extrabold flex items-center gap-2 text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                <BarChart2 size={16} className="text-blue-500" />
                 Tendencia de Cumplimiento EPP (últimas 6 semanas)
               </h3>
             </div>
-            <div className="flex items-end justify-between h-28 gap-2 px-2 pt-2">
+            <div className="flex items-end justify-between h-24 gap-3 px-2 pt-2">
               {weeklyStats.map((s, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                  <div className="relative w-full h-20 flex items-end">
-                    <div className="absolute w-full h-full bg-slate-200 dark:bg-slate-700/50 rounded-lg opacity-60" />
-                    <div 
+                <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
+                  <div className="relative w-full h-16 flex items-end">
+                    <div className="absolute w-full h-full bg-slate-100 dark:bg-slate-700/40 rounded-lg" />
+                    <div
                       style={{
-                        height: `${Math.max(s.value, 10)}%`,
-                        background: s.value >= 80 ? 'linear-gradient(to top, #10b981, #34d399)' : s.value >= 50 ? 'linear-gradient(to top, #f59e0b, #fbbf24)' : 'linear-gradient(to top, #ef4444, #f87171)'
-                      }} 
-                      title={`${s.value}% compliance (${s.count} insp)`} 
-                      className="w-full rounded-lg z-10 transition-all duration-700 shadow-sm" 
+                        height: `${Math.max(s.value, 8)}%`,
+                        backgroundColor: s.value >= 80 ? '#059669' : s.value >= 50 ? '#d97706' : '#dc2626'
+                      }}
+                      title={`${s.value}% cumplimiento (${s.count} inspecciones)`}
+                      className="w-full rounded-lg z-10 transition-all duration-500 shadow-sm"
                     />
                   </div>
-                  <span className="text-[0.65rem] font-bold uppercase" style={{ color: 'var(--color-text-muted)' }}>{s.label}</span>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">{s.label}</span>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Input de Búsqueda Centrado Matemáticamente */}
-      <div 
-        style={{ position: 'relative', width: '100%' }}
-        className="mb-6 flex items-center"
-      >
-          <Search 
-            size={20} 
-            style={{ 
-              position: 'absolute', 
-              left: '1rem', 
-              top: 0, 
-              bottom: 0, 
-              marginTop: 'auto', 
-              marginBottom: 'auto', 
-              color: '#f59e0b', 
-              display: 'block' 
-            }} 
-            className="pointer-events-none z-10" 
-          />
-        <input
-          type="text"
-          placeholder="Buscar inspecciones por empresa o ubicación..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            width: '100%',
-            height: '50px',
-            background: 'var(--color-surface)',
-            color: 'var(--color-text)',
-            border: '1px solid var(--color-border)',
-            paddingLeft: '3.2rem',
-            paddingRight: '1rem',
-            borderRadius: '16px',
-            fontSize: '0.9rem',
-            fontWeight: 700,
-            outline: 'none',
-            boxSizing: 'border-box'
-          }}
-          className="focus:ring-2 focus:ring-amber-500 shadow-xs"
-        />
-      </div>
+        {/* Toolbar de Búsqueda y Botones estilo Aptitudes Médicas */}
+        <div className="mt-8 space-y-4">
+          <div className="flex flex-row items-center justify-between gap-3">
+            <div className="relative flex-1 max-w-xs h-[38px]">
+              <Search
+                size={16}
+                className="text-slate-400 pointer-events-none z-10"
+                style={{
+                  position: 'absolute',
+                  left: '0.75rem',
+                  top: 0,
+                  bottom: 0,
+                  marginTop: 'auto',
+                  marginBottom: 'auto',
+                  display: 'block'
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Buscar por empresa o ubicación..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                style={{ paddingLeft: '2.25rem', paddingRight: '0.75rem', height: '38px', width: '100%', boxSizing: 'border-box', outline: 'none' }}
+                className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+              />
+            </div>
 
-      {/* History Items List */}
-      <div className="flex flex-col gap-4">
-        {filtered.length > 0 ? (
-          filtered.map((item) => (
-            <div 
-              key={item.id} 
-              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-              className="p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+            <div className="flex items-center gap-2">
+              {/* Botón Exportar CSV */}
+              <button
+                type="button"
+                onClick={handleExportCSV}
+                title="Exportar historial de inspecciones a CSV"
+                style={{
+                  backgroundColor: '#0284c7',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: '800',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  whiteSpace: 'nowrap',
+                  height: '34px',
+                  boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)',
+                  minHeight: 'unset'
+                }}
+              >
+                <FileSpreadsheet size={14} />
+                <span>Exportar CSV</span>
+              </button>
+
+              {/* Botón Nueva Detección */}
+              <button
+                type="button"
+                onClick={() => navigate('/ai-camera')}
+                style={{
+                  backgroundColor: '#059669',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: '800',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  whiteSpace: 'nowrap',
+                  height: '34px',
+                  boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)',
+                  minHeight: 'unset'
+                }}
+              >
+                <Camera size={14} />
+                <span>Nueva Detección EPP</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Pastillas de filtro estilo Aptitudes Médicas */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
+            <button
+              onClick={() => setFilterStatus('all')}
+              style={{
+                backgroundColor: filterStatus === 'all' ? '#0284c7' : '#ffffff',
+                color: filterStatus === 'all' ? '#ffffff' : '#334155',
+                border: filterStatus === 'all' ? 'none' : '1px solid #cbd5e1',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '800',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.15s ease',
+                minHeight: 'unset'
+              }}
             >
-              <div className="flex justify-between items-start mb-4 flex-wrap gap-3">
-                <div className="flex items-center gap-3.5 flex-1 min-w-0">
-                  <div 
-                    style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}
-                    className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                  >
-                    <Camera size={24} />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="m-0 text-base font-extrabold truncate" style={{ color: 'var(--color-text)' }}>
-                      {item.company || 'Empresa sin nombre'}
-                    </h3>
-                    <div className="flex items-center gap-3 text-xs mt-1 font-medium flex-wrap" style={{ color: 'var(--color-text-muted)' }}>
-                      <span className="flex items-center gap-1">
-                        <Calendar size={14} style={{ color: '#f59e0b' }} /> 
-                        {new Date(item.date).toLocaleDateString('es-AR')}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Building2 size={14} style={{ color: '#6366f1' }} /> 
-                        {item.location || 'Planta Principal'}
+              <span>Todos ({metrics.total})</span>
+            </button>
+
+            <button
+              onClick={() => setFilterStatus('ok')}
+              style={{
+                backgroundColor: filterStatus === 'ok' ? '#059669' : '#ffffff',
+                color: filterStatus === 'ok' ? '#ffffff' : '#334155',
+                border: filterStatus === 'ok' ? 'none' : '1px solid #cbd5e1',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '800',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.15s ease',
+                minHeight: 'unset'
+              }}
+            >
+              <span>EPP Conforme ({metrics.eppOk})</span>
+            </button>
+
+            <button
+              onClick={() => setFilterStatus('fail')}
+              style={{
+                backgroundColor: filterStatus === 'fail' ? '#dc2626' : '#ffffff',
+                color: filterStatus === 'fail' ? '#ffffff' : '#334155',
+                border: filterStatus === 'fail' ? 'none' : '1px solid #cbd5e1',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '800',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.15s ease',
+                minHeight: 'unset'
+              }}
+            >
+              <span>Falta EPP ({metrics.eppFail})</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Listado de Tarjetas */}
+        {filtered.length === 0 ? (
+          <div className="mt-8 bg-white dark:bg-slate-800 rounded-xl p-8 border border-slate-200 dark:border-slate-700">
+            <EmptyStateIllustrated
+              title="No hay inspecciones EPP registradas"
+              description="Apunta la cámara hacia los operarios para auditar el uso reglamentario de casco y elementos de protección personal con visión artificial."
+              actionLabel="Nueva Detección EPP"
+              onAction={() => navigate('/ai-camera')}
+            />
+          </div>
+        ) : (
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filtered.map((item: any) => {
+              const isOk = !!item.ppeComplete;
+              return (
+                <div
+                  key={item.id}
+                  className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 flex flex-col justify-between hover:shadow-md transition-shadow"
+                >
+                  <div>
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <span className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+                          <Camera size={20} />
+                        </span>
+                        <div>
+                          <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm truncate max-w-[180px]">
+                            {item.company || 'Empresa Local'}
+                          </h3>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[180px]">
+                            {item.location || 'Planta Principal'}
+                          </p>
+                        </div>
+                      </div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                        isOk
+                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                          : 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300'
+                      }`}>
+                        {isOk ? 'EPP OK' : 'FALTA EPP'}
                       </span>
                     </div>
+
+                    <div className="mt-4 space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                      <div className="flex items-center gap-2">
+                        <Calendar size={14} className="text-slate-400 shrink-0" />
+                        <span>Fecha: {new Date(item.date).toLocaleDateString('es-AR')}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Building2 size={14} className="text-slate-400 shrink-0" />
+                        <span className="truncate">Sector: {item.location || 'Planta Principal'}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {isOk ? (
+                          <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
+                        ) : (
+                          <TriangleAlert size={14} className="text-rose-600 shrink-0" />
+                        )}
+                        <span>Resultado: <strong>{isOk ? 'Casco y protección conformes' : 'Desvío en protección personal'}</strong></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-1.5">
+                    {/* Botón Ver Reporte */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const fullReportKey = `ai_report_full_${item.id}`;
+                        const savedFull = localStorage.getItem(fullReportKey);
+                        const reportToLoad = { ...item, ...(savedFull ? JSON.parse(savedFull) : {}) };
+                        localStorage.setItem('current_ai_inspection', JSON.stringify(reportToLoad));
+                        navigate('/ai-report');
+                      }}
+                      title="Ver Reporte Completo"
+                      style={{
+                        backgroundColor: '#2563eb',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '4px 8px',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        minHeight: 'unset'
+                      }}
+                    >
+                      <Eye size={12} />
+                      <span>Ver</span>
+                    </button>
+
+                    {/* Botón Compartir */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const fullReportKey = `ai_report_full_${item.id}`;
+                        const savedFull = localStorage.getItem(fullReportKey);
+                        const reportToLoad = { ...item, ...(savedFull ? JSON.parse(savedFull) : {}) };
+                        setShareItem(reportToLoad);
+                      }}
+                      title="Compartir Informe"
+                      style={{
+                        backgroundColor: '#059669',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '4px 8px',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        minHeight: 'unset'
+                      }}
+                    >
+                      <Share2 size={12} />
+                      <span>Compartir</span>
+                    </button>
+
+                    {/* Botón QR */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const url = `${window.location.origin}/v/${currentUser?.uid}/camera/${item.id}?print=true`;
+                        setQrTarget({ text: url, title: `Inspección EPP — ${item.company || 'IA'}` });
+                      }}
+                      title="Código QR"
+                      style={{
+                        backgroundColor: '#475569',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '4px 8px',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        minHeight: 'unset'
+                      }}
+                    >
+                      <QrCode size={12} />
+                      <span>QR</span>
+                    </button>
+
+                    {/* Botón Eliminar */}
+                    <button
+                      type="button"
+                      onClick={() => setDeleteTarget(item.id)}
+                      title="Eliminar Registro"
+                      style={{
+                        backgroundColor: '#dc2626',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '4px 8px',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        minHeight: 'unset'
+                      }}
+                    >
+                      <Trash2 size={12} />
+                      <span>Eliminar</span>
+                    </button>
                   </div>
                 </div>
-
-                <div 
-                  style={{
-                    background: item.ppeComplete ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                    color: item.ppeComplete ? '#10b981' : '#ef4444',
-                    border: `1px solid ${item.ppeComplete ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black shrink-0"
-                >
-                  {item.ppeComplete ? <ShieldCheck size={16} /> : <TriangleAlert size={16} />}
-                  <span>{item.ppeComplete ? 'EPP OK' : 'FALTA EPP'}</span>
-                </div>
-              </div>
-
-              {/* Botones de Acción con Colores Forzados */}
-              <div 
-                style={{ borderTop: '1px solid var(--color-border)' }}
-                className="flex items-center gap-2.5 pt-4 flex-wrap"
-              >
-                <button
-                  onClick={() => {
-                    const fullReportKey = `ai_report_full_${item.id}`;
-                    const savedFull = localStorage.getItem(fullReportKey);
-                    const reportToLoad = savedFull ? JSON.parse(savedFull) : item;
-                    localStorage.setItem('current_ai_inspection', JSON.stringify(reportToLoad));
-                    navigate('/ai-report');
-                  }}
-                  style={{
-                    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                    color: '#ffffff',
-                    border: 'none',
-                    boxShadow: '0 4px 15px rgba(59, 130, 246, 0.35)'
-                  }}
-                  className="flex-2 py-3 px-4 rounded-xl text-xs font-black cursor-pointer transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
-                >
-                  <FileText size={16} /> Ver Reporte Completo
-                </button>
-
-                <button
-                  onClick={() => {
-                    const fullReportKey = `ai_report_full_${item.id}`;
-                    const savedFull = localStorage.getItem(fullReportKey);
-                    const reportToLoad = savedFull ? JSON.parse(savedFull) : item;
-                    setShareItem(reportToLoad);
-                  }}
-                  title="Compartir Reporte"
-                  style={{
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                    color: '#ffffff',
-                    border: 'none',
-                    boxShadow: '0 4px 15px rgba(16, 185, 129, 0.35)'
-                  }}
-                  className="flex-1 py-3 px-3 rounded-xl text-xs font-black cursor-pointer transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-1.5"
-                >
-                  <Share2 size={15} /> Compartir
-                </button>
-
-                <button
-                  onClick={() => {
-                    const url = `${window.location.origin}/v/${currentUser?.uid}/camera/${item.id}?print=true`;
-                    setQrTarget({ text: url, title: `Inspección EPP — ${item.company || 'IA'}` });
-                  }}
-                  title="Generar Código QR"
-                  style={{
-                    background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-                    color: '#ffffff',
-                    border: 'none',
-                    boxShadow: '0 4px 15px rgba(139, 92, 246, 0.35)'
-                  }}
-                  className="py-3 px-3.5 rounded-xl text-xs font-black cursor-pointer transition-all hover:scale-105 active:scale-95 flex items-center justify-center"
-                >
-                  <QrCode size={16} />
-                </button>
-
-                <button
-                  onClick={() => setDeleteTarget(item.id)}
-                  title="Eliminar Inspección"
-                  style={{
-                    background: 'rgba(239, 68, 68, 0.12)',
-                    color: '#ef4444',
-                    border: '1px solid rgba(239, 68, 68, 0.3)'
-                  }}
-                  className="py-3 px-3.5 rounded-xl text-xs font-black transition-all cursor-pointer hover:scale-105 active:scale-95 flex items-center justify-center"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div 
-            style={{ background: 'var(--color-surface)', border: '1px dashed var(--color-border)' }}
-            className="text-center py-16 px-4 rounded-3xl shadow-sm"
-          >
-            <Camera size={56} style={{ color: '#f59e0b', opacity: 0.4 }} className="mx-auto mb-3 animate-pulse" />
-            <h3 className="text-lg font-black mb-1" style={{ color: 'var(--color-text)' }}>No hay inspecciones EPP registradas</h3>
-            <p className="text-sm font-medium" style={{ color: 'var(--color-text-muted)' }}>Haz clic en 'NUEVA DETECCIÓN EPP' para activar la Cámara IA.</p>
+              );
+            })}
           </div>
         )}
+
+        <ConfirmModal
+          isOpen={!!deleteTarget}
+          title="Eliminar Inspección EPP"
+          message="¿Estás seguro de que deseas eliminar este registro de inspección EPP? Esta acción no se puede deshacer."
+          confirmText="Eliminar"
+          cancelText="Cancelar"
+          onConfirm={confirmDelete}
+          onClose={() => setDeleteTarget(null)}
+        />
       </div>
-    </div>
+    </AnimatedPage>
   );
 }

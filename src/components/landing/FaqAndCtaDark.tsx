@@ -42,7 +42,7 @@ export default function FaqAndCtaDark() {
       }}
     >
       {/* ── FAQ ── */}
-      <div style={{ padding: '5rem 1.2rem 4rem' }}>
+      <div style={{ padding: 'clamp(3rem, 8vw, 5rem) clamp(1rem, 4vw, 1.2rem) 3rem' }}>
         {/* Ambient glow */}
         <div
           style={{
@@ -180,13 +180,13 @@ export default function FaqAndCtaDark() {
       </div>
 
       {/* ── CTA Final ── */}
-      <div style={{ padding: '0 1.2rem 6rem' }}>
+      <div style={{ padding: '0 clamp(0.75rem, 3vw, 1.2rem) clamp(3.5rem, 8vw, 6rem)' }}>
         <div
           style={{
             maxWidth: '1100px',
             margin: '0 auto',
-            borderRadius: '32px',
-            padding: 'clamp(3rem, 6vw, 5rem) 2rem',
+            borderRadius: 'clamp(20px, 4vw, 32px)',
+            padding: 'clamp(2.5rem, 6vw, 4.5rem) clamp(1rem, 4vw, 2rem)',
             textAlign: 'center',
             position: 'relative',
             overflow: 'hidden',
@@ -201,7 +201,7 @@ export default function FaqAndCtaDark() {
                 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 25%, #8b5cf6 50%, #3b82f6 75%, #1e40af 100%)',
               backgroundSize: '300% 300%',
               animation: 'gradient-shift 8s ease infinite',
-              borderRadius: '32px',
+              borderRadius: 'clamp(20px, 4vw, 32px)',
             }}
           />
           {/* Glow orbs */}
@@ -287,21 +287,21 @@ export default function FaqAndCtaDark() {
 
             <h2
               style={{
-                fontSize: 'clamp(2.2rem, 5vw, 3.5rem)',
+                fontSize: 'clamp(2rem, 5vw, 3.5rem)',
                 fontWeight: 900,
                 margin: '0 0 1.5rem',
                 fontFamily: 'var(--font-heading)',
-                lineHeight: 1.1,
+                lineHeight: 1.15,
               }}
             >
               Llevá tu gestión al próximo nivel
             </h2>
             <p
               style={{
-                fontSize: '1.15rem',
+                fontSize: 'clamp(0.95rem, 2.5vw, 1.15rem)',
                 opacity: 0.85,
                 maxWidth: '580px',
-                margin: '0 auto 3rem',
+                margin: '0 auto 2.5rem',
                 lineHeight: 1.6,
               }}
             >
@@ -312,25 +312,27 @@ export default function FaqAndCtaDark() {
               onClick={() => navigate('/login', { state: { view: 'register' } })}
               className="hover-lift btn-shimmer"
               style={{
-                padding: '1.3rem 3.5rem',
+                padding: '1.1rem clamp(1.5rem, 5vw, 3.5rem)',
+                maxWidth: '100%',
                 borderRadius: '100px',
                 border: 'none',
                 background: 'white',
                 color: '#1e3a8a',
                 fontWeight: 900,
-                fontSize: '1.15rem',
+                fontSize: 'clamp(0.95rem, 3.5vw, 1.15rem)',
                 cursor: 'pointer',
                 boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.8rem',
+                justifyContent: 'center',
+                gap: '0.6rem',
                 transition: 'all 0.3s ease',
                 position: 'relative',
                 overflow: 'hidden',
               }}
             >
-              Crear mi cuenta gratis{' '}
-              <ArrowRight size={22} weight="bold" />
+              <span>Crear mi cuenta gratis</span>
+              <ArrowRight size={20} weight="bold" />
             </button>
 
             <p

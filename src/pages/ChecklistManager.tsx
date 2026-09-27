@@ -9,7 +9,7 @@ import {
   Share2, Save, ArrowLeft, ArrowRight, Info, Pencil, Camera,
   Flame, Zap, Siren, Lightbulb, Activity, CheckCircle2,
   Search, QrCode, Download, FileText, ClipboardList,
-  HardHat, Ear, Eye as EyeIcon, Mic, Wrench
+  HardHat, Ear, Eye as EyeIcon, Mic, Wrench, BookOpen
 } from 'lucide-react';
 import { DataTable } from '../components/DataTable';
 import { downloadCSV } from '../services/exportCsv';
@@ -30,6 +30,8 @@ import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
 import { generatePdfBlob } from '../utils/pdfHelper';
 import { savePdfBlob, getPdfBlob } from '../utils/indexedDBHelper';
+import IndustryChecklistModal from '../components/IndustryChecklistModal';
+import type { IndustryChecklistTemplate } from '../data/industryChecklists';
 
 const DEFAULT_TEMPLATES = {
   'manual_tools': {
@@ -534,6 +536,33 @@ export default function ChecklistManager(): React.ReactElement | null {
   const [userCountry, setUserCountry] = useState('argentina');
   const [availableNorms, setAvailableNorms] = useState([]);
   const [showTutorialBanner, setShowTutorialBanner] = useState(false);
+  const [showIndustryModal, setShowIndustryModal] = useState(false);
+
+  const handleLoadIndustryChecklist = (template: IndustryChecklistTemplate) => {
+    isCreatingNewRef.current = true;
+    setChecklistTitle(`CHECKLIST DE ${template.title}`.toUpperCase());
+
+    const newSection = {
+      id: template.id,
+      title: template.title,
+      isMandatory: false,
+      items: template.items.map((text) => ({ text, status: null, observation: '' }))
+    };
+
+    setActiveSections([newSection]);
+
+    if (template.suggestedEpp && template.suggestedEpp.length > 0) {
+      setEpps((prev) => Array.from(new Set([...prev, ...template.suggestedEpp])));
+    }
+
+    if (!showForm) {
+      setSearchParams({});
+      setShowForm(true);
+      setCurrentStep(1);
+    }
+
+    toast.success(`Checklist cargado: ${template.title} (${template.items.length} puntos)`);
+  };
 
   useEffect(() => {
     if (!localStorage.getItem('checklist_tutorial_seen')) {
@@ -1125,8 +1154,15 @@ export default function ChecklistManager(): React.ReactElement | null {
                         <button
                             onClick={() => {isCreatingNewRef.current = true; setSearchParams({}); setShowForm(true); setCurrentStep(1);}}
                             style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '0.6rem 1.2rem', fontSize: '0.85rem', fontWeight: '800', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}
-                            className="transition-transform hover:-translate-y-0.5 whitespace-nowrap">
+                            className="transition-transform hover:-translate-y-0.5 whitespace-nowrap h-[54px]">
                             <Plus size={18} strokeWidth={2.5} /> NUEVO CHECKLIST
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setShowIndustryModal(true)}
+                            className="h-[54px] px-4 rounded-[16px] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs uppercase flex items-center gap-2 cursor-pointer transition-all shadow-[0_4px_16px_rgba(37,99,235,0.3)] hover:-translate-y-0.5 whitespace-nowrap border-none"
+                        >
+                            <BookOpen size={17} /> Catálogo por Industria
                         </button>
                         <button
                             onClick={() => setOnlyNcFilter(!onlyNcFilter)}
@@ -1391,40 +1427,49 @@ export default function ChecklistManager(): React.ReactElement | null {
 
             {/* TEMPLATE SELECTOR - Responsive Grid */}
             {currentStep === 2 && (
-            <div className="no-print grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-[0.8rem] mb-[1.5rem]">
-
-
-
-
-            
-                {Object.entries(DEFAULT_TEMPLATES).map(([key, value]) => {
-              const active = activeSections.some((s) => s.id === key);
-              return (
+            <div className="no-print mb-[1.5rem] space-y-3">
+              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 text-white rounded-2xl shadow-sm gap-3 flex-wrap border border-blue-500/30">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-blue-500/20 border border-blue-400/30 rounded-xl text-blue-300">
+                    <BookOpen size={22} />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black m-0 text-white flex items-center gap-2">
+                      Catálogo Normativo por Industria
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/30 text-blue-200 border border-blue-400/30">Dec. 911 / Dec. 351 / Agro / Racks</span>
+                    </h4>
+                    <p className="text-xs text-blue-200 mt-0.5 m-0">Explora checklists técnicos predefinidos con marcos legales específicos, frecuencias recomendadas y puntos críticos.</p>
+                  </div>
+                </div>
                 <button
-                  key={key}
-                  onClick={() => toggleTemplate(key)}
-                  className="card p-[0.8rem_0.5rem] m-[0] flex flex-col items-center justify-center gap-[0.4rem] text-center min-h-[80px]"
-                  style={{
+                  type="button"
+                  onClick={() => setShowIndustryModal(true)}
+                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs uppercase rounded-xl transition-all cursor-pointer border-none shadow-md flex items-center gap-1.5 ml-auto"
+                >
+                  <BookOpen size={15} /> Abrir Catálogo
+                </button>
+              </div>
 
-
-                    border: active ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                    background: active ? 'var(--color-background)' : 'var(--color-surface)'
-
-
-
-
-
-
-
-                  }}>
-                  
-                            <div style={{ color: active ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>
-                                {React.cloneElement(value.icon, { size: 20 })}
-                            </div>
-                            <span className="text-[0.65rem] font-[800] line-height-[1.1]">{value.title}</span>
-                        </button>);
-
-            })}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-[0.8rem]">
+                {Object.entries(DEFAULT_TEMPLATES).map(([key, value]) => {
+                  const active = activeSections.some((s) => s.id === key);
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => toggleTemplate(key)}
+                      className="card p-[0.8rem_0.5rem] m-[0] flex flex-col items-center justify-center gap-[0.4rem] text-center min-h-[80px]"
+                      style={{
+                        border: active ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                        background: active ? 'var(--color-background)' : 'var(--color-surface)'
+                      }}>
+                      <div style={{ color: active ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>
+                        {React.cloneElement(value.icon, { size: 20 })}
+                      </div>
+                      <span className="text-[0.65rem] font-[800] line-height-[1.1]">{value.title}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             )}
             
@@ -2011,6 +2056,13 @@ export default function ChecklistManager(): React.ReactElement | null {
       </div>
       {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} details={(qrTarget as any).details} onClose={() => setQrTarget(null)} />}
       {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+      {showIndustryModal && (
+        <IndustryChecklistModal
+          isOpen={showIndustryModal}
+          onClose={() => setShowIndustryModal(false)}
+          onSelectChecklist={handleLoadIndustryChecklist}
+        />
+      )}
     </div>
   );
 }

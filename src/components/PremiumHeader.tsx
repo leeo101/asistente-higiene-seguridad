@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 interface PremiumHeaderProps {
   title: string;
   subtitle: string;
+  badge?: string;
   icon?: React.ReactNode;
   size?: string;
   color?: string;
@@ -16,6 +17,7 @@ interface PremiumHeaderProps {
 export default function PremiumHeader({
   title,
   subtitle,
+  badge,
   icon,
   onBack,
   color,
@@ -37,6 +39,7 @@ export default function PremiumHeader({
         {/* Botones de navegación para desktop (ocultos en móvil mediante CSS) */}
         <div className="desktop-nav-buttons no-print mr-[auto] flex flex-col gap-[0.5rem]">
             <button
+            type="button"
             onClick={() => {
               if (onBack) {
                 onBack();
@@ -49,14 +52,49 @@ export default function PremiumHeader({
                 }
               }
             }}
+            style={{
+              backgroundColor: 'rgba(255,255,255,0.2)',
+              color: '#ffffff',
+              border: '1px solid rgba(255,255,255,0.3)',
+              borderRadius: '8px',
+              padding: '0.4rem 0.8rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              cursor: 'pointer',
+              fontWeight: 700,
+              fontSize: '0.8rem',
+              backdropFilter: 'blur(10px)',
+              minHeight: 'unset',
+              lineHeight: 1
+            }}
             onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'} className="bg-[rgba(255,255,255,0.2)] border-[1px_solid_rgba(255,255,255,0.3)] text-[#fff] rounded-[8px] p-[0.4rem_0.8rem] flex items-center gap-[0.4rem] cursor-pointer font-[700] text-[0.8rem] backdrop-filter-[blur(10px)] transition-[background_0.2s]">
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+            className="transition-[background_0.2s]">
                 <ArrowLeft size={16} /> VOLVER
             </button>
             <button
+            type="button"
             onClick={() => navigate('/')}
+            style={{
+              backgroundColor: 'rgba(255,255,255,0.2)',
+              color: '#ffffff',
+              border: '1px solid rgba(255,255,255,0.3)',
+              borderRadius: '8px',
+              padding: '0.4rem 0.8rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              cursor: 'pointer',
+              fontWeight: 700,
+              fontSize: '0.8rem',
+              backdropFilter: 'blur(10px)',
+              minHeight: 'unset',
+              lineHeight: 1
+            }}
             onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'} className="bg-[rgba(255,255,255,0.2)] border-[1px_solid_rgba(255,255,255,0.3)] text-[#fff] rounded-[8px] p-[0.4rem_0.8rem] flex items-center gap-[0.4rem] cursor-pointer font-[700] text-[0.8rem] backdrop-filter-[blur(10px)] transition-[background_0.2s]">
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+            className="transition-[background_0.2s]">
                 <Home size={16} /> INICIO
             </button>
         </div>
@@ -74,9 +112,16 @@ export default function PremiumHeader({
         }
 
         <div className="flex-[1] min-width-[200px]">
-          <h1 className="m-[0] text-[clamp(1.25rem,_4vw,_2rem)] font-[900] text-[#ffffff] text-shadow-[0_2px_10px_rgba(0,0,0,0.2)] letter-spacing-[-0.5px] line-height-[1.2]">
-            {title}
-          </h1>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <h1 className="m-[0] text-[clamp(1.25rem,_4vw,_2rem)] font-[900] text-[#ffffff] text-shadow-[0_2px_10px_rgba(0,0,0,0.2)] letter-spacing-[-0.5px] line-height-[1.2]">
+              {title}
+            </h1>
+            {badge && (
+              <span className="bg-white/20 backdrop-blur-md border border-white/30 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-sm">
+                {badge}
+              </span>
+            )}
+          </div>
           <p className="m-[0.5rem_0_0] text-[clamp(0.85rem,_2.5vw,_1rem)] text-[rgba(255,255,255,0.9)] font-[600]">
             {subtitle}
           </p>

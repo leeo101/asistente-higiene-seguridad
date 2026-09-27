@@ -92,8 +92,29 @@ import type {
   AccidentInvestigationProtocol,
   AccidentEvaluationResult
 } from '../types/accident';
+import type {
+  PPEItem,
+  PPEItemEvaluation,
+  PPEWorkerCompliance,
+  PPEFleetCompliance
+} from '../types/ppe';
+import { CRITICAL_PPE_TYPES, OFFICIAL_PPE_USEFUL_LIFE } from '../types/ppe';
+import type {
+  CriticalWorkType,
+  WorkPermitData,
+  WorkPermitAuditResult,
+  ATSSurvey,
+  ATSAuditResult,
+  PermitVerdict
+} from '../types/workPermit';
+import type {
+  TrainingSession,
+  TrainingComplianceResult,
+  AnnualPlanCompliance,
+  MandatoryTopicKey
+} from '../types/training';
+import { MANDATORY_TRAINING_TOPICS } from '../types/training';
 
-// ── 1. Res. SRT 900/15 — Puesta a Tierra ───────────────────────────────────
 export interface PATMeasurement {
   pointId: string;
   location: string;
@@ -2745,3 +2766,600 @@ export function evaluateAccidentInvestigationCompliance(
   };
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MÓDULO 14: EPP — Res. SRT 299/2011 & Res. SIyC 18/25
+// Motor de Evaluación de Cumplimiento de Elementos de Protección Personal
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Parámetros regulatorios de referencia para evaluación de EPP.
+ * Res. SRT 299/11, Res. SIyC 18/25, Dec. 351/79 Cap. 19, Ley 19.587.
+ */
+export const OFFICIAL_PPE_REGULATORY_CRITERIA = {
+  EXPIRY_WARNING_DAYS: 30,
+  EXPIRY_EARLY_WARNING_DAYS: 60,
+  MIN_COVERAGE_PERCENT: 80,
+  CRITICAL_TYPES: CRITICAL_PPE_TYPES,
+  USEFUL_LIFE_REFERENCE: OFFICIAL_PPE_USEFUL_LIFE,
+} as const;
+
+/**
+ * Calcula los días hasta el vencimiento de un EPP.
+ */
+export function calculatePPEExpiryDays(purchaseDate: string, lifeMonths: number): { days: number | null; expiryDate: string | null } {
+  if (!purchaseDate || !lifeMonths || lifeMonths <= 0) return { days: null, expiryDate: null };
+  try {
+    const purchase = new Date(purchaseDate);
+    if (isNaN(purchase.getTime())) return { days: null, expiryDate: null };
+    const expiry = new Date(purchase);
+    expiry.setMonth(expiry.getMonth() + Number(lifeMonths));
+    const now = new Date();
+    const diffMs = expiry.getTime() - now.getTime();
+    const days = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    return { days, expiryDate: expiry.toISOString().split('T')[0] };
+  } catch {
+    return { days: null, expiryDate: null };
+  }
+}
+
+/**
+ * Evalúa un ítem individual de EPP y determina su estado regulatorio.
+ */
+export function evaluateSinglePPEItem(item: Partial<PPEItem>): PPEItemEvaluation {
+  const lifeMonths = Number(item.lifeMonths) || 12;
+  const { days, expiryDate } = calculatePPEExpiryDays(item.purchaseDate || '', lifeMonths);
+
+  const isExpired = days !== null && days < 0;
+  const isExpiringSoon = days !== null && days >= 0 && days <= OFFICIAL_PPE_REGULATORY_CRITERIA.EXPIRY_WARNING_DAYS;
+  const isCriticalType = CRITICAL_PPE_TYPES.some(
+    (ct) => (item.type || '').toLowerCase().includes(ct.toLowerCase()) || ct.toLowerCase().includes((item.type || '').toLowerCase())
+  );
+  const hasCertification = Boolean(item.certStandard && item.certStandard.trim() !== '' && item.certNumber && item.certNumber.trim() !== '');
+  const certificationRequired = isCriticalType;
+  const certificationMissing = certificationRequired && !hasCertification;
+
+  let status: 'VIGENTE' | 'POR_VENCER' | 'VENCIDO' = 'VIGENTE';
+  if (isExpired) status = 'VENCIDO';
+  else if (isExpiringSoon) status = 'POR_VENCER';
+
+  return {
+    item: item as PPEItem,
+    daysUntilExpiry: days,
+    expiryDate,
+    isExpired,
+    isExpiringSoon,
+    isCriticalType,
+    hasCertification,
+    certificationRequired,
+    certificationMissing,
+    status,
+  };
+}
+
+/**
+ * Evalúa el cumplimiento de EPP para un trabajador individual.
+ * Dictamen:
+ * - CONFORME: todos vigentes y certificados correctamente
+ * - OBSERVADO: algún EPP por vencer (≤30d) o sin cert. en ítem no-crítico
+ * - NO CONFORME: EPP vencido, o EPP crítico sin certificación
+ */
+export function evaluatePPEWorkerCompliance(items: Partial<PPEItem>[]): PPEWorkerCompliance {
+  const evaluations = items.map((item) => evaluateSinglePPEItem(item));
+
+  const totalItems = evaluations.length;
+  const vigentes = evaluations.filter((e) => e.status === 'VIGENTE').length;
+  const porVencer = evaluations.filter((e) => e.status === 'POR_VENCER').length;
+  const vencidos = evaluations.filter((e) => e.status === 'VENCIDO').length;
+  const sinCertificacion = evaluations.filter((e) => !e.hasCertification && e.certificationRequired).length;
+  const sinCertCritica = evaluations.filter((e) => e.certificationMissing).length;
+
+  const coveragePercent = totalItems > 0 ? Math.round(((vigentes + porVencer) / totalItems) * 100) : 100;
+
+  const observaciones: string[] = [];
+  let dictamen: 'CONFORME' | 'OBSERVADO' | 'NO CONFORME' = 'CONFORME';
+
+  if (vencidos > 0) {
+    dictamen = 'NO CONFORME';
+    const vencidosList = evaluations.filter((e) => e.isExpired).map((e) => e.item.type).join(', ');
+    observaciones.push('EPP VENCIDO: ' + vencidosList + '. Reemplazar de forma inmediata conforme Art. 8 Ley 19.587.');
+  }
+
+  if (sinCertCritica > 0) {
+    dictamen = 'NO CONFORME';
+    const sinCertList = evaluations.filter((e) => e.certificationMissing).map((e) => e.item.type).join(', ');
+    observaciones.push('EPP de seguridad critica SIN CERTIFICACION: ' + sinCertList + '. Res. SIyC 18/25 exige marcado AR + certificacion IRAM/ISO/EN/ANSI.');
+  }
+
+  if (porVencer > 0 && dictamen === 'CONFORME') {
+    dictamen = 'OBSERVADO';
+    const porVencerList = evaluations.filter((e) => e.isExpiringSoon).map((e) => e.item.type + ' (' + e.daysUntilExpiry + 'd)').join(', ');
+    observaciones.push('EPP proximo a vencer: ' + porVencerList + '. Programar reemplazo preventivo.');
+  }
+
+  if (dictamen === 'CONFORME') {
+    observaciones.push('Todos los EPP se encuentran vigentes y con certificaciones al dia. Cumple Res. SRT 299/11 y Res. SIyC 18/25.');
+  }
+
+  const firstItem = items[0];
+  return {
+    workerName: firstItem?.responsible || '',
+    workerDni: firstItem?.workerDni || '',
+    puesto: firstItem?.puesto || '',
+    totalItems,
+    vigentes,
+    porVencer,
+    vencidos,
+    sinCertificacion,
+    sinCertCritica,
+    coveragePercent,
+    dictamen,
+    observaciones,
+    evaluations,
+  };
+}
+
+/**
+ * Evalúa el cumplimiento global de EPP de toda la flota/equipo.
+ */
+export function evaluatePPEFleetCompliance(allItems: Partial<PPEItem>[]): PPEFleetCompliance {
+  const byWorker = new Map<string, Partial<PPEItem>[]>();
+  for (const item of allItems) {
+    const key = item.responsible || 'Sin asignar';
+    if (!byWorker.has(key)) byWorker.set(key, []);
+    byWorker.get(key)!.push(item);
+  }
+
+  const workerResults: PPEWorkerCompliance[] = [];
+  for (const [, workerItems] of byWorker) {
+    workerResults.push(evaluatePPEWorkerCompliance(workerItems));
+  }
+
+  const totalWorkers = workerResults.length;
+  const totalItems = workerResults.reduce((s, w) => s + w.totalItems, 0);
+  const totalVigentes = workerResults.reduce((s, w) => s + w.vigentes, 0);
+  const totalPorVencer = workerResults.reduce((s, w) => s + w.porVencer, 0);
+  const totalVencidos = workerResults.reduce((s, w) => s + w.vencidos, 0);
+  const totalSinCertificacion = workerResults.reduce((s, w) => s + w.sinCertificacion, 0);
+  const totalSinCertCritica = workerResults.reduce((s, w) => s + w.sinCertCritica, 0);
+  const fleetCoveragePercent = totalItems > 0 ? Math.round(((totalVigentes + totalPorVencer) / totalItems) * 100) : 100;
+
+  let fleetDictamen: 'CONFORME' | 'OBSERVADO' | 'NO CONFORME' = 'CONFORME';
+  if (workerResults.some((w) => w.dictamen === 'NO CONFORME')) {
+    fleetDictamen = 'NO CONFORME';
+  } else if (workerResults.some((w) => w.dictamen === 'OBSERVADO')) {
+    fleetDictamen = 'OBSERVADO';
+  }
+
+  return {
+    totalWorkers,
+    totalItems,
+    totalVigentes,
+    totalPorVencer,
+    totalVencidos,
+    totalSinCertificacion,
+    totalSinCertCritica,
+    fleetCoveragePercent,
+    fleetDictamen,
+    workerResults,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MÓDULO 15: Permisos de Trabajo (PT) y Análisis de Trabajo Seguro (ATS)
+// Decreto 351/79, Decreto 911/96, Res. SRT 953/10, Res. SRT 61/23, Res. SRT 37/10
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const OFFICIAL_WORK_PERMIT_REGULATORY_CRITERIA = {
+  MAX_SHIFT_HOURS: 12,
+  CRITICAL_KEYWORDS_BY_TYPE: {
+    altura: ['arnés', 'arnes', 'anclaje', 'caída', 'caida', 'línea de vida', 'linea de vida'],
+    caliente: ['extintor', 'combustible', 'vigía', 'vigia', 'pantalla', 'manta'],
+    confinado: ['atmósfera', 'atmosfera', 'vigía', 'vigia', 'rescate', 'ventilación', 'ventilacion', 'bloqueo'],
+    electrico: ['loto', 'tensión', 'tension', 'dieléctrico', 'dielectrico', 'puesta a tierra'],
+    excavacion: ['apuntalamiento', 'talud', 'interferencia', 'egreso', 'valla']
+  } as Record<string, string[]>
+};
+
+export function calculatePermitValidityHours(desde?: string, hasta?: string): number {
+  if (!desde || !hasta) return 0;
+  try {
+    const [hDesde, mDesde] = desde.split(':').map(Number);
+    const [hHasta, mHasta] = hasta.split(':').map(Number);
+    if (isNaN(hDesde) || isNaN(mDesde) || isNaN(hHasta) || isNaN(mHasta)) return 0;
+    
+    let totalMinutes = (hHasta * 60 + mHasta) - (hDesde * 60 + mDesde);
+    if (totalMinutes < 0) totalMinutes += 24 * 60; // turno noche
+    return Math.round((totalMinutes / 60) * 10) / 10;
+  } catch {
+    return 0;
+  }
+}
+
+export function evaluateWorkPermitCompliance(permit: Partial<WorkPermitData>): WorkPermitAuditResult {
+  const alerts: string[] = [];
+  const recommendations: string[] = [];
+  const criticalNonCompliances: string[] = [];
+  const regularNonCompliances: string[] = [];
+  const missingSignatures: string[] = [];
+  const medicalFitnessAlerts: string[] = [];
+
+  const tipo = (permit.tipoPermiso || 'general').toLowerCase();
+  const validityHours = calculatePermitValidityHours(permit.validezDesde, permit.validezHasta);
+  const isShiftExceeded = validityHours > OFFICIAL_WORK_PERMIT_REGULATORY_CRITERIA.MAX_SHIFT_HOURS;
+
+  if (isShiftExceeded) {
+    alerts.push(`VALIDEZ EXCEDIDA: El permiso abarca ${validityHours} hs. La normativa laboral (Dec. 351/79) limita la jornada de tareas de alto riesgo a un máximo de 12 horas corridas.`);
+  }
+
+  // 1. Checklist controls evaluation
+  const checklist = permit.checklist || [];
+  const totalControls = checklist.length;
+  let compliantControls = 0;
+
+  const criticalKeywords = OFFICIAL_WORK_PERMIT_REGULATORY_CRITERIA.CRITICAL_KEYWORDS_BY_TYPE[tipo] || [];
+
+  for (const item of checklist) {
+    const text = (item.pregunta || '').toLowerCase();
+    const estado = (item.estado || '').toLowerCase();
+
+    if (estado === 'cumple') {
+      compliantControls++;
+    } else if (estado === 'no cumple') {
+      const isCritical = item.criticidad === 'critico' || criticalKeywords.some((kw) => text.includes(kw));
+      if (isCritical) {
+        criticalNonCompliances.push(item.pregunta);
+      } else {
+        regularNonCompliances.push(item.pregunta);
+      }
+    }
+  }
+
+  // Reglas específicas por tipo de permiso
+  if (tipo === 'confinado') {
+    const hasAtmosphere = checklist.some(
+      (c) => (c.pregunta.toLowerCase().includes('atmósfera') || c.pregunta.toLowerCase().includes('atmosfera')) && c.estado === 'Cumple'
+    );
+    const hasWatcher = checklist.some(
+      (c) => (c.pregunta.toLowerCase().includes('vigía') || c.pregunta.toLowerCase().includes('vigia')) && c.estado === 'Cumple'
+    );
+    if (!hasAtmosphere && !criticalNonCompliances.some(c => c.toLowerCase().includes('atmós') || c.toLowerCase().includes('atmos'))) {
+      criticalNonCompliances.push('Medición atmosférica previa obligatoria no confirmada (Res. SRT 953/10)');
+    }
+    if (!hasWatcher && !criticalNonCompliances.some(c => c.toLowerCase().includes('vigía') || c.toLowerCase().includes('vigia'))) {
+      criticalNonCompliances.push('Vigía exterior permanente no asignado (Res. SRT 953/10 Art. 6)');
+    }
+  }
+
+  if (tipo === 'caliente') {
+    const hasExtinguisher = checklist.some(
+      (c) => c.pregunta.toLowerCase().includes('extintor') && c.estado === 'Cumple'
+    );
+    if (!hasExtinguisher && !criticalNonCompliances.some(c => c.toLowerCase().includes('extintor'))) {
+      criticalNonCompliances.push('Extintor cargado en el radio de operación no verificado (Dec. 351/79 Cap. 18)');
+    }
+  }
+
+  if (tipo === 'electrico') {
+    if (!permit.lotoId && !checklist.some(c => c.pregunta.toLowerCase().includes('loto') && c.estado === 'Cumple')) {
+      criticalNonCompliances.push('Procedimiento LOTO y verificación de ausencia de tensión no vinculado (Dec. 351/79 Anexo VI)');
+    }
+  }
+
+  if (tipo === 'altura') {
+    const hasHarness = checklist.some(
+      (c) => (c.pregunta.toLowerCase().includes('arnés') || c.pregunta.toLowerCase().includes('arnes') || c.pregunta.toLowerCase().includes('anclaje')) && c.estado === 'Cumple'
+    );
+    if (!hasHarness && !criticalNonCompliances.some(c => c.toLowerCase().includes('arn') || c.toLowerCase().includes('anclaje'))) {
+      criticalNonCompliances.push('Verificación de arnés IRAM 3622 y puntos de anclaje estructurales no confirmada (Res. SRT 61/23)');
+    }
+  }
+
+  // 2. Personal y aptitud médica
+  const personal = permit.personal || [];
+  for (const w of personal) {
+    if (w.aptoMedicoVigente === false) {
+      medicalFitnessAlerts.push(`Trabajador ${w.nombre || w.dni}: Apto médico vencido o no apto para tareas de alto riesgo (Res. SRT 37/10).`);
+    }
+  }
+
+  // 3. Firmas obligatorias
+  if (!permit.operatorSignature) missingSignatures.push('Solicitante / Operador');
+  if (!permit.supervisorSignature) missingSignatures.push('Supervisor de Trabajo');
+  if (!permit.professionalSignature) missingSignatures.push('Responsable de Higiene y Seguridad');
+
+  const hasRequiredSignatures = missingSignatures.length === 0;
+
+  // 4. Dictamen técnico
+  let verdict: PermitVerdict = 'LIBERADO';
+  if (criticalNonCompliances.length > 0 || medicalFitnessAlerts.length > 0) {
+    verdict = 'BLOQUEADO';
+    alerts.push(`PERMISO BLOQUEADO: Se registraron ${criticalNonCompliances.length} desvíos críticos o trabajadores sin apto médico vigente.`);
+    recommendations.push('Subsanar de inmediato todas las condiciones críticas antes de autorizar el ingreso a la zona de trabajo.');
+  } else if (regularNonCompliances.length > 0 || !hasRequiredSignatures || isShiftExceeded) {
+    verdict = 'CONDICIONADO';
+    alerts.push(`PERMISO CONDICIONADO: Controles pendientes o firmas incompletas.`);
+    if (!hasRequiredSignatures) {
+      recommendations.push(`Completar firmas obligatorias pendientes: ${missingSignatures.join(', ')}.`);
+    }
+    if (isShiftExceeded) {
+      recommendations.push('Reducir la ventana de validez o programar relevo con nuevo permiso de trabajo.');
+    }
+  } else {
+    recommendations.push('Mantener vigilancia activa, uso permanente de EPP y chequeo continuo de las condiciones ambientales de trabajo.');
+  }
+
+  return {
+    verdict,
+    isApproved: verdict === 'LIBERADO',
+    isBlocked: verdict === 'BLOQUEADO',
+    isConditioned: verdict === 'CONDICIONADO',
+    validityHours,
+    isShiftExceeded,
+    totalControls,
+    compliantControls,
+    criticalNonCompliances,
+    regularNonCompliances,
+    hasRequiredSignatures,
+    missingSignatures,
+    medicalFitnessAlerts,
+    alerts,
+    recommendations
+  };
+}
+
+export function evaluateATSSafetyCompliance(ats: Partial<ATSSurvey>): ATSAuditResult {
+  const alerts: string[] = [];
+  const recommendations: string[] = [];
+
+  const tareas = ats.tareas || [];
+  const totalSteps = tareas.length;
+  let stepsWithControls = 0;
+  let criticalRisksCount = 0;
+  let engineeringControlsCount = 0;
+  let administrativeControlsCount = 0;
+  let ppeControlsCount = 0;
+
+  for (const t of tareas) {
+    const hasControl = Boolean(t.control && t.control.trim() !== '');
+    if (hasControl) stepsWithControls++;
+
+    const nivel = (t.nivelRiesgo || '').toLowerCase();
+    if (nivel === 'alto' || nivel === 'crítico' || nivel === 'critico') {
+      criticalRisksCount++;
+    }
+
+    const cText = (t.control || '').toLowerCase();
+    const jc = (t.jerarquiaControl || '').toLowerCase();
+
+    if (jc === 'ingenieria' || cText.includes('baranda') || cText.includes('bloqueo') || cText.includes('ventilaci') || cText.includes('pantalla') || cText.includes('anclaje') || cText.includes('durmiente')) {
+      engineeringControlsCount++;
+    } else if (jc === 'administrativo' || cText.includes('procedimiento') || cText.includes('capacita') || cText.includes('señal') || cText.includes('senial') || cText.includes('inspecc') || cText.includes('parada')) {
+      administrativeControlsCount++;
+    } else if (jc === 'epp' || cText.includes('arnés') || cText.includes('arnes') || cText.includes('guante') || cText.includes('casco') || cText.includes('gafas') || cText.includes('careta') || cText.includes('botas')) {
+      ppeControlsCount++;
+    }
+  }
+
+  const engineeringRatio = totalSteps > 0 ? Math.round((engineeringControlsCount / totalSteps) * 100) : 0;
+  const hasSignatures = Boolean(ats.operatorSignature || ats.capatazSignature || ats.professionalSignature);
+
+  let dictamen: 'CONFORME' | 'OBSERVADO' | 'NO CONFORME' = 'CONFORME';
+
+  if (totalSteps === 0 || stepsWithControls < totalSteps) {
+    dictamen = 'NO CONFORME';
+    alerts.push('ATS INCOMPLETO: Existen pasos de la tarea sin medidas de control preventivo asignadas.');
+    recommendations.push('Detallar controles específicos para cada uno de los riesgos operacionales identificados.');
+  } else if (criticalRisksCount > 0 && engineeringControlsCount === 0) {
+    dictamen = 'OBSERVADO';
+    alerts.push('JERARQUÍA DE CONTROL DÉBIL: Se detectaron riesgos críticos mitigados exclusivamente con EPP o controles administrativos.');
+    recommendations.push('Aplicar controles de ingeniería o barreras físicas conforme a la jerarquía de control de la Ley 19.587 y Dec. 911/96.');
+  } else if (!hasSignatures) {
+    dictamen = 'OBSERVADO';
+    alerts.push('FIRMAS PENDIENTES: El ATS requiere ser rubricado por el personal actuante y el responsable técnico antes de iniciar la labor.');
+    recommendations.push('Recabar firmas en campo del operador, capataz y profesional actuante.');
+  } else {
+    recommendations.push('ATS validado con controles preventivos integrales y jerarquía adecuada. Proceder a la charla de seguridad de 5 minutos.');
+  }
+
+  return {
+    dictamen,
+    totalSteps,
+    stepsWithControls,
+    criticalRisksCount,
+    engineeringControlsCount,
+    administrativeControlsCount,
+    ppeControlsCount,
+    engineeringRatio,
+    hasSignatures,
+    alerts,
+    recommendations
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MÓDULO 16: Plan de Capacitación Anual — Res. SRT 905/15 & Dec. 351/79 Cap. 21
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const OFFICIAL_TRAINING_REGULATORY_CRITERIA = {
+  MIN_ANNUAL_HOURS_PER_WORKER: 12,
+  HIGH_RISK_ANNUAL_HOURS: 24,
+  MIN_PASSING_SCORE: 7,
+  MIN_SESSION_DURATION_HOURS: 0.5,
+  MAX_SESSION_DURATION_HOURS: 8,
+  MANDATORY_TOPICS: MANDATORY_TRAINING_TOPICS
+};
+
+export function calculateTrainingManHours(attendeesCount: number, durationHours: number | string): number {
+  const dur = typeof durationHours === 'string' ? parseFloat(durationHours) : durationHours;
+  if (!attendeesCount || isNaN(dur) || dur <= 0) return 0;
+  return Math.round(attendeesCount * dur * 10) / 10;
+}
+
+export function detectMandatoryTrainingTopic(tema: string, objetivo?: string): MandatoryTopicKey | null {
+  const combined = `${tema || ''} ${objetivo || ''}`.toLowerCase();
+  for (const topic of MANDATORY_TRAINING_TOPICS) {
+    if (topic.keywords.some((kw) => combined.includes(kw))) {
+      return topic.key;
+    }
+  }
+  return null;
+}
+
+export function evaluateTrainingSessionCompliance(session: Partial<TrainingSession>): TrainingComplianceResult {
+  const alerts: string[] = [];
+  const recommendations: string[] = [];
+
+  const durationHours = typeof session.duracion === 'string' ? parseFloat(session.duracion) : Number(session.duracion) || 0;
+  const attendees = session.asistentes || [];
+  const totalAttendees = attendees.length;
+  const manHours = calculateTrainingManHours(totalAttendees, durationHours);
+
+  // Verificación de expositor y matrícula profesional
+  const hasExpositor = Boolean(session.expositor && session.expositor.trim() !== '');
+  const hasMatricula = Boolean(session.matriculaExpositor && session.matriculaExpositor.trim() !== '');
+  if (!hasExpositor) {
+    alerts.push('Falta designar disertante responsable de la capacitación.');
+  } else if (!hasMatricula) {
+    recommendations.push('Se recomienda consignar la matrícula profesional habilitante del disertante de HyS o Medicina Laboral (Res. SRT 905/15).');
+  }
+
+  // Verificación de duración
+  if (durationHours <= 0) {
+    alerts.push('Duración de la capacitación inválida o no especificada.');
+  } else if (durationHours < OFFICIAL_TRAINING_REGULATORY_CRITERIA.MIN_SESSION_DURATION_HOURS) {
+    alerts.push('Duración inferior al mínimo reglamentario de 30 minutos (0.5 hs).');
+  } else if (durationHours > OFFICIAL_TRAINING_REGULATORY_CRITERIA.MAX_SESSION_DURATION_HOURS) {
+    alerts.push('Duración superior a 8 horas por jornada: se recomienda desglosar en módulos para garantizar la asimilación pedagógica.');
+  }
+
+  // Verificación de asistentes
+  if (totalAttendees === 0) {
+    alerts.push('No se registran asistentes. La Res. SRT 905/15 exige registro formal de asistencia con firma.');
+  }
+
+  // Evaluación de eficacia y calificaciones
+  let passedAttendees = 0;
+  let failedAttendees = 0;
+  let totalScoreSum = 0;
+  let scoredAttendeesCount = 0;
+  let signedAttendeesCount = 0;
+
+  for (const a of attendees) {
+    if (a.firma) signedAttendeesCount++;
+    if (a.nota !== undefined && a.nota !== null && a.nota !== '') {
+      const score = Number(a.nota);
+      if (!isNaN(score)) {
+        scoredAttendeesCount++;
+        totalScoreSum += score;
+        if (score >= OFFICIAL_TRAINING_REGULATORY_CRITERIA.MIN_PASSING_SCORE) {
+          passedAttendees++;
+        } else {
+          failedAttendees++;
+        }
+      }
+    }
+  }
+
+  const averageScore = scoredAttendeesCount > 0 ? Math.round((totalScoreSum / scoredAttendeesCount) * 10) / 10 : 0;
+  const passRatePercent = scoredAttendeesCount > 0 ? Math.round((passedAttendees / scoredAttendeesCount) * 100) : 100;
+  const hasSignatures = signedAttendeesCount > 0;
+
+  if (failedAttendees > 0) {
+    recommendations.push(`Se registraron ${failedAttendees} participantes con calificación inferior a ${OFFICIAL_TRAINING_REGULATORY_CRITERIA.MIN_PASSING_SCORE}. Programar instancia de recuperatorio o reentrenamiento.`);
+  }
+
+  const detectedMandatoryTopic = detectMandatoryTrainingTopic(session.tema || '', session.objetivo);
+
+  let dictamen: 'CONFORME' | 'OBSERVADO' | 'NO CONFORME' = 'CONFORME';
+  if (totalAttendees === 0 || durationHours <= 0 || !session.tema?.trim() || !hasExpositor) {
+    dictamen = 'NO CONFORME';
+  } else if (!hasMatricula || (scoredAttendeesCount > 0 && passRatePercent < 70) || (totalAttendees > 0 && signedAttendeesCount < totalAttendees / 2)) {
+    dictamen = 'OBSERVADO';
+  }
+
+  if (dictamen === 'CONFORME') {
+    recommendations.push('Registro de capacitación conforme a los lineamientos del Dec. 351/79 Cap. 21 y Res. SRT 905/15.');
+  }
+
+  return {
+    dictamen,
+    totalAttendees,
+    passedAttendees,
+    failedAttendees,
+    passRatePercent,
+    averageScore,
+    manHours,
+    durationHours,
+    hasMatricula,
+    hasSignatures,
+    detectedMandatoryTopic,
+    alerts,
+    recommendations
+  };
+}
+
+export function evaluateAnnualTrainingPlanCompliance(sessions: Partial<TrainingSession>[], targetWorkersCount = 20): AnnualPlanCompliance {
+  const alerts: string[] = [];
+  const recommendations: string[] = [];
+
+  const totalSessions = sessions.length;
+  let totalManHours = 0;
+  const coveredSet = new Set<MandatoryTopicKey>();
+
+  for (const s of sessions) {
+    const attendees = s.asistentes || [];
+    const dur = typeof s.duracion === 'string' ? parseFloat(s.duracion) : Number(s.duracion) || 0;
+    totalManHours += calculateTrainingManHours(attendees.length, dur);
+
+    const topic = detectMandatoryTrainingTopic(s.tema || '', s.objetivo);
+    if (topic) {
+      coveredSet.add(topic);
+    }
+  }
+
+  totalManHours = Math.round(totalManHours * 10) / 10;
+  const averageHoursPerWorker = Math.round((totalManHours / Math.max(1, targetWorkersCount)) * 10) / 10;
+
+  const coveredMandatoryTopics = Array.from(coveredSet);
+  const missingMandatoryTopics = MANDATORY_TRAINING_TOPICS
+    .map((m) => m.key)
+    .filter((k) => !coveredSet.has(k));
+
+  const coveragePercent = Math.round((coveredMandatoryTopics.length / MANDATORY_TRAINING_TOPICS.length) * 100);
+
+  if (missingMandatoryTopics.length > 0) {
+    const missingTitles = MANDATORY_TRAINING_TOPICS
+      .filter((m) => missingMandatoryTopics.includes(m.key))
+      .map((m) => m.title)
+      .join('; ');
+    alerts.push(`PROGRAMA ANUAL INCOMPLETO (Dec. 351/79): Restan cumplimentar las siguientes temáticas obligatorias: ${missingTitles}.`);
+  }
+
+  if (averageHoursPerWorker < OFFICIAL_TRAINING_REGULATORY_CRITERIA.MIN_ANNUAL_HOURS_PER_WORKER) {
+    alerts.push(`CARGA HORARIA INSUFICIENTE: Se acumulan ${averageHoursPerWorker} hs/trabajador (mínimo de referencia legal: 12 hs/año según Res. SRT 905/15).`);
+  }
+
+  let dictamen: 'CONFORME' | 'OBSERVADO' | 'NO CONFORME' = 'CONFORME';
+  if (totalSessions === 0) {
+    dictamen = 'NO CONFORME';
+  } else if (missingMandatoryTopics.length > 0 || averageHoursPerWorker < OFFICIAL_TRAINING_REGULATORY_CRITERIA.MIN_ANNUAL_HOURS_PER_WORKER) {
+    dictamen = 'OBSERVADO';
+  }
+
+  if (dictamen === 'CONFORME') {
+    recommendations.push('El Programa Anual de Capacitación cumple con la totalidad de temáticas obligatorias y la carga horaria anual recomendada.');
+  }
+
+  return {
+    dictamen,
+    totalSessions,
+    totalManHours,
+    averageHoursPerWorker,
+    coveredMandatoryTopics,
+    missingMandatoryTopics,
+    coveragePercent,
+    alerts,
+    recommendations
+  };
+}

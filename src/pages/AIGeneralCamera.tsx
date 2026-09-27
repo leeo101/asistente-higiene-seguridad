@@ -443,15 +443,15 @@ export default function AIGeneralCamera(): React.ReactElement | null {
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs transition-all hover:scale-105 active:scale-95"
           title="Volver"
         >
-          <ArrowLeft size={18} className="text-pink-400" />
+          <ArrowLeft size={18} className="text-emerald-400" />
           <span>VOLVER</span>
         </button>
         <div className="flex flex-col items-center">
           <h1 className="m-0 text-base font-black text-white flex items-center gap-1.5">
-            <Search size={18} className="text-pink-400" /> Riesgos Generales
+            <Search size={18} className="text-emerald-400" /> Riesgos Generales
           </h1>
-          <span className="text-[0.65rem] font-black text-pink-400 uppercase tracking-widest flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-ping" /> Análisis IA EHS
+          <span className="text-[0.65rem] font-black text-emerald-400 uppercase tracking-widest flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" /> Análisis IA EHS
           </span>
         </div>
         <div className="w-20" />
@@ -486,26 +486,26 @@ export default function AIGeneralCamera(): React.ReactElement | null {
               className="flex items-center gap-2 px-3.5 py-2 rounded-2xl font-black text-xs hover:scale-105 active:scale-95 transition-all"
               title="Volver al Historial"
             >
-              <ArrowLeft size={18} className="text-pink-400" />
+              <ArrowLeft size={18} className="text-emerald-400" />
               <span>VOLVER</span>
             </button>
 
             {/* HUD Status Pill */}
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 px-3.5 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-pink-500/30 text-pink-300 text-xs font-bold flex items-center gap-2 shadow-lg">
-              <span className="w-2 h-2 rounded-full bg-pink-400 animate-pulse" />
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 px-3.5 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-slate-600 text-slate-200 text-xs font-bold flex items-center gap-2 shadow-lg">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>IA LISTA · Detección de Riesgos</span>
             </div>
 
             {/* Cuadro de Enfoque con Láser Animado */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] h-[60%] rounded-3xl border border-pink-500/30 pointer-events-none overflow-hidden">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] h-[60%] rounded-3xl border border-slate-600 pointer-events-none overflow-hidden">
               {/* Esquinas de enfoque */}
-              <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-pink-500 rounded-tl-xl shadow-[0_0_10px_#ec4899]" />
-              <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-pink-500 rounded-tr-xl shadow-[0_0_10px_#ec4899]" />
-              <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-pink-500 rounded-bl-xl shadow-[0_0_10px_#ec4899]" />
-              <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-pink-500 rounded-br-xl shadow-[0_0_10px_#ec4899]" />
+              <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-emerald-500 rounded-tl-xl shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+              <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-emerald-500 rounded-tr-xl shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+              <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-emerald-500 rounded-bl-xl shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+              <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-emerald-500 rounded-br-xl shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
               
               {/* Línea Láser Animada */}
-              <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-pink-500 to-transparent shadow-[0_0_15px_#ec4899] animate-pulse" style={{ animationDuration: '2s' }} />
+              <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent shadow-none animate-pulse" style={{ animationDuration: '2s' }} />
             </div>
 
             {/* Controles de cámara superior con Glassmorphism */}
@@ -535,12 +535,12 @@ export default function AIGeneralCamera(): React.ReactElement | null {
             <div className="absolute bottom-8 left-0 w-full flex justify-center z-20">
               <button
                 onClick={handleCapture}
-                className="group relative w-20 h-20 rounded-full bg-pink-500/20 backdrop-blur-md cursor-pointer flex items-center justify-center border-2 border-pink-400/60 transition-all duration-300 hover:scale-110 active:scale-95 shadow-[0_0_30px_rgba(236,72,153,0.4)]"
+                className="group relative w-20 h-20 rounded-full bg-white/10 backdrop-blur-md cursor-pointer flex items-center justify-center border-2 border-white/60 transition-all duration-300 hover:scale-110 active:scale-95 shadow-xl"
                 style={{ outline: 'none' }}
                 title="Analizar Riesgos con IA"
               >
-                <div className="absolute inset-0 rounded-full border-2 border-pink-400 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-500 animate-ping" />
-                <div className="w-14 h-14 rounded-full bg-pink-500/40 border-2 border-white group-hover:bg-pink-400 transition-all duration-300 flex items-center justify-center shadow-inner">
+                <div className="absolute inset-0 rounded-full border-2 border-white opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-500 animate-ping" />
+                <div className="w-14 h-14 rounded-full bg-emerald-600 border-2 border-white group-hover:bg-emerald-400 transition-all duration-300 flex items-center justify-center shadow-inner">
                   <Search size={26} className="text-white" />
                 </div>
               </button>
@@ -555,7 +555,7 @@ export default function AIGeneralCamera(): React.ReactElement | null {
                           <div className="absolute top-[0] left-[0] w-[100%] h-[100%] bg-[rgba(0,0,0,0.75)] flex flex-col items-center justify-center text-[var(--color-surface)] z-[50]">
                                 <div className="relative flex items-center justify-center mb-[1.5rem]">
                                     {/* Spinner giratorio exterior */}
-                                    <div className="absolute w-[80px] h-[80px] rounded-full border-2 border-white/20 border-l-[#ec4899] animate-spin" />
+                                    <div className="absolute w-[80px] h-[80px] rounded-full border-2 border-white/20 border-l-emerald-500 animate-spin" />
                                     {/* Logo en escala de grises en el centro, pulsando */}
                                     <img 
                                         src="/logo.png" 
@@ -603,7 +603,7 @@ export default function AIGeneralCamera(): React.ReactElement | null {
                                     <button onClick={handleRetry} className="flex-[1] h-[44px] rounded-[12px] bg-[rgba(255,255,255,0.12)] backdrop-filter-[blur(8px)] border-[1px_solid_rgba(255,255,255,0.25)] text-white flex items-center justify-center gap-[0.5rem] text-[0.85rem] font-[700] cursor-pointer transition-all hover:bg-[rgba(255,255,255,0.22)] active:scale-98">
                                         <RefreshCw size={16} /> Reintentar
                                     </button>
-                                    <button onClick={handleSaveReport} className="flex-[2] h-[44px] rounded-[12px] bg-[linear-gradient(135deg,_#ec4899_0%,_#be185d_100%)] border-none text-white flex items-center justify-center gap-[0.5rem] text-[0.88rem] font-[800] cursor-pointer box-shadow-[0_4px_15px_rgba(236,72,153,0.4)] transition-all hover:brightness-[1.1] active:scale-98">
+                                    <button onClick={handleSaveReport} className="flex-[2] h-[44px] rounded-[12px] bg-emerald-600 hover:bg-emerald-500 border-none text-white flex items-center justify-center gap-[0.5rem] text-[0.88rem] font-[800] cursor-pointer shadow-md transition-all hover:brightness-[1.1] active:scale-98">
                                         Ver Detalles
                                     </button>
                                 </div>

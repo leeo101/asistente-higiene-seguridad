@@ -15,6 +15,7 @@ import { downloadCSV } from '../services/exportCsv';
 import toast from 'react-hot-toast';
 import type { RARSurvey } from '../types/rar';
 import { calculateRARStats, getAgentByCode } from '../utils/rarCatalog';
+import { exportRARToOfficialExcel } from '../services/artExcelExporter';
 
 const INITIAL_RAR_SAMPLE: RARSurvey = {
   id: 'RAR-SAMPLE-01',
@@ -184,6 +185,22 @@ export default function RARManager(): React.ReactElement | null {
     toast.success('Archivo CSV con nómina consolidada descargado');
   };
 
+  const handleExportOfficialExcel = async (survey?: RARSurvey) => {
+    const target = survey || surveys[0];
+    if (!target) {
+      toast.error('No hay nómina para exportar');
+      return;
+    }
+    const tId = toast.loading('Generando planilla oficial Excel RAR (Res. 37/10)...');
+    try {
+      await exportRARToOfficialExcel(target);
+      toast.success('Planilla oficial Excel (.xlsx) descargada ✨', { id: tId });
+    } catch (err: any) {
+      console.error(err);
+      toast.error('Error al generar el archivo Excel', { id: tId });
+    }
+  };
+
   const filteredSurveys = useMemo(() => {
     return surveys.filter(s => {
       const matchesSearch =
@@ -220,129 +237,235 @@ export default function RARManager(): React.ReactElement | null {
 
   return (
     <AnimatedPage>
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-16">
+      <div className="container pb-[6rem] min-h-[100vh] flex flex-col pt-4">
         {/* Encabezado Principal */}
         <PremiumHeader
           title="Nómina de Expuestos (RAR)"
           subtitle="Relevamiento de Agentes de Riesgo · Res. S.R.T. N° 37/10 y Dec. 658/96"
-          icon={<Stethoscope size={28} className="text-emerald-400" />}
+          icon={<Stethoscope size={36} color="#ffffff" />}
+          gradient="linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)"
           onBack={() => navigate('/')}
-        >
-          <div className="flex items-center gap-2 mt-2 justify-center">
-            <button
-              type="button"
-              onClick={handleExportCSV}
-              className="px-3 py-2 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
-            >
-              <Download size={15} /> Exportar CSV ART
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/rar/new')}
-              className="px-4 py-2 rounded-lg bg-white hover:bg-slate-100 text-slate-900 text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
-            >
-              <Plus size={16} className="text-emerald-600" /> Nueva Nómina RAR
-            </button>
-          </div>
-        </PremiumHeader>
+        />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4 space-y-6">
-          {/* Métricas */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-3">
-              <div className="p-3 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-lg">
-                <FileText size={24} />
-              </div>
-              <div>
-                <span className="text-xs text-slate-500 font-semibold block">Nóminas Creadas</span>
-                <span className="text-2xl font-black text-slate-900 dark:text-white">{totalStats.totalNominas}</span>
-              </div>
+        {/* 4 Tarjetas KPI interactivas estilo Aptitudes Médicas */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div
+            onClick={() => setFilterStatus('all')}
+            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              filterStatus === 'all'
+                ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 shadow-md'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-blue-400'
+            }`}
+          >
+            <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Nóminas Creadas</span>
+              <FileText size={20} />
             </div>
-
-            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-3">
-              <div className="p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg">
-                <Users size={24} />
-              </div>
-              <div>
-                <span className="text-xs text-slate-500 font-semibold block">Total Empleados</span>
-                <span className="text-2xl font-black text-blue-600">{totalStats.totalTrabajadores}</span>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-3">
-              <div className="p-3 bg-amber-50 dark:bg-amber-900/30 text-amber-600 rounded-lg">
-                <ShieldAlert size={24} />
-              </div>
-              <div>
-                <span className="text-xs text-slate-500 font-semibold block">Expuestos a Riesgos</span>
-                <span className="text-2xl font-black text-amber-600">{totalStats.totalExpuestos}</span>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-3">
-              <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-lg">
-                <BarChart3 size={24} />
-              </div>
-              <div>
-                <span className="text-xs text-slate-500 font-semibold block">% Tasa Exposición</span>
-                <span className="text-2xl font-black text-indigo-600">{totalStats.porcentajeExpuestos}%</span>
-              </div>
-            </div>
+            <div className="text-2xl font-black text-slate-900 dark:text-white">{totalStats.totalNominas}</div>
+            <span className="text-[11px] text-slate-500">Relevamientos cargados</span>
           </div>
 
-          {/* Filtros */}
-          <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="relative w-full sm:w-80">
-              <Search size={16} className="absolute left-3 top-2.5 text-slate-400" />
+          <div
+            className="p-4 rounded-2xl border bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80"
+          >
+            <div className="flex items-center justify-between text-indigo-600 dark:text-indigo-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Total Empleados</span>
+              <Users size={20} />
+            </div>
+            <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400">{totalStats.totalTrabajadores}</div>
+            <span className="text-[11px] text-slate-500">Personal en nóminas</span>
+          </div>
+
+          <div
+            onClick={() => setFilterStatus('con_expuestos')}
+            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              filterStatus === 'con_expuestos'
+                ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 shadow-md'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-amber-400'
+            }`}
+          >
+            <div className="flex items-center justify-between text-amber-600 dark:text-amber-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Expuestos a Riesgos</span>
+              <ShieldAlert size={20} />
+            </div>
+            <div className="text-2xl font-black text-amber-600 dark:text-amber-400">{totalStats.totalExpuestos}</div>
+            <span className="text-[11px] text-slate-500">Agentes declarados</span>
+          </div>
+
+          <div
+            className="p-4 rounded-2xl border bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80"
+          >
+            <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Tasa de Exposición</span>
+              <BarChart3 size={20} />
+            </div>
+            <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{totalStats.porcentajeExpuestos}%</div>
+            <span className="text-[11px] text-slate-500">Proporción general</span>
+          </div>
+        </div>
+
+        {/* Toolbar de Búsqueda y Botones estilo Aptitudes Médicas */}
+        <div className="mt-8 space-y-4">
+          <div className="flex flex-row items-center justify-between gap-3">
+            <div className="relative flex-1 max-w-xs h-[38px]">
+              <Search
+                size={16}
+                className="text-slate-400 pointer-events-none z-10"
+                style={{
+                  position: 'absolute',
+                  left: '0.75rem',
+                  top: 0,
+                  bottom: 0,
+                  marginTop: 'auto',
+                  marginBottom: 'auto',
+                  display: 'block'
+                }}
+              />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                placeholder="Buscar por Empresa, CUIT, Trabajador..."
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
+                placeholder="Buscar por Empresa, CUIT o DNI..."
+                style={{ paddingLeft: '2.25rem', paddingRight: '0.75rem', height: '38px', width: '100%', boxSizing: 'border-box', outline: 'none' }}
+                className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
               />
             </div>
 
-            <div className="flex items-center gap-1 w-full sm:w-auto overflow-x-auto">
+            <div className="flex items-center gap-2">
+              {/* Botón Exportar CSV ART */}
               <button
                 type="button"
-                onClick={() => setFilterStatus('all')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-                  filterStatus === 'all'
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
-                }`}
+                onClick={handleExportCSV}
+                title="Exportar nómina de trabajadores en formato CSV para la ART"
+                style={{
+                  backgroundColor: '#0284c7',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: '800',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  whiteSpace: 'nowrap',
+                  height: '34px',
+                  boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)',
+                  minHeight: 'unset'
+                }}
               >
-                Todas ({surveys.length})
+                <Download size={14} />
+                <span>Exportar CSV</span>
               </button>
+
+              {/* Botón Excel Oficial RAR */}
               <button
                 type="button"
-                onClick={() => setFilterStatus('con_expuestos')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-                  filterStatus === 'con_expuestos'
-                    ? 'bg-amber-600 text-white'
-                    : 'bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
-                }`}
+                onClick={() => handleExportOfficialExcel()}
+                title="Exportar archivo Excel reglamentario de la SRT (.xlsx)"
+                style={{
+                  backgroundColor: '#0d9488',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: '800',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  whiteSpace: 'nowrap',
+                  height: '34px',
+                  boxShadow: '0 2px 6px rgba(13, 148, 136, 0.3)',
+                  minHeight: 'unset'
+                }}
               >
-                Con Expuestos
+                <FileText size={14} />
+                <span>Excel Oficial</span>
               </button>
+
+              {/* Botón Nueva Nómina RAR */}
               <button
                 type="button"
-                onClick={() => setFilterStatus('sin_expuestos')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-                  filterStatus === 'sin_expuestos'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
-                }`}
+                onClick={() => navigate('/rar/new')}
+                style={{
+                  backgroundColor: '#059669',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: '800',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  whiteSpace: 'nowrap',
+                  height: '34px',
+                  boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)',
+                  minHeight: 'unset'
+                }}
               >
-                Sin Expuestos
+                <Plus size={14} />
+                <span>Nueva Nómina RAR</span>
               </button>
             </div>
           </div>
 
-          {/* Listado */}
+          {/* Filter Pills estilo Aptitudes Médicas */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+            <button
+              onClick={() => setFilterStatus('all')}
+              style={{
+                backgroundColor: filterStatus === 'all' ? '#2563eb' : '#ffffff',
+                color: filterStatus === 'all' ? '#ffffff' : '#334155',
+                border: filterStatus === 'all' ? '1px solid #2563eb' : '1px solid #cbd5e1',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontWeight: '800',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Todas ({surveys.length})
+            </button>
+            <button
+              onClick={() => setFilterStatus('con_expuestos')}
+              style={{
+                backgroundColor: filterStatus === 'con_expuestos' ? '#d97706' : '#ffffff',
+                color: filterStatus === 'con_expuestos' ? '#ffffff' : '#334155',
+                border: filterStatus === 'con_expuestos' ? '1px solid #d97706' : '1px solid #cbd5e1',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontWeight: '800',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Con Expuestos
+            </button>
+            <button
+              onClick={() => setFilterStatus('sin_expuestos')}
+              style={{
+                backgroundColor: filterStatus === 'sin_expuestos' ? '#059669' : '#ffffff',
+                color: filterStatus === 'sin_expuestos' ? '#ffffff' : '#334155',
+                border: filterStatus === 'sin_expuestos' ? '1px solid #059669' : '1px solid #cbd5e1',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontWeight: '800',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Sin Expuestos
+            </button>
+          </div>
+
+          {/* Listado de Nóminas */}
           {filteredSurveys.length === 0 ? (
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 text-center shadow-sm">
               <EmptyStateIllustrated
                 title="No se encontraron nóminas RAR"
                 description="Comience creando una nueva declaración de trabajadores expuestos para la ART."
@@ -351,100 +474,179 @@ export default function RARManager(): React.ReactElement | null {
               />
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {filteredSurveys.map(s => {
                 const stats = calculateRARStats(s.trabajadores || []);
 
                 return (
                   <div
                     key={s.id}
-                    className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-xs hover:border-emerald-400 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                    className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm hover:border-emerald-500 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-4"
                   >
-                    <div className="space-y-1 flex-1">
+                    <div className="space-y-1.5 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                        <h3 className="text-base font-extrabold text-slate-900 dark:text-white m-0">
                           {s.razonSocial || 'Sin Razón Social'}
                         </h3>
-                        <span className="text-xs font-mono font-bold text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded">
+                        <span className="text-xs font-mono font-bold text-slate-600 bg-slate-100 dark:bg-slate-700 px-2.5 py-0.5 rounded-md">
                           CUIT: {s.cuit}
                         </span>
-                        <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase">
+                        <span className="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase">
                           ART: {s.artNombre}
                         </span>
-                        <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-mono">
+                        <span className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-mono">
                           Póliza: {s.nroPoliza || 'S/N'}
                         </span>
                         {stats.trabajadoresConCancerigenos > 0 && (
-                          <span className="px-2 py-0.5 rounded bg-rose-100 text-rose-800 text-[10px] font-black uppercase">
+                          <span className="px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-800 text-[10px] font-black uppercase">
                             ☣️ {stats.trabajadoresConCancerigenos} c/ Cancerígenos (Res. 81/19)
                           </span>
                         )}
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-300">
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-300 pt-1">
                         <span>📍 {s.direccion}</span>
-                        <span>👥 {stats.totalTrabajadores} trabajadores relevados</span>
+                        <span>👥 <strong>{stats.totalTrabajadores}</strong> trabajadores relevados</span>
                         <span>📅 Relevado: {new Date(s.fechaRelevamiento).toLocaleDateString('es-AR')}</span>
                       </div>
                     </div>
 
                     {/* Métricas rápidas */}
-                    <div className="flex items-center gap-4 py-2 lg:py-0 border-y lg:border-y-0 lg:border-x border-slate-100 dark:border-slate-700/60 px-0 lg:px-4">
+                    <div className="flex items-center gap-5 py-2 lg:py-0 border-y lg:border-y-0 lg:border-x border-slate-100 dark:border-slate-700/60 px-0 lg:px-5">
                       <div className="text-center">
-                        <span className="text-[10px] uppercase font-bold text-slate-500 block">Expuestos</span>
+                        <span className="text-[10px] uppercase font-bold text-slate-400 block">Expuestos</span>
                         <span className="text-base font-black text-amber-600">
                           {stats.trabajadoresExpuestos} ({stats.porcentajeExpuestos}%)
                         </span>
                       </div>
                       <div className="text-center">
-                        <span className="text-[10px] uppercase font-bold text-slate-500 block">Sin Riesgo</span>
-                        <span className="text-base font-black text-slate-900 dark:text-white">
+                        <span className="text-[10px] uppercase font-bold text-slate-400 block">Sin Riesgo</span>
+                        <span className="text-base font-black text-slate-800 dark:text-white">
                           {stats.trabajadoresNoExpuestos}
                         </span>
                       </div>
                     </div>
 
-                    {/* Acciones */}
-                    <div className="flex items-center gap-1.5 self-end lg:self-center">
+                    {/* Acciones con Botones Sólidos estilo Aptitudes Médicas */}
+                    <div className="flex items-center gap-2 self-end lg:self-center flex-wrap">
+                      {/* Botón Ver PDF */}
                       <button
                         type="button"
                         onClick={() => setSelectedSurvey(s)}
                         title="Ver Planilla Oficial PDF"
-                        className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-emerald-50 hover:text-emerald-600 transition-colors cursor-pointer"
+                        style={{
+                          backgroundColor: '#059669',
+                          color: '#ffffff',
+                          border: 'none',
+                          padding: '5px 12px',
+                          fontSize: '11px',
+                          fontWeight: '800',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          minHeight: 'unset',
+                          boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)'
+                        }}
                       >
-                        <Eye size={17} />
+                        <Eye size={12} /> Ver PDF
                       </button>
+
+                      {/* Botón Excel Oficial */}
+                      <button
+                        type="button"
+                        onClick={() => handleExportOfficialExcel(s)}
+                        title="Descargar Planilla Oficial Excel RAR (.xlsx)"
+                        style={{
+                          backgroundColor: '#0d9488',
+                          color: '#ffffff',
+                          border: 'none',
+                          padding: '5px 12px',
+                          fontSize: '11px',
+                          fontWeight: '800',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          minHeight: 'unset',
+                          boxShadow: '0 2px 4px rgba(13, 148, 136, 0.2)'
+                        }}
+                      >
+                        <Download size={12} /> Excel
+                      </button>
+
+                      {/* Botón Editar */}
                       <button
                         type="button"
                         onClick={() => navigate('/rar/new', { state: { editData: s } })}
                         title="Editar Nómina"
-                        className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-amber-50 hover:text-amber-600 transition-colors cursor-pointer"
+                        style={{
+                          backgroundColor: '#d97706',
+                          color: '#ffffff',
+                          border: 'none',
+                          padding: '5px 12px',
+                          fontSize: '11px',
+                          fontWeight: '800',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          minHeight: 'unset',
+                          boxShadow: '0 2px 4px rgba(217, 119, 6, 0.2)'
+                        }}
                       >
-                        <Edit3 size={17} />
+                        <Edit3 size={12} /> Editar
                       </button>
+
+                      {/* Botón Duplicar */}
                       <button
                         type="button"
                         onClick={() => handleDuplicate(s)}
                         title="Duplicar como Borrador"
-                        className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-indigo-50 hover:text-indigo-600 transition-colors cursor-pointer"
+                        style={{
+                          backgroundColor: '#4f46e5',
+                          color: '#ffffff',
+                          border: 'none',
+                          padding: '5px 12px',
+                          fontSize: '11px',
+                          fontWeight: '800',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          minHeight: 'unset',
+                          boxShadow: '0 2px 4px rgba(79, 70, 229, 0.2)'
+                        }}
                       >
-                        <Copy size={17} />
+                        <Copy size={12} /> Duplicar
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => setShareItem({ title: `RAR Res. SRT 37/10 - ${s.razonSocial}`, text: `Nómina con ${stats.totalTrabajadores} operarios (${stats.trabajadoresExpuestos} expuestos). ART: ${s.artNombre}` })}
-                        title="Compartir"
-                        className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-blue-50 hover:text-blue-600 transition-colors cursor-pointer"
-                      >
-                        <Share2 size={17} />
-                      </button>
+
+                      {/* Botón Eliminar */}
                       <button
                         type="button"
                         onClick={() => setDeleteConfirm({ isOpen: true, id: s.id })}
                         title="Eliminar"
-                        className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer"
+                        style={{
+                          backgroundColor: '#dc2626',
+                          color: '#ffffff',
+                          border: 'none',
+                          padding: '5px 12px',
+                          fontSize: '11px',
+                          fontWeight: '800',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          minHeight: 'unset',
+                          boxShadow: '0 2px 4px rgba(220, 38, 38, 0.2)'
+                        }}
                       >
-                        <Trash2 size={17} />
+                        <Trash2 size={12} /> Eliminar
                       </button>
                     </div>
                   </div>
@@ -456,60 +658,78 @@ export default function RARManager(): React.ReactElement | null {
 
         {/* Modal Vista Previa PDF */}
         {selectedSurvey && (
-          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-slate-100 dark:bg-slate-900 rounded-2xl w-full max-w-5xl max-h-[92vh] flex flex-col shadow-2xl border border-slate-300 dark:border-slate-700">
-              <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-800 rounded-t-2xl">
+          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm">
+            <div className="bg-slate-100 dark:bg-slate-900 rounded-3xl w-full max-w-5xl max-h-[92vh] flex flex-col shadow-2xl border border-slate-300 dark:border-slate-700">
+              <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-800 rounded-t-3xl">
                 <div>
-                  <h3 className="font-bold text-slate-900 dark:text-white text-base">
+                  <h3 className="font-extrabold text-slate-900 dark:text-white text-base m-0">
                     Nómina Oficial RAR · Res. S.R.T. N° 37/10
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 m-0 mt-0.5">
                     {selectedSurvey.razonSocial} · ART: {selectedSurvey.artNombre}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => window.print()}
-                    className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    onClick={() => {
+                      const printBtn = document.querySelector('.rar-pdf-container') as HTMLElement;
+                      if (printBtn) {
+                        window.print();
+                      }
+                    }}
+                    style={{
+                      backgroundColor: '#0284c7',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '7px 14px',
+                      fontSize: '12px',
+                      fontWeight: '800',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      minHeight: 'unset'
+                    }}
                   >
-                    <Printer size={15} /> Imprimir / Guardar PDF
+                    <Printer size={15} /> Imprimir
                   </button>
                   <button
                     type="button"
                     onClick={() => setSelectedSurvey(null)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors cursor-pointer"
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                   >
                     <X size={20} />
                   </button>
                 </div>
               </div>
 
-              <div className="p-6 overflow-y-auto flex-1 flex justify-center bg-slate-200/80 dark:bg-slate-950">
-                <RARPdf data={selectedSurvey} />
+              <div className="flex-1 overflow-y-auto p-4 bg-slate-200/50 dark:bg-slate-950 flex justify-center rar-pdf-container">
+                <div className="bg-white text-slate-900 p-6 shadow-md rounded max-w-4xl w-full my-auto">
+                  <RARPdf data={selectedSurvey} />
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Modal Confirmación de Borrado */}
-        {deleteConfirm.isOpen && (
-          <ConfirmModal
-            isOpen={true}
-            title="¿Eliminar Nómina RAR?"
-            message="Esta acción no se puede deshacer. Se eliminarán los trabajadores y agentes declarados en esta nómina."
-            confirmText="Eliminar"
-            cancelText="Cancelar"
-            iconEmoji="🩺"
-            onConfirm={handleDelete}
-            onClose={() => setDeleteConfirm({ isOpen: false, id: null })}
-          />
-        )}
+        {/* Modal de confirmación para eliminar */}
+        <ConfirmModal
+          isOpen={deleteConfirm.isOpen}
+          title="Eliminar Nómina RAR"
+          message="¿Está seguro de que desea eliminar este relevamiento de agentes de riesgo? Esta acción eliminará permanentemente la declaración de expuestos."
+          confirmText="Sí, eliminar"
+          cancelText="Cancelar"
+          type="danger"
+          onConfirm={handleDelete}
+          onClose={() => setDeleteConfirm({ isOpen: false, id: null })}
+        />
 
         {/* Modal Compartir */}
         {shareItem && (
           <ShareModal
-            isOpen={true}
+            isOpen={!!shareItem}
             onClose={() => setShareItem(null)}
             title={shareItem.title}
             text={shareItem.text}

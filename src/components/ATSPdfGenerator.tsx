@@ -2,6 +2,7 @@ import React from 'react';
 import PdfSignatures from './PdfSignatures';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import { evaluateATSSafetyCompliance } from '../utils/srtProtocols';
 
 interface ChecklistItem {
   id: string | number;
@@ -178,6 +179,8 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
   const nFotos = fotos.length > 0 ? n++ : null;
   const nEmerg = equiposEmergencia.length > 0 ? n++ : null;
 
+  const compliance = evaluateATSSafetyCompliance(atsData || {});
+
   return (
     <div className="w-full flex justify-center py-4 bg-slate-100 print:bg-white print:py-0">
       <div
@@ -224,8 +227,12 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
               </div>
               <div className="h-6 w-px bg-slate-200 mx-0.5" />
               <div>
-                <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-tight">ESTADO</div>
-                <div className="text-[10px] font-black text-emerald-700 uppercase leading-tight">VIGENTE</div>
+                <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-tight">DICTAMEN LEGAL</div>
+                <div className={`text-[10px] font-black uppercase leading-tight ${
+                  compliance.dictamen === 'CONFORME' ? 'text-emerald-700' : compliance.dictamen === 'OBSERVADO' ? 'text-amber-700' : 'text-red-700'
+                }`}>
+                  {compliance.dictamen}
+                </div>
               </div>
             </div>
           </div>

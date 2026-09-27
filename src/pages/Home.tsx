@@ -23,17 +23,10 @@ import { auth, db } from '../firebase';
 import AnimatedPage from '../components/AnimatedPage';
 import StarryBackground from '../components/StarryBackground';
 import StickyCtaBanner from '../components/StickyCtaBanner';
+import CommandCenterDashboard from '../components/CommandCenterDashboard';
 
-// Landing components — lazy porque solo se renderizan para usuarios no autenticados
-const InteractiveHeroDemo = lazy(() => import('../components/landing/InteractiveHeroDemo'));
-const WallOfLove = lazy(() => import('../components/landing/WallOfLove'));
-const BeforeAndAfter = lazy(() => import('../components/landing/BeforeAndAfter'));
-const RoiCalculator = lazy(() => import('../components/landing/RoiCalculator'));
-const StatsShowcase = lazy(() => import('../components/landing/StatsShowcase'));
-const FeaturesShowcase = lazy(() => import('../components/landing/FeaturesShowcase'));
-const ModulesGrid = lazy(() => import('../components/landing/ModulesGrid'));
-const PricingDark = lazy(() => import('../components/landing/PricingDark'));
-const FaqAndCtaDark = lazy(() => import('../components/landing/FaqAndCtaDark'));
+// Marketing Landing para usuarios no autenticados
+const MarketingLanding = lazy(() => import('../components/landing/MarketingLanding'));
 
 // Tipos
 interface StatItem {
@@ -150,7 +143,17 @@ const quickLinks: QuickLink[] = [
 { to: '/contractor-matrix', icon: <Users weight="duotone" size={26} />, label: 'Matriz Contratistas', sub: 'Homologación y Garita de Contratistas', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', premium: true, category: 'management', featured: true, badge: 'Nuevo', norm: 'Ley 19587' },
 { to: '/grounding', icon: <Lightning weight="duotone" size={26} />, label: 'Puesta a Tierra', sub: 'Protocolo Oficial de PAT y Masas — Res. SRT 900/15', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true, category: 'critical', featured: true, badge: 'Res. 900', norm: 'Res. 900/15' },
 { to: '/rgrl', icon: <ClipboardText weight="duotone" size={26} />, label: 'RGRL Anual', sub: 'Relevamiento General de Riesgos Laborales — Res. SRT 463/09, 529/09 y 74/10', color: '#2563eb', bg: 'rgba(37,99,235,0.1)', premium: true, category: 'management', featured: true, badge: 'Res. SRT 463', norm: 'Res. SRT 463/09' },
-{ to: '/rar', icon: <Activity weight="duotone" size={26} />, label: 'Nómina RAR', sub: 'Agentes de Riesgo SRT y Cancerígenos — Res. SRT 37/10 y 81/19', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true, category: 'management', featured: true, badge: 'Res. SRT 37', norm: 'Res. SRT 37/10' }].
+{ to: '/rar', icon: <Activity weight="duotone" size={26} />, label: 'Nómina RAR', sub: 'Agentes de Riesgo SRT y Cancerígenos — Res. SRT 37/10 y 81/19', color: '#10b981', bg: 'rgba(16,185,129,0.1)', premium: true, category: 'management', featured: true, badge: 'Res. SRT 37', norm: 'Res. SRT 37/10' },
+
+// 8 Nuevos Módulos Suite Integral
+{ to: '/hot-work', icon: <Fire weight="duotone" size={26} />, label: 'Trabajo en Caliente', sub: 'Permiso Oficial NFPA 51B, Radio 11m, LEL y Vigía de Fuego', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'critical', featured: true, badge: 'NFPA 51B', norm: 'NFPA 51B' },
+{ to: '/construction-safety-program', icon: <HardHat weight="duotone" size={26} />, label: 'Programa de Seguridad Obra', sub: 'Confección Reglamentaria ART — Dec. 911/96 y Res. SRT 51/97, 35/98', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true, category: 'specific', featured: true, badge: 'Dec. 911/96', norm: 'Dec. 911/96' },
+{ to: '/hazardous-waste', icon: <Flask weight="duotone" size={26} />, label: 'Residuos Peligrosos', sub: 'Libro Oficial, Corrientes Y/R, Acopio y Manifiestos — Ley 24.051', color: '#14b8a6', bg: 'rgba(20,184,166,0.1)', premium: true, category: 'specific', featured: true, badge: 'Ley 24.051', norm: 'Ley 24.051' },
+{ to: '/excavations', icon: <Warning weight="duotone" size={26} />, label: 'Excavaciones y Zanjas', sub: 'Estabilidad de Taludes (A, B, C), Entibados >1.2m — Dec. 911/96 & OSHA 1926', color: '#d97706', bg: 'rgba(217,119,6,0.1)', premium: true, category: 'critical', featured: true, badge: 'Dec. 911/96', norm: 'Dec. 911/96' },
+{ to: '/atex', icon: <Lightning weight="duotone" size={26} />, label: 'Atmósferas Explosivas (ATEX)', sub: 'Zonificación 0, 1, 2 / 20, 21, 22 e Inventario Equipos Ex — IEC 60079', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true, category: 'specific', featured: true, badge: 'IEC 60079', norm: 'IEC 60079' },
+{ to: '/first-aid-aed', icon: <Activity weight="duotone" size={26} />, label: 'Primeros Auxilios y DEA', sub: 'Cardioprotección Ley 27.159, Botiquines y Atenciones Menores', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management', featured: true, badge: 'Ley 27.159', norm: 'Ley 27.159' },
+{ to: '/arc-flash', icon: <Lightning weight="duotone" size={26} />, label: 'Arco Eléctrico (Arc Flash)', sub: 'Cálculo de Energía Incidente (cal/cm²), EPP y Tensión — NFPA 70E & Res. SRT 3068/14', color: '#eab308', bg: 'rgba(234,179,8,0.1)', premium: true, category: 'critical', featured: true, badge: 'NFPA 70E', norm: 'NFPA 70E' },
+{ to: '/industrial-environment', icon: <Droplets weight="duotone" size={26} />, label: 'Efluentes y Emisiones', sub: 'Monitoreo Ambiental en Chimeneas y Vertidos — Ley 25.675 & Dec. 351/79', color: '#0d9488', bg: 'rgba(13,148,136,0.1)', premium: true, category: 'specific', featured: true, badge: 'Ley 25.675', norm: 'Ley 25.675' }].
 sort((a, b) => a.label.localeCompare(b.label, 'es-AR'));
 
 // Counter hook
@@ -559,134 +562,22 @@ export default function Home(): React.ReactElement {
     }
   }, [syncPulse, currentUser, location]);
 
+  if (!currentUser) {
+    return (
+      <AnimatedPage>
+        <Suspense fallback={<div className="min-h-screen bg-[#020617] flex items-center justify-center text-white">Cargando...</div>}>
+          <MarketingLanding
+            onStart={() => navigate('/login', { state: { view: 'register' } })}
+            onLogin={() => navigate('/login')}
+          />
+        </Suspense>
+      </AnimatedPage>
+    );
+  }
+
   return (
     <AnimatedPage>
     <div className="page-transition pb-[4rem]">
-
-      {!currentUser &&
-        <div className="fixed top-0 left-0 right-0 z-[8000] w-full bg-[#020617]/90 backdrop-blur-md border-b border-white/10 px-4 sm:px-8 py-3">
-          <div className="max-w-[1400px] mx-auto flex items-center justify-between w-full">
-            <div className="flex items-center gap-2 font-black text-lg sm:text-xl text-white tracking-tight cursor-pointer" onClick={() => navigate('/')}>
-              <img
-                src={localStorage.getItem('companyLogo') || "/logo.png"}
-                alt="Logo Asistente H&S"
-                className="w-8 h-8 object-contain rounded-lg shadow-sm"
-              />
-              <span>Asistente H&S</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => navigate('/login')}
-                className="bg-white/5 hover:bg-white/15 border border-white/15 text-white font-bold px-4 py-2 rounded-xl text-sm transition-all cursor-pointer">
-                Iniciar sesión
-              </button>
-              <button
-                onClick={() => navigate('/login', { state: { view: 'register' } })}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-lg shadow-blue-500/25 transition-all cursor-pointer border-none">
-                Registrarse
-              </button>
-            </div>
-          </div>
-        </div>
-        }
-
-      {!currentUser && <StickyCtaBanner />}
-
-      {!currentUser ?
-        <div
-          className="home-hero-banner pt-28 pb-20 px-4 sm:px-8 relative mb-0 border-b border-white/10 w-full box-border bg-[#020617] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-950/60 via-[#020617] to-[#020617]"
-          onMouseMove={(e) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
-            e.currentTarget.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
-          }}>
-          <div className="glow-cursor absolute top-[var(--mouse-y,_0)] left-[var(--mouse-x,_0)] w-[600px] h-[600px] bg-[radial-gradient(circle,_rgba(168,85,247,0.15)_0%,_rgba(0,0,0,0)_50%)] transform-[translate(-50%,_-50%)] pointer-events-[none] z-[0] transition-[opacity_0.3s_ease]" />
-
-          <StarryBackground />
-          <div style={{ gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: isMobile ? '2rem' : '4rem' }} className="relative z-[1] max-w-[1400px] m-[0_auto] grid items-center w-full">
-            <div className="stagger-item animation-delay-[0.1s]" style={{ textAlign: isMobile ? 'center' : 'left' }}>
-              <div className="display-[inline-flex] items-center gap-[0.6rem] p-[0.5rem_1rem] bg-[rgba(59,_130,_246,_0.1)] border-[1px_solid_rgba(59,_130,_246,_0.2)] rounded-[100px] mb-[2rem]">
-                <ShieldCheck size={16} color="#38bdf8" />
-                <span className="text-[#38bdf8] text-[0.85rem] font-[800] letter-spacing-[1px] uppercase">Plataforma Profesional H&S</span>
-              </div>
-              <h1 className="text-[clamp(2.8rem,_6vw,_4.5rem)] font-[900] text-[white] m-[0_0_1.5rem] line-height-[1.1] letter-spacing-[-2px] font-family-[var(--font-heading)]">
-                Creá tus{' '}
-                <span className="bg-[linear-gradient(to_right,_#38bdf8,_#818cf8)] webkit-background-clip-[text] webkit-text-fill-color-[transparent] inline-block min-width-[5ch]">
-                  {typedWord}<span className="animation-[pulse-soft_0.8s_ease-in-out_infinite] opacity-[1] text-[#38bdf8]">|</span>
-                </span>
-                {' '}en minutos.{' '}
-              </h1>
-              <p className="text-[rgba(255,255,255,0.7)] text-[1.2rem] mb-[2.5rem] font-[500] max-w-[540px] line-height-[1.65]">
-                La plataforma de Higiene y Seguridad con IA que redacta, calcula y genera PDFs profesionales. Validado por la normativa de toda la región.
-              </p>
-              <div className="hero-buttons stagger-item animation-delay-[0.3s] flex gap-[1rem] flex-wrap items-center w-[100%]" style={{ justifyContent: isMobile ? 'center' : 'flex-start', flexDirection: isMobile ? 'column' : 'row' }}>
-                <>
-                  <button onClick={() => navigate('/login', { state: { view: 'register' } })} className="glow-button hover-lift p-[1.1rem_2.5rem] text-[1.1rem]" style={{ width: isMobile ? '100%' : 'auto' }}>
-                    {isMobile ? 'Empezar Gratis' : 'Generar mi primer ATS Gratis'} <ArrowRight size={20} className="display-[inline] vertical-align-[middle] m-[-2px_0_0_0.5rem]" />
-                  </button>
-                  <button onClick={() => {
-                    const demoInput = document.querySelector('.glass-mockup input') as HTMLInputElement;
-                    if (demoInput) demoInput.focus();
-                  }} style={{ width: isMobile ? '100%' : 'auto' }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} className="p-[1.1rem_2.5rem] rounded-[var(--radius-xl)] border-[1px_solid_rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.05)] text-[white] font-[700] cursor-pointer text-[1.1rem] transition-[all_0.3s_ease]">
-                    Ver Demo de IA
-                  </button>
-                </>
-              </div>
-              <div style={{ justifyContent: isMobile ? 'center' : 'flex-start' }} className="flex items-center gap-[0.8rem] mb-[1.5rem]">
-                <div className="flex">
-                  {['#3b82f6', '#10b981', '#a855f7', '#f97316', '#ec4899'].map((c, i) =>
-                  <div key={i} style={{
-                    background: `linear-gradient(135deg, ${c}, ${c}99)`,
-                    marginLeft: i === 0 ? 0 : '-10px'
-                  }} className="w-[36px] h-[36px] rounded-[50%] border-[2px_solid_rgba(2,6,23,0.8)] flex items-center justify-center text-[white] font-[900] text-[0.75rem] flex-shrink-[0]">{['J', 'M', 'C', 'L', 'R'][i]}</div>
-                  )}
-                </div>
-                <div>
-                  <div className="flex gap-[1px] mb-[2px]">
-                    {[...Array(5)].map((_, i) => <span key={i} className="text-[#fbbf24] text-[11px]">★</span>)}
-                  </div>
-                  <span className="text-[rgba(255,255,255,0.55)] text-[0.8rem] font-[500]">
-                    +1,240 profesionales ya la usan
-                  </span>
-                </div>
-              </div>
-
-              <div style={{ gap: isMobile ? '1.5rem' : '2.5rem', justifyContent: isMobile ? 'center' : 'flex-start' }} className="flex mt-[2rem] border-top-[1px_solid_rgba(255,255,255,0.1)] pt-[2rem] flex-wrap">
-                <CounterItem value={1240} label="Profesionales" suffix="+" />
-                <CounterItem value={8500} label="Reportes" suffix="+" />
-                <CounterItem value={5} label="Países" suffix="" />
-              </div>
-
-              {/* Respaldo Normativo y Banderas */}
-              <div className="mt-6 pt-4 border-t border-white/5 flex items-center gap-3 flex-wrap" style={{ justifyContent: isMobile ? 'center' : 'flex-start' }}>
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Validado para:</span>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 flex items-center gap-1.5">
-                    🇦🇷 <span>Ley 19.587 / Dec. 351</span>
-                  </span>
-                  <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 flex items-center gap-1.5">
-                    🇨🇱 <span>DS 594</span>
-                  </span>
-                  <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 flex items-center gap-1.5">
-                    🇺🇾 <span>Dec. 406/88</span>
-                  </span>
-                  <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 flex items-center gap-1.5">
-                    🇲🇽 <span>STPS</span>
-                  </span>
-                  <span className="px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-xs font-semibold text-blue-400 flex items-center gap-1">
-                    🌐 <span>ISO 45001 / OSHA</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="stagger-item w-full flex justify-center animation-delay-[0.4s] perspective-[1000px] mt-6 lg:mt-0">
-              <Suspense fallback={<div className="h-[300px]" />}>
-                <InteractiveHeroDemo />
-              </Suspense>
-            </div>
-          </div>
-        </div> : (
 
         <div className="p-[clamp(8rem,_10vw,_9rem)_1.2rem_2rem] bg-[var(--color-hero-bg)] border-bottom-[1px_solid_var(--color-border)] relative overflow-[hidden]">
           <StarryBackground />
@@ -993,28 +884,11 @@ export default function Home(): React.ReactElement {
 
             </div>
           </div>
-        </div>)
-        }
+        </div>
 
-
-      {!currentUser &&
-        <Suspense fallback={<div className="p-[4rem] text-center text-[var(--color-text-muted)]">Cargando...</div>}>
-          <div className="mt-[0]">
-          <StatsShowcase />
-          <ModulesGrid />
-          <FeaturesShowcase />
-          <WallOfLove />
-          <BeforeAndAfter />
-          <RoiCalculator />
-          <PricingDark onStart={() => navigate('/login', { state: { view: 'register' } })} />
-          <FaqAndCtaDark />
-          </div>
-        </Suspense>
-        }
-
-
-      {currentUser &&
         <div className="mt-[2.5rem] max-w-[1200px] m-[2.5rem_auto_0] p-[0_1rem]">
+          {/* Centro de Mando Ejecutivo & Semáforo de Vencimientos */}
+          <CommandCenterDashboard />
 
           <div className="mb-[4rem]">
             <div className="flex flex-col gap-[1.5rem] mb-[2rem]" style={{ minWidth: 0 }}>
@@ -1029,31 +903,9 @@ export default function Home(): React.ReactElement {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-[1rem] mb-[1.5rem] relative z-[5] no-print w-[100%]">
-                {/* Buscador Rápido de Módulos */}
-                <div className="relative flex-1 max-w-md">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--color-text-muted)]">
-                    <MagnifyingGlass size={18} weight="bold" />
-                  </div>
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Buscar herramienta (ej: ATS, extintor, ruido, permiso)..."
-                    className="w-full pl-10 pr-9 py-2.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl text-sm text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-inner"
-                  />
-                  {searchQuery && (
-                    <button
-                      onClick={() => setSearchQuery('')}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white bg-transparent border-0 cursor-pointer"
-                    >
-                      <X size={16} />
-                    </button>
-                  )}
-                </div>
-
+              <div className="flex items-center gap-[0.6rem] mb-[1.5rem] relative z-[5] no-print w-full">
                 {/* Categorías y Modo Campo */}
-                <div className="flex flex-nowrap gap-[0.6rem] overflow-x-auto pb-[0.2rem] hide-scrollbar items-center" style={{ WebkitOverflowScrolling: 'touch', scrollSnapType: 'x mandatory' }}>
+                <div className="flex flex-nowrap gap-[0.6rem] overflow-x-auto pb-[0.2rem] hide-scrollbar items-center w-full" style={{ WebkitOverflowScrolling: 'touch', scrollSnapType: 'x mandatory' }}>
                   <button
                     onClick={() => setActiveCategory('all')}
                     style={{ scrollSnapAlign: 'start' }}
@@ -1170,18 +1022,42 @@ export default function Home(): React.ReactElement {
                     <div style={{
                       top: isMobile ? '0.4rem' : '0.65rem',
                       right: isMobile ? '0.4rem' : '0.65rem'
-                    }} className="absolute flex items-center gap-[3px] z-[3]">
+                    }} className="absolute flex items-center gap-[4px] z-[3]">
                       <button
-                        onClick={(e) => { e.preventDefault(); toggleFavorite(e, link.to); }}
-                        title={favorites.includes(link.to) ? 'Quitar de favoritos' : 'Fijar en favoritos'}
-                        className={`w-6 h-6 rounded-full flex items-center justify-center border-0 p-0 cursor-pointer transition-all ${
-                          favorites.includes(link.to)
-                            ? 'text-amber-400 bg-amber-400/15 hover:bg-amber-400/25 scale-105'
-                            : 'text-gray-500 hover:text-amber-400 bg-black/20 hover:bg-black/40 opacity-0 group-hover:opacity-100 hover:opacity-100'
-                        }`}
-                        style={{ opacity: favorites.includes(link.to) ? 1 : undefined }}
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleFavorite(e, link.to);
+                        }}
+                        title={favorites.includes(link.to) ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+                        className="transition-all cursor-pointer flex items-center justify-center hover:scale-110 active:scale-95"
+                        style={{
+                          width: isMobile ? '24px' : '26px',
+                          height: isMobile ? '24px' : '26px',
+                          minHeight: 'unset',
+                          minWidth: 'unset',
+                          padding: 0,
+                          borderRadius: '50%',
+                          border: favorites.includes(link.to)
+                            ? '1px solid rgba(245, 158, 11, 0.5)'
+                            : '1px solid rgba(148, 163, 184, 0.3)',
+                          background: favorites.includes(link.to)
+                            ? 'rgba(245, 158, 11, 0.2)'
+                            : 'rgba(255, 255, 255, 0.85)',
+                          color: favorites.includes(link.to) ? '#f59e0b' : '#64748b',
+                          boxShadow: favorites.includes(link.to)
+                            ? '0 2px 6px rgba(245, 158, 11, 0.25)'
+                            : '0 1px 3px rgba(0, 0, 0, 0.08)',
+                          opacity: 1,
+                          cursor: 'pointer'
+                        }}
                       >
-                        <Star size={13} weight={favorites.includes(link.to) ? 'fill' : 'regular'} />
+                        <Star
+                          size={isMobile ? 12 : 13}
+                          weight={favorites.includes(link.to) ? 'fill' : 'bold'}
+                          color={favorites.includes(link.to) ? '#f59e0b' : '#64748b'}
+                        />
                       </button>
 
                       {moduleCounts[link.to] > 0 &&
@@ -1356,7 +1232,6 @@ export default function Home(): React.ReactElement {
         </div>
           }
         </div>
-        }
       {/* Removed legacy onboarding modal in favor of MarketingLanding */}
 
     </div>

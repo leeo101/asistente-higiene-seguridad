@@ -31,6 +31,7 @@ import { ModuleActionBar } from '../components/module';
 import { evaluateLightingLevel } from '../utils/hygieneCalculators';
 import { OFFICIAL_SRT_VISUAL_TASKS, evaluateFullLightingProtocolSRT84 } from '../utils/srtProtocols';
 import LightingCalculatorWidget from '../components/LightingCalculatorWidget';
+import MeasurementTrendChart from '../components/MeasurementTrendChart';
 const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '0.85rem 1.2rem',
@@ -116,6 +117,18 @@ export default function LightingReport(): React.ReactElement | null {
 
     const promedioGeneral = total > 0 ? Math.round(sumaLux / total) : 0;
     return { total, cumple, noCumple, promedioGeneral };
+  }, [history]);
+
+  const [showTrendChart, setShowTrendChart] = useState(false);
+
+  const trendChartData = React.useMemo(() => {
+    return history
+      .filter((h: any) => h.date && h.results?.promedioLux)
+      .map((h: any) => ({
+        date: h.date,
+        value: Number(h.results?.promedioLux) || 0,
+        label: `${h.empresa || ''} - ${h.sector || ''}`
+      }));
   }, [history]);
 
   const filteredHistoryData = React.useMemo(() => {
@@ -668,12 +681,21 @@ export default function LightingReport(): React.ReactElement | null {
               </h3>
               <div className="flex gap-3 items-center">
                 {history.length > 0 && (
-                  <button 
-                    onClick={handleExportCSV} 
-                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }} 
-                    className="flex items-center gap-1.5 border-none rounded-xl px-4 py-2.5 text-xs font-extrabold cursor-pointer text-white transition-transform hover:-translate-y-0.5">
-                    <Download size={14} /> EXCEL
-                  </button>
+                  <>
+                    <button 
+                      onClick={handleExportCSV} 
+                      style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }} 
+                      className="flex items-center gap-1.5 border-none rounded-xl px-4 py-2.5 text-xs font-extrabold cursor-pointer text-white transition-transform hover:-translate-y-0.5">
+                      <Download size={14} /> EXCEL
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setShowTrendChart(!showTrendChart)} 
+                      style={{ background: showTrendChart ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'linear-gradient(135deg, #475569, #334155)' }} 
+                      className="flex items-center gap-1.5 border-none rounded-xl px-4 py-2.5 text-xs font-extrabold cursor-pointer text-white transition-transform hover:-translate-y-0.5 shadow-sm">
+                      {showTrendChart ? '📋 Ver Tabla' : '📈 Ver Tendencias'}
+                    </button>
+                  </>
                 )}
                 <button 
                   onClick={() => {
@@ -715,6 +737,20 @@ export default function LightingReport(): React.ReactElement | null {
                 </button>
               </div>
             </div>
+
+            {showTrendChart ? (
+              <div className="mb-6 animate-fade-in">
+                <MeasurementTrendChart
+                  title="Evolución Histórica de Iluminación Media (Lux)"
+                  subtitle="Seguimiento de luxometría en puestos de trabajo a lo largo del tiempo"
+                  unit="Lux"
+                  data={trendChartData}
+                  legalLimit={formData.luxRequerido || 500}
+                  limitLabel={`Exigencia Res. 84/12 (${formData.luxRequerido || 500} Lux)`}
+                  limitType="min"
+                />
+              </div>
+            ) : null}
 
             <DataTable
               data={filteredHistoryData}

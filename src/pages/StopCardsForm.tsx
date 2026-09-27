@@ -11,6 +11,7 @@ import { API_BASE_URL } from '../config';
 import { usePaywall } from '../hooks/usePaywall';
 import { auth } from '../firebase';
 import AnimatedPage from '../components/AnimatedPage';
+import { analyzeStopCardWithAi } from '../services/aiFormAssistant';
 
 export default function StopCardsForm(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -119,6 +120,31 @@ export default function StopCardsForm(): React.ReactElement | null {
 
       recognition.start();
     });
+  };
+
+  const handleAiAnalysis = async () => {
+    if (!formData.description.trim()) {
+      toast.error('Escribí primero una breve descripción del hallazgo.');
+      return;
+    }
+
+    setIsProcessingAI(true);
+    const toastId = toast.loading('Analizando hallazgo con IA...');
+
+    try {
+      const result = await analyzeStopCardWithAi(formData.description);
+      setFormData((prev: any) => ({
+        ...prev,
+        type: result.type || prev.type,
+        location: prev.location || result.location || '',
+        actionTaken: prev.actionTaken || result.suggestedAction
+      }));
+      toast.success('¡Hallazgo clasificado y acción recomendada con IA!', { id: toastId });
+    } catch (err: any) {
+      toast.error('No se pudo analizar con IA.', { id: toastId });
+    } finally {
+      setIsProcessingAI(false);
+    }
   };
 
   const handleSave = () => {
@@ -239,9 +265,19 @@ export default function StopCardsForm(): React.ReactElement | null {
             </div>
 
             <div className="form-group mb-6">
-              <label className="flex items-center gap-1.5 font-bold mb-2 text-slate-700 dark:text-slate-200 text-sm">
-                <AlertTriangle size={18} className="text-amber-500" /> Descripción del Hallazgo
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-200 text-sm">
+                  <AlertTriangle size={18} className="text-amber-500" /> Descripción del Hallazgo
+                </label>
+                <button
+                  type="button"
+                  onClick={handleAiAnalysis}
+                  disabled={isProcessingAI}
+                  className="px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-sm hover:opacity-90 transition-opacity border-none cursor-pointer">
+                  <Sparkles size={13} />
+                  <span>{isProcessingAI ? 'Analizando...' : 'Clasificar con IA'}</span>
+                </button>
+              </div>
               <textarea 
                 name="description" 
                 value={formData.description} 

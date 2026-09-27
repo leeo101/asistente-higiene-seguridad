@@ -1,19 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import { ArrowLeft, Download, FileText, Calendar, TrendingUp, ShieldCheck, Shield, ClipboardList, Users, Siren, Flame, Target, FileSignature, ChevronRight, HardHat, TriangleAlert, Building } from 'lucide-react';
+import {
+  ArrowLeft, Download, FileText, Calendar, TrendingUp, ShieldCheck, Shield,
+  ClipboardList, Users, Siren, Flame, Target, FileSignature, ChevronRight, ChevronLeft,
+  HardHat, TriangleAlert, Building2, CheckSquare, Square, CheckCircle2,
+  Sparkles, MessageSquare, AlertCircle, Check
+} from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { API_BASE_URL } from '../config';
 import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import AdBanner from '../components/AdBanner';
+import { useCompany } from '../contexts/CompanyContext';
 
 export default function ManagementReport(): React.ReactElement | null {
   const navigate = useNavigate();
-  useDocumentTitle('Informe Mensual de Gestión');
+  useDocumentTitle('Dossier Mensual de Gestión HyS');
 
+  const { activeCompany, isAllCompanies } = useCompany();
   const [loading, setLoading] = useState(true);
   const [monthOffset, setMonthOffset] = useState(0);
+
+  // Selector de bloques del dossier
+  const [includedSections, setIncludedSections] = useState({
+    summary: true,
+    ats: true,
+    permits: true,
+    inspections: true,
+    riskAssessments: true,
+    training: true,
+    talks: true,
+    drills: true,
+    fireload: true,
+    accidents: true,
+    capa: true
+  });
+
+  const [customNotes, setCustomNotes] = useState('');
 
   const [metrics, setMetrics] = useState({
     ats: { total: 0 },
@@ -21,10 +44,12 @@ export default function ManagementReport(): React.ReactElement | null {
     inspections: { total: 0, critical: 0 },
     riskAssessments: { total: 0, highRisk: 0 },
     training: { total: 0, attendees: 0 },
+    talks: { total: 0, attendees: 0 },
     drills: { total: 0 },
     accidents: { total: 0 },
     fireload: { total: 0 },
-    audits: { total: 0 }
+    audits: { total: 0 },
+    capa: { total: 0, pending: 0 }
   });
 
   const getTargetDates = () => {
@@ -51,449 +76,656 @@ export default function ManagementReport(): React.ReactElement | null {
       return d >= firstDay && d <= lastDay;
     };
 
-    const safeParse = (key: string) => {
-      try {return JSON.parse(localStorage.getItem(key) || '[]');}
-      catch (e) {return [];}
+    const matchesCompany = (item: any) => {
+      if (isAllCompanies || !activeCompany) return true;
+      const emp = item.empresa || item.cliente || item.razonSocial || item.company || '';
+      if (!emp) return true;
+      return (
+        emp.toLowerCase().includes(activeCompany.name.toLowerCase()) ||
+        activeCompany.name.toLowerCase().includes(emp.toLowerCase())
+      );
     };
 
-    const ats = safeParse('ats_history').filter((i: any) => isWithinMonth(i.fecha || i.createdAt || i.date));
-    const permits = safeParse('work_permits_history').filter((i: any) => isWithinMonth(i.createdAt || i.date));
-    const inspections = [...safeParse('inspections_history'), ...safeParse('tool_checklists_history')].filter((i: any) => isWithinMonth(i.date || i.createdAt || i.fecha));
-    const risks = safeParse('risk_assessment_history').filter((i: any) => isWithinMonth(i.date || i.createdAt));
-    const training = safeParse('training_history').filter((i: any) => isWithinMonth(i.date || i.createdAt));
-    const drills = safeParse('drills_history').filter((i: any) => isWithinMonth(i.date || i.createdAt));
-    const accidents = safeParse('accident_history').filter((i: any) => isWithinMonth(i.date || i.createdAt));
-    const fireload = safeParse('fireload_history').filter((i: any) => isWithinMonth(i.createdAt || i.date));
-    const audits = safeParse('ehs_audits_db').filter((i: any) => isWithinMonth(i.date || i.createdAt));
+    const safeParse = (key: string) => {
+      try {
+        return JSON.parse(localStorage.getItem(key) || '[]');
+      } catch {
+        return [];
+      }
+    };
+
+    const ats = safeParse('ats_history').filter(
+      (i: any) => isWithinMonth(i.fecha || i.createdAt || i.date) && matchesCompany(i)
+    );
+    const permits = safeParse('work_permits_history').filter(
+      (i: any) => isWithinMonth(i.createdAt || i.date) && matchesCompany(i)
+    );
+    const inspections = [...safeParse('inspections_history'), ...safeParse('tool_checklists_history')].filter(
+      (i: any) => isWithinMonth(i.date || i.createdAt || i.fecha) && matchesCompany(i)
+    );
+    const risks = safeParse('risk_assessment_history').filter(
+      (i: any) => isWithinMonth(i.date || i.createdAt) && matchesCompany(i)
+    );
+    const training = safeParse('training_history').filter(
+      (i: any) => isWithinMonth(i.date || i.createdAt) && matchesCompany(i)
+    );
+    const talks = safeParse('toolbox_talks_history').filter(
+      (i: any) => isWithinMonth(i.date || i.fecha || i.createdAt) && matchesCompany(i)
+    );
+    const drills = safeParse('drills_history').filter(
+      (i: any) => isWithinMonth(i.date || i.createdAt) && matchesCompany(i)
+    );
+    const accidents = safeParse('accident_history').filter(
+      (i: any) => isWithinMonth(i.date || i.createdAt) && matchesCompany(i)
+    );
+    const fireload = safeParse('fireload_history').filter(
+      (i: any) => isWithinMonth(i.createdAt || i.date) && matchesCompany(i)
+    );
+    const audits = safeParse('ehs_audits_db').filter(
+      (i: any) => isWithinMonth(i.date || i.createdAt) && matchesCompany(i)
+    );
+    const capas = safeParse('capas_db').filter(
+      (i: any) => isWithinMonth(i.createdAt || i.targetDate) && matchesCompany(i)
+    );
 
     setMetrics({
       ats: { total: ats.length },
       permits: { total: permits.length },
       inspections: {
         total: inspections.length,
-        critical: inspections.filter((i) => i.score < 50 || i.status === 'NC').length
+        critical: inspections.filter((i: any) => i.score < 50 || i.status === 'NC').length
       },
       riskAssessments: {
         total: risks.length,
-        highRisk: risks.filter((r) => (r.riskLevel || '').toLowerCase().includes('crítico') || (r.riskLevel || '').toLowerCase().includes('alto')).length
+        highRisk: risks.filter(
+          (r: any) =>
+            (r.riskLevel || '').toLowerCase().includes('crítico') ||
+            (r.riskLevel || '').toLowerCase().includes('alto')
+        ).length
       },
       training: {
         total: training.length,
-        attendees: training.reduce((acc: number, curr: any) => acc + (curr.attendees?.length || curr.participants?.length || 0), 0)
+        attendees: training.reduce(
+          (acc: number, curr: any) => acc + (curr.attendees?.length || curr.participants?.length || 0),
+          0
+        )
+      },
+      talks: {
+        total: talks.length,
+        attendees: talks.reduce((acc: number, curr: any) => acc + (curr.attendees?.length || 0), 0)
       },
       drills: { total: drills.length },
       accidents: { total: accidents.length },
       fireload: { total: fireload.length },
-      audits: { total: audits.length }
+      audits: { total: audits.length },
+      capa: {
+        total: capas.length,
+        pending: capas.filter((c: any) => c.status !== 'completed').length
+      }
     });
 
-    setTimeout(() => setLoading(false), 500);
+    setTimeout(() => setLoading(false), 300);
   };
 
   useEffect(() => {
     loadMetrics();
-  }, [monthOffset]);
+  }, [monthOffset, activeCompany]);
 
   const { monthName } = getTargetDates();
-  const totalActions = Object.values(metrics).reduce((acc, curr) => acc + curr.total, 0);
+  const totalActions =
+    metrics.ats.total +
+    metrics.permits.total +
+    metrics.inspections.total +
+    metrics.riskAssessments.total +
+    metrics.training.total +
+    metrics.talks.total +
+    metrics.drills.total +
+    metrics.accidents.total +
+    metrics.fireload.total +
+    metrics.audits.total +
+    metrics.capa.total;
 
   const getChartData = () => {
     const data = [
-    { name: 'ATS', value: metrics.ats.total, color: '#10b981' },
-    { name: 'Permisos', value: metrics.permits.total, color: '#3b82f6' },
-    { name: 'Inspecciones', value: metrics.inspections.total, color: '#8b5cf6' },
-    { name: 'Riesgos', value: metrics.riskAssessments.total, color: '#f59e0b' },
-    { name: 'Capacitaciones', value: metrics.training.total, color: '#ec4899' },
-    { name: 'Simulacros', value: metrics.drills.total, color: '#14b8a6' },
-    { name: 'Auditorías', value: metrics.audits.total, color: '#6366f1' },
-    { name: 'Carga de Fuego', value: metrics.fireload.total, color: '#f97316' }];
+      { name: 'ATS', value: metrics.ats.total, color: '#10b981' },
+      { name: 'Permisos', value: metrics.permits.total, color: '#3b82f6' },
+      { name: 'Inspecciones', value: metrics.inspections.total, color: '#8b5cf6' },
+      { name: 'Charlas 5 Min', value: metrics.talks.total, color: '#0052CC' },
+      { name: 'Capacitaciones', value: metrics.training.total, color: '#ec4899' },
+      { name: 'Riesgos', value: metrics.riskAssessments.total, color: '#f59e0b' },
+      { name: 'Simulacros', value: metrics.drills.total, color: '#14b8a6' },
+      { name: 'Planes CAPA', value: metrics.capa.total, color: '#ef4444' },
+      { name: 'Carga de Fuego', value: metrics.fireload.total, color: '#f97316' }
+    ];
 
-    return data.filter((d) => d.value > 0).sort((a, b) => b.value - a.value);
+    return data.filter(d => d.value > 0).sort((a, b) => b.value - a.value);
   };
 
   const chartData = getChartData();
 
   const handleExportPDF = async () => {
     try {
-      const toastId = toast.loading('Generando reporte en PDF...');
+      const toastId = toast.loading('Compilando Dossier Mensual de Gestión...');
       const { jsPDF } = await import('jspdf');
       const autoTable = (await import('jspdf-autotable')).default;
       const html2canvas = (await import('html2canvas')).default;
       const personalData = JSON.parse(localStorage.getItem('personalData') || '{}');
-      const profName = personalData.fullName || personalData.name || 'Profesional de HyS';
-      const company = personalData.company || 'Empresa No Definida';
+      const profName = personalData.fullName || personalData.name || 'Especialista en Higiene y Seguridad';
+      const company = activeCompany ? activeCompany.name : personalData.company || 'Establecimiento General';
 
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
 
-      // Colors
-      const primaryColor: [number, number, number] = [30, 58, 138]; // Dark Blue
-      const secondaryColor: [number, number, number] = [59, 130, 246]; // Light Blue
-      const textDark: [number, number, number] = [31, 41, 55];
-      const textGray: [number, number, number] = [107, 114, 128];
+      const primaryColor: [number, number, number] = [15, 23, 42]; // Slate 900
+      const accentColor: [number, number, number] = [37, 99, 235]; // Blue 600
+      const textDark: [number, number, number] = [30, 41, 59];
+      const textGray: [number, number, number] = [100, 116, 139];
 
-      // --- HEADER ---
+      // --- PORTADA INSTITUCIONAL ---
       doc.setFillColor(...primaryColor);
-      doc.rect(0, 0, pageWidth, 45, 'F');
-      doc.setFillColor(...secondaryColor);
-      doc.rect(0, 45, pageWidth, 5, 'F');
+      doc.rect(0, 0, pageWidth, 55, 'F');
+      doc.setFillColor(...accentColor);
+      doc.rect(0, 55, pageWidth, 5, 'F');
 
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(24);
+      doc.setFontSize(22);
       doc.setFont('helvetica', 'bold');
-      doc.text('INFORME MENSUAL DE GESTIÓN H&S', 15, 25);
+      doc.text('DOSSIER MENSUAL DE GESTIÓN H&S', 15, 28);
 
-      doc.setFontSize(12);
+      doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
-      doc.text(`PERÍODO: ${monthName.toUpperCase()}`, 15, 35);
+      doc.text(`INFORME EJECUTIVO DE SEGURIDAD, HIGIENE Y MEDIO AMBIENTE`, 15, 38);
+      doc.setFontSize(10);
+      doc.text(`PERÍODO: ${monthName.toUpperCase()}`, 15, 48);
 
-      // --- LOGO ---
+      // Logo si existe
       const companyLogo = localStorage.getItem('companyLogo');
       if (companyLogo && (companyLogo.startsWith('data:image/') || companyLogo.startsWith('http'))) {
         try {
-          doc.addImage(companyLogo, 'PNG', pageWidth - 55, 8, 40, 25);
-        } catch (err) {}
+          doc.addImage(companyLogo, 'PNG', pageWidth - 55, 12, 40, 30);
+        } catch {}
       }
 
-      // --- INFO BOX ---
-      doc.setFillColor(243, 244, 246);
-      doc.roundedRect(15, 60, pageWidth - 30, 25, 3, 3, 'F');
+      // --- CAJA DE DATOS DE EMPRESA Y PROFESIONAL ---
+      doc.setFillColor(248, 250, 252);
+      doc.setDrawColor(226, 232, 240);
+      doc.roundedRect(15, 68, pageWidth - 30, 28, 3, 3, 'FD');
 
       doc.setTextColor(...textDark);
-      doc.setFontSize(10);
+      doc.setFontSize(9.5);
       doc.setFont('helvetica', 'bold');
-      doc.text('Empresa/Proyecto:', 20, 70);
-      doc.text('Elaborado por:', 20, 78);
+      doc.text('EMPRESA / COMITENTE:', 20, 77);
+      doc.text('PROFESIONAL RESPONSABLE:', 20, 85);
+      doc.text('CUIT / ESTABLECIMIENTO:', 20, 93);
 
       doc.setFont('helvetica', 'normal');
-      doc.text(company, 60, 70);
-      doc.text(profName, 60, 78);
-      doc.text(`Fecha de Emisión: ${new Date().toLocaleDateString('es-AR')}`, pageWidth - 70, 70);
+      doc.text(company, 75, 77);
+      doc.text(profName, 75, 85);
+      doc.text(
+        `${activeCompany?.cuit || personalData.cuit || 'N/A'} — ${activeCompany?.establishment || 'Planta Central'}`,
+        75,
+        93
+      );
+      doc.text(`Fecha Emisión: ${new Date().toLocaleDateString('es-AR')}`, pageWidth - 70, 77);
 
-      // --- EJECUTIVO (SMART SUMMARY) ---
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...primaryColor);
-      doc.text('Resumen Ejecutivo', 15, 100);
+      // --- RESUMEN EJECUTIVO ---
+      let currentY = 106;
+      if (includedSections.summary) {
+        doc.setFontSize(13);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...accentColor);
+        doc.text('1. Resumen Ejecutivo de Gestión', 15, currentY);
 
-      let mainFocus = 'diversas actividades preventivas';
-      if (chartData.length > 0) {
-        mainFocus = `la gestión de ${chartData[0].name.toLowerCase()} (con ${chartData[0].value} registros conformados)`;
+        let mainFocus = 'actividades preventivas diversificadas';
+        if (chartData.length > 0) {
+          mainFocus = `la gestión de ${chartData[0].name.toLowerCase()} (${chartData[0].value} registros)`;
+        }
+
+        const executiveSummary = `Durante el período de ${monthName}, el Servicio de Higiene y Seguridad Laboral coordinó y documentó un volumen global de ${totalActions} actuaciones técnicas en ${company}. La mayor concentración operativa correspondió a ${mainFocus}. Las actividades se ejecutaron en estricto cumplimiento de la Ley Nac. 19.587, Ley 24.557 y sus decretos reglamentarios, asegurando la debida diligencia de la empresa y la protección psicofísica de los trabajadores.`;
+
+        doc.setTextColor(...textDark);
+        doc.setFontSize(9.5);
+        doc.setFont('helvetica', 'normal');
+        const splitSummary = doc.splitTextToSize(executiveSummary, pageWidth - 30);
+        doc.text(splitSummary, 15, currentY + 7);
+        currentY += 12 + splitSummary.length * 4.5;
       }
 
-      const executiveSummary = `Durante el mes de ${monthName}, el servicio de Higiene y Seguridad completó un volumen total de ${totalActions} registros documentales a través de la plataforma. El mayor foco operativo estuvo centralizado en ${mainFocus}. Este seguimiento sistemático asegura el cumplimiento del marco legal vigente y fomenta la mejora continua en la cultura preventiva de la organización, mitigando activamente los riesgos laborales detectados.`;
-
-      doc.setTextColor(...textDark);
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      const splitSummary = doc.splitTextToSize(executiveSummary, pageWidth - 30);
-      doc.text(splitSummary, 15, 110);
-
-      // --- GRÁFICO CIRCULAR ---
-      let currentY = 115 + splitSummary.length * 5 + 5;
+      // --- GRÁFICO DE DISTRIBUCIÓN ---
       const chartEl = document.getElementById('chart-container-pdf');
-      if (chartEl && chartData.length > 0) {
+      if (chartEl && chartData.length > 0 && includedSections.summary) {
         try {
           const canvas = await html2canvas(chartEl, { scale: 2, useCORS: true });
           const imgData = canvas.toDataURL('image/png');
           const pdfWidth = pageWidth - 30;
           const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-          
-          if (currentY + pdfHeight > pageHeight - 20) {
+
+          if (currentY + pdfHeight > pageHeight - 25) {
             doc.addPage();
             currentY = 20;
           }
-          
+
           doc.addImage(imgData, 'PNG', 15, currentY, pdfWidth, pdfHeight);
           currentY += pdfHeight + 10;
         } catch (err) {
-          console.error("Error capturing chart", err);
+          console.error('Error capturing chart', err);
         }
       }
 
-      // --- TABLA DETALLADA ---
-      if (currentY > pageHeight - 40) {
+      // --- TABLA DETALLADA DE MÓDULOS INCLUIDOS ---
+      if (currentY > pageHeight - 50) {
         doc.addPage();
         currentY = 20;
       }
 
-      doc.setFontSize(14);
+      doc.setFontSize(13);
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...primaryColor);
-      doc.text('Desglose de Gestión Documental', 15, currentY);
+      doc.setTextColor(...accentColor);
+      doc.text('2. Desglose de Indicadores y Actuaciones', 15, currentY);
 
-      const tableData = [
-      ['Análisis de Trabajo Seguro (ATS)', `${metrics.ats.total} confeccionados`, 'Evaluación de tareas rutinarias y no rutinarias.'],
-      ['Permisos de Trabajo Especial', `${metrics.permits.total} emitidos`, 'Gestión de trabajos en altura, caliente, etc.'],
-      ['Inspecciones y Checklists', `${metrics.inspections.total} realizadas`, `${metrics.inspections.critical} con observaciones críticas (NC).`],
-      ['Identificación de Riesgos', `${metrics.riskAssessments.total} tareas`, `${metrics.riskAssessments.highRisk} mapeadas como riesgo crítico/alto.`],
-      ['Capacitaciones (In Situ/Sala)', `${metrics.training.total} dictadas`, `${metrics.training.attendees} trabajadores entrenados en total.`],
-      ['Simulacros de Emergencia', `${metrics.drills.total} ejecutados`, 'Cumplimiento de plan anual de evacuación.'],
-      ['Auditorías EHS', `${metrics.audits.total} realizadas`, 'Verificación de estándares normativos.'],
-      ['Estudios de Carga de Fuego', `${metrics.fireload.total} estudios`, 'Decreto 351/79 Anexo VII.'],
-      ['Registro de Siniestralidad', `${metrics.accidents.total} reportes`, 'Investigación de accidentes/incidentes.']].
-      filter((row) => parseInt(row[1].split(' ')[0]) > 0); // Solo muestra modulos con actividad
+      const tableData: string[][] = [];
+
+      if (includedSections.ats) {
+        tableData.push([
+          'Análisis de Trabajo Seguro (ATS)',
+          `${metrics.ats.total} registros`,
+          'Identificación de peligros y medidas preventivas por tarea'
+        ]);
+      }
+      if (includedSections.permits) {
+        tableData.push([
+          'Permisos de Trabajo de Alto Riesgo (PTAR)',
+          `${metrics.permits.total} emitidos`,
+          'Control de trabajos en altura, caliente, confinados y LOTO'
+        ]);
+      }
+      if (includedSections.inspections) {
+        tableData.push([
+          'Inspecciones y Checklists Industriales',
+          `${metrics.inspections.total} efectuadas`,
+          `${metrics.inspections.critical} con desvíos críticos señalados`
+        ]);
+      }
+      if (includedSections.talks) {
+        tableData.push([
+          'Charlas de Seguridad de 5 Minutos',
+          `${metrics.talks.total} charlas`,
+          `${metrics.talks.attendees} firmas de asistentes registradas`
+        ]);
+      }
+      if (includedSections.training) {
+        tableData.push([
+          'Capacitaciones Formales en Planta',
+          `${metrics.training.total} sesiones`,
+          `${metrics.training.attendees} trabajadores capacitados`
+        ]);
+      }
+      if (includedSections.drills) {
+        tableData.push([
+          'Simulacros de Evacuación y Emergencia',
+          `${metrics.drills.total} realizados`,
+          'Evaluación de tiempos de respuesta y puntos de encuentro'
+        ]);
+      }
+      if (includedSections.accidents) {
+        tableData.push([
+          'Registro de Siniestralidad Laboral',
+          `${metrics.accidents.total} eventos`,
+          'Investigaciones bajo árbol de causas y cálculo de índices'
+        ]);
+      }
+      if (includedSections.capa) {
+        tableData.push([
+          'Plan de Acciones Correctivas (CAPA)',
+          `${metrics.capa.total} medidas`,
+          `${metrics.capa.pending} acciones en seguimiento de adecuación`
+        ]);
+      }
+      if (includedSections.fireload) {
+        tableData.push([
+          'Instalaciones Contra Incendio',
+          `${metrics.fireload.total} estudios`,
+          'Estudios de Carga de Fuego y control del parque extintor'
+        ]);
+      }
 
       if (tableData.length === 0) {
-        tableData.push(['Sin actividad', '0', 'No se registraron documentos en este período.']);
+        tableData.push(['Sin secciones seleccionadas', '0', 'Active casillas para incluir datos.']);
       }
 
       autoTable(doc, {
-        startY: currentY + 5,
-        head: [['Módulo / Actividad', 'Volumen', 'Detalle Técnico']],
+        startY: currentY + 6,
+        head: [['Actuación / Módulo', 'Volumen Registrado', 'Alcance y Marco Normativo']],
         body: tableData,
         theme: 'grid',
         headStyles: { fillColor: primaryColor, textColor: 255, fontStyle: 'bold' },
-        alternateRowStyles: { fillColor: [249, 250, 251] },
-        styles: { fontSize: 10, cellPadding: 6 },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        styles: { fontSize: 9.5, cellPadding: 5.5 },
         columnStyles: {
-          0: { fontStyle: 'bold', cellWidth: 65, textColor: [31, 41, 55] },
-          1: { cellWidth: 35, textColor: [59, 130, 246], fontStyle: 'bold' }
+          0: { fontStyle: 'bold', cellWidth: 70, textColor: [30, 41, 59] },
+          1: { cellWidth: 40, textColor: [37, 99, 235], fontStyle: 'bold' }
         }
       });
 
-      // --- FOOTER AND SIGNATURE ---
-      const finalY = (doc as any).lastAutoTable.finalY || currentY + 50;
+      // --- CONCLUSIONES Y RECOMENDACIONES DEL PROFESIONAL ---
+      const finalY = (doc as any).lastAutoTable.finalY || currentY + 60;
+      let notesY = finalY + 12;
 
-      // Check page break for signature
-      if (finalY > pageHeight - 60) {
-        doc.addPage();
-        doc.setDrawColor(156, 163, 175);
-        if (personalData.signature) {
-          try { doc.addImage(personalData.signature, 'PNG', 135, 30, 40, 20); } catch (e) {}
+      if (customNotes.trim()) {
+        if (notesY > pageHeight - 65) {
+          doc.addPage();
+          notesY = 25;
         }
-        doc.line(130, 50, 190, 50);
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...accentColor);
+        doc.text('3. Conclusiones y Recomendaciones del Especialista', 15, notesY);
+
         doc.setFontSize(9);
-        doc.setTextColor(...textGray);
-        doc.text('Firma del Profesional / Responsable', 135, 55);
-      } else {
-        doc.setDrawColor(156, 163, 175);
-        if (personalData.signature) {
-          try { doc.addImage(personalData.signature, 'PNG', 135, finalY + 20, 40, 20); } catch (e) {}
-        }
-        doc.line(130, finalY + 40, 190, finalY + 40);
-        doc.setFontSize(9);
-        doc.setTextColor(...textGray);
-        doc.text('Firma del Profesional / Responsable', 135, finalY + 45);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...textDark);
+        const splitNotes = doc.splitTextToSize(customNotes.trim(), pageWidth - 30);
+        doc.text(splitNotes, 15, notesY + 7);
+        notesY += 10 + splitNotes.length * 4.5;
       }
 
-      // Page numbers on all pages
+      // --- FIRMAS BLOCK ---
+      if (notesY > pageHeight - 50) {
+        doc.addPage();
+        notesY = 30;
+      }
+
+      const sigY = notesY + 25;
+      doc.setDrawColor(203, 213, 225);
+
+      // Firma izquierda: Recibido Empresa
+      doc.line(20, sigY, 90, sigY);
+      doc.setFontSize(8.5);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...textDark);
+      doc.text('RECIBIDO POR LA EMPRESA / GERENCIA', 25, sigY + 5);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...textGray);
+      doc.text('Firma, Aclaración y Sello', 35, sigY + 10);
+
+      // Firma derecha: Especialista HyS
+      if (personalData.signature) {
+        try {
+          doc.addImage(personalData.signature, 'PNG', 135, sigY - 20, 40, 18);
+        } catch {}
+      }
+      doc.line(120, sigY, 190, sigY);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...textDark);
+      doc.text('RESPONSABLE HIGIENE Y SEGURIDAD', 125, sigY + 5);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...textGray);
+      doc.text(`${profName} — Matrícula Profesional`, 123, sigY + 10);
+
+      // --- NUMERACIÓN DE PÁGINAS ---
       const pageCount = (doc as any).internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         doc.setFontSize(8);
         doc.setTextColor(...textGray);
-        doc.text(`Generado por Asistente de Higiene y Seguridad - Página ${i} de ${pageCount}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+        doc.text(
+          `Dossier Mensual de Gestión HyS — ${company} — Página ${i} de ${pageCount}`,
+          pageWidth / 2,
+          pageHeight - 10,
+          { align: 'center' }
+        );
       }
 
-      doc.save(`Informe_Gestion_${monthName.replace(/ /g, '_')}.pdf`);
-      toast.success('Reporte exportado exitosamente', { id: toastId });
+      doc.save(`Dossier_Gestion_${company.replace(/[^a-zA-Z0-9]/g, '_')}_${monthName.replace(/ /g, '_')}.pdf`);
+      toast.success('Dossier Ejecutivo generado exitosamente ✅', { id: toastId });
     } catch (error) {
       console.error('Error exportando PDF:', error);
-      toast.error('Error al generar el PDF');
+      toast.error('Error al compilar el dossier en PDF');
     }
   };
 
+  const toggleSection = (key: keyof typeof includedSections) => {
+    setIncludedSections(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
   return (
-    <div className="container pb-[4rem]">
-            <div className="flex items-center gap-[1rem] mb-[2rem] mt-[1rem]">
-                <></>
-                <div className="flex items-center gap-[0.6rem]">
-                    <TrendingUp size={24} color="var(--color-primary)" />
-                    <h1 className="m-[0] text-[1.5rem] font-[800]">Informe de Gestión</h1>
+    <div className="container max-w-6xl pb-16 pt-4">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors cursor-pointer border-none"
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="m-0 text-xl sm:text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <TrendingUp size={24} className="text-blue-600" />
+                Dossier Mensual de Gestión HyS
+              </h1>
+              {activeCompany && (
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-800 flex items-center gap-1">
+                  <Building2 size={12} /> {activeCompany.name}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 m-0 mt-0.5 font-medium">
+              Compilador ejecutivo 1-Click para Directorio, Gerencia General y Auditorías de ART
+            </p>
+          </div>
+        </div>
+
+        {/* Month Selector + Export Button */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <div className="flex items-center gap-1 p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs">
+            <button
+              type="button"
+              onClick={() => setMonthOffset(p => p - 1)}
+              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer border-none bg-transparent"
+              title="Mes anterior"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span className="px-3 text-xs font-bold capitalize text-slate-800 dark:text-slate-200 min-w-[120px] text-center">
+              {monthName}
+            </span>
+            <button
+              type="button"
+              onClick={() => setMonthOffset(p => p + 1)}
+              disabled={monthOffset >= 0}
+              className={`p-1.5 rounded-lg transition-colors border-none bg-transparent ${
+                monthOffset >= 0
+                  ? 'opacity-30 cursor-not-allowed'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer'
+              }`}
+              title="Mes siguiente"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleExportPDF}
+            disabled={loading || totalActions === 0}
+            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer border-none disabled:opacity-50"
+          >
+            <Download size={16} /> Compilar Dossier PDF
+          </button>
+        </div>
+      </div>
+
+      {/* Dossier Section Selector */}
+      <div className="p-4 sm:p-5 bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs mb-6">
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <Sparkles size={17} className="text-amber-500" />
+            <h3 className="text-xs sm:text-sm font-black uppercase text-slate-900 dark:text-white m-0 tracking-wider">
+              Bloques a Incluir en el Informe Ejecutivo
+            </h3>
+          </div>
+          <span className="text-[11px] text-slate-400 font-semibold">
+            Selecciona qué módulos formarán parte del reporte
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 text-xs">
+          {[
+            { key: 'summary', label: 'Resumen Ejecutivo' },
+            { key: 'ats', label: 'ATS / IPERC' },
+            { key: 'permits', label: 'Permisos PTAR' },
+            { key: 'inspections', label: 'Checklists' },
+            { key: 'talks', label: 'Charlas 5 Min' },
+            { key: 'training', label: 'Capacitaciones' },
+            { key: 'drills', label: 'Simulacros' },
+            { key: 'fireload', label: 'Carga de Fuego' },
+            { key: 'accidents', label: 'Siniestralidad' },
+            { key: 'capa', label: 'Plan CAPA' }
+          ].map(block => {
+            const isChecked = includedSections[block.key as keyof typeof includedSections];
+            return (
+              <button
+                key={block.key}
+                type="button"
+                onClick={() => toggleSection(block.key as keyof typeof includedSections)}
+                className={`p-2 rounded-xl border text-left flex items-center gap-2 transition-all cursor-pointer ${
+                  isChecked
+                    ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 text-blue-700 dark:text-blue-300 font-bold'
+                    : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 hover:border-slate-300'
+                }`}
+              >
+                {isChecked ? <CheckSquare size={15} /> : <Square size={15} />}
+                <span className="text-[11px] truncate">{block.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="p-16 text-center text-slate-400">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto mb-3" />
+          <p className="text-xs font-bold">Compilando estadísticas integrales...</p>
+        </div>
+      ) : totalActions === 0 ? (
+        <div className="p-12 text-center bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xs">
+          <FileText size={48} className="mx-auto text-slate-300 dark:text-slate-600 mb-3" />
+          <h3 className="text-base font-black text-slate-900 dark:text-white m-0">Sin Actividad en este Período</h3>
+          <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+            No se detectaron registros en {monthName} para la empresa seleccionada. Utilice los módulos de la plataforma para cargar inspecciones, charlas o permisos.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {/* Top Summary Banner & Pie Chart */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div className="md:col-span-5 p-6 rounded-3xl bg-gradient-to-br from-slate-900 to-blue-950 text-white shadow-lg flex flex-col justify-between">
+              <div>
+                <span className="px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-300 text-xs font-black uppercase tracking-wider inline-flex items-center gap-1.5 mb-3">
+                  <TrendingUp size={14} /> Total Acumulado
+                </span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-5xl font-black">{totalActions}</span>
+                  <span className="text-sm font-semibold text-slate-300">actuaciones</span>
                 </div>
+                <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+                  Volumen total de documentos técnicos generados y avalados durante {monthName}.
+                </p>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-white/10 text-[11px] text-slate-400 flex items-center justify-between">
+                <span>Empresa: {activeCompany ? activeCompany.name : 'Todas'}</span>
+                <span>Mes: {monthName}</span>
+              </div>
             </div>
 
-            <div className="card p-[1.2rem] mb-[2rem] flex justify-space-between items-center flex-wrap gap-[1rem]">
-                <div className="flex items-center gap-4">
-                    <></>
-                    <div className="flex items-center gap-[0.5rem] font-[700] text-[1.1rem] text-[var(--color-primary)] capitalize w-[140px] justify-center">
-                        <Calendar size={18} />
-                        {monthName.split(' ')[0]}
-                    </div>
-                    <button
-            onClick={() => setMonthOffset((prev) => prev + 1)}
-            disabled={monthOffset >= 0}
-            style={{ cursor: monthOffset >= 0 ? 'not-allowed' : 'pointer', opacity: monthOffset >= 0 ? 0.5 : 1 }} className="p-[0.6rem] border-[1px_solid_var(--color-border)] rounded-[10px] bg-[var(--color-surface)] text-[var(--color-text)] transition-[all_0.2s]">
-            
-                        <ChevronRight size={16} />
-                    </button>
+            {chartData.length > 0 && (
+              <div
+                id="chart-container-pdf"
+                className="md:col-span-7 p-5 bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col justify-between"
+              >
+                <h4 className="text-xs font-black uppercase text-slate-700 dark:text-slate-300 m-0 mb-2 flex items-center gap-1.5">
+                  <Target size={16} className="text-blue-500" /> Distribución del Esfuerzo Preventivo
+                </h4>
+                <div className="h-44 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={chartData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={45}
+                        outerRadius={70}
+                        paddingAngle={4}
+                        dataKey="value"
+                      >
+                        {chartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend verticalAlign="middle" align="right" layout="vertical" iconType="circle" />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
+              </div>
+            )}
+          </div>
 
-                <button
-          onClick={handleExportPDF}
-          disabled={loading || totalActions === 0}
-          className="btn-primary m-[0] flex items-center gap-[0.5rem] p-[0.8rem_1.5rem] rounded-[12px] box-shadow-[0_4px_15px_rgba(59,_130,_246,_0.3)]">
-
-          
-                    <Download size={18} /> Exportar Mensual PDF
-                </button>
-            </div>
-
-            {loading ?
-      <div className="flex flex-col items-center justify-center p-[4rem_0] opacity-[0.5]">
-                    <div className="spinner border-top-color-[var(--color-primary)] mb-[1rem]"></div>
-                    <p className="font-[600]">Compilando estadísticas integrales...</p>
-                </div> :
-      totalActions === 0 ?
-      <div className="card p-[4rem_2rem] text-center bg-[rgba(59,_130,_246,_0.05)] border-[1px_dashed_var(--color-primary)]">
-                    <FileText size={48} color="var(--color-primary)" className="opacity-[0.3] mb-[1rem]" />
-                    <h3 className="m-[0_0_0.5rem_0] text-[1.2rem] font-[800]">Sin Actividad Registrada</h3>
-                    <p className="m-[0] text-[var(--color-text-muted)] text-[0.9rem]">No hay reportes ni documentos guardados durante {monthName}.</p>
-                </div> :
-
-      <div className="flex flex-col gap-[1.5rem] animation-[fadeIn_0.4s_ease]">
-
-                    {/* Resumen Superior */}
-                    <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(min(100%,_300px),_1fr))] gap-[1.5rem]">
-                        {/* Volumen General */}
-                        <div className="card p-[2rem] bg-[linear-gradient(135deg,_var(--color-primary),_#1e40af)] text-[white] border-none flex flex-col justify-center">
-                            <h2 className="m-[0_0_1rem_0] text-[1.1rem] font-[700] opacity-[0.9] flex items-center gap-[0.5rem]">
-                                <TrendingUp size={20} /> Volumen de Gestión Integral
-                            </h2>
-                            <div className="flex items-baseline gap-[0.5rem]">
-                                <span className="text-[4rem] font-[900] line-height-[1] text-shadow-[0_4px_10px_rgba(0,0,0,0.2)]">{totalActions}</span>
-                                <span className="text-[1.1rem] font-[600] opacity-[0.8]">documentos generados</span>
-                            </div>
-                            <p className="m-[1rem_0_0] text-[0.9rem] opacity-[0.7] line-height-[1.5]">
-                                Incluye todos los registros conformados y avalados dentro de la plataforma durante el período.
-                            </p>
-                        </div>
-
-                        {/* Gráfico de Distribución */}
-                        {chartData.length > 0 &&
-          <div className="card p-[1.5rem] flex flex-col" id="chart-container-pdf">
-                                <h3 className="m-[0_0_1rem] text-[1rem] font-[700] text-[var(--color-text)] flex items-center gap-[0.5rem]">
-                                    <Target size={18} color="var(--color-primary)" /> Distribución del Esfuerzo
-                                </h3>
-                                <div className="flex-[1] min-h-[200px] w-[100%]">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie
-                    data={chartData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value">
-                    
-                                                {chartData.map((entry, index) =>
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                    )}
-                                            </Pie>
-                                            <Tooltip
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
-                    itemStyle={{ fontWeight: 800 }} />
-                  
-                                            <Legend verticalAlign="middle" align="right" layout="vertical" iconType="circle" wrapperStyle={{ fontSize: '0.8rem', fontWeight: 600 }} />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </div>
-          }
-                    </div>
-
-                    {/* Grilla de Métricas Detalladas */}
-                    <div className="grid grid-template-columns-[repeat(auto-fill,_minmax(min(100%,_240px),_1fr))] gap-[1rem]">
-                        
-                        <div className="card hover-lift p-[1.2rem] flex gap-[1rem] items-center">
-                            <div className="w-[48px] h-[48px] rounded-[12px] bg-[rgba(16,_185,_129,_0.1)] text-[#10b981] flex items-center justify-center">
-                                <ShieldCheck size={24} />
-                            </div>
-                            <div>
-                                <h4 className="m-[0] text-[0.85rem] text-[var(--color-text-muted)] font-[600] uppercase">ATS Realizados</h4>
-                                <span className="text-[1.5rem] font-[900] text-[var(--color-text)]">{metrics.ats.total}</span>
-                            </div>
-                        </div>
-
-                        <div className="card hover-lift p-[1.2rem] flex gap-[1rem] items-center">
-                            <div className="w-[48px] h-[48px] rounded-[12px] bg-[rgba(59,_130,_246,_0.1)] text-[#3b82f6] flex items-center justify-center">
-                                <FileSignature size={24} />
-                            </div>
-                            <div>
-                                <h4 className="m-[0] text-[0.85rem] text-[var(--color-text-muted)] font-[600] uppercase">Permisos Trabajo</h4>
-                                <span className="text-[1.5rem] font-[900] text-[var(--color-text)]">{metrics.permits.total}</span>
-                            </div>
-                        </div>
-
-                        <div className="card hover-lift p-[1.2rem] flex gap-[1rem] items-center">
-                            <div className="w-[48px] h-[48px] rounded-[12px] bg-[rgba(139,_92,_246,_0.1)] text-[#8b5cf6] flex items-center justify-center">
-                                <ClipboardList size={24} />
-                            </div>
-                            <div className="flex-[1]">
-                                <h4 className="m-[0] text-[0.85rem] text-[var(--color-text-muted)] font-[600] uppercase">Inspecciones</h4>
-                                <div className="flex items-baseline gap-[0.5rem]">
-                                    <span className="text-[1.5rem] font-[900] text-[var(--color-text)]">{metrics.inspections.total}</span>
-                                    {metrics.inspections.critical > 0 && <span className="text-[0.8rem] text-[#ef4444] font-[800] bg-[rgba(239,_68,_68,_0.1)] p-[2px_6px] rounded-[4px]">{metrics.inspections.critical} CRIT</span>}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="card hover-lift p-[1.2rem] flex gap-[1rem] items-center">
-                            <div className="w-[48px] h-[48px] rounded-[12px] bg-[rgba(245,_158,_11,_0.1)] text-[#f59e0b] flex items-center justify-center">
-                                <TriangleAlert size={24} />
-                            </div>
-                            <div className="flex-[1]">
-                                <h4 className="m-[0] text-[0.85rem] text-[var(--color-text-muted)] font-[600] uppercase">Eval. Riesgos</h4>
-                                <div className="flex items-baseline gap-[0.5rem]">
-                                    <span className="text-[1.5rem] font-[900] text-[var(--color-text)]">{metrics.riskAssessments.total}</span>
-                                    {metrics.riskAssessments.highRisk > 0 && <span className="text-[0.8rem] text-[#ef4444] font-[800] bg-[rgba(239,_68,_68,_0.1)] p-[2px_6px] rounded-[4px]">{metrics.riskAssessments.highRisk} ALTO</span>}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="card hover-lift p-[1.2rem] flex gap-[1rem] items-center">
-                            <div className="w-[48px] h-[48px] rounded-[12px] bg-[rgba(236,_72,_153,_0.1)] text-[#ec4899] flex items-center justify-center">
-                                <Users size={24} />
-                            </div>
-                            <div className="flex-[1]">
-                                <h4 className="m-[0] text-[0.85rem] text-[var(--color-text-muted)] font-[600] uppercase">Capacitaciones</h4>
-                                <div className="flex items-baseline gap-[0.5rem]">
-                                    <span className="text-[1.5rem] font-[900] text-[var(--color-text)]">{metrics.training.total}</span>
-                                    <span className="text-[0.85rem] text-[var(--color-text-muted)] font-[600]">({metrics.training.attendees} pers)</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="card hover-lift p-[1.2rem] flex gap-[1rem] items-center">
-                            <div className="w-[48px] h-[48px] rounded-[12px] bg-[rgba(20,_184,_166,_0.1)] text-[#14b8a6] flex items-center justify-center">
-                                <Siren size={24} />
-                            </div>
-                            <div>
-                                <h4 className="m-[0] text-[0.85rem] text-[var(--color-text-muted)] font-[600] uppercase">Simulacros</h4>
-                                <span className="text-[1.5rem] font-[900] text-[var(--color-text)]">{metrics.drills.total}</span>
-                            </div>
-                        </div>
-                        
-                        <div className="card hover-lift p-[1.2rem] flex gap-[1rem] items-center">
-                            <div className="w-[48px] h-[48px] rounded-[12px] bg-[rgba(99,_102,_241,_0.1)] text-[#6366f1] flex items-center justify-center">
-                                <Building size={24} />
-                            </div>
-                            <div>
-                                <h4 className="m-[0] text-[0.85rem] text-[var(--color-text-muted)] font-[600] uppercase">Auditorías</h4>
-                                <span className="text-[1.5rem] font-[900] text-[var(--color-text)]">{metrics.audits.total}</span>
-                            </div>
-                        </div>
-
-                        <div className="card hover-lift p-[1.2rem] flex gap-[1rem] items-center">
-                            <div className="w-[48px] h-[48px] rounded-[12px] bg-[rgba(249,_115,_22,_0.1)] text-[#f97316] flex items-center justify-center">
-                                <Flame size={24} />
-                            </div>
-                            <div>
-                                <h4 className="m-[0] text-[0.85rem] text-[var(--color-text-muted)] font-[600] uppercase">Carga de Fuego</h4>
-                                <span className="text-[1.5rem] font-[900] text-[var(--color-text)]">{metrics.fireload.total}</span>
-                            </div>
-                        </div>
-
-                    </div>
+          {/* Cards Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {[
+              { label: 'ATS Confeccionados', value: metrics.ats.total, icon: <ShieldCheck size={20} />, color: 'emerald' },
+              { label: 'Permisos PTAR', value: metrics.permits.total, icon: <FileSignature size={20} />, color: 'blue' },
+              { label: 'Inspecciones / Checklists', value: metrics.inspections.total, icon: <ClipboardList size={20} />, color: 'indigo' },
+              { label: 'Charlas de 5 Min', value: metrics.talks.total, icon: <Users size={20} />, color: 'sky' },
+              { label: 'Capacitaciones Dictadas', value: metrics.training.total, icon: <Users size={20} />, color: 'pink' },
+              { label: 'Planes CAPA', value: metrics.capa.total, icon: <TriangleAlert size={20} />, color: 'rose' },
+              { label: 'Simulacros Ejecutados', value: metrics.drills.total, icon: <Siren size={20} />, color: 'teal' },
+              { label: 'Siniestralidad Registrada', value: metrics.accidents.total, icon: <AlertCircle size={20} />, color: 'amber' }
+            ].map(card => (
+              <div
+                key={card.label}
+                className="p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-3"
+              >
+                <div className={`p-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200`}>
+                  {card.icon}
                 </div>
-      }
+                <div>
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block leading-tight">
+                    {card.label}
+                  </span>
+                  <span className="text-xl font-black text-slate-900 dark:text-white">
+                    {card.value}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
 
-            <div className="mt-[3rem]">
-                <AdBanner />
+          {/* Conclusiones & Recomendaciones Textarea */}
+          <div className="p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs space-y-2">
+            <div className="flex items-center gap-2">
+              <MessageSquare size={17} className="text-blue-500" />
+              <label className="text-xs font-black uppercase text-slate-800 dark:text-slate-200 m-0">
+                Conclusiones y Recomendaciones Profesionales para el Dossier
+              </label>
             </div>
-        </div>);
-
+            <textarea
+              rows={3}
+              value={customNotes}
+              onChange={e => setCustomNotes(e.target.value)}
+              placeholder="Ingrese observaciones técnicas, recomendaciones de mejora o comentarios para el Directorio / ART que se incluirán en el PDF..."
+              className="w-full p-3 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

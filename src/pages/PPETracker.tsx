@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
   ArrowLeft, Plus, Trash2, HardHat, TriangleAlert, CheckCircle, Clock, Shield,
   Download, QrCode, ExternalLink, Info, Footprints, Hand, Glasses, Ear, Shirt,
   Wind, Eye, Flame, Activity, HelpCircle, User, Calendar, ShieldCheck, Award, X,
-  Zap, Thermometer, Droplets, Snowflake, Beaker, Briefcase, Pencil, Tag } from
+  Zap, Thermometer, Droplets, Snowflake, Beaker, Briefcase, Pencil, Tag, AlertTriangle } from
 'lucide-react';
 import toast from 'react-hot-toast';
 import { useSync } from '../contexts/SyncContext';
@@ -15,6 +15,10 @@ import PPEReceiptPdfGenerator from '../components/PPEReceiptPdfGenerator';
 import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import { ModuleFormLayout, ModuleFormSection, ModuleActionBar } from '../components/module';
+import QRSignatureModal from '../components/QRSignatureModal';
+import type { PPEItem } from '../types/ppe';
+import { OFFICIAL_PPE_USEFUL_LIFE, CRITICAL_PPE_TYPES } from '../types/ppe';
+import { evaluatePPEFleetCompliance, calculatePPEExpiryDays } from '../utils/srtProtocols';
 
 const EPP_TYPES = [
 'Casco de seguridad', 'Calzado de seguridad', 'Guantes de trabajo',
@@ -120,6 +124,8 @@ export default function PPETracker(): React.ReactElement | null {
     trabajadorDni: '',
     puestoTrabajo: ''
   });
+  const [showQrSignModal, setShowQrSignModal] = useState(false);
+  const [workerSignature, setWorkerSignature] = useState<string | null>(null);
 
   // Check if device is mobile to adjust padding
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -189,10 +195,25 @@ export default function PPETracker(): React.ReactElement | null {
   };
 
   const handleExport = () => {
-    downloadCSV(items, 'ppe_tracker', {
-      type: 'Tipo de EPP', responsible: 'Responsable',
-      purchaseDate: 'Fecha Compra/Entrega', lifeMonths: 'Vida Útil (meses)',
-      certStandard: 'Certificación', certNumber: 'N° Certificado'
+    const enrichedItems = items.map((item: any) => {
+      const { days, expiryDate } = calculatePPEExpiryDays(item.purchaseDate || '', Number(item.lifeMonths) || 12);
+      const isCritical = CRITICAL_PPE_TYPES.some((ct) => (item.type || '').toLowerCase().includes(ct.toLowerCase()));
+      return {
+        ...item,
+        fechaVencimiento: expiryDate || '-',
+        diasRestantes: days !== null ? days : '-',
+        estado: days === null ? '-' : days < 0 ? 'VENCIDO' : days <= 30 ? 'POR VENCER' : 'VIGENTE',
+        eppCritico: isCritical ? 'SÍ' : 'NO',
+      };
+    });
+    downloadCSV(enrichedItems, 'ppe_tracker_res299', {
+      type: 'Tipo de EPP', responsible: 'Trabajador', workerDni: 'DNI/CUIL',
+      puesto: 'Puesto/Sector', brand: 'Marca', model: 'Modelo',
+      quantity: 'Cantidad', purchaseDate: 'Fecha Entrega',
+      lifeMonths: 'Vida Útil (meses)', fechaVencimiento: 'Fecha Vencimiento',
+      diasRestantes: 'Días Restantes', estado: 'Estado',
+      certStandard: 'Certificación', certNumber: 'N° Certificado',
+      eppCritico: 'EPP Crítico (Res. SIyC 18/25)',
     });
   };
 
@@ -210,7 +231,11 @@ export default function PPETracker(): React.ReactElement | null {
   // Puntuación de protección general (EPP seguros del equipo)
   const protectionScore = total > 0 ? Math.round((active + expiring) / total * 100) : 100;
 
-
+  // Motor normativo Res. SRT 299/11 — evaluación de cumplimiento
+  const fleetCompliance = useMemo(() => {
+    if (items.length === 0) return null;
+    return evaluatePPEFleetCompliance(items);
+  }, [items]);
 
   return (
     <div className="min-h-screen bg-[var(--color-background)] pb-[8rem]">
@@ -343,6 +368,50 @@ export default function PPETracker(): React.ReactElement | null {
                     </div>
                 </div>
       }
+
+            {/* 🔬 Banner de Cumplimiento Normativo Res. SRT 299/11 */}
+            {fleetCompliance && !isFormVisible && (
+              <div className={`rounded-2xl py-4 px-5 mb-5 border shadow-sm animate-fade-in ${
+                fleetCompliance.fleetDictamen === 'CONFORME'
+                  ? 'bg-emerald-500/5 border-emerald-500/20'
+                  : fleetCompliance.fleetDictamen === 'OBSERVADO'
+                  ? 'bg-amber-500/5 border-amber-500/20'
+                  : 'bg-red-500/5 border-red-500/20'
+              }`}>
+                <div className="flex items-center justify-between flex-wrap gap-3 mb-2">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck size={18} className={
+                      fleetCompliance.fleetDictamen === 'CONFORME' ? 'text-emerald-500' :
+                      fleetCompliance.fleetDictamen === 'OBSERVADO' ? 'text-amber-500' : 'text-red-500'
+                    } />
+                    <span className="text-xs font-black uppercase tracking-wide text-slate-700 dark:text-slate-200">
+                      Dictamen Res. SRT 299/11
+                    </span>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-[0.7rem] font-black uppercase tracking-wider border ${
+                    fleetCompliance.fleetDictamen === 'CONFORME'
+                      ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                      : fleetCompliance.fleetDictamen === 'OBSERVADO'
+                      ? 'bg-amber-500/10 text-amber-600 border-amber-500/20'
+                      : 'bg-red-500/10 text-red-600 border-red-500/20'
+                  }`}>
+                    {fleetCompliance.fleetDictamen}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[0.7rem] font-semibold text-slate-600 dark:text-slate-400">
+                  <span>👥 {fleetCompliance.totalWorkers} trabajador{fleetCompliance.totalWorkers !== 1 ? 'es' : ''}</span>
+                  <span>✅ {fleetCompliance.totalVigentes} vigentes</span>
+                  <span>⚠️ {fleetCompliance.totalPorVencer} por vencer</span>
+                  <span>🛑 {fleetCompliance.totalVencidos} vencidos</span>
+                </div>
+                {fleetCompliance.totalSinCertCritica > 0 && (
+                  <div className="mt-2 flex items-center gap-1.5 text-[0.72rem] font-bold text-red-600">
+                    <AlertTriangle size={13} />
+                    {fleetCompliance.totalSinCertCritica} EPP crítico{fleetCompliance.totalSinCertCritica > 1 ? 's' : ''} sin certificación IRAM/ISO — Res. SIyC 18/25
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Segmented Tabs */}
             <div className="flex gap-1.5 mb-6 bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
@@ -484,7 +553,10 @@ export default function PPETracker(): React.ReactElement | null {
                     <button
                       key={t}
                       type="button"
-                      onClick={() => setForm({ ...form, type: t })}
+                      onClick={() => {
+                        const suggestedLife = OFFICIAL_PPE_USEFUL_LIFE[t];
+                        setForm({ ...form, type: t, ...(suggestedLife && !form.lifeMonths ? { lifeMonths: String(suggestedLife) } : {}) });
+                      }}
                       className={`relative flex flex-col items-center justify-center gap-2 py-3 px-1.5 rounded-xl cursor-pointer transition-all duration-300 border-[2px] overflow-hidden ${isSelected ? 'scale-[1.02] z-10' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600'}`} 
                       style={{ 
                           borderColor: isSelected ? config.color : undefined, 
@@ -798,15 +870,38 @@ export default function PPETracker(): React.ReactElement | null {
               <div className="p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-2xl text-[0.75rem] text-blue-700 dark:text-blue-300">
                 📄 Se generará la constancia en formato apaisado A4 reglamentaria de la Res. SRT 299/11 lista para ser rubricada por el trabajador y el responsable técnico.
               </div>
+
+              {workerSignature && (
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-2xl flex items-center justify-between text-xs text-emerald-800 dark:text-emerald-300">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle size={16} className="text-emerald-600" />
+                    <span><strong>¡Firma del trabajador registrada!</strong> Se adjuntó a la constancia oficial.</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setWorkerSignature(null)}
+                    className="text-[10px] text-red-500 underline cursor-pointer bg-transparent border-0"
+                  >
+                    Borrar
+                  </button>
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-200 dark:border-slate-800 flex-wrap">
               <button
                 type="button"
                 onClick={() => setIsReceiptModalOpen(false)}
                 className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border-none cursor-pointer"
               >
                 Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowQrSignModal(true)}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-xs border-none cursor-pointer flex items-center gap-1.5 transition-all"
+              >
+                <QrCode size={15} /> Firmar por QR / WhatsApp
               </button>
               <button
                 type="button"
@@ -821,6 +916,21 @@ export default function PPETracker(): React.ReactElement | null {
             </div>
           </div>
         </div>
+      )}
+
+      {showQrSignModal && (
+        <QRSignatureModal
+          isOpen={showQrSignModal}
+          onClose={() => setShowQrSignModal(false)}
+          role="operator"
+          roleTitle={`Constancia EPP - ${receiptMeta.trabajadorNombre || 'Operario'}`}
+          permitId={`epp_${receiptMeta.trabajadorDni || Date.now()}`}
+          onSignatureReceived={(sig) => {
+            setWorkerSignature(sig);
+            setShowQrSignModal(false);
+            toast.success('¡Firma de recepción de EPP recibida y rubricada!');
+          }}
+        />
       )}
 
       <div className="print-only">

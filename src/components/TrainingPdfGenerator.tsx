@@ -1,8 +1,9 @@
 import React, { useRef } from 'react';
-import { ArrowLeft, Printer, Users, Calendar, MapPin, Clock, BookOpen, Briefcase, GraduationCap } from 'lucide-react';
+import { ArrowLeft, Printer, Users, Calendar, MapPin, Clock, BookOpen, Briefcase, GraduationCap, ShieldCheck, AlertTriangle, AlertCircle } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
+import { evaluateTrainingSessionCompliance, calculateTrainingManHours } from '../utils/srtProtocols';
 
 export default function TrainingPdfGenerator({ data, onBack = () => window.history.back(), isHeadless = false, id = 'pdf-content' }: {data: any;onBack?: () => void;isHeadless?: boolean;id?: string;}): React.ReactElement | null {
   const training = data;
@@ -14,11 +15,15 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
 
   const isLandscape = (training?.asistentes?.length || 0) > 20;
 
+  // Evaluación normativa Res. SRT 905/15 y Dec. 351/79 Cap. 21
+  const compliance = evaluateTrainingSessionCompliance(training);
+  const totalHhc = calculateTrainingManHours(Number(training?.duracion) || 0, training?.asistentes?.length || 0);
+
   // Obtención segura de firma desde personalData
   let actSignature = null;
   let actStamp = null;
   let actName = training?.expositor || null;
-  let actLic = null;
+  let actLic = training?.matriculaExpositor || null;
 
   try {
     const lsPersonal = localStorage.getItem('personalData');
@@ -37,7 +42,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
       const pd = JSON.parse(lsPersonal);
       if (!actName || actName === pd.name) {
         actName = pd.name;
-        actLic = pd.license;
+        if (!actLic) actLic = pd.license;
       }
     }
   } catch (e) {}
@@ -97,55 +102,106 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                         <div className="flex-[1] text-left">
                             <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.08em]">Sistema de Gestión HSE</p>
                             <p className="m-[0] font-[900] text-[0.8rem] uppercase text-[#2563eb]">Doc. Reg. Capacitación</p>
+                            <p className="m-[0] text-[0.6rem] text-[#64748b] font-[700] mt-[0.2rem]">Res. S.R.T. 905/15 · Dec. 351/79 Cap. 21</p>
                         </div>
 
                         <div className="flex-[2] flex flex-col items-center justify-center text-center">
                             <h1 className="m-[0] font-[900] text-[2.2rem] letter-spacing-[-0.02em] uppercase line-height-[1] text-[#0f172a]">ENTRENAMIENTO</h1>
                             <div className="mt-[0.3rem] bg-[#3b82f6] text-[white] p-[0.2rem_0.8rem] rounded-[12px] text-[0.65rem] font-[800] letter-spacing-[0.1em]">
-                                PLANILLA OFICIAL DE ASISTENCIA
+                                PLANILLA OFICIAL DE ASISTENCIA Y EVALUACIÓN
                             </div>
                         </div>
 
-                        <div className="flex-[1] text-right flex flex-col items-end gap-[0.5rem]">
+                        <div className="flex-[1] text-right flex flex-col items-end gap-[0.4rem]">
                             <CompanyLogo style={{ maxHeight: '38px', maxWidth: '120px', objectFit: 'contain' }} />
+                            <div style={{
+                                padding: '0.2rem 0.5rem',
+                                borderRadius: '4px',
+                                fontSize: '0.62rem',
+                                fontWeight: 800,
+                                textTransform: 'uppercase',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.3rem',
+                                background: compliance.dictamen === 'CONFORME' ? '#dcfce7' : compliance.dictamen === 'OBSERVADO' ? '#fef3c7' : '#fee2e2',
+                                color: compliance.dictamen === 'CONFORME' ? '#166534' : compliance.dictamen === 'OBSERVADO' ? '#92400e' : '#991b1b',
+                                border: `1px solid ${compliance.dictamen === 'CONFORME' ? '#86efac' : compliance.dictamen === 'OBSERVADO' ? '#fcd34d' : '#fca5a5'}`
+                            }}>
+                                {compliance.dictamen === 'CONFORME' ? <ShieldCheck size={11} /> : compliance.dictamen === 'OBSERVADO' ? <AlertTriangle size={11} /> : <AlertCircle size={11} />}
+                                {compliance.dictamen} · SRT 905/15
+                            </div>
                         </div>
                     </div>
 
                     {/* Datos de la Capacitación */}
                     <div className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1.5rem] w-[100%]">
-                        <div className="p-[1rem] bg-[#f8fafc] border-bottom-[1px_solid_#cbd5e1]">
-                            <span className="text-[0.65rem] font-[800] text-[#3b82f6] uppercase letter-spacing-[0.05em] flex items-center gap-[0.4rem]">
-                                <GraduationCap size={14} /> TEMA DICTADO
-                            </span>
-                            <div className="font-[900] text-[1.3rem] text-[#0f172a] mt-[0.4rem] line-break-[anywhere]">{training.tema || '-'}</div>
+                        <div className="p-[0.8rem_1rem] bg-[#f8fafc] border-bottom-[1px_solid_#cbd5e1] flex justify-between items-center flex-wrap gap-[0.5rem]">
+                            <div>
+                                <span className="text-[0.65rem] font-[800] text-[#3b82f6] uppercase letter-spacing-[0.05em] flex items-center gap-[0.4rem]">
+                                    <GraduationCap size={14} /> TEMA DICTADO
+                                </span>
+                                <div className="font-[900] text-[1.2rem] text-[#0f172a] mt-[0.2rem] line-break-[anywhere]">{training.tema || '-'}</div>
+                            </div>
+                            {compliance.detectedMandatoryTopic && (
+                                <div className="bg-[#eff6ff] text-[#1d4ed8] border-[1px_solid_#bfdbfe] px-[0.6rem] py-[0.2rem] rounded-[4px] text-[0.65rem] font-[800] flex items-center gap-[0.3rem]">
+                                    <BookOpen size={11} /> EJE TEMÁTICO OBLIGATORIO SRT
+                                </div>
+                            )}
                         </div>
                         
+                        {/* Fila 1 */}
                         <div className="grid grid-template-columns-[repeat(4,_1fr)] bg-[#ffffff]">
-                            <div className="p-[0.8rem_1rem] border-right-[1px_solid_#cbd5e1] border-bottom-[1px_solid_#cbd5e1]">
+                            <div className="p-[0.7rem_1rem] border-right-[1px_solid_#cbd5e1] border-bottom-[1px_solid_#cbd5e1]">
                                 <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Calendar size={12} /> FECHA</span>
-                                <div className="font-[700] text-[0.9rem] text-[#334155] mt-[0.2rem]">{training?.fecha ? new Date(training.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : 'N/A'}</div>
+                                <div className="font-[700] text-[0.85rem] text-[#334155] mt-[0.2rem]">{training?.fecha ? new Date(training.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : 'N/A'}</div>
                             </div>
-                            <div className="p-[0.8rem_1rem] border-right-[1px_solid_#cbd5e1] border-bottom-[1px_solid_#cbd5e1]">
+                            <div className="p-[0.7rem_1rem] border-right-[1px_solid_#cbd5e1] border-bottom-[1px_solid_#cbd5e1]">
                                 <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Clock size={12} /> DURACIÓN</span>
-                                <div className="font-[700] text-[0.9rem] text-[#334155] mt-[0.2rem]">{training.duracion || 0} Horas</div>
+                                <div className="font-[700] text-[0.85rem] text-[#334155] mt-[0.2rem]">{training.duracion || 0} Horas</div>
                             </div>
-                            <div className="p-[0.8rem_1rem] border-right-[1px_solid_#cbd5e1] border-bottom-[1px_solid_#cbd5e1]">
+                            <div className="p-[0.7rem_1rem] border-right-[1px_solid_#cbd5e1] border-bottom-[1px_solid_#cbd5e1]">
                                 <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><MapPin size={12} /> LOCACIÓN</span>
-                                <div className="font-[700] text-[0.9rem] text-[#334155] mt-[0.2rem]">{training.ubicacion || 'No esp.'}</div>
+                                <div className="font-[700] text-[0.85rem] text-[#334155] mt-[0.2rem]">{training.ubicacion || 'No esp.'}</div>
                             </div>
-                            <div className="p-[0.8rem_1rem] border-bottom-[1px_solid_#cbd5e1]">
+                            <div className="p-[0.7rem_1rem] border-bottom-[1px_solid_#cbd5e1]">
                                 <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Briefcase size={12} /> EMPRESA / RAZÓN SOCIAL</span>
-                                <div className="font-[700] text-[0.9rem] text-[#334155] mt-[0.2rem] white-space-[nowrap] text-overflow-[ellipsis]">{training.empresa || 'Aplicable al sitio'}</div>
+                                <div className="font-[700] text-[0.85rem] text-[#334155] mt-[0.2rem] white-space-[nowrap] text-overflow-[ellipsis]">{training.empresa || 'Aplicable al sitio'}</div>
+                            </div>
+                        </div>
+
+                        {/* Fila 2: Métricas Normativas SRT 905/15 */}
+                        <div className="grid grid-template-columns-[repeat(4,_1fr)] bg-[#fcfcfd]">
+                            <div className="p-[0.6rem_1rem] border-right-[1px_solid_#cbd5e1]">
+                                <span className="text-[0.58rem] font-[800] text-[#64748b] uppercase">DISERTANTE / MATRÍCULA</span>
+                                <div className="font-[700] text-[0.8rem] text-[#1e293b] mt-[0.1rem] truncate">
+                                    {training.expositor || actName || 'A designar'} {actLic ? `· Mat. ${actLic}` : ''}
+                                </div>
+                            </div>
+                            <div className="p-[0.6rem_1rem] border-right-[1px_solid_#cbd5e1]">
+                                <span className="text-[0.58rem] font-[800] text-[#64748b] uppercase">CATEGORÍA / EJE</span>
+                                <div className="font-[700] text-[0.8rem] text-[#1e293b] mt-[0.1rem] truncate">
+                                    {training.categoria || 'Higiene y Seguridad'}
+                                </div>
+                            </div>
+                            <div className="p-[0.6rem_1rem] border-right-[1px_solid_#cbd5e1]">
+                                <span className="text-[0.58rem] font-[800] text-[#64748b] uppercase">CARGA HORARIA TOTAL</span>
+                                <div className="font-[700] text-[0.8rem] text-[#0284c7] mt-[0.1rem]">
+                                    {totalHhc.toFixed(1)} Horas-Hombre (HHC)
+                                </div>
+                            </div>
+                            <div className="p-[0.6rem_1rem]">
+                                <span className="text-[0.58rem] font-[800] text-[#64748b] uppercase">EFICACIA / PROMEDIO</span>
+                                <div className="font-[700] text-[0.8rem] text-[#1e293b] mt-[0.1rem]">
+                                    {compliance.averageScore > 0 ? `${compliance.averageScore.toFixed(1)}/10 (${compliance.passRatePercent}% aprob.)` : `${training.asistentes?.length || 0} asistentes`}
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Texto Legal */}
-                    <div className="mb-[1.5rem] bg-[#f1f5f9] border-left-[4px_solid_#94a3b8] p-[1rem] rounded-[4px]">
-                        <p className="m-[0] text-[0.8rem] text-[#334155] line-height-[1.5] font-style-[italic] font-[600]">
-                            Los abajo firmantes declaran haber recibido, comprendido e internalizado la capacitación técnica impartida en materia de Higiene y Seguridad Laboral 
-                            sobre el tema detallado arriba, recibiendo respuesta satisfactoria a las consultas realizadas y comprometiéndose irrevocablemente a aplicar 
-                            las normativas preventivas e instrucciones en sus labores diarias para salvaguardar su integridad física y la de sus compañeros.
+                    <div className="mb-[1.5rem] bg-[#f1f5f9] border-left-[4px_solid_#2563eb] p-[0.8rem_1rem] rounded-[4px]">
+                        <p className="m-[0] text-[0.75rem] text-[#334155] line-height-[1.5] font-[600]">
+                            <strong>MARCO NORMATIVO:</strong> En cumplimiento de la <strong>Ley Nacional N° 19.587</strong> de Higiene y Seguridad en el Trabajo, el <strong>Decreto 351/79 Capítulo 21 (Arts. 208 a 214)</strong> y la <strong>Resolución S.R.T. N° 905/15</strong> (Programa Anual de Capacitación conjunto de los Servicios de Higiene y Seguridad y Medicina Laboral): Los abajo firmantes declaran haber asistido, participado e internalizado la capacitación técnica dictada en la fecha, comprendiendo las medidas preventivas y comprometiéndose a su estricto cumplimiento para preservar su salud psicofísica y la de sus compañeros.
                         </p>
                     </div>
 

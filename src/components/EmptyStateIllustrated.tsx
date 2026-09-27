@@ -149,39 +149,44 @@ export default function EmptyStateIllustrated({
             </p>
 
             {/* CTA Button */}
-            {onAction &&
-      <button
-        onClick={onAction}
-        style={{
-
-
-
-
-          background: `linear-gradient(135deg, ${color}, ${color}cc)`,
-
-
-
-
-
-
-          boxShadow: `0 4px 20px ${color}40`
-
-
-
-        }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)';
-          (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 8px 30px ${color}50`;
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
-          (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 4px 20px ${color}40`;
-        }} className="display-[inline-flex] items-center gap-[0.5rem] p-[0.85rem_1.75rem] text-[#fff] border-none rounded-[var(--radius-lg)] font-[700] text-[0.9rem] cursor-pointer transition-[all_var(--transition-base)] z-[1] relative">
-        
-                    <Plus size={18} strokeWidth={2.5} />
-                    {actionLabel}
-                </button>
-      }
+            {onAction && (
+        <button
+          type="button"
+          onClick={onAction}
+          style={{
+            background: `linear-gradient(135deg, ${color}, ${color}dd)`,
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '12px',
+            fontWeight: '800',
+            fontSize: '0.875rem',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            padding: '10px 22px',
+            minHeight: 'unset',
+            minWidth: 'unset',
+            whiteSpace: 'nowrap',
+            boxShadow: `0 4px 16px ${color}40`,
+            position: 'relative',
+            zIndex: 1,
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = `0 8px 24px ${color}50`;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = `0 4px 16px ${color}40`;
+          }}
+        >
+          <Plus size={16} strokeWidth={2.5} />
+          <span>{actionLabel}</span>
+        </button>
+      )}
         </div>);
 
 }

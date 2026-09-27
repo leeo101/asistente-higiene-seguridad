@@ -2942,10 +2942,11 @@ body.printing-isolated #pdf-content.ats-pdf-root,
 }
 
 @media print {
-  /* Ocultar el árbol React principal #root cuando estamos imprimiendo un reporte aislado */
-  body.printing-isolated > #root,
-  body:has(.isolated-print-target) > #root,
-  body:has(.active-portal-print) > #root {
+  /* Ocultar el árbol React principal #root SOLO cuando estamos imprimiendo un reporte fuera de #root (en portals o ats-pdf-offscreen) */
+  body.printing-isolated:not(:has(#root .isolated-print-target)) > #root,
+  body:has(> .active-portal-print) > #root,
+  body:has(> .ats-pdf-offscreen .isolated-print-target) > #root,
+  body:has(> .ats-pdf-offscreen #pdf-content) > #root {
     display: none !important;
     visibility: hidden !important;
     height: 0 !important;

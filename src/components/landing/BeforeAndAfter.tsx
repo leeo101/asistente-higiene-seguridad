@@ -34,7 +34,7 @@ export default function BeforeAndAfter() {
   return (
     <div
       style={{
-        padding: '5rem 1.2rem',
+        padding: isMobile ? '3.5rem 1rem' : '5rem 1.2rem',
         background: '#020617',
         position: 'relative',
         overflow: 'hidden',
@@ -109,8 +109,8 @@ export default function BeforeAndAfter() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '2rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
+            gap: isMobile ? '1.2rem' : '2rem',
             marginBottom: '3rem',
           }}
         >
@@ -120,7 +120,7 @@ export default function BeforeAndAfter() {
               background: 'rgba(239,68,68,0.04)',
               border: '1px solid rgba(239,68,68,0.12)',
               borderRadius: '24px',
-              padding: '2rem',
+              padding: isMobile ? '1.5rem 1.2rem' : '2rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '1.5rem',
@@ -201,7 +201,7 @@ export default function BeforeAndAfter() {
               background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, rgba(168,85,247,0.05) 100%)',
               border: '1px solid rgba(59,130,246,0.25)',
               borderRadius: '24px',
-              padding: '2rem',
+              padding: isMobile ? '1.5rem 1.2rem' : '2rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '1.5rem',

@@ -5,7 +5,7 @@ import {
   MessageSquare, Plus, Trash2, Save, Share2, Printer,
   Users, Calendar, User, Building2, FileText, ChevronDown,
   CheckCircle2, Clock, Search, Eye, Edit3, History, Pencil,
-  Briefcase, MapPin, Award, UserCheck, Download, ArrowLeft, Sparkles, Loader2 } from
+  Briefcase, MapPin, Award, UserCheck, Download, ArrowLeft, Sparkles, Loader2, QrCode } from
 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -22,6 +22,7 @@ import { DataTable } from '../components/DataTable';
 import { downloadCSV } from '../services/exportCsv';
 import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import QRSignatureModal from '../components/QRSignatureModal';
 import { ModuleFormLayout, ModuleFormToolbar, ModuleActionBar } from '../components/module';
 import { validateWorkerMedicalStatus } from '../utils/workerValidation';
 
@@ -206,6 +207,7 @@ export default function ToolboxTalk(): React.ReactElement {
 
   const [isMobile, setIsMobile] = useState(false);
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+  const [qrAttendee, setQrAttendee] = useState<Attendee | null>(null);
 
   const handleGenerateAiTalk = async () => {
     if (!form.tema.trim()) {
@@ -791,7 +793,7 @@ Ninguna tarea es tan urgente como para realizarla sin las condiciones de segurid
                                     <div key={att.id} className="toolbox-asistente-card">
                                         <span className="toolbox-asistente-badge">Asistente #{idx + 1}</span>
                                         <div style={{
-                                          gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr auto auto'
+                                          gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr auto auto auto'
                                         }} className="grid gap-[0.6rem] items-center">
                                             <input type="text" value={att.nombre}
                                               onChange={(e) => updateAttendee(att.id, 'nombre', e.target.value)}
@@ -804,12 +806,22 @@ Ninguna tarea es tan urgente como para realizarla sin las condiciones de segurid
                                               className="toolbox-input-plain toolbox-focus-glow" />
                                             
                                             <button
+                                              type="button"
+                                              onClick={() => setQrAttendee(att)}
+                                              title="Firma remota escaneando QR o enviando enlace por WhatsApp"
+                                              className="toolbox-signature-pill"
+                                              style={{ border: '1.5px solid #2563eb', background: 'rgba(37,99,235,0.08)', color: '#2563eb', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '6px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                                                <QrCode size={16} /> QR / WhatsApp
+                                            </button>
+
+                                            <button
+                                              type="button"
                                               onClick={() => updateAttendee(att.id, 'firma', !att.firma)}
                                               className={`toolbox-signature-pill ${att.firma ? 'toolbox-signature-pill-active' : ''}`}
                                               style={{ border: att.firma ? '1.5px solid #10b981' : '1.5px solid #f59e0b', background: att.firma ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)', color: att.firma ? '#10b981' : '#f59e0b', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '6px', borderRadius: '8px', fontWeight: 'bold' }}>
                                                 <CheckCircle2 size={16} /> {att.firma ? 'Firmó ✓' : 'Sin firma'}
                                             </button>
-                                            <button onClick={() => removeAttendee(att.id)}
+                                            <button type="button" onClick={() => removeAttendee(att.id)}
                                               onMouseEnter={(e) => {e.currentTarget.style.background = '#ef4444'; e.currentTarget.style.color = 'white';}}
                                               onMouseLeave={(e) => {e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.color = '#dc2626';}}
                                               style={{ background: 'rgba(239,68,68,0.1)', border: '1.5px solid #ef4444', color: '#dc2626', borderRadius: '10px', padding: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
@@ -962,6 +974,21 @@ Ninguna tarea es tan urgente como para realizarla sin las condiciones de segurid
             <div className="print-area ats-pdf-offscreen">
                 <ToolboxTalkPdfGenerator data={{ ...(shareItem || form), showSignatures: (shareItem || form).showSignatures || showSignatures }} professional={professional} />
             </div>
+
+            {qrAttendee && (
+              <QRSignatureModal
+                isOpen={!!qrAttendee}
+                onClose={() => setQrAttendee(null)}
+                role="operator"
+                roleTitle={`Asistencia Charla - ${qrAttendee.nombre || 'Operario'}`}
+                permitId={`talk_${form.id || 'draft'}_${qrAttendee.id}`}
+                onSignatureReceived={(_sig) => {
+                  updateAttendee(qrAttendee.id, 'firma', true);
+                  setQrAttendee(null);
+                  toast.success(`¡Firma de asistencia de ${qrAttendee.nombre || 'operario'} recibida!`);
+                }}
+              />
+            )}
         </div>
         </>
     );

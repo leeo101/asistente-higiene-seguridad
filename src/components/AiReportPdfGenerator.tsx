@@ -96,17 +96,22 @@ export default function AiReportPdfGenerator({ item }: {item: any;}): React.Reac
                     </div>
                 </div>
 
-                {/* Evidence Photo */}
-                <div className="mb-[2rem] text-center">
-                    <div className="w-[100%] max-w-[350px] h-[250px] rounded-[8px] border-[1px_solid_#cbd5e1] m-[0_auto] bg-[#f1f5f9] flex items-center justify-center overflow-hidden">
+                {/* Evidence Photo (Protegida contra cortes y con CORS) */}
+                <div className="mb-[2rem] text-center avoid-break break-inside-avoid">
+                    <div className="w-[100%] max-w-[360px] rounded-[10px] border-[1px_solid_#cbd5e1] m-[0_auto] bg-[#f8fafc] p-[4px] flex items-center justify-center overflow-hidden shadow-sm">
                         {data.image ?
-            <img src={data.image} alt="Evidencia" className="w-full h-full object-contain" style={{ maxHeight: '250px', objectFit: 'contain' }} /> :
-
-            <div className="text-[#64748b] text-[9pt] p-[1rem] text-center">
+                            <img 
+                                src={data.image} 
+                                alt="Evidencia" 
+                                crossOrigin="anonymous"
+                                className="w-full h-auto object-contain rounded-[8px]" 
+                                style={{ maxHeight: '250px', objectFit: 'contain' }} 
+                            /> :
+                            <div className="text-[#64748b] text-[9pt] p-[1.5rem] text-center">
                                 <Info size={24} className="m-[0_auto_0.5rem_auto] text-[#94a3b8]" />
-                                <br />Imagen no disponible localmente o no guardada por límite de espacio.
+                                <br />Imagen de evidencia visual no guardada localmente.
                             </div>
-            }
+                        }
                     </div>
                 </div>
 
@@ -150,16 +155,65 @@ export default function AiReportPdfGenerator({ item }: {item: any;}): React.Reac
           }
                 </div>
 
-                {data.type !== 'general_risks' && data.analysis?.foundRisks?.length > 0 &&
-        <div className="mb-[2rem]">
-                        <h4 className="text-[#b91c1c] mb-[0.8rem] text-[11pt]">Riesgos Adicionales:</h4>
-                        <ul className="m-[0] pl-[1.5rem] text-[#1e293b] text-[10pt]">
-                            {data.analysis.foundRisks.map((risk, i) =>
-            <li key={i} className="mb-[0.3rem]">{risk}</li>
-            )}
-                        </ul>
+                {/* Findings Legend for General Risks */}
+                {data.analysis?.detections && data.analysis.detections.length > 0 && (
+                    <div className="mb-[2rem] avoid-break break-inside-avoid">
+                        <div className="flex items-center gap-[0.6rem] mb-[1rem] border-bottom-[1px_solid_#e2e8f0] pb-[0.4rem]">
+                            <div className="w-[6px] h-[18px] bg-[#3b82f6] rounded-[3px]"></div>
+                            <h4 className="m-[0] text-[#0f172a] font-[800] text-[10pt] uppercase tracking-wider">
+                                Hallazgos Detectados en Imagen ({data.analysis.detections.length})
+                            </h4>
+                        </div>
+                        <div className="grid grid-template-columns-[1fr_1fr] gap-[0.8rem]">
+                            {data.analysis.detections.map((det: any, i: number) => {
+                                const severity = (det.severity || '').toLowerCase();
+                                const badgeBg = severity === 'crítico' ? '#ef4444' :
+                                    severity === 'alto' ? '#f97316' :
+                                    severity === 'medio' ? '#eab308' :
+                                    severity === 'bajo' ? '#10b981' : '#3b82f6';
+                                return (
+                                    <div key={i} className="flex items-center gap-[0.7rem] text-[9pt] bg-[#f8fafc] p-[0.6rem_0.8rem] rounded-[8px] border-[1px_solid_#e2e8f0]">
+                                        <div style={{ background: badgeBg }} className="w-[22px] h-[22px] rounded-full text-white flex items-center justify-center font-[900] text-[0.7rem] flex-shrink-0">
+                                            {i + 1}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-[#1e293b] font-[700] leading-tight">{det.label}</span>
+                                            {det.severity && <span style={{ color: badgeBg }} className="text-[0.65rem] font-[800] uppercase">{det.severity}</span>}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
-        }
+                )}
+
+                {/* Additional risks and recommendations */}
+                {(data.analysis?.foundRisks?.length > 0 || data.analysis?.detections?.some((d: any) => d.recommendation)) && (
+                    <div className="mb-[2rem] avoid-break break-inside-avoid">
+                        {data.analysis?.foundRisks?.length > 0 && (
+                            <div className="mb-[1rem]">
+                                <h4 className="text-[#b91c1c] mb-[0.6rem] text-[10pt] font-[800]">Riesgos Detectados:</h4>
+                                <ul className="m-[0] pl-[1.5rem] text-[#1e293b] text-[9pt]">
+                                    {data.analysis.foundRisks.map((risk: string, i: number) => (
+                                        <li key={i} className="mb-[0.25rem]">{risk}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                        {data.analysis?.detections?.filter((d: any) => d.recommendation).length > 0 && (
+                            <div>
+                                <h4 className="text-[#0f172a] mb-[0.6rem] text-[10pt] font-[800]">Recomendaciones de Corrección:</h4>
+                                <ul className="m-[0] pl-[1.5rem] text-[#1e293b] text-[9pt]">
+                                    {data.analysis.detections.filter((d: any) => d.recommendation).map((det: any, i: number) => (
+                                        <li key={i} className="mb-[0.25rem]">
+                                            <strong>{det.label}:</strong> {det.recommendation}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Signature Row */}
                 <PdfSignatures data={data} />

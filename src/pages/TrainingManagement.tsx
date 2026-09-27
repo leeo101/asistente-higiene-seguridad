@@ -1,5 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
+import {
+  evaluateTrainingSessionCompliance,
+  evaluateAnnualTrainingPlanCompliance,
+  calculateTrainingManHours
+} from '../utils/srtProtocols';
+import { MANDATORY_TRAINING_TOPICS } from '../types/training';
+import type { TrainingComplianceResult, AnnualPlanCompliance } from '../types/training';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Save, Users, Calendar, Clock, BookOpen,
@@ -162,6 +169,7 @@ export default function TrainingManagement(): React.ReactElement | null {
     tema: '',
     tipoCapacitacion: 'Seguridad e Higiene',
     expositor: currentUser?.displayName || '',
+    matriculaExpositor: '',
     fecha: new Date().toISOString().split('T')[0],
     duracion: '1',
     empresa: '',
@@ -179,10 +187,17 @@ export default function TrainingManagement(): React.ReactElement | null {
     showSignatures: { operator: false, professional: true, supervisor: false }
   };
 
-
   const [formData, setFormData] = useState(initialFormState);
   const [showSignatures, setShowSignatures] = useState(initialFormState.showSignatures);
   const [isScannerModalOpen, setIsScannerModalOpen] = useState(false);
+
+  const sessionCompliance = useMemo<TrainingComplianceResult>(() => {
+    return evaluateTrainingSessionCompliance(formData);
+  }, [formData]);
+
+  const annualPlan = useMemo<AnnualPlanCompliance>(() => {
+    return evaluateAnnualTrainingPlanCompliance(history);
+  }, [history]);
 
   const handleApplyScannedData = (scannedData: ExtractedTrainingData, imageBase64: string) => {
     setFormData((prev) => {
@@ -377,20 +392,29 @@ export default function TrainingManagement(): React.ReactElement | null {
       toast.error("No hay capacitaciones para exportar.");
       return;
     }
-    const exportRows = history.map((h) => ({
-      Fecha: h.fecha ? new Date(h.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : '—',
-      Tema: h.tema || '—',
-      Tipo: h.tipoCapacitacion || 'Seguridad e Higiene',
-      Expositor: h.expositor || '—',
-      Empresa: h.empresa || '—',
-      Lugar: h.lugar || h.ubicacion || '—',
-      DuracionHoras: h.duracion || '0',
-      CantidadAsistentes: h.asistentes?.length || 0,
-      Objetivo: h.objetivo || '—'
-    }));
+    const exportRows = history.map((h) => {
+      const comp = evaluateTrainingSessionCompliance(h);
+      return {
+        Fecha: h.fecha ? new Date(h.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : '—',
+        Tema: h.tema || '—',
+        Tipo: h.tipoCapacitacion || 'Seguridad e Higiene',
+        Expositor: h.expositor || '—',
+        Matricula: h.matriculaExpositor || '—',
+        Empresa: h.empresa || '—',
+        Lugar: h.lugar || h.ubicacion || '—',
+        DuracionHoras: h.duracion || '0',
+        CantidadAsistentes: h.asistentes?.length || 0,
+        HorasHombreCapacitacion: comp.manHours,
+        PromedioCalificacion: comp.averageScore > 0 ? comp.averageScore : 'Sin examen',
+        TasaAprobacion: comp.averageScore > 0 ? `${comp.passRatePercent}%` : '—',
+        DictamenLegal: comp.dictamen,
+        TematicaObligatoriaSRT: comp.detectedMandatoryTopic || 'No catalogada',
+        Objetivo: h.objetivo || '—'
+      };
+    });
 
-    downloadCSV(exportRows, `Capacitaciones_EHS_${new Date().toISOString().split('T')[0]}`, null, "Reporte de Capacitaciones EHS");
-    toast.success("Historial exportado a Excel correctamente.");
+    downloadCSV(exportRows, `Capacitaciones_EHS_Res905_${new Date().toISOString().split('T')[0]}`, null, "Reporte de Capacitaciones EHS - Res. SRT 905/15");
+    toast.success("Historial normativo exportado correctamente.");
   };
 
   if (selectedTraining) {
@@ -472,6 +496,38 @@ export default function TrainingManagement(): React.ReactElement | null {
           {item.duracion} hs
         </span>
       )
+    },
+    {
+      header: 'Horas-Hombre',
+      accessor: 'manHours',
+      render: (item: any) => {
+        const hhc = calculateTrainingManHours(item.asistentes?.length || 0, item.duracion);
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-extrabold text-xs">
+            ⚡ {hhc} HHC
+          </span>
+        );
+      }
+    },
+    {
+      header: 'Dictamen Res. 905/15',
+      accessor: 'dictamen',
+      render: (item: any) => {
+        const comp = evaluateTrainingSessionCompliance(item);
+        const isOk = comp.dictamen === 'CONFORME';
+        const isWarn = comp.dictamen === 'OBSERVADO';
+        return (
+          <span className={`px-2.5 py-1 rounded-full text-[0.7rem] font-black uppercase tracking-wider border inline-flex items-center gap-1 ${
+            isOk
+              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+              : isWarn
+              ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+              : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
+          }`}>
+            {isOk ? '✓ CONFORME' : isWarn ? '⚠️ OBSERVADO' : '🛑 NO CONFORME'}
+          </span>
+        );
+      }
     },
 
 
@@ -659,6 +715,95 @@ export default function TrainingManagement(): React.ReactElement | null {
               <StatCard icon={<Timer />} label="Duración Promedio" value={`${avgDuration} hs`} color="#3b82f6" gradient="linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)" />
             </div>
 
+            {/* 🔬 Widget Programa Anual Res. SRT 905/15 & Dec. 351/79 Cap. 21 */}
+            <div className={`mb-8 p-6 rounded-3xl border shadow-md transition-all ${
+              annualPlan.dictamen === 'CONFORME'
+                ? 'bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-500/30'
+                : annualPlan.dictamen === 'OBSERVADO'
+                ? 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-500/30'
+                : 'bg-slate-50/80 dark:bg-slate-900/40 border-slate-300 dark:border-slate-700'
+            }`}>
+              <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-black ${
+                    annualPlan.dictamen === 'CONFORME'
+                      ? 'bg-emerald-500 text-white shadow-emerald-500/30'
+                      : annualPlan.dictamen === 'OBSERVADO'
+                      ? 'bg-amber-500 text-white shadow-amber-500/30'
+                      : 'bg-blue-600 text-white'
+                  }`}>
+                    {annualPlan.dictamen === 'CONFORME' ? '✓' : annualPlan.dictamen === 'OBSERVADO' ? '⚠️' : '📋'}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        PROGRAMA ANUAL DE CAPACITACIÓN · RES. SRT 905/15
+                      </span>
+                      <span className={`px-2.5 py-0.5 rounded-full text-[0.7rem] font-black uppercase tracking-wider border ${
+                        annualPlan.dictamen === 'CONFORME'
+                          ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/40'
+                          : annualPlan.dictamen === 'OBSERVADO'
+                          ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40'
+                          : 'bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-500/40'
+                      }`}>
+                        {annualPlan.dictamen}
+                      </span>
+                    </div>
+                    <h3 className="m-0 text-base font-black text-slate-900 dark:text-white">
+                      Seguimiento Normativo de Formación Anual
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 text-xs font-bold flex-wrap">
+                  <div className="bg-white/80 dark:bg-slate-800/80 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                    ⚡ Total Horas-Hombre: <strong className="text-blue-600">{annualPlan.totalManHours} HHC</strong>
+                  </div>
+                  <div className="bg-white/80 dark:bg-slate-800/80 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                    ⏱️ Promedio: <strong className={annualPlan.averageHoursPerWorker >= 12 ? 'text-emerald-600' : 'text-amber-600'}>{annualPlan.averageHoursPerWorker} hs/operario</strong> / 12 hs mín
+                  </div>
+                  <div className="bg-white/80 dark:bg-slate-800/80 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                    🎯 Temáticas Cubiertas: <strong className="text-emerald-600">{annualPlan.coveredMandatoryTopics.length}/6 ({annualPlan.coveragePercent}%)</strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* Grid de 6 Temáticas Obligatorias del Dec. 351/79 */}
+              <div className="mt-3">
+                <p className="text-[11px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-2">
+                  Temáticas Obligatorias Ley 19.587 / Dec. 351/79 Cap. 21:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                  {MANDATORY_TRAINING_TOPICS.map((topic) => {
+                    const isCovered = annualPlan.coveredMandatoryTopics.includes(topic.key);
+                    return (
+                      <div
+                        key={topic.key}
+                        className={`p-2.5 rounded-xl border text-xs flex items-center justify-between gap-2 ${
+                          isCovered
+                            ? 'bg-emerald-100/60 dark:bg-emerald-900/30 border-emerald-300 dark:border-emerald-700 text-emerald-900 dark:text-emerald-200'
+                            : 'bg-white/60 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                        }`}
+                      >
+                        <span className="font-bold truncate" title={topic.title}>{topic.title}</span>
+                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-black shrink-0 ${
+                          isCovered ? 'bg-emerald-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                        }`}>
+                          {isCovered ? '✓ CUBIERTO' : 'PENDIENTE'}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {annualPlan.alerts.length > 0 && (
+                <div className="mt-3 text-xs font-semibold text-amber-800 dark:text-amber-200 bg-amber-100/60 dark:bg-amber-900/30 p-2.5 rounded-xl border border-amber-200 dark:border-amber-700">
+                  {annualPlan.alerts.join(' ')}
+                </div>
+              )}
+            </div>
+
             {/* Filtros por Categoría */}
             <div className="flex items-center gap-2.5 mb-6 overflow-x-auto pb-2 scrollbar-none flex-wrap">
               <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mr-2">
@@ -777,6 +922,58 @@ export default function TrainingManagement(): React.ReactElement | null {
                 ) : (
                   /* ===== REGULAR TRAINING FORM ===== */
                   <div className="w-full">
+                    {/* 🔬 Banner Normativo de la Sesión Formativa Res. SRT 905/15 */}
+                    <div className={`mb-6 p-4 rounded-2xl border shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
+                      sessionCompliance.dictamen === 'CONFORME'
+                        ? 'bg-emerald-50/80 dark:bg-emerald-950/20 border-emerald-500/20'
+                        : sessionCompliance.dictamen === 'OBSERVADO'
+                        ? 'bg-amber-50/80 dark:bg-amber-950/20 border-amber-500/20'
+                        : 'bg-red-50/80 dark:bg-red-950/20 border-red-500/20'
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm text-white shrink-0 ${
+                          sessionCompliance.dictamen === 'CONFORME' ? 'bg-emerald-600' : sessionCompliance.dictamen === 'OBSERVADO' ? 'bg-amber-600' : 'bg-red-600'
+                        }`}>
+                          {sessionCompliance.dictamen === 'CONFORME' ? '✓' : sessionCompliance.dictamen === 'OBSERVADO' ? '⚠️' : '🛑'}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">
+                              AUDITORÍA DE SESIÓN · RES. SRT 905/15
+                            </span>
+                            <span className={`px-2 py-0.5 rounded-full text-[0.65rem] font-black uppercase tracking-wider border ${
+                              sessionCompliance.dictamen === 'CONFORME'
+                                ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'
+                                : sessionCompliance.dictamen === 'OBSERVADO'
+                                ? 'bg-amber-50/10 text-amber-600 border-amber-500/30'
+                                : 'bg-red-50/10 text-red-600 border-red-500/30'
+                            }`}>
+                              {sessionCompliance.dictamen}
+                            </span>
+                          </div>
+                          <p className="m-0 text-xs font-bold text-slate-800 dark:text-slate-200">
+                            {sessionCompliance.dictamen === 'CONFORME'
+                              ? 'Sesión formativa con registro reglamentario y horas válidas'
+                              : sessionCompliance.alerts[0] || sessionCompliance.recommendations[0] || 'Completar datos'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 self-end sm:self-auto text-xs font-bold flex-wrap">
+                        <span className="bg-white/80 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
+                          ⚡ <strong>{sessionCompliance.manHours} HHC</strong>
+                        </span>
+                        <span className="bg-white/80 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
+                          👥 <strong>{sessionCompliance.totalAttendees} asistentes</strong>
+                        </span>
+                        {sessionCompliance.averageScore > 0 && (
+                          <span className="bg-white/80 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
+                            📝 Aprobación: <strong className="text-emerald-600">{sessionCompliance.passRatePercent}%</strong>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
                     {/* General Metadata Panel */}
                     <div className="bg-white dark:bg-slate-800 p-8 mb-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl">
                       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
@@ -827,6 +1024,13 @@ export default function TrainingManagement(): React.ReactElement | null {
                             <Users size={16} /> Expositor / Instructor
                           </label>
                           <input type="text" value={formData.expositor} onChange={(e) => handleInputChange('expositor', e.target.value)} className="w-full px-4 h-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all" />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-sm font-extrabold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 uppercase tracking-wide">
+                            <FileText size={16} /> Matrícula Profesional (Res. SRT 905/15)
+                          </label>
+                          <input type="text" placeholder="Ej. COPIME / CIEC / Mat. N°..." value={(formData as any).matriculaExpositor || ''} onChange={(e) => handleInputChange('matriculaExpositor', e.target.value)} className="w-full px-4 h-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all" />
                         </div>
 
                         <div className="flex flex-col gap-2">
