@@ -328,10 +328,11 @@ export default function FireLoad(): React.ReactElement | null {
       toast.success('Conclusión técnica generada', { id: loadingToast });
     } catch (err) {
       // Fallback local robusto
+      const tablaAplicable = formData.ventilacion === 'natural' ? 'Tabla 2.2.1' : 'Tabla 2.2.2';
       const fallback = `MEMORIA TÉCNICA Y CONCLUSIÓN (Decreto 351/79 Anexo VII):
-El sector "${formData.sector || 'Principal'}" de la empresa "${formData.razonSocial || formData.empresa}" posee una superficie de ${formData.superficie} m² con ventilación ${formData.ventilacion === 'natural' ? 'natural' : 'no ventilada/mecánica'}.
+El sector "${formData.sector || 'Principal'}" de la empresa "${formData.razonSocial || formData.empresa}" posee una superficie de ${formData.superficie} m² con ventilación ${formData.ventilacion === 'natural' ? 'natural (≥ 1/30 S)' : 'sin ventilación natural / confinada'}.
 La Carga de Fuego ponderada resultante es de ${evalMetrics.cargaFuegoKgM2} kg/m² de madera equivalente (Riesgo ${formData.riesgo}).
-Se establece una resistencia al fuego reglamentaria para muros y estructuras de ${evalMetrics.resistenciaFuegoRequerida} (Tabla 2.2.1 Anexo VII).
+Se establece una resistencia al fuego reglamentaria para muros y estructuras de ${evalMetrics.resistenciaFuegoRequerida} (${tablaAplicable} Anexo VII).
 Se exige dotar el sector con un mínimo de ${evalMetrics.minExtintores} extintores manuales de polvo químico seco ABC con potencial no menor a ${evalMetrics.potencialExtintorNominal} a distancias no mayores a ${evalMetrics.distanciaMaximaRecorridoMetros} m (Condición E4).
 ${evalMetrics.requiereRedHidrantes ? 'Se requiere instalación fija de agua presurizada contra incendios / red de hidrantes (Condición E1).' : ''}
 ${evalMetrics.requiereRociadoresAutomaticos ? 'Por densidad de carga térmica elevada se requiere sistema de rociadores automáticos (Condición E2).' : ''}`;
@@ -444,8 +445,11 @@ ${evalMetrics.requiereRociadoresAutomaticos ? 'Por densidad de carga térmica el
     ];
     const rows = history.map((item) => {
       const met = item.metricas || item.results || {};
+      const fechaStr = item.fecha
+        ? new Date(item.fecha + 'T12:00:00Z').toLocaleDateString('es-AR')
+        : (item.createdAt ? new Date(item.createdAt).toLocaleDateString('es-AR') : '');
       return [
-        item.fecha || item.createdAt ? new Date(item.fecha || item.createdAt).toLocaleDateString('es-AR') : '',
+        fechaStr,
         `"${item.cuit || item.empresaCuit || ''}"`,
         `"${item.razonSocial || item.empresa || ''}"`,
         `"${item.sector || ''}"`,
@@ -568,6 +572,15 @@ ${evalMetrics.requiereRociadoresAutomaticos ? 'Por densidad de carga térmica el
             onClick={() => {
               setFormData(item);
               if (item.showSignatures) setShowSignatures(item.showSignatures);
+              if (item.professionalName) {
+                setProfessional(prev => ({
+                  ...prev,
+                  name: item.professionalName,
+                  license: item.professionalLicense || prev.license,
+                  signature: item.professionalSignature || prev.signature,
+                  stamp: item.professionalStamp || prev.stamp
+                }));
+              }
               setShowForm(true);
               window.scrollTo(0, 0);
             }}
@@ -769,6 +782,7 @@ ${evalMetrics.requiereRociadoresAutomaticos ? 'Por densidad de carga térmica el
                   superficie={formData.superficie}
                   riesgo={formData.riesgo as any}
                   materiales={formData.materiales}
+                  ventilacion={formData.ventilacion}
                   onConclusionGenerated={(memoria) => {
                     setFormData((prev: any) => ({ ...prev, conclusion: memoria }));
                   }}
@@ -1057,21 +1071,90 @@ ${evalMetrics.requiereRociadoresAutomaticos ? 'Por densidad de carga térmica el
 
                 {/* 6. Firmas Digitales */}
                 <ModuleFormSection title="6. Firmas y Conformidad Profesional" icon={<FileText size={20} className="text-blue-500" />}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {showSignatures.professional && (
-                      <SignatureCanvas
-                        label="Firma de Profesional H&S Actuante"
-                        initialImage={formData.professionalSignature || professional.signature}
-                        onSave={(sig) => setProfessional((prev) => ({ ...prev, signature: sig || null }))}
-                      />
-                    )}
-                    {showSignatures.supervisor && (
-                      <SignatureCanvas
-                        label="Firma de Responsable del Establecimiento"
-                        initialImage={formData.supervisorSignature}
-                        onSave={(sig) => setFormData({ ...formData, supervisorSignature: sig || '' })}
-                      />
-                    )}
+                  <div className="space-y-4">
+                    {/* Metadatos del profesional actuante */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700/60">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
+                          Profesional H&S Actuante
+                        </label>
+                        <input
+                          type="text"
+                          value={professional.name}
+                          onChange={(e) => setProfessional((prev) => ({ ...prev, name: e.target.value }))}
+                          placeholder="Nombre y Apellido del Profesional"
+                          className="w-full text-xs font-bold p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
+                          Matrícula Profesional H&S
+                        </label>
+                        <input
+                          type="text"
+                          value={professional.license}
+                          onChange={(e) => setProfessional((prev) => ({ ...prev, license: e.target.value }))}
+                          placeholder="Ej. COPIME N° 12345 / Mat. Provincial"
+                          className="w-full text-xs font-mono font-bold p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Selector de cajas de firma visibles en el PDF */}
+                    <div className="flex flex-wrap gap-4 text-xs font-medium text-slate-700 dark:text-slate-300 px-1">
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={showSignatures.professional}
+                          onChange={(e) => setShowSignatures(prev => ({ ...prev, professional: e.target.checked }))}
+                          className="rounded text-orange-600 focus:ring-orange-500"
+                        />
+                        <span>Firma Profesional H&S</span>
+                      </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={showSignatures.supervisor}
+                          onChange={(e) => setShowSignatures(prev => ({ ...prev, supervisor: e.target.checked }))}
+                          className="rounded text-orange-600 focus:ring-orange-500"
+                        />
+                        <span>Firma Dirección / Empresa</span>
+                      </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={showSignatures.operator}
+                          onChange={(e) => setShowSignatures(prev => ({ ...prev, operator: e.target.checked }))}
+                          className="rounded text-orange-600 focus:ring-orange-500"
+                        />
+                        <span>Firma Responsable del Sector</span>
+                      </label>
+                    </div>
+
+                    {/* Lienzos de firma interactivos */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {showSignatures.professional && (
+                        <SignatureCanvas
+                          label={`Firma Profesional: ${professional.name || 'H&S'}`}
+                          initialImage={formData.professionalSignature || professional.signature}
+                          onSave={(sig) => setProfessional((prev) => ({ ...prev, signature: sig || null }))}
+                        />
+                      )}
+                      {showSignatures.supervisor && (
+                        <SignatureCanvas
+                          label="Firma Responsable del Establecimiento"
+                          initialImage={formData.supervisorSignature}
+                          onSave={(sig) => setFormData((prev: any) => ({ ...prev, supervisorSignature: sig || '' }))}
+                        />
+                      )}
+                      {showSignatures.operator && (
+                        <SignatureCanvas
+                          label="Firma Responsable Técnico del Sector"
+                          initialImage={formData.operatorSignature}
+                          onSave={(sig) => setFormData((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                        />
+                      )}
+                    </div>
                   </div>
                 </ModuleFormSection>
               </div>

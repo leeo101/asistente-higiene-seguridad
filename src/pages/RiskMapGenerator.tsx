@@ -24,8 +24,7 @@ import RiskMapTemplateSelectorModal, { PlanElement } from '../components/RiskMap
 
 // ─── Layer helpers ─────────────────────────────────────────────────────────
 const getLayer = (el) => {
-
-  if (['line', 'rect', 'circle', 'arrow', 'polyline'].includes(el.type)) return 'structure';
+  if (['line', 'rect', 'circle', 'arrow', 'polyline', 'door', 'stairs', 'window', 'column', 'dimension'].includes(el.type)) return 'structure';
   if (el.type === 'icon') return 'signage';
   return 'annotations';
 };
@@ -65,7 +64,11 @@ export default function RiskMapGenerator(): React.ReactElement | null {
   const [zoom, setZoom] = useState(1);
   const [isOrthoMode, setIsOrthoMode] = useState(false);
   const [isSnapToGrid, setIsSnapToGrid] = useState(true);
-  const [drawingShape, setDrawingShape] = useState(null);
+  const [isOsnap, setIsOsnap] = useState(true);
+  const [activeSnapPoint, setActiveSnapPoint] = useState<{ x: number; y: number; label: string } | null>(null);
+  const [activeGrip, setActiveGrip] = useState<{ elementId: any; handle: string } | null>(null);
+  const [shapeDragStart, setShapeDragStart] = useState<{ x: number; y: number; origStartX?: number; origStartY?: number; origEndX?: number; origEndY?: number; origX?: number; origY?: number } | null>(null);
+  const [drawingShape, setDrawingShape] = useState<any>(null);
   const [polylinePoints, setPolylinePoints] = useState([]);
   const [polylinePreview, setPolylinePreview] = useState(null);
   const [editingTextId, setEditingTextId] = useState(null);
@@ -89,6 +92,18 @@ export default function RiskMapGenerator(): React.ReactElement | null {
 
   // ─── Categories ─────────────────────────────────────────────────────────
   const categories = {
+    'Arquitectura': [
+      SAFETY_ICONS.DOOR_SINGLE,
+      SAFETY_ICONS.DOOR_DOUBLE,
+      SAFETY_ICONS.DOOR_SLIDING,
+      SAFETY_ICONS.DOOR_EMERGENCY,
+      SAFETY_ICONS.STAIRS_STRAIGHT,
+      SAFETY_ICONS.STAIRS_SPIRAL,
+      SAFETY_ICONS.RAMP,
+      SAFETY_ICONS.WINDOW,
+      SAFETY_ICONS.COLUMN_SQUARE,
+      SAFETY_ICONS.DIMENSION
+    ],
     'Estructura': [SAFETY_ICONS.LINE, SAFETY_ICONS.RECTANGLE],
     'Rutas': [SAFETY_ICONS.YOU_ARE_HERE, SAFETY_ICONS.ARROW_LINE, SAFETY_ICONS.TEXT_LABEL],
     'Fuego (Rojos)': Object.values(SAFETY_ICONS).filter((i) => i.type === 'fire'),
@@ -99,9 +114,49 @@ export default function RiskMapGenerator(): React.ReactElement | null {
   // ─── Helpers ─────────────────────────────────────────────────────────────
   const snap = (v) => isSnapToGrid ? Math.round(v / 2) * 2 : Math.round(v);
 
+  const findOsnapPoint = (rawX: number, rawY: number, threshold = 14) => {
+    let closest: { x: number; y: number; label: string } | null = null;
+    let minDist = threshold / zoom;
+
+    for (const el of elements) {
+      if (el.locked || !layers[getLayer(el)]) continue;
+      const pts: Array<{ x: number; y: number; label: string }> = [];
+
+      if (['line', 'arrow', 'dimension'].includes(el.type)) {
+        pts.push({ x: el.startX, y: el.startY, label: 'Extremo' });
+        pts.push({ x: el.endX, y: el.endY, label: 'Extremo' });
+        pts.push({ x: (el.startX + el.endX) / 2, y: (el.startY + el.endY) / 2, label: 'Punto Medio' });
+      } else if (el.type === 'rect') {
+        const rx = Math.min(el.startX, el.endX);
+        const ry = Math.min(el.startY, el.endY);
+        const rw = Math.abs(el.endX - el.startX);
+        const rh = Math.abs(el.endY - el.startY);
+        pts.push({ x: rx, y: ry, label: 'Esquina' });
+        pts.push({ x: rx + rw, y: ry, label: 'Esquina' });
+        pts.push({ x: rx, y: ry + rh, label: 'Esquina' });
+        pts.push({ x: rx + rw, y: ry + rh, label: 'Esquina' });
+        pts.push({ x: rx + rw / 2, y: ry, label: 'Punto Medio' });
+        pts.push({ x: rx + rw / 2, y: ry + rh, label: 'Punto Medio' });
+        pts.push({ x: rx, y: ry + rh / 2, label: 'Punto Medio' });
+        pts.push({ x: rx + rw, y: ry + rh / 2, label: 'Punto Medio' });
+      } else if (['door', 'stairs', 'window', 'column'].includes(el.type)) {
+        pts.push({ x: el.x, y: el.y, label: 'Inserción' });
+      }
+
+      for (const p of pts) {
+        const dist = Math.sqrt(Math.pow(p.x - rawX, 2) + Math.pow(p.y - rawY, 2));
+        if (dist < minDist) {
+          minDist = dist;
+          closest = p;
+        }
+      }
+    }
+    return closest;
+  };
+
   const getCoords = (e) => {
     if (!containerRef.current) return { x: 0, y: 0 };
-    const rect = containerRef.current.getBoundingClientRect();
+    const rect = (containerRef.current as any).getBoundingClientRect();
     let clientX = e.clientX;
     let clientY = e.clientY;
     if (e.changedTouches && e.changedTouches.length > 0) {
@@ -111,10 +166,18 @@ export default function RiskMapGenerator(): React.ReactElement | null {
       clientX = e.touches[0].clientX;
       clientY = e.touches[0].clientY;
     }
-    // Restamos el panOffset de la coordenada del puntero para que dibuje exactamente donde apunta
-    const x = (clientX - rect.left - panOffset.x) / zoom;
-    const y = (clientY - rect.top - panOffset.y) / zoom;
-    return { x: snap(x), y: snap(y) };
+    const rawX = (clientX - rect.left - panOffset.x) / zoom;
+    const rawY = (clientY - rect.top - panOffset.y) / zoom;
+
+    if (isOsnap) {
+      const snapTarget = findOsnapPoint(rawX, rawY);
+      if (snapTarget) {
+        setActiveSnapPoint(snapTarget);
+        return { x: snapTarget.x, y: snapTarget.y };
+      }
+    }
+    setActiveSnapPoint(null);
+    return { x: snap(rawX), y: snap(rawY) };
   };
 
   const addToHistory = (newEls) => {
@@ -183,9 +246,8 @@ export default function RiskMapGenerator(): React.ReactElement | null {
   }, [selectedElementId, elements, editingTextId, historyIndex, history, polylinePoints]);
 
   // ─── Mouse handlers ──────────────────────────────────────────────────────
-  const handleCanvasMouseDown = (e) => {
-    const { x, y } = getCoords(e);
-
+  // ─── Mouse / Pointer handlers ────────────────────────────────────────────
+  const handleCanvasMouseDown = (e: React.PointerEvent) => {
     // Si la herramienta activa es 'pan' o es el botón del medio, paneamos
     if (selectedTool === 'pan' || e.button === 1) {
       setIsPanning(true);
@@ -193,13 +255,14 @@ export default function RiskMapGenerator(): React.ReactElement | null {
       return;
     }
 
-    const drawTools = ['ARROW_LINE', 'LINE', 'RECTANGLE', 'CIRCLE'];
+    const { x, y } = getCoords(e);
+    const drawTools = ['ARROW_LINE', 'LINE', 'RECTANGLE', 'CIRCLE', 'DIMENSION'];
     if (drawTools.includes(selectedTool)) {
       setDrawingShape({ type: selectedTool, startX: x, startY: y, endX: x, endY: y });
     }
   };
 
-  const handleElementMouseDown = (e, id, elX, elY) => {
+  const handleElementMouseDown = (e: React.MouseEvent, id: any, elX: number, elY: number) => {
     e.stopPropagation();
     if (selectedTool !== 'select') return;
     if (elements.find((el) => el.id === id)?.locked) return;
@@ -209,15 +272,26 @@ export default function RiskMapGenerator(): React.ReactElement | null {
     setDragOffset({ x: x - elX, y: y - elY });
   };
 
-  const applyOrtho = (x, y, sx, sy) => {
-    if (isOrthoMode || false) {
-      const dx = Math.abs(x - sx),dy = Math.abs(y - sy);
-      return dx > dy ? { x, y: sy } : { x: sx, y };
-    }
-    return { x, y };
+  const handleSvgElementPointerDown = (e: React.PointerEvent, el: any) => {
+    e.stopPropagation();
+    if (selectedTool !== 'select') return;
+    if (el.locked) return;
+    setSelectedElementId(el.id);
+    setIsDragging(true);
+    const { x, y } = getCoords(e);
+    setShapeDragStart({
+      x,
+      y,
+      origStartX: el.startX,
+      origStartY: el.startY,
+      origEndX: el.endX,
+      origEndY: el.endY,
+      origX: el.x,
+      origY: el.y,
+    });
   };
 
-  const handleCanvasMouseMove = (e) => {
+  const handleCanvasMouseMove = (e: React.PointerEvent) => {
     if (isPanning) {
       const dx = e.clientX - panStart.x;
       const dy = e.clientY - panStart.y;
@@ -229,31 +303,113 @@ export default function RiskMapGenerator(): React.ReactElement | null {
     let { x, y } = getCoords(e);
     setCursorPos({ x: Math.round(x), y: Math.round(y) });
 
-    if (drawingShape) {
-      const ortho = isOrthoMode || e.shiftKey;
-      if (ortho) {
-        const dx = Math.abs(x - drawingShape.startX),dy = Math.abs(y - drawingShape.startY);
-        if (dx > dy) y = drawingShape.startY;else x = drawingShape.startX;
-      }
-      setDrawingShape((p) => ({ ...p, endX: x, endY: y }));
+    // 1. Redimensionamiento interactivo por grips CAD
+    if (activeGrip) {
+      setElements((els) => els.map((el) => {
+        if (el.id !== activeGrip.elementId) return el;
+        if (el.type === 'rect') {
+          if (activeGrip.handle === 'tl') return { ...el, startX: x, startY: y };
+          if (activeGrip.handle === 'tr') return { ...el, endX: x, startY: y };
+          if (activeGrip.handle === 'bl') return { ...el, startX: x, endY: y };
+          if (activeGrip.handle === 'br') return { ...el, endX: x, endY: y };
+          if (activeGrip.handle === 'mt') return { ...el, startY: y };
+          if (activeGrip.handle === 'mb') return { ...el, endY: y };
+          if (activeGrip.handle === 'ml') return { ...el, startX: x };
+          if (activeGrip.handle === 'mr') return { ...el, endX: x };
+        }
+        if (['line', 'arrow', 'dimension'].includes(el.type)) {
+          if (activeGrip.handle === 'start') {
+            const nextEl = { ...el, startX: x, startY: y };
+            if (el.type === 'dimension') {
+              const dM = (Math.sqrt(Math.pow(el.endX - x, 2) + Math.pow(el.endY - y, 2)) / 40).toFixed(2);
+              nextEl.text = `${dM} m`;
+            }
+            return nextEl;
+          }
+          if (activeGrip.handle === 'end') {
+            const nextEl = { ...el, endX: x, endY: y };
+            if (el.type === 'dimension') {
+              const dM = (Math.sqrt(Math.pow(x - el.startX, 2) + Math.pow(y - el.startY, 2)) / 40).toFixed(2);
+              nextEl.text = `${dM} m`;
+            }
+            return nextEl;
+          }
+        }
+        return el;
+      }));
       return;
     }
 
+    // 2. Previsualización de dibujo de figuras
+    if (drawingShape) {
+      const ortho = isOrthoMode || e.shiftKey;
+      if (ortho) {
+        const dx = Math.abs(x - drawingShape.startX);
+        const dy = Math.abs(y - drawingShape.startY);
+        if (dx > dy) y = drawingShape.startY;
+        else x = drawingShape.startX;
+      }
+      setDrawingShape((p: any) => ({ ...p, endX: x, endY: y }));
+      return;
+    }
+
+    // 3. Previsualización de polilínea
     if (polylinePoints.length > 0) {
       setPolylinePreview({ x, y });
     }
 
-    if (!isDragging || !selectedElementId) return;
-    setElements((els) => els.map((el) =>
-    el.id === selectedElementId && !['arrow', 'line', 'rect', 'circle', 'polyline'].includes(el.type) ?
-    { ...el, x: x - dragOffset.x, y: y - dragOffset.y } : el
-    ));
+    // 4. Mover figuras completas (rectángulos, líneas, cotas, arquitectura)
+    if (isDragging && shapeDragStart && selectedElementId) {
+      const dx = x - shapeDragStart.x;
+      const dy = y - shapeDragStart.y;
+      setElements((els) => els.map((el) => {
+        if (el.id !== selectedElementId) return el;
+        if (['rect', 'line', 'arrow', 'dimension', 'circle'].includes(el.type)) {
+          return {
+            ...el,
+            startX: (shapeDragStart.origStartX ?? el.startX) + dx,
+            startY: (shapeDragStart.origStartY ?? el.startY) + dy,
+            endX: (shapeDragStart.origEndX ?? el.endX) + dx,
+            endY: (shapeDragStart.origEndY ?? el.endY) + dy,
+          };
+        }
+        if (['door', 'stairs', 'window', 'column', 'icon', 'text'].includes(el.type)) {
+          return {
+            ...el,
+            x: (shapeDragStart.origX ?? el.x) + dx,
+            y: (shapeDragStart.origY ?? el.y) + dy,
+          };
+        }
+        return el;
+      }));
+      return;
+    }
+
+    // 5. Mover íconos y textos HTML
+    if (isDragging && selectedElementId) {
+      setElements((els) => els.map((el) =>
+        el.id === selectedElementId && ['icon', 'text'].includes(el.type) ?
+        { ...el, x: x - dragOffset.x, y: y - dragOffset.y } : el
+      ));
+    }
   };
 
   const handleCanvasMouseUp = () => {
     if (isPanning) {
       setIsPanning(false);
       return;
+    }
+
+    if (activeGrip) {
+      addToHistory(elements);
+      setActiveGrip(null);
+      return;
+    }
+
+    if (isDragging && shapeDragStart) {
+      addToHistory(elements);
+      setShapeDragStart(null);
+      setIsDragging(false);
     }
 
     if (drawingShape) {
@@ -264,23 +420,31 @@ export default function RiskMapGenerator(): React.ReactElement | null {
       let endX = drawingShape.endX;
       let endY = drawingShape.endY;
 
-      // Si fue solo un clic (sin arrastrar más de 5px), creamos una figura por defecto centrada donde hizo clic
+      // Si fue solo un clic sin arrastre (<= 5px)
       if (Math.abs(dx) <= 5 && Math.abs(dy) <= 5) {
         if (drawingShape.type === 'ARROW_LINE' || drawingShape.type === 'LINE') {
-          startX = drawingShape.startX - 40;
-          endX = drawingShape.startX + 40;
+          startX = drawingShape.startX;
           startY = drawingShape.startY;
+          endX = drawingShape.startX + 80;
           endY = drawingShape.startY;
         } else if (drawingShape.type === 'RECTANGLE') {
-          startX = drawingShape.startX - 50;
-          startY = drawingShape.startY - 30;
-          endX = drawingShape.startX + 50;
-          endY = drawingShape.startY + 30;
+          // Requisito clave del usuario: comenzar en el punto de clic,
+          // desplazado 2-3 mm (~10px) hacia abajo y hacia la derecha, extendiendo el cuadrante
+          const offset = 10;
+          startX = drawingShape.startX + offset;
+          startY = drawingShape.startY + offset;
+          endX = startX + 160; // 4.0 metros
+          endY = startY + 120; // 3.0 metros
         } else if (drawingShape.type === 'CIRCLE') {
           startX = drawingShape.startX - 40;
           startY = drawingShape.startY - 40;
           endX = drawingShape.startX + 40;
           endY = drawingShape.startY + 40;
+        } else if (drawingShape.type === 'DIMENSION') {
+          startX = drawingShape.startX;
+          startY = drawingShape.startY;
+          endX = drawingShape.startX + 120;
+          endY = drawingShape.startY;
         }
       }
 
@@ -288,29 +452,136 @@ export default function RiskMapGenerator(): React.ReactElement | null {
       if (drawingShape.type === 'LINE') type = 'line';
       if (drawingShape.type === 'RECTANGLE') type = 'rect';
       if (drawingShape.type === 'CIRCLE') type = 'circle';
+      if (drawingShape.type === 'DIMENSION') type = 'dimension';
+
       const color = SAFETY_ICONS[drawingShape.type]?.color || '#374151';
-      const newEl = {
-        id: Date.now(), type, color, strokeWidth: 3, lineStyle, opacity: 1,
-        startX, startY, endX, endY
+      const distM = (Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2)) / 40).toFixed(2);
+      const newEl: any = {
+        id: Date.now(),
+        type,
+        color,
+        strokeWidth: type === 'dimension' ? 2 : 3,
+        lineStyle,
+        opacity: 1,
+        startX,
+        startY,
+        endX,
+        endY,
       };
+      if (type === 'dimension') {
+        newEl.text = `${distM} m`;
+      }
       addToHistory([...elements, newEl]);
+      setSelectedElementId(newEl.id);
       setDrawingShape(null);
     }
     setIsDragging(false);
   };
 
-  const commitPolyline = (pts) => {
+  const commitPolyline = (pts: any[]) => {
     if (pts.length < 2) return;
     addToHistory([...elements, { id: Date.now(), type: 'polyline', points: [...pts], color: '#374151', strokeWidth: 3, lineStyle, opacity: 1 }]);
   };
 
-  const handleCanvasClick = (e) => {
-    if (isDragging) {setIsDragging(false);return;}
+  const handleCanvasClick = (e: React.MouseEvent) => {
+    if (isDragging) {
+      setIsDragging(false);
+      return;
+    }
     const { x, y } = getCoords(e);
 
     // Polyline tool
     if (selectedTool === 'POLYLINE') {
-      setPolylinePoints((pts) => [...pts, { x, y }]);
+      setPolylinePoints((pts: any) => [...pts, { x, y }]);
+      return;
+    }
+
+    // Architectural tools insertion on click
+    if (['DOOR_SINGLE', 'DOOR_DOUBLE', 'DOOR_SLIDING', 'DOOR_EMERGENCY'].includes(selectedTool)) {
+      const doorType = selectedTool === 'DOOR_DOUBLE' ? 'double' : selectedTool === 'DOOR_SLIDING' ? 'sliding' : selectedTool === 'DOOR_EMERGENCY' ? 'emergency' : 'single';
+      const id = Date.now();
+      const newEl = {
+        id,
+        type: 'door',
+        doorType,
+        x,
+        y,
+        width: selectedTool === 'DOOR_DOUBLE' ? 60 : selectedTool === 'DOOR_SLIDING' ? 50 : 40,
+        height: 40,
+        rotation: 0,
+        flipX: false,
+        flipY: false,
+        color: selectedTool === 'DOOR_EMERGENCY' ? '#16a34a' : '#0284c7',
+        strokeWidth: 2.5,
+        opacity: 1
+      };
+      addToHistory([...elements, newEl]);
+      setSelectedElementId(id);
+      setSelectedTool('select');
+      return;
+    }
+
+    if (['STAIRS_STRAIGHT', 'STAIRS_SPIRAL', 'RAMP'].includes(selectedTool)) {
+      const stairType = selectedTool === 'STAIRS_SPIRAL' ? 'spiral' : selectedTool === 'RAMP' ? 'ramp' : 'straight';
+      const id = Date.now();
+      const newEl = {
+        id,
+        type: 'stairs',
+        stairType,
+        x,
+        y,
+        width: stairType === 'spiral' ? 70 : 50,
+        height: stairType === 'spiral' ? 70 : 100,
+        steps: stairType === 'spiral' ? 12 : 8,
+        direction: 'UP',
+        rotation: 0,
+        color: stairType === 'ramp' ? '#0284c7' : '#475569',
+        strokeWidth: 2,
+        opacity: 1
+      };
+      addToHistory([...elements, newEl]);
+      setSelectedElementId(id);
+      setSelectedTool('select');
+      return;
+    }
+
+    if (selectedTool === 'WINDOW') {
+      const id = Date.now();
+      const newEl = {
+        id,
+        type: 'window',
+        x,
+        y,
+        width: 50,
+        height: 14,
+        rotation: 0,
+        color: '#0284c7',
+        strokeWidth: 2,
+        opacity: 1
+      };
+      addToHistory([...elements, newEl]);
+      setSelectedElementId(id);
+      setSelectedTool('select');
+      return;
+    }
+
+    if (selectedTool === 'COLUMN_SQUARE') {
+      const id = Date.now();
+      const newEl = {
+        id,
+        type: 'column',
+        x,
+        y,
+        width: 24,
+        height: 24,
+        rotation: 0,
+        color: '#1e293b',
+        strokeWidth: 2,
+        opacity: 1
+      };
+      addToHistory([...elements, newEl]);
+      setSelectedElementId(id);
+      setSelectedTool('select');
       return;
     }
 
@@ -319,9 +590,13 @@ export default function RiskMapGenerator(): React.ReactElement | null {
     for (let i = elements.length - 1; i >= 0; i--) {
       const el = elements[i];
       if (!layers[getLayer(el)]) continue;
-      if (['line', 'rect', 'circle', 'arrow', 'polyline'].includes(el.type)) continue;
-      const sz = 24;
-      if (x >= el.x - sz && x <= el.x + sz && y >= el.y - sz && y <= el.y + sz) {clicked = el;break;}
+      if (['line', 'rect', 'circle', 'arrow', 'polyline', 'dimension'].includes(el.type)) continue;
+      const szX = (el.width ? el.width / 2 : 24) + 6;
+      const szY = (el.height ? el.height / 2 : 24) + 6;
+      if (x >= el.x - szX && x <= el.x + szX && y >= el.y - szY && y <= el.y + szY) {
+        clicked = el;
+        break;
+      }
     }
 
     if (clicked) {
@@ -332,7 +607,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
     setEditingTextId(null);
 
     if (!selectedTool || selectedTool === 'select' || selectedTool === 'pan') return;
-    if (['ARROW_LINE', 'LINE', 'RECTANGLE', 'CIRCLE', 'POLYLINE'].includes(selectedTool)) return;
+    if (['ARROW_LINE', 'LINE', 'RECTANGLE', 'CIRCLE', 'POLYLINE', 'DIMENSION'].includes(selectedTool)) return;
     if (selectedTool === 'TEXT_LABEL') {
       const id = Date.now();
       addToHistory([...elements, { id, type: 'text', text: 'Doble clic para editar', x, y, color: '#0f172a', rotation: 0, opacity: 1 }]);
@@ -464,36 +739,301 @@ export default function RiskMapGenerator(): React.ReactElement | null {
   });
 
   // ─── SVG element rendering ───────────────────────────────────────────────
-  const renderSvgElement = (el) => {
+  const renderSvgElement = (el: any) => {
     const isSel = el.id === selectedElementId;
     const dashArr = el.lineStyle === 'dashed' ? '10,5' : 'none';
     const stroke = isSel ? '#3b82f6' : el.color;
     const sw = el.strokeWidth || 3;
-    const selProps = { style: { pointerEvents: 'stroke' as any, cursor: 'pointer' }, onPointerDown: (e) => {e.stopPropagation();setSelectedElementId(el.id);} };
 
     if (el.type === 'rect') {
-      const rx = Math.min(el.startX, el.endX),ry = Math.min(el.startY, el.endY);
-      return <rect key={el.id} x={rx} y={ry} width={Math.abs(el.endX - el.startX)} height={Math.abs(el.endY - el.startY)}
-      stroke={stroke} strokeWidth={isSel ? sw + 2 : sw} strokeDasharray={dashArr}
-      fill={el.fillColor || 'transparent'} opacity={el.opacity ?? 1} {...selProps} />;
+      const rx = Math.min(el.startX, el.endX);
+      const ry = Math.min(el.startY, el.endY);
+      const rw = Math.abs(el.endX - el.startX);
+      const rh = Math.abs(el.endY - el.startY);
+      return (
+        <g key={el.id} onPointerDown={(e) => handleSvgElementPointerDown(e, el)} style={{ cursor: isSel ? 'move' : 'pointer' }}>
+          <rect
+            x={rx} y={ry} width={rw} height={rh}
+            stroke={stroke} strokeWidth={isSel ? sw + 2 : sw} strokeDasharray={dashArr}
+            fill={el.fillColor || 'transparent'} opacity={el.opacity ?? 1}
+          />
+        </g>
+      );
     }
     if (el.type === 'circle') {
-      const cx = (el.startX + el.endX) / 2,cy = (el.startY + el.endY) / 2;
-      const rx = Math.abs(el.endX - el.startX) / 2,ry = Math.abs(el.endY - el.startY) / 2;
-      return <ellipse key={el.id} cx={cx} cy={cy} rx={rx || 1} ry={ry || 1}
-      stroke={stroke} strokeWidth={isSel ? sw + 2 : sw} strokeDasharray={dashArr}
-      fill={el.fillColor || 'transparent'} opacity={el.opacity ?? 1} {...selProps} />;
+      const cx = (el.startX + el.endX) / 2;
+      const cy = (el.startY + el.endY) / 2;
+      const rx = Math.abs(el.endX - el.startX) / 2;
+      const ry = Math.abs(el.endY - el.startY) / 2;
+      return (
+        <g key={el.id} onPointerDown={(e) => handleSvgElementPointerDown(e, el)} style={{ cursor: isSel ? 'move' : 'pointer' }}>
+          <ellipse
+            cx={cx} cy={cy} rx={rx || 1} ry={ry || 1}
+            stroke={stroke} strokeWidth={isSel ? sw + 2 : sw} strokeDasharray={dashArr}
+            fill={el.fillColor || 'transparent'} opacity={el.opacity ?? 1}
+          />
+        </g>
+      );
     }
     if (el.type === 'polyline') {
-      const pts = el.points.map((p) => `${p.x},${p.y}`).join(' ');
-      return <polyline key={el.id} points={pts} stroke={stroke} strokeWidth={isSel ? sw + 2 : sw}
-      strokeDasharray={dashArr} fill="none" opacity={el.opacity ?? 1} {...selProps} />;
+      const pts = el.points.map((p: any) => `${p.x},${p.y}`).join(' ');
+      return (
+        <polyline
+          key={el.id} points={pts} stroke={stroke} strokeWidth={isSel ? sw + 2 : sw}
+          strokeDasharray={dashArr} fill="none" opacity={el.opacity ?? 1}
+          onPointerDown={(e) => { e.stopPropagation(); setSelectedElementId(el.id); }}
+          style={{ cursor: 'pointer' }}
+        />
+      );
     }
+    if (el.type === 'dimension') {
+      const dx = el.endX - el.startX;
+      const dy = el.endY - el.startY;
+      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+      const length = Math.sqrt(dx * dx + dy * dy);
+      const midX = (el.startX + el.endX) / 2;
+      const midY = (el.startY + el.endY) / 2;
+      const distM = (length / 40).toFixed(2);
+      const txt = el.text || `${distM} m`;
+
+      return (
+        <g key={el.id} onPointerDown={(e) => handleSvgElementPointerDown(e, el)} style={{ cursor: isSel ? 'move' : 'pointer' }}>
+          {/* Main dimension line */}
+          <line x1={el.startX} y1={el.startY} x2={el.endX} y2={el.endY} stroke={stroke} strokeWidth={sw} />
+          {/* Architectural 45-degree ticks */}
+          <line x1={el.startX - 6} y1={el.startY - 6} x2={el.startX + 6} y2={el.startY + 6} stroke={stroke} strokeWidth={sw + 1} />
+          <line x1={el.endX - 6} y1={el.endY - 6} x2={el.endX + 6} y2={el.endY + 6} stroke={stroke} strokeWidth={sw + 1} />
+          {/* Dimension text badge */}
+          <g transform={`translate(${midX}, ${midY}) rotate(${Math.abs(angle) > 90 ? angle + 180 : angle})`}>
+            <rect x="-28" y="-18" width="56" height="15" rx="3" fill={isBlueprintMode ? '#0f172a' : '#ffffff'} stroke={stroke} strokeWidth="1" />
+            <text x="0" y="-7" textAnchor="middle" fill={stroke} fontSize="10" fontWeight="bold">{txt}</text>
+          </g>
+        </g>
+      );
+    }
+    if (el.type === 'door') {
+      const w = el.width || 40;
+      const scaleX = el.flipX ? -1 : 1;
+      const scaleY = el.flipY ? -1 : 1;
+
+      return (
+        <g key={el.id}
+          transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0}) scale(${scaleX}, ${scaleY})`}
+          onPointerDown={(e) => handleSvgElementPointerDown(e, el)}
+          style={{ cursor: isSel ? 'move' : 'pointer' }}
+        >
+          {isSel && <rect x={-4} y={-4} width={w + 8} height={w + 8} fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="3,3" />}
+
+          {el.doorType === 'double' ? (
+            <>
+              <line x1={0} y1={0} x2={w} y2={0} stroke="#94a3b8" strokeWidth="2" strokeDasharray="3,3" />
+              <line x1={0} y1={0} x2={0} y2={w / 2} stroke={stroke} strokeWidth={sw} />
+              <path d={`M 0 ${w / 2} A ${w / 2} ${w / 2} 0 0 0 ${w / 2} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="3,3" />
+              <line x1={w} y1={0} x2={w} y2={w / 2} stroke={stroke} strokeWidth={sw} />
+              <path d={`M ${w} ${w / 2} A ${w / 2} ${w / 2} 0 0 1 ${w / 2} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="3,3" />
+              <circle cx={0} cy={0} r={3} fill={stroke} />
+              <circle cx={w} cy={0} r={3} fill={stroke} />
+            </>
+          ) : el.doorType === 'sliding' ? (
+            <>
+              <line x1={0} y1={0} x2={w} y2={0} stroke="#94a3b8" strokeWidth="3" />
+              <line x1={4} y1={-4} x2={w / 2 + 4} y2={-4} stroke={stroke} strokeWidth={sw + 1} />
+              <line x1={w / 2 - 4} y1={4} x2={w - 4} y2={4} stroke={stroke} strokeWidth={sw + 1} />
+            </>
+          ) : (
+            <>
+              <line x1={0} y1={0} x2={w} y2={0} stroke="#94a3b8" strokeWidth="2" strokeDasharray="3,3" />
+              <line x1={0} y1={0} x2={0} y2={w} stroke={stroke} strokeWidth={sw} />
+              <path d={`M 0 ${w} A ${w} ${w} 0 0 0 ${w} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="4,3" />
+              <circle cx={0} cy={0} r={3} fill={stroke} />
+              {el.doorType === 'emergency' && (
+                <rect x={-3} y={w * 0.3} width={6} height={w * 0.4} rx="2" fill="#16a34a" />
+              )}
+            </>
+          )}
+        </g>
+      );
+    }
+    if (el.type === 'stairs') {
+      const w = el.width || 50;
+      const h = el.height || 100;
+      const numSteps = el.steps || 8;
+      const isUp = el.direction !== 'DOWN';
+
+      return (
+        <g key={el.id}
+          transform={`translate(${el.x - w / 2}, ${el.y - h / 2}) rotate(${el.rotation || 0} ${w / 2} ${h / 2})`}
+          onPointerDown={(e) => handleSvgElementPointerDown(e, el)}
+          style={{ cursor: isSel ? 'move' : 'pointer' }}
+        >
+          {el.stairType === 'spiral' ? (
+            <>
+              <circle cx={w / 2} cy={h / 2} r={w / 2} fill={isBlueprintMode ? '#1e293b' : '#f8fafc'} stroke={stroke} strokeWidth={sw} />
+              <circle cx={w / 2} cy={h / 2} r={6} fill={stroke} />
+              {Array.from({ length: numSteps }).map((_, i) => {
+                const ang = (i * 360 / numSteps) * (Math.PI / 180);
+                const x2 = w / 2 + (w / 2) * Math.cos(ang);
+                const y2 = h / 2 + (h / 2) * Math.sin(ang);
+                return <line key={i} x1={w / 2} y1={h / 2} x2={x2} y2={y2} stroke={stroke} strokeWidth="1.5" />;
+              })}
+            </>
+          ) : (
+            <>
+              <rect x={0} y={0} width={w} height={h} fill={isBlueprintMode ? '#1e293b' : '#f8fafc'} stroke={stroke} strokeWidth={sw} />
+              {Array.from({ length: numSteps - 1 }).map((_, i) => {
+                const stepY = ((i + 1) * h) / numSteps;
+                return <line key={i} x1={0} y1={stepY} x2={w} y2={stepY} stroke={stroke} strokeWidth="1.5" strokeDasharray={el.stairType === 'ramp' ? '4,4' : 'none'} />;
+              })}
+              <line x1={w / 2} y1={isUp ? h - 10 : 10} x2={w / 2} y2={isUp ? 15 : h - 15} stroke="#2563eb" strokeWidth="2.5" />
+              <polygon
+                points={isUp ? `${w / 2 - 5},18 ${w / 2 + 5},18 ${w / 2},8` : `${w / 2 - 5},${h - 18} ${w / 2 + 5},${h - 18} ${w / 2},${h - 8}`}
+                fill="#2563eb"
+              />
+              <text x={w / 2} y={h / 2} textAnchor="middle" fill="#2563eb" fontSize="10" fontWeight="900">
+                {el.stairType === 'ramp' ? 'RAMPA' : isUp ? 'SUBE' : 'BAJA'}
+              </text>
+            </>
+          )}
+          {isSel && <rect x={-3} y={-3} width={w + 6} height={h + 6} fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="3,3" />}
+        </g>
+      );
+    }
+    if (el.type === 'window') {
+      const w = el.width || 50;
+      const h = el.height || 14;
+
+      return (
+        <g key={el.id}
+          transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})`}
+          onPointerDown={(e) => handleSvgElementPointerDown(e, el)}
+          style={{ cursor: isSel ? 'move' : 'pointer' }}
+        >
+          <rect x={-w / 2} y={-h / 2} width={w} height={h} fill={isBlueprintMode ? '#0369a120' : '#e0f2fe'} stroke={stroke} strokeWidth={sw} />
+          <line x1={-w / 2} y1={0} x2={w / 2} y2={0} stroke={stroke} strokeWidth={sw * 0.8} />
+          <line x1={-w / 2} y1={-h / 2} x2={-w / 2} y2={h / 2} stroke={stroke} strokeWidth={sw + 1} />
+          <line x1={w / 2} y1={-h / 2} x2={w / 2} y2={h / 2} stroke={stroke} strokeWidth={sw + 1} />
+          {isSel && <rect x={-w / 2 - 3} y={-h / 2 - 3} width={w + 6} height={h + 6} fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="3,3" />}
+        </g>
+      );
+    }
+    if (el.type === 'column') {
+      const w = el.width || 24;
+      const h = el.height || 24;
+
+      return (
+        <g key={el.id}
+          transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})`}
+          onPointerDown={(e) => handleSvgElementPointerDown(e, el)}
+          style={{ cursor: isSel ? 'move' : 'pointer' }}
+        >
+          <rect x={-w / 2} y={-h / 2} width={w} height={h} fill={isBlueprintMode ? '#334155' : '#cbd5e1'} stroke={stroke} strokeWidth={sw} />
+          <line x1={-w / 2} y1={-h / 2} x2={w / 2} y2={h / 2} stroke={stroke} strokeWidth={sw * 0.75} />
+          <line x1={w / 2} y1={-h / 2} x2={-w / 2} y2={h / 2} stroke={stroke} strokeWidth={sw * 0.75} />
+          {isSel && <rect x={-w / 2 - 3} y={-h / 2 - 3} width={w + 6} height={h + 6} fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="3,3" />}
+        </g>
+      );
+    }
+
     // line / arrow
-    return <line key={el.id} x1={el.startX} y1={el.startY} x2={el.endX} y2={el.endY}
-    stroke={stroke} strokeWidth={isSel ? sw + 2 : sw} strokeDasharray={dashArr}
-    markerEnd={el.type === 'arrow' ? 'url(#arrowhead)' : ''}
-    opacity={el.opacity ?? 1} {...selProps} />;
+    return (
+      <g key={el.id} onPointerDown={(e) => handleSvgElementPointerDown(e, el)} style={{ cursor: isSel ? 'move' : 'pointer' }}>
+        <line
+          x1={el.startX} y1={el.startY} x2={el.endX} y2={el.endY}
+          stroke={stroke} strokeWidth={isSel ? sw + 2 : sw} strokeDasharray={dashArr}
+          markerEnd={el.type === 'arrow' ? 'url(#arrowhead)' : ''}
+          opacity={el.opacity ?? 1}
+        />
+      </g>
+    );
+  };
+
+  // ─── CAD Grips rendering ─────────────────────────────────────────────────
+  const renderCadGrips = () => {
+    if (!selectedElement) return null;
+    const gripStyle = { stroke: '#ffffff', strokeWidth: 1.5, fill: '#3b82f6' };
+    const G_SIZE = 8;
+    const H_SIZE = G_SIZE / 2;
+
+    if (selectedElement.type === 'rect') {
+      const rx = Math.min(selectedElement.startX, selectedElement.endX);
+      const ry = Math.min(selectedElement.startY, selectedElement.endY);
+      const rw = Math.abs(selectedElement.endX - selectedElement.startX);
+      const rh = Math.abs(selectedElement.endY - selectedElement.startY);
+
+      const grips = [
+        { handle: 'tl', x: rx, y: ry, cursor: 'nwse-resize' },
+        { handle: 'tr', x: rx + rw, y: ry, cursor: 'nesw-resize' },
+        { handle: 'br', x: rx + rw, y: ry + rh, cursor: 'nwse-resize' },
+        { handle: 'bl', x: rx, y: ry + rh, cursor: 'nesw-resize' },
+        { handle: 'mt', x: rx + rw / 2, y: ry, cursor: 'ns-resize' },
+        { handle: 'mr', x: rx + rw, y: ry + rh / 2, cursor: 'ew-resize' },
+        { handle: 'mb', x: rx + rw / 2, y: ry + rh, cursor: 'ns-resize' },
+        { handle: 'ml', x: rx, y: ry + rh / 2, cursor: 'ew-resize' },
+      ];
+
+      return (
+        <g className="cad-grips">
+          {grips.map((g) => (
+            <rect
+              key={g.handle}
+              x={g.x - H_SIZE}
+              y={g.y - H_SIZE}
+              width={G_SIZE}
+              height={G_SIZE}
+              {...gripStyle}
+              style={{ ...gripStyle, cursor: g.cursor }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                setActiveGrip({ elementId: selectedElement.id, handle: g.handle });
+              }}
+            />
+          ))}
+        </g>
+      );
+    }
+
+    if (['line', 'arrow', 'dimension'].includes(selectedElement.type)) {
+      const grips = [
+        { handle: 'start', x: selectedElement.startX, y: selectedElement.startY, cursor: 'crosshair' },
+        { handle: 'end', x: selectedElement.endX, y: selectedElement.endY, cursor: 'crosshair' },
+      ];
+
+      return (
+        <g className="cad-grips">
+          {grips.map((g) => (
+            <rect
+              key={g.handle}
+              x={g.x - H_SIZE}
+              y={g.y - H_SIZE}
+              width={G_SIZE}
+              height={G_SIZE}
+              {...gripStyle}
+              style={{ ...gripStyle, cursor: g.cursor }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                setActiveGrip({ elementId: selectedElement.id, handle: g.handle });
+              }}
+            />
+          ))}
+        </g>
+      );
+    }
+
+    return null;
+  };
+
+  // ─── CAD OSNAP marker rendering ──────────────────────────────────────────
+  const renderOsnapMarker = () => {
+    if (!activeSnapPoint) return null;
+    return (
+      <g transform={`translate(${activeSnapPoint.x}, ${activeSnapPoint.y})`} className="osnap-marker">
+        <polygon points="-6,0 0,-6 6,0 0,6" fill="none" stroke="#06b6d4" strokeWidth="2.5" />
+        <rect x="10" y="-12" width="76" height="18" rx="3" fill="#0f172a" fillOpacity="0.85" />
+        <text x="14" y="1" fill="#38bdf8" fontSize="10" fontWeight="bold">
+          {activeSnapPoint.label}
+        </text>
+      </g>
+    );
   };
 
   // ─── Drawing preview dimension ────────────────────────────────────────────
@@ -666,7 +1206,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
               )}
                         </div>
 
-                        <div className="flex-1 overflow-y-auto">
+                        <div className="flex-1 overflow-y-auto max-h-[300px] md:max-h-none">
                             {/* ── ICONS TAB ── */}
                             {activeLeftTab === 'icons' &&
               <div className="p-3 flex flex-col gap-3">
@@ -763,9 +1303,14 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                                             <button onClick={() => setSelectedTool('select')} style={toolBtnStyle(selectedTool === 'select', '#3b82f6')} title="Selección (S)"><MousePointer2 size={13} /> Selec.</button>
                                             <button onClick={() => setSelectedTool('pan')} style={toolBtnStyle(selectedTool === 'pan', '#0284c7')} title="Paneo (H)"><Move size={13} /> Paneo</button>
                                             <button onClick={() => setSelectedTool('LINE')} style={toolBtnStyle(selectedTool === 'LINE', '#475569')} title="Línea/Pared">╱ Línea</button>
-                                            <button onClick={() => setSelectedTool('RECTANGLE')} style={toolBtnStyle(selectedTool === 'RECTANGLE', '#475569')} title="Rectángulo">▭ Rect.</button>
+                                            <button onClick={() => setSelectedTool('RECTANGLE')} style={toolBtnStyle(selectedTool === 'RECTANGLE', '#475569')} title="Rectángulo (comienza +10px abajo/der)">▭ Rect.</button>
                                             <button onClick={() => setSelectedTool('CIRCLE')} style={toolBtnStyle(selectedTool === 'CIRCLE', '#475569')} title="Círculo/Elipse">○ Círculo</button>
                                             <button onClick={() => {setSelectedTool('POLYLINE');setPolylinePoints([]);}} style={toolBtnStyle(selectedTool === 'POLYLINE', '#475569')} title="Polilínea">⟍ Polilínea</button>
+                                            <button onClick={() => setSelectedTool('DOOR_SINGLE')} style={toolBtnStyle(selectedTool === 'DOOR_SINGLE', '#0284c7')} title="Puerta Simple / Batiente">🚪 Puerta</button>
+                                            <button onClick={() => setSelectedTool('STAIRS_STRAIGHT')} style={toolBtnStyle(selectedTool === 'STAIRS_STRAIGHT', '#0284c7')} title="Escalera (Sube/Baja)">🪜 Escalera</button>
+                                            <button onClick={() => setSelectedTool('WINDOW')} style={toolBtnStyle(selectedTool === 'WINDOW', '#0284c7')} title="Ventana / Vano">🪟 Ventana</button>
+                                            <button onClick={() => setSelectedTool('COLUMN_SQUARE')} style={toolBtnStyle(selectedTool === 'COLUMN_SQUARE', '#0284c7')} title="Columna Estructural">🏛 Columna</button>
+                                            <button onClick={() => setSelectedTool('DIMENSION')} style={toolBtnStyle(selectedTool === 'DIMENSION', '#6366f1')} title="Cota de Medida (m)">📏 Cota</button>
                                             <button onClick={() => setSelectedTool('ARROW_LINE')} style={toolBtnStyle(selectedTool === 'ARROW_LINE', '#2563eb')} title="Ruta de Escape">→ Flecha</button>
                                             <button onClick={() => setSelectedTool('TEXT_LABEL')} style={toolBtnStyle(selectedTool === 'TEXT_LABEL', '#7c3aed')} title="Texto">T Texto</button>
                                         </div>
@@ -779,6 +1324,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                                     {/* Icon Library — compact 6-column grid */}
                                     {Object.entries(categories).map(([cat, icons]) => {
                                       const catColors: Record<string, string> = {
+                                        'Arquitectura': '#0284c7',
                                         'Estructura': '#475569',
                                         'Rutas': '#2563eb',
                                         'Fuego (Rojos)': '#dc2626',
@@ -888,10 +1434,13 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                                 </button>
                             </div>
                             <div className="flex gap-1 items-center">
+                                <button onClick={() => setIsOsnap(!isOsnap)} style={toolBtnStyle(isOsnap, '#06b6d4')} title="AutoCAD OSNAP: Magnetismo inteligente en esquinas, extremos y puntos medios">
+                                    🎯 OSNAP
+                                </button>
                                 <button onClick={() => setIsSnapToGrid(!isSnapToGrid)} style={toolBtnStyle(isSnapToGrid, '#0284c7')} title="Imán de cuadrícula">
                                     🧲 Imán
                                 </button>
-                                <button onClick={() => setIsOrthoMode(!isOrthoMode)} style={toolBtnStyle(isOrthoMode)} title="Modo ortogonal (también Shift)">
+                                <button onClick={() => setIsOrthoMode(!isOrthoMode)} style={toolBtnStyle(isOrthoMode)} title="Modo ortogonal (también tecla Shift)">
                                     📐 Ortho
                                 </button>
                                 <button onClick={fitToScreen} style={toolBtnStyle(false)} title="Ajustar a pantalla">
@@ -906,12 +1455,13 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                         </div>
 
                         {/* Canvas ampliado para dibujar */}
-                        <div className="card flex-1 overflow-hidden relative p-0 min-h-[680px] md:min-h-[720px] touch-action-none"
+                        <div className="card flex-1 overflow-hidden relative p-0 min-h-[480px] sm:min-h-[600px] md:min-h-[720px] touch-action-none"
             ref={containerRef}
             style={{
               background: isBlueprintMode ? '#0f172a' : '#f1f5f9',
               cursor: selectedTool === 'pan' ? 'grab' : selectedTool === 'select' ? 'default' : 'crosshair',
               boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.08)',
+              touchAction: 'none',
             }}
             onPointerMove={handleCanvasMouseMove}
             onPointerUp={handleCanvasMouseUp}
@@ -993,7 +1543,9 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                                         </marker>
                                     </defs>
                                     <g className="pointer-events-auto">
-                                        {visibleElements.filter((el) => ['line', 'rect', 'circle', 'arrow', 'polyline'].includes(el.type)).map(renderSvgElement)}
+                                        {visibleElements.filter((el) => ['line', 'rect', 'circle', 'arrow', 'polyline', 'door', 'stairs', 'window', 'column', 'dimension'].includes(el.type)).map(renderSvgElement)}
+                                        {renderCadGrips()}
+                                        {renderOsnapMarker()}
                                     </g>
 
                                     {/* Drawing preview */}

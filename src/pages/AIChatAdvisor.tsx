@@ -7,7 +7,8 @@ import {
   Lightbulb, Gavel, ClipboardList, Copy,
   Check, Download, Sparkles, Loader2,
   Mic, MicOff, History, ChevronDown, ChevronUp,
-  RotateCcw, Clock, Database, Zap, Plus, Trash2, Calendar, FileText, QrCode, Share2, Search } from
+  RotateCcw, Clock, Database, Zap, Plus, Trash2, Calendar, FileText, QrCode, Share2, Search,
+  Layers, CheckSquare, ArrowRight, ExternalLink } from
 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -423,12 +424,20 @@ export default function AIChatAdvisor(): React.ReactElement | null {
         currentY += 8;
       };
 
+      if ((result as any).planDeAccion?.length) {
+        createSection('Plan de Acción y Procedimientos', (result as any).planDeAccion, [14, 165, 233]); // sky-500
+      }
       createSection('Riesgos Detectados', result.riesgos, colors.danger);
       createSection('EPP Recomendado', result.epp, colors.primary);
       createSection('Medidas Preventivas', result.recomendaciones, colors.success);
 
       const countryLabel = userCountry.charAt(0).toUpperCase() + userCountry.slice(1);
       createSection(`Marco Legal (${countryLabel})`, result.normativa, [139, 92, 246]); // violet-500
+
+      if ((result as any).modulosRecomendados?.length) {
+        const modItems = (result as any).modulosRecomendados.map((m: any) => `${m.nombre} (${m.ruta}): ${m.motivo}`);
+        createSection('Módulos Recomendados de la Plataforma', modItems, [13, 148, 136]); // teal-600
+      }
 
       // Professional Signature Section
       const personalData = JSON.parse(localStorage.getItem('personalData') || '{}');
@@ -571,7 +580,17 @@ export default function AIChatAdvisor(): React.ReactElement | null {
 
   const handleCopy = () => {
     if (!result) return;
-    const text = `ANÁLISIS DE SEGURIDAD IA\nTarea: ${result.task}\n\nRIESGOS:\n- ${result.riesgos.join('\n- ')}\n\nEPP RECOMENDADO:\n- ${result.epp.join('\n- ')}\n\nRECOMENDACIONES:\n- ${result.recomendaciones.join('\n- ')}\n\nNORMATIVA:\n- ${result.normativa.join('\n- ')}`;
+    let text = `ANÁLISIS DE SEGURIDAD IA\nTarea: ${(result as any).task}\n\n`;
+    if ((result as any).planDeAccion?.length) {
+      text += `PLAN DE ACCIÓN Y PROCEDIMIENTOS:\n- ${(result as any).planDeAccion.join('\n- ')}\n\n`;
+    }
+    text += `RIESGOS:\n- ${((result as any).riesgos || []).join('\n- ')}\n\n`;
+    text += `EPP RECOMENDADO:\n- ${((result as any).epp || []).join('\n- ')}\n\n`;
+    text += `RECOMENDACIONES:\n- ${((result as any).recomendaciones || []).join('\n- ')}\n\n`;
+    text += `NORMATIVA:\n- ${((result as any).normativa || []).join('\n- ')}\n\n`;
+    if ((result as any).modulosRecomendados?.length) {
+      text += `MÓDULOS RECOMENDADOS DEL SISTEMA:\n- ${(result as any).modulosRecomendados.map((m: any) => `${m.nombre} (${m.ruta}): ${m.motivo}`).join('\n- ')}\n`;
+    }
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -867,6 +886,79 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                             </button>
                         </div>
                     </div>
+
+                    {/* Plan de Acción Detallado */}
+                    {((result as any).planDeAccion?.length > 0 || (result as any).chatResponse) && (
+                        <div className="card mb-[1.5rem] p-[1.5rem] rounded-[16px] bg-[var(--color-surface)] border border-[var(--color-border)] border-t-[4px] border-t-sky-500 shadow-sm transition-all">
+                            <div className="flex items-center gap-[0.8rem] text-sky-600 dark:text-sky-400 bg-[rgba(14,165,233,0.1)] p-[0.8rem] rounded-[10px] mb-[1.2rem]">
+                                <CheckSquare size={22} />
+                                <h4 className="m-[0] font-[700] text-[1.1rem]">Plan de Acción y Procedimiento Operativo</h4>
+                            </div>
+                            {(result as any).planDeAccion?.length > 0 ? (
+                                <div className="flex flex-col gap-[0.75rem]">
+                                    {((result as any).planDeAccion || []).map((step: string, i: number) => (
+                                        <div key={i} className="flex items-start gap-[0.75rem] p-[0.75rem] rounded-[10px] bg-[var(--color-background)] border border-[var(--color-border)]">
+                                            <span className="w-[24px] h-[24px] rounded-full bg-sky-500/15 text-sky-600 dark:text-sky-400 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                                                {i + 1}
+                                            </span>
+                                            <p className="m-0 text-[0.92rem] text-[var(--color-text)] leading-relaxed flex-1">
+                                                {step.replace(/^Paso\s*\d+\s*:\s*/i, '')}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-[0.95rem] leading-[1.7] text-[var(--color-text)] whitespace-pre-line">
+                                    {(result as any).chatResponse}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Módulos Recomendados de la Plataforma */}
+                    {(result as any).modulosRecomendados?.length > 0 && (
+                        <div className="card mb-[1.5rem] p-[1.5rem] rounded-[16px] bg-[var(--color-surface)] border border-[var(--color-border)] border-t-[4px] border-t-emerald-500 shadow-sm transition-all">
+                            <div className="flex items-center justify-between gap-[0.8rem] mb-[1.2rem] flex-wrap">
+                                <div className="flex items-center gap-[0.8rem] text-emerald-600 dark:text-emerald-400 bg-[rgba(16,185,129,0.1)] p-[0.8rem] rounded-[10px]">
+                                    <Layers size={22} />
+                                    <h4 className="m-[0] font-[700] text-[1.1rem]">Módulos Recomendados del Sistema</h4>
+                                </div>
+                                <span className="text-[0.8rem] text-[var(--color-text-muted)] font-medium">
+                                    Herramientas integradas para ejecutar y documentar este programa
+                                </span>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[1rem]">
+                                {((result as any).modulosRecomendados || []).map((mod: any, i: number) => (
+                                    <div
+                                        key={i}
+                                        className="p-[1rem] rounded-[12px] bg-[var(--color-background)] border border-[var(--color-border)] hover:border-emerald-500 transition-all flex flex-col justify-between gap-[0.8rem] group"
+                                    >
+                                        <div>
+                                            <div className="flex items-center justify-between mb-1.5 gap-2">
+                                                <span className="font-bold text-[0.95rem] text-[var(--color-text)] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                                    {mod.nombre}
+                                                </span>
+                                                <span className="text-[0.7rem] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-mono flex-shrink-0">
+                                                    {mod.ruta}
+                                                </span>
+                                            </div>
+                                            <p className="text-[0.82rem] text-[var(--color-text-muted)] m-0 leading-relaxed">
+                                                {mod.motivo}
+                                            </p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate(mod.ruta)}
+                                            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-600 hover:text-white border border-emerald-200 dark:border-emerald-800 text-xs font-bold transition-all cursor-pointer"
+                                        >
+                                            <span>Abrir Módulo</span>
+                                            <ArrowRight size={14} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(300px,_1fr))] gap-[1.5rem]">
                         {/* Risks */}

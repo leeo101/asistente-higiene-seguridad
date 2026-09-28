@@ -803,9 +803,9 @@ app.post('/api/daily-insight', aiLimiter, verifyFirebaseToken, requirePro, async
     }
 });
 
-app.post('/api/ai-advisor', aiLimiter, verifyFirebaseToken, requirePro, validateStringInput('taskDescription', 2000), async (req, res) => {
+app.post('/api/ai-advisor', aiLimiter, verifyFirebaseToken, requirePro, validateStringInput('taskDescription', 4000), async (req, res) => {
     try {
-        const { taskDescription, country = 'argentina' } = req.body;
+        const { taskDescription, country = 'argentina', contextData, isChat = false } = req.body;
         if (!taskDescription) return res.status(400).json({ error: 'Falta la descripción de la tarea' });
 
         const apiKey = process.env.GEMINI_API_KEY;
@@ -820,16 +820,65 @@ app.post('/api/ai-advisor', aiLimiter, verifyFirebaseToken, requirePro, validate
         const responseSchema = {
             type: SchemaType.OBJECT,
             properties: {
-                task: { type: SchemaType.STRING },
+                task: { type: SchemaType.STRING, description: "Título claro y formal de la tarea o programa" },
+                chatResponse: { type: SchemaType.STRING, description: "Explicación completa, pedagógica y detallada para el usuario en Markdown con viñetas, títulos y recomendaciones de módulos a usar" },
+                planDeAccion: { 
+                    type: SchemaType.ARRAY, 
+                    items: { type: SchemaType.STRING },
+                    description: "Pasos operativos y cronológicos detallados para llevar a cabo el programa o tarea" 
+                },
                 riesgos: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
                 epp: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
                 recomendaciones: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
-                normativa: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
+                normativa: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+                modulosRecomendados: {
+                    type: SchemaType.ARRAY,
+                    items: {
+                        type: SchemaType.OBJECT,
+                        properties: {
+                            nombre: { type: SchemaType.STRING },
+                            ruta: { type: SchemaType.STRING },
+                            motivo: { type: SchemaType.STRING }
+                        },
+                        required: ["nombre", "ruta", "motivo"]
+                    },
+                    description: "Módulos de la plataforma sugeridos para documentar, calcular o ejecutar cada aspecto"
+                }
             },
-            required: ["task", "riesgos", "epp", "recomendaciones", "normativa"]
+            required: ["task", "chatResponse", "planDeAccion", "riesgos", "epp", "recomendaciones", "normativa", "modulosRecomendados"]
         };
 
-        const prompt = `Analiza la siguiente tarea o situación laboral: "${taskDescription}". Identifica riesgos, EPPs necesarios, medidas preventivas y la normativa.`;
+        const systemInstruction = `Eres un Consultor Senior Especialista en Higiene, Seguridad y Medio Ambiente (HSE) de ${country}, con amplio conocimiento práctico y normativo (ej. en Argentina: Ley 19.587, Dec. 351/79, Dec. 911/96, Ley 24.449 de Tránsito, Res. SRT, Normas IRAM, NFPA, etc.).
+
+INSTRUCCIONES CLAVE DE RESPUESTA:
+1. SÉ LIBRE, PROFUNDO, DETALLADO Y PEDAGÓGICO: Desarrolla explicaciones exhaustivas y claras. Brinda el programa de trabajo completo, detallando paso a paso cómo debe actuar el profesional y el usuario.
+2. EN CASO DE VEHÍCULOS / CASAS RODANTES / MOTORHOMES / CASILLAS MÓVILES:
+   - Aborda integralmente el riesgo de Monóxido de Carbono (CO) y Gas Licuado de Petróleo (GLP/garrafas). Recomienda detectores autónomos de CO y gas.
+   - Detalla la seguridad eléctrica dual (12V continua y 220V alterna, disyuntor, puesta a tierra).
+   - Detalla la prevención de incendios y extintores (matafuego vehicular y para habitáculo triclase ABC, soporte reglamentario, manta ignífuga en cocina).
+   - Detalla el plan de evacuación (salida principal libre de trabas, salida de emergencia por ventana expulsable/escotilla, punto de encuentro exterior seguro a >15m).
+   - Detalla el estado cinemático y mecánico (enganche con cadenas de seguridad cruzadas, luces y frenos según Ley 24.449).
+3. RECOMIENDA LOS MÓDULOS DE LA PLATAFORMA QUE PUEDE UTILIZAR:
+   Identifica y sugiere las herramientas internas del sistema que permiten resolver y documentar la tarea. Las rutas disponibles son:
+   - "Simulador y Plan de Evacuación" (ruta: "/evacuation-form"): Cálculo de anchos de salida, tiempos de evacuación y protocolo de escape.
+   - "Inspección de Flota y Vehículos" (ruta: "/fleet-form"): Checklists de inspección vehicular, enganches, luces, neumáticos y matafuego.
+   - "Gestión de Extintores" (ruta: "/extintores"): Control e inspección periódica de extintores según IRAM 3517.
+   - "Carga de Fuego" (ruta: "/fire-load"): Cálculo de carga de fuego y potencial extintor según Dec. 351/79 Anexo VII.
+   - "Análisis de Trabajo Seguro (ATS)" (ruta: "/ats"): Desglose de tareas críticas, riesgos paso a paso y medidas de control.
+   - "Matriz de Riesgos IPER" (ruta: "/risk-matrix"): Evaluación matricial de probabilidad y severidad de riesgos.
+   - "Control y Entrega de EPP" (ruta: "/ppe-tracker"): Registro y firma de entrega de EPP según Res. SRT 299/11.
+   - "Legajo Técnico" (ruta: "/legajos"): Consolidación del expediente técnico, certificados y documentación legal.
+   - "Permiso de Trabajo Especial" (ruta: "/work-permit"): Para trabajos en caliente, soldadura o fuego.
+   - "Plan de Emergencias" (ruta: "/emergency-plan"): Roles de brigada, contingencias y comunicaciones.
+   - "Primeros Auxilios y DEA" (ruta: "/first-aid-aed"): Dotación de botiquines de primeros auxilios.
+   - "Investigación de Accidentes" (ruta: "/accident-investigation"): Método árbol de causas.
+4. Redacta el campo "chatResponse" en formato Markdown rico y completo, con encabezados, viñetas explicativas y mención explícita de los módulos recomendados.`;
+
+        let prompt = `Consulta o tarea del usuario: "${taskDescription}".`;
+        if (contextData) {
+            prompt += `\n\nContexto histórico del usuario:\n${contextData}`;
+        }
+        prompt += `\n\nGenera un análisis completo, detallado y libre con plan de acción cronológico, riesgos específicos, EPP y equipamiento necesario, recomendaciones preventivas, marco legal y los módulos recomendados del sistema.`;
 
         let result;
         for (const modelName of models) {
@@ -837,7 +886,7 @@ app.post('/api/ai-advisor', aiLimiter, verifyFirebaseToken, requirePro, validate
                 console.log(`[AI ADVISOR] Intentando con ${modelName}...`);
                 const model = genAI.getGenerativeModel({ 
                     model: modelName,
-                    systemInstruction: `Actúa como un Consultor Senior en Seguridad Laboral de ${country}. Cita SIEMPRE leyes específicas al crear el análisis (ej. Ley 19587 si es Argentina).`,
+                    systemInstruction: systemInstruction,
                     generationConfig: {
                         responseMimeType: "application/json",
                         responseSchema: responseSchema

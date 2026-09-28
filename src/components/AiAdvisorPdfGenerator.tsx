@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, ShieldAlert, HardHat, Lightbulb, Gavel } from 'lucide-react';
+import { Sparkles, ShieldAlert, HardHat, Lightbulb, Gavel, CheckSquare, Layers } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
 import PdfBrandingFooter from './PdfBrandingFooter';
@@ -67,6 +67,17 @@ export default function AiAdvisorPdfGenerator({ data }: {data: any;}): React.Rea
 
                 {/* Analysis Sections */}
                 <div className="grid grid-template-columns-[1fr] gap-[1.5rem] mb-[2rem]">
+                    {data.planDeAccion?.length > 0 && (
+                        <div>
+                            <div className="flex items-center gap-[0.5rem] text-[#0284c7] mb-[0.8rem] border-bottom-[2px_solid_#bae6fd] pb-[0.5rem]">
+                                <CheckSquare size={20} /> <h3 className="m-[0] text-[12pt] font-[800]">Plan de Acción y Procedimientos</h3>
+                            </div>
+                            <ol className="m-[0] pl-[1.5rem] text-[#334155] text-[10pt] line-height-[1.5]">
+                                {data.planDeAccion.map((item: string, i: number) => <li key={i} className="mb-[0.3rem]">{item}</li>)}
+                            </ol>
+                        </div>
+                    )}
+
                     {data.riesgos?.length > 0 && (
                         <div style={{}}>
                             <div className="flex items-center gap-[0.5rem] text-[#ef4444] mb-[0.8rem] border-bottom-[2px_solid_#fecaca] pb-[0.5rem]">
@@ -107,6 +118,21 @@ export default function AiAdvisorPdfGenerator({ data }: {data: any;}): React.Rea
                             </div>
                             <ul className="m-[0] pl-[1.5rem] text-[#334155] text-[10pt] line-height-[1.5]">
                                 {data.normativa.map((item: string, i: number) => <li key={i} className="mb-[0.3rem]">{item}</li>)}
+                            </ul>
+                        </div>
+                    )}
+
+                    {data.modulosRecomendados?.length > 0 && (
+                        <div>
+                            <div className="flex items-center gap-[0.5rem] text-[#0d9488] mb-[0.8rem] border-bottom-[2px_solid_#99f6e4] pb-[0.5rem]">
+                                <Layers size={20} /> <h3 className="m-[0] text-[12pt] font-[800]">Módulos Recomendados de la Plataforma</h3>
+                            </div>
+                            <ul className="m-[0] pl-[1.5rem] text-[#334155] text-[10pt] line-height-[1.5]">
+                                {data.modulosRecomendados.map((mod: any, i: number) => (
+                                    <li key={i} className="mb-[0.3rem]">
+                                        <strong>{mod.nombre} ({mod.ruta}):</strong> {mod.motivo}
+                                    </li>
+                                ))}
                             </ul>
                         </div>
                     )}

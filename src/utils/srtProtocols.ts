@@ -891,47 +891,63 @@ export function evaluateFullFireLoadProtocol(
   // 3. Carga de Fuego Qf (kg Madera / m2)
   const cargaFuegoKgM2 = Number((maderaEquivKg / superficie).toFixed(2));
 
-  // 4. Resistencia al Fuego Requerida (Tabla 2.2.1 Anexo VII Dec. 351/79)
+  // 4. Resistencia al Fuego Requerida (Tablas 2.2.1 y 2.2.2 Anexo VII Dec. 351/79)
   let resistenciaFuegoRequerida = 'F30';
   if (ventilacion === 'natural') {
+    // TABLA 2.2.1: Sectores con ventilación natural
     if (cargaFuegoKgM2 <= 15) {
-      resistenciaFuegoRequerida = (riesgo === 'R1' || riesgo === 'R2' || riesgo === 'R3') ? 'F60' : 'F30';
+      // R1, R2: F60 | R3, R4, R5: F30
+      resistenciaFuegoRequerida = (riesgo === 'R1' || riesgo === 'R2') ? 'F60' : 'F30';
     } else if (cargaFuegoKgM2 <= 30) {
-      resistenciaFuegoRequerida = (riesgo === 'R1' || riesgo === 'R2') ? 'F90' : 'F60';
+      // R1, R2: F90 | R3: F60 | R4, R5: F30
+      resistenciaFuegoRequerida = (riesgo === 'R1' || riesgo === 'R2') ? 'F90' : (riesgo === 'R3') ? 'F60' : 'F30';
     } else if (cargaFuegoKgM2 <= 60) {
-      resistenciaFuegoRequerida = (riesgo === 'R1' || riesgo === 'R2') ? 'F120' : (riesgo === 'R3') ? 'F90' : 'F60';
+      // R1, R2: F120 | R3: F90 | R4: F60 | R5: F30
+      resistenciaFuegoRequerida = (riesgo === 'R1' || riesgo === 'R2') ? 'F120' : (riesgo === 'R3') ? 'F90' : (riesgo === 'R4') ? 'F60' : 'F30';
     } else if (cargaFuegoKgM2 <= 100) {
-      resistenciaFuegoRequerida = (riesgo === 'R1' || riesgo === 'R2') ? 'F180' : (riesgo === 'R3') ? 'F120' : 'F90';
+      // R1, R2: F180 | R3: F120 | R4: F90 | R5: F60
+      resistenciaFuegoRequerida = (riesgo === 'R1' || riesgo === 'R2') ? 'F180' : (riesgo === 'R3') ? 'F120' : (riesgo === 'R4') ? 'F90' : 'F60';
     } else {
-      resistenciaFuegoRequerida = (riesgo === 'R4' || riesgo === 'R5') ? 'F120' : 'F180';
+      // > 100 kg/m²: R1, R2: F180* | R3: F180 | R4: F120 | R5: F90
+      resistenciaFuegoRequerida = (riesgo === 'R5') ? 'F90' : (riesgo === 'R4') ? 'F120' : 'F180';
     }
   } else {
-    // Sin ventilación natural o subsuelos / confinamientos
+    // TABLA 2.2.2: Sin ventilación natural / Mecánica / Subsuelo
     if (cargaFuegoKgM2 <= 15) {
-      resistenciaFuegoRequerida = (riesgo === 'R1' || riesgo === 'R2') ? 'F90' : 'F60';
+      // R1, R2: F90 | R3, R4: F60 | R5: F30
+      resistenciaFuegoRequerida = (riesgo === 'R1' || riesgo === 'R2') ? 'F90' : (riesgo === 'R5') ? 'F30' : 'F60';
     } else if (cargaFuegoKgM2 <= 30) {
+      // R1, R2: F120 | R3: F90 | R4, R5: F60
       resistenciaFuegoRequerida = (riesgo === 'R1' || riesgo === 'R2') ? 'F120' : (riesgo === 'R3') ? 'F90' : 'F60';
     } else if (cargaFuegoKgM2 <= 60) {
-      resistenciaFuegoRequerida = (riesgo === 'R1' || riesgo === 'R2') ? 'F180' : (riesgo === 'R3') ? 'F120' : 'F90';
+      // R1, R2: F180 | R3: F120 | R4: F90 | R5: F60
+      resistenciaFuegoRequerida = (riesgo === 'R1' || riesgo === 'R2') ? 'F180' : (riesgo === 'R3') ? 'F120' : (riesgo === 'R4') ? 'F90' : 'F60';
     } else if (cargaFuegoKgM2 <= 100) {
-      resistenciaFuegoRequerida = (riesgo === 'R4' || riesgo === 'R5') ? 'F120' : 'F180';
+      // R1, R2: F180* | R3: F180 | R4: F120 | R5: F90
+      resistenciaFuegoRequerida = (riesgo === 'R5') ? 'F90' : (riesgo === 'R4') ? 'F120' : 'F180';
     } else {
-      resistenciaFuegoRequerida = 'F180';
+      // > 100 kg/m²: R1, R2, R3: F180* | R4: F180 | R5: F120
+      resistenciaFuegoRequerida = (riesgo === 'R5') ? 'F120' : 'F180';
     }
   }
 
   // 5. Potencial Extintor Clase A (Cuadro 1 Cap. 18 Anexo VII Dec. 351/79)
   let potencialClaseA = '1A';
   if (cargaFuegoKgM2 <= 15) {
+    // R3, R4, R5: 1A
     potencialClaseA = '1A';
   } else if (cargaFuegoKgM2 <= 30) {
-    potencialClaseA = (riesgo === 'R4' || riesgo === 'R5') ? '1A' : '2A';
+    // R3: 2A | R4, R5: 1A
+    potencialClaseA = (riesgo === 'R3') ? '2A' : '1A';
   } else if (cargaFuegoKgM2 <= 60) {
-    potencialClaseA = (riesgo === 'R1' || riesgo === 'R2') ? '3A' : '2A';
+    // R3: 3A | R4: 2A | R5: 1A | R1/R2: 3A (preventivo)
+    potencialClaseA = (riesgo === 'R1' || riesgo === 'R2' || riesgo === 'R3') ? '3A' : (riesgo === 'R4') ? '2A' : '1A';
   } else if (cargaFuegoKgM2 <= 100) {
-    potencialClaseA = (riesgo === 'R1' || riesgo === 'R2') ? '6A' : (riesgo === 'R3') ? '4A' : '3A';
+    // R3: 6A | R4: 4A | R5: 3A | R1/R2: 6A (preventivo)
+    potencialClaseA = (riesgo === 'R1' || riesgo === 'R2' || riesgo === 'R3') ? '6A' : (riesgo === 'R4') ? '4A' : '3A';
   } else {
-    potencialClaseA = (riesgo === 'R1' || riesgo === 'R2') ? '10A' : (riesgo === 'R3') ? '6A' : '4A';
+    // > 100 kg/m²: R3: 10A | R4: 6A | R5: 4A
+    potencialClaseA = (riesgo === 'R1' || riesgo === 'R2' || riesgo === 'R3') ? '10A' : (riesgo === 'R4') ? '6A' : '4A';
   }
 
   // 6. Potencial Extintor Clase B (Cuadro 2 Cap. 18 Anexo VII Dec. 351/79)
@@ -951,13 +967,20 @@ export function evaluateFullFireLoadProtocol(
   const minExtintores = Math.max(2, Math.ceil(superficie / 200));
   const distanciaMaximaRecorridoMetros = (riesgo === 'R1' || riesgo === 'R2') ? 15 : 20;
 
-  // 8. Condiciones Específicas de Extinción (E1, E2, E4)
-  const requiereRedHidrantes = (superficie > 600 && (riesgo === 'R1' || riesgo === 'R2' || riesgo === 'R3')) ||
-                               (superficie > 1000) ||
-                               (cargaFuegoKgM2 > 60);
+  // 8. Condiciones Específicas de Extinción (E1, E2, E4) según Cuadro 2.1 Anexo VII
+  // E1 (Red de Hidrantes): Exigida por superficie y riesgo o combinación con alta carga
+  const requiereRedHidrantes =
+    (riesgo === 'R2' && superficie > 200) ||
+    (riesgo === 'R3' && (superficie > 600 || (superficie > 300 && cargaFuegoKgM2 > 60))) ||
+    (riesgo === 'R4' && (superficie > 1000 || (superficie > 500 && cargaFuegoKgM2 > 100))) ||
+    (superficie > 1500) ||
+    (ventilacion === 'sin_ventilacion' && superficie > 200 && cargaFuegoKgM2 > 30);
 
-  const requiereRociadoresAutomaticos = (superficie > 1000 && cargaFuegoKgM2 > 60) ||
-                                       (cargaFuegoKgM2 > 100);
+  // E2 (Rociadores automáticos): Exigida por gran superficie con carga térmica elevada
+  const requiereRociadoresAutomaticos =
+    (superficie >= 1000 && cargaFuegoKgM2 > 60) ||
+    (superficie >= 600 && cargaFuegoKgM2 > 100) ||
+    (ventilacion === 'sin_ventilacion' && superficie > 400 && cargaFuegoKgM2 > 60);
 
   const condicionesAplicables: FireExtinctionCondition[] = [
     {
@@ -989,17 +1012,17 @@ export function evaluateFullFireLoadProtocol(
   // 9. Recomendaciones Técnicas
   const recomendacionesTecnicas: string[] = [
     `Carga de fuego calculada: ${cargaFuegoKgM2} kg/m² de madera equivalente para un sector de ${superficie} m² clasificado como ${riesgo}.`,
-    `Resistencia al fuego reglamentaria exigida para muros y estructuras portantes: ${resistenciaFuegoRequerida} (${ventilacion === 'natural' ? 'con ventilación natural' : 'sin ventilación natural / forzada'}).`,
+    `Resistencia al fuego reglamentaria exigida para muros y estructuras portantes: ${resistenciaFuegoRequerida} (${ventilacion === 'natural' ? 'Tabla 2.2.1 con ventilación natural' : 'Tabla 2.2.2 sin ventilación natural / mecánica'}).`,
     `Instalar como mínimo ${minExtintores} extintores manuales de Polvo Químico Seco (PQS) de 5 kg o 10 kg con potencial mínimo certificado no inferior a ${potencialExtintorNominal} (IRAM 3517-2).`,
     `Distribución de extintores: Ubicados a una altura reglamentaria (1.20 m a 1.50 m del nivel de piso terminado), con libre acceso, señalizados con balizas normalizadas IRAM 10005-2 y a no más de ${distanciaMaximaRecorridoMetros} m de recorrido.`
   ];
 
   if (requiereRedHidrantes) {
-    recomendacionesTecnicas.push('⚠️ CONDICIÓN E1 OBLIGATORIA: Por superar los umbrales reglamentarios, el establecimiento debe disponer de Red Fija de Hidrantes con reserva de agua y grupo motobomba.');
+    recomendacionesTecnicas.push('⚠️ CONDICIÓN E1 OBLIGATORIA: Por superar los umbrales reglamentarios del Cuadro 2.1, el establecimiento debe disponer de Red Fija de Hidrantes con reserva de agua y grupo motobomba.');
   }
 
   if (requiereRociadoresAutomaticos) {
-    recomendacionesTecnicas.push('🛑 CONDICIÓN E2: Por carga de fuego superior a 60 kg/m² en gran superficie, se recomienda instalación de rociadores automáticos (Sprinklers).');
+    recomendacionesTecnicas.push('🛑 CONDICIÓN E2: Por gran superficie y carga de fuego superior a los umbrales reglamentarios, se exige sistema de rociadores automáticos (Sprinklers).');
   }
 
   return {

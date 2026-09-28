@@ -84,11 +84,53 @@ export const SAFETY_ICONS = {
 
     // Structural Drawing Tools
     LINE: {
-        id: 'LINE', type: 'line', label: 'Pared / Línea', color: '#374151',
+        id: 'LINE', type: 'line', label: 'Pared / Muro', color: '#374151',
         svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="20" y2="4"/></svg>`
     },
     RECTANGLE: {
         id: 'RECTANGLE', type: 'rect', label: 'Salón / Zona', color: '#374151',
         svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>`
+    },
+
+    // ── Architectural Elements (AutoCAD / Planos) ───────────────────────────
+    DOOR_SINGLE: {
+        id: 'DOOR_SINGLE', type: 'door', label: 'Puerta Simple (Batiente)', color: '#0284c7',
+        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="21" y2="21"/><line x1="4" y1="21" x2="4" y2="6"/><path d="M4 6 A 15 15 0 0 1 19 21" stroke-dasharray="2 2" stroke-width="1.3"/></svg>`
+    },
+    DOOR_DOUBLE: {
+        id: 'DOOR_DOUBLE', type: 'door', label: 'Puerta Doble Hoja', color: '#0284c7',
+        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="21" x2="22" y2="21"/><line x1="3" y1="21" x2="3" y2="12"/><line x1="21" y1="21" x2="21" y2="12"/><path d="M3 12 A 9 9 0 0 1 12 21" stroke-dasharray="2 2" stroke-width="1.2"/><path d="M21 12 A 9 9 0 0 0 12 21" stroke-dasharray="2 2" stroke-width="1.2"/></svg>`
+    },
+    DOOR_SLIDING: {
+        id: 'DOOR_SLIDING', type: 'door', label: 'Puerta Corrediza', color: '#0284c7',
+        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="14" x2="22" y2="14" stroke-width="2.5"/><line x1="5" y1="10" x2="15" y2="10" stroke-width="3"/><polyline points="13 7 17 10 13 13"/></svg>`
+    },
+    DOOR_EMERGENCY: {
+        id: 'DOOR_EMERGENCY', type: 'door', label: 'Puerta Antipánico / Escape', color: '#16a34a',
+        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1.5"/><line x1="4" y1="12" x2="20" y2="12" stroke="#16a34a" stroke-width="3"/><circle cx="17" cy="12" r="1.5" fill="#16a34a"/><path d="M9 15l3-3-3-3"/></svg>`
+    },
+    STAIRS_STRAIGHT: {
+        id: 'STAIRS_STRAIGHT', type: 'stairs', label: 'Escalera Recta (Sube/Baja)', color: '#475569',
+        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1"/><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="11" x2="20" y2="11"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="12" y1="18" x2="12" y2="5" stroke="#2563eb" stroke-width="1.8"/><polyline points="9 8 12 5 15 8" stroke="#2563eb" stroke-width="1.8"/></svg>`
+    },
+    STAIRS_SPIRAL: {
+        id: 'STAIRS_SPIRAL', type: 'stairs', label: 'Escalera Caracol', color: '#475569',
+        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><line x1="12" y1="3" x2="12" y2="9.5"/><line x1="18.3" y1="5.7" x2="13.8" y2="10.2"/><line x1="21" y1="12" x2="14.5" y2="12"/><line x1="18.3" y1="18.3" x2="13.8" y2="13.8"/><line x1="12" y1="21" x2="12" y2="14.5"/><line x1="5.7" y1="18.3" x2="10.2" y2="13.8"/><line x1="3" y1="12" x2="9.5" y2="12"/></svg>`
+    },
+    RAMP: {
+        id: 'RAMP', type: 'stairs', label: 'Rampa de Desnivel / Escape', color: '#0284c7',
+        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="3,19 21,19 21,7 3,19"/><polyline points="8,15 15,10 12,9"/><line x1="15" y1="10" x2="15" y2="13"/></svg>`
+    },
+    WINDOW: {
+        id: 'WINDOW', type: 'window', label: 'Ventana / Vano', color: '#0284c7',
+        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="1"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="6" x2="12" y2="18"/></svg>`
+    },
+    COLUMN_SQUARE: {
+        id: 'COLUMN_SQUARE', type: 'column', label: 'Columna / Pilar', color: '#1e293b',
+        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" fill="#cbd5e1" stroke="#1e293b" stroke-width="2"/><line x1="5" y1="5" x2="19" y2="19" stroke="#1e293b"/><line x1="19" y1="5" x2="5" y2="19" stroke="#1e293b"/></svg>`
+    },
+    DIMENSION: {
+        id: 'DIMENSION', type: 'dimension', label: 'Cota de Medida (m)', color: '#6366f1',
+        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="5" x2="3" y2="19"/><line x1="21" y1="5" x2="21" y2="19"/><line x1="3" y1="12" x2="21" y2="12"/><polyline points="7 9 4 12 7 15"/><polyline points="17 9 20 12 17 15"/></svg>`
     }
 };

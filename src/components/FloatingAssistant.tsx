@@ -5,7 +5,7 @@ import {
   Volume2, Search, Settings, HelpCircle, Lock,
   FileText, ShieldCheck, KeySquare, Send,
   Camera, AlertCircle, PhoneCall, HeartPulse,
-  Activity, Mic, MicOff, Contact, QrCode, CreditCard, Award } from
+  Activity, Mic, MicOff, Contact, QrCode, CreditCard, Award, Layers, ArrowRight } from
 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -31,12 +31,48 @@ export default function FloatingAssistant() {
   const menuRef = useRef<HTMLDivElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Tipado de mensajes con timestamp
+  // Tipado de mensajes con timestamp y modulos
   interface Message {
     role: 'ai' | 'user';
     text: string;
     timestamp: number;
+    modules?: Array<{ nombre: string; ruta: string; motivo: string }>;
   }
+
+  const renderFormattedMessageText = (text: string) => {
+    return text.split('\n').map((line, idx) => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('## ')) {
+        return (
+          <div key={idx} className="font-extrabold text-[0.92rem] text-[var(--color-primary)] mt-2 mb-1">
+            {trimmed.replace('## ', '')}
+          </div>
+        );
+      }
+      if (trimmed.startsWith('### ')) {
+        return (
+          <div key={idx} className="font-bold text-[0.88rem] text-[var(--color-text)] mt-1.5 mb-0.5">
+            {trimmed.replace('### ', '')}
+          </div>
+        );
+      }
+      const parts = line.split(/(\*\*.*?\*\*)/g);
+      return (
+        <span key={idx} className="block min-h-[1.1em]">
+          {parts.map((part, pIdx) => {
+            if (part.startsWith('**') && part.endsWith('**')) {
+              return (
+                <strong key={pIdx} className="font-bold text-[var(--color-text)]">
+                  {part.slice(2, -2)}
+                </strong>
+              );
+            }
+            return part;
+          })}
+        </span>
+      );
+    });
+  };
 
   const [messages, setMessages] = useState<Message[]>(() => {
     const saved = localStorage.getItem('ai_assistant_messages');
@@ -232,14 +268,40 @@ export default function FloatingAssistant() {
 
       const data = await response.json();
 
-      // Simular respuesta natural si falla la API o para debug inicial
-      const aiText = data.recomendaciones ? data.recomendaciones[0] : "Entendido. Recordá siempre verificar tus EPP antes de comenzar.";
+      let aiText = data.chatResponse;
+      if (!aiText) {
+        const parts: string[] = [];
+        if (data.task) parts.push(`📋 **${data.task}**`);
+        if (data.planDeAccion?.length) {
+          parts.push(`🚀 **Plan de Acción Sugerido:**\n` + data.planDeAccion.map((p: string, i: number) => `${i + 1}. ${p}`).join('\n'));
+        }
+        if (data.riesgos?.length) {
+          parts.push(`🚨 **Riesgos Principales:**\n` + data.riesgos.map((r: string) => `• ${r}`).join('\n'));
+        }
+        if (data.epp?.length) {
+          parts.push(`🛡️ **EPP y Equipamiento:**\n` + data.epp.map((e: string) => `• ${e}`).join('\n'));
+        }
+        if (data.recomendaciones?.length) {
+          parts.push(`💡 **Medidas Preventivas:**\n` + data.recomendaciones.map((rec: string) => `• ${rec}`).join('\n'));
+        }
+        if (data.normativa?.length) {
+          parts.push(`⚖️ **Marco Legal:**\n` + data.normativa.map((n: string) => `• ${n}`).join('\n'));
+        }
+        aiText = parts.join('\n\n') || (data.recomendaciones ? data.recomendaciones.join('\n\n') : "Entendido. Recordá siempre verificar tus EPP antes de comenzar.");
+      }
+
+      const modules = Array.isArray(data.modulosRecomendados) ? data.modulosRecomendados : [];
 
       setTimeout(() => {
-        setMessages((prev) => [...prev, { role: 'ai', text: aiText, timestamp: Date.now() }]);
+        setMessages((prev) => [...prev, {
+          role: 'ai',
+          text: aiText,
+          timestamp: Date.now(),
+          modules: modules.length > 0 ? modules : undefined
+        }]);
         setIsTyping(false);
         if (!isPro) setFreeQueriesUsed((prev) => prev + 1);
-      }, 800);
+      }, 400);
 
     } catch (err) {
       console.error("Chat Error:", err);
@@ -561,8 +623,40 @@ export default function FloatingAssistant() {
                                                 color: m.role === 'user' ? '#ffffff' : 'var(--color-text)',
                                                 border: m.role === 'user' ? 'none' : '1px solid var(--color-border)',
                                                 boxShadow: m.role === 'user' ? '0 6px 14px rgba(59, 130, 246, 0.25)' : 'var(--shadow-sm)'
-                                            }} className="p-[0.75rem_1rem] text-[0.85rem] leading-relaxed whitespace-pre-wrap font-medium">
-                                                {m.text}
+                                            }} className="p-[0.75rem_1rem] text-[0.85rem] leading-relaxed font-medium">
+                                                {m.role === 'user' ? (
+                                                    <div className="whitespace-pre-wrap">{m.text}</div>
+                                                ) : (
+                                                    <div>
+                                                        {renderFormattedMessageText(m.text)}
+                                                        {m.modules && m.modules.length > 0 && (
+                                                            <div className="mt-3 pt-2.5 border-t border-[var(--color-border)] flex flex-col gap-2">
+                                                                <span className="text-[0.72rem] font-bold text-[var(--color-primary)] flex items-center gap-1">
+                                                                    <Layers size={13} /> Módulos recomendados para tu tarea:
+                                                                </span>
+                                                                <div className="flex flex-col gap-1.5">
+                                                                    {m.modules.map((mod, modIdx) => (
+                                                                        <button
+                                                                            key={modIdx}
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                                navigate(mod.ruta);
+                                                                                setIsOpen(false);
+                                                                            }}
+                                                                            className="flex items-center justify-between text-left p-2 rounded-xl bg-[rgba(59,130,246,0.06)] hover:bg-[rgba(59,130,246,0.15)] border border-[rgba(59,130,246,0.2)] transition-all cursor-pointer text-xs group"
+                                                                        >
+                                                                            <div className="min-w-0 flex-1 pr-1.5">
+                                                                                <div className="font-bold text-[var(--color-primary)] truncate">{mod.nombre}</div>
+                                                                                {mod.motivo && <div className="text-[0.68rem] text-[var(--color-text-muted)] line-clamp-1">{mod.motivo}</div>}
+                                                                            </div>
+                                                                            <ArrowRight size={14} className="text-[var(--color-primary)] flex-shrink-0 group-hover:translate-x-1 transition-transform" />
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     ))}

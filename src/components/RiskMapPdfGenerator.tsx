@@ -78,6 +78,170 @@ export default function RiskMapPdfGenerator({
 
     return { autoScale: scale };
   }, [mapData]);
+
+  const renderPdfSvgElement = (el: any) => {
+    const stroke = el.color || '#0f172a';
+    const sw = el.strokeWidth || 2;
+    const dashArr = el.lineStyle === 'dashed' ? '8,4' : 'none';
+
+    if (el.type === 'circle') {
+      const cx = (el.startX + el.endX) / 2;
+      const cy = (el.startY + el.endY) / 2;
+      const rx = Math.abs(el.endX - el.startX) / 2;
+      const ry = Math.abs(el.endY - el.startY) / 2;
+      return (
+        <ellipse
+          key={el.id}
+          cx={cx} cy={cy} rx={rx || 1} ry={ry || 1}
+          stroke={stroke} strokeWidth={sw} strokeDasharray={dashArr}
+          fill={el.fillColor || 'transparent'} opacity={el.opacity ?? 1}
+        />
+      );
+    }
+
+    if (el.type === 'polyline' && el.points?.length >= 2) {
+      const pts = el.points.map((p: any) => `${p.x},${p.y}`).join(' ');
+      return (
+        <polyline
+          key={el.id}
+          points={pts}
+          stroke={stroke} strokeWidth={sw} strokeDasharray={dashArr}
+          fill="none" opacity={el.opacity ?? 1}
+        />
+      );
+    }
+
+    if (el.type === 'dimension') {
+      const dx = el.endX - el.startX;
+      const dy = el.endY - el.startY;
+      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+      const length = Math.sqrt(dx * dx + dy * dy);
+      const midX = (el.startX + el.endX) / 2;
+      const midY = (el.startY + el.endY) / 2;
+      const distM = (length / 40).toFixed(2);
+      const txt = el.text || `${distM} m`;
+
+      return (
+        <g key={el.id}>
+          <line x1={el.startX} y1={el.startY} x2={el.endX} y2={el.endY} stroke={stroke} strokeWidth={sw} />
+          <line x1={el.startX - 5} y1={el.startY - 5} x2={el.startX + 5} y2={el.startY + 5} stroke={stroke} strokeWidth={sw + 1} />
+          <line x1={el.endX - 5} y1={el.endY - 5} x2={el.endX + 5} y2={el.endY + 5} stroke={stroke} strokeWidth={sw + 1} />
+          <g transform={`translate(${midX}, ${midY}) rotate(${Math.abs(angle) > 90 ? angle + 180 : angle})`}>
+            <rect x="-24" y="-14" width="48" height="13" rx="2" fill="#ffffff" stroke={stroke} strokeWidth="0.8" />
+            <text x="0" y="-4" textAnchor="middle" fill={stroke} fontSize="9" fontWeight="bold">{txt}</text>
+          </g>
+        </g>
+      );
+    }
+
+    if (el.type === 'door') {
+      const w = el.width || 40;
+      const scaleX = el.flipX ? -1 : 1;
+      const scaleY = el.flipY ? -1 : 1;
+
+      return (
+        <g key={el.id} transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0}) scale(${scaleX}, ${scaleY})`}>
+          {el.doorType === 'double' ? (
+            <>
+              <line x1={0} y1={0} x2={w} y2={0} stroke="#94a3b8" strokeWidth="2" strokeDasharray="3,3" />
+              <line x1={0} y1={0} x2={0} y2={w / 2} stroke={stroke} strokeWidth={sw} />
+              <path d={`M 0 ${w / 2} A ${w / 2} ${w / 2} 0 0 0 ${w / 2} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="3,3" />
+              <line x1={w} y1={0} x2={w} y2={w / 2} stroke={stroke} strokeWidth={sw} />
+              <path d={`M ${w} ${w / 2} A ${w / 2} ${w / 2} 0 0 1 ${w / 2} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="3,3" />
+              <circle cx={0} cy={0} r={2.5} fill={stroke} />
+              <circle cx={w} cy={0} r={2.5} fill={stroke} />
+            </>
+          ) : el.doorType === 'sliding' ? (
+            <>
+              <line x1={0} y1={0} x2={w} y2={0} stroke="#94a3b8" strokeWidth="2" />
+              <line x1={3} y1={-3} x2={w / 2 + 3} y2={-3} stroke={stroke} strokeWidth={sw + 1} />
+              <line x1={w / 2 - 3} y1={3} x2={w - 3} y2={3} stroke={stroke} strokeWidth={sw + 1} />
+            </>
+          ) : (
+            <>
+              <line x1={0} y1={0} x2={w} y2={0} stroke="#94a3b8" strokeWidth="2" strokeDasharray="3,3" />
+              <line x1={0} y1={0} x2={0} y2={w} stroke={stroke} strokeWidth={sw} />
+              <path d={`M 0 ${w} A ${w} ${w} 0 0 0 ${w} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="4,3" />
+              <circle cx={0} cy={0} r={2.5} fill={stroke} />
+              {el.doorType === 'emergency' && (
+                <rect x={-3} y={w * 0.3} width={6} height={w * 0.4} rx="2" fill="#16a34a" />
+              )}
+            </>
+          )}
+        </g>
+      );
+    }
+
+    if (el.type === 'stairs') {
+      const w = el.width || 50;
+      const h = el.height || 100;
+      const numSteps = el.steps || 8;
+      const isUp = el.direction !== 'DOWN';
+
+      return (
+        <g key={el.id} transform={`translate(${el.x - w / 2}, ${el.y - h / 2}) rotate(${el.rotation || 0} ${w / 2} ${h / 2})`}>
+          {el.stairType === 'spiral' ? (
+            <>
+              <circle cx={w / 2} cy={h / 2} r={w / 2} fill="#f8fafc" stroke={stroke} strokeWidth={sw} />
+              <circle cx={w / 2} cy={h / 2} r={5} fill={stroke} />
+              {Array.from({ length: numSteps }).map((_, i) => {
+                const ang = (i * 360 / numSteps) * (Math.PI / 180);
+                const x2 = w / 2 + (w / 2) * Math.cos(ang);
+                const y2 = h / 2 + (h / 2) * Math.sin(ang);
+                return <line key={i} x1={w / 2} y1={h / 2} x2={x2} y2={y2} stroke={stroke} strokeWidth="1.2" />;
+              })}
+            </>
+          ) : (
+            <>
+              <rect x={0} y={0} width={w} height={h} fill="#f8fafc" stroke={stroke} strokeWidth={sw} />
+              {Array.from({ length: numSteps - 1 }).map((_, i) => {
+                const stepY = ((i + 1) * h) / numSteps;
+                return <line key={i} x1={0} y1={stepY} x2={w} y2={stepY} stroke={stroke} strokeWidth="1.2" strokeDasharray={el.stairType === 'ramp' ? '3,3' : 'none'} />;
+              })}
+              <line x1={w / 2} y1={isUp ? h - 10 : 10} x2={w / 2} y2={isUp ? 15 : h - 15} stroke="#2563eb" strokeWidth="2" />
+              <polygon
+                points={isUp ? `${w / 2 - 4},18 ${w / 2 + 4},18 ${w / 2},8` : `${w / 2 - 4},${h - 18} ${w / 2 + 4},${h - 18} ${w / 2},${h - 8}`}
+                fill="#2563eb"
+              />
+              <text x={w / 2} y={h / 2} textAnchor="middle" fill="#2563eb" fontSize="9" fontWeight="bold">
+                {el.stairType === 'ramp' ? 'RAMPA' : isUp ? 'SUBE' : 'BAJA'}
+              </text>
+            </>
+          )}
+        </g>
+      );
+    }
+
+    if (el.type === 'window') {
+      const w = el.width || 50;
+      const h = el.height || 14;
+
+      return (
+        <g key={el.id} transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})`}>
+          <rect x={-w / 2} y={-h / 2} width={w} height={h} fill="#e0f2fe" stroke={stroke} strokeWidth={sw} />
+          <line x1={-w / 2} y1={0} x2={w / 2} y2={0} stroke={stroke} strokeWidth={sw * 0.8} />
+          <line x1={-w / 2} y1={-h / 2} x2={-w / 2} y2={h / 2} stroke={stroke} strokeWidth={sw + 0.5} />
+          <line x1={w / 2} y1={-h / 2} x2={w / 2} y2={h / 2} stroke={stroke} strokeWidth={sw + 0.5} />
+        </g>
+      );
+    }
+
+    if (el.type === 'column') {
+      const w = el.width || 24;
+      const h = el.height || 24;
+
+      return (
+        <g key={el.id} transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})`}>
+          <rect x={-w / 2} y={-h / 2} width={w} height={h} fill="#cbd5e1" stroke={stroke} strokeWidth={sw} />
+          <line x1={-w / 2} y1={-h / 2} x2={w / 2} y2={h / 2} stroke={stroke} strokeWidth={sw * 0.75} />
+          <line x1={w / 2} y1={-h / 2} x2={-w / 2} y2={h / 2} stroke={stroke} strokeWidth={sw * 0.75} />
+        </g>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className="container pb-[3rem] min-h-[100vh] flex flex-col">
             <div className="no-print flex items-center justify-space-between mb-[1.5rem] z-[10] flex-wrap gap-[1rem]">
@@ -203,6 +367,11 @@ export default function RiskMapPdfGenerator({
                   return null;
                 })}
                             </div>
+
+                            {/* Render Architectural Elements & Vectors (SVG layer for 100% crisp printing) */}
+                            <svg className="absolute top-[0] left-[0] w-[4000px] h-[4000px] pointer-events-none z-[3]">
+                              {mapData?.elements?.filter((el: any) => ['circle', 'polyline', 'door', 'stairs', 'window', 'column', 'dimension'].includes(el.type)).map(renderPdfSvgElement)}
+                            </svg>
 
                             {/* Render Icons and Text */}
                             {mapData?.elements?.map((el) => {

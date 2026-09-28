@@ -520,6 +520,69 @@ describe('Estudio Técnico de Carga de Fuego — Decreto 351/79 Anexo VII', () =
     expect(res.condicionesAplicables.some(c => c.codigo === 'Condición E1')).toBe(true);
     expect(res.minExtintores).toBe(4); // 800 / 200 = 4 extintores
   });
+
+  it('debe asignar F30 a R4 con carga entre 16 y 30 kg/m2 según Tabla 2.2.1 y potencial 3A a R3', async () => {
+    const { evaluateFullFireLoadProtocol } = await import('../srtProtocols');
+
+    // 100 m2 con 25 kg/m2 de madera (2500 kg) y riesgo R4
+    // Según Tabla 2.2.1 Anexo VII: R4 con 16 a 30 kg/m2 exige F30 (no F60)
+    const resR4 = evaluateFullFireLoadProtocol({
+      superficie: 100,
+      riesgo: 'R4',
+      ventilacion: 'natural',
+      materiales: [
+        { nombre: 'Madera', peso: 2500, poderCalorifico: 4400 }
+      ]
+    });
+    expect(resR4.cargaFuegoKgM2).toBe(25);
+    expect(resR4.resistenciaFuegoRequerida).toBe('F30');
+    expect(resR4.potencialExtintorClaseA).toBe('1A');
+
+    // R3 con 45 kg/m2 (de 31 a 60 kg/m2) exige 3A en Cuadro 1 (no 2A)
+    const resR3 = evaluateFullFireLoadProtocol({
+      superficie: 100,
+      riesgo: 'R3',
+      ventilacion: 'natural',
+      materiales: [
+        { nombre: 'Telas', peso: 4950, poderCalorifico: 4000 }
+      ]
+    });
+    expect(resR3.cargaFuegoKgM2).toBe(45);
+    expect(resR3.potencialExtintorClaseA).toBe('3A');
+    expect(resR3.resistenciaFuegoRequerida).toBe('F90');
+
+    // R3 con 80 kg/m2 (de 61 a 100 kg/m2) exige 6A en Cuadro 1
+    const resR3Alto = evaluateFullFireLoadProtocol({
+      superficie: 100,
+      riesgo: 'R3',
+      ventilacion: 'natural',
+      materiales: [
+        { nombre: 'Telas', peso: 8800, poderCalorifico: 4000 }
+      ]
+    });
+    expect(resR3Alto.potencialExtintorClaseA).toBe('6A');
+  });
+
+  it('no debe exigir red de hidrantes en sectores pequeños aunque tengan alta densidad de carga térmica', async () => {
+    const { evaluateFullFireLoadProtocol } = await import('../srtProtocols');
+
+    // Depósito pequeño de 40 m2 con 2800 kg de madera (Qf = 70 kg/m2)
+    // No supera los umbrales de superficie del Cuadro 2.1
+    const resChico = evaluateFullFireLoadProtocol({
+      superficie: 40,
+      riesgo: 'R4',
+      ventilacion: 'natural',
+      materiales: [
+        { nombre: 'Madera', peso: 2800, poderCalorifico: 4400 }
+      ]
+    });
+
+    expect(resChico.cargaFuegoKgM2).toBe(70);
+    expect(resChico.requiereRedHidrantes).toBe(false);
+    expect(resChico.requiereRociadoresAutomaticos).toBe(false);
+    expect(resChico.minExtintores).toBe(2); // Mínimo legal absoluto
+    expect(resChico.distanciaMaximaRecorridoMetros).toBe(20);
+  });
 });
 
 

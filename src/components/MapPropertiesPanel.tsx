@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2, Copy, Lock, Unlock, Settings } from 'lucide-react';
+import { Trash2, Copy, Lock, Unlock, Settings, FlipHorizontal, FlipVertical, Ruler, ArrowUpDown } from 'lucide-react';
 
 const ROW = { display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' };
 const LBL = { 
@@ -38,6 +38,13 @@ export interface MapElement {
   lineStyle?: string;
   rotation?: number;
   locked?: boolean;
+  flipX?: boolean;
+  flipY?: boolean;
+  width?: number;
+  height?: number;
+  steps?: number;
+  direction?: 'UP' | 'DOWN';
+  text?: string;
   [key: string]: any;
 }
 
@@ -57,8 +64,8 @@ export default function MapPropertiesPanel({ element, onUpdate, onDelete, onDupl
     </div>
   );
 
-  const canFill = ['rect', 'circle', 'filled_rect'].includes(element.type);
-  const canRotate = ['icon', 'text'].includes(element.type);
+  const canFill = ['rect', 'circle', 'filled_rect', 'column'].includes(element.type);
+  const canRotate = ['icon', 'text', 'door', 'stairs', 'window', 'column'].includes(element.type);
   const sw = element.strokeWidth || 3;
   const op = element.opacity != null ? element.opacity : 1;
 
@@ -68,7 +75,7 @@ export default function MapPropertiesPanel({ element, onUpdate, onDelete, onDupl
       <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
         <Settings size={14} className="text-indigo-500" />
         <span className="text-[0.7rem] font-black tracking-wider uppercase text-indigo-500">
-          Propiedades ({element.type})
+          Propiedades ({element.type.toUpperCase()})
         </span>
       </div>
 
@@ -199,6 +206,121 @@ export default function MapPropertiesPanel({ element, onUpdate, onDelete, onDupl
                 {deg}°
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Controles para Puertas */}
+      {element.type === 'door' && (
+        <div style={{ background: 'var(--color-background)', padding: 10, borderRadius: 10, border: '1px solid var(--color-border)' }}>
+          <label style={LBL}>🚪 Apertura de Puerta</label>
+          <div className="grid grid-cols-2 gap-1.5 mb-2">
+            <button 
+              type="button"
+              onClick={() => onUpdate({ flipX: !element.flipX })} 
+              style={BTN(element.flipX || false, '#0284c7')}
+              title="Cambiar mano de apertura izquierda/derecha"
+            >
+              <FlipHorizontal size={13} className="mr-1" /> Espejo H
+            </button>
+            <button 
+              type="button"
+              onClick={() => onUpdate({ flipY: !element.flipY })} 
+              style={BTN(element.flipY || false, '#0284c7')}
+              title="Abrir hacia adentro o afuera"
+            >
+              <FlipVertical size={13} className="mr-1" /> Espejo V
+            </button>
+          </div>
+          <label style={LBL}>Ancho de Hoja</label>
+          <div className="grid grid-cols-4 gap-1">
+            {[30, 40, 48, 60].map((w) => (
+              <button key={w} onClick={() => onUpdate({ width: w, height: w })} style={BTN((element.width || 40) === w, '#0284c7')}>
+                {(w / 40).toFixed(1)}m
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Controles para Escaleras */}
+      {element.type === 'stairs' && (
+        <div style={{ background: 'var(--color-background)', padding: 10, borderRadius: 10, border: '1px solid var(--color-border)' }}>
+          <label style={LBL}>🪜 Sentido de Circulación</label>
+          <div className="grid grid-cols-2 gap-2 mb-2">
+            <button 
+              onClick={() => onUpdate({ direction: 'UP' })} 
+              style={BTN(element.direction !== 'DOWN', '#2563eb')}
+            >
+              ⬆️ SUBE
+            </button>
+            <button 
+              onClick={() => onUpdate({ direction: 'DOWN' })} 
+              style={BTN(element.direction === 'DOWN', '#2563eb')}
+            >
+              ⬇️ BAJA
+            </button>
+          </div>
+          <label style={LBL}>Cantidad de Huellas (Peldaños)</label>
+          <div className="grid grid-cols-5 gap-1">
+            {[6, 8, 10, 12, 16].map((st) => (
+              <button key={st} onClick={() => onUpdate({ steps: st })} style={BTN((element.steps || 8) === st, '#475569')}>
+                {st}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Controles para Cotas de Dimensión */}
+      {element.type === 'dimension' && (
+        <div style={{ background: 'var(--color-background)', padding: 10, borderRadius: 10, border: '1px solid var(--color-border)' }}>
+          <label style={LBL}>📏 Texto de Cota</label>
+          <input 
+            type="text" 
+            value={element.text || ''} 
+            onChange={(e) => onUpdate({ text: e.target.value })} 
+            placeholder="Ej: 3.50 m"
+            className="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold"
+          />
+        </div>
+      )}
+
+      {/* Controles de Dimensión para Rectángulo */}
+      {element.type === 'rect' && (
+        <div style={{ background: 'var(--color-background)', padding: 10, borderRadius: 10, border: '1px solid var(--color-border)' }}>
+          <label style={LBL}>📐 Dimensiones del Sector</label>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div>
+              <span className="text-[0.68rem] text-slate-500 font-bold block mb-1">Ancho (m)</span>
+              <input 
+                type="number" 
+                step="0.1" 
+                min="0.5"
+                value={((Math.abs(element.endX - element.startX)) / 40).toFixed(1)} 
+                onChange={(e) => {
+                  const valM = parseFloat(e.target.value) || 1;
+                  const newWidthPx = valM * 40;
+                  onUpdate({ endX: element.startX + (element.endX >= element.startX ? newWidthPx : -newWidthPx) });
+                }} 
+                className="w-full p-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold"
+              />
+            </div>
+            <div>
+              <span className="text-[0.68rem] text-slate-500 font-bold block mb-1">Largo (m)</span>
+              <input 
+                type="number" 
+                step="0.1" 
+                min="0.5"
+                value={((Math.abs(element.endY - element.startY)) / 40).toFixed(1)} 
+                onChange={(e) => {
+                  const valM = parseFloat(e.target.value) || 1;
+                  const newHeightPx = valM * 40;
+                  onUpdate({ endY: element.startY + (element.endY >= element.startY ? newHeightPx : -newHeightPx) });
+                }} 
+                className="w-full p-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold"
+              />
+            </div>
           </div>
         </div>
       )}

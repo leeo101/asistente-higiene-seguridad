@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ShieldCheck, ArrowRight, CheckCircle, Sparkle as Sparkles,
-  HardHat, Fire, Lightning, FileText, Cpu, Activity,
+  HardHat, Fire, Lightning, FileText, Cpu,
   Users, Building, Eye, Download, Check, CaretDown,
   DeviceMobile, Clock, Star, Play
 } from '@phosphor-icons/react';
