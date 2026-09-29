@@ -9,7 +9,7 @@ import {
   Share2, Save, ArrowLeft, ArrowRight, Info, Pencil, Camera,
   Flame, Zap, Siren, Lightbulb, Activity, CheckCircle2,
   Search, QrCode, Download, FileText, ClipboardList,
-  HardHat, Ear, Eye as EyeIcon, Mic, Wrench, BookOpen
+  HardHat, Ear, Eye as EyeIcon, Mic, Wrench, BookOpen, Pickaxe, Package, Tractor
 } from 'lucide-react';
 import { DataTable } from '../components/DataTable';
 import { downloadCSV } from '../services/exportCsv';
@@ -32,264 +32,386 @@ import { generatePdfBlob } from '../utils/pdfHelper';
 import { savePdfBlob, getPdfBlob } from '../utils/indexedDBHelper';
 import IndustryChecklistModal from '../components/IndustryChecklistModal';
 import type { IndustryChecklistTemplate } from '../data/industryChecklists';
+import { compressImage } from '../utils/imageCompressor';
 
-const DEFAULT_TEMPLATES = {
-  'manual_tools': {
-    title: 'Herramientas Manuales',
-    icon: <Plus size={18} />,
-    items: [
-    'Mangos en buen estado (sin fisuras, astillas ni flojos)',
-    'Cabezas de herramientas de golpe sin rebabas ni deformaciones (hongos)',
-    'Herramienta limpia, seca y libre de grasa/aceite',
-    'No presenta oxidacion excesiva que debilite la estructura',
-    'Filo adecuado y protegido cuando no esta en uso',
-    'Sujecion firme de las partes moviles',
-    'Almacenamiento en portaherramientas adecuados']
+interface DefaultTemplateItem {
+  title: string;
+  category: 'construccion' | 'industria' | 'mineria' | 'general';
+  icon: React.ReactElement;
+  items: string[];
+}
 
-  },
-  'electric_tools': {
-    title: 'Herramientas Electricas Portatiles',
-    icon: <Settings size={18} />,
-    items: [
-    'Cables sin peladuras, cortes ni empalmes precarios',
-    'Ficha de conexion original y en buen estado (con puesta a tierra)',
-    'Carcasa sin roturas, fisuras ni tornillos faltantes',
-    'Gatillo de accionamiento funciona correctamente',
-    'Protecciones/resguardos en su lugar y firmes',
-    'Escobillas sin chispas excesivas']
-
-  },
-  'circular_saw': {
-    title: 'Sierra Circular de Mano',
-    icon: <ShieldCheck size={18} />,
-    items: [
-    'Resguardo retractil funciona suavemente',
-    'Hoja de sierra sin dientes rotos y con filo',
-    'Cuchillo divisor alineado y firmemente sujeto',
-    'Boton de bloqueo de seguridad operativo',
-    'Disco adecuado para las RPM de la maquina']
-
-  },
-  'grinder': {
-    title: 'Amoladora Angular',
-    icon: <TriangleAlert size={18} />,
-    items: [
-    'Resguardo metalico cubre como minimo el 50% del disco',
-    'Mango lateral colocado y permanentemente firme',
-    'Disco adecuado para la velocidad (RPM) de la maquina',
-    'Disco sin rajaduras ni golpes']
-
-  },
+const DEFAULT_TEMPLATES: Record<string, DefaultTemplateItem> = {
+  // ==========================================
+  // CONSTRUCCIÓN (DEC. 911/96)
+  // ==========================================
   'scaffolding': {
     title: 'Andamios y Estructuras',
+    category: 'construccion',
     icon: <Building2 size={18} />,
     items: [
-    'Apoyos sobre base firme y nivelada',
-    'Estructura libre de oxidacion y deformaciones',
-    'Tablones metalicos o madera sin fisuras',
-    'Plataforma de trabajo completa y trabada']
-
+      'Apoyos sobre base firme y nivelada con durmientes de madera o placas base de acero',
+      'Estructura libre de oxidación severa, deformaciones, fisuras ni soldaduras precarias',
+      'Plataforma de trabajo completa, con tablones metálicos o de madera de 2 pulgadas trabados sin basculamiento',
+      'Barandas reglamentarias completas a 1,00 m, baranda intermedia a 0,50 m y zócalos de 15 cm en todo el perímetro',
+      'Arriostramiento a estructura fija cada 2 módulos para evitar volteo o pandeo lateral',
+      'Escalera de acceso segura incorporada con peldaños antideslizantes'
+    ]
   },
-  'orden_limpieza': {
-    title: 'Orden y Limpieza',
-    icon: <Trash2 size={18} />,
+  'circular_saw': {
+    title: 'Sierra Circular y Bancos de Corte',
+    category: 'construccion',
+    icon: <Wrench size={18} />,
     items: [
-    'Pasillos, pasarelas y vias de circulacion libres de obstaculos',
-    'Residuos debidamente segregados y recipientes tapados e identificados',
-    'Herramientas y materiales correctamente almacenados en sus estantes/paneles',
-    'Suelos limpios, secos y libres de derrames (aceite, grasa, agua)',
-    'Apilamiento de materiales seguro, estable y respetando la altura maxima']
-
-  },
-  'tableros_electricos': {
-    title: 'Tableros Eléctricos',
-    icon: <Zap size={18} />,
-    items: [
-    'Gabinete cerrado con llave, sin cables expuestos ni aberturas',
-    'Señalizacion de riesgo electrico visible en el exterior',
-    'Identificacion clara de llaves termicas, disyuntores y circuitos',
-    'Disyuntor diferencial operativo (prueba de boton de test satisfactoria)',
-    'Llave termomagnetica en buen estado (sin recalentamientos ni signos de cortocircuito)',
-    'Puesta a tierra conectada firmemente a la estructura metalica',
-    'Area frontal del tablero despejada (minimo 1 metro de espacio libre)']
-
-  },
-  'salida_emergencia': {
-    title: 'Salidas de Emergencia',
-    icon: <Siren size={18} />,
-    items: [
-    'Via de evacuacion completamente despejada y libre de obstaculos en todo su recorrido',
-    'Puertas de emergencia abren hacia el exterior sin trabas ni picaportes con llave',
-    'Barral antipanico operativo y suave en su accionamiento',
-    'Carteleria de salida de emergencia / via de escape visible en la oscuridad (fotoluminiscente)',
-    'Salida exterior final libre de acumulaciones de materiales o vehiculos']
-
-  },
-  'luces_emergencia': {
-    title: 'Luces de Emergencia',
-    icon: <Lightbulb size={18} />,
-    items: [
-    'Equipo encendido bajo tension de red (LED indicador de carga activo)',
-    'Prueba de corte de energia satisfactoria (enciende instantaneamente al simular corte)',
-    'Autonomia de bateria adecuada (minimo 1 hora de funcionamiento continuo)',
-    'Luminarias fijadas firmemente en la pared o techo',
-    'Direccionamiento de los focos hacia las vias de escape y salidas']
-
-  },
-  'autoelevadores': {
-    title: 'Auto Elevadores',
-    icon: <Settings size={18} />,
-    items: [
-    'Luces delanteras, traseras, de giro y destellador operativo',
-    'Alarma sonora de retroceso y bocina funcionan correctamente',
-    'Cinturon de seguridad instalado, operativo y sin deshilacharse',
-    'Frenos de servicio y de mano (estacionamiento) responden eficazmente',
-    'Sistema hidraulico sin fugas de aceite en mangueras ni pistones',
-    'Uñas/horquillas sin fisuras, soldaduras precarias ni deformaciones',
-    'Neumaticos con presion adecuada, sin deformaciones ni desgaste excesivo']
-
-  },
-  'botiquin': {
-    title: 'Botiquín de Emergencia',
-    icon: <Activity size={18} />,
-    items: [
-    'Botiquin señalizado, visible, accesible y libre de llave',
-    'Contenido completo segun listado obligatorio (gasa, apositos, vendas, antisepticos)',
-    'Medicamentos y desinfectantes dentro de su fecha de vencimiento vigente',
-    'Elementos limpios, secos y debidamente resguardados',
-    'Presencia de guantes descartables de latex/nitrilo listos para usar']
-
-  },
-  'epp': {
-    title: 'Elementos de Protección Personal',
-    icon: <ShieldCheck size={18} />,
-    items: [
-    'Casco en buen estado, sin fisuras y con el arnés ajustado correctamente',
-    'Gafas de seguridad limpias, sin rayaduras que impidan la visión',
-    'Protección auditiva (tapones/auriculares) en buen estado y limpios',
-    'Guantes adecuados a la tarea, sin agujeros ni desgaste excesivo',
-    'Calzado de seguridad con puntera, suela antideslizante y sin roturas',
-    'Ropa de trabajo en buenas condiciones, sin partes sueltas o desgarros',
-    'Arnés de seguridad con costuras, cabo de vida y herrajes sin desgaste']
-
-  },
-  'extintores_checklist': {
-    title: 'Matafuegos / Extintores',
-    icon: <Flame size={18} />,
-    items: [
-    'Extintor en su ubicacion asignada, suspendido en el soporte correspondiente',
-    'Señalizacion reglamentaria (chapa baliza) visible y numero de equipo legible',
-    'Manometro con aguja indicadora en la zona verde de presion',
-    'Fecha de recarga vigente (menos de 1 año desde el ultimo mantenimiento)',
-    'Prueba hidraulica (P.H.) vigente (menos de 5 años desde la ultima prueba)',
-    'Acceso al extintor completamente despejado de mercaderia u obstaculos',
-    'Estado fisico excelente (sin abolladuras, corrosion ni manguera cuarteada)',
-    'Precinto de seguridad y pasador metalico colocados intactos']
-
-  },
-  'audit_2026': {
-    title: 'Auditoría Legal 2026',
-    icon: <ShieldCheck size={18} />,
-    items: [
-    'Todos los EPP cuentan con certificación vigente y Sello "AR"',
-    'Los EPP entregados cuentan con código QR de trazabilidad legible (Res. SIyC 18/25)',
-    'Se verifican los certificados médicos de "Apto Calor" (Res. SRT 30/2023)',
-    'Monitoreo de estrés térmico con mediciones VLA y VLE actualizadas',
-    'Los protocolos ergonómicos contemplan Res. SRT 7/2026 y Res. 886/15',
-    'Se encuentra presentada la Declaración Jurada de Riesgos del Trabajo anual ante la ART (Res. SRT 45/2026)',
-    'Se realiza la evaluación, prevención e intervención de riesgos psicosociales y salud mental (Res. SRT 28/2026 y 8/2026)',
-    'Se encuentra adecuado el procedimiento de recolección de pruebas ante Comisiones Médicas (Res. SRT 5/2026 y 7/2026)']
-
-  },
-  'general_audit': {
-    title: 'Relevamiento General Empresa',
-    icon: <Building2 size={18} />,
-    items: [
-    'Orden y Limpieza: Pasillos, accesos y salidas libres de obstáculos',
-    'Orden y Limpieza: Residuos debidamente segregados y recipientes adecuados',
-    'Control de Tableros: Puertas cerradas, señalizados, matafuego cercano',
-    'Control de Tableros: Llaves térmicas y disyuntores operativos identificados',
-    'Salida de Emergencia: Puertas abren hacia afuera, barral antipánico operativo',
-    'Salida de Emergencia: Señalización luminosa y despejado su recorrido',
-    'Luces de Emergencia: Equipos encienden al corte, autonomía mínima 1h',
-    'Auto Elevadores: Luces, bocina, alarma retroceso, cinturón seguridad operativos',
-    'Auto Elevadores: Frenos, dirección, cubiertas en correcto estado',
-    'Botiquín de Primeros Auxilios: Contenido completo y elementos vigentes',
-    'Elementos de Protección Personal (EPP): Personal con calzado y casco obligatorio']
-
+      'Resguardo retráctil o capota basculante cubre el disco y funciona suavemente',
+      'Hoja de sierra sin dientes rotos, con filo adecuado y compatible con las RPM nominales',
+      'Cuchillo divisor alineado detrás del disco y firmemente sujeto para evitar rechazos (kickback)',
+      'Empujador de madera o polímero disponible para corte de piezas estrechas',
+      'Botón de parada de emergencia tipo golpe de puño accesible y operable'
+    ]
   },
   'trabajos_altura': {
-    title: 'Trabajos en Altura',
+    title: 'Trabajos en Altura & Líneas de Vida',
+    category: 'construccion',
     icon: <TriangleAlert size={18} />,
     items: [
-    'Arnés de seguridad de cuerpo entero con correas y costuras íntegras',
-    'Cabo de vida (eslinga) con amortiguador de caídas en buen estado',
-    'Puntos de anclaje firmes, resistentes e independientes',
-    'Línea de vida (horizontal/vertical) correctamente tensada y fijada',
-    'Señalización y vallado preventivo en el nivel inferior',
-    'Permiso de trabajo en altura confeccionado y firmado']
-
-  },
-  'trabajos_caliente': {
-    title: 'Trabajos en Caliente',
-    icon: <Flame size={18} />,
-    items: [
-    'Permiso de trabajo en caliente (soldadura/corte) autorizado',
-    'Extintor de incendios operativo a menos de 5 metros de distancia',
-    'Área libre de materiales combustibles o inflamables (radio de 10m)',
-    'Uso de mantas ignífugas o biombos para contención de chispas',
-    'Equipos de soldadura/oxicorte en buenas condiciones (cables, mangueras, válvulas arrestallamas)',
-    'El soldador utiliza EPP completo (máscara, delantal, guantes, polainas de descarne)']
-
-  },
-  'productos_quimicos': {
-    title: 'Sustancias Químicas',
-    icon: <Activity size={18} />,
-    items: [
-    'Hojas/Fichas de Datos de Seguridad (FDS) disponibles y accesibles',
-    'Todos los envases correctamente rotulados según sistema SGA/GHS',
-    'Productos químicos almacenados sobre bateas antiderrame o pallets de contención',
-    'Almacenamiento respetando matrices de incompatibilidad química',
-    'Kit de control de derrames cercano y completo (absorbentes, barreras)',
-    'Duchas de emergencia y lavaojos operativos y sin obstrucciones']
-
-  },
-  'espacios_confinados': {
-    title: 'Espacios Confinados',
-    icon: <ShieldCheck size={18} />,
-    items: [
-    'Permiso de ingreso a espacio confinado (PT) completado y firmado',
-    'Medición de gases (O2, LEL, CO, H2S) realizada y dentro de rangos seguros',
-    'Sistema de ventilación forzada o extracción operando correctamente',
-    'Vigía / Observador posicionado permanentemente en el exterior',
-    'Equipos de rescate y trípode armados y listos para uso',
-    'Iluminación interior a 24V (antiexplosiva si corresponde)',
-    'Bloqueo y etiquetado (LOTO) de energías e ingresos de fluidos efectivo']
-
+      'Arnés de seguridad de cuerpo entero con sello IRAM/AR certificado y costuras íntegras',
+      'Cabo de vida doble en "Y" con amortiguador de caídas (absorbedor de impacto) intacto',
+      'Puntos de anclaje certificados independientes capaces de resistir 22 kN (2260 kgf)',
+      'Línea de vida horizontal/vertical certificada, con cable de acero tensado y grapas correctas',
+      'Señalización, vallado perimetral y prohibición de tránsito en el nivel inferior a pie de obra',
+      'Permiso de Trabajo Seguro en Altura (PTSA) autorizado y firmado en campo'
+    ]
   },
   'izaje_gruas': {
-    title: 'Izaje y Grúas',
+    title: 'Grúas, Autogrúas y Maniobras de Izaje',
+    category: 'construccion',
+    icon: <Building2 size={18} />,
+    items: [
+      'Plan de izaje (Rigging Plan) calculado y verificado (tablas de carga, radios y pesos)',
+      'Estabilizadores hidráulicos totalmente extendidos apoyados sobre durmientes de madera firme',
+      'Eslingas sintéticas, cadenas y grilletes inspeccionados (sin roturas, estiramientos ni fisuras)',
+      'Gancho de izaje con pestillo de seguridad operativo y sin apertura de garganta excesiva',
+      'Radio de giro de la grúa acordonado impidiendo estrictamente el paso de personas bajo la carga',
+      'Operador y Rigger (señalero) calificados con chalecos de alta visibilidad identificados'
+    ]
+  },
+  'const_excavaciones': {
+    title: 'Excavaciones, Zanjas y Submuraciones',
+    category: 'construccion',
+    icon: <HardHat size={18} />,
+    items: [
+      'Entibado, tablestacado o talud natural conforme al tipo de suelo en profundidades > 1,20 m',
+      'Acopio de tierra excavada y materiales a más de 0,60 m de los bordes de la zanja',
+      'Escaleras marineras de escape colocadas a intervalos menores a 15 metros en zanjas profundas',
+      'Baranda perimetral de protección a 1 metro de altura y señalización nocturna luminosa',
+      'Verificación de interferencias de cañerías de gas, agua o conductores eléctricos subterráneos'
+    ]
+  },
+  'const_demolicion': {
+    title: 'Demolición y Derribo de Estructuras',
+    category: 'construccion',
+    icon: <HardHat size={18} />,
+    items: [
+      'Desconexión y corte efectivo de servicios (gas natural, electricidad, agua y cloacas)',
+      'Apuntalamiento preventivo de muros linderos y estructuras adyacentes potencialmente inestables',
+      'Conductos cerrados o canaletas de descarga para evacuación segura de escombros',
+      'Lona antipolvo y humectación continua para supresión de polvo particulado respirable',
+      'Uso estricto de casco, calzado dieléctrico con plantilla de acero, antiparras y arnés si aplica'
+    ]
+  },
+
+  // ==========================================
+  // INDUSTRIA & METALMECÁNICA (DEC. 351/79)
+  // ==========================================
+  'manual_tools': {
+    title: 'Herramientas Manuales',
+    category: 'industria',
+    icon: <Plus size={18} />,
+    items: [
+      'Mangos de madera o fibra en buen estado (sin fisuras, astillas ni holguras)',
+      'Cabezas de herramientas de golpe (martillos, cortafríos) sin rebabas ni hongos metálicos',
+      'Herramientas limpias, secas y libres de lubricantes o grasas resbaladizas',
+      'Sin oxidación profunda que debilite la resistencia estructural de la herramienta',
+      'Filo protegido con fundas y almacenamiento en paneles o cajas portaherramientas'
+    ]
+  },
+  'electric_tools': {
+    title: 'Herramientas Eléctricas Portátiles',
+    category: 'industria',
+    icon: <Settings size={18} />,
+    items: [
+      'Cables de alimentación con doble aislación, sin cortes, peladuras ni empalmes encintados',
+      'Ficha macho normalizada de 3 espigas planas con puesta a tierra o doble aislación clase II',
+      'Carcasa plástica o metálica sin fisuras, fracturas ni tornillos de ensamble faltantes',
+      'Gatillo interruptor con resorte que desconecta la energía automáticamente al soltarlo',
+      'Protecciones, resguardos y empuñaduras laterales originales fijadas firmemente'
+    ]
+  },
+  'grinder': {
+    title: 'Amoladora Angular y Discos Abrasivos',
+    category: 'industria',
     icon: <TriangleAlert size={18} />,
     items: [
-    'Plan de izaje documentado y verificado (capacidades y radios)',
-    'Grúa apoyada firmemente sobre estabilizadores con bases/tacos',
-    'Eslingas, fajas y grilletes inspeccionados (sin desgarros ni deformaciones)',
-    'Área de izaje completamente delimitada y señalizada (prohibido paso inferior)',
-    'Operador y Rigger (señalero) calificados e identificados',
-    'Sistemas de seguridad de la grúa operativos (corte por sobrecarga, anemómetro)']
-
+      'Guarda protectora metálica cubre como mínimo 180° del disco abrasivo',
+      'Mango lateral antivibratorio colocado firmemente en la carcasa',
+      'Velocidad nominal máxima del disco abrasivo (RPM) mayor o igual a las RPM de la máquina',
+      'Disco sin melladuras, golpes, fisuras ni vencimiento de fecha de fabricación excedida',
+      'Uso obligatorio de protección facial integral de policarbonato además de lentes de seguridad'
+    ]
   },
-  'ergonomia_oficina': {
-    title: 'Ergonomía (Oficinas)',
+  'orden_limpieza': {
+    title: 'Orden y Limpieza 5S en Planta',
+    category: 'industria',
+    icon: <Trash2 size={18} />,
+    items: [
+      'Pasillos peatonales y vías de circulación vehicular claramente demarcadas y 100% despejadas',
+      'Pisos secos, libres de virutas, recortes metálicos, charcos de aceite o sustancias deslizantes',
+      'Materiales, piezas y herramientas ubicados en sus racks o casilleros correspondientes',
+      'Disposición diferenciada de residuos con contenedores rotulados e ignífugos para trapos empapados',
+      'Accesos frontales a extintores, tableros y estaciones de emergencia libres en 1 metro a la redonda'
+    ]
+  },
+  'tableros_electricos': {
+    title: 'Tableros e Instalaciones Eléctricas',
+    category: 'industria',
+    icon: <Zap size={18} />,
+    items: [
+      'Gabinete cerrado con llave, contrafrente cubrecables colocado y señal de riesgo eléctrico visible',
+      'Interruptor diferencial (disyuntor) operativo con verificación del botón de prueba (test)',
+      'Termomagnéticas calibradas adecuadamente según sección de conductores, sin signos de sobrecalentamiento',
+      'Conductor de protección de puesta a tierra (verde-amarillo) conectado sólidamente a la bornera',
+      'Identificación unifilar legible de circuitos e interruptores en el frente del tablero'
+    ]
+  },
+  'autoelevadores': {
+    title: 'Autoelevadores & Clarke (Res. 960/15)',
+    category: 'industria',
+    icon: <Settings size={18} />,
+    items: [
+      'Cinturón de seguridad de 2 o 3 puntos colocado y operativo',
+      'Freno de servicio (pedal) y freno de estacionamiento de mano retienen con carga en rampa',
+      'Alarma sonora de marcha atrás y baliza destellante estroboscópica operativa',
+      'Horquillas sin deformaciones, sin fisuras en los talones y con pasadores de traba colocados',
+      'Estructura de protección contra caída de objetos (FOPS) y antivuelco (ROPS) en perfecto estado',
+      'Matafuegos triclase ABC de 2,5 o 5 kg con precinto y manómetro en verde instalado en el soporte'
+    ]
+  },
+  'trabajos_caliente': {
+    title: 'Soldadura, Oxicorte y Trabajos en Caliente',
+    category: 'industria',
+    icon: <Flame size={18} />,
+    items: [
+      'Permiso de Trabajo en Caliente (PTC) emitido con medición de atmósferas explosivas si aplica',
+      'Extintor triclase ABC de 10 kg cargado y presurizado a menos de 5 metros de la operación',
+      'Retiro o cobertura con mantas ignífugas certificadas de materiales combustibles en radio de 10 m',
+      'Mamparas ignífugas para protección visual de trabajadores circundantes contra rayos UV/IR',
+      'Cilindros de gases comprimidos encadenados en posición vertical y mangueras con arrestallamas en ambos extremos'
+    ]
+  },
+  'productos_quimicos': {
+    title: 'Sustancias Químicas y Matriz SGA/GHS',
+    category: 'industria',
     icon: <Activity size={18} />,
     items: [
-    'Monitor a la altura de los ojos y a distancia adecuada (50-70 cm)',
-    'Silla ergonómica en buen estado (ajuste de altura, apoyo lumbar)',
-    'Apoyapiés disponible si el usuario no alcanza el suelo correctamente',
-    'Teclado y mouse alineados permitiendo apoyo de antebrazos',
-    'Iluminación general sin reflejos directos en la pantalla',
-    'Espacio suficiente debajo del escritorio para mover las piernas']
+      'Hojas de Datos de Seguridad (FDS / MSDS) en idioma español disponibles en el puesto de trabajo',
+      'Recipientes rotulados con pictogramas de peligro, palabras de advertencia e indicaciones de peligro SGA',
+      'Almacenamiento sobre bateas de retención o pallets antiderrame con capacidad para el 110% del envase mayor',
+      'Separación física según matriz de incompatibilidad química (ácidos lejos de bases, inflamables de comburentes)',
+      'Kit para control de derrames equipado y duchas de emergencia / lavaojos con caudal probado semanalmente'
+    ]
+  },
+  'espacios_confinados': {
+    title: 'Espacios Confinados (Res. 295/03)',
+    category: 'industria',
+    icon: <ShieldCheck size={18} />,
+    items: [
+      'Permiso de ingreso confeccionado, firmado y exhibido en el acceso al recinto',
+      'Medición atmosférica previa y continua (Oxígeno 19,5% a 23,5%, explosividad LEL 0%, gases tóxicos CO y H2S)',
+      'Ventilación forzada continua con caudal suficiente hacia el fondo del recinto',
+      'Vigía exterior permanente con radio y protocolo de rescate no invasivo coordinado',
+      'Operador equipado con arnés, línea de vida sujeta a trípode de rescate y malacate exterior'
+    ]
+  },
+  'ind_loto_bloqueo': {
+    title: 'Bloqueo, Consignación y Etiquetado (LOTO)',
+    category: 'industria',
+    icon: <ShieldCheck size={18} />,
+    items: [
+      'Desconexión total y corte visible de todas las fuentes de energía (eléctrica, neumática, hidráulica, gravitatoria)',
+      'Colocación de candado de consignación personal e intransferible con llave única por operario',
+      'Tarjeta de advertencia LOTO colocada con nombre del técnico, motivo y fecha visible',
+      'Disipación y purga de presiones residuales acumuladas en cilindros, cañerías o acumuladores',
+      'Prueba de "Cero Energía" pulsando los comandos de marcha locales para comprobar la desenergización'
+    ]
+  },
 
+  // ==========================================
+  // MINERÍA (DEC. 249/07)
+  // ==========================================
+  'min_ventilacion': {
+    title: 'Ventilación y Atmósfera en Minas Subterráneas',
+    category: 'mineria',
+    icon: <Pickaxe size={18} />,
+    items: [
+      'Concentración de oxígeno en aire medida en frentes de trabajo superior o igual a 19,5% en volumen',
+      'Medición de monóxido de carbono (CO < 25 ppm) y óxidos de nitrógeno (NO2 < 3 ppm) tras tronaduras y tránsito diésel',
+      'Ventiladores principales y secundarios operando de forma continua con caudal acorde al personal y equipos',
+      'Mangas de ventilación secundaria extendidas a menos de 15 metros del frente ciego de avance sin fugas',
+      'Detector portátil multigás calibrado y en servicio activo portado por el supervisor o capataz de frente'
+    ]
+  },
+  'min_fortificacion': {
+    title: 'Sostenimiento, Acuñadura y Fortificación',
+    category: 'mineria',
+    icon: <Pickaxe size={18} />,
+    items: [
+      'Acuñadura / desatado sistemático de rocas sueltas en techo y hastiales realizado antes de ingresar',
+      'Pernos de sostenimiento (helicoidales, split sets o cables) colocados según la malla geotécnica aprobada',
+      'Malla electrosoldada tensada, adosada a la roca y asegurada con planchuelas con torque reglamentario',
+      'Hormigón proyectado (shotcrete) sin fisuras abiertas, desprendimientos laminares ni filtraciones severas',
+      'Prohibición terminante de permanencia o circulación de personal bajo frentes sin acuñar o fortificar'
+    ]
+  },
+  'min_voladuras': {
+    title: 'Manejo de Explosivos, Polvorines y Tronaduras',
+    category: 'mineria',
+    icon: <Pickaxe size={18} />,
+    items: [
+      'Vehículo de transporte de explosivos habilitado por ANMaC con puesta a tierra, extintores y parachispas',
+      'Separación física estricta entre detonadores/iniciadores y altos explosivos en transporte y polvorines',
+      'Personal manipulador con carnet de polvorillero / dinamitero habilitado por autoridad minera',
+      'Despeje y evacuación total del radio de influencia con loros vivos (vigías) en todos los accesos',
+      'Toque de sirena de voladura reglamentario en tres tiempos y verificación posterior de tiros quedados'
+    ]
+  },
+  'min_equipos_pesados': {
+    title: 'Equipos Pesados de Minería (Dumpers, Scoops, Palas)',
+    category: 'mineria',
+    icon: <Pickaxe size={18} />,
+    items: [
+      'Sistema automático y manual de supresión de incendios (Ansul) presurizado y con precintos intactos',
+      'Frenos de servicio, retardador dinámico y freno de estacionamiento verificados con carga nominal',
+      'Dirección secundaria / acumulador de dirección de emergencia operativo ante corte repentino del motor',
+      'Cabina con estructura certificada ROPS/FOPS contra vuelcos y caída de rocas con cinturón de 3 puntos',
+      'Radio bidireccional operativa en frecuencia de mina, pértiga con baliza estroboscópica y alarma de retroceso'
+    ]
+  },
+  'min_diques_chancado': {
+    title: 'Plantas de Tratamiento, Chancado y Relaves',
+    category: 'mineria',
+    icon: <Pickaxe size={18} />,
+    items: [
+      'Cordones de parada de emergencia (cable pull switch) a lo largo de toda la extensión de las cintas transportadoras',
+      'Sistemas de captación y supresión de polvo sílice en tolvas de recepción y trituradores',
+      'Resguardos fijos en tambores de accionamiento y rodillos de retorno que impidan atrapamiento',
+      'Estaciones de emergencia de neutralización de reactivos químicos con duchas y lavaojos probados semanalmente',
+      'Nivel de revancha libre (freeboard) del dique de colas conforme al diseño hidrológico registrado'
+    ]
+  },
+
+  // ==========================================
+  // GENERALES, EDIFICIOS & EPP
+  // ==========================================
+  'epp': {
+    title: 'Elementos de Protección Personal (EPP)',
+    category: 'general',
+    icon: <ShieldCheck size={18} />,
+    items: [
+      'Casco de seguridad sin fisuras, golpes severos y con arnés/tafilete correctamente regulado',
+      'Protección visual/facial limpia, sin rayaduras que distorsionen y con sello de impacto certificado',
+      'Protección auditiva adecuada al nivel sonoro del área (tapones o copas) limpia e higiénica',
+      'Guantes de protección específicos según riesgo mecánico, térmico, químico o dieléctrico',
+      'Calzado de seguridad con puntera de acero/composite, suela antideslizante y dieléctrica si aplica',
+      'Ropa de trabajo ignífuga o de alta visibilidad según tarea, sin partes sueltas ni rasgaduras'
+    ]
+  },
+  'extintores_checklist': {
+    title: 'Matafuegos y Extintores Portátiles',
+    category: 'general',
+    icon: <Flame size={18} />,
+    items: [
+      'Extintor en su soporte reglamentario entre 1,20 m y 1,50 m del suelo señalizado con chapa baliza',
+      'Manómetro con aguja indicadora en la zona verde de presión nominal de trabajo',
+      'Tarjeta de recarga anual vigente con sello DPS / IRAM y prueba hidráulica dentro de los 5 años',
+      'Acceso al extintor completamente despejado en 1 metro frontal sin cajas ni objetos',
+      'Cuerpo del extintor sin abolladuras, corrosión ni manguera resquebrajada, precinto y pasador intactos'
+    ]
+  },
+  'salida_emergencia': {
+    title: 'Salidas de Emergencia y Vías de Escape',
+    category: 'general',
+    icon: <Siren size={18} />,
+    items: [
+      'Vías de evacuación y pasillos libres de mercadería, obstáculos o cables en todo su ancho útil',
+      'Puertas de emergencia abren hacia el sentido de evacuación sin cerrojos ni llaves puestas',
+      'Barral antipánico operativo y suave en su accionamiento con simple empuje del cuerpo',
+      'Cartelería de señalización de salida fotoluminiscente visible desde cualquier ángulo de visión',
+      'Salida exterior final a punto de reunión libre de acumulaciones de vehículos o materiales'
+    ]
+  },
+  'luces_emergencia': {
+    title: 'Luces de Emergencia Autónomas',
+    category: 'general',
+    icon: <Lightbulb size={18} />,
+    items: [
+      'Equipo conectado a la red eléctrica con testigo LED de carga de batería encendido',
+      'Prueba de simulación de corte de energía satisfactoria (encendido instantáneo de luminarias)',
+      'Autonomía de batería suficiente (mínimo 1 hora de funcionamiento ininterrumpido)',
+      'Luminarias fijadas firmemente orientadas hacia escaleras, cambios de nivel y puertas de escape',
+      'Difusores y carcasas limpios de polvo o suciedad que atenúen el flujo luminoso'
+    ]
+  },
+  'botiquin': {
+    title: 'Botiquín de Primeros Auxilios',
+    category: 'general',
+    icon: <Activity size={18} />,
+    items: [
+      'Gabinete señalizado con cruz verde o roja, accesible y sin candado o llave',
+      'Contenido básico completo (gasas estériles, apósitos, vendas elásticas, apósitos adhesivos, antisépticos)',
+      'Elementos y soluciones desinfectantes dentro de su fecha de vencimiento vigente',
+      'Presencia de guantes descartables de látex o nitrilo y tijera corta trauma listos para uso',
+      'Teléfonos de emergencia de ART, ambulancia y bomberos pegados en el frente del botiquín'
+    ]
+  },
+  'ergonomia_oficina': {
+    title: 'Ergonomía en Oficinas y PVD (Res. 886/15)',
+    category: 'general',
+    icon: <Activity size={18} />,
+    items: [
+      'Borde superior de la pantalla del monitor situado a la altura o ligeramente bajo el nivel de los ojos',
+      'Distancia entre el operador y la pantalla adecuada (entre 50 cm y 70 cm)',
+      'Silla ergonómica regulable con respaldo que ofrece apoyo lumbar firme y base de 5 ramas con ruedas',
+      'Teclado y mouse ubicados en el mismo plano dejando espacio anterior para reposo de muñecas',
+      'Luminarias orientadas adecuadamente sin generar reflejos directos sobre la pantalla de trabajo'
+    ]
+  },
+  'audit_2026': {
+    title: 'Relevamiento Legal SRT 2026',
+    category: 'general',
+    icon: <ShieldCheck size={18} />,
+    items: [
+      'Todos los EPP cuentan con certificación vigente y Sello "AR" con código QR trazable (Res. SIyC 18/25)',
+      'Se verifican los certificados médicos de "Apto Calor" e hidratación según Res. SRT 30/2023',
+      'Protocolos de ergonomía adecuados a la Res. SRT 7/2026 y Res. 886/15',
+      'Declaración Jurada de Riesgos del Trabajo anual presentada ante la ART (Res. SRT 45/2026)',
+      'Evaluación y plan de intervención de riesgos psicosociales y salud mental implementado (Res. SRT 28/2026 y 8/2026)',
+      'Procedimiento de recolección de pruebas ante Comisiones Médicas adecuado a Res. SRT 5/2026'
+    ]
+  },
+  'general_audit': {
+    title: 'Relevamiento General de Empresa / Planta',
+    category: 'general',
+    icon: <Building2 size={18} />,
+    items: [
+      'Orden y Limpieza: Pasillos, accesos y vías de circulación despejadas y libres de obstáculos',
+      'Protección contra Incendios: Extintores con carga vigente, señalizados y sin obstrucciones frontales',
+      'Seguridad Eléctrica: Tableros cerrados, señalizados, con disyuntor y puesta a tierra efectiva',
+      'Medios de Escape: Puertas abren hacia el exterior con barral antipánico y luces de emergencia operativas',
+      'Equipos Móviles: Autoelevadores con luces, bocina, alarma de marcha atrás y cinturón de seguridad',
+      'Primeros Auxilios: Botiquín completo, accesible y teléfonos de emergencia visibles',
+      'Uso de EPP: Personal utiliza obligatoriamente calzado de seguridad, casco y protección auditiva/visual según área'
+    ]
   }
 };
 
@@ -320,6 +442,8 @@ const NORMS_BY_COUNTRY = {
   { id: 'dec351', name: 'Decreto 351/79 - Reglamento General de H&S', category: 'Nacional' },
   { id: 'ley24557', name: 'Ley 24.557 - Riesgos del Trabajo (LRT)', category: 'Nacional' },
   { id: 'dec911', name: 'Decreto 911/96 - Industria de la Construcción', category: 'Nacional' },
+  { id: 'dec249', name: 'Decreto 249/07 - Minería e Instalaciones Subterráneas', category: 'Nacional' },
+  { id: 'dec617', name: 'Decreto 617/97 - Actividad Agraria', category: 'Nacional' },
   { id: 'dec1338', name: 'Decreto 1338/96 - Servicios de Medicina y de H&S', category: 'Nacional' },
   { id: 'res905', name: 'Res. SRT 905/15 - Funciones Servicios H&S', category: 'SRT' },
   { id: 'res886', name: 'Res. SRT 886/15 - Protocolo de Ergonomía', category: 'SRT' },
@@ -537,9 +661,35 @@ export default function ChecklistManager(): React.ReactElement | null {
   const [availableNorms, setAvailableNorms] = useState([]);
   const [showTutorialBanner, setShowTutorialBanner] = useState(false);
   const [showIndustryModal, setShowIndustryModal] = useState(false);
+  const [templateCategoryTab, setTemplateCategoryTab] = useState<'all' | 'construccion' | 'industria' | 'mineria' | 'general'>('all');
+
+  const startNewBlankChecklist = () => {
+    setActiveSections([]);
+    setEpps([]);
+    setFotos([]);
+    setObservations('');
+    setActionPlan([]);
+    setNextReview('');
+    setSelectedNorms([]);
+    setChecklistTitle('CHECKLIST');
+    setCompanyInfo({ name: '', inspector: '', address: '', responsable: '' });
+    setInspectionInfo({
+      item: '', serial: '',
+      date: new Date().toISOString().split('T')[0],
+      expirationDate: '', extinguisherObs: '',
+      marca: '', patente: '', horometro: '', pt: '', responsableArea: ''
+    });
+    setOperatorSignature('');
+    setSignature('');
+    setSupervisorSignature('');
+    isCreatingNewRef.current = false;
+    setSearchParams({});
+    setShowForm(true);
+    setCurrentStep(1);
+  };
 
   const handleLoadIndustryChecklist = (template: IndustryChecklistTemplate) => {
-    isCreatingNewRef.current = true;
+    isCreatingNewRef.current = false;
     setChecklistTitle(`CHECKLIST DE ${template.title}`.toUpperCase());
 
     const newSection = {
@@ -555,11 +705,9 @@ export default function ChecklistManager(): React.ReactElement | null {
       setEpps((prev) => Array.from(new Set([...prev, ...template.suggestedEpp])));
     }
 
-    if (!showForm) {
-      setSearchParams({});
-      setShowForm(true);
-      setCurrentStep(1);
-    }
+    setShowIndustryModal(false);
+    setShowForm(true);
+    setCurrentStep(1);
 
     toast.success(`Checklist cargado: ${template.title} (${template.items.length} puntos)`);
   };
@@ -713,94 +861,109 @@ export default function ChecklistManager(): React.ReactElement | null {
       updatedAt: new Date().toISOString()
     };
 
+    setIsSaving(true);
     let hasStaticPdf = false;
+
+    toast.loading('Guardando y archivando checklist...', { 
+      id: 'save-checklist',
+      style: {
+        background: 'linear-gradient(135deg, #2563eb 0%, #4338ca 100%)',
+        color: '#fff',
+        fontWeight: 'bold',
+        borderRadius: '12px',
+        padding: '12px 20px',
+        boxShadow: '0 10px 25px -5px rgba(37, 99, 235, 0.4)'
+      },
+      iconTheme: {
+        primary: '#fff',
+        secondary: '#2563eb'
+      }
+    });
+
     try {
-      setIsSaving(true);
-      const loadingToast = toast.loading('Guardando y generando PDF...', { 
-        id: 'save-checklist',
-        style: {
-          background: 'linear-gradient(135deg, #2563eb 0%, #4338ca 100%)',
-          color: '#fff',
-          fontWeight: 'bold',
-          borderRadius: '12px',
-          padding: '12px 20px',
-          boxShadow: '0 10px 25px -5px rgba(37, 99, 235, 0.4)'
-        },
-        iconTheme: {
-          primary: '#fff',
-          secondary: '#2563eb'
-        }
-      });
       // Capturar el PDF actual para congelarlo en el tiempo
-      const pdfBlob = await generatePdfBlob('pdf-content-editor');
-      await savePdfBlob(id, pdfBlob);
-      hasStaticPdf = true;
-      toast.success('PDF archivado correctamente.', { id: 'save-checklist' });
-    } catch (err) {
-      console.error('Error saving static PDF:', err);
-      toast.dismiss('save-pdf');
-      toast.error('Se guardaron los datos pero falló el archivo del PDF.', { duration: 4000 });
+      try {
+        const pdfBlob = await generatePdfBlob('pdf-content-editor');
+        if (pdfBlob) {
+          await savePdfBlob(id, pdfBlob);
+          hasStaticPdf = true;
+        }
+      } catch (pdfErr) {
+        console.warn('PDF static blob generation note:', pdfErr);
+      }
+
+      const fullData = {
+        ...data,
+        empresa: companyInfo.name || 'Sin Empresa',
+        equipo: inspectionInfo.item || 'Inspección General',
+        serial: inspectionInfo.serial || 'S/N',
+        fecha: data.updatedAt,
+        title: checklistTitle,
+        type: 'Checklist',
+        hasStaticPdf
+      };
+
+      // Deep save for specific report persistence with quota protection
+      try {
+        localStorage.setItem(`checklist_${id}`, JSON.stringify(fullData));
+      } catch (storageErr) {
+        console.warn('Quota exceeded saving deep checklist, saving without heavy media:', storageErr);
+        try {
+          const lightweight = { ...fullData, fotos: [] };
+          localStorage.setItem(`checklist_${id}`, JSON.stringify(lightweight));
+        } catch {}
+      }
+
+      // Sync with history list
+      let history: any[] = [];
+      try {
+        history = JSON.parse(localStorage.getItem('tool_checklists_history') || '[]');
+      } catch {
+        history = [];
+      }
+
+      const existingIndex = history.findIndex((h: any) => h.id === id);
+      if (existingIndex >= 0) {
+        history[existingIndex] = fullData;
+      } else {
+        history.unshift(fullData);
+      }
+
+      try {
+        localStorage.setItem('tool_checklists_history', JSON.stringify(history));
+      } catch (histErr) {
+        console.warn('History storage quota reached, saving trimmed history:', histErr);
+        const trimmed = history.slice(0, 40).map(h => ({ ...h, fotos: [] }));
+        try {
+          localStorage.setItem('tool_checklists_history', JSON.stringify(trimmed));
+        } catch {}
+      }
+
+      setHistory(history);
+
+      // Sincronización en la nube con SyncContext
+      try {
+        await syncCollection('tool_checklists_history', history);
+      } catch (syncErr) {
+        console.warn('SyncCollection warning (offline or network):', syncErr);
+      }
+
+      toast.success('Checklist guardado con éxito y registrado en el historial ✅', { id: 'save-checklist' });
+
+      // Volver a la lista del módulo
+      setSearchParams({});
+      setShowForm(false);
+      setCurrentStep(1);
+    } catch (saveError) {
+      console.error('Error fatal al guardar checklist:', saveError);
+      toast.error('Error al guardar el checklist. Intente nuevamente.', { id: 'save-checklist' });
     } finally {
       setIsSaving(false);
     }
-
-    const fullData = {
-      ...data,
-      empresa: companyInfo.name || 'Sin Empresa',
-      equipo: inspectionInfo.item || 'Inspección General',
-      serial: inspectionInfo.serial || 'S/N',
-      fecha: data.updatedAt,
-      title: checklistTitle,
-      type: 'Checklist',
-      hasStaticPdf
-    };
-
-    // Deep save for specific report persistence
-    localStorage.setItem(`checklist_${id}`, JSON.stringify(fullData));
-
-    // Sync with history list
-    const history = JSON.parse(localStorage.getItem('tool_checklists_history') || '[]');
-    const existingIndex = history.findIndex((h: any) => h.id === id);
-
-    if (existingIndex >= 0) {
-      history[existingIndex] = fullData;
-    } else {
-      history.unshift(fullData);
-    }
-
-    localStorage.setItem('tool_checklists_history', JSON.stringify(history));
-    setHistory(history);
-    await syncCollection('tool_checklists_history', history);
-    toast.success('Checklist guardado con éxito y registrado en el historial ✅');
-
-    // Go back to the list
-    setSearchParams({});
-    setShowForm(false);
-    setCurrentStep(1);
   };
 
 
-  useEffect(() => {
-    if (!searchParams.get('id') && isCreatingNewRef.current) {
-      // Solo limpiar cuando el usuario inicia explícitamente un nuevo checklist
-      setActiveSections([]);
-      setEpps([]);
-      setFotos([]);
-      setObservations('');
-      setActionPlan([]);
-      setNextReview('');
-      setSelectedNorms([]);
-      setChecklistTitle('CHECKLIST');
-      setCompanyInfo({ name: '', inspector: '', address: '', responsable: '' });
-      setInspectionInfo({
-        item: '', serial: '',
-        date: new Date().toISOString().split('T')[0],
-        expirationDate: '', extinguisherObs: '',
-        marca: '', patente: '', horometro: '', pt: '', responsableArea: ''
-      });
-      isCreatingNewRef.current = false;
-    }
-  }, [searchParams]);
+  // Limpieza manejada de forma explícita y segura por startNewBlankChecklist()
 
   const toggleTemplate = (templateKey) => {
     const template = DEFAULT_TEMPLATES[templateKey];
@@ -1152,7 +1315,7 @@ export default function ChecklistManager(): React.ReactElement | null {
 
                     <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap items-center">
                         <button
-                            onClick={() => {isCreatingNewRef.current = true; setSearchParams({}); setShowForm(true); setCurrentStep(1);}}
+                            onClick={startNewBlankChecklist}
                             style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '0.6rem 1.2rem', fontSize: '0.85rem', fontWeight: '800', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}
                             className="transition-transform hover:-translate-y-0.5 whitespace-nowrap h-[54px]">
                             <Plus size={18} strokeWidth={2.5} /> NUEVO CHECKLIST
@@ -1436,7 +1599,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                   <div>
                     <h4 className="text-sm font-black m-0 text-white flex items-center gap-2">
                       Catálogo Normativo por Industria
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/30 text-blue-200 border border-blue-400/30">Dec. 911 / Dec. 351 / Agro / Racks</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/30 text-blue-200 border border-blue-400/30">Construcción / Industria / Minería / Agro</span>
                     </h4>
                     <p className="text-xs text-blue-200 mt-0.5 m-0">Explora checklists técnicos predefinidos con marcos legales específicos, frecuencias recomendadas y puntos críticos.</p>
                   </div>
@@ -1450,8 +1613,43 @@ export default function ChecklistManager(): React.ReactElement | null {
                 </button>
               </div>
 
+              {/* Pestañas de Categoría para evitar aglomeración */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
+                {[
+                  { id: 'all', label: 'Todos', icon: null, count: Object.keys(DEFAULT_TEMPLATES).length },
+                  { id: 'construccion', label: 'Construcción', icon: <HardHat size={14} />, count: Object.values(DEFAULT_TEMPLATES).filter(t => t.category === 'construccion').length },
+                  { id: 'industria', label: 'Industria & Planta', icon: <Wrench size={14} />, count: Object.values(DEFAULT_TEMPLATES).filter(t => t.category === 'industria').length },
+                  { id: 'mineria', label: 'Minería (Dec. 249/07)', icon: <Pickaxe size={14} />, count: Object.values(DEFAULT_TEMPLATES).filter(t => t.category === 'mineria').length },
+                  { id: 'general', label: 'Generales & EPP', icon: <ShieldCheck size={14} />, count: Object.values(DEFAULT_TEMPLATES).filter(t => t.category === 'general').length }
+                ].map(cat => {
+                  const isCurrent = templateCategoryTab === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setTemplateCategoryTab(cat.id as any)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer border ${
+                        isCurrent
+                          ? 'bg-blue-600 text-white border-blue-500 shadow-xs'
+                          : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/60'
+                      }`}
+                    >
+                      {cat.icon}
+                      <span>{cat.label}</span>
+                      <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                        isCurrent ? 'bg-blue-800/80 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                      }`}>
+                        {cat.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-[0.8rem]">
-                {Object.entries(DEFAULT_TEMPLATES).map(([key, value]) => {
+                {Object.entries(DEFAULT_TEMPLATES)
+                  .filter(([_, value]) => templateCategoryTab === 'all' || value.category === templateCategoryTab)
+                  .map(([key, value]) => {
                   const active = activeSections.some((s) => s.id === key);
                   return (
                     <button
@@ -1463,7 +1661,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                         background: active ? 'var(--color-background)' : 'var(--color-surface)'
                       }}>
                       <div style={{ color: active ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>
-                        {React.cloneElement(value.icon, { size: 20 })}
+                        {React.cloneElement(value.icon as React.ReactElement<any>, { size: 20 })}
                       </div>
                       <span className="text-[0.65rem] font-[800] line-height-[1.1]">{value.title}</span>
                     </button>
@@ -1591,21 +1789,21 @@ export default function ChecklistManager(): React.ReactElement | null {
                                                     <input
                             type="file"
                             id={`file-input-${section.id}-${idx}`}
-                            onChange={(e) => {
+                            onChange={async (e) => {
                               const files = Array.from(e.target.files || []);
-                              let loadedCount = 0;
-                              const itemPhotos = [];
-                              files.forEach((file) => {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  itemPhotos.push(reader.result);
-                                  loadedCount++;
-                                  if (loadedCount === files.length) {
-                                    updateItem(section.id, idx, 'photos', [...(item.photos || []), ...itemPhotos]);
-                                  }
-                                };
-                                reader.readAsDataURL(file);
-                              });
+                              if (files.length === 0) return;
+                              const compressedPhotos = [];
+                              for (const file of files) {
+                                try {
+                                  const comp = await compressImage(file, { maxDimension: 900, quality: 0.72 });
+                                  if (comp) compressedPhotos.push(comp);
+                                } catch (err) {
+                                  console.warn('Error compressing item photo:', err);
+                                }
+                              }
+                              if (compressedPhotos.length > 0) {
+                                updateItem(section.id, idx, 'photos', [...(item.photos || []), ...compressedPhotos]);
+                              }
                             }}
                             accept="image/*"
                             capture="environment"
@@ -1737,16 +1935,24 @@ export default function ChecklistManager(): React.ReactElement | null {
                                                   type="file"
                                                   accept="image/*"
                                                   className="hidden"
-                                                  onChange={(e) => {
+                                                  onChange={async (e) => {
                                                       const file = e.target.files?.[0];
                                                       if (file) {
-                                                          const reader = new FileReader();
-                                                          reader.onloadend = () => {
+                                                          try {
+                                                              const compressed = await compressImage(file, { maxDimension: 900, quality: 0.72 });
                                                               const newFotos = [...(fotos || [])];
-                                                              newFotos[index] = reader.result as string;
+                                                              newFotos[index] = compressed || '';
                                                               setFotos(newFotos);
-                                                          };
-                                                          reader.readAsDataURL(file);
+                                                          } catch (err) {
+                                                              console.warn('Error compressing general photo:', err);
+                                                              const reader = new FileReader();
+                                                              reader.onloadend = () => {
+                                                                  const newFotos = [...(fotos || [])];
+                                                                  newFotos[index] = reader.result as string;
+                                                                  setFotos(newFotos);
+                                                              };
+                                                              reader.readAsDataURL(file);
+                                                          }
                                                       }
                                                   }}
                                               />

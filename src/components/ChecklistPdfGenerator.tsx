@@ -9,6 +9,8 @@ const ALL_NORMS_MAP: Record<string, string> = {
   dec351: 'Decreto 351/79 - Reglamento General de H&S',
   ley24557: 'Ley 24.557 - Riesgos del Trabajo (LRT)',
   dec911: 'Decreto 911/96 - Industria de la Construcción',
+  dec249: 'Decreto 249/07 - Minería e Instalaciones Subterráneas',
+  dec617: 'Decreto 617/97 - Actividad Agraria',
   dec1338: 'Decreto 1338/96 - Servicios de H&S',
   res905: 'Res. SRT 905/15 - Funciones Servicios H&S',
   res886: 'Res. SRT 886/15 - Protocolo de Ergonomía',

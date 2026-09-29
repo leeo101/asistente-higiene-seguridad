@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import {
   X, Search, HardHat, Wrench, Package, Tractor, Building2,
   CheckCircle2, AlertTriangle, ShieldCheck, ArrowRight, BookOpen,
-  Calendar, Check, Filter
+  Calendar, Check, Filter, Pickaxe
 } from 'lucide-react';
 import {
   INDUSTRY_CHECKLISTS,
@@ -57,6 +57,8 @@ export default function IndustryChecklistModal({
         return 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border-amber-300 dark:border-amber-800';
       case 'metalmecanica':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border-blue-300 dark:border-blue-800';
+      case 'mineria':
+        return 'bg-yellow-100 text-yellow-900 dark:bg-yellow-950/60 dark:text-yellow-300 border-yellow-400 dark:border-yellow-700';
       case 'logistica':
         return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300 border-indigo-300 dark:border-indigo-800';
       case 'agro':
@@ -72,6 +74,7 @@ export default function IndustryChecklistModal({
     switch (id) {
       case 'construccion': return <HardHat size={15} />;
       case 'metalmecanica': return <Wrench size={15} />;
+      case 'mineria': return <Pickaxe size={15} />;
       case 'logistica': return <Package size={15} />;
       case 'agro': return <Tractor size={15} />;
       case 'oficinas': return <Building2 size={15} />;
@@ -102,7 +105,7 @@ export default function IndustryChecklistModal({
                 </span>
               </div>
               <p className="text-xs text-slate-300 mt-0.5 m-0 font-medium hidden sm:block">
-                Plantillas profesionales predefinidas conforme a Dec. 911/96, Dec. 351/79, Dec. 617/97 y Resoluciones SRT
+                Plantillas profesionales predefinidas conforme a Dec. 911/96, Dec. 351/79, Dec. 249/07, Dec. 617/97 y Resoluciones SRT
               </p>
             </div>
           </div>
