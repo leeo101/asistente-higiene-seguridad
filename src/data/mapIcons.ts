@@ -3,67 +3,67 @@ export const SAFETY_ICONS = {
     // Fire Equipment (Red)
     EXTINGUISHER: {
         id: 'EXTINGUISHER', type: 'fire', label: 'Extintor ABC', color: '#dc2626',
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21h10"/><path d="M12 21v-3"/><path d="M10 4h4"/><path d="M11 4v3"/><path d="M13 4v3"/><path d="M8 7h8a2 2 0 0 1 2 2v9H6V9a2 2 0 0 1 2-2z"/><path d="M8 12h8"/><path d="M6 14s2-2 6-2 6 2 6 2"/><path d="M9 18v-4"/><path d="M15 18v-4"/><path d="M6 7V5a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v2"/><path d="M5 14h2"/></svg>`
+        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1.5" y="1.5" width="21" height="21" rx="3.5" fill="#dc2626"/><path d="M12 4.5v1.5m-2.5-1.5h5m-3.5 1.5h2v1h-2z" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round"/><rect x="8.5" y="7.5" width="7" height="11.5" rx="3.5" fill="#ffffff"/><path d="M8.5 10.5c-1.5 0-2.2.8-2.2 2.2v3.3l1.2-.8" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10.5" r="1.1" fill="#dc2626"/><path d="M18.8 9.5c-.4.7-.9 1.1-.9 1.8 0 1 .8 1.8 1.8 1.8.3 0 .5 0 .6-.1-.2 1.1-1.1 1.9-2.2 1.9-1.3 0-2.3-1-2.3-2.3 0-1.6 1.5-2.5 2-3.1h1z" fill="#ffffff"/></svg>`
     },
     HYDRANT: {
         id: 'HYDRANT', type: 'fire', label: 'Hidrante / BIE', color: '#dc2626',
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="2" width="18" height="20" rx="2" ry="2"/><circle cx="12" cy="12" r="5"/><path d="M12 12v.01"/><path d="M12 7v5"/></svg>`
+        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1.5" y="1.5" width="21" height="21" rx="3.5" fill="#dc2626"/><circle cx="12" cy="12" r="7.5" stroke="#ffffff" stroke-width="1.6"/><circle cx="12" cy="12" r="4.5" stroke="#ffffff" stroke-width="1.2"/><circle cx="12" cy="12" r="2" fill="#ffffff"/><path d="M12 4.5h6v4l-2 1.5" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 10l2-1.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/></svg>`
     },
     ALARM: {
         id: 'ALARM', type: 'fire', label: 'Pulsador Alarma', color: '#dc2626',
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M2 12h2"/><path d="M20 12h2"/></svg>`
+        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1.5" y="1.5" width="21" height="21" rx="3.5" fill="#dc2626"/><rect x="4.5" y="4.5" width="15" height="15" rx="1.5" stroke="#ffffff" stroke-width="1.5"/><circle cx="12" cy="12" r="3.5" fill="#ffffff"/><circle cx="12" cy="12" r="1.5" fill="#dc2626"/><path d="M12 18v-3m-2 0h4" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round"/></svg>`
     },
     NO_ENTRY: {
         id: 'NO_ENTRY', type: 'fire', label: 'Prohibido el Acceso', color: '#dc2626',
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M7 12h10"/></svg>`
+        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#dc2626"/><rect x="4.5" y="10" width="15" height="4" rx="1" fill="#ffffff"/></svg>`
     },
 
     // Warning / Risks (Yellow)
     ELECTRICAL: {
         id: 'ELECTRICAL', type: 'warning', label: 'Riesgo Eléctrico', color: '#eab308',
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`
+        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L1 21h22L12 2z" fill="#eab308" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/><path d="M13 6l-5 8h4.5l-1.5 6 6-9h-4.5l1.5-5h-1z" fill="#0f172a"/></svg>`
     },
     CHEMICAL: {
         id: 'CHEMICAL', type: 'warning', label: 'Riesgo Químico', color: '#eab308',
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a2 2 0 0 0 1.8 2.95h10.96a2 2 0 0 0 1.8-2.95L14.21 10.42a2 2 0 0 1-.21-.896V2"/><path d="M8 2h8"/><path d="M8 15h8"/></svg>`
+        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L1 21h22L12 2z" fill="#eab308" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 9v3.5l-3 5.5h10l-3-5.5V9h-4z" stroke="#0f172a" stroke-width="1.3" fill="#ffffff"/><circle cx="12" cy="15" r="1" fill="#0f172a"/></svg>`
     },
     BIOLOGICAL: {
         id: 'BIOLOGICAL', type: 'warning', label: 'Riesgo Biológico', color: '#eab308',
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><circle cx="12" cy="12" r="3"/><path d="M12 15a4 4 0 0 1-4-4"/><path d="M16 12a4 4 0 0 1-4 4"/></svg>`
+        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L1 21h22L12 2z" fill="#eab308" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="11.5" r="2.2" stroke="#0f172a" stroke-width="1.3"/><circle cx="9.5" cy="15" r="2.2" stroke="#0f172a" stroke-width="1.3"/><circle cx="14.5" cy="15" r="2.2" stroke="#0f172a" stroke-width="1.3"/><circle cx="12" cy="13.5" r="1" fill="#0f172a"/></svg>`
     },
     SLIP: {
         id: 'SLIP', type: 'warning', label: 'Piso Resbaladizo', color: '#eab308',
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 2-2m-2-4 2 2m4 0 2-2m-2-4 2 2m4 0 2-2m-2-4 2 2m4 0 2-2m-2-4 2 2"/><path d="M5 22h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2z"/></svg>`
+        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L1 21h22L12 2z" fill="#eab308" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/><circle cx="14.5" cy="8.5" r="1.3" fill="#0f172a"/><path d="M13 10.5l-2.5 3 2 1.5 2-1m-4.5-1l-3 1.5m6.5 2.5l2 3.5m-5-2.5l-3 2" stroke="#0f172a" stroke-width="1.3" stroke-linecap="round"/><path d="M5 19c3-1 7 1 11-1 1 0 2-.5 3-.5" stroke="#0f172a" stroke-width="1.3" stroke-linecap="round"/></svg>`
     },
     PPE_REQUIRED: {
-        id: 'PPE_REQUIRED', type: 'warning', label: 'EPP Obligatorio', color: '#eab308',
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>`
+        id: 'PPE_REQUIRED', type: 'warning', label: 'EPP Obligatorio', color: '#2563eb',
+        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#2563eb"/><path d="M6 13c0-3.3 2.7-6 6-6s6 2.7 6 6v1H6v-1z" fill="#ffffff"/><rect x="5" y="14" width="14" height="2" rx="1" fill="#ffffff"/><circle cx="9.5" cy="18" r="1.5" stroke="#ffffff" stroke-width="1.2"/><circle cx="14.5" cy="18" r="1.5" stroke="#ffffff" stroke-width="1.2"/><path d="M11 18h2" stroke="#ffffff" stroke-width="1.2"/></svg>`
     },
     FORKLIFT: {
         id: 'FORKLIFT', type: 'warning', label: 'Tránsito Autoelevadores', color: '#eab308',
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17h14v2H2z"/><path d="M6 17V7l4-3 4 3v10"/><path d="M16 11h3l3 6H16V11z"/><circle cx="6" cy="20" r="1.5"/><circle cx="19" cy="20" r="1.5"/><path d="M9 12H7"/><path d="M9 9H7"/></svg>`
+        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L1 21h22L12 2z" fill="#eab308" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/><path d="M5 16h8v2H5zm3-5h3v4H8zm6-3v7h4v-1h-2v-4h2V8h-4z" fill="#0f172a"/><circle cx="7" cy="18.5" r="1.2" fill="#0f172a"/><circle cx="12" cy="18.5" r="1.2" fill="#0f172a"/></svg>`
     },
 
     // Escape Routes / Safe Conditions (Green)
     EXIT: {
         id: 'EXIT', type: 'escape', label: 'Salida / Escape', color: '#16a34a',
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`
+        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1.5" y="1.5" width="21" height="21" rx="3.5" fill="#16a34a"/><path d="M18.5 4.5v15h-4v-1h3v-13h-3v-1h4z" fill="#ffffff"/><circle cx="9" cy="6.5" r="1.6" fill="#ffffff"/><path d="M8 9l2 2.5v3.8l-1.5 3.2m-1-4.8l-2-2.5 1.5-2.2 2.5.5 2 1.5" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 11.5l2.5 2.5 1.5-1" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 12h4.5m-2-2l2 2-2 2" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
     },
     MEETING_POINT: {
         id: 'MEETING_POINT', type: 'escape', label: 'Punto Encuentro', color: '#16a34a',
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2"/><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><circle cx="12" cy="10" r="2"/><path d="M8 14v4"/><path d="M16 14v4"/></svg>`
+        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1.5" y="1.5" width="21" height="21" rx="3.5" fill="#16a34a"/><path d="M3.5 3.5l4 4m0-3v3h-3" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.5 3.5l-4 4m0-3v3h3" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 20.5l4-4m0 3v-3h-3" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.5 20.5l-4-4m0 3v-3h3" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10" r="1.5" fill="#ffffff"/><path d="M9.5 15c0-1.5 1-2.5 2.5-2.5s2.5 1 2.5 2.5v1h-5v-1z" fill="#ffffff"/></svg>`
     },
     FIRST_AID: {
         id: 'FIRST_AID', type: 'escape', label: 'Primeros Auxilios', color: '#16a34a',
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>`
+        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1.5" y="1.5" width="21" height="21" rx="3.5" fill="#16a34a"/><path d="M9 5h6v4h4v6h-4v4H9v-4H5V9h4V5z" fill="#ffffff"/></svg>`
     },
     EMERGENCY_SHOWER: {
         id: 'EMERGENCY_SHOWER', type: 'escape', label: 'Ducha de Emergencia', color: '#16a34a',
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v7"/><path d="M8 5h8"/><path d="M8 9h8"/><path d="M10 12v6"/><path d="M14 12v6"/><path d="M8 18h8"/><circle cx="10" cy="21" r="0.5" fill="currentColor"/><circle cx="14" cy="21" r="0.5" fill="currentColor"/><circle cx="12" cy="21" r="0.5" fill="currentColor"/></svg>`
+        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1.5" y="1.5" width="21" height="21" rx="3.5" fill="#16a34a"/><path d="M6 3h8v3h-8zM10 6v3" stroke="#ffffff" stroke-width="1.5"/><path d="M6 9h8l2 3H4l2-3z" fill="#ffffff"/><line x1="7" y1="13" x2="6" y2="17" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/><line x1="10" y1="13" x2="10" y2="18" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/><line x1="13" y1="13" x2="14" y2="17" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/><circle cx="10" cy="15" r="1.5" fill="#ffffff"/><path d="M8 20v-3h4v3" stroke="#ffffff" stroke-width="1.3"/></svg>`
     },
     EYE_WASH: {
         id: 'EYE_WASH', type: 'escape', label: 'Lavaojos', color: '#16a34a',
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/><path d="M9 20c0 1.1.9 2 2 2h2a2 2 0 0 0 2-2v-1H9v1z"/><path d="M12 17v3"/></svg>`
+        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1.5" y="1.5" width="21" height="21" rx="3.5" fill="#16a34a"/><path d="M4 17h16c0 2-3 4-8 4s-8-2-8-4z" fill="#ffffff"/><path d="M8 17v-4c0-2 2-3 2-3s2 1 2 3v4" stroke="#ffffff" stroke-width="1.3" fill="none"/><path d="M12 17v-4c0-2 2-3 2-3s2 1 2 3v4" stroke="#ffffff" stroke-width="1.3" fill="none"/><ellipse cx="9" cy="8" rx="2.5" ry="1.5" fill="#ffffff"/><circle cx="9" cy="8" r="0.8" fill="#16a34a"/><ellipse cx="15" cy="8" rx="2.5" ry="1.5" fill="#ffffff"/><circle cx="15" cy="8" r="0.8" fill="#16a34a"/></svg>`
     },
 
     // Custom Shapes (Text / Blueprints)

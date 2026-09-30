@@ -136,35 +136,84 @@ export default function RiskMapPdfGenerator({
 
     if (el.type === 'door') {
       const w = el.width || 40;
-      const scaleX = el.flipX ? -1 : 1;
-      const scaleY = el.flipY ? -1 : 1;
+      const isOutward = !!el.flipY;
+      const isHingeRight = !!el.flipX;
 
       return (
-        <g key={el.id} transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0}) scale(${scaleX}, ${scaleY})`}>
+        <g key={el.id} transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})`}>
+          {/* Umbral / Línea de pared */}
+          <line x1={0} y1={0} x2={w} y2={0} stroke="#94a3b8" strokeWidth="2" strokeDasharray="3,3" />
+
           {el.doorType === 'double' ? (
             <>
-              <line x1={0} y1={0} x2={w} y2={0} stroke="#94a3b8" strokeWidth="2" strokeDasharray="3,3" />
-              <line x1={0} y1={0} x2={0} y2={w / 2} stroke={stroke} strokeWidth={sw} />
-              <path d={`M 0 ${w / 2} A ${w / 2} ${w / 2} 0 0 0 ${w / 2} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="3,3" />
-              <line x1={w} y1={0} x2={w} y2={w / 2} stroke={stroke} strokeWidth={sw} />
-              <path d={`M ${w} ${w / 2} A ${w / 2} ${w / 2} 0 0 1 ${w / 2} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="3,3" />
               <circle cx={0} cy={0} r={2.5} fill={stroke} />
               <circle cx={w} cy={0} r={2.5} fill={stroke} />
+              {!isOutward ? (
+                <>
+                  <line x1={0} y1={0} x2={0} y2={w / 2} stroke={stroke} strokeWidth={sw} />
+                  <path d={`M 0 ${w / 2} A ${w / 2} ${w / 2} 0 0 0 ${w / 2} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="3,3" />
+                  <line x1={w} y1={0} x2={w} y2={w / 2} stroke={stroke} strokeWidth={sw} />
+                  <path d={`M ${w} ${w / 2} A ${w / 2} ${w / 2} 0 0 1 ${w / 2} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="3,3" />
+                </>
+              ) : (
+                <>
+                  <line x1={0} y1={0} x2={0} y2={-w / 2} stroke={stroke} strokeWidth={sw} />
+                  <path d={`M 0 ${-w / 2} A ${w / 2} ${w / 2} 0 0 1 ${w / 2} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="3,3" />
+                  <line x1={w} y1={0} x2={w} y2={-w / 2} stroke={stroke} strokeWidth={sw} />
+                  <path d={`M ${w} ${-w / 2} A ${w / 2} ${w / 2} 0 0 0 ${w / 2} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="3,3" />
+                </>
+              )}
             </>
           ) : el.doorType === 'sliding' ? (
             <>
               <line x1={0} y1={0} x2={w} y2={0} stroke="#94a3b8" strokeWidth="2" />
-              <line x1={3} y1={-3} x2={w / 2 + 3} y2={-3} stroke={stroke} strokeWidth={sw + 1} />
-              <line x1={w / 2 - 3} y1={3} x2={w - 3} y2={3} stroke={stroke} strokeWidth={sw + 1} />
+              <line x1={3} y1={isOutward ? -3 : 3} x2={w / 2 + 3} y2={isOutward ? -3 : 3} stroke={stroke} strokeWidth={sw + 1} />
+              <line x1={w / 2 - 3} y1={isOutward ? 3 : -3} x2={w - 3} y2={isOutward ? 3 : -3} stroke={stroke} strokeWidth={sw + 1} />
             </>
           ) : (
             <>
-              <line x1={0} y1={0} x2={w} y2={0} stroke="#94a3b8" strokeWidth="2" strokeDasharray="3,3" />
-              <line x1={0} y1={0} x2={0} y2={w} stroke={stroke} strokeWidth={sw} />
-              <path d={`M 0 ${w} A ${w} ${w} 0 0 0 ${w} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="4,3" />
-              <circle cx={0} cy={0} r={2.5} fill={stroke} />
-              {el.doorType === 'emergency' && (
-                <rect x={-3} y={w * 0.3} width={6} height={w * 0.4} rx="2" fill="#16a34a" />
+              {!isHingeRight ? (
+                <>
+                  <circle cx={0} cy={0} r={2.5} fill={stroke} />
+                  {!isOutward ? (
+                    <>
+                      <line x1={0} y1={0} x2={0} y2={w} stroke={stroke} strokeWidth={sw} />
+                      <path d={`M 0 ${w} A ${w} ${w} 0 0 0 ${w} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="4,3" />
+                      {el.doorType === 'emergency' && (
+                        <rect x={-3} y={w * 0.3} width={6} height={w * 0.4} rx="2" fill="#16a34a" />
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <line x1={0} y1={0} x2={0} y2={-w} stroke={stroke} strokeWidth={sw} />
+                      <path d={`M 0 ${-w} A ${w} ${w} 0 0 1 ${w} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="4,3" />
+                      {el.doorType === 'emergency' && (
+                        <rect x={-3} y={-w * 0.7} width={6} height={w * 0.4} rx="2" fill="#16a34a" />
+                      )}
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  <circle cx={w} cy={0} r={2.5} fill={stroke} />
+                  {!isOutward ? (
+                    <>
+                      <line x1={w} y1={0} x2={w} y2={w} stroke={stroke} strokeWidth={sw} />
+                      <path d={`M ${w} ${w} A ${w} ${w} 0 0 1 0 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="4,3" />
+                      {el.doorType === 'emergency' && (
+                        <rect x={w - 3} y={w * 0.3} width={6} height={w * 0.4} rx="2" fill="#16a34a" />
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <line x1={w} y1={0} x2={w} y2={-w} stroke={stroke} strokeWidth={sw} />
+                      <path d={`M ${w} ${-w} A ${w} ${w} 0 0 0 0 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="4,3" />
+                      {el.doorType === 'emergency' && (
+                        <rect x={w - 3} y={-w * 0.7} width={6} height={w * 0.4} rx="2" fill="#16a34a" />
+                      )}
+                    </>
+                  )}
+                </>
               )}
             </>
           )}
@@ -387,7 +436,7 @@ export default function RiskMapPdfGenerator({
 
 
                       }}
-                      dangerouslySetInnerHTML={{ __html: iconDef.svg }} className="absolute w-[40px] h-[40px] bg-[#ffffff] rounded-[4px] flex items-center justify-center z-[5]" />);
+                      dangerouslySetInnerHTML={{ __html: iconDef.svg }} className="absolute w-[40px] h-[40px] bg-[#ffffff] rounded-[4px] flex items-center justify-center p-1 z-[5] [&>svg]:w-full [&>svg]:h-full [&>svg]:block overflow-hidden" />);
 
 
                 }
@@ -418,7 +467,7 @@ export default function RiskMapPdfGenerator({
                             <strong className="block mb-[6px] border-bottom-[1px_solid_#e2e8f0] pb-[2px]">REFERENCIAS (Norma ISO 7010 / IRAM)</strong>
                             <div className="flex flex-wrap gap-[8px_12px]">                                {legendIcons.map((icon) => (
                                     <div key={icon.id} className="flex items-center gap-[4px]">
-                                        <div style={{ border: `1px solid ${icon.color}`, color: icon.color }} dangerouslySetInnerHTML={{ __html: icon.svg }} className="w-[16px] h-[16px] flex-shrink-[0]" />
+                                        <div style={{ border: `1px solid ${icon.color}`, color: icon.color }} dangerouslySetInnerHTML={{ __html: icon.svg }} className="w-[18px] h-[18px] flex-shrink-0 flex items-center justify-center p-[1px] [&>svg]:w-full [&>svg]:h-full [&>svg]:block overflow-hidden" />
                                         <span>{icon.label}</span>
                                     </div>
                                 ))}

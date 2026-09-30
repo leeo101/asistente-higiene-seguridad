@@ -813,41 +813,101 @@ export default function RiskMapGenerator(): React.ReactElement | null {
     }
     if (el.type === 'door') {
       const w = el.width || 40;
-      const scaleX = el.flipX ? -1 : 1;
-      const scaleY = el.flipY ? -1 : 1;
+      const isOutward = !!el.flipY;
+      const isHingeRight = !!el.flipX;
 
       return (
         <g key={el.id}
-          transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0}) scale(${scaleX}, ${scaleY})`}
+          transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})`}
           onPointerDown={(e) => handleSvgElementPointerDown(e, el)}
           style={{ cursor: isSel ? 'move' : 'pointer' }}
         >
-          {isSel && <rect x={-4} y={-4} width={w + 8} height={w + 8} fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="3,3" />}
+          {isSel && (
+            <rect 
+              x={-4} 
+              y={isOutward ? -w - 4 : -4} 
+              width={w + 8} 
+              height={w + 8} 
+              fill="none" 
+              stroke="#3b82f6" 
+              strokeWidth="1.5" 
+              strokeDasharray="3,3" 
+            />
+          )}
+
+          {/* Umbral / Línea de pared */}
+          <line x1={0} y1={0} x2={w} y2={0} stroke="#94a3b8" strokeWidth="2" strokeDasharray="3,3" />
 
           {el.doorType === 'double' ? (
             <>
-              <line x1={0} y1={0} x2={w} y2={0} stroke="#94a3b8" strokeWidth="2" strokeDasharray="3,3" />
-              <line x1={0} y1={0} x2={0} y2={w / 2} stroke={stroke} strokeWidth={sw} />
-              <path d={`M 0 ${w / 2} A ${w / 2} ${w / 2} 0 0 0 ${w / 2} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="3,3" />
-              <line x1={w} y1={0} x2={w} y2={w / 2} stroke={stroke} strokeWidth={sw} />
-              <path d={`M ${w} ${w / 2} A ${w / 2} ${w / 2} 0 0 1 ${w / 2} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="3,3" />
               <circle cx={0} cy={0} r={3} fill={stroke} />
               <circle cx={w} cy={0} r={3} fill={stroke} />
+              {!isOutward ? (
+                <>
+                  <line x1={0} y1={0} x2={0} y2={w / 2} stroke={stroke} strokeWidth={sw} />
+                  <path d={`M 0 ${w / 2} A ${w / 2} ${w / 2} 0 0 0 ${w / 2} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="3,3" />
+                  <line x1={w} y1={0} x2={w} y2={w / 2} stroke={stroke} strokeWidth={sw} />
+                  <path d={`M ${w} ${w / 2} A ${w / 2} ${w / 2} 0 0 1 ${w / 2} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="3,3" />
+                </>
+              ) : (
+                <>
+                  <line x1={0} y1={0} x2={0} y2={-w / 2} stroke={stroke} strokeWidth={sw} />
+                  <path d={`M 0 ${-w / 2} A ${w / 2} ${w / 2} 0 0 1 ${w / 2} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="3,3" />
+                  <line x1={w} y1={0} x2={w} y2={-w / 2} stroke={stroke} strokeWidth={sw} />
+                  <path d={`M ${w} ${-w / 2} A ${w / 2} ${w / 2} 0 0 0 ${w / 2} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="3,3" />
+                </>
+              )}
             </>
           ) : el.doorType === 'sliding' ? (
             <>
               <line x1={0} y1={0} x2={w} y2={0} stroke="#94a3b8" strokeWidth="3" />
-              <line x1={4} y1={-4} x2={w / 2 + 4} y2={-4} stroke={stroke} strokeWidth={sw + 1} />
-              <line x1={w / 2 - 4} y1={4} x2={w - 4} y2={4} stroke={stroke} strokeWidth={sw + 1} />
+              <line x1={4} y1={isOutward ? -4 : 4} x2={w / 2 + 4} y2={isOutward ? -4 : 4} stroke={stroke} strokeWidth={sw + 1} />
+              <line x1={w / 2 - 4} y1={isOutward ? 4 : -4} x2={w - 4} y2={isOutward ? 4 : -4} stroke={stroke} strokeWidth={sw + 1} />
             </>
           ) : (
             <>
-              <line x1={0} y1={0} x2={w} y2={0} stroke="#94a3b8" strokeWidth="2" strokeDasharray="3,3" />
-              <line x1={0} y1={0} x2={0} y2={w} stroke={stroke} strokeWidth={sw} />
-              <path d={`M 0 ${w} A ${w} ${w} 0 0 0 ${w} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="4,3" />
-              <circle cx={0} cy={0} r={3} fill={stroke} />
-              {el.doorType === 'emergency' && (
-                <rect x={-3} y={w * 0.3} width={6} height={w * 0.4} rx="2" fill="#16a34a" />
+              {!isHingeRight ? (
+                <>
+                  <circle cx={0} cy={0} r={3} fill={stroke} />
+                  {!isOutward ? (
+                    <>
+                      <line x1={0} y1={0} x2={0} y2={w} stroke={stroke} strokeWidth={sw} />
+                      <path d={`M 0 ${w} A ${w} ${w} 0 0 0 ${w} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="4,3" />
+                      {el.doorType === 'emergency' && (
+                        <rect x={-3} y={w * 0.3} width={6} height={w * 0.4} rx="2" fill="#16a34a" />
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <line x1={0} y1={0} x2={0} y2={-w} stroke={stroke} strokeWidth={sw} />
+                      <path d={`M 0 ${-w} A ${w} ${w} 0 0 1 ${w} 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="4,3" />
+                      {el.doorType === 'emergency' && (
+                        <rect x={-3} y={-w * 0.7} width={6} height={w * 0.4} rx="2" fill="#16a34a" />
+                      )}
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  <circle cx={w} cy={0} r={3} fill={stroke} />
+                  {!isOutward ? (
+                    <>
+                      <line x1={w} y1={0} x2={w} y2={w} stroke={stroke} strokeWidth={sw} />
+                      <path d={`M ${w} ${w} A ${w} ${w} 0 0 1 0 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="4,3" />
+                      {el.doorType === 'emergency' && (
+                        <rect x={w - 3} y={w * 0.3} width={6} height={w * 0.4} rx="2" fill="#16a34a" />
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <line x1={w} y1={0} x2={w} y2={-w} stroke={stroke} strokeWidth={sw} />
+                      <path d={`M ${w} ${-w} A ${w} ${w} 0 0 0 0 0`} fill="none" stroke={stroke} strokeWidth={sw * 0.75} strokeDasharray="4,3" />
+                      {el.doorType === 'emergency' && (
+                        <rect x={w - 3} y={-w * 0.7} width={6} height={w * 0.4} rx="2" fill="#16a34a" />
+                      )}
+                    </>
+                  )}
+                </>
               )}
             </>
           )}
@@ -1358,7 +1418,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                       boxShadow: selectedTool === icon.id ? `0 2px 6px ${icon.color}44` : 'none',
                       transform: selectedTool === icon.id ? 'scale(1.08)' : 'scale(1)',
                     }}>
-                                                        <div style={{ color: icon.color, width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }} dangerouslySetInnerHTML={{ __html: icon.svg }} />
+                                                        <div style={{ color: icon.color, width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="[&>svg]:w-full [&>svg]:h-full [&>svg]:block" dangerouslySetInnerHTML={{ __html: icon.svg }} />
                                                     </button>
                     )}
                                             </div>
@@ -1504,9 +1564,11 @@ export default function RiskMapGenerator(): React.ReactElement | null {
 
                         border: isSel ? '2px dashed #3b82f6' : `2px solid ${iconDef.color}`,
                         color: el.color || iconDef.color, cursor: el.locked ? 'not-allowed' : 'move',
-                        opacity: el.opacity ?? 1, zIndex: isSel ? 100 : 10
+                        opacity: el.opacity ?? 1, zIndex: isSel ? 100 : 60
                       }}
-                      dangerouslySetInnerHTML={{ __html: iconDef.svg }} className="absolute w-[40px] h-[40px] rounded-[5px] flex items-center justify-center" />);
+                      dangerouslySetInnerHTML={{ __html: iconDef.svg }} 
+                      className="absolute w-[40px] h-[40px] rounded-[5px] flex items-center justify-center p-1 shadow-sm [&>svg]:w-full [&>svg]:h-full [&>svg]:block overflow-hidden" 
+                    />);
 
                   }
                   if (el.type === 'text') {
@@ -1521,7 +1583,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                         color: el.color || '#0f172a',
                         opacity: el.opacity ?? 1,
                         border: isSel ? '1px dashed #3b82f6' : '1px solid transparent',
-                        cursor: el.locked ? 'not-allowed' : 'move', zIndex: isSel ? 100 : 10,
+                        cursor: el.locked ? 'not-allowed' : 'move', zIndex: isSel ? 100 : 60,
                         background: isSel ? 'rgba(59,130,246,0.05)' : 'transparent'
                       }} className="absolute p-[3px_7px] text-[15px] font-extrabold whitespace-nowrap">
                                                 {isEd ?

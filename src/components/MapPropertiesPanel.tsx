@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2, Copy, Lock, Unlock, Settings, FlipHorizontal, FlipVertical, Ruler, ArrowUpDown } from 'lucide-react';
+import { Trash2, Copy, Lock, Unlock, Settings, FlipHorizontal, FlipVertical, Ruler, ArrowUpDown, RotateCw } from 'lucide-react';
 
 const ROW = { display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' };
 const LBL = { 
@@ -198,11 +198,26 @@ export default function MapPropertiesPanel({ element, onUpdate, onDelete, onDupl
       {/* Rotación */}
       {canRotate && (
         <div style={{ background: 'var(--color-background)', padding: 10, borderRadius: 10, border: '1px solid var(--color-border)' }}>
-          <label style={LBL}>🔄 Rotación — {element.rotation || 0}°</label>
-          <div className="grid grid-cols-5 gap-1">
-            {[-90, -45, 0, 45, 90].map((deg) => (
-              <button key={deg} onClick={() => onUpdate({ rotation: (deg + 360) % 360 })} 
-                style={BTN((element.rotation || 0) === (deg + 360) % 360 || (element.rotation || 0) === deg, '#6366f1')}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+            <label style={{ ...LBL, marginBottom: 0 }}>🔄 Rotación — {element.rotation || 0}°</label>
+            <button 
+              type="button" 
+              onClick={() => onUpdate({ rotation: (((element.rotation || 0) + 90) % 360) })}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                padding: '3px 8px', fontSize: '0.66rem', fontWeight: 800,
+                borderRadius: 6, border: '1px solid #6366f1',
+                background: '#6366f115', color: '#6366f1', cursor: 'pointer'
+              }}
+              title="Girar 90 grados en sentido horario"
+            >
+              <RotateCw size={11} /> +90°
+            </button>
+          </div>
+          <div className="grid grid-cols-4 gap-1">
+            {[0, 90, 180, 270].map((deg) => (
+              <button key={deg} onClick={() => onUpdate({ rotation: deg })} 
+                style={BTN((element.rotation || 0) === deg, '#6366f1')}>
                 {deg}°
               </button>
             ))}
@@ -213,25 +228,56 @@ export default function MapPropertiesPanel({ element, onUpdate, onDelete, onDupl
       {/* Controles para Puertas */}
       {element.type === 'door' && (
         <div style={{ background: 'var(--color-background)', padding: 10, borderRadius: 10, border: '1px solid var(--color-border)' }}>
-          <label style={LBL}>🚪 Apertura de Puerta</label>
-          <div className="grid grid-cols-2 gap-1.5 mb-2">
-            <button 
-              type="button"
-              onClick={() => onUpdate({ flipX: !element.flipX })} 
-              style={BTN(element.flipX || false, '#0284c7')}
-              title="Cambiar mano de apertura izquierda/derecha"
-            >
-              <FlipHorizontal size={13} className="mr-1" /> Espejo H
-            </button>
-            <button 
-              type="button"
-              onClick={() => onUpdate({ flipY: !element.flipY })} 
-              style={BTN(element.flipY || false, '#0284c7')}
-              title="Abrir hacia adentro o afuera"
-            >
-              <FlipVertical size={13} className="mr-1" /> Espejo V
-            </button>
+          <label style={LBL}>🚪 Apertura y Sentido de Giro</label>
+          
+          <div className="mb-2">
+            <span style={{ fontSize: '0.64rem', fontWeight: 700, color: 'var(--color-text-muted)', display: 'block', marginBottom: 4 }}>
+              Batiente (Hacia adentro / afuera):
+            </span>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button 
+                type="button"
+                onClick={() => onUpdate({ flipY: false })} 
+                style={BTN(!element.flipY, '#0284c7')}
+                title="Apertura hacia el interior de la habitación"
+              >
+                Hacia Adentro
+              </button>
+              <button 
+                type="button"
+                onClick={() => onUpdate({ flipY: true })} 
+                style={BTN(!!element.flipY, '#0284c7')}
+                title="Apertura hacia el exterior (vía de escape / emergencia)"
+              >
+                Hacia Afuera
+              </button>
+            </div>
           </div>
+
+          <div className="mb-2">
+            <span style={{ fontSize: '0.64rem', fontWeight: 700, color: 'var(--color-text-muted)', display: 'block', marginBottom: 4 }}>
+              Bisagra (Mano de apertura):
+            </span>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button 
+                type="button"
+                onClick={() => onUpdate({ flipX: false })} 
+                style={BTN(!element.flipX, '#0284c7')}
+                title="Bisagra colocada en el poste izquierdo"
+              >
+                Bisagra Izq.
+              </button>
+              <button 
+                type="button"
+                onClick={() => onUpdate({ flipX: true })} 
+                style={BTN(!!element.flipX, '#0284c7')}
+                title="Bisagra colocada en el poste derecho"
+              >
+                Bisagra Der.
+              </button>
+            </div>
+          </div>
+
           <label style={LBL}>Ancho de Hoja</label>
           <div className="grid grid-cols-4 gap-1">
             {[30, 40, 48, 60].map((w) => (
