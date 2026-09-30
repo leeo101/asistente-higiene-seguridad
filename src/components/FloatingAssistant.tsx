@@ -253,18 +253,53 @@ export default function FloatingAssistant() {
     setIsTyping(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/ai-advisor`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await auth.currentUser?.getIdToken(true)}`
-        },
-        body: JSON.stringify({
-          taskDescription: userMsg,
-          country: 'argentina',
-          isChat: true // Flag para que el backend sepa que es respuesta corta
-        })
+      let token = '';
+      if (auth.currentUser) {
+        try {
+          token = await auth.currentUser.getIdToken(false);
+        } catch {
+          try {
+            token = await auth.currentUser.getIdToken(true);
+          } catch (e) {
+            console.warn('[FloatingAssistant] Error obteniendo token:', e);
+          }
+        }
+      }
+
+      const payload = JSON.stringify({
+        taskDescription: userMsg,
+        country: 'argentina',
+        isChat: true
       });
+
+      const executeRequest = async (authToken: string) => {
+        return await fetch(`${API_BASE_URL}/api/ai-advisor`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: payload
+        });
+      };
+
+      let response = await executeRequest(token);
+
+      if (response.status === 503 || response.status === 504) {
+        await new Promise(r => setTimeout(r, 1500));
+        try {
+          const freshToken = await auth.currentUser?.getIdToken(true);
+          if (freshToken) response = await executeRequest(freshToken);
+        } catch (e) {}
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (response.status === 503) {
+          throw new Error('El servicio de IA está momentáneamente ocupado. Reintenta en unos instantes.');
+        }
+        throw new Error(errorData.error || `Error del servidor (${response.status})`);
+      }
 
       const data = await response.json();
 

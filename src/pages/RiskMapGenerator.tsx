@@ -24,7 +24,7 @@ import RiskMapTemplateSelectorModal, { PlanElement } from '../components/RiskMap
 
 // ─── Layer helpers ─────────────────────────────────────────────────────────
 const getLayer = (el) => {
-  if (['line', 'rect', 'circle', 'arrow', 'polyline', 'door', 'stairs', 'window', 'column', 'dimension'].includes(el.type)) return 'structure';
+  if (['line', 'rect', 'circle', 'arrow', 'polyline', 'door', 'stairs', 'window', 'column', 'dimension', 'chair', 'table', 'sink', 'cabinet'].includes(el.type)) return 'structure';
   if (el.type === 'icon') return 'signage';
   return 'annotations';
 };
@@ -139,7 +139,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
         pts.push({ x: rx + rw / 2, y: ry + rh, label: 'Punto Medio' });
         pts.push({ x: rx, y: ry + rh / 2, label: 'Punto Medio' });
         pts.push({ x: rx + rw, y: ry + rh / 2, label: 'Punto Medio' });
-      } else if (['door', 'stairs', 'window', 'column'].includes(el.type)) {
+      } else if (['door', 'stairs', 'window', 'column', 'chair', 'table', 'sink', 'cabinet'].includes(el.type)) {
         pts.push({ x: el.x, y: el.y, label: 'Inserción' });
       }
 
@@ -263,8 +263,8 @@ export default function RiskMapGenerator(): React.ReactElement | null {
   };
 
   const handleElementMouseDown = (e: React.MouseEvent, id: any, elX: number, elY: number) => {
-    e.stopPropagation();
     if (selectedTool !== 'select') return;
+    e.stopPropagation();
     if (elements.find((el) => el.id === id)?.locked) return;
     setSelectedElementId(id);
     setIsDragging(true);
@@ -273,8 +273,8 @@ export default function RiskMapGenerator(): React.ReactElement | null {
   };
 
   const handleSvgElementPointerDown = (e: React.PointerEvent, el: any) => {
-    e.stopPropagation();
     if (selectedTool !== 'select') return;
+    e.stopPropagation();
     if (el.locked) return;
     setSelectedElementId(el.id);
     setIsDragging(true);
@@ -373,7 +373,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
             endY: (shapeDragStart.origEndY ?? el.endY) + dy,
           };
         }
-        if (['door', 'stairs', 'window', 'column', 'icon', 'text'].includes(el.type)) {
+        if (['door', 'stairs', 'window', 'column', 'chair', 'table', 'sink', 'cabinet', 'icon', 'text'].includes(el.type)) {
           return {
             ...el,
             x: (shapeDragStart.origX ?? el.x) + dx,
@@ -460,7 +460,7 @@ export default function RiskMapGenerator(): React.ReactElement | null {
         id: Date.now(),
         type,
         color,
-        strokeWidth: type === 'dimension' ? 2 : 3,
+        strokeWidth: type === 'dimension' ? 2 : type === 'arrow' ? 2 : 3,
         lineStyle,
         opacity: 1,
         startX,
@@ -585,28 +585,143 @@ export default function RiskMapGenerator(): React.ReactElement | null {
       return;
     }
 
-    // Check hit elements
-    let clicked = null;
-    for (let i = elements.length - 1; i >= 0; i--) {
-      const el = elements[i];
-      if (!layers[getLayer(el)]) continue;
-      if (['line', 'rect', 'circle', 'arrow', 'polyline', 'dimension'].includes(el.type)) continue;
-      const szX = (el.width ? el.width / 2 : 24) + 6;
-      const szY = (el.height ? el.height / 2 : 24) + 6;
-      if (x >= el.x - szX && x <= el.x + szX && y >= el.y - szY && y <= el.y + szY) {
-        clicked = el;
-        break;
-      }
-    }
-
-    if (clicked) {
-      if (selectedTool === 'select') setSelectedElementId(clicked.id);
+    if (selectedTool === 'FURNITURE_CHAIR') {
+      const id = Date.now();
+      const newEl = {
+        id,
+        type: 'chair',
+        label: 'Silla',
+        x,
+        y,
+        width: 28,
+        height: 28,
+        rotation: 0,
+        color: '#334155',
+        fillColor: '#f1f5f9',
+        strokeWidth: 2,
+        opacity: 1
+      };
+      addToHistory([...elements, newEl]);
+      setSelectedElementId(id);
+      setSelectedTool('select');
       return;
     }
-    setSelectedElementId(null);
-    setEditingTextId(null);
 
-    if (!selectedTool || selectedTool === 'select' || selectedTool === 'pan') return;
+    if (selectedTool === 'FURNITURE_TABLE_RECT') {
+      const id = Date.now();
+      const newEl = {
+        id,
+        type: 'table',
+        tableShape: 'rect',
+        label: 'Mesa',
+        x,
+        y,
+        width: 70,
+        height: 40,
+        rotation: 0,
+        color: '#334155',
+        fillColor: '#ffffff',
+        strokeWidth: 2,
+        opacity: 1
+      };
+      addToHistory([...elements, newEl]);
+      setSelectedElementId(id);
+      setSelectedTool('select');
+      return;
+    }
+
+    if (selectedTool === 'FURNITURE_TABLE_ROUND') {
+      const id = Date.now();
+      const newEl = {
+        id,
+        type: 'table',
+        tableShape: 'round',
+        label: 'Mesa',
+        x,
+        y,
+        width: 48,
+        height: 48,
+        rotation: 0,
+        color: '#334155',
+        fillColor: '#ffffff',
+        strokeWidth: 2,
+        opacity: 1
+      };
+      addToHistory([...elements, newEl]);
+      setSelectedElementId(id);
+      setSelectedTool('select');
+      return;
+    }
+
+    if (selectedTool === 'FURNITURE_SINK') {
+      const id = Date.now();
+      const newEl = {
+        id,
+        type: 'sink',
+        label: 'Bacha',
+        x,
+        y,
+        width: 36,
+        height: 30,
+        rotation: 0,
+        color: '#0284c7',
+        fillColor: '#f8fafc',
+        strokeWidth: 2,
+        opacity: 1
+      };
+      addToHistory([...elements, newEl]);
+      setSelectedElementId(id);
+      setSelectedTool('select');
+      return;
+    }
+
+    if (selectedTool === 'FURNITURE_CABINET') {
+      const id = Date.now();
+      const newEl = {
+        id,
+        type: 'cabinet',
+        label: 'Archivador',
+        x,
+        y,
+        width: 44,
+        height: 28,
+        rotation: 0,
+        color: '#475569',
+        fillColor: '#f1f5f9',
+        strokeWidth: 2,
+        opacity: 1
+      };
+      addToHistory([...elements, newEl]);
+      setSelectedElementId(id);
+      setSelectedTool('select');
+      return;
+    }
+
+    // Check hit elements (only when select tool is active)
+    if (selectedTool === 'select') {
+      let clicked = null;
+      for (let i = elements.length - 1; i >= 0; i--) {
+        const el = elements[i];
+        if (!layers[getLayer(el)]) continue;
+        if (['line', 'rect', 'circle', 'arrow', 'polyline', 'dimension'].includes(el.type)) continue;
+        const szX = (el.width ? el.width / 2 : 14) + 4;
+        const szY = (el.height ? el.height / 2 : 14) + 4;
+        if (x >= el.x - szX && x <= el.x + szX && y >= el.y - szY && y <= el.y + szY) {
+          clicked = el;
+          break;
+        }
+      }
+
+      if (clicked) {
+        setSelectedElementId(clicked.id);
+        return;
+      }
+      setSelectedElementId(null);
+      setEditingTextId(null);
+      return;
+    }
+
+    if (!selectedTool || selectedTool === 'pan') return;
     if (['ARROW_LINE', 'LINE', 'RECTANGLE', 'CIRCLE', 'POLYLINE', 'DIMENSION'].includes(selectedTool)) return;
     if (selectedTool === 'TEXT_LABEL') {
       const id = Date.now();
@@ -614,8 +729,13 @@ export default function RiskMapGenerator(): React.ReactElement | null {
       setSelectedElementId(id);
       setSelectedTool('select');
     } else {
-      const icon = SAFETY_ICONS[selectedTool];
-      if (icon) addToHistory([...elements, { id: Date.now(), type: 'icon', iconId: icon.id, x, y, color: icon.color, rotation: 0, opacity: 1 }]);
+            const icon = SAFETY_ICONS[selectedTool];
+      if (icon) {
+        const id = Date.now();
+        addToHistory([...elements, { id, type: 'icon', iconId: icon.id, x, y, width: 22, height: 22, color: icon.color, rotation: 0, opacity: 1 }]);
+        setSelectedElementId(id);
+        setSelectedTool('select');
+      }
     }
   };
 
@@ -994,6 +1114,161 @@ export default function RiskMapGenerator(): React.ReactElement | null {
       );
     }
 
+    if (el.type === 'chair') {
+      const w = el.width || 28;
+      const h = el.height || 28;
+
+      return (
+        <g key={el.id}
+          transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})`}
+          onPointerDown={(e) => handleSvgElementPointerDown(e, el)}
+          style={{ cursor: isSel ? 'move' : 'pointer' }}
+        >
+          {/* Asiento de silla CAD */}
+          <rect x={-w / 2} y={-h / 2 + 4} width={w} height={h - 4} rx={4} fill={el.fillColor || (isBlueprintMode ? '#1e293b' : '#f1f5f9')} stroke={stroke} strokeWidth={sw} />
+          {/* Respaldo curvado */}
+          <path d={`M ${-w / 2 + 2} ${-h / 2 + 4} Q 0 ${-h / 2 - 2} ${w / 2 - 2} ${-h / 2 + 4}`} fill="none" stroke={stroke} strokeWidth={sw + 0.8} strokeLinecap="round" />
+          {/* Apoyabrazos */}
+          <line x1={-w / 2} y1={-h / 2 + 6} x2={-w / 2} y2={h / 2 - 2} stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+          <line x1={w / 2} y1={-h / 2 + 6} x2={w / 2} y2={h / 2 - 2} stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+          {/* Nombre en chiquito en el interior */}
+          <text
+            x={0}
+            y={2}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontSize={Math.max(5, Math.min(8, w * 0.25))}
+            fontWeight="bold"
+            fill={el.color || (isBlueprintMode ? '#94a3b8' : '#475569')}
+            pointerEvents="none"
+            style={{ userSelect: 'none' }}
+          >
+            {el.label || 'Silla'}
+          </text>
+          {isSel && <rect x={-w / 2 - 3} y={-h / 2 - 5} width={w + 6} height={h + 8} fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="3,3" />}
+        </g>
+      );
+    }
+
+    if (el.type === 'table') {
+      const w = el.width || 70;
+      const h = el.height || 40;
+      const isRound = el.tableShape === 'round';
+
+      return (
+        <g key={el.id}
+          transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})`}
+          onPointerDown={(e) => handleSvgElementPointerDown(e, el)}
+          style={{ cursor: isSel ? 'move' : 'pointer' }}
+        >
+          {isRound ? (
+            <>
+              <circle cx={0} cy={0} r={w / 2} fill={el.fillColor || (isBlueprintMode ? '#1e293b' : '#ffffff')} stroke={stroke} strokeWidth={sw} />
+              <circle cx={0} cy={0} r={w / 2 - 4} fill="none" stroke={stroke} strokeWidth={1} strokeDasharray="2,2" opacity={0.6} />
+              <text
+                x={0}
+                y={0}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fontSize={Math.max(6, Math.min(9, w * 0.18))}
+                fontWeight="bold"
+                fill={el.color || (isBlueprintMode ? '#94a3b8' : '#475569')}
+                pointerEvents="none"
+                style={{ userSelect: 'none' }}
+              >
+                {el.label || 'Mesa'}
+              </text>
+              {isSel && <rect x={-w / 2 - 3} y={-w / 2 - 3} width={w + 6} height={w + 6} fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="3,3" />}
+            </>
+          ) : (
+            <>
+              <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={4} fill={el.fillColor || (isBlueprintMode ? '#1e293b' : '#ffffff')} stroke={stroke} strokeWidth={sw} />
+              <rect x={-w / 2 + 4} y={-h / 2 + 4} width={w - 8} height={h - 8} rx={2} fill="none" stroke={stroke} strokeWidth={0.8} opacity={0.4} />
+              <text
+                x={0}
+                y={0}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fontSize={Math.max(6, Math.min(9, h * 0.25))}
+                fontWeight="bold"
+                fill={el.color || (isBlueprintMode ? '#94a3b8' : '#475569')}
+                pointerEvents="none"
+                style={{ userSelect: 'none' }}
+              >
+                {el.label || 'Mesa'}
+              </text>
+              {isSel && <rect x={-w / 2 - 3} y={-h / 2 - 3} width={w + 6} height={h + 6} fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="3,3" />}
+            </>
+          )}
+        </g>
+      );
+    }
+
+    if (el.type === 'sink') {
+      const w = el.width || 36;
+      const h = el.height || 30;
+
+      return (
+        <g key={el.id}
+          transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})`}
+          onPointerDown={(e) => handleSvgElementPointerDown(e, el)}
+          style={{ cursor: isSel ? 'move' : 'pointer' }}
+        >
+          <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={3} fill={el.fillColor || (isBlueprintMode ? '#1e293b' : '#f8fafc')} stroke={stroke} strokeWidth={sw} />
+          <ellipse cx={0} cy={1} rx={w * 0.35} ry={h * 0.28} fill={isBlueprintMode ? '#0f172a' : '#ffffff'} stroke={stroke} strokeWidth={sw * 0.75} />
+          <circle cx={0} cy={-h / 2 + 4} r={2} fill={stroke} />
+          <line x1={0} y1={-h / 2 + 4} x2={0} y2={-h / 2 + 7} stroke={stroke} strokeWidth={sw * 0.8} strokeLinecap="round" />
+          <circle cx={0} cy={2} r={1.5} fill={stroke} />
+          <text
+            x={0}
+            y={h / 2 - 5}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontSize={6}
+            fontWeight="bold"
+            fill={el.color || (isBlueprintMode ? '#94a3b8' : '#475569')}
+            pointerEvents="none"
+            style={{ userSelect: 'none' }}
+          >
+            {el.label || 'Bacha'}
+          </text>
+          {isSel && <rect x={-w / 2 - 3} y={-h / 2 - 3} width={w + 6} height={h + 6} fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="3,3" />}
+        </g>
+      );
+    }
+
+    if (el.type === 'cabinet') {
+      const w = el.width || 44;
+      const h = el.height || 28;
+
+      return (
+        <g key={el.id}
+          transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})`}
+          onPointerDown={(e) => handleSvgElementPointerDown(e, el)}
+          style={{ cursor: isSel ? 'move' : 'pointer' }}
+        >
+          <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={2} fill={el.fillColor || (isBlueprintMode ? '#1e293b' : '#f1f5f9')} stroke={stroke} strokeWidth={sw} />
+          <line x1={0} y1={-h / 2} x2={0} y2={h / 2} stroke={stroke} strokeWidth={sw * 0.6} strokeDasharray="3,2" />
+          <rect x={-w / 4 - 3} y={-h / 2 + 4} width={6} height={2.5} rx={1} fill={stroke} />
+          <rect x={w / 4 - 3} y={-h / 2 + 4} width={6} height={2.5} rx={1} fill={stroke} />
+          <text
+            x={0}
+            y={h / 2 - 6}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontSize={6.5}
+            fontWeight="bold"
+            fill={el.color || (isBlueprintMode ? '#94a3b8' : '#475569')}
+            pointerEvents="none"
+            style={{ userSelect: 'none' }}
+          >
+            {el.label || 'Archivador'}
+          </text>
+          {isSel && <rect x={-w / 2 - 3} y={-h / 2 - 3} width={w + 6} height={h + 6} fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="3,3" />}
+        </g>
+      );
+    }
+
     // line / arrow
     return (
       <g key={el.id} onPointerDown={(e) => handleSvgElementPointerDown(e, el)} style={{ cursor: isSel ? 'move' : 'pointer' }}>
@@ -1362,13 +1637,19 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                                         <div className="grid grid-cols-2 gap-1.5">
                                             <button onClick={() => setSelectedTool('select')} style={toolBtnStyle(selectedTool === 'select', '#3b82f6')} title="Selección (S)"><MousePointer2 size={13} /> Selec.</button>
                                             <button onClick={() => setSelectedTool('pan')} style={toolBtnStyle(selectedTool === 'pan', '#0284c7')} title="Paneo (H)"><Move size={13} /> Paneo</button>
-                                            <button onClick={() => setSelectedTool('LINE')} style={toolBtnStyle(selectedTool === 'LINE', '#475569')} title="Línea/Pared">╱ Línea</button>
-                                            <button onClick={() => setSelectedTool('RECTANGLE')} style={toolBtnStyle(selectedTool === 'RECTANGLE', '#475569')} title="Rectángulo (comienza +10px abajo/der)">▭ Rect.</button>
+                                            <button onClick={() => setSelectedTool('LINE')} style={toolBtnStyle(selectedTool === 'LINE', '#475569')} title="Línea/Pared/División de baños">╱ Línea</button>
+                                            <button onClick={() => setSelectedTool('RECTANGLE')} style={toolBtnStyle(selectedTool === 'RECTANGLE', '#475569')} title="Rectángulo (Ambientes/Salas)">▭ Rect.</button>
                                             <button onClick={() => setSelectedTool('CIRCLE')} style={toolBtnStyle(selectedTool === 'CIRCLE', '#475569')} title="Círculo/Elipse">○ Círculo</button>
                                             <button onClick={() => {setSelectedTool('POLYLINE');setPolylinePoints([]);}} style={toolBtnStyle(selectedTool === 'POLYLINE', '#475569')} title="Polilínea">⟍ Polilínea</button>
                                             <button onClick={() => setSelectedTool('DOOR_SINGLE')} style={toolBtnStyle(selectedTool === 'DOOR_SINGLE', '#0284c7')} title="Puerta Simple / Batiente">🚪 Puerta</button>
-                                            <button onClick={() => setSelectedTool('STAIRS_STRAIGHT')} style={toolBtnStyle(selectedTool === 'STAIRS_STRAIGHT', '#0284c7')} title="Escalera (Sube/Baja)">🪜 Escalera</button>
                                             <button onClick={() => setSelectedTool('WINDOW')} style={toolBtnStyle(selectedTool === 'WINDOW', '#0284c7')} title="Ventana / Vano">🪟 Ventana</button>
+                                            <button onClick={() => setSelectedTool('FURNITURE_SINK')} style={toolBtnStyle(selectedTool === 'FURNITURE_SINK', '#0284c7')} title="Bacha / Lavamanos / Pileta">🚰 Bacha</button>
+                                             <button onClick={() => setSelectedTool('FURNITURE_CABINET')} style={toolBtnStyle(selectedTool === 'FURNITURE_CABINET', '#64748b')} title="Archivador / Mueble de papeles">🗄️ Archivador</button>
+                                             <button onClick={() => setSelectedTool('FURNITURE_CHAIR')} style={toolBtnStyle(selectedTool === 'FURNITURE_CHAIR', '#64748b')} title="Silla (Puesto de trabajo / Reunión)">🪑 Silla</button>
+                                            <button onClick={() => setSelectedTool('FURNITURE_TABLE_RECT')} style={toolBtnStyle(selectedTool === 'FURNITURE_TABLE_RECT', '#64748b')} title="Mesa Rectangular">🪵 Mesa Rect.</button>
+                                            <button onClick={() => setSelectedTool('FURNITURE_TABLE_ROUND')} style={toolBtnStyle(selectedTool === 'FURNITURE_TABLE_ROUND', '#64748b')} title="Mesa Redonda">⭕ Mesa Red.</button>
+                                            <button onClick={() => setSelectedTool('MEETING_POINT')} style={toolBtnStyle(selectedTool === 'MEETING_POINT', '#16a34a')} title="Punto de Encuentro (ISO 7010)">📍 Pto. Encuentro</button>
+                                            <button onClick={() => setSelectedTool('STAIRS_STRAIGHT')} style={toolBtnStyle(selectedTool === 'STAIRS_STRAIGHT', '#0284c7')} title="Escalera (Sube/Baja)">🪜 Escalera</button>
                                             <button onClick={() => setSelectedTool('COLUMN_SQUARE')} style={toolBtnStyle(selectedTool === 'COLUMN_SQUARE', '#0284c7')} title="Columna Estructural">🏛 Columna</button>
                                             <button onClick={() => setSelectedTool('DIMENSION')} style={toolBtnStyle(selectedTool === 'DIMENSION', '#6366f1')} title="Cota de Medida (m)">📏 Cota</button>
                                             <button onClick={() => setSelectedTool('ARROW_LINE')} style={toolBtnStyle(selectedTool === 'ARROW_LINE', '#2563eb')} title="Ruta de Escape">→ Flecha</button>
@@ -1554,22 +1835,27 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                     const iconDef = SAFETY_ICONS[el.iconId];
                     if (!iconDef) return null;
                     const isSel = el.id === selectedElementId;
+                    const sz = el.width || el.size || 22;
                     return (
                       <div key={el.id}
                       onMouseDown={(e) => handleElementMouseDown(e, el.id, el.x, el.y)}
                       style={{
                         left: el.x, top: el.y,
+                        width: `${sz}px`,
+                        height: `${sz}px`,
                         transform: `translate(-50%,-50%) rotate(${el.rotation || 0}deg)`,
                         background: isBlueprintMode ? '#1e293b' : '#fff',
-
-                        border: isSel ? '2px dashed #3b82f6' : `2px solid ${iconDef.color}`,
-                        color: el.color || iconDef.color, cursor: el.locked ? 'not-allowed' : 'move',
-                        opacity: el.opacity ?? 1, zIndex: isSel ? 100 : 60
+                        border: isSel ? '2px dashed #3b82f6' : `1.5px solid ${iconDef.color}`,
+                        color: el.color || iconDef.color,
+                        cursor: el.locked ? 'not-allowed' : 'move',
+                        opacity: el.opacity ?? 1,
+                        zIndex: isSel ? 100 : 60,
+                        padding: sz < 20 ? '0px' : '1px',
+                        boxSizing: 'border-box'
                       }}
                       dangerouslySetInnerHTML={{ __html: iconDef.svg }} 
-                      className="absolute w-[40px] h-[40px] rounded-[5px] flex items-center justify-center p-1 shadow-sm [&>svg]:w-full [&>svg]:h-full [&>svg]:block overflow-hidden" 
+                      className="absolute rounded-[4px] flex items-center justify-center shadow-xs [&>svg]:w-full [&>svg]:h-full [&>svg]:block overflow-hidden" 
                     />);
-
                   }
                   if (el.type === 'text') {
                     const isSel = el.id === selectedElementId;
@@ -1600,12 +1886,12 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                                 {/* SVG vector layer */}
                                 <svg className="absolute top-0 left-0 w-full h-full z-[50] pointer-events-none">
                                     <defs>
-                                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                            <polygon points="0 0,10 3.5,0 7" fill="context-stroke" />
+                                        <marker id="arrowhead" markerWidth="5" markerHeight="3.5" refX="4.2" refY="1.75" orient="auto">
+                                            <polygon points="0 0.4, 4.2 1.75, 0 3.1" fill="context-stroke" />
                                         </marker>
                                     </defs>
-                                    <g className="pointer-events-auto">
-                                        {visibleElements.filter((el) => ['line', 'rect', 'circle', 'arrow', 'polyline', 'door', 'stairs', 'window', 'column', 'dimension'].includes(el.type)).map(renderSvgElement)}
+                                    <g className={selectedTool === 'select' ? "pointer-events-auto" : "pointer-events-none"}>
+                                        {visibleElements.filter((el) => ['line', 'rect', 'circle', 'arrow', 'polyline', 'door', 'stairs', 'window', 'column', 'dimension', 'chair', 'table', 'sink', 'cabinet'].includes(el.type)).map(renderSvgElement)}
                                         {renderCadGrips()}
                                         {renderOsnapMarker()}
                                     </g>

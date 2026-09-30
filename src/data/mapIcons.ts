@@ -1,9 +1,9 @@
 // This file exports the standard ISO/IRAM safety icons used in the Risk Map Generator
 export const SAFETY_ICONS = {
     // Fire Equipment (Red)
-    EXTINGUISHER: {
-        id: 'EXTINGUISHER', type: 'fire', label: 'Extintor ABC', color: '#dc2626',
-        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1.5" y="1.5" width="21" height="21" rx="3.5" fill="#dc2626"/><path d="M12 4.5v1.5m-2.5-1.5h5m-3.5 1.5h2v1h-2z" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round"/><rect x="8.5" y="7.5" width="7" height="11.5" rx="3.5" fill="#ffffff"/><path d="M8.5 10.5c-1.5 0-2.2.8-2.2 2.2v3.3l1.2-.8" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10.5" r="1.1" fill="#dc2626"/><path d="M18.8 9.5c-.4.7-.9 1.1-.9 1.8 0 1 .8 1.8 1.8 1.8.3 0 .5 0 .6-.1-.2 1.1-1.1 1.9-2.2 1.9-1.3 0-2.3-1-2.3-2.3 0-1.6 1.5-2.5 2-3.1h1z" fill="#ffffff"/></svg>`
+        EXTINGUISHER: {
+        id: 'EXTINGUISHER', type: 'fire', label: 'Matafuego ABC', color: '#dc2626',
+        svg: `<svg viewBox="0 0 24 24" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="4" fill="#dc2626"/><rect x="8.5" y="7.5" width="7" height="13" rx="3" fill="#ffffff"/><rect x="9" y="19.5" width="6" height="1.2" rx="0.6" fill="#ffffff"/><rect x="11.2" y="5.8" width="1.6" height="2" fill="#ffffff"/><path d="M10 5.4h4" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round"/><path d="M10 4.2l4 1.2" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round"/><circle cx="15.2" cy="6.8" r="1.3" fill="#ffffff"/><circle cx="15.2" cy="6.8" r="0.6" fill="#dc2626"/><path d="M11.2 6.8 C7.5 6.8, 6.2 9, 6.2 12.5 L6.2 17.5" fill="none" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round"/><polygon points="5.2,17.5 7.2,17.5 7.8,20.5 4.6,20.5" fill="#ffffff"/><path d="M18.2 12.5c-.5-1.4.3-2.6 1.4-3.4-.3 1.8 1.8 2.5 1.5 4.4-.3 1.5-1.4 2.5-2.9 2.5-1.7 0-2.6-1.3-2.6-2.9 0-1.7 1.5-2.6 2.1-3.4.2 1 .3 1.9.5 2.8z" fill="#ffffff"/></svg>`
     },
     HYDRANT: {
         id: 'HYDRANT', type: 'fire', label: 'Hidrante / BIE', color: '#dc2626',
@@ -75,7 +75,7 @@ export const SAFETY_ICONS = {
     // Evacuation Routing
     YOU_ARE_HERE: {
         id: 'YOU_ARE_HERE', type: 'indicator', label: 'Usted Está Aquí', color: '#dc2626',
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>`
+        svg: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="3" fill="#16a34a"/><path d="M12 2.5C9 2.5 6.5 5 6.5 8C6.5 12.5 12 19.5 12 19.5C12 19.5 17.5 12.5 17.5 8C17.5 5 15 2.5 12 2.5Z" fill="white"/><circle cx="12" cy="8" r="2.5" fill="#16a34a"/><text x="12" y="23" text-anchor="middle" font-family="Arial,sans-serif" font-size="4" font-weight="bold" fill="white">AQUÍ</text></svg>`
     },
     ARROW_LINE: {
         id: 'ARROW_LINE', type: 'arrow', label: 'Ruta de Escape', color: '#2563eb',

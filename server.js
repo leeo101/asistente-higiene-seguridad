@@ -814,7 +814,9 @@ app.post('/api/ai-advisor', aiLimiter, verifyFirebaseToken, requirePro, validate
         const genAI = new GoogleGenerativeAI(apiKey);
         const models = [
             "gemini-2.5-flash",
-            "gemini-flash-latest"
+            "gemini-flash-latest",
+            "gemini-2.0-flash-exp",
+            "gemini-1.5-flash-latest"
         ];
 
         const responseSchema = {
@@ -899,6 +901,9 @@ INSTRUCCIONES CLAVE DE RESPUESTA:
                 }
             } catch (err) {
                 console.warn(`[AI Advisor] Model ${modelName} failed (${err.message}), trying next...`);
+                if (err.status === 503 || err.status === 429 || (err.message && err.message.includes('503'))) {
+                    await new Promise(r => setTimeout(r, 600));
+                }
                 continue;
             }
         }
@@ -1137,7 +1142,9 @@ app.post('/api/ai-ats-generator', aiLimiter, verifyFirebaseToken, requirePro, va
         const genAI = new GoogleGenerativeAI(apiKey);
         const models = [
             "gemini-2.5-flash",
-            "gemini-flash-latest"
+            "gemini-flash-latest",
+            "gemini-2.0-flash-exp",
+            "gemini-1.5-flash-latest"
         ];
 
         const responseSchema = {

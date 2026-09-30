@@ -64,8 +64,8 @@ export default function MapPropertiesPanel({ element, onUpdate, onDelete, onDupl
     </div>
   );
 
-  const canFill = ['rect', 'circle', 'filled_rect', 'column'].includes(element.type);
-  const canRotate = ['icon', 'text', 'door', 'stairs', 'window', 'column'].includes(element.type);
+  const canFill = ['rect', 'circle', 'filled_rect', 'column', 'chair', 'table', 'sink', 'cabinet'].includes(element.type);
+  const canRotate = ['icon', 'text', 'door', 'stairs', 'window', 'column', 'chair', 'table', 'sink', 'cabinet'].includes(element.type);
   const sw = element.strokeWidth || 3;
   const op = element.opacity != null ? element.opacity : 1;
 
@@ -177,6 +177,53 @@ export default function MapPropertiesPanel({ element, onUpdate, onDelete, onDupl
               style={{ flex: 1, padding: '4px 6px', border: 'none', cursor: 'pointer', borderRadius: 6, fontSize: '0.68rem', fontWeight: 700, transition: 'all 0.15s',
                 background: element.lineStyle === 'dashed' ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : 'transparent',
                 color: element.lineStyle === 'dashed' ? '#fff' : 'var(--color-text-muted)' }}>Punteada</button>
+          </div>
+        </div>
+      )}
+
+      {/* Controles de Tamaño para Iconos / Loguitos de Seguridad */}
+      {element.type === 'icon' && (
+        <div style={{ background: 'var(--color-background)', padding: 10, borderRadius: 10, border: '1px solid var(--color-border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <label style={{ ...LBL, marginBottom: 0 }}>📏 Tamaño del Loguito</label>
+            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#d97706', background: '#d9770615', padding: '2px 8px', borderRadius: 6 }}>
+              {element.width || 22}px
+            </span>
+          </div>
+          <div className="grid grid-cols-5 gap-1 mb-2.5">
+            {[
+              { label: 'Mini', sz: 16 },
+              { label: 'Chico', sz: 20 },
+              { label: 'Ideal', sz: 24 },
+              { label: 'Medio', sz: 28 },
+              { label: 'Grande', sz: 36 }
+            ].map(({ label, sz }) => (
+              <button
+                key={sz}
+                type="button"
+                onClick={() => onUpdate({ width: sz, height: sz })}
+                style={BTN((element.width || 22) === sz, '#d97706')}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <input
+            type="range"
+            min="12"
+            max="44"
+            step="2"
+            value={element.width || 22}
+            onChange={(e) => {
+              const sz = parseInt(e.target.value);
+              onUpdate({ width: sz, height: sz });
+            }}
+            style={{ width: '100%', accentColor: '#d97706', height: 6, cursor: 'pointer' }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.62rem', color: 'var(--color-text-muted)', marginTop: 2 }}>
+            <span>12px (Diminuto)</span>
+            <span>22px (Recomendado)</span>
+            <span>44px (Máx)</span>
           </div>
         </div>
       )}
@@ -367,6 +414,147 @@ export default function MapPropertiesPanel({ element, onUpdate, onDelete, onDupl
                 className="w-full p-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold"
               />
             </div>
+          </div>
+        </div>
+      )}
+
+            {/* Nombre / Etiqueta Interior para Mobiliario */}
+      {['chair', 'table', 'sink', 'cabinet'].includes(element.type) && (
+        <div style={{ background: 'var(--color-background)', padding: 10, borderRadius: 10, border: '1px solid var(--color-border)' }}>
+          <label style={LBL}>🏷️ Nombre / Etiqueta Interior</label>
+          <input
+            type="text"
+            value={element.label ?? (element.type === 'chair' ? 'Silla' : element.type === 'table' ? 'Mesa' : element.type === 'sink' ? 'Bacha' : 'Archivador')}
+            onChange={(e) => onUpdate({ label: e.target.value })}
+            placeholder="Texto visible en el interior"
+            style={{
+              width: '100%',
+              padding: '6px 8px',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              borderRadius: 6,
+              border: '1.5px solid var(--color-border)',
+              background: 'var(--color-surface)',
+              color: 'var(--color-text)',
+              marginTop: 4
+            }}
+          />
+        </div>
+      )}
+
+      {/* Controles para Bacha */}
+      {element.type === 'sink' && (
+        <div style={{ background: 'var(--color-background)', padding: 10, borderRadius: 10, border: '1px solid var(--color-border)' }}>
+          <label style={LBL}>🚰 Tamaño de Bacha</label>
+          <div className="grid grid-cols-3 gap-1">
+            {[
+              { label: 'Compacta', w: 30, h: 24 },
+              { label: 'Estándar', w: 36, h: 30 },
+              { label: 'Doble/Cocina', w: 54, h: 32 }
+            ].map(({ label, w, h }) => (
+              <button 
+                key={label} 
+                type="button"
+                onClick={() => onUpdate({ width: w, height: h })} 
+                style={BTN((element.width || 36) === w, '#0284c7')}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Controles para Archivador / Mueble de Papeles */}
+      {element.type === 'cabinet' && (
+        <div style={{ background: 'var(--color-background)', padding: 10, borderRadius: 10, border: '1px solid var(--color-border)' }}>
+          <label style={LBL}>🗄️ Tipo de Archivador / Mueble</label>
+          <div className="grid grid-cols-3 gap-1">
+            {[
+              { label: 'Fichero 2C', w: 36, h: 24 },
+              { label: 'Archivador 4C', w: 44, h: 28 },
+              { label: 'Armario Papeles', w: 60, h: 30 }
+            ].map(({ label, w, h }) => (
+              <button 
+                key={label} 
+                type="button"
+                onClick={() => onUpdate({ width: w, height: h })} 
+                style={BTN((element.width || 44) === w, '#475569')}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Controles para Sillas */}
+      {element.type === 'chair' && (
+        <div style={{ background: 'var(--color-background)', padding: 10, borderRadius: 10, border: '1px solid var(--color-border)' }}>
+          <label style={LBL}>🪑 Tamaño de Silla</label>
+          <div className="grid grid-cols-3 gap-1">
+            {[
+              { label: 'Compacta', sz: 24 },
+              { label: 'Estándar', sz: 28 },
+              { label: 'Ejecutiva', sz: 34 }
+            ].map(({ label, sz }) => (
+              <button 
+                key={sz} 
+                onClick={() => onUpdate({ width: sz, height: sz })} 
+                style={BTN((element.width || 28) === sz, '#475569')}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Controles para Mesas */}
+      {element.type === 'table' && (
+        <div style={{ background: 'var(--color-background)', padding: 10, borderRadius: 10, border: '1px solid var(--color-border)' }}>
+          <label style={LBL}>🪵 Configuración de Mesa</label>
+          <div className="grid grid-cols-2 gap-1.5 mb-2">
+            <button 
+              type="button"
+              onClick={() => onUpdate({ tableShape: 'rect', width: 70, height: 40 })} 
+              style={BTN(element.tableShape !== 'round', '#475569')}
+            >
+              Rectangular
+            </button>
+            <button 
+              type="button"
+              onClick={() => onUpdate({ tableShape: 'round', width: 48, height: 48 })} 
+              style={BTN(element.tableShape === 'round', '#475569')}
+            >
+              Redonda
+            </button>
+          </div>
+          <span style={{ fontSize: '0.64rem', fontWeight: 700, color: 'var(--color-text-muted)', display: 'block', marginBottom: 4 }}>
+            Dimensiones:
+          </span>
+          <div className="grid grid-cols-3 gap-1">
+            {element.tableShape === 'round' ? (
+              [
+                { label: '1.0m', w: 40, h: 40 },
+                { label: '1.2m', w: 48, h: 48 },
+                { label: '1.5m', w: 60, h: 60 }
+              ].map(({ label, w, h }) => (
+                <button key={w} onClick={() => onUpdate({ width: w, height: h })} style={BTN((element.width || 48) === w, '#475569')}>
+                  {label}
+                </button>
+              ))
+            ) : (
+              [
+                { label: '1.2x0.8m', w: 50, h: 32 },
+                { label: '1.8x1.0m', w: 70, h: 40 },
+                { label: '2.4x1.2m', w: 96, h: 48 }
+              ].map(({ label, w, h }) => (
+                <button key={w} onClick={() => onUpdate({ width: w, height: h })} style={BTN((element.width || 70) === w, '#475569')}>
+                  {label}
+                </button>
+              ))
+            )}
           </div>
         </div>
       )}

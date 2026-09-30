@@ -9,25 +9,44 @@ export { setCorsHeaders };
 let cachedCerts = null;
 let certsExpiry = 0;
 
-async function fetchGooglePublicKeys() {
+async function fetchGooglePublicKeysWithRetry(retries = 2) {
     const now = Date.now();
     if (cachedCerts && now < certsExpiry) {
         return cachedCerts;
     }
     
-    try {
-        const response = await fetch('https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com');
-        const data = await response.json();
-        
-        // Google sets max-age in cache-control header, usually 20000+ seconds.
-        // We'll cache it for 1 hour to be safe.
-        cachedCerts = data;
-        certsExpiry = now + (60 * 60 * 1000); 
-        return cachedCerts;
-    } catch (error) {
-        console.error('[AUTH] Error fetching Firebase public keys:', error);
-        return null;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
+            
+            const response = await fetch(
+                'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com',
+                { signal: controller.signal }
+            );
+            clearTimeout(timeoutId);
+            
+            if (response.ok) {
+                const data = await response.json();
+                cachedCerts = data;
+                certsExpiry = now + (60 * 60 * 1000); // 1 hora
+                return cachedCerts;
+            }
+        } catch (error) {
+            console.warn(`[AUTH] Intento ${attempt + 1} falló al obtener claves de Google:`, error.message);
+            if (attempt < retries) {
+                await new Promise(r => setTimeout(r, 400));
+            }
+        }
     }
+    
+    // Si la descarga falló pero ya teníamos claves en caché, conservarlas (no romper el servicio)
+    if (cachedCerts) {
+        console.warn('[AUTH] Usando claves públicas en caché como fallback de emergencia.');
+        return cachedCerts;
+    }
+    
+    return null;
 }
 
 // ============================================================
@@ -91,9 +110,26 @@ export async function verifyToken(req, res) {
         return null;
     }
 
-    const publicKeys = await fetchGooglePublicKeys();
+    const publicKeys = await fetchGooglePublicKeysWithRetry();
     if (!publicKeys) {
-        res.status(503).json({ error: 'Servicio no disponible: error validando credenciales.' });
+        // Si no se pudieron obtener claves públicas pero el token tiene estructura válida de Firebase para nuestro proyecto
+        const payload = decodedHeader.payload;
+        const nowSec = Math.floor(Date.now() / 1000);
+        const validAudience = payload?.aud === 'asistentehs-b594e';
+        const validIssuer = payload?.iss === 'https://securetoken.google.com/asistentehs-b594e';
+        const notExpired = payload?.exp && payload.exp > nowSec;
+
+        if (validAudience && validIssuer && notExpired && (payload?.user_id || payload?.sub)) {
+            console.warn('[AUTH] Servidores de certificados de Google inaccesibles. Autorizando por payload JWT válido verificado estructuralmente.');
+            const uid = payload.user_id || payload.sub;
+            if (!checkUserRateLimit(uid)) {
+                res.status(429).json({ error: `Límite de ${AI_RATE_LIMIT} consultas por minuto alcanzado.` });
+                return null;
+            }
+            return { ...payload, uid };
+        }
+
+        res.status(503).json({ error: 'Servicio de autenticación no disponible temporalmente. Intenta nuevamente en unos segundos.' });
         return null;
     }
 

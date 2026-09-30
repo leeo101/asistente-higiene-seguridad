@@ -40,7 +40,9 @@ export default async function handler(req, res) {
         const genAI = new GoogleGenerativeAI(apiKey);
         const models = [
             "gemini-2.5-flash",
-            "gemini-flash-latest"
+            "gemini-flash-latest",
+            "gemini-2.0-flash-exp",
+            "gemini-1.5-flash-latest"
         ];
 
         let prompt = `Eres un Consultor Senior Especialista en Higiene, Seguridad y Medio Ambiente (HSE) en Argentina y normativas internacionales (Ley 19.587, Dec. 351/79, Dec. 911/96, Ley 24.449 de Tránsito, Res. SRT, Normas IRAM, NFPA).
@@ -108,6 +110,10 @@ IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON válido, sin texto fuera del blo
             } catch (err) {
                 lastError = err;
                 console.warn(`[AI Advisor] Model ${modelName} failed (${err.message}), trying next...`);
+                // Si el modelo falló por sobrecarga (503) o rate-limit (429), esperar brevemente
+                if (err.status === 503 || err.status === 429 || (err.message && err.message.includes('503'))) {
+                    await new Promise(r => setTimeout(r, 600));
+                }
                 continue;
             }
         }

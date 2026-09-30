@@ -527,18 +527,66 @@ export default function AIChatAdvisor(): React.ReactElement | null {
     setLoadingTextIndex(0);
 
     try {
+      if (!auth.currentUser) {
+        toast.error('Debes iniciar sesión para consultar al Asesor IA.');
+        setLoading(false);
+        return;
+      }
+
+      // Obtención segura de token sin forzar refresh innecesario
+      let token = '';
+      try {
+        token = await auth.currentUser.getIdToken(false);
+      } catch {
+        try {
+          token = await auth.currentUser.getIdToken(true);
+        } catch (tokErr) {
+          console.warn('[Advisor IA] Error obteniendo token:', tokErr);
+        }
+      }
+
+      if (!token) {
+        toast.error('Sesión no válida o expirada. Por favor, reingresa a tu cuenta.');
+        setLoading(false);
+        return;
+      }
+
       const contextData = getRecentContext();
-      const response = await fetch(`${API_BASE_URL}/api/ai-advisor`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await auth.currentUser?.getIdToken(true)}`
-        },
-        body: JSON.stringify({ taskDescription: task, contextData, country: userCountry })
-      });
+      const payload = JSON.stringify({ taskDescription: task, contextData, country: userCountry });
+
+      const executeRequest = async (authToken: string) => {
+        return await fetch(`${API_BASE_URL}/api/ai-advisor`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: payload
+        });
+      };
+
+      let response = await executeRequest(token);
+
+      // Auto-reintento una vez si el servidor o servicio de tokens devuelve 503 (sobrecarga temporal)
+      if (response.status === 503 || response.status === 504) {
+        console.warn('[Advisor IA] Servidor ocupado (503). Reintentando en 1.5s...');
+        await new Promise(r => setTimeout(r, 1500));
+        try {
+          const freshToken = await auth.currentUser?.getIdToken(true);
+          if (freshToken) response = await executeRequest(freshToken);
+        } catch (e) {
+          console.warn('[Advisor IA] Falló refresh en reintento:', e);
+        }
+      }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        if (response.status === 503) {
+          throw new Error('El servicio de IA o conexión está momentáneamente ocupado. Por favor, reintenta en unos instantes.');
+        }
+        if (response.status === 401 || response.status === 403) {
+          throw new Error(errorData.error || 'Credenciales de acceso no válidas. Vuelve a iniciar sesión.');
+        }
         throw new Error(errorData.error || `Error del servidor (${response.status})`);
       }
 
@@ -572,7 +620,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error(`Error: ${getErrorMessage(error)}. Por favor, verifica tu conexión o intenta más tarde.`);
+      toast.error(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
