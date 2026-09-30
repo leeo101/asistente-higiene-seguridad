@@ -846,16 +846,51 @@ export default function RiskMapGenerator(): React.ReactElement | null {
   const handleSave = () => doSave();
 
   const handleExportPNG = () => requirePro(async () => {
-    if (!containerRef.current) return;
-    toast.loading('Generando imagen...', { id: 'exp' });
+    toast.loading('Generando plano en alta resolución...', { id: 'exp' });
+    const wrapper = document.getElementById('risk-map-pdf-wrapper');
+    const wasPrintOnly = wrapper?.classList.contains('print-only');
+
     try {
-      const area = containerRef.current.querySelector('[data-canvas-area]');
-      const canvas = await html2canvas(area || containerRef.current, { useCORS: true, scale: 2, backgroundColor: isBlueprintMode ? '#0f172a' : '#fff' });
+      if (wrapper) {
+        wrapper.classList.remove('print-only');
+        wrapper.style.display = 'block';
+        wrapper.style.visibility = 'visible';
+        wrapper.style.opacity = '1';
+        // Breve pausa para asegurar el layout completo en el DOM
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+
+      const targetEl = document.getElementById('pdf-content') || wrapper;
+      if (!targetEl) {
+        throw new Error('No se encontró el lienzo del plano.');
+      }
+
+      const canvas = await html2canvas(targetEl, {
+        useCORS: true,
+        allowTaint: true,
+        scale: 2.5,
+        backgroundColor: '#ffffff',
+        logging: false
+      });
+
       const a = document.createElement('a');
-      a.download = `Mapa_${meta.empresa || 'HYS'}_${new Date().toISOString().split('T')[0]}.png`;
-      a.href = canvas.toDataURL('image/png');a.click();
-      toast.success('PNG exportado.', { id: 'exp' });
-    } catch {toast.error('Error al exportar.', { id: 'exp' });}
+      const safeCompany = (meta.empresa || 'HYS').replace(/[/\\?%*:|"<>]/g, '_');
+      const safeSector = (meta.sector || 'General').replace(/[/\\?%*:|"<>]/g, '_');
+      a.download = `Plano_${safeCompany}_${safeSector}_${new Date().toISOString().split('T')[0]}.png`;
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+      toast.success('¡Plano PNG exportado exitosamente!', { id: 'exp' });
+    } catch (err) {
+      console.error('[Export PNG Error]:', err);
+      toast.error('Error al exportar el plano. Intenta imprimir como PDF o reintenta.', { id: 'exp' });
+    } finally {
+      if (wrapper && wasPrintOnly) {
+        wrapper.classList.add('print-only');
+        wrapper.style.display = '';
+        wrapper.style.visibility = '';
+        wrapper.style.opacity = '';
+      }
+    }
   });
 
   // ─── SVG element rendering ───────────────────────────────────────────────
@@ -1998,7 +2033,20 @@ export default function RiskMapGenerator(): React.ReactElement | null {
 
             <AdBanner />
 
-            <div className="print-only">
+            <div
+              id="risk-map-pdf-wrapper"
+              className="print-only"
+              style={{
+                position: 'fixed',
+                left: '-99999px',
+                top: 0,
+                width: '289mm',
+                height: '202mm',
+                zIndex: -9999,
+                pointerEvents: 'none',
+                overflow: 'hidden'
+              }}
+            >
                 <RiskMapPdfGenerator data={{ ...meta, elements, backgroundImage }} onBack={() => {}} onShare={() => setShowShareModal(true)} />
             </div>
 
