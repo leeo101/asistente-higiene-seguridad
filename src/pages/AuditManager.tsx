@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  ClipboardCheck, Plus, Search,
+  ClipboardCheck, Plus, Search, Printer, X,
   FileText, Eye, Edit3, Trash2, CheckCircle2,
   XCircle, Clock, User, Calendar,
   Shield, TrendingUp, AlertTriangle, BarChart3,
   Activity, CheckSquare, XSquare, Star, Target, Share2, ArrowLeft } from
 'lucide-react';
 import ShareModal from '../components/ShareModal';
+import { printElementAsDocument } from '../utils/pdfHelper';
+import { toast } from 'react-hot-toast';
 import AuditPdf from '../components/AuditPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import ConfirmModal from '../components/ConfirmModal';
@@ -118,6 +120,26 @@ export default function AuditManager(): React.ReactElement | null {
   const [showFindingModal, setShowFindingModal] = useState(false);
   const [currentAuditForFinding, setCurrentAuditForFinding] = useState(null);
   const [shareItem, setShareItem] = useState<any>(null);
+  const [previewAudit, setPreviewAudit] = useState<any>(null);
+  const [printAudit, setPrintAudit] = useState<any>(null);
+
+  const handleDirectPrintFromManager = async (auditItem: any) => {
+    setPrintAudit(auditItem);
+    const toastId = toast.loading('Preparando impresión de auditoría...');
+    try {
+      await new Promise(r => setTimeout(r, 400));
+      const element = document.getElementById('pdf-direct-audit-print');
+      if (!element) throw new Error('No se pudo encontrar el elemento de impresión');
+      await printElementAsDocument('pdf-direct-audit-print', `Auditoria - ${auditItem.title || 'EHS'}`, false);
+      toast.dismiss(toastId);
+    } catch (err) {
+      console.error('[AuditManager] Error al imprimir:', err);
+      toast.dismiss(toastId);
+      window.print();
+    } finally {
+      setTimeout(() => setPrintAudit(null), 1500);
+    }
+  };
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
@@ -517,6 +539,8 @@ export default function AuditManager(): React.ReactElement | null {
             onView={() => navigate(`/audit/${audit.id}`)}
             onEdit={() => navigate('/audit/new', { state: { editData: audit } })}
             onShare={() => setShareItem(audit)}
+            onPrint={() => handleDirectPrintFromManager(audit)}
+            onPreview={() => setPreviewAudit(audit)}
             onAddFinding={() => {
               setCurrentAuditForFinding(audit);
               setShowFindingModal(true);
@@ -625,7 +649,7 @@ function TabButton({ active, onClick, icon, label, count, badge, isMobile }: any
 
 }
 
-function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete, onView, onShare, onAddFinding, onDelete, isMobile }: any) {
+function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete, onView, onShare, onAddFinding, onDelete, onPrint, onPreview, isMobile }: any) {
   const auditType = AUDIT_TYPES.find((t: any) => t.id === audit.auditType);
   const auditFindings = findings.filter((f: any) => f.auditId === audit.id);
   const openFindings = auditFindings.filter((f: any) => f.status === 'open').length;
@@ -822,6 +846,20 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
           title="Ver / Editar Auditoría"
           style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
           <Edit3 size={12} /> Editar
+        </button>
+
+        <button
+          onClick={onPreview}
+          title="Vista Previa A4"
+          style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Eye size={12} /> Previa
+        </button>
+
+        <button
+          onClick={onPrint}
+          title="Imprimir / Guardar PDF"
+          style={{ backgroundColor: '#8b5cf6', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Printer size={12} /> PDF
         </button>
 
         <button

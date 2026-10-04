@@ -9,7 +9,7 @@ import {
   CheckCircle2, AlertCircle, HelpCircle, Pencil, Info, Share2, Sparkles, Loader2,
   MapPin, FileText, Search, QrCode, Download, ClipboardList,
   HardHat, Ear, Search as SearchIcon, Eye as EyeIcon, Edit3 as EditIcon, Trash2 as TrashIcon, Camera as CameraIcon, CheckCircle2 as CheckIcon, ShieldAlert, Zap, Thermometer, Wind as WindIcon, Activity,
-  Mic, MicOff
+  Mic, MicOff, XCircle
 } from 'lucide-react';
 import { DataTable } from '../components/DataTable';
 import { downloadCSV } from '../services/exportCsv';
@@ -265,6 +265,29 @@ export default function ATS(): React.ReactElement | null {
   const [qrTarget, setQrTarget] = useState(null);
   const [shareItem, setShareItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [previewATS, setPreviewATS] = useState<any | null>(null);
+  const [printATS, setPrintATS] = useState<any | null>(null);
+  const [isPrinting, setIsPrinting] = useState(false);
+
+  const handleDirectPrintATS = async (atsItem: any) => {
+    setPrintATS(atsItem);
+    setIsPrinting(true);
+    const toastId = toast.loading('Preparando impresión del ATS...');
+    try {
+      await new Promise((r) => setTimeout(r, 400));
+      const element = document.getElementById('pdf-direct-ats-print');
+      if (!element) throw new Error('Elemento de impresión no encontrado');
+      await printElementAsDocument('pdf-direct-ats-print', `ATS - ${atsItem.empresa || 'Trabajo_Seguro'}`, false);
+      toast.dismiss(toastId);
+    } catch (err) {
+      console.error('[ATS] Error al imprimir:', err);
+      toast.dismiss(toastId);
+      window.print();
+    } finally {
+      setIsPrinting(false);
+      setTimeout(() => setPrintATS(null), 1500);
+    }
+  };
 
   // Form State
   const [formData, setFormData] = useState({
@@ -766,9 +789,23 @@ export default function ATS(): React.ReactElement | null {
     render: (item: any) => (
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
         <button
+          onClick={() => setPreviewATS(item)}
+          title="Vista previa A4"
+          style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '4px 8px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <EyeIcon size={12} /> Previa
+        </button>
+
+        <button
+          onClick={() => handleDirectPrintATS(item)}
+          title="Imprimir PDF directo"
+          style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '4px 8px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Printer size={12} /> PDF
+        </button>
+
+        <button
           onClick={() => { setFormData(item); setShowForm(true); }}
           title="Ver / Editar ATS"
-          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 8px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
           <FileText size={12} /> Editar
         </button>
 
@@ -2110,6 +2147,19 @@ export default function ATS(): React.ReactElement | null {
                       onNext={nextStep}
                       finalActions={[
                         { id: 'clear', label: 'Limpiar', icon: <Trash2 size={18} />, variant: 'danger', onClick: handleClearForm },
+                        {
+                          id: 'preview',
+                          label: 'Previa',
+                          icon: <EyeIcon size={18} />,
+                          variant: 'info',
+                          onClick: () => setPreviewATS({
+                            ...formData,
+                            showSignatures,
+                            professionalSignature: professional.signature,
+                            professionalName: professional.name,
+                            professionalLicense: professional.license
+                          })
+                        },
                         { id: 'print', label: 'Imprimir', icon: <Printer size={18} />, variant: 'warning', onClick: handlePrint },
                         { id: 'share', label: 'Compartir', icon: <Share2 size={18} />, variant: 'info', onClick: handleShare },
                         {
@@ -2191,6 +2241,72 @@ export default function ATS(): React.ReactElement | null {
                         </div>
                     </div>
       }
+      {previewATS && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in no-print">
+          <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-500/20 text-amber-400 rounded-xl">
+                  <FileText size={20} />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+                    Vista Previa de Impresión A4
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    Análisis de Trabajo Seguro (ATS) • {previewATS.empresa || 'Sin empresa'} • {previewATS.obra || 'Obra'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleDirectPrintATS(previewATS)}
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 rounded-xl shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+                >
+                  <Printer size={16} /> Imprimir / PDF
+                </button>
+                <button
+                  onClick={() => setPreviewATS(null)}
+                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                  title="Cerrar vista previa"
+                >
+                  <XCircle size={20} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/70 flex justify-center">
+              <div className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
+                <ATSPdfGenerator
+                  atsData={previewATS}
+                  pdfElementId="pdf-modal-preview-ats"
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
+              <span>Formato A4 vertical • Ley 19.587 / Dec. 911/96 • Evaluación preventiva de riesgos</span>
+              <button
+                onClick={() => setPreviewATS(null)}
+                className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {printATS && (
+        <div className="ats-pdf-offscreen" id="pdf-direct-ats-print">
+          <ATSPdfGenerator
+            atsData={printATS}
+            pdfElementId="pdf-direct-ats-print"
+          />
+        </div>
+      )}
+
       {matrixTask !== null && (
         <div className="fixed inset-0 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-[9999] animate-fadeIn">
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 max-w-xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">

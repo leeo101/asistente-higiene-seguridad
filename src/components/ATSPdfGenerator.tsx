@@ -3,6 +3,7 @@ import PdfSignatures from './PdfSignatures';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import { evaluateATSSafetyCompliance } from '../utils/srtProtocols';
+import ReportContentRenderer from './reports/ReportContentRenderer';
 
 interface ChecklistItem {
   id: string | number;
@@ -315,7 +316,9 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
           </div>
           <div className="p-2.5 border-b border-slate-200 bg-white">
             <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider block mb-1">DESCRIPCIÓN DETALLADA DE LA TAREA</span>
-            <span className="font-bold text-xs text-slate-900 leading-relaxed block whitespace-pre-wrap">{data.tarea || '-'}</span>
+            <div className="text-xs text-slate-900 leading-relaxed font-bold">
+              <ReportContentRenderer content={data.tarea || '-'} />
+            </div>
           </div>
           <div className="p-2 bg-blue-50/70 flex items-center justify-between">
             <span className="text-[9px] font-black text-blue-950 uppercase tracking-wider">PROFESIONAL HYS ACTUANTE:</span>

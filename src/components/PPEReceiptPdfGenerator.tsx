@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CompanyLogo from './CompanyLogo';
 import { calculatePPEExpiryDays } from '../utils/srtProtocols';
+import ReportContentRenderer from './reports/ReportContentRenderer';
 
 export interface PPEReceiptData {
   razonSocial?: string;
@@ -10,14 +11,20 @@ export interface PPEReceiptData {
   trabajadorNombre?: string;
   trabajadorDni?: string;
   puestoTrabajo?: string;
+  observaciones?: string;
+  workerSignature?: string | null;
+  professionalSignature?: string | null;
+  professionalName?: string | null;
+  professionalLicense?: string | null;
 }
 
 interface PPEReceiptPdfGeneratorProps {
   items?: any[];
   receiptData?: PPEReceiptData;
+  customId?: string;
 }
 
-export default function PPEReceiptPdfGenerator({ items = [], receiptData }: PPEReceiptPdfGeneratorProps): React.ReactElement | null {
+export default function PPEReceiptPdfGenerator({ items = [], receiptData, customId }: PPEReceiptPdfGeneratorProps): React.ReactElement | null {
   const [employerData, setEmployerData] = useState({
     razonSocial: '',
     cuit: '',
@@ -51,15 +58,39 @@ export default function PPEReceiptPdfGenerator({ items = [], receiptData }: PPER
   const workerName = receiptData?.trabajadorNombre || firstItem?.responsible || '-';
   const workerDni = receiptData?.trabajadorDni || '-';
   const workerPosition = receiptData?.puestoTrabajo || '-';
+  const workerSignature = receiptData?.workerSignature || null;
 
-  // Mostrar items asignados y rellenar hasta un total de 12 filas
+  let actSignature = receiptData?.professionalSignature || null;
+  let actName = receiptData?.professionalName || null;
+  let actLic = receiptData?.professionalLicense || null;
+
+  if (!actSignature || !actName) {
+    try {
+      const lsPersonal = typeof window !== 'undefined' ? localStorage.getItem('personalData') : null;
+      const lsStamp = typeof window !== 'undefined' ? localStorage.getItem('signatureStampData') : null;
+      const legacySig = typeof window !== 'undefined' ? localStorage.getItem('capturedSignature') : null;
+      if (lsStamp) {
+        const parsed = JSON.parse(lsStamp);
+        actSignature = actSignature || parsed.signature;
+      } else if (legacySig) {
+        actSignature = actSignature || legacySig;
+      }
+      if (lsPersonal) {
+        const pd = JSON.parse(lsPersonal);
+        actName = actName || pd.name;
+        actLic = actLic || pd.license;
+      }
+    } catch {}
+  }
+
+  // Mostrar items asignados y rellenar hasta un total de 10 filas
   const totalRows = Math.max(items.length, 10);
   const rows = Array.from({ length: totalRows }).map((_, idx) => items[idx] || null);
 
   return (
     <div className="w-full print:m-0 print:p-0">
       <div
-        id="ppe-receipt-pdf"
+        id={customId || "ppe-receipt-pdf"}
         className="pdf-container print-area w-full p-[10mm_15mm] bg-[#ffffff] text-[#000000] box-sizing-[border-box] m-[0_auto] text-[9pt] font-family-[Arial,_Helvetica,_sans-serif]"
       >
         <style type="text/css" media="print">
@@ -161,17 +192,34 @@ export default function PPEReceiptPdfGenerator({ items = [], receiptData }: PPER
           </tbody>
         </table>
 
+        {receiptData?.observaciones && (
+          <div className="mt-2 mb-2 p-2 bg-slate-50 border border-slate-300 rounded text-[7.5pt] avoid-break">
+            <span className="font-bold text-[7pt] text-slate-700 uppercase block mb-0.5">OBSERVACIONES / CONDICIONES PARTICULARES DE ENTREGA:</span>
+            <ReportContentRenderer content={receiptData.observaciones} />
+          </div>
+        )}
+
         {/* Firmas finales */}
-        <div className="flex justify-between items-end mt-[25px] px-8">
+        <div className="flex justify-between items-end mt-[18px] px-8 avoid-break">
           <div className="w-[42%] text-center">
-            <div className="border-b border-black h-[35px] mb-[4px]"></div>
+            <div className="border-b border-black min-h-[40px] flex items-end justify-center mb-[4px]">
+              {workerSignature ? (
+                <img src={workerSignature} alt="Firma Trabajador" className="max-h-[38px] object-contain" />
+              ) : null}
+            </div>
             <span className="text-[8pt] font-bold block">Firma del Trabajador</span>
             <span className="text-[7pt] text-[#555] block">Aclaración: {workerName}</span>
           </div>
           <div className="w-[42%] text-center">
-            <div className="border-b border-black h-[35px] mb-[4px]"></div>
+            <div className="border-b border-black min-h-[40px] flex items-end justify-center mb-[4px]">
+              {actSignature ? (
+                <img src={actSignature} alt="Firma Profesional" className="max-h-[38px] object-contain" />
+              ) : null}
+            </div>
             <span className="text-[8pt] font-bold block">Firma Responsable Higiene y Seguridad / Empleador</span>
-            <span className="text-[7pt] text-[#555] block">Sello y Matrícula Profesional</span>
+            <span className="text-[7pt] text-[#555] block">
+              {actName ? `${actName}${actLic ? ` • Mat. ${actLic}` : ''}` : 'Sello y Matrícula Profesional'}
+            </span>
           </div>
         </div>
         

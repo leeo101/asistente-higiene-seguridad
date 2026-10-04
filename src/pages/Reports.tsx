@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { usePaywall } from '../hooks/usePaywall';
 import ConfirmModal from '../components/ConfirmModal';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck, Package, Plus, Trash2, History, Share2, Printer, Clock, Edit2, CheckCircle2, Download, Calendar, X } from 'lucide-react';
+import {
+  ArrowLeft, Save, FileText, AlertCircle, GraduationCap, ClipboardCheck,
+  Package, Plus, Trash2, History, Share2, Printer, Clock, Edit2, CheckCircle2,
+  Download, Calendar, X, Copy, Eye, Building2, User, Sparkles, Filter,
+  FileCheck, ShieldAlert, Award, FileSpreadsheet
+} from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
 import PhotoAttachments from '../components/PhotoAttachments';
@@ -16,7 +21,9 @@ import { ModuleActionBar } from '../components/module/ModuleActionBar';
 import ShareModal from '../components/ShareModal';
 import ProfessionalReportPdfGenerator from '../components/ProfessionalReportPdfGenerator';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
-import { generatePdfBlob, printElementAsDocument } from '../utils/pdfHelper';
+import { printElementAsDocument } from '../utils/pdfHelper';
+import ReportRichEditor from '../components/reports/ReportRichEditor';
+import ReportPreviewModal from '../components/reports/ReportPreviewModal';
 
 class ReportErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
   constructor(props: {children: React.ReactNode}) {
@@ -41,40 +48,17 @@ class ReportErrorBoundary extends React.Component<{children: React.ReactNode}, {
   }
 }
 
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '0.8rem 1rem',
-  borderRadius: '12px',
-  border: '1px solid var(--glass-border)',
-  background: 'rgba(255, 255, 255, 0.05)',
-  color: 'var(--color-text)',
-  fontSize: '0.95rem',
-  outline: 'none',
-  transition: 'all 0.3s ease',
-  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
-};
-
-const labelStyle: React.CSSProperties = {
-  display: 'block',
-  marginBottom: '0.5rem',
-  fontSize: '0.85rem',
-  fontWeight: 800,
-  color: 'var(--color-text-muted)',
-  textTransform: 'uppercase',
-  letterSpacing: '0.5px'
-};
-
 function DeleteConfirm({ onConfirm, onCancel }: any) {
   return (
     <ConfirmModal
       isOpen={true}
       onClose={onCancel}
       onConfirm={onConfirm}
-      title="¿Eliminar registro?"
-      message="Esta acción no se puede deshacer."
-      iconEmoji="🗑️" />);
-
-
+      title="¿Eliminar informe?"
+      message="Esta acción no se puede deshacer. Se eliminará del historial local y de la nube."
+      iconEmoji="🗑️"
+    />
+  );
 }
 
 export default function Reports(): React.ReactElement | null {
@@ -88,6 +72,9 @@ export default function Reports(): React.ReactElement | null {
   const [reportsHistory, setReportsHistory] = useState<any[]>([]);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [shareItem, setShareItem] = useState<any>(null);
+  const [filterTemplate, setFilterTemplate] = useState<string>('all');
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [previewData, setPreviewData] = useState<any>(null);
 
   // Form state
   const [template, setTemplate] = useState('general'); // general, accident, training, rgrl, epp
@@ -125,8 +112,12 @@ export default function Reports(): React.ReactElement | null {
   const [professional, setProfessional] = useState({ name: '', license: '', signature: null as string | null, stamp: null as string | null });
 
   const loadHistory = () => {
-    const hist = JSON.parse(localStorage.getItem('reports_history') || '[]');
-    setReportsHistory(hist);
+    try {
+      const hist = JSON.parse(localStorage.getItem('reports_history') || '[]');
+      setReportsHistory(Array.isArray(hist) ? hist : []);
+    } catch {
+      setReportsHistory([]);
+    }
   };
 
   useEffect(() => {
@@ -168,43 +159,212 @@ export default function Reports(): React.ReactElement | null {
         const lg = localStorage.getItem('capturedSignature');
         let sig = lg || null;
         let stamp = null;
-        if (sd) {const p = JSON.parse(sd);sig = p.signature || sig;stamp = p.stamp || null;}
+        if (sd) {
+          const p = JSON.parse(sd);
+          sig = p.signature || sig;
+          stamp = p.stamp || null;
+        }
         setProfessional({ name: parsed.name, license: parsed.license, signature: sig, stamp });
       }
     }
   }, [location.state]);
 
-  const handleDirectPrintFromHistory = async (item: any) => {
-      setPrintData(item);
-      setIsPrinting(true);
-      const toastId = toast.loading('Preparando impresión...');
-      try {
-          await new Promise((r) => setTimeout(r, 350));
-          const element = document.getElementById('pdf-direct-print');
-          if (!element) {
-              throw new Error('No se pudo generar el documento para imprimir.');
-          }
-          await printElementAsDocument('pdf-direct-print', `Informe - ${item.title || 'Profesional'}`, false);
-          toast.dismiss(toastId);
-      } catch (err) {
-          console.error('[Reports] Error al imprimir:', err);
-          toast.dismiss(toastId);
-          const element = document.getElementById('pdf-direct-print');
-          if (element) {
-              document.body.classList.add('printing-isolated');
-              element.classList.add('isolated-print-target');
-          }
-          window.print();
-          setTimeout(() => {
-              document.body.classList.remove('printing-isolated');
-              if (element) element.classList.remove('isolated-print-target');
-          }, 1000);
-      } finally {
-          setIsPrinting(false);
-          setTimeout(() => {
-              setPrintData(null);
-          }, 1500);
+  // Métricas calculadas para el dashboard
+  const metrics = useMemo(() => {
+    const total = reportsHistory.length;
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    const thisMonth = reportsHistory.filter(r => {
+      const d = new Date(r.createdAt || r.date);
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    }).length;
+
+    const companies = new Set(reportsHistory.map(r => r.company?.trim()).filter(Boolean)).size;
+
+    // Conteo por plantilla
+    const templateCounts: Record<string, number> = {};
+    reportsHistory.forEach(r => {
+      const t = r.template || 'general';
+      templateCounts[t] = (templateCounts[t] || 0) + 1;
+    });
+
+    let topTemplate = 'General';
+    let maxCount = 0;
+    Object.entries(templateCounts).forEach(([tpl, count]) => {
+      if (count > maxCount) {
+        maxCount = count;
+        topTemplate = tpl === 'accident' ? 'Accidentes' : tpl === 'training' ? 'Capacitaciones' : tpl === 'rgrl' ? 'RGRL' : tpl === 'epp' ? 'EPP' : 'Técnico';
       }
+    });
+
+    return { total, thisMonth, companies, topTemplate };
+  }, [reportsHistory]);
+
+  // Filtrado de historial
+  const filteredHistory = useMemo(() => {
+    if (filterTemplate === 'all') return reportsHistory;
+    return reportsHistory.filter(r => (r.template || 'general') === filterTemplate);
+  }, [reportsHistory, filterTemplate]);
+
+  const handleDirectPrintFromHistory = async (item: any) => {
+    setPrintData(item);
+    setIsPrinting(true);
+    const toastId = toast.loading('Preparando impresión del informe...');
+    try {
+      await new Promise((r) => setTimeout(r, 400));
+      const element = document.getElementById('pdf-direct-print');
+      if (!element) {
+        throw new Error('No se pudo generar el documento para imprimir.');
+      }
+      await printElementAsDocument('pdf-direct-print', `Informe - ${item.title || 'Profesional'}`, false);
+      toast.dismiss(toastId);
+    } catch (err) {
+      console.error('[Reports] Error al imprimir:', err);
+      toast.dismiss(toastId);
+      const element = document.getElementById('pdf-direct-print');
+      if (element) {
+        document.body.classList.add('printing-isolated');
+        element.classList.add('isolated-print-target');
+      }
+      window.print();
+      setTimeout(() => {
+        document.body.classList.remove('printing-isolated');
+        if (element) element.classList.remove('isolated-print-target');
+      }, 1000);
+    } finally {
+      setIsPrinting(false);
+      setTimeout(() => {
+        setPrintData(null);
+      }, 1500);
+    }
+  };
+
+  const handlePrintFromForm = async () => {
+    const data = {
+      id: projectData.id || Date.now(),
+      template,
+      ...projectData,
+      content,
+      extraFields,
+      photos,
+      personnel: template === 'training' || template === 'epp' ? personnel : [],
+      createdAt: new Date().toISOString(),
+      showSignatures,
+      operatorSignature,
+      signature,
+      supervisorSignature,
+      professionalSignature: professional?.signature,
+      professionalName: professional?.name,
+      professionalLicense: professional?.license
+    };
+
+    setPrintData(data);
+    setIsPrinting(true);
+    const toastId = toast.loading('Preparando impresión...');
+    try {
+      await new Promise((r) => setTimeout(r, 400));
+      const element = document.getElementById('pdf-direct-print');
+      if (!element) {
+        throw new Error('No se pudo generar el documento para imprimir.');
+      }
+      await printElementAsDocument('pdf-direct-print', `Informe - ${projectData.title || 'Profesional'}`, false);
+      toast.dismiss(toastId);
+    } catch (err) {
+      console.error('[Reports] Error al imprimir:', err);
+      toast.dismiss(toastId);
+      const element = document.getElementById('pdf-direct-print');
+      if (element) {
+        document.body.classList.add('printing-isolated');
+        element.classList.add('isolated-print-target');
+      }
+      window.print();
+      setTimeout(() => {
+        document.body.classList.remove('printing-isolated');
+        if (element) element.classList.remove('isolated-print-target');
+      }, 1000);
+    } finally {
+      setIsPrinting(false);
+      setTimeout(() => {
+        setPrintData(null);
+      }, 1500);
+    }
+  };
+
+  const handleOpenPreview = () => {
+    const data = {
+      id: projectData.id || Date.now(),
+      template,
+      ...projectData,
+      content,
+      extraFields,
+      photos,
+      personnel: template === 'training' || template === 'epp' ? personnel : [],
+      createdAt: new Date().toISOString(),
+      showSignatures,
+      operatorSignature,
+      signature,
+      supervisorSignature,
+      professionalSignature: professional?.signature,
+      professionalName: professional?.name,
+      professionalLicense: professional?.license
+    };
+    setPreviewData(data);
+    setPreviewModalOpen(true);
+  };
+
+  const handleDuplicateReport = (item: any) => {
+    setProjectData({
+      title: `${item.title || 'Informe'} (Copia)`,
+      company: item.company || '',
+      location: item.location || '',
+      date: new Date().toISOString().split('T')[0],
+      responsable: professional?.name || item.responsable || ''
+    });
+    setTemplate(item.template || 'general');
+    setContent(item.content || '');
+    setExtraFields(item.extraFields ? { ...item.extraFields } : {});
+    setPhotos([]); // Se limpian fotos para nueva inspección
+    if (item.personnel && item.personnel.length > 0) {
+      setPersonnel(item.personnel.map((p: any) => ({ ...p, id: Date.now() + Math.random() })));
+    } else {
+      setPersonnel([{ id: Date.now(), name: '', dni: '' }]);
+    }
+    setShowSignatures(item.showSignatures || { operator: true, supervisor: true, professional: true });
+    setOperatorSignature('');
+    setSignature('');
+    setSupervisorSignature('');
+    setIsFormVisible(true);
+    toast.success('Informe duplicado como nuevo borrador.');
+  };
+
+  const handleExportCSV = () => {
+    if (reportsHistory.length === 0) {
+      toast.error('No hay informes registrados para exportar.');
+      return;
+    }
+
+    const headers = ['ID', 'Fecha', 'Titulo', 'Empresa', 'Ubicacion', 'Tipo', 'Responsable'];
+    const rows = reportsHistory.map(r => [
+      `"${r.id || ''}"`,
+      `"${new Date(r.createdAt || r.date).toLocaleDateString('es-AR')}"`,
+      `"${(r.title || '').replace(/"/g, '""')}"`,
+      `"${(r.company || '').replace(/"/g, '""')}"`,
+      `"${(r.location || '').replace(/"/g, '""')}"`,
+      `"${(r.template || 'general').toUpperCase()}"`,
+      `"${(r.responsable || '').replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `Historial_Informes_HYS_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Historial exportado en formato CSV / Excel');
   };
 
   const handleAddPerson = () => {
@@ -252,7 +412,9 @@ export default function Reports(): React.ReactElement | null {
     }
 
     await syncCollection('reports_history', updated);
+    localStorage.setItem('reports_history', JSON.stringify(updated));
     localStorage.setItem('current_report', JSON.stringify(newReport));
+    setReportsHistory(updated);
     toast.success('Informe guardado con éxito');
     setIsFormVisible(false);
   };
@@ -265,572 +427,820 @@ export default function Reports(): React.ReactElement | null {
     syncCollection('reports_history', updated);
     setReportsHistory(updated);
     setDeleteTarget(null);
-    toast.success('Informe eliminado');
+    toast.success('Informe eliminado del registro.');
   };
 
-  const DeleteBtn = ({ id }: {id: any;}) =>
-  <button
-    onClick={(e) => {e.stopPropagation();setDeleteTarget(id);}}
-    title="Eliminar"
-    style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center">
-            <Trash2 size={16} />
-        </button>;
-
-
   const templates = [
-  { id: 'general', label: 'Informe Técnico', icon: <FileText /> },
-  { id: 'accident', label: 'Incidente / Acc.', icon: <AlertCircle /> },
-  { id: 'training', label: 'Capacitación', icon: <GraduationCap /> },
-  { id: 'rgrl', label: 'RGRL', icon: <ClipboardCheck /> },
-  { id: 'epp', label: 'Entrega EPP', icon: <Package /> }];
+    { id: 'general', label: 'Informe Técnico', desc: 'Relevamiento general de condiciones de seguridad', icon: <FileText size={22} />, color: '#3b82f6' },
+    { id: 'accident', label: 'Incidente / Accidente', desc: 'Investigación con análisis de causas inmediatas y básicas', icon: <AlertCircle size={22} />, color: '#ef4444' },
+    { id: 'training', label: 'Capacitación', desc: 'Registro de charla con nómina de participantes y firma', icon: <GraduationCap size={22} />, color: '#10b981' },
+    { id: 'rgrl', label: 'RGRL', desc: 'Protocolo de Relevamiento General de Riesgos Laborales', icon: <ClipboardCheck size={22} />, color: '#f59e0b' },
+    { id: 'epp', label: 'Entrega EPP', desc: 'Constancia de entrega y reposición de protección personal', icon: <Package size={22} />, color: '#8b5cf6' }
+  ];
 
-
+  // ==========================================
+  // VISTA 1: DASHBOARD E HISTORIAL DE INFORMES
+  // ==========================================
   if (!isFormVisible) {
     return (
       <div className="container min-h-[100vh] bg-[var(--color-background)] pb-[7rem] pt-[5.5rem]">
-          <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
-              {printData && <ProfessionalReportPdfGenerator currentReport={printData} customId="pdf-direct-print" />}
-          </div>
-                <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
-        title="Informes Profesionales"
-        subtitle="Gestión e historial de informes técnicos."
-        icon={<FileText size={32} color="#ffffff" />}
-        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
-        
+        {/* Contenedor offscreen para impresión vectorizada */}
+        <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+          {printData && <ProfessionalReportPdfGenerator currentReport={printData} customId="pdf-direct-print" />}
+        </div>
 
-                {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
-                
-                <ShareModal
+        <PremiumHeader
+          title="Módulo de Informes Técnicos"
+          subtitle="Redacción profesional con formato tipo Word, impresión garantizada y archivo digital."
+          icon={<FileText size={32} color="#ffffff" />}
+          color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+        />
+
+        {deleteTarget && <DeleteConfirm onConfirm={confirmDelete} onCancel={() => setDeleteTarget(null)} />}
+        
+        {/* Modal para previsualizar documento en tamaño real */}
+        <ReportPreviewModal
+          isOpen={previewModalOpen}
+          onClose={() => setPreviewModalOpen(false)}
+          reportData={previewData}
+          onPrint={() => {
+            setPreviewModalOpen(false);
+            if (previewData) handleDirectPrintFromHistory(previewData);
+          }}
+        />
+
+        {/* Modal de Compartir */}
+        <ShareModal
           isOpen={!!shareItem}
           open={!!shareItem}
           onClose={() => setShareItem(null)}
           title={`Informe - ${shareItem?.data?.title || ''}`}
-          text={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString('es-AR')}` : ''}
-          rawMessage={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString('es-AR')}` : ''}
+          text={shareItem ? `📄 Informe Profesional de Higiene y Seguridad\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt || shareItem.data.date).toLocaleDateString('es-AR')}` : ''}
+          rawMessage={shareItem ? `📄 Informe Profesional de Higiene y Seguridad\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}` : ''}
           elementIdToPrint="pdf-content"
-          fileName={`Informe_${shareItem?.data?.title || 'Profesional'}.pdf`} />
-        
+          fileName={`Informe_${shareItem?.data?.title || 'Profesional'}.pdf`}
+        />
 
-                <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
-                    {shareItem?.type === 'report' && <ProfessionalReportPdfGenerator currentReport={shareItem.data} />}
-                </div>
+        <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+          {shareItem?.type === 'report' && <ProfessionalReportPdfGenerator currentReport={shareItem.data} />}
+        </div>
 
-                <main className="p-[0_0_2rem_0] max-w-[1000px] m-[0_auto] w-[100%]">
-                    <div className="flex items-center justify-between gap-[1rem] mb-[2rem] flex-wrap p-[0_1rem]">
-                        <div className="flex items-center gap-[0.8rem] ml-auto">
-                            <button onClick={() => {
-                                // downloadCSV
-                            }} className="btn-secondary hover-lift flex items-center justify-center gap-[0.5rem] px-5 py-3 h-[48px] w-[auto] m-[0] text-white border-none rounded-xl font-bold transition-colors shadow-lg shadow-emerald-500/30" style={{ background: '#10b981' }}>
-                                <Download size={18} /> EXCEL
-                            </button>
-                            <button onClick={() => {
-                                setProjectData({
-                                    title: '', company: '', location: '', date: new Date().toISOString().split('T')[0],
-                                    responsable: professional?.name || ''
-                                });
-                                setContent('');
-                                setPhotos([]);
-                                setTemplate('general');
-                                setPersonnel([{ id: Date.now(), name: '', dni: '' }]);
-                                setShowSignatures({ operator: true, supervisor: true, professional: true });
-                                setOperatorSignature('');
-                                setSignature('');
-                                setSupervisorSignature('');
-                                setExtraFields({});
-                                setIsFormVisible(true);
-                            }} className="btn-primary hover-lift flex items-center justify-center gap-[0.5rem] px-5 py-3 h-[48px] w-[auto] m-[0] text-white border-none rounded-xl font-bold shadow-lg shadow-emerald-500/30" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                                <Plus size={18} /> NUEVO INFORME
-                            </button>
-                        </div>
-                    </div>
+        <main className="p-0 max-w-[1100px] mx-auto w-full px-4">
+          
+          {/* TARJETAS DE MÉTRICAS EJECUTIVAS */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
+            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-md shadow-sm flex flex-col justify-between">
+              <div className="flex items-center justify-between text-slate-400 mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider">Total Informes</span>
+                <FileCheck size={18} className="text-amber-500" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-black text-white">{metrics.total}</div>
+              <span className="text-[11px] text-slate-500 mt-1">Registrados en el sistema</span>
+            </div>
 
-                <div className="p-[0_0_2rem_0]">
-                    <DataTable
-              data={reportsHistory}
-              searchPlaceholder="Buscar por título o empresa..."
-              searchFields={['title', 'company']}
-              emptyMessage="No hay informes registrados."
-              emptyIcon={<FileText size={48} />}
+            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-md shadow-sm flex flex-col justify-between">
+              <div className="flex items-center justify-between text-slate-400 mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider">Este Mes</span>
+                <Calendar size={18} className="text-blue-500" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-black text-white">{metrics.thisMonth}</div>
+              <span className="text-[11px] text-slate-500 mt-1">Generados en {new Date().toLocaleDateString('es-AR', { month: 'long' })}</span>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-md shadow-sm flex flex-col justify-between">
+              <div className="flex items-center justify-between text-slate-400 mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider">Empresas</span>
+                <Building2 size={18} className="text-emerald-500" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-black text-white">{metrics.companies}</div>
+              <span className="text-[11px] text-slate-500 mt-1">Clientes auditados</span>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-md shadow-sm flex flex-col justify-between">
+              <div className="flex items-center justify-between text-slate-400 mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider">Más Frecuente</span>
+                <Award size={18} className="text-purple-500" />
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-white truncate">{metrics.topTemplate}</div>
+              <span className="text-[11px] text-slate-500 mt-1">Tipo de informe principal</span>
+            </div>
+          </div>
+
+          {/* BARRA DE ACCIÓN PRINCIPAL */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-6 p-4 rounded-2xl bg-slate-900/40 border border-slate-800">
+            {/* Píldoras de Filtro por tipo de informe */}
+            <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
+              {[
+                { id: 'all', label: 'Todos' },
+                { id: 'general', label: 'Técnico' },
+                { id: 'accident', label: 'Accidente' },
+                { id: 'training', label: 'Capacitación' },
+                { id: 'rgrl', label: 'RGRL' },
+                { id: 'epp', label: 'EPP' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setFilterTemplate(tab.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                    filterTemplate === tab.id
+                      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                      : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-700/80'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Botones de acción */}
+            <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+              <button
+                onClick={handleExportCSV}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+                title="Descargar listado en formato Excel / CSV"
+              >
+                <FileSpreadsheet size={16} className="text-emerald-400" /> EXCEL
+              </button>
+
+              <button
+                onClick={() => {
+                  setProjectData({
+                    title: '',
+                    company: '',
+                    location: '',
+                    date: new Date().toISOString().split('T')[0],
+                    responsable: professional?.name || ''
+                  });
+                  setContent('');
+                  setPhotos([]);
+                  setTemplate('general');
+                  setPersonnel([{ id: Date.now(), name: '', dni: '' }]);
+                  setShowSignatures({ operator: true, supervisor: true, professional: true });
+                  setOperatorSignature('');
+                  setSignature('');
+                  setSupervisorSignature('');
+                  setExtraFields({});
+                  setIsFormVisible(true);
+                }}
+                className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 rounded-xl text-xs sm:text-sm font-black shadow-lg shadow-amber-500/25 transition-all cursor-pointer hover:scale-[1.02]"
+              >
+                <Plus size={18} /> NUEVO INFORME
+              </button>
+            </div>
+          </div>
+
+          {/* TABLA DE HISTORIAL CON DATATABLE */}
+          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-md">
+            <DataTable
+              data={filteredHistory}
+              searchPlaceholder="Buscar por título, empresa o responsable..."
+              searchFields={['title', 'company', 'responsable']}
+              emptyMessage="No se encontraron informes con los filtros aplicados."
+              emptyIcon={<FileText size={48} className="text-slate-600" />}
               columns={[
-              {
-                header: 'Fecha',
-                accessor: 'createdAt',
-                sortable: true,
-                render: (item: any) =>
-                <span className="flex items-center gap-[0.4rem] text-[var(--color-text-muted)]">
-                                        <Calendar size={14} /> 
-                                        {new Date(item.createdAt).toLocaleDateString('es-AR')}
-                                    </span>
+                {
+                  header: 'Fecha',
+                  accessor: 'createdAt',
+                  sortable: true,
+                  render: (item: any) => (
+                    <span className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+                      <Calendar size={14} className="text-amber-500" /> 
+                      {new Date(item.createdAt || item.date).toLocaleDateString('es-AR')}
+                    </span>
+                  )
+                },
+                {
+                  header: 'Título y Tipo',
+                  accessor: 'title',
+                  sortable: true,
+                  render: (item: any) => {
+                    const tpl = templates.find(t => t.id === (item.template || 'general'));
+                    return (
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="p-2 rounded-xl flex items-center justify-center"
+                          style={{
+                            backgroundColor: `${tpl?.color || '#3b82f6'}20`,
+                            color: tpl?.color || '#3b82f6'
+                          }}
+                        >
+                          <FileText size={18} />
+                        </div>
+                        <div>
+                          <div className="font-bold text-white text-sm">{item.title || 'Sin Título'}</div>
+                          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                            {tpl?.label || 'INFORME GENERAL'}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                },
+                {
+                  header: 'Empresa / Ubicación',
+                  accessor: 'company',
+                  sortable: true,
+                  render: (item: any) => (
+                    <div>
+                      <div className="font-semibold text-slate-200 text-sm">{item.company || '-'}</div>
+                      <div className="text-xs text-slate-400 flex items-center gap-1">
+                        <Building2 size={12} /> {item.location || 'Sede principal'}
+                      </div>
+                    </div>
+                  )
+                },
+                {
+                  header: 'Acciones',
+                  accessor: 'id',
+                  render: (item: any) => (
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => {
+                          setPreviewData(item);
+                          setPreviewModalOpen(true);
+                        }}
+                        title="Vista Previa de Impresión"
+                        className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 hover:text-amber-300 transition-colors cursor-pointer"
+                      >
+                        <Eye size={16} />
+                      </button>
 
-              },
-              {
-                header: 'Título',
-                accessor: 'title',
-                sortable: true,
-                render: (item: any) =>
-                <div className="flex items-center gap-[0.8rem]">
-                                        <div className="bg-[rgba(236,72,153,0.1)] p-[0.5rem] rounded-[8px] text-[#ec4899]">
-                                            <FileText size={16} />
-                                        </div>
-                                        <div>
-                                            <div className="font-[700]">{item.title || 'Sin Título'}</div>
-                                            <div className="text-[0.75rem] text-[var(--color-text-muted)]">{item.template?.toUpperCase() || 'GENERAL'}</div>
-                                        </div>
-                                    </div>
+                      <button
+                        onClick={() => handleDirectPrintFromHistory(item)}
+                        title="Imprimir / Guardar PDF"
+                        className="p-2 rounded-xl bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white transition-all cursor-pointer flex items-center gap-1"
+                      >
+                        <Printer size={16} />
+                        <span className="text-[10px] font-bold hidden sm:inline">PDF</span>
+                      </button>
 
-              },
-              {
-                header: 'Empresa',
-                accessor: 'company',
-                sortable: true
-              },
-              {
-                header: 'Acciones',
-                accessor: 'id',
-                render: (item: any) =>
-                <div className="flex gap-[0.5rem]">
-                                        <button
-                    onClick={() => {
-                      navigate('/reports', { state: { editData: item } });
-                      setIsFormVisible(true);
-                    }}
+                      <button
+                        onClick={() => {
+                          navigate('/reports', { state: { editData: item } });
+                          setIsFormVisible(true);
+                        }}
+                        title="Editar Informe"
+                        className="p-2 rounded-xl bg-blue-600/20 hover:bg-blue-600 text-blue-300 hover:text-white transition-all cursor-pointer"
+                      >
+                        <Edit2 size={16} />
+                      </button>
 
-                    title="Editar" style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center">
-                    
-                                            <Edit2 size={16} />
-                                        </button>
-                                        <button
-                    onClick={() => handleDirectPrintFromHistory(item)}
+                      <button
+                        onClick={() => handleDuplicateReport(item)}
+                        title="Duplicar como nuevo borrador"
+                        className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                      >
+                        <Copy size={16} />
+                      </button>
 
-                    title="Ver PDF" style={{ backgroundColor: '#8b5cf6', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center gap-[4px]">
-                    
-                                            <FileText size={16} /> <span className="text-[0.75rem] font-[700] ml-1">PDF</span>
-                                        </button>
-                                        <button
-                    onClick={() => setShareItem({ type: 'report', data: item })}
+                      <button
+                        onClick={() => setShareItem({ type: 'report', data: item })}
+                        title="Compartir (WhatsApp / Email)"
+                        className="p-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white transition-all cursor-pointer"
+                      >
+                        <Share2 size={16} />
+                      </button>
 
-                    title="Compartir" style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }} className="p-[0.5rem] rounded-[8px] cursor-pointer shadow-sm hover:-translate-y-0.5 transition-transform flex items-center justify-center">
-                    
-                                            <Share2 size={16} />
-                                        </button>
-                                        <DeleteBtn id={item.id} />
-                                    </div>
-
-              }]
-              } />
-            
-                </div>
-                </main>
-            </div>);
-
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteTarget(item.id);
+                        }}
+                        title="Eliminar"
+                        className="p-2 rounded-xl bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white transition-all cursor-pointer"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  )
+                }
+              ]}
+            />
+          </div>
+        </main>
+      </div>
+    );
   }
 
+  // ==========================================
+  // VISTA 2: FORMULARIO Y EDITOR TIPO WORD
+  // ==========================================
   return (
     <ReportErrorBoundary>
       <div className="min-h-[100vh] bg-[var(--color-background)] pb-[6rem] pt-[5.5rem]">
-              <PremiumHeader onBack={isFormVisible ? () => {setIsFormVisible(false);} : undefined}
-        title="Generar Informe"
-        subtitle="Documentación Profesional de Seguridad e Higiene"
-      icon={<FileText />}
-      color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
-      
+        {/* Contenedor offscreen para impresión */}
+        <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+          {shareItem?.type === 'report' && <ProfessionalReportPdfGenerator currentReport={shareItem.data} />}
+          {printData && <ProfessionalReportPdfGenerator currentReport={printData} customId="pdf-direct-print" />}
+        </div>
 
-      <main className="p-[2rem_1.5rem] max-w-[1000px] m-[0_auto]">
-          <ShareModal
-            isOpen={!!shareItem}
-            open={!!shareItem}
-            onClose={() => setShareItem(null)}
-            title={`Informe - ${shareItem?.data?.title || ''}`}
-            text={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString('es-AR')}` : ''}
-            rawMessage={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString('es-AR')}` : ''}
-            elementIdToPrint="pdf-content"
-            fileName={`Informe_${shareItem?.data?.title || 'Profesional'}.pdf`}
-          />
-          <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
-              {shareItem?.type === 'report' && <ProfessionalReportPdfGenerator currentReport={shareItem.data} />}
-              {printData && <ProfessionalReportPdfGenerator currentReport={printData} customId="pdf-direct-print" />}
+        {/* Modal de Previsualización */}
+        <ReportPreviewModal
+          isOpen={previewModalOpen}
+          onClose={() => setPreviewModalOpen(false)}
+          reportData={previewData}
+          onPrint={() => {
+            setPreviewModalOpen(false);
+            handlePrintFromForm();
+          }}
+        />
+
+        <ShareModal
+          isOpen={!!shareItem}
+          open={!!shareItem}
+          onClose={() => setShareItem(null)}
+          title={`Informe - ${shareItem?.data?.title || ''}`}
+          text={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt || shareItem.data.date).toLocaleDateString('es-AR')}` : ''}
+          rawMessage={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}` : ''}
+          elementIdToPrint="pdf-content"
+          fileName={`Informe_${shareItem?.data?.title || 'Profesional'}.pdf`}
+        />
+
+        <PremiumHeader
+          onBack={() => setIsFormVisible(false)}
+          title={projectData.id ? 'Editando Informe Técnico' : 'Nuevo Informe Técnico'}
+          subtitle="Redacción profesional con editor enriquecido, espaciado de renglones y firmas digitales."
+          icon={<FileText size={32} color="#ffffff" />}
+          color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+        />
+
+        <main className="p-4 sm:p-6 max-w-[1100px] mx-auto">
+          {/* BARRA DE ACCIÓN PRINCIPAL DEL FORMULARIO */}
+          <div className="mb-6">
+            <ModuleActionBar
+              actions={[
+                {
+                  id: 'cancel',
+                  label: 'VOLVER',
+                  icon: <X size={18} />,
+                  variant: 'secondary',
+                  onClick: () => setIsFormVisible(false)
+                },
+                {
+                  id: 'preview',
+                  label: 'PREVISUALIZAR',
+                  icon: <Eye size={18} />,
+                  variant: 'info',
+                  onClick: handleOpenPreview
+                },
+                {
+                  id: 'share',
+                  label: 'COMPARTIR',
+                  icon: <Share2 size={18} />,
+                  variant: 'info',
+                  onClick: () => {
+                    const data = {
+                      id: projectData.id || Date.now(),
+                      template,
+                      ...projectData,
+                      content,
+                      extraFields,
+                      photos,
+                      personnel: template === 'training' || template === 'epp' ? personnel : [],
+                      createdAt: new Date().toISOString(),
+                      showSignatures,
+                      operatorSignature,
+                      signature,
+                      supervisorSignature,
+                      professionalSignature: professional?.signature,
+                      professionalName: professional?.name,
+                      professionalLicense: professional?.license
+                    };
+                    setShareItem({ type: 'report', data });
+                  }
+                },
+                {
+                  id: 'print',
+                  label: 'IMPRIMIR PDF',
+                  icon: <Printer size={18} />,
+                  variant: 'warning',
+                  onClick: handlePrintFromForm
+                },
+                {
+                  id: 'save',
+                  label: 'GUARDAR',
+                  icon: <Save size={18} />,
+                  variant: 'primary',
+                  onClick: () => requirePro(handleSave)
+                }
+              ]}
+            />
           </div>
 
-          <ModuleActionBar
-            actions={[
-              { id: 'cancel', label: 'CANCELAR', icon: <X size={18} />, variant: 'secondary', onClick: () => setIsFormVisible(false) },
-              { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'info', onClick: () => {
-                  const data = { id: projectData.id || Date.now(), template, ...projectData, content, extraFields, photos, personnel: template === 'training' || template === 'epp' ? personnel : [], createdAt: new Date().toISOString(), showSignatures, operatorSignature, signature, supervisorSignature, professionalSignature: professional?.signature, professionalName: professional?.name, professionalLicense: professional?.license };
-                  setShareItem({ type: 'report', data });
-              }},
-              { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'warning', onClick: async () => {
-                  const data = { id: projectData.id || Date.now(), template, ...projectData, content, extraFields, photos, personnel: template === 'training' || template === 'epp' ? personnel : [], createdAt: new Date().toISOString(), showSignatures, operatorSignature, signature, supervisorSignature, professionalSignature: professional?.signature, professionalName: professional?.name, professionalLicense: professional?.license };
-                  setPrintData(data);
-                  setIsPrinting(true);
-                  const toastId = toast.loading('Preparando impresión...');
-                  try {
-                      await new Promise((r) => setTimeout(r, 350));
-                      const element = document.getElementById('pdf-direct-print');
-                      if (!element) {
-                          throw new Error('No se pudo generar el documento para imprimir.');
+          {/* SELECTOR DE PLANTILLAS CON DISEÑO MEJORADO */}
+          <div className="mb-8">
+            <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-3">
+              Tipo de Documento / Plantilla Base
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+              {templates.map((t) => {
+                const isSelected = template === t.id;
+                return (
+                  <div
+                    key={t.id}
+                    onClick={() => {
+                      setTemplate(t.id);
+                      if ((t.id === 'training' || t.id === 'epp') && personnel.length === 0) {
+                        setPersonnel([{ id: Date.now(), name: '', dni: '' }]);
                       }
-                      await printElementAsDocument('pdf-direct-print', `Informe - ${projectData.title || 'Profesional'}`, false);
-                      toast.dismiss(toastId);
-                  } catch (err) {
-                      console.error('[Reports] Error al imprimir:', err);
-                      toast.dismiss(toastId);
-                      const element = document.getElementById('pdf-direct-print');
-                      if (element) {
-                          document.body.classList.add('printing-isolated');
-                          element.classList.add('isolated-print-target');
-                      }
-                      window.print();
-                      setTimeout(() => {
-                          document.body.classList.remove('printing-isolated');
-                          if (element) element.classList.remove('isolated-print-target');
-                      }, 1000);
-                  } finally {
-                      setIsPrinting(false);
-                      setTimeout(() => {
-                          setPrintData(null);
-                      }, 1500);
-                  }
-              }},
-              { id: 'save', label: 'GUARDAR', icon: <Save size={18} />, variant: 'primary', onClick: () => requirePro(handleSave) }
-            ]}
-          />
-                <div className="mb-6">
-                    <></>
-                </div>
-
-                {/* Template Selector */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-[0.5rem] md:gap-[1rem] mb-[2.5rem]">
-                    {templates.map((t) =>
-          <div
-            key={t.id}
-            onClick={() => {
-              setTemplate(t.id);
-              if ((t.id === 'training' || t.id === 'epp') && personnel.length === 0) {
-                setPersonnel([{ id: Date.now(), name: '', dni: '' }]);
-              }
-            }}
-            className="card hover-lift text-center p-[0.75rem_0.5rem] cursor-pointer transition-[all_0.3s_ease] rounded-[12px] flex flex-col items-center gap-[0.5rem]"
-            style={{
-              border: template === t.id ? '2px solid var(--color-primary)' : '1px solid var(--glass-border)',
-              background: template === t.id ? 'rgba(var(--color-primary-rgb), 0.08)' : 'var(--gradient-card)'
-            }}>
-            
-                            <div style={{
-              color: template === t.id ? 'var(--color-primary)' : 'var(--color-text-muted)',
-              background: template === t.id ? 'rgba(255,255,255,0.1)' : 'transparent'
-            }} className="p-[0.5rem] rounded-[50%]">
-                                {React.cloneElement(t.icon, { size: 24 })}
-                            </div>
-                            <div style={{ color: template === t.id ? 'var(--color-text)' : 'var(--color-text-muted)' }} className="text-[0.75rem] md:text-[0.8rem] font-[700] leading-tight">{t.label}</div>
-                        </div>
-          )}
-                </div>
-
-                {/* General Info */}
-                <div className="card mb-[2.5rem] p-[2.5rem] bg-[var(--gradient-card)] border-[1px_solid_var(--glass-border)] rounded-[20px]">
-                    <h3 className="mt-[0] mb-[1.5rem] text-[var(--color-primary)] flex items-center gap-[0.5rem] text-[1.2rem]">
-                        <FileText size={20} /> Datos Generales
-                    </h3>
-                    
-                    <div className="grid grid-template-columns-[1fr_1fr] gap-[1.5rem]">
-                        <div className="grid-column-[span_2]">
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Título del Informe</label>
-                            <input
-                type="text"
-                value={projectData.title}
-                onChange={(e) => setProjectData({ ...projectData, title: e.target.value })}
-                placeholder="Ej: Relevamiento de Condiciones de Seguridad"
-                className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" />
-              
-                        </div>
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Empresa / Cliente</label>
-                            <input
-                type="text"
-                value={projectData.company}
-                onChange={(e) => setProjectData({ ...projectData, company: e.target.value })}
-                placeholder="Nombre de la empresa"
-                className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" />
-              
-                        </div>
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Ubicación / Planta</label>
-                            <input
-                type="text"
-                value={projectData.location}
-                onChange={(e) => setProjectData({ ...projectData, location: e.target.value })}
-                placeholder="Ej: Sede Central"
-                className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" />
-              
-                        </div>
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Fecha</label>
-                            <input
-                type="date"
-                value={projectData.date}
-                onChange={(e) => setProjectData({ ...projectData, date: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" />
-              
-                        </div>
-                        <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Responsable / Profesional</label>
-                            <input
-                type="text"
-                value={projectData.responsable}
-                onChange={(e) => setProjectData({ ...projectData, responsable: e.target.value })}
-                placeholder="Nombre del responsable"
-                className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" />
-              
-                        </div>
+                    }}
+                    className={`p-4 rounded-2xl cursor-pointer transition-all duration-200 flex flex-col items-center text-center border ${
+                      isSelected
+                        ? 'bg-amber-500/10 border-amber-500 shadow-lg shadow-amber-500/10 scale-[1.02]'
+                        : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 hover:bg-slate-800/60'
+                    }`}
+                  >
+                    <div
+                      className={`p-3 rounded-2xl mb-2 transition-colors ${
+                        isSelected ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-400'
+                      }`}
+                    >
+                      {t.icon}
                     </div>
+                    <div className={`text-xs font-bold ${isSelected ? 'text-amber-400' : 'text-slate-200'}`}>
+                      {t.label}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* DATOS GENERALES */}
+          <div className="mb-8 p-6 rounded-2xl bg-slate-900/70 border border-slate-800 shadow-xl backdrop-blur-md">
+            <h3 className="text-amber-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-6">
+              <FileText size={20} /> Datos Generales del Informe
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <div className="md:col-span-2">
+                <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                  Título del Informe
+                </label>
+                <input
+                  type="text"
+                  value={projectData.title}
+                  onChange={(e) => setProjectData({ ...projectData, title: e.target.value })}
+                  placeholder="Ej: Relevamiento de Condiciones de Seguridad e Higiene"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                  Empresa / Cliente
+                </label>
+                <input
+                  type="text"
+                  value={projectData.company}
+                  onChange={(e) => setProjectData({ ...projectData, company: e.target.value })}
+                  placeholder="Nombre de la empresa o cliente"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                  Ubicación / Planta / Sector
+                </label>
+                <input
+                  type="text"
+                  value={projectData.location}
+                  onChange={(e) => setProjectData({ ...projectData, location: e.target.value })}
+                  placeholder="Ej: Sede Central / Depósito Logístico"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                  Fecha del Relevamiento
+                </label>
+                <input
+                  type="date"
+                  value={projectData.date}
+                  onChange={(e) => setProjectData({ ...projectData, date: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                  Profesional Actuante
+                </label>
+                <input
+                  type="text"
+                  value={projectData.responsable}
+                  onChange={(e) => setProjectData({ ...projectData, responsable: e.target.value })}
+                  placeholder="Nombre y apellido del profesional"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors outline-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* CAMPOS ESPECÍFICOS PARA ACCIDENTES O CAPACITACIONES */}
+          {template === 'training' && (
+            <div className="mb-8 p-6 rounded-2xl bg-slate-900/70 border border-slate-800 shadow-xl backdrop-blur-md">
+              <h3 className="text-emerald-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-4">
+                <GraduationCap size={20} /> Datos de la Capacitación
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                    Tema Central de Capacitación
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Uso seguro de extintores y plan de evacuación"
+                    value={extraFields.topic || ''}
+                    onChange={(e) => setExtraFields({ ...extraFields, topic: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-emerald-500 outline-none"
+                  />
                 </div>
+                <div>
+                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                    Duración (minutos)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="60"
+                    value={extraFields.duration || ''}
+                    onChange={(e) => setExtraFields({ ...extraFields, duration: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-emerald-500 outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
-                {/* Template Content */}
-                <div className="card mb-[2.5rem] p-[2.5rem] bg-[var(--gradient-card)] border-[1px_solid_var(--glass-border)] rounded-[20px]">
-                    <h3 className="mt-[0] mb-[1.5rem] text-[var(--color-primary)] flex items-center gap-[0.5rem] text-[1.2rem]">
-                        <ClipboardCheck size={20} /> Desarrollo del Informe
-                    </h3>
-
-                    {template === 'training' &&
-          <div className="mb-[2rem] p-[1.5rem] bg-[rgba(255,255,255,0.03)] rounded-[16px] border-[1px_solid_var(--glass-border)]">
-                            <div className="grid grid-template-columns-[2fr_1fr] gap-[1.5rem]">
-                                <div>
-                                    <label className="block mb-2 text-sm font-semibold text-slate-400">Tema de la Capacitación</label>
-                                    <input
-                  type="text"
-                  placeholder="Ej: Uso de Extintores, RCP, etc."
-                  value={extraFields.topic || ''}
-                  onChange={(e) => setExtraFields({ ...extraFields, topic: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" />
-                
-                                </div>
-                                <div>
-                                    <label className="block mb-2 text-sm font-semibold text-slate-400">Duración (minutos)</label>
-                                    <input
-                  type="number"
-                  placeholder="60"
-                  value={extraFields.duration || ''}
-                  onChange={(e) => setExtraFields({ ...extraFields, duration: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" />
-                
-                                </div>
-                            </div>
-                        </div>
-          }
-
-                    {template === 'accident' &&
-          <div className="mb-[2rem] p-[1.5rem] bg-[rgba(255,255,255,0.03)] rounded-[16px] border-[1px_solid_var(--glass-border)]">
-                            <div className="grid grid-template-columns-[1fr_1fr] gap-[1.5rem]">
-                                <div>
-                                    <label className="block mb-2 text-sm font-semibold text-slate-400">Hora del Evento</label>
-                                    <input
-                  type="time"
-                  value={extraFields.eventTime || ''}
-                  onChange={(e) => setExtraFields({ ...extraFields, eventTime: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" />
-                
-                                </div>
-                                <div>
-                                    <label className="block mb-2 text-sm font-semibold text-slate-400">Persona Afectada</label>
-                                    <input
-                  type="text"
-                  placeholder="Nombre del afectado"
-                  value={extraFields.affectedPerson || ''}
-                  onChange={(e) => setExtraFields({ ...extraFields, affectedPerson: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" />
-                
-                                </div>
-                            </div>
-                        </div>
-          }
-
-                    {(template === 'training' || template === 'epp') &&
-          <div className="mb-[2rem] p-[1.5rem] bg-[rgba(255,255,255,0.03)] rounded-[16px] border-[1px_solid_var(--glass-border)]">
-                            <div className="flex justify-space-between items-center mb-[1.5rem]">
-                                <label className="m-[0] text-[0.9rem] font-[800] text-[var(--color-primary)] uppercase">Personal Interviniente / Receptores</label>
-                                <button
-                onClick={handleAddPerson}
-                className="btn-outline hover-lift p-[0.4rem_0.8rem] text-[0.75rem] flex items-center gap-[0.4rem] rounded-[8px]">
-
-                
-                                    <Plus size={14} /> Añadir Persona
-                                </button>
-                            </div>
-                            <div className="flex flex-col gap-4">
-                                {personnel.map((p, index) =>
-              <div key={p.id} className="flex gap-[1rem] items-center">
-                                        <div className="flex-[2]">
-                                            <input
+          {template === 'accident' && (
+            <div className="mb-8 p-6 rounded-2xl bg-slate-900/70 border border-slate-800 shadow-xl backdrop-blur-md">
+              <h3 className="text-red-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-4">
+                <AlertCircle size={20} /> Datos del Incidente / Accidente
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                    Hora del Evento
+                  </label>
+                  <input
+                    type="time"
+                    value={extraFields.eventTime || ''}
+                    onChange={(e) => setExtraFields({ ...extraFields, eventTime: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-red-500 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                    Trabajador / Persona Afectada
+                  </label>
+                  <input
                     type="text"
-                    placeholder="Nombre completo"
-                    className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
-                    value={p.name}
-                    onChange={(e) => handlePersonChange(p.id, 'name', e.target.value)} />
-                  
-                                        </div>
-                                        <div className="flex-[1]">
-                                            <input
-                    type="text"
-                    placeholder="DNI/CUIL"
-                    className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
-                    value={p.dni}
-                    onChange={(e) => handlePersonChange(p.id, 'dni', e.target.value)} />
-                  
-                                        </div>
-                                        <button
-                  onClick={() => handleRemovePerson(p.id)}
+                    placeholder="Nombre completo del damnificado"
+                    value={extraFields.affectedPerson || ''}
+                    onChange={(e) => setExtraFields({ ...extraFields, affectedPerson: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-red-500 outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
-                  disabled={personnel.length === 1}
-                  className="hover-lift bg-[rgba(239,_68,_68,_0.1)] border-none text-[#ef4444] cursor-pointer p-[0.8rem] rounded-[12px] flex items-center justify-center">
-                  
-                                            <Trash2 size={18} />
-                        </button>
-                                    </div>
-              )}
-                            </div>
-                        </div>
-          }
+          {/* NÓMINA DE PERSONAL INTERVINIENTE (CAPACITACIÓN / ENTREGA EPP) */}
+          {(template === 'training' || template === 'epp') && (
+            <div className="mb-8 p-6 rounded-2xl bg-slate-900/70 border border-slate-800 shadow-xl backdrop-blur-md">
+              <div className="flex justify-between items-center mb-4">
+                <label className="text-sm font-black text-amber-400 uppercase tracking-wider">
+                  Nómina de Personal Interviniente / Firmas
+                </label>
+                <button
+                  type="button"
+                  onClick={handleAddPerson}
+                  className="px-3 py-1.5 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <Plus size={14} /> Añadir Persona
+                </button>
+              </div>
 
-                    <label className="block mb-2 text-sm font-semibold text-slate-400">Contenido Principal / Observaciones</label>
-                    <textarea
-            style={{ ...inputStyle }}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Describa los hallazgos, recomendaciones o el cuerpo del informe..." className="min-h-[350px] resize-[vertical] line-height-[1.6]" />
-          
+              <div className="flex flex-col gap-3">
+                {personnel.map((p) => (
+                  <div key={p.id} className="flex gap-2 sm:gap-4 items-center">
+                    <div className="flex-[2]">
+                      <input
+                        type="text"
+                        placeholder="Nombre completo del trabajador"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-amber-500 outline-none"
+                        value={p.name}
+                        onChange={(e) => handlePersonChange(p.id, 'name', e.target.value)}
+                      />
+                    </div>
+                    <div className="flex-[1]">
+                      <input
+                        type="text"
+                        placeholder="DNI / CUIL"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-amber-500 outline-none"
+                        value={p.dni}
+                        onChange={(e) => handlePersonChange(p.id, 'dni', e.target.value)}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePerson(p.id)}
+                      disabled={personnel.length === 1}
+                      className="p-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                      title="Eliminar fila"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-                    <div className="mt-[2.5rem]">
-                        <PhotoAttachments
+          {/* SECCIÓN DEL EDITOR DE TEXTO ENRIQUECIDO TIPO WORD */}
+          <div className="mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+              <div>
+                <label className="block text-sm font-black uppercase tracking-wider text-amber-400">
+                  Desarrollo del Informe (Editor Tipo Word)
+                </label>
+                <p className="text-xs text-slate-400">
+                  Utilice la barra para formatear letras, colores, insertar tablas, avisos y dejar renglones.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleOpenPreview}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition-colors cursor-pointer w-fit"
+              >
+                <Eye size={14} className="text-amber-400" /> Vista Previa A4
+              </button>
+            </div>
+
+            {/* EDITOR ENRIQUECIDO */}
+            <ReportRichEditor
+              value={content}
+              onChange={setContent}
+              templateType={template}
+              placeholder="Comience a redactar su informe aquí. Puede aplicar negrita, títulos, cambiar fuentes, colores, insertar tablas y dejar renglones..."
+            />
+          </div>
+
+          {/* FOTOS DE EVIDENCIA */}
+          <div className="mb-8 p-6 rounded-2xl bg-slate-900/70 border border-slate-800 shadow-xl backdrop-blur-md">
+            <PhotoAttachments
               photos={photos}
               onChange={setPhotos}
               maxPhotos={8}
-              label="Fotos de Evidencia" />
-            
-                    </div>
+              label="Registro Fotográfico de Evidencia"
+            />
+          </div>
+
+          {/* FIRMAS Y AUTORIZACIONES */}
+          <div className="mb-8 p-6 rounded-2xl bg-slate-900/70 border border-slate-800 shadow-xl backdrop-blur-md">
+            <h3 className="text-amber-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-6">
+              ✍️ Firmas Digitales y Sellos
+            </h3>
+
+            {/* Conmutadores de firmas a incluir */}
+            <div className="mb-6 p-4 rounded-xl bg-slate-950/70 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                Firmas a incluir en el documento impreso:
+              </span>
+              <div className="flex gap-2 flex-wrap justify-center">
+                {[
+                  { id: 'operator', label: 'Operador / Trabajador' },
+                  { id: 'supervisor', label: 'Supervisor' },
+                  { id: 'professional', label: 'Profesional HYS' }
+                ].map((sig) => {
+                  const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                  return (
+                    <label
+                      key={sig.id}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold cursor-pointer transition-all border ${
+                        isChecked
+                          ? 'bg-amber-500/15 border-amber-500 text-amber-400 shadow-sm'
+                          : 'bg-slate-800 border-slate-700 text-slate-400'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))}
+                        className="hidden"
+                      />
+                      <div className={`w-3.5 h-3.5 rounded flex items-center justify-center border ${isChecked ? 'bg-amber-500 border-amber-500' : 'border-slate-500'}`}>
+                        {isChecked && <CheckCircle2 size={10} className="text-slate-950 font-bold" />}
+                      </div>
+                      {sig.label}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Previsualización de los bloques de firma */}
+            <div className="mb-8 p-4 rounded-xl bg-white border border-slate-200">
+              <PdfSignatures
+                data={{
+                  ...projectData,
+                  professionalSignature: professional?.signature,
+                  professionalName: professional?.name,
+                  professionalLicense: professional?.license
+                }}
+                box1={showSignatures?.operator ? {
+                  title: 'OPERADOR',
+                  subtitle: 'Firma / Aclaración',
+                  signatureUrl: operatorSignature || null,
+                  isProfessional: false
+                } : null}
+                box2={showSignatures?.supervisor ? {
+                  title: 'SUPERVISOR',
+                  subtitle: 'Firma / Aclaración',
+                  signatureUrl: supervisorSignature || null,
+                  isProfessional: false
+                } : null}
+                box3={showSignatures?.professional ? {
+                  title: 'PROFESIONAL ACTUANTE',
+                  subtitle: (professional?.name || 'Firma y Sello').toUpperCase(),
+                  signatureUrl: signature || professional?.signature || null,
+                  isProfessional: true,
+                  license: professional?.license
+                } : null}
+              />
+              <PdfBrandingFooter />
+            </div>
+
+            {/* PADS DE DIBUJO DE FIRMAS */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {showSignatures?.operator && (
+                <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl">
+                  <SignatureCanvas
+                    onSave={(sig) => setOperatorSignature(sig || '')}
+                    initialImage={operatorSignature}
+                    title="Firma Operador"
+                  />
                 </div>
-
-                {/* Interactive Signature Drawing Pads */}
-                <div className="card animate-fade-in mt-[2.5rem] bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2.5rem] box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.08)]">
-                    <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.7rem] text-[var(--color-primary)] font-[900] text-[1.25rem] uppercase letter-spacing-[1.2px]">
-                        ✍️ Firmas y Autorizaciones
-                    </h3>
-
-                    {/* Custom visual switches */}
-                    <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
-                        <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                        <div className="flex gap-[1rem] flex-wrap justify-center">
-                            {[
-              { id: 'operator', label: 'Operador / Empleado' },
-              { id: 'supervisor', label: 'Supervisor / Responsable' },
-              { id: 'professional', label: 'Profesional HYS' }].
-              map((sig) => {
-                const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
-                return (
-                  <label
-                    key={sig.id}
-                    className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease] whitespace-nowrap"
-                    style={{
-
-
-                      border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
-                      background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
-                      color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
-
-
-
-                      boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
-                    }}>
-                    
-                                        <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))} className="hidden" />
-
-                    
-                                        <div style={{
-
-
-
-                      border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
-                      background: isChecked ? 'var(--color-primary)' : 'transparent'
-
-
-
-
-                    }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
-                                            {isChecked && <CheckCircle2 size={12} color="white" />}
-                                        </div>
-                                        {sig.label}
-                                    </label>);
-
-              })}
-                        </div>
-                    </div>
-                    {/* On-Sheet Visual Preview of PDF signature blocks */}
-                    <div className="mb-8">
-                        <PdfSignatures
-              data={{
-                ...projectData,
-                professionalSignature: professional?.signature,
-                professionalName: professional?.name,
-                professionalLicense: professional?.license
-              }}
-              box1={showSignatures?.operator ? {
-                title: 'OPERADOR',
-                subtitle: 'Firma / Aclaración',
-                signatureUrl: operatorSignature || null,
-                isProfessional: false
-              } : null}
-              box2={showSignatures?.supervisor ? {
-                title: 'SUPERVISOR',
-                subtitle: 'Firma / Aclaración',
-                signatureUrl: supervisorSignature || null,
-                isProfessional: false
-              } : null}
-              box3={showSignatures?.professional ? {
-                title: 'PROFESIONAL ACTUANTE',
-                subtitle: (professional?.name || 'Firma y Sello').toUpperCase(),
-                signatureUrl: signature || professional?.signature || null,
-                isProfessional: true,
-                license: professional?.license
-              } : null} />
-            
-            <PdfBrandingFooter />
-                    </div>
-
-                    {/* Interactive Signature Drawing Pads */}
-                    <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {showSignatures?.operator &&
-            <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                <SignatureCanvas
-                onSave={(sig) => setOperatorSignature(sig || '')}
-                initialImage={operatorSignature}
-                title="Firma Operador" />
-              
-                            </div>
-            }
-                        {showSignatures?.supervisor &&
-            <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                <SignatureCanvas
-                onSave={(sig) => setSupervisorSignature(sig || '')}
-                initialImage={supervisorSignature}
-                title="Firma Supervisor" />
-              
-                            </div>
-            }
-                        {showSignatures?.professional &&
-            <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                <SignatureCanvas
-                onSave={(sig) => setSignature(sig || '')}
-                initialImage={signature}
-                title="Firma Profesional" />
-              
-                            </div>
-            }
-                    </div>
+              )}
+              {showSignatures?.supervisor && (
+                <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl">
+                  <SignatureCanvas
+                    onSave={(sig) => setSupervisorSignature(sig || '')}
+                    initialImage={supervisorSignature}
+                    title="Firma Supervisor"
+                  />
                 </div>
-            </main>
-        </div>
+              )}
+              {showSignatures?.professional && (
+                <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl">
+                  <SignatureCanvas
+                    onSave={(sig) => setSignature(sig || '')}
+                    initialImage={signature}
+                    title="Firma Profesional"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* BARRA DE ACCIÓN INFERIOR */}
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-xl">
+            <button
+              type="button"
+              onClick={() => setIsFormVisible(false)}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 text-xs sm:text-sm font-bold transition-colors cursor-pointer"
+            >
+              Cancelar
+            </button>
+
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+              <button
+                type="button"
+                onClick={handleOpenPreview}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 text-xs sm:text-sm font-bold transition-all cursor-pointer"
+              >
+                <Eye size={18} /> Previsualizar
+              </button>
+              <button
+                type="button"
+                onClick={handlePrintFromForm}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 text-xs sm:text-sm font-black shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+              >
+                <Printer size={18} /> Imprimir PDF
+              </button>
+              <button
+                type="button"
+                onClick={() => requirePro(handleSave)}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white text-xs sm:text-sm font-black shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
+              >
+                <Save size={18} /> Guardar
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
     </ReportErrorBoundary>
   );
 }

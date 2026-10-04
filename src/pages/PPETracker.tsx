@@ -5,7 +5,7 @@ import {
   ArrowLeft, Plus, Trash2, HardHat, TriangleAlert, CheckCircle, Clock, Shield,
   Download, QrCode, ExternalLink, Info, Footprints, Hand, Glasses, Ear, Shirt,
   Wind, Eye, Flame, Activity, HelpCircle, User, Calendar, ShieldCheck, Award, X,
-  Zap, Thermometer, Droplets, Snowflake, Beaker, Briefcase, Pencil, Tag, AlertTriangle } from
+  Zap, Thermometer, Droplets, Snowflake, Beaker, Briefcase, Pencil, Tag, AlertTriangle, Printer, FileText } from
 'lucide-react';
 import toast from 'react-hot-toast';
 import { useSync } from '../contexts/SyncContext';
@@ -19,6 +19,7 @@ import QRSignatureModal from '../components/QRSignatureModal';
 import type { PPEItem } from '../types/ppe';
 import { OFFICIAL_PPE_USEFUL_LIFE, CRITICAL_PPE_TYPES } from '../types/ppe';
 import { evaluatePPEFleetCompliance, calculatePPEExpiryDays } from '../utils/srtProtocols';
+import { printElementAsDocument } from '../utils/pdfHelper';
 
 const EPP_TYPES = [
 'Casco de seguridad', 'Calzado de seguridad', 'Guantes de trabajo',
@@ -122,10 +123,76 @@ export default function PPETracker(): React.ReactElement | null {
     localidad: '',
     trabajadorNombre: '',
     trabajadorDni: '',
-    puestoTrabajo: ''
+    puestoTrabajo: '',
+    observaciones: ''
   });
   const [showQrSignModal, setShowQrSignModal] = useState(false);
   const [workerSignature, setWorkerSignature] = useState<string | null>(null);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [isPrintingReceipt, setIsPrintingReceipt] = useState(false);
+
+  const handlePrintReceipt = async () => {
+    setIsPrintingReceipt(true);
+    const toastId = toast.loading('Preparando constancia oficial Res. SRT 299/11...');
+    try {
+      await new Promise((r) => setTimeout(r, 400));
+      const element = document.getElementById('ppe-receipt-pdf');
+      if (!element) throw new Error('No se encontró el elemento de la constancia');
+      await printElementAsDocument('ppe-receipt-pdf', `Constancia_EPP_Res299_${receiptMeta.trabajadorNombre || 'Trabajador'}`, true);
+      toast.dismiss(toastId);
+    } catch (err) {
+      console.error('[PPETracker] Error al imprimir constancia:', err);
+      toast.dismiss(toastId);
+      window.print();
+    } finally {
+      setIsPrintingReceipt(false);
+    }
+  };
+
+  const handleOpenWorkerReceipt = (workerName: string) => {
+    const workerItems = items.filter((i) => i.responsible === workerName);
+    const first = workerItems[0];
+    try {
+      const saved = localStorage.getItem('personalData');
+      if (saved) {
+        const pd = JSON.parse(saved);
+        setReceiptMeta({
+          razonSocial: pd.company || pd.name || '',
+          cuit: pd.cuit || '',
+          direccion: pd.address || '',
+          localidad: pd.city || pd.province || '',
+          trabajadorNombre: workerName || '',
+          trabajadorDni: first?.workerDni || '',
+          puestoTrabajo: first?.puesto || '',
+          observaciones: ''
+        });
+      } else {
+        setReceiptMeta({
+          razonSocial: '',
+          cuit: '',
+          direccion: '',
+          localidad: '',
+          trabajadorNombre: workerName || '',
+          trabajadorDni: first?.workerDni || '',
+          puestoTrabajo: first?.puesto || '',
+          observaciones: ''
+        });
+      }
+    } catch (e) {
+      setReceiptMeta({
+        razonSocial: '',
+        cuit: '',
+        direccion: '',
+        localidad: '',
+        trabajadorNombre: workerName || '',
+        trabajadorDni: first?.workerDni || '',
+        puestoTrabajo: first?.puesto || '',
+        observaciones: ''
+      });
+    }
+    setReceiptFilterWorker(workerName || 'all');
+    setIsReceiptModalOpen(true);
+  };
 
   // Check if device is mobile to adjust padding
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -514,6 +581,14 @@ export default function PPETracker(): React.ReactElement | null {
                     }
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }} className="shrink-0 self-center">
+                                        {item.responsible && (
+                                          <button
+                                              onClick={() => handleOpenWorkerReceipt(item.responsible)}
+                                              title="Generar constancia Res. 299/11 de este trabajador"
+                                              style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '4px 8px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                              <Award size={12} /> Planilla 299
+                                          </button>
+                                        )}
                                         <button
                                             onClick={() => handleEdit(item)}
                                             title="Ver / Editar EPP"
@@ -867,6 +942,19 @@ export default function PPETracker(): React.ReactElement | null {
                 </div>
               </div>
 
+              <div>
+                <label className="block text-[0.7rem] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                  Observaciones / Condiciones de Entrega
+                </label>
+                <textarea
+                  rows={2}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium resize-none"
+                  value={receiptMeta.observaciones || ''}
+                  onChange={(e) => setReceiptMeta({ ...receiptMeta, observaciones: e.target.value })}
+                  placeholder="Ej: Se entregó EPP nuevo con certificación IRAM/AR. Inducción práctica realizada según art. 3 Res. SRT 299/11."
+                />
+              </div>
+
               <div className="p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-2xl text-[0.75rem] text-blue-700 dark:text-blue-300">
                 📄 Se generará la constancia en formato apaisado A4 reglamentaria de la Res. SRT 299/11 lista para ser rubricada por el trabajador y el responsable técnico.
               </div>
@@ -898,20 +986,25 @@ export default function PPETracker(): React.ReactElement | null {
               </button>
               <button
                 type="button"
-                onClick={() => setShowQrSignModal(true)}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-xs border-none cursor-pointer flex items-center gap-1.5 transition-all"
+                onClick={() => setIsPreviewModalOpen(true)}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-700 hover:bg-slate-600 text-white shadow-xs border-none cursor-pointer flex items-center gap-1.5 transition-all"
               >
-                <QrCode size={15} /> Firmar por QR / WhatsApp
+                <Eye size={15} /> Previsualizar A4
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  window.print();
-                }}
+                onClick={() => setShowQrSignModal(true)}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-xs border-none cursor-pointer flex items-center gap-1.5 transition-all"
+              >
+                <QrCode size={15} /> Firmar por QR
+              </button>
+              <button
+                type="button"
+                onClick={handlePrintReceipt}
                 style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)' }}
                 className="px-5 py-2.5 rounded-xl text-xs font-extrabold text-white shadow-lg border-none cursor-pointer flex items-center gap-1.5 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
-                <Award size={15} /> IMPRIMIR CONSTANCIA A4
+                <Printer size={15} /> IMPRIMIR CONSTANCIA A4
               </button>
             </div>
           </div>
@@ -933,10 +1026,68 @@ export default function PPETracker(): React.ReactElement | null {
         />
       )}
 
-      <div className="print-only">
+      {isPreviewModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in no-print">
+          <div className="relative w-full max-w-[1050px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-500/20 text-amber-400 rounded-xl">
+                  <Award size={20} />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+                    Vista Previa de Constancia Oficial A4 (Apaisado)
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    Resolución S.R.T. N° 299/11 • {receiptMeta.trabajadorNombre || 'Trabajador'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handlePrintReceipt}
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 rounded-xl shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+                >
+                  <Printer size={16} /> Imprimir / PDF
+                </button>
+                <button
+                  onClick={() => setIsPreviewModalOpen(false)}
+                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                  title="Cerrar vista previa"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/70 flex justify-center">
+              <div className="w-full max-w-[297mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
+                <PPEReceiptPdfGenerator
+                  items={receiptFilterWorker === 'all' ? items : items.filter((i) => i.responsible === receiptFilterWorker)}
+                  receiptData={{ ...receiptMeta, workerSignature }}
+                  customId="ppe-receipt-pdf-preview"
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
+              <span>Formato oficial A4 horizontal (Landscape) • Res. SRT 299/11 y Res. SIyC 18/25</span>
+              <button
+                onClick={() => setIsPreviewModalOpen(false)}
+                className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="ats-pdf-offscreen" id="ppe-receipt-pdf">
         <PPEReceiptPdfGenerator
           items={receiptFilterWorker === 'all' ? items : items.filter((i) => i.responsible === receiptFilterWorker)}
-          receiptData={receiptMeta}
+          receiptData={{ ...receiptMeta, workerSignature }}
         />
       </div>
     </div>

@@ -10,6 +10,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import { toast } from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { getCountryNormativa } from '../data/legislationData';
+import ReportContentRenderer from '../components/reports/ReportContentRenderer';
 
 export default function ReportsReport(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -126,8 +127,8 @@ export default function ReportsReport(): React.ReactElement | null {
 
                 {/* Main Content Area / Observations */}
                 <div className="mb-[1rem] text-[var(--color-primary)] font-[800] text-[0.8rem] letter-spacing-[2px] uppercase">OBSERVACIONES</div>
-                <div className="mb-[4rem] white-space-[pre-wrap] word-break-[break-word] overflow-wrap-[anywhere] line-height-[1.6] text-[1.05rem] text-[#1e293b] border-top-[2px_solid_#f1f5f9] pt-[1rem]">
-                    {report.content || 'Sin observaciones registradas.'}
+                <div className="mb-[4rem] border-top-[2px_solid_#f1f5f9] pt-[1rem] text-[#1e293b]">
+                    <ReportContentRenderer content={report.content} />
                 </div>
 
                 {/* Personnel List Table if applicable */}

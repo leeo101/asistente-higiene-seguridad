@@ -4,8 +4,9 @@ import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
 import { calculateSiniestralityRates, OFFICIAL_ACCIDENT_REGULATORY_CRITERIA } from '../utils/srtProtocols';
+import ReportContentRenderer from './reports/ReportContentRenderer';
 
-export default function AccidentPdfGenerator({ report, onBack, isHeadless = false }: { report: any; onBack?: any; isHeadless?: boolean; }): React.ReactElement | null {
+export default function AccidentPdfGenerator({ report, onBack, isHeadless = false, customId }: { report: any; onBack?: any; isHeadless?: boolean; customId?: string; }): React.ReactElement | null {
 
   const getSeverityStyle = (sev: any) => {
     if (sev === 'Leve') return { color: '#1d4ed8', bg: '#eff6ff', border: '#bfdbfe', borderTop: '#3b82f6', label: 'LEVE — Sin Baja' };
@@ -69,7 +70,7 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
 
       <div className={isHeadless ? 'block p-0 m-0' : 'flex justify-center'}>
         <div
-          id="pdf-content"
+          id={customId || "pdf-content"}
           className="pdf-container print-area w-full max-w-[210mm] bg-white text-slate-900 p-[6mm_8mm] shadow-xl rounded-xl border border-slate-200 box-border text-[8pt] font-sans"
           style={{
             margin: '0 auto',
@@ -272,8 +273,8 @@ export default function AccidentPdfGenerator({ report, onBack, isHeadless = fals
               </span>
             </div>
 
-            <div style={{ color: '#0f172a' }} className="p-2 text-[0.78rem] leading-relaxed font-semibold bg-slate-50 text-justify whitespace-pre-wrap">
-              {report?.descripcionHecho || 'Sin descripción detallada.'}
+            <div className="p-2.5 bg-slate-50 border-t border-slate-200 text-[0.78rem] leading-relaxed text-slate-900">
+              <ReportContentRenderer content={report?.descripcionHecho || 'Sin descripción detallada.'} />
             </div>
 
             {/* Checklist Entorno */}

@@ -5,7 +5,7 @@ import {
   MessageSquare, Plus, Trash2, Save, Share2, Printer,
   Users, Calendar, User, Building2, FileText, ChevronDown,
   CheckCircle2, Clock, Search, Eye, Edit3, History, Pencil,
-  Briefcase, MapPin, Award, UserCheck, Download, ArrowLeft, Sparkles, Loader2, QrCode } from
+  Briefcase, MapPin, Award, UserCheck, Download, ArrowLeft, Sparkles, Loader2, QrCode, X } from
 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -15,6 +15,7 @@ import ShareModal from '../components/ShareModal';
 import Breadcrumbs from '../components/Breadcrumbs';
 import CompanyLogo from '../components/CompanyLogo';
 import ToolboxTalkPdfGenerator from '../components/ToolboxTalkPdfGenerator';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import toast from 'react-hot-toast';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
@@ -208,6 +209,29 @@ export default function ToolboxTalk(): React.ReactElement {
   const [isMobile, setIsMobile] = useState(false);
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
   const [qrAttendee, setQrAttendee] = useState<Attendee | null>(null);
+  const [previewTalk, setPreviewTalk] = useState<ToolboxTalk | null>(null);
+  const [printTalk, setPrintTalk] = useState<ToolboxTalk | null>(null);
+  const [isPrinting, setIsPrinting] = useState(false);
+
+  const handleDirectPrintTalk = async (talkItem: ToolboxTalk) => {
+    setPrintTalk(talkItem);
+    setIsPrinting(true);
+    const toastId = toast.loading('Preparando impresión de charla...');
+    try {
+      await new Promise((r) => setTimeout(r, 400));
+      const element = document.getElementById('pdf-direct-talk-print');
+      if (!element) throw new Error('Elemento de impresión no encontrado');
+      await printElementAsDocument('pdf-direct-talk-print', `Charla - ${talkItem.tema || '5 Minutos'}`, false);
+      toast.dismiss(toastId);
+    } catch (err) {
+      console.error('[ToolboxTalk] Error al imprimir:', err);
+      toast.dismiss(toastId);
+      window.print();
+    } finally {
+      setIsPrinting(false);
+      setTimeout(() => setPrintTalk(null), 1500);
+    }
+  };
 
   const handleGenerateAiTalk = async () => {
     if (!form.tema.trim()) {
@@ -438,19 +462,33 @@ Ninguna tarea es tan urgente como para realizarla sin las condiciones de segurid
       render: (item: ToolboxTalk) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <button 
+            onClick={() => setPreviewTalk(item)} 
+            title="Vista previa A4"
+            style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '4px 8px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Eye size={12} /> Previa
+          </button>
+          <button 
+            onClick={() => handleDirectPrintTalk(item)} 
+            title="Imprimir PDF directo"
+            style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '4px 8px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Printer size={12} /> PDF
+          </button>
+          <button 
             onClick={() => handleEdit(item)} 
-            style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 8px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
             <Edit3 size={12} /> Editar
           </button>
           <button 
             onClick={() => requirePro(() => setShareItem(item))} 
-            style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-            <Share2 size={12} /> Compartir
+            title="Compartir"
+            style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 8px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Share2 size={12} />
           </button>
           <button 
             onClick={() => setDeleteTarget(item.id)} 
-            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-            <Trash2 size={12} /> Eliminar
+            title="Eliminar"
+            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 8px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Trash2 size={12} />
           </button>
         </div>
       )
@@ -957,11 +995,19 @@ Ninguna tarea es tan urgente como para realizarla sin las condiciones de segurid
                         </div>
                         <div className="no-print w-full flex flex-wrap gap-4 items-center justify-end p-6 mt-4 border-t border-slate-200">
                             <button
-                                onClick={() => requirePro(() => window.print())}
-                                style={{ backgroundColor: '#0ea5e9', color: 'white', padding: '12px 24px', borderRadius: '12px', border: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                <Printer size={18} /> IMPRIMIR
+                                type="button"
+                                onClick={() => setPreviewTalk({ ...form, showSignatures })}
+                                style={{ backgroundColor: '#475569', color: 'white', padding: '12px 20px', borderRadius: '12px', border: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                <Eye size={18} /> PREVISUALIZAR
                             </button>
                             <button
+                                type="button"
+                                onClick={() => requirePro(() => handleDirectPrintTalk({ ...form, showSignatures }))}
+                                style={{ backgroundColor: '#0ea5e9', color: 'white', padding: '12px 24px', borderRadius: '12px', border: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                <Printer size={18} /> IMPRIMIR PDF
+                            </button>
+                            <button
+                                type="button"
                                 onClick={(e) => { e.preventDefault(); requirePro(handleSave); }}
                                 style={{ backgroundColor: '#16a34a', color: 'white', padding: '12px 24px', borderRadius: '12px', border: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                                 <Save size={18} /> GUARDAR
@@ -974,6 +1020,73 @@ Ninguna tarea es tan urgente como para realizarla sin las condiciones de segurid
             <div className="print-area ats-pdf-offscreen">
                 <ToolboxTalkPdfGenerator data={{ ...(shareItem || form), showSignatures: (shareItem || form).showSignatures || showSignatures }} professional={professional} />
             </div>
+
+            {previewTalk && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in no-print">
+                <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+                  <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-amber-500/20 text-amber-400 rounded-xl">
+                        <FileText size={20} />
+                      </div>
+                      <div>
+                        <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+                          Vista Previa de Impresión A4
+                        </h2>
+                        <p className="text-xs text-slate-400">
+                          Charla de 5 Minutos • {previewTalk.tema || 'Sin tema'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleDirectPrintTalk(previewTalk)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 rounded-xl shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+                      >
+                        <Printer size={16} /> Imprimir / PDF
+                      </button>
+                      <button
+                        onClick={() => setPreviewTalk(null)}
+                        className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                        title="Cerrar vista previa"
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/70 flex justify-center">
+                    <div className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
+                      <ToolboxTalkPdfGenerator
+                        data={{ ...previewTalk, showSignatures: previewTalk.showSignatures || showSignatures }}
+                        professional={professional}
+                        customId="pdf-modal-preview-talk"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
+                    <span>Formato A4 vertical • Registro de asistencia y firmas según ley 19.587 / dec. 351/79</span>
+                    <button
+                      onClick={() => setPreviewTalk(null)}
+                      className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+                    >
+                      Cerrar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {printTalk && (
+              <div className="ats-pdf-offscreen" id="pdf-direct-talk-print">
+                <ToolboxTalkPdfGenerator
+                  data={{ ...printTalk, showSignatures: printTalk.showSignatures || showSignatures }}
+                  professional={professional}
+                />
+              </div>
+            )}
 
             {qrAttendee && (
               <QRSignatureModal

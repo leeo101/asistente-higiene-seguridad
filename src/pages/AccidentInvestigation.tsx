@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Plus, Download, Search, AlertTriangle, FileText, ChevronRight, X, User, Briefcase, Activity, Calendar, FileQuestion, Users, FileSignature, CheckCircle2, Shield, Save, Building2, TreeDeciduous, ShieldAlert, Zap, Box, Wind, Droplets, ArrowUpCircle, Truck, Pencil, Share2, Trash2, QrCode, Camera, MapPin, Sparkles, UserPlus, ListPlus, ChevronLeft, Printer, Mic, MicOff, XCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Download, Search, AlertTriangle, FileText, ChevronRight, X, User, Briefcase, Activity, Calendar, FileQuestion, Users, FileSignature, CheckCircle2, Shield, Save, Building2, TreeDeciduous, ShieldAlert, Zap, Box, Wind, Droplets, ArrowUpCircle, Truck, Pencil, Share2, Trash2, QrCode, Camera, MapPin, Sparkles, UserPlus, ListPlus, ChevronLeft, Printer, Mic, MicOff, XCircle, Eye } from 'lucide-react';
 import PremiumHeader from '../components/PremiumHeader';
 import AnimatedPage from '../components/AnimatedPage';
 import { usePaywall } from '../hooks/usePaywall';
 import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
 import AccidentPdfGenerator from '../components/AccidentPdfGenerator';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import PdfSignatures from '../components/PdfSignatures';
 import SignatureCanvas from '../components/SignatureCanvas';
 import { useAuth } from '../contexts/AuthContext';
@@ -345,6 +346,122 @@ export default function AccidentInvestigation(): React.ReactElement | null {
   const [printItem, setPrintItem] = useState<any>(null);
   const [selectedReport, setSelectedReport] = useState<any>(null);
   const [statusFilter, setStatusFilter] = useState<'all' | 'Leve' | 'Moderado' | 'GraveMortal'>('all');
+  const [previewAccident, setPreviewAccident] = useState<any | null>(null);
+  const [printAccident, setPrintAccident] = useState<any | null>(null);
+  const [isPrinting, setIsPrinting] = useState(false);
+
+  const handleDirectPrintAccident = async (accidentItem: any) => {
+    setPrintAccident(accidentItem);
+    setIsPrinting(true);
+    const toastId = toast.loading('Preparando impresión del informe de investigación...');
+    try {
+      await new Promise((r) => setTimeout(r, 400));
+      const element = document.getElementById('pdf-direct-accident-print');
+      if (!element) throw new Error('Elemento de impresión no encontrado');
+      await printElementAsDocument('pdf-direct-accident-print', `Investigacion_Accidente_${accidentItem.victimaNombre || 'Siniestro'}`, false);
+      toast.dismiss(toastId);
+    } catch (err) {
+      console.error('[AccidentInvestigation] Error al imprimir:', err);
+      toast.dismiss(toastId);
+      window.print();
+    } finally {
+      setIsPrinting(false);
+      setTimeout(() => setPrintAccident(null), 1500);
+    }
+  };
+
+  const renderCommonModals = () => (
+    <>
+      {qrTarget && (
+        <QRModal
+          text={qrTarget.text}
+          title={qrTarget.title}
+          onClose={() => setQrTarget(null)}
+        />
+      )}
+
+      {shareItem && (
+        <ShareModal
+          isOpen={!!shareItem}
+          open={!!shareItem}
+          onClose={() => setShareItem(null)}
+          title={`Investigación de Accidente - ${shareItem?.victimaNombre || ''}`}
+          text={`⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem?.victimaNombre}\n🏢 Empresa: ${shareItem?.empresa}\n📅 Fecha: ${shareItem?.fecha}\n⚠️ Gravedad: ${shareItem?.gravedad}`}
+          rawMessage={`⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem?.victimaNombre}\n🏢 Empresa: ${shareItem?.empresa}`}
+          elementIdToPrint="pdf-direct-accident-print"
+          fileName={`Accidente_${shareItem?.victimaNombre || 'Reporte'}.pdf`}
+        />
+      )}
+
+      {previewAccident && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in no-print">
+          <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-500/20 text-amber-400 rounded-xl">
+                  <FileText size={20} />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+                    Vista Previa de Impresión A4
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    Investigación de Accidente • {previewAccident.victimaNombre || 'Siniestro'} (Res. SRT 475/06)
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleDirectPrintAccident(previewAccident)}
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 rounded-xl shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+                >
+                  <Printer size={16} /> Imprimir / PDF
+                </button>
+                <button
+                  onClick={() => setPreviewAccident(null)}
+                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                  title="Cerrar vista previa"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/70 flex justify-center">
+              <div className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
+                <AccidentPdfGenerator
+                  report={previewAccident}
+                  isHeadless={true}
+                  customId="pdf-modal-preview-accident"
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
+              <span>Formato A4 vertical • Dictamen reglamentario Ley 19.587 / Res. SRT 475/06 y Res. SRT 503/14</span>
+              <button
+                onClick={() => setPreviewAccident(null)}
+                className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {(printAccident || shareItem) && (
+        <div className="ats-pdf-offscreen" id="pdf-direct-accident-print">
+          <AccidentPdfGenerator
+            report={printAccident || shareItem}
+            isHeadless={true}
+            customId="pdf-direct-accident-print"
+          />
+        </div>
+      )}
+    </>
+  );
 
   const metrics = useMemo(() => {
     const total = history.length;
@@ -835,14 +952,23 @@ export default function AccidentInvestigation(): React.ReactElement | null {
         render: (item: any) => (
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
             <button 
-              onClick={() => setSelectedReport(item)} 
-              style={{ backgroundColor: '#475569', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(71, 85, 105, 0.2)' }}>
-              <FileText size={12} /> Ver PDF
+              onClick={() => setPreviewAccident(item)} 
+              title="Vista previa A4"
+              style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '5px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(2, 132, 199, 0.2)' }}>
+              <Eye size={12} /> Previa
+            </button>
+
+            <button 
+              onClick={() => handleDirectPrintAccident(item)} 
+              title="Imprimir PDF directo"
+              style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '5px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)' }}>
+              <Printer size={12} /> PDF
             </button>
             
             <button 
               onClick={() => { setFormData(item); setIsEdit(true); setIsFormVisible(true); }} 
-              style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(217, 119, 6, 0.2)' }}>
+              title="Editar"
+              style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '5px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(217, 119, 6, 0.2)' }}>
               <Pencil size={12} /> Editar
             </button>
 
@@ -851,20 +977,23 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                 const url = `${window.location.origin}/v/${currentUser?.uid}/accident/${item.id}?print=true`;
                 setQrTarget({ text: url, title: `Accidente — ${item.victimaNombre}` });
               })} 
-              style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)' }}>
+              title="Código QR"
+              style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '5px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)' }}>
               <QrCode size={12} /> QR
             </button>
 
             <button 
               onClick={() => requirePro(() => setShareItem(item))} 
-              style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)' }}>
-              <Share2 size={12} /> Compartir
+              title="Compartir"
+              style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '5px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)' }}>
+              <Share2 size={12} />
             </button>
 
             <button 
               onClick={() => setDeleteTarget(item.id)} 
-              style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(220, 38, 38, 0.2)' }}>
-              <Trash2 size={12} /> Eliminar
+              title="Eliminar"
+              style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '5px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(220, 38, 38, 0.2)' }}>
+              <Trash2 size={12} />
             </button>
           </div>
         )
@@ -980,6 +1109,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
               emptyIcon={<FileText size={48} />}
             />
           </main>
+          {renderCommonModals()}
         </div>
       </AnimatedPage>
     );
@@ -1829,31 +1959,36 @@ export default function AccidentInvestigation(): React.ReactElement | null {
             {currentStep === 5 && (
             <div className="flex flex-row justify-center gap-2 mt-4 w-full px-2">
                 <button
+                    type="button"
                     className="px-4 py-2 text-white border-none rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-all shadow-md hover:shadow-lg cursor-pointer"
                     style={{ backgroundColor: '#10b981' }}
                     onClick={() => requirePro(handleSave)}>
                     <Save size={16} /> <span className="hidden sm:inline">GUARDAR</span>
                 </button>
                 <button
+                    type="button"
+                    className="px-4 py-2 text-white border-none rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-all shadow-md hover:shadow-lg cursor-pointer"
+                    style={{ backgroundColor: '#475569' }}
+                    onClick={() => setPreviewAccident(formData)}>
+                    <Eye size={16} /> <span className="hidden sm:inline">PREVISUALIZAR</span>
+                </button>
+                <button
+                    type="button"
                     className="px-4 py-2 text-white border-none rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-all shadow-md hover:shadow-lg cursor-pointer"
                     style={{ backgroundColor: '#6366f1' }}
                     onClick={() => requirePro(() => setShareItem(formData))}>
                     <Share2 size={16} /> <span className="hidden sm:inline">COMPARTIR</span>
                 </button>
                 <button
+                    type="button"
                     className="px-4 py-2 text-white border-none rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-all shadow-md hover:shadow-lg cursor-pointer"
                     style={{ backgroundColor: '#0ea5e9' }}
-                    onClick={() => {
-                        setPrintItem(formData);
-                        setTimeout(() => {
-                            window.print();
-                            setTimeout(() => setPrintItem(null), 10000);
-                        }, 500);
-                    }}>
-                    <Printer size={16} /> <span className="hidden sm:inline">IMPRIMIR</span>
+                    onClick={() => requirePro(() => handleDirectPrintAccident(formData))}>
+                    <Printer size={16} /> <span className="hidden sm:inline">IMPRIMIR PDF</span>
                 </button>
             </div>
             )}
+            {renderCommonModals()}
         </div>
         </ModuleFormLayout>);
 

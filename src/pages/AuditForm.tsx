@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, ClipboardCheck, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Calendar, FileText, Eye, Printer, Share2, Pencil, Award } from 'lucide-react';
+import { ArrowLeft, Save, ClipboardCheck, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Calendar, FileText, Eye, Printer, Share2, Pencil, Award, X } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import AuditPdf from '../components/AuditPdf';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import {
   ModuleFormLayout,
   ModuleFormToolbar,
@@ -116,8 +117,28 @@ export default function AuditForm(): React.ReactElement | null {
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+
+  const handleDirectPrint = async () => {
+    setIsPrinting(true);
+    const toastId = toast.loading('Preparando reporte de auditoría...');
+    try {
+      await new Promise(r => setTimeout(r, 400));
+      const element = document.getElementById('pdf-content');
+      if (!element) throw new Error('Elemento de impresión no encontrado');
+      await printElementAsDocument('pdf-content', `Auditoria - ${audit.title || 'EHS'}`, false);
+      toast.dismiss(toastId);
+    } catch (err) {
+      console.error('[AuditForm] Error al imprimir:', err);
+      toast.dismiss(toastId);
+      window.print();
+    } finally {
+      setIsPrinting(false);
+    }
+  };
 
   const [showSignatures, setShowSignatures] = useState({
     operator: true,
@@ -158,6 +179,16 @@ export default function AuditForm(): React.ReactElement | null {
       professional: true
     }
   });
+
+  const checklistKpis = React.useMemo(() => {
+    const list = audit.checklist || [];
+    const si = list.filter((i: any) => i.status === 'si').length;
+    const no = list.filter((i: any) => i.status === 'no').length;
+    const na = list.filter((i: any) => i.status === 'na').length;
+    const evalCount = si + no;
+    const percent = evalCount > 0 ? Math.round((si / evalCount) * 100) : 100;
+    return { si, no, na, percent, total: list.length };
+  }, [audit.checklist]);
 
   // Cargar datos del profesional
   useEffect(() => {
@@ -397,6 +428,28 @@ export default function AuditForm(): React.ReactElement | null {
 
                     {/* Checklist ISO */}
             <ModuleFormSection title="Checklist de Cumplimiento Legal e ISO" icon={<ClipboardCheck />}>
+                    {/* Resumen dinámico de cumplimiento */}
+                    <div className="mt-2 mb-4 p-4 rounded-xl bg-slate-900/60 border border-slate-800 flex flex-wrap items-center justify-between gap-3 select-none">
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Progreso Checklist:</span>
+                            <span className="text-xs font-black text-white">{checklistKpis.total} evaluados</span>
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                                <CheckCircle2 size={12} /> {checklistKpis.si} Conformes
+                            </span>
+                            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-400 border border-rose-500/30 flex items-center gap-1">
+                                <AlertTriangle size={12} /> {checklistKpis.no} Desvíos
+                            </span>
+                            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-700 text-slate-300">
+                                {checklistKpis.na} N/A
+                            </span>
+                            <span className="px-3 py-1 rounded-full text-xs font-black bg-blue-600 text-white shadow-sm">
+                                {checklistKpis.percent}% Cumplimiento
+                            </span>
+                        </div>
+                    </div>
+
                     <div className="mt-[1rem]">
                         <div className="flex flex-col gap-[1.25rem]">
                             {audit.checklist.map((item, idx) =>
@@ -659,12 +712,71 @@ export default function AuditForm(): React.ReactElement | null {
 
             <ModuleActionBar
               actions={[
-                { id: 'save', label: 'GUARDAR AUDITORÍA', icon: <Save />, variant: 'primary', onClick: () => requirePro(handleSave) },
-                { id: 'share', label: 'COMPARTIR', icon: <Share2 />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) },
-                { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer />, variant: 'secondary', onClick: () => requirePro(() => window.print()) }
+                { id: 'save', label: 'GUARDAR AUDITORÍA', icon: <Save size={18} />, variant: 'primary', onClick: () => requirePro(handleSave) },
+                { id: 'preview', label: 'PREVISUALIZAR', icon: <Eye size={18} />, variant: 'info', onClick: () => setShowPreviewModal(true) },
+                { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'warning', onClick: () => requirePro(handleDirectPrint) },
+                { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) }
               ]}
             />
         </ModuleFormLayout>
+
+        {/* Modal de Previsualización A4 en Vivo */}
+        {showPreviewModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+            <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-500/20 text-blue-400 rounded-xl">
+                    <ClipboardCheck size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+                      Vista Previa del Reporte de Auditoría EHS
+                    </h2>
+                    <p className="text-xs text-slate-400">
+                      Visualización idéntica al documento A4 final impreso
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setShowPreviewModal(false);
+                      handleDirectPrint();
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-500/20 transition-all cursor-pointer"
+                  >
+                    <Printer size={16} /> Imprimir / PDF
+                  </button>
+                  <button
+                    onClick={() => setShowPreviewModal(false)}
+                    className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                    title="Cerrar vista previa"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/70 flex justify-center">
+                <div className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
+                  <AuditPdf data={{ ...audit, showSignatures, createdAt: audit.createdAt || new Date().toISOString() }} customId="pdf-preview-audit" />
+                </div>
+              </div>
+
+              <div className="px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
+                <span>Formato estándar A4 vertical • Cumplimiento ISO 45001 y checklist completo</span>
+                <button
+                  onClick={() => setShowPreviewModal(false)}
+                  className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+                >
+                  Volver al formulario
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <ShareModal
           isOpen={showShareModal}
