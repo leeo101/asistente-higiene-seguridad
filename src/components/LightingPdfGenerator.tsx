@@ -1,11 +1,17 @@
 import React from 'react';
 import { Lightbulb, Sun, Layout, FileText, Building2, MapPin, Calendar, AlertTriangle, CheckCircle, Shield, Award } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import ReportContentRenderer from './reports/ReportContentRenderer';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
 import { getCountryNormativa } from '../data/legislationData';
 
-export default function LightingPdfGenerator({ data }: { data: any }): React.ReactElement | null {
+interface Props {
+  data: any;
+  customId?: string;
+}
+
+export default function LightingPdfGenerator({ data, customId = 'pdf-content' }: Props): React.ReactElement | null {
   if (!data) return null;
 
   const savedPersonal = localStorage.getItem('personalData');
@@ -40,7 +46,7 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
   return (
     <div className="w-full flex justify-center">
       <div
-        id="pdf-content"
+        id={customId || "pdf-content"}
         className="pdf-container print-area w-full max-w-[210mm] min-h-[297mm] p-[10mm_12mm] bg-white text-slate-800 shadow-xl rounded-lg box-border mx-auto text-[8.5pt] font-sans"
         style={{
           borderTop: cumple ? '10px solid #eab308' : '10px solid #dc2626'
@@ -259,8 +265,8 @@ export default function LightingPdfGenerator({ data }: { data: any }): React.Rea
               <FileText size={12} className="text-white" />
               <span className="font-black text-[0.65rem] text-white uppercase tracking-wide">CONCLUSIONES TÉCNICAS Y RECOMENDACIONES PREVENTIVAS</span>
             </div>
-            <div className="p-2 text-[7.5pt] text-slate-700 whitespace-pre-wrap leading-relaxed bg-slate-50 font-medium">
-              {conclusion}
+            <div className="p-2 text-[7.5pt] text-slate-700 leading-relaxed bg-slate-50 font-medium">
+              <ReportContentRenderer content={conclusion} />
             </div>
           </div>
         )}

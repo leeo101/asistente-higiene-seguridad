@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   HardHat, AlertTriangle, Plus, Search,
-  FileText, Eye, Edit3, Trash2, CheckCircle2,
+  FileText, Eye, Edit3, Trash2, CheckCircle2, Printer,
   XCircle, Clock, User, Users, Calendar,
   Shield, ArrowDown, Ruler, Anchor, CheckSquare,
   BarChart3, AlertCircle, Activity, Layers, Share2, ArrowLeft, Download } from
 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import WorkingAtHeightPdf from '../components/WorkingAtHeightPdf';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import { usePaywall } from '../hooks/usePaywall';
 import PremiumHeader from '../components/PremiumHeader';
@@ -85,6 +86,21 @@ export default function WorkingAtHeight(): React.ReactElement | null {
   const [selectedPermit, setSelectedPermit] = useState(null);
   const [activeTab, setActiveTab] = useState('permits');
   const [shareItem, setShareItem] = useState(null);
+  const [previewItem, setPreviewItem] = useState<any>(null);
+  const [directPrintItem, setDirectPrintItem] = useState<any>(null);
+
+  const handleDirectPrint = (item: any) => {
+    requirePro(() => {
+      setDirectPrintItem(item);
+      setTimeout(() => {
+        printElementAsDocument('working-at-height-direct-print');
+      }, 150);
+    });
+  };
+
+  const handlePreview = (item: any) => {
+    setPreviewItem(item);
+  };
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
   const { isPro } = usePaywall();
 
@@ -285,6 +301,20 @@ export default function WorkingAtHeight(): React.ReactElement | null {
       render: (item: any) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <button 
+            onClick={() => handlePreview(item)} 
+            title="Vista Previa A4"
+            style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Eye size={12} /> Previa A4
+          </button>
+
+          <button 
+            onClick={() => handleDirectPrint(item)} 
+            title="Imprimir PDF Directo"
+            style={{ backgroundColor: '#475569', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Printer size={12} /> PDF
+          </button>
+
+          <button 
             onClick={() => navigate('/working-at-height/new', { state: { editData: item } })} 
             style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
             <FileText size={12} /> Editar
@@ -369,6 +399,71 @@ export default function WorkingAtHeight(): React.ReactElement | null {
 
   return (
     <div className="container pb-[6rem]">
+      {/* Modal de Previsualización A4 Realista */}
+      {previewItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-500/20 text-amber-400 rounded-xl">
+                  <FileText size={20} />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+                    Vista Previa A4 • Permiso en Altura PTSA
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    {previewItem.workerName || 'Operario'} • {previewItem.location || 'Obra'} • Res. SRT 61/23
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => requirePro(() => printElementAsDocument('working-at-height-table-preview'))}
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 rounded-xl shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+                >
+                  <Printer size={16} /> Imprimir / PDF
+                </button>
+                <button
+                  onClick={() => setPreviewItem(null)}
+                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                  title="Cerrar vista previa"
+                >
+                  <XCircle size={20} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/70 flex justify-center">
+              <div className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
+                <WorkingAtHeightPdf
+                  data={previewItem}
+                  customId="working-at-height-table-preview"
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
+              <span>Resolución SRT 61/23 & Dec. 911/96 • Renglones y párrafos preservados</span>
+              <button
+                onClick={() => setPreviewItem(null)}
+                className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contenedor Offscreen para Impresión Directa */}
+      {directPrintItem && (
+        <div className="ats-pdf-offscreen" id="working-at-height-direct-print" aria-hidden="true">
+          <WorkingAtHeightPdf data={directPrintItem} customId="working-at-height-direct-print" />
+        </div>
+      )}
+
       <ShareModal
         isOpen={!!shareItem}
         open={!!shareItem}
@@ -376,12 +471,12 @@ export default function WorkingAtHeight(): React.ReactElement | null {
         title={`Permiso Altura - ${shareItem?.location || ''}`}
         text={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}` : ''}
         rawMessage={shareItem ? `🧗 Permiso de Trabajo en Altura\n📍 Ubicación: ${shareItem.location}\n👷 Trabajador: ${shareItem.workerName}\n📅 Fecha: ${new Date(shareItem.createdAt || Date.now()).toLocaleDateString('es-AR')}\n\nGenerado con Asistente H&S` : ''}
-        elementIdToPrint="pdf-content"
+        elementIdToPrint="working-at-height-share-print"
         fileName={`Altura_${shareItem?.location || 'Sin_Nombre'}.pdf`}
       />
 
-      <div className="fixed left-[0] opacity-[0.01] top-[0] pointer-events-[none]">
-        {shareItem && <WorkingAtHeightPdf data={shareItem} />}
+      <div className="ats-pdf-offscreen" id="working-at-height-share-print" aria-hidden="true">
+        {shareItem && <WorkingAtHeightPdf data={shareItem} customId="working-at-height-share-print" />}
       </div>
       
       <div className="no-print mb-6">

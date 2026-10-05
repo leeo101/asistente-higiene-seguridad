@@ -489,45 +489,53 @@ export default function Reports(): React.ReactElement | null {
           
           {/* TARJETAS DE MÉTRICAS EJECUTIVAS */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
-            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-md shadow-sm flex flex-col justify-between">
-              <div className="flex items-center justify-between text-slate-400 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Total Informes</span>
-                <FileCheck size={18} className="text-amber-500" />
+            <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between text-slate-900 dark:text-slate-200 mb-2">
+                <span className="text-xs font-black uppercase tracking-wider text-black dark:text-slate-100">Total Informes</span>
+                <div className="p-1.5 rounded-lg bg-amber-500 text-black font-bold shadow-xs">
+                  <FileCheck size={18} />
+                </div>
               </div>
-              <div className="text-2xl sm:text-3xl font-black text-white">{metrics.total}</div>
-              <span className="text-[11px] text-slate-500 mt-1">Registrados en el sistema</span>
+              <div className="text-2xl sm:text-3xl font-black text-black dark:text-white" style={{ color: '#000000' }}>{metrics.total}</div>
+              <span className="text-[11px] font-bold text-slate-800 dark:text-slate-300 mt-1">Registrados en el sistema</span>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-md shadow-sm flex flex-col justify-between">
-              <div className="flex items-center justify-between text-slate-400 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Este Mes</span>
-                <Calendar size={18} className="text-blue-500" />
+            <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between text-slate-900 dark:text-slate-200 mb-2">
+                <span className="text-xs font-black uppercase tracking-wider text-black dark:text-slate-100">Este Mes</span>
+                <div className="p-1.5 rounded-lg bg-blue-600 text-white font-bold shadow-xs">
+                  <Calendar size={18} />
+                </div>
               </div>
-              <div className="text-2xl sm:text-3xl font-black text-white">{metrics.thisMonth}</div>
-              <span className="text-[11px] text-slate-500 mt-1">Generados en {new Date().toLocaleDateString('es-AR', { month: 'long' })}</span>
+              <div className="text-2xl sm:text-3xl font-black text-black dark:text-white" style={{ color: '#000000' }}>{metrics.thisMonth}</div>
+              <span className="text-[11px] font-bold text-slate-800 dark:text-slate-300 mt-1 capitalize">Generados en {new Date().toLocaleDateString('es-AR', { month: 'long' })}</span>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-md shadow-sm flex flex-col justify-between">
-              <div className="flex items-center justify-between text-slate-400 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Empresas</span>
-                <Building2 size={18} className="text-emerald-500" />
+            <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between text-slate-900 dark:text-slate-200 mb-2">
+                <span className="text-xs font-black uppercase tracking-wider text-black dark:text-slate-100">Empresas</span>
+                <div className="p-1.5 rounded-lg bg-emerald-600 text-white font-bold shadow-xs">
+                  <Building2 size={18} />
+                </div>
               </div>
-              <div className="text-2xl sm:text-3xl font-black text-white">{metrics.companies}</div>
-              <span className="text-[11px] text-slate-500 mt-1">Clientes auditados</span>
+              <div className="text-2xl sm:text-3xl font-black text-black dark:text-white" style={{ color: '#000000' }}>{metrics.companies}</div>
+              <span className="text-[11px] font-bold text-slate-800 dark:text-slate-300 mt-1">Clientes auditados</span>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-md shadow-sm flex flex-col justify-between">
-              <div className="flex items-center justify-between text-slate-400 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Más Frecuente</span>
-                <Award size={18} className="text-purple-500" />
+            <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between text-slate-900 dark:text-slate-200 mb-2">
+                <span className="text-xs font-black uppercase tracking-wider text-black dark:text-slate-100">Más Frecuente</span>
+                <div className="p-1.5 rounded-lg bg-purple-600 text-white font-bold shadow-xs">
+                  <Award size={18} />
+                </div>
               </div>
-              <div className="text-xl sm:text-2xl font-black text-white truncate">{metrics.topTemplate}</div>
-              <span className="text-[11px] text-slate-500 mt-1">Tipo de informe principal</span>
+              <div className="text-xl sm:text-2xl font-black text-black dark:text-white truncate" style={{ color: '#000000' }}>{metrics.topTemplate}</div>
+              <span className="text-[11px] font-bold text-slate-800 dark:text-slate-300 mt-1">Tipo de informe principal</span>
             </div>
           </div>
 
           {/* BARRA DE ACCIÓN PRINCIPAL */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-6 p-4 rounded-2xl bg-slate-900/40 border border-slate-800">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-6 p-4 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 shadow-sm">
             {/* Píldoras de Filtro por tipo de informe */}
             <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
               {[
@@ -541,10 +549,15 @@ export default function Reports(): React.ReactElement | null {
                 <button
                   key={tab.id}
                   onClick={() => setFilterTemplate(tab.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  style={{
+                    backgroundColor: filterTemplate === tab.id ? '#f59e0b' : '#e2e8f0',
+                    color: '#0f172a',
+                    minHeight: 'unset'
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all whitespace-nowrap cursor-pointer ${
                     filterTemplate === tab.id
-                      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                      : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-700/80'
+                      ? 'shadow-md shadow-amber-500/25 border-2 border-amber-600'
+                      : 'hover:bg-slate-300 border border-slate-300'
                   }`}
                 >
                   {tab.label}
@@ -556,10 +569,15 @@ export default function Reports(): React.ReactElement | null {
             <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
               <button
                 onClick={handleExportCSV}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+                style={{
+                  backgroundColor: '#059669',
+                  color: '#ffffff',
+                  minHeight: 'unset'
+                }}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 hover:opacity-90 font-black border border-emerald-700 rounded-xl text-xs transition-all shadow-md cursor-pointer active:scale-95"
                 title="Descargar listado en formato Excel / CSV"
               >
-                <FileSpreadsheet size={16} className="text-emerald-400" /> EXCEL
+                <FileSpreadsheet size={16} color="#ffffff" className="stroke-[2.5]" /> EXCEL
               </button>
 
               <button
@@ -582,29 +600,34 @@ export default function Reports(): React.ReactElement | null {
                   setExtraFields({});
                   setIsFormVisible(true);
                 }}
-                className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 rounded-xl text-xs sm:text-sm font-black shadow-lg shadow-amber-500/25 transition-all cursor-pointer hover:scale-[1.02]"
+                style={{
+                  backgroundColor: '#f59e0b',
+                  color: '#000000',
+                  minHeight: 'unset'
+                }}
+                className="flex items-center justify-center gap-2 px-5 py-2.5 hover:opacity-90 rounded-xl text-xs sm:text-sm font-black shadow-lg shadow-amber-500/25 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] border-2 border-amber-600"
               >
-                <Plus size={18} /> NUEVO INFORME
+                <Plus size={18} color="#000000" className="stroke-[3]" /> NUEVO INFORME
               </button>
             </div>
           </div>
 
           {/* TABLA DE HISTORIAL CON DATATABLE */}
-          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-md">
+          <div className="bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-md">
             <DataTable
               data={filteredHistory}
               searchPlaceholder="Buscar por título, empresa o responsable..."
               searchFields={['title', 'company', 'responsable']}
               emptyMessage="No se encontraron informes con los filtros aplicados."
-              emptyIcon={<FileText size={48} className="text-slate-600" />}
+              emptyIcon={<FileText size={48} className="text-slate-400 dark:text-slate-600" />}
               columns={[
                 {
                   header: 'Fecha',
                   accessor: 'createdAt',
                   sortable: true,
                   render: (item: any) => (
-                    <span className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-                      <Calendar size={14} className="text-amber-500" /> 
+                    <span className="flex items-center gap-1.5 text-xs text-black dark:text-slate-100 font-extrabold whitespace-nowrap">
+                      <Calendar size={14} className="text-amber-600 shrink-0 stroke-[2.5]" /> 
                       {new Date(item.createdAt || item.date).toLocaleDateString('es-AR')}
                     </span>
                   )
@@ -618,17 +641,18 @@ export default function Reports(): React.ReactElement | null {
                     return (
                       <div className="flex items-center gap-3">
                         <div
-                          className="p-2 rounded-xl flex items-center justify-center"
+                          className="p-2.5 rounded-xl flex items-center justify-center shrink-0 shadow-sm text-white"
                           style={{
-                            backgroundColor: `${tpl?.color || '#3b82f6'}20`,
-                            color: tpl?.color || '#3b82f6'
+                            backgroundColor: tpl?.color || '#3b82f6'
                           }}
                         >
-                          <FileText size={18} />
+                          <FileText size={20} className="text-white" />
                         </div>
-                        <div>
-                          <div className="font-bold text-white text-sm">{item.title || 'Sin Título'}</div>
-                          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                        <div className="min-w-0">
+                          <div className="font-black text-black dark:text-white text-sm hover:text-amber-600 dark:hover:text-amber-400 transition-colors line-clamp-2">
+                            {item.title || 'Sin Título'}
+                          </div>
+                          <div className="text-[11px] font-black text-slate-800 dark:text-slate-300 uppercase tracking-wider mt-0.5">
                             {tpl?.label || 'INFORME GENERAL'}
                           </div>
                         </div>
@@ -642,9 +666,12 @@ export default function Reports(): React.ReactElement | null {
                   sortable: true,
                   render: (item: any) => (
                     <div>
-                      <div className="font-semibold text-slate-200 text-sm">{item.company || '-'}</div>
-                      <div className="text-xs text-slate-400 flex items-center gap-1">
-                        <Building2 size={12} /> {item.location || 'Sede principal'}
+                      <div className="font-black text-black dark:text-white text-sm">
+                        {item.company || '-'}
+                      </div>
+                      <div className="text-xs text-slate-800 dark:text-slate-300 flex items-center gap-1 mt-0.5 font-bold">
+                        <Building2 size={13} className="text-slate-600 dark:text-slate-400 shrink-0 stroke-[2.2]" /> 
+                        <span>{item.location || 'Sede principal'}</span>
                       </div>
                     </div>
                   )
@@ -653,25 +680,35 @@ export default function Reports(): React.ReactElement | null {
                   header: 'Acciones',
                   accessor: 'id',
                   render: (item: any) => (
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 flex-nowrap">
                       <button
                         onClick={() => {
                           setPreviewData(item);
                           setPreviewModalOpen(true);
                         }}
-                        title="Vista Previa de Impresión"
-                        className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 hover:text-amber-300 transition-colors cursor-pointer"
+                        style={{
+                          backgroundColor: '#0284c7',
+                          color: '#ffffff',
+                          minHeight: 'unset'
+                        }}
+                        title="Vista Previa A4"
+                        className="p-2 rounded-xl hover:opacity-90 border border-sky-700 transition-all shadow-sm cursor-pointer hover:scale-105 active:scale-95"
                       >
-                        <Eye size={16} />
+                        <Eye size={16} color="#ffffff" className="stroke-[2.5]" />
                       </button>
 
                       <button
                         onClick={() => handleDirectPrintFromHistory(item)}
-                        title="Imprimir / Guardar PDF"
-                        className="p-2 rounded-xl bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white transition-all cursor-pointer flex items-center gap-1"
+                        style={{
+                          backgroundColor: '#7c3aed',
+                          color: '#ffffff',
+                          minHeight: 'unset'
+                        }}
+                        title="Imprimir / Descargar PDF"
+                        className="px-2.5 py-2 rounded-xl hover:opacity-90 border border-purple-700 transition-all shadow-sm cursor-pointer flex items-center gap-1 hover:scale-105 active:scale-95"
                       >
-                        <Printer size={16} />
-                        <span className="text-[10px] font-bold hidden sm:inline">PDF</span>
+                        <Printer size={16} color="#ffffff" className="stroke-[2.5]" />
+                        <span style={{ color: '#ffffff' }} className="text-[11px] font-black tracking-wide">PDF</span>
                       </button>
 
                       <button
@@ -679,26 +716,41 @@ export default function Reports(): React.ReactElement | null {
                           navigate('/reports', { state: { editData: item } });
                           setIsFormVisible(true);
                         }}
+                        style={{
+                          backgroundColor: '#f59e0b',
+                          color: '#000000',
+                          minHeight: 'unset'
+                        }}
                         title="Editar Informe"
-                        className="p-2 rounded-xl bg-blue-600/20 hover:bg-blue-600 text-blue-300 hover:text-white transition-all cursor-pointer"
+                        className="p-2 rounded-xl hover:opacity-90 border border-amber-600 transition-all shadow-sm cursor-pointer hover:scale-105 active:scale-95"
                       >
-                        <Edit2 size={16} />
+                        <Edit2 size={16} color="#000000" className="stroke-[2.5]" />
                       </button>
 
                       <button
                         onClick={() => handleDuplicateReport(item)}
+                        style={{
+                          backgroundColor: '#4f46e5',
+                          color: '#ffffff',
+                          minHeight: 'unset'
+                        }}
                         title="Duplicar como nuevo borrador"
-                        className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                        className="p-2 rounded-xl hover:opacity-90 border border-indigo-700 transition-all shadow-sm cursor-pointer hover:scale-105 active:scale-95"
                       >
-                        <Copy size={16} />
+                        <Copy size={16} color="#ffffff" className="stroke-[2.5]" />
                       </button>
 
                       <button
                         onClick={() => setShareItem({ type: 'report', data: item })}
+                        style={{
+                          backgroundColor: '#059669',
+                          color: '#ffffff',
+                          minHeight: 'unset'
+                        }}
                         title="Compartir (WhatsApp / Email)"
-                        className="p-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white transition-all cursor-pointer"
+                        className="p-2 rounded-xl hover:opacity-90 border border-emerald-700 transition-all shadow-sm cursor-pointer hover:scale-105 active:scale-95"
                       >
-                        <Share2 size={16} />
+                        <Share2 size={16} color="#ffffff" className="stroke-[2.5]" />
                       </button>
 
                       <button
@@ -706,10 +758,15 @@ export default function Reports(): React.ReactElement | null {
                           e.stopPropagation();
                           setDeleteTarget(item.id);
                         }}
-                        title="Eliminar"
-                        className="p-2 rounded-xl bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white transition-all cursor-pointer"
+                        style={{
+                          backgroundColor: '#dc2626',
+                          color: '#ffffff',
+                          minHeight: 'unset'
+                        }}
+                        title="Eliminar Informe"
+                        className="p-2 rounded-xl hover:opacity-90 border border-rose-700 transition-all shadow-sm cursor-pointer hover:scale-105 active:scale-95"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={16} color="#ffffff" className="stroke-[2.5]" />
                       </button>
                     </div>
                   )
@@ -829,7 +886,7 @@ export default function Reports(): React.ReactElement | null {
 
           {/* SELECTOR DE PLANTILLAS CON DISEÑO MEJORADO */}
           <div className="mb-8">
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-3">
+            <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
               Tipo de Documento / Plantilla Base
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
@@ -846,18 +903,18 @@ export default function Reports(): React.ReactElement | null {
                     }}
                     className={`p-4 rounded-2xl cursor-pointer transition-all duration-200 flex flex-col items-center text-center border ${
                       isSelected
-                        ? 'bg-amber-500/10 border-amber-500 shadow-lg shadow-amber-500/10 scale-[1.02]'
-                        : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 hover:bg-slate-800/60'
+                        ? 'bg-amber-500/10 border-amber-500 shadow-md shadow-amber-500/15 scale-[1.02]'
+                        : 'bg-white dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
                     }`}
                   >
                     <div
                       className={`p-3 rounded-2xl mb-2 transition-colors ${
-                        isSelected ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-400'
+                        isSelected ? 'bg-amber-500 text-slate-950 font-bold shadow-xs' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                       }`}
                     >
                       {t.icon}
                     </div>
-                    <div className={`text-xs font-bold ${isSelected ? 'text-amber-400' : 'text-slate-200'}`}>
+                    <div className={`text-xs font-bold ${isSelected ? 'text-amber-600 dark:text-amber-400' : 'text-slate-800 dark:text-slate-200'}`}>
                       {t.label}
                     </div>
                   </div>
@@ -867,14 +924,14 @@ export default function Reports(): React.ReactElement | null {
           </div>
 
           {/* DATOS GENERALES */}
-          <div className="mb-8 p-6 rounded-2xl bg-slate-900/70 border border-slate-800 shadow-xl backdrop-blur-md">
-            <h3 className="text-amber-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-6">
+          <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
+            <h3 className="text-amber-600 dark:text-amber-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-6">
               <FileText size={20} /> Datos Generales del Informe
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div className="md:col-span-2">
-                <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                   Título del Informe
                 </label>
                 <input
@@ -882,12 +939,12 @@ export default function Reports(): React.ReactElement | null {
                   value={projectData.title}
                   onChange={(e) => setProjectData({ ...projectData, title: e.target.value })}
                   placeholder="Ej: Relevamiento de Condiciones de Seguridad e Higiene"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors outline-none"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors outline-none shadow-xs"
                 />
               </div>
 
               <div>
-                <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                   Empresa / Cliente
                 </label>
                 <input
@@ -895,12 +952,12 @@ export default function Reports(): React.ReactElement | null {
                   value={projectData.company}
                   onChange={(e) => setProjectData({ ...projectData, company: e.target.value })}
                   placeholder="Nombre de la empresa o cliente"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors outline-none"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors outline-none shadow-xs"
                 />
               </div>
 
               <div>
-                <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                   Ubicación / Planta / Sector
                 </label>
                 <input
@@ -908,24 +965,24 @@ export default function Reports(): React.ReactElement | null {
                   value={projectData.location}
                   onChange={(e) => setProjectData({ ...projectData, location: e.target.value })}
                   placeholder="Ej: Sede Central / Depósito Logístico"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors outline-none"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors outline-none shadow-xs"
                 />
               </div>
 
               <div>
-                <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                   Fecha del Relevamiento
                 </label>
                 <input
                   type="date"
                   value={projectData.date}
                   onChange={(e) => setProjectData({ ...projectData, date: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors outline-none"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors outline-none shadow-xs"
                 />
               </div>
 
               <div>
-                <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                   Profesional Actuante
                 </label>
                 <input
@@ -933,7 +990,7 @@ export default function Reports(): React.ReactElement | null {
                   value={projectData.responsable}
                   onChange={(e) => setProjectData({ ...projectData, responsable: e.target.value })}
                   placeholder="Nombre y apellido del profesional"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors outline-none"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors outline-none shadow-xs"
                 />
               </div>
             </div>
@@ -941,13 +998,13 @@ export default function Reports(): React.ReactElement | null {
 
           {/* CAMPOS ESPECÍFICOS PARA ACCIDENTES O CAPACITACIONES */}
           {template === 'training' && (
-            <div className="mb-8 p-6 rounded-2xl bg-slate-900/70 border border-slate-800 shadow-xl backdrop-blur-md">
-              <h3 className="text-emerald-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-4">
+            <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
+              <h3 className="text-emerald-600 dark:text-emerald-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-4">
                 <GraduationCap size={20} /> Datos de la Capacitación
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-2">
-                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Tema Central de Capacitación
                   </label>
                   <input
@@ -955,11 +1012,11 @@ export default function Reports(): React.ReactElement | null {
                     placeholder="Ej: Uso seguro de extintores y plan de evacuación"
                     value={extraFields.topic || ''}
                     onChange={(e) => setExtraFields({ ...extraFields, topic: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-emerald-500 outline-none"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-emerald-500 outline-none shadow-xs"
                   />
                 </div>
                 <div>
-                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Duración (minutos)
                   </label>
                   <input
@@ -967,7 +1024,7 @@ export default function Reports(): React.ReactElement | null {
                     placeholder="60"
                     value={extraFields.duration || ''}
                     onChange={(e) => setExtraFields({ ...extraFields, duration: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-emerald-500 outline-none"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-emerald-500 outline-none shadow-xs"
                   />
                 </div>
               </div>
@@ -975,24 +1032,24 @@ export default function Reports(): React.ReactElement | null {
           )}
 
           {template === 'accident' && (
-            <div className="mb-8 p-6 rounded-2xl bg-slate-900/70 border border-slate-800 shadow-xl backdrop-blur-md">
-              <h3 className="text-red-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-4">
+            <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
+              <h3 className="text-red-600 dark:text-red-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-4">
                 <AlertCircle size={20} /> Datos del Incidente / Accidente
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Hora del Evento
                   </label>
                   <input
                     type="time"
                     value={extraFields.eventTime || ''}
                     onChange={(e) => setExtraFields({ ...extraFields, eventTime: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-red-500 outline-none"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-red-500 outline-none shadow-xs"
                   />
                 </div>
                 <div>
-                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Trabajador / Persona Afectada
                   </label>
                   <input
@@ -1000,7 +1057,7 @@ export default function Reports(): React.ReactElement | null {
                     placeholder="Nombre completo del damnificado"
                     value={extraFields.affectedPerson || ''}
                     onChange={(e) => setExtraFields({ ...extraFields, affectedPerson: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-red-500 outline-none"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-red-500 outline-none shadow-xs"
                   />
                 </div>
               </div>
@@ -1009,17 +1066,17 @@ export default function Reports(): React.ReactElement | null {
 
           {/* NÓMINA DE PERSONAL INTERVINIENTE (CAPACITACIÓN / ENTREGA EPP) */}
           {(template === 'training' || template === 'epp') && (
-            <div className="mb-8 p-6 rounded-2xl bg-slate-900/70 border border-slate-800 shadow-xl backdrop-blur-md">
+            <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
               <div className="flex justify-between items-center mb-4">
-                <label className="text-sm font-black text-amber-400 uppercase tracking-wider">
+                <label className="text-sm font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">
                   Nómina de Personal Interviniente / Firmas
                 </label>
                 <button
                   type="button"
                   onClick={handleAddPerson}
-                  className="px-3 py-1.5 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
+                  className="px-3.5 py-1.5 text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 border border-amber-300 dark:border-slate-700 rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs"
                 >
-                  <Plus size={14} /> Añadir Persona
+                  <Plus size={14} className="stroke-[2.5]" /> Añadir Persona
                 </button>
               </div>
 
@@ -1030,7 +1087,7 @@ export default function Reports(): React.ReactElement | null {
                       <input
                         type="text"
                         placeholder="Nombre completo del trabajador"
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-amber-500 outline-none"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-amber-500 outline-none shadow-xs"
                         value={p.name}
                         onChange={(e) => handlePersonChange(p.id, 'name', e.target.value)}
                       />
@@ -1039,7 +1096,7 @@ export default function Reports(): React.ReactElement | null {
                       <input
                         type="text"
                         placeholder="DNI / CUIL"
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm focus:border-amber-500 outline-none"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-amber-500 outline-none shadow-xs"
                         value={p.dni}
                         onChange={(e) => handlePersonChange(p.id, 'dni', e.target.value)}
                       />
@@ -1048,7 +1105,7 @@ export default function Reports(): React.ReactElement | null {
                       type="button"
                       onClick={() => handleRemovePerson(p.id)}
                       disabled={personnel.length === 1}
-                      className="p-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="p-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 dark:text-rose-400 border border-rose-200 dark:border-rose-900/40 rounded-xl transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed shadow-xs"
                       title="Eliminar fila"
                     >
                       <Trash2 size={16} />
@@ -1063,19 +1120,19 @@ export default function Reports(): React.ReactElement | null {
           <div className="mb-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
               <div>
-                <label className="block text-sm font-black uppercase tracking-wider text-amber-400">
+                <label className="block text-sm font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
                   Desarrollo del Informe (Editor Tipo Word)
                 </label>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-600 dark:text-slate-400">
                   Utilice la barra para formatear letras, colores, insertar tablas, avisos y dejar renglones.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={handleOpenPreview}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition-colors cursor-pointer w-fit"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-sky-800 dark:text-slate-300 bg-sky-50 hover:bg-sky-100 dark:bg-slate-800 dark:hover:bg-slate-700 border border-sky-300 dark:border-slate-700 rounded-xl transition-colors cursor-pointer w-fit shadow-xs"
               >
-                <Eye size={14} className="text-amber-400" /> Vista Previa A4
+                <Eye size={14} className="text-sky-600 dark:text-amber-400 stroke-[2.2]" /> Vista Previa A4
               </button>
             </div>
 
@@ -1089,7 +1146,7 @@ export default function Reports(): React.ReactElement | null {
           </div>
 
           {/* FOTOS DE EVIDENCIA */}
-          <div className="mb-8 p-6 rounded-2xl bg-slate-900/70 border border-slate-800 shadow-xl backdrop-blur-md">
+          <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
             <PhotoAttachments
               photos={photos}
               onChange={setPhotos}
@@ -1099,14 +1156,14 @@ export default function Reports(): React.ReactElement | null {
           </div>
 
           {/* FIRMAS Y AUTORIZACIONES */}
-          <div className="mb-8 p-6 rounded-2xl bg-slate-900/70 border border-slate-800 shadow-xl backdrop-blur-md">
-            <h3 className="text-amber-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-6">
+          <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
+            <h3 className="text-amber-600 dark:text-amber-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-6">
               ✍️ Firmas Digitales y Sellos
             </h3>
 
             {/* Conmutadores de firmas a incluir */}
-            <div className="mb-6 p-4 rounded-xl bg-slate-950/70 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
+            <div className="mb-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                 Firmas a incluir en el documento impreso:
               </span>
               <div className="flex gap-2 flex-wrap justify-center">
@@ -1119,10 +1176,10 @@ export default function Reports(): React.ReactElement | null {
                   return (
                     <label
                       key={sig.id}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold cursor-pointer transition-all border ${
+                      className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold cursor-pointer transition-all border ${
                         isChecked
-                          ? 'bg-amber-500/15 border-amber-500 text-amber-400 shadow-sm'
-                          : 'bg-slate-800 border-slate-700 text-slate-400'
+                          ? 'bg-amber-500/15 border-amber-500 text-amber-700 dark:text-amber-400 shadow-xs'
+                          : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400'
                       }`}
                     >
                       <input
@@ -1131,7 +1188,7 @@ export default function Reports(): React.ReactElement | null {
                         onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))}
                         className="hidden"
                       />
-                      <div className={`w-3.5 h-3.5 rounded flex items-center justify-center border ${isChecked ? 'bg-amber-500 border-amber-500' : 'border-slate-500'}`}>
+                      <div className={`w-3.5 h-3.5 rounded flex items-center justify-center border ${isChecked ? 'bg-amber-500 border-amber-500' : 'border-slate-400 dark:border-slate-500'}`}>
                         {isChecked && <CheckCircle2 size={10} className="text-slate-950 font-bold" />}
                       </div>
                       {sig.label}
@@ -1176,7 +1233,7 @@ export default function Reports(): React.ReactElement | null {
             {/* PADS DE DIBUJO DE FIRMAS */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {showSignatures?.operator && (
-                <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl">
+                <div className="p-4 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl">
                   <SignatureCanvas
                     onSave={(sig) => setOperatorSignature(sig || '')}
                     initialImage={operatorSignature}
@@ -1185,7 +1242,7 @@ export default function Reports(): React.ReactElement | null {
                 </div>
               )}
               {showSignatures?.supervisor && (
-                <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl">
+                <div className="p-4 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl">
                   <SignatureCanvas
                     onSave={(sig) => setSupervisorSignature(sig || '')}
                     initialImage={supervisorSignature}
@@ -1194,7 +1251,7 @@ export default function Reports(): React.ReactElement | null {
                 </div>
               )}
               {showSignatures?.professional && (
-                <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl">
+                <div className="p-4 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl">
                   <SignatureCanvas
                     onSave={(sig) => setSignature(sig || '')}
                     initialImage={signature}
@@ -1206,11 +1263,11 @@ export default function Reports(): React.ReactElement | null {
           </div>
 
           {/* BARRA DE ACCIÓN INFERIOR */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-xl">
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-xl">
             <button
               type="button"
               onClick={() => setIsFormVisible(false)}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 text-xs sm:text-sm font-bold transition-colors cursor-pointer"
+              className="w-full sm:w-auto px-6 py-3 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 text-xs sm:text-sm font-bold transition-colors cursor-pointer"
             >
               Cancelar
             </button>
@@ -1219,23 +1276,23 @@ export default function Reports(): React.ReactElement | null {
               <button
                 type="button"
                 onClick={handleOpenPreview}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 text-xs sm:text-sm font-bold transition-all cursor-pointer"
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-amber-400 border border-sky-300 dark:border-slate-700 text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs"
               >
-                <Eye size={18} /> Previsualizar
+                <Eye size={18} className="stroke-[2.2]" /> Previsualizar
               </button>
               <button
                 type="button"
                 onClick={handlePrintFromForm}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 text-xs sm:text-sm font-black shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 text-xs sm:text-sm font-black shadow-lg shadow-amber-500/25 transition-all cursor-pointer active:scale-95"
               >
-                <Printer size={18} /> Imprimir PDF
+                <Printer size={18} className="stroke-[2.2]" /> Imprimir PDF
               </button>
               <button
                 type="button"
                 onClick={() => requirePro(handleSave)}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white text-xs sm:text-sm font-black shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white text-xs sm:text-sm font-black shadow-lg shadow-emerald-500/25 transition-all cursor-pointer active:scale-95"
               >
-                <Save size={18} /> Guardar
+                <Save size={18} className="stroke-[2.2]" /> Guardar
               </button>
             </div>
           </div>

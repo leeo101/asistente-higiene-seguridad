@@ -165,12 +165,12 @@ export function DataTable<T extends Record<string, any>>({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)} 
               style={{ width: '100%', height: '42px', paddingLeft: '2.6rem', paddingRight: '1rem', boxSizing: 'border-box', outline: 'none' }}
-              className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm" 
+              className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-950 dark:text-slate-100 placeholder:text-slate-500 text-sm font-semibold focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all shadow-sm" 
             />
           </div>
           <div style={{
             justifyContent: isMobile ? 'flex-end' : 'flex-start'
-          }} className="flex items-center gap-[0.5rem] text-[var(--color-text-muted)] text-[0.8rem]">
+          }} className="flex items-center gap-[0.5rem] text-slate-800 dark:text-slate-300 font-bold text-[0.8rem]">
             <Funnel size={16} />
             <span>{processedData.length} resultados</span>
           </div>
@@ -197,13 +197,13 @@ export function DataTable<T extends Record<string, any>>({
 
           <table className="w-[100%] border-collapse-[collapse] text-left">
             <thead>
-              <tr className="bg-[var(--color-background)] border-bottom-[2px_solid_var(--color-border)]">
+              <tr className="bg-slate-100 dark:bg-slate-800 border-b-2 border-slate-300 dark:border-slate-700">
                 {columns.map((col, i) => (
                   <th
                     key={i}
                     style={{ cursor: col.sortable ? 'pointer' : 'default' }}
                     onClick={() => col.sortable && requestSort(col.accessor)}
-                    className="p-[0.75rem_1rem] sm:p-[1rem_1.25rem] text-[0.75rem] uppercase font-[800] text-[var(--color-text-muted)] white-space-[nowrap]"
+                    className="p-[0.75rem_1rem] sm:p-[1rem_1.25rem] text-[0.75rem] uppercase font-black text-slate-900 dark:text-slate-100 whitespace-nowrap"
                   >
                     <div className="flex items-center gap-[0.4rem]">
                       {col.header}
@@ -221,9 +221,9 @@ export function DataTable<T extends Record<string, any>>({
             <tbody>
               {paginatedData.length > 0 ? (
                 paginatedData.map((row, rowIndex) => (
-                  <tr key={rowIndex} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.02)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'} className="border-bottom-[1px_solid_var(--color-border)] transition-[background_var(--transition-fast)]">
+                  <tr key={rowIndex} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.02)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'} className="border-b border-slate-200 dark:border-slate-700 transition-colors">
                     {columns.map((col, colIndex) => (
-                      <td key={colIndex} className="p-[0.75rem_1rem] sm:p-[1rem_1.25rem] text-[var(--color-text)] text-[0.9rem] vertical-align-[middle]">
+                      <td key={colIndex} className="p-[0.75rem_1rem] sm:p-[1rem_1.25rem] text-slate-900 dark:text-slate-100 text-[0.9rem] align-middle font-medium">
                         {col.render ? col.render(row, (currentPage - 1) * itemsPerPage + rowIndex) : row[col.accessor as keyof T] as unknown as string || '—'}
                       </td>
                     ))}
@@ -275,8 +275,8 @@ export function DataTable<T extends Record<string, any>>({
             
               <CaretLeft size={18} />
             </button>
-            <div className="flex items-center p-[0_1rem] text-[0.85rem] font-[700] text-[white]">
-              {currentPage} <span className="text-[var(--color-text-muted)] m-[0_0.4rem] font-[400]">de</span> {totalPages}
+            <div className="flex items-center p-[0_1rem] text-[0.85rem] font-black text-slate-900 dark:text-white">
+              {currentPage} <span className="text-slate-600 dark:text-slate-400 m-[0_0.4rem] font-bold">de</span> {totalPages}
             </div>
             <button
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}

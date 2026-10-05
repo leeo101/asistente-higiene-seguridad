@@ -122,7 +122,7 @@ export default function NoiseAssessmentPdf({ data }: { data: any }): React.React
   return (
     <div className="w-full flex justify-center">
       <div
-        id="pdf-content"
+        id="noise-pdf-document"
         className="pdf-container print-area w-full max-w-[210mm] min-h-[297mm] p-[10mm_12mm] bg-white text-slate-800 shadow-xl rounded-lg box-border mx-auto text-[8.5pt] font-sans"
         style={{
           borderTop: isCritical ? '10px solid #dc2626' : isConforme ? '10px solid #10b981' : '10px solid #f59e0b'
@@ -133,7 +133,7 @@ export default function NoiseAssessmentPdf({ data }: { data: any }): React.React
             @page { size: A4 portrait; margin: 6mm; }
             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; font-family: Helvetica, Arial, sans-serif; background: white !important; color: #0f172a !important; margin: 0 !important; padding: 0 !important; }
             .no-print, nav, header, aside, .sidebar, .module-form-toolbar, .module-action-bar, .module-wizard-footer { display: none !important; }
-            #pdf-content, .print-area {
+            #noise-pdf-document, #noise-pdf-content, #pdf-content, .print-area {
               display: block !important;
               position: absolute !important;
               top: 0 !important;

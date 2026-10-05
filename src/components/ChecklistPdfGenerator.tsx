@@ -3,6 +3,7 @@ import { ClipboardCheck, Check, X, AlertTriangle, Calendar, MapPin, User, Buildi
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
+import ReportContentRenderer from './reports/ReportContentRenderer';
 
 const ALL_NORMS_MAP: Record<string, string> = {
   ley19587: 'Ley 19.587 - Higiene y Seguridad en el Trabajo',
@@ -42,14 +43,17 @@ export default function ChecklistPdfGenerator({
   checklistData,
   showSignatures = { operator: true, supervisor: true, professional: true },
   isHeadless = false,
-  pdfElementId = 'pdf-content'
+  pdfElementId = 'pdf-content',
+  customId
 }: {
   checklistData: any;
   showSignatures?: {operator: boolean;supervisor: boolean;professional: boolean;};
   isHeadless?: boolean;
   pdfElementId?: string;
+  customId?: string;
 }): React.ReactElement | null {
   if (!checklistData) return null;
+  const targetId = customId || pdfElementId || 'pdf-content';
 
   const fullData = checklistData;
   let sections = fullData.activeSections;
@@ -138,7 +142,7 @@ export default function ChecklistPdfGenerator({
 
   return (
     <div
-      id={pdfElementId}
+      id={targetId}
       className="pdf-container print-area w-[100%] max-w-[210mm] min-h-0 h-auto p-[8mm_12mm] bg-white text-slate-800 box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[8pt] font-family-[Helvetica,_Arial,_sans-serif]"
       style={{ borderTop: `8px solid ${globalRiskColor}`, color: '#0f172a' }}
     >
@@ -433,9 +437,10 @@ export default function ChecklistPdfGenerator({
                     {(item.observation || (item.photos && item.photos.length > 0)) && (
                       <div style={{ backgroundColor: isFail ? '#fef9f9' : '#f8fafc' }} className="p-[0.2rem_0.6rem_0.4rem_2rem] border-top-[1px_dashed_#e2e8f0]">
                         {item.observation && (
-                          <p style={{ color: isFail ? '#991b1b' : '#475569' }} className="m-[0_0_0.2rem_0] text-[0.65rem] font-style-[italic] font-[600]">
-                            📝 {item.observation}
-                          </p>
+                          <div style={{ color: isFail ? '#991b1b' : '#475569' }} className="m-[0_0_0.2rem_0] text-[0.7rem] font-[600]">
+                            <span className="font-bold mr-1">📝 Observación:</span>
+                            <ReportContentRenderer content={item.observation} />
+                          </div>
                         )}
                         {item.photos && item.photos.length > 0 && (
                           <div className="flex gap-[0.3rem] flex-wrap mt-[0.2rem]">
@@ -456,12 +461,12 @@ export default function ChecklistPdfGenerator({
 
       {/* Observaciones Generales */}
       {obs && (
-        <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1rem] avoid-break avoid-break-strictly break-inside-avoid overflow-hidden bg-white">
+        <div className="border border-slate-300 rounded-[6px] mb-[1rem] overflow-hidden bg-white">
           <div className="bg-[#334155] text-[#fff] p-[0.4rem_0.8rem] text-[0.6rem] font-[900] uppercase letter-spacing-[0.05em]">
             OBSERVACIONES Y COMENTARIOS DEL INSPECTOR
           </div>
-          <div className="p-[0.8rem] text-[0.75rem] text-[#0f172a] font-[600] white-space-[pre-wrap] line-height-[1.4] bg-slate-50">
-            {obs}
+          <div className="p-[0.8rem] text-[0.75rem] text-[#0f172a] bg-slate-50">
+            <ReportContentRenderer content={obs} />
           </div>
         </div>
       )}

@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   HardHat, Plus, Search, Building, Calendar, Users, FileText,
   Download, Trash2, CheckCircle2, Clock, AlertCircle, MapPin,
-  FileSpreadsheet, Eye, X, ShieldCheck, Printer, AlertTriangle
+  FileSpreadsheet, Eye, X, ShieldCheck, Printer, AlertTriangle,
+  ZoomIn, ZoomOut, RotateCcw
 } from 'lucide-react';
 import { useCompany } from '../contexts/CompanyContext';
 import PremiumHeader from '../components/PremiumHeader';
@@ -11,6 +12,8 @@ import AnimatedPage from '../components/AnimatedPage';
 import ConfirmModal from '../components/ConfirmModal';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import { ConstructionProgramData } from '../data/constructionSafetyData';
+import { printElementAsDocument } from '../utils/pdfHelper';
+import ConstructionSafetyProgramPdf from '../components/ConstructionSafetyProgramPdf';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import toast from 'react-hot-toast';
@@ -23,6 +26,16 @@ export default function ConstructionSafetyProgram(): React.ReactElement | null {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [viewProgram, setViewProgram] = useState<ConstructionProgramData | null>(null);
+  const [previewProgram, setPreviewProgram] = useState<ConstructionProgramData | null>(null);
+  const [previewZoom, setPreviewZoom] = useState(() => (typeof window !== "undefined" && window.innerWidth < 640 ? 0.45 : 1));
+  const [directPrintProgram, setDirectPrintProgram] = useState<ConstructionProgramData | null>(null);
+
+  const handleDirectPrint = (prog: ConstructionProgramData) => {
+    setDirectPrintProgram(prog);
+    setTimeout(() => {
+      printElementAsDocument('construction-program-direct-print', `Programa_Seguridad_${prog.contractorName || 'Obra'}`);
+    }, 150);
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -633,11 +646,35 @@ export default function ConstructionSafetyProgram(): React.ReactElement | null {
                   </div>
                 </div>
 
-                <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-2">
+                <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-700 flex flex-wrap justify-end gap-2">
+                  {/* Botón Previa A4 */}
+                  <button
+                    type="button"
+                    onClick={() => setPreviewProgram(prog)}
+                    title="Vista Previa A4 Realista"
+                    style={{
+                      backgroundColor: '#0284c7',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '4px 8px',
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      minHeight: 'unset'
+                    }}
+                  >
+                    <Eye size={12} />
+                    <span>Previa A4</span>
+                  </button>
+
                   {/* Botón Imprimir PDF */}
                   <button
                     type="button"
-                    onClick={() => exportPDF(prog, false)}
+                    onClick={() => handleDirectPrint(prog)}
                     title="Imprimir Programa Oficial a PDF"
                     style={{
                       backgroundColor: '#059669',
@@ -654,7 +691,7 @@ export default function ConstructionSafetyProgram(): React.ReactElement | null {
                       minHeight: 'unset'
                     }}
                   >
-                    <FileText size={12} />
+                    <Printer size={12} />
                     <span>PDF</span>
                   </button>
 
@@ -662,9 +699,9 @@ export default function ConstructionSafetyProgram(): React.ReactElement | null {
                   <button
                     type="button"
                     onClick={() => setViewProgram(prog)}
-                    title="Ver Detalle Completo del Programa"
+                    title="Ver Resumen del Programa"
                     style={{
-                      backgroundColor: '#2563eb',
+                      backgroundColor: '#475569',
                       color: '#ffffff',
                       border: 'none',
                       padding: '4px 8px',
@@ -678,8 +715,8 @@ export default function ConstructionSafetyProgram(): React.ReactElement | null {
                       minHeight: 'unset'
                     }}
                   >
-                    <Eye size={12} />
-                    <span>Ver</span>
+                    <FileText size={12} />
+                    <span>Datos</span>
                   </button>
 
                   {/* Botón Eliminar */}
@@ -771,7 +808,30 @@ export default function ConstructionSafetyProgram(): React.ReactElement | null {
               <div className="mt-5 flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => exportPDF(viewProgram, false)}
+                  onClick={() => {
+                    setPreviewProgram(viewProgram);
+                    setViewProgram(null);
+                  }}
+                  style={{
+                    backgroundColor: '#0284c7',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '6px 14px',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Eye size={14} />
+                  <span>Previa A4</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDirectPrint(viewProgram)}
                   style={{
                     backgroundColor: '#059669',
                     color: '#ffffff',
@@ -786,14 +846,14 @@ export default function ConstructionSafetyProgram(): React.ReactElement | null {
                     gap: '6px'
                   }}
                 >
-                  <FileText size={14} />
+                  <Printer size={14} />
                   <span>Imprimir PDF</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setViewProgram(null)}
                   style={{
-                    backgroundColor: '#2563eb',
+                    backgroundColor: '#475569',
                     color: '#ffffff',
                     border: 'none',
                     padding: '6px 14px',
@@ -807,6 +867,113 @@ export default function ConstructionSafetyProgram(): React.ReactElement | null {
                 </button>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Modal de Previsualización A4 Realista */}
+        {previewProgram && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+            <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-amber-500/20 text-amber-400 rounded-xl flex-shrink-0">
+                    <FileText size={20} />
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="text-sm sm:text-base font-bold text-white leading-tight truncate">
+                      Vista Previa A4 • Programa de Seguridad de Obra
+                    </h2>
+                    <p className="text-[11px] sm:text-xs text-slate-400 truncate">
+                      {previewProgram.contractorName || 'Constructora'} • Decreto 911/96 & Res. SRT 51/97
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+                  {/* Controles de Zoom */}
+                  <div className="flex items-center gap-1 bg-slate-700/60 rounded-xl p-1">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewZoom(z => Math.max(0.35, z - 0.1))}
+                      className="p-1 rounded text-slate-300 hover:text-white hover:bg-slate-600 transition-colors"
+                      title="Reducir Zoom"
+                    >
+                      <ZoomOut size={15} />
+                    </button>
+                    <span className="text-[11px] font-bold px-1.5 min-w-[38px] text-center text-slate-200">
+                      {Math.round(previewZoom * 100)}%
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewZoom(z => Math.min(1.5, z + 0.1))}
+                      className="p-1 rounded text-slate-300 hover:text-white hover:bg-slate-600 transition-colors"
+                      title="Aumentar Zoom"
+                    >
+                      <ZoomIn size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewZoom(typeof window !== 'undefined' && window.innerWidth < 640 ? 0.45 : 1)}
+                      className="p-1 rounded text-slate-300 hover:text-white hover:bg-slate-600 transition-colors"
+                      title="Restablecer Zoom"
+                    >
+                      <RotateCcw size={14} />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => printElementAsDocument('construction-program-list-preview', `Programa_Seguridad_${previewProgram.contractorName || 'Obra'}`)}
+                      className="flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 rounded-xl shadow-lg shadow-amber-500/20 transition-all cursor-pointer whitespace-nowrap"
+                    >
+                      <Printer size={15} /> <span className="hidden sm:inline">Imprimir / </span>Guardar PDF
+                    </button>
+                    <button
+                      onClick={() => setPreviewProgram(null)}
+                      className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                      title="Cerrar vista previa"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-auto p-2 sm:p-6 bg-slate-950/70 flex justify-center items-start">
+                <div 
+                  style={{
+                    zoom: previewZoom,
+                    transformOrigin: 'top center'
+                  }}
+                  className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300"
+                >
+                  <ConstructionSafetyProgramPdf
+                    data={previewProgram}
+                    customId="construction-program-list-preview"
+                  />
+                </div>
+              </div>
+
+              <div className="px-4 sm:px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
+                <span className="truncate">Normativa Oficial SRT • Dec. 911/96, Res. 51/97, Res. 35/98 & Res. 319/99</span>
+                <button
+                  onClick={() => setPreviewProgram(null)}
+                  className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Contenedor Offscreen para Impresión Directa */}
+        {directPrintProgram && (
+          <div className="ats-pdf-offscreen" id="construction-program-direct-print" aria-hidden="true">
+            <ConstructionSafetyProgramPdf
+              data={directPrintProgram}
+              customId="construction-program-direct-print"
+            />
           </div>
         )}
 

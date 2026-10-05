@@ -5,6 +5,7 @@ import { ArrowLeft, Printer, Share2, CheckCircle2, FileEdit } from 'lucide-react
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import { toast } from 'react-hot-toast';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import ErgonomicsPdfGenerator from '../components/ErgonomicsPdfGenerator';
 
 export default function ErgonomicsReport(): React.ReactElement | null {
@@ -61,25 +62,7 @@ export default function ErgonomicsReport(): React.ReactElement | null {
 
   const handlePrint = () => {
     requirePro(() => {
-      const element = document.getElementById('pdf-content');
-      if (!element) {
-        toast.error('No se pudo generar el documento para imprimir.');
-        return;
-      }
-      document.body.classList.add('printing-isolated');
-      element.classList.add('isolated-print-target');
-
-      const cleanup = () => {
-        document.body.classList.remove('printing-isolated');
-        element.classList.remove('isolated-print-target');
-        window.removeEventListener('afterprint', cleanup);
-        window.removeEventListener('focus', cleanup);
-      };
-
-      window.addEventListener('afterprint', cleanup);
-      window.addEventListener('focus', cleanup);
-      setTimeout(cleanup, 1500);
-      window.print();
+      printElementAsDocument('pdf-content', `Protocolo_Ergonomico_${data.empresa || 'Empresa'}`);
     });
   };
 

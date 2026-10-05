@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Search, Calendar, ChevronRight,
 ClipboardList, Flame, BarChart3, ShieldAlert, Plus, Sparkles, Trash2, Camera, Lightbulb, HardHat, Share2,
 ClipboardCheck, CheckCircle2, ScrollText, ShieldCheck, KeySquare, Bot, TriangleAlert, FileText, Shield, ThermometerSun, Siren, Map, BookOpen,
-FlaskConical, Volume2, Lock, Tent, Droplets, MessageSquare, Download, CarFront, Weight, Timer, Building2 } from
+FlaskConical, Volume2, Lock, Tent, Droplets, MessageSquare, Download, CarFront, Weight, Timer, Building2, Printer, Eye, Edit3, X } from
 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useSync } from '../contexts/SyncContext';
@@ -16,6 +16,8 @@ import RiskMatrixPdfGenerator from '../components/RiskMatrixPdfGenerator';
 import ProfessionalReportPdfGenerator from '../components/ProfessionalReportPdfGenerator';
 import ReportPdfGenerator from '../components/ReportPdfGenerator';
 import { downloadCSV } from '../services/exportCsv';
+import { printElementAsDocument } from '../utils/pdfHelper';
+import { usePaywall } from '../hooks/usePaywall';
 
 // ─── Reusable delete confirmation dialog ───────────────────────────
 function DeleteConfirm({ onConfirm, onCancel }: any) {
@@ -35,6 +37,18 @@ export default function History(): React.ReactElement | null {
   const navigate = useNavigate();
   const location = useLocation();
   const { syncCollection, syncPulse } = useSync();
+  const { requirePro } = usePaywall();
+  const [previewMatrixItem, setPreviewMatrixItem] = useState<any>(null);
+  const [directPrintMatrixItem, setDirectPrintMatrixItem] = useState<any>(null);
+
+  const handleDirectPrintMatrix = (item: any) => {
+    requirePro(() => {
+      setDirectPrintMatrixItem(item);
+      setTimeout(() => {
+        printElementAsDocument('risk-matrix-history-print', 'Matriz de Riesgos', true);
+      }, 150);
+    });
+  };
   const [view, setView] = useState(location.state?.view || 'inspections');
   useDocumentTitle('Historial');
 
@@ -199,14 +213,78 @@ export default function History(): React.ReactElement | null {
           open={!!shareItem}
           onClose={() => setShareItem(null)}
           title={`Matriz de Riesgos - ${shareItem?.data?.name || ''}`}
-          text={shareItem ? `🚫 Matriz de Riesgo\n🏗️ ${shareItem.data.name}\n📍 ${shareItem.data.location}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString('es-AR')}` : ''}
-          rawMessage={shareItem ? `🚫 Matriz de Riesgo\n🏗️ ${shareItem.data.name}\n📍 ${shareItem.data.location}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString('es-AR')}` : ''}
-          elementIdToPrint="pdf-content"
+          text={shareItem ? `📋 Matriz de Riesgo IPER\n🏗️ ${shareItem.data.name}\n📍 ${shareItem.data.location}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString('es-AR')}` : ''}
+          rawMessage={shareItem ? `📋 Matriz de Riesgo IPER\n🏗️ ${shareItem.data.name}\n📍 ${shareItem.data.location}\n📅 ${new Date(shareItem.data.createdAt).toLocaleDateString('es-AR')}` : ''}
+          elementIdToPrint="risk-matrix-history-print"
           fileName={`Matriz_${shareItem?.data?.name || 'Riesgo'}.pdf`} />
         
 
-                <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
-                    {shareItem?.type === 'matrix' && <RiskMatrixPdfGenerator data={shareItem.data} />}
+                {/* Modal de Previsualización A4 Realista */}
+                {previewMatrixItem && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+                    <div className="relative w-full max-w-[1100px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+                      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-indigo-500/20 text-indigo-400 rounded-xl">
+                            <FileText size={20} />
+                          </div>
+                          <div>
+                            <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+                              Vista Previa A4 • Matriz de Riesgos IPER
+                            </h2>
+                            <p className="text-xs text-slate-400">
+                              {previewMatrixItem.name || 'Sin Título'} • Formato Apaisado (Landscape) A4
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => requirePro(() => printElementAsDocument('risk-matrix-table-preview', 'Matriz de Riesgos', true))}
+                            className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-indigo-400 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 rounded-xl shadow-lg shadow-indigo-500/20 transition-all cursor-pointer"
+                          >
+                            <Printer size={16} /> Imprimir / PDF
+                          </button>
+                          <button
+                            onClick={() => setPreviewMatrixItem(null)}
+                            className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                            title="Cerrar vista previa"
+                          >
+                            <X size={20} />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/70 flex justify-center">
+                        <div className="w-full max-w-[297mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
+                          <RiskMatrixPdfGenerator
+                            data={previewMatrixItem}
+                            customId="risk-matrix-table-preview"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
+                        <span>Metodología IPERC 5x5 • ISO 45001 / IRAM 3800 • Controles y párrafos preservados</span>
+                        <button
+                          onClick={() => setPreviewMatrixItem(null)}
+                          className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+                        >
+                          Cerrar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Contenedor Offscreen para Impresión Directa y Compartir */}
+                <div className="ats-pdf-offscreen" id="risk-matrix-history-print" aria-hidden="true">
+                  {(directPrintMatrixItem || previewMatrixItem || (shareItem?.type === 'matrix' && shareItem.data)) && (
+                    <RiskMatrixPdfGenerator
+                      data={directPrintMatrixItem || previewMatrixItem || shareItem?.data}
+                      customId="risk-matrix-history-print"
+                    />
+                  )}
                 </div>
 
                 <div className="flex items-center justify-space-between gap-[1rem] mb-[2rem] flex-wrap">
@@ -289,20 +367,32 @@ export default function History(): React.ReactElement | null {
               render: (item: any) =>
               <div className="flex gap-[0.5rem]">
                                         <button
-                  onClick={() => {localStorage.setItem('current_risk_matrix', JSON.stringify(item));navigate('/risk-matrix-report');}}
-
-
-
-                  title="Ver PDF" className="p-[0.4rem_0.6rem] bg-[rgba(59,130,246,0.1)] text-[#3b82f6] border-[1px_solid_rgba(59,130,246,0.2)] rounded-[8px] cursor-pointer flex items-center gap-[4px]">
-                  
-                                            <FileText size={16} /> <span className="text-[0.75rem] font-[700]">PDF</span>
+                                            onClick={() => setPreviewMatrixItem(item)}
+                                            title="Vista Previa A4"
+                                            className="p-[0.4rem_0.6rem] bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 rounded-[8px] cursor-pointer flex items-center gap-[4px] font-bold text-xs"
+                                        >
+                                            <Eye size={14} /> <span>Previa</span>
                                         </button>
                                         <button
-                  onClick={() => setShareItem({ type: 'matrix', data: item })}
-
-                  title="Compartir" className="p-[0.4rem_0.6rem] bg-[rgba(22,163,74,0.1)] text-[#16a34a] border-[1px_solid_rgba(22,163,74,0.2)] rounded-[8px] cursor-pointer">
-                  
-                                            <Share2 size={16} />
+                                            onClick={() => handleDirectPrintMatrix(item)}
+                                            title="Imprimir / PDF Directo"
+                                            className="p-[0.4rem_0.6rem] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-[8px] cursor-pointer flex items-center gap-[4px] font-bold text-xs"
+                                        >
+                                            <Printer size={14} /> <span>PDF</span>
+                                        </button>
+                                        <button
+                                            onClick={() => navigate('/risk-matrix', { state: { editData: item } })}
+                                            title="Editar Matriz"
+                                            className="p-[0.4rem_0.6rem] bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 rounded-[8px] cursor-pointer flex items-center gap-[4px] font-bold text-xs"
+                                        >
+                                            <Edit3 size={14} />
+                                        </button>
+                                        <button
+                                            onClick={() => setShareItem({ type: 'matrix', data: item })}
+                                            title="Compartir"
+                                            className="p-[0.4rem_0.6rem] bg-[rgba(22,163,74,0.1)] text-[#16a34a] border-[1px_solid_rgba(22,163,74,0.2)] rounded-[8px] cursor-pointer flex items-center justify-center"
+                                        >
+                                            <Share2 size={14} />
                                         </button>
                                         <DeleteBtn storageKey="risk_matrix_history" id={item.id} />
                                     </div>

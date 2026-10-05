@@ -3,10 +3,11 @@ import { Flame, ShieldCheck, Info, FileText, Building2, Droplets, Wind, AlertTri
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import ReportContentRenderer from './reports/ReportContentRenderer';
 import { evaluateFullFireLoadProtocol } from '../utils/srtProtocols';
 import type { FireLoadAssessmentProtocol } from '../types/fireload';
 
-export default function FireLoadPdfGenerator({ data }: { data: any }): React.ReactElement | null {
+export default function FireLoadPdfGenerator({ data, customId = "pdf-content" }: { data: any; customId?: string }): React.ReactElement | null {
   const componentRef = useRef<HTMLDivElement>(null);
 
   if (!data) return null;
@@ -68,7 +69,7 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
   return (
     <div className="w-[100%] flex justify-center bg-slate-100 p-2 sm:p-6 print:p-0 print:bg-white">
       <div
-        id="pdf-content"
+        id={customId}
         className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[12mm_15mm] bg-[#ffffff] text-[#0f172a] shadow-2xl print:shadow-none rounded-none sm:rounded-xl box-border m-[0_auto] font-sans"
         ref={componentRef}
       >
@@ -140,7 +141,7 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
               <tr>
                 <td className="bg-slate-100 p-1.5 font-bold border border-slate-300">Actividad / Destino:</td>
                 <td className="p-1.5 border border-slate-300 font-semibold text-slate-800" colSpan={3}>
-                  {actividad}
+                  <ReportContentRenderer content={actividad} />
                 </td>
               </tr>
               <tr>
@@ -347,8 +348,8 @@ export default function FireLoadPdfGenerator({ data }: { data: any }): React.Rea
                 <div className="font-bold text-slate-900 uppercase text-[7pt] mb-1">
                   Observaciones y Conclusiones del Profesional Actuante:
                 </div>
-                <div className="whitespace-pre-line text-slate-700 bg-white p-2 rounded border border-slate-200 leading-relaxed font-sans">
-                  {report.conclusion}
+                <div className="text-slate-700 bg-white p-2 rounded border border-slate-200 leading-relaxed font-sans">
+                  <ReportContentRenderer content={report.conclusion} />
                 </div>
               </div>
             )}

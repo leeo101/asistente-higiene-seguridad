@@ -3,12 +3,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Zap, Save, Eye, Printer, Share2, Plus, Trash2,
   CheckCircle2, AlertTriangle, ShieldCheck, ShieldAlert, Sparkles, Building2,
-  Gauge, HelpCircle
+  Gauge, HelpCircle, ZoomIn, ZoomOut, RotateCcw, X
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import GroundingProtocolPdf from '../components/GroundingProtocolPdf';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import { usePaywall } from '../hooks/usePaywall';
 import {
   ModuleFormLayout,
@@ -48,6 +49,8 @@ export default function GroundingProtocolForm(): React.ReactElement | null {
   const [isEdit, setIsEdit] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [formPreviewZoom, setFormPreviewZoom] = useState(typeof window !== 'undefined' && window.innerWidth < 640 ? 0.45 : 1);
 
   useDocumentTitle(isEdit ? 'Editar Protocolo Res. 900/15' : 'Nuevo Protocolo Res. 900/15');
 
@@ -1153,14 +1156,14 @@ export default function GroundingProtocolForm(): React.ReactElement | null {
               </h3>
               <button
                 type="button"
-                onClick={() => window.print()}
+                onClick={() => printElementAsDocument('grounding-form-inline-preview', `Protocolo_PAT_SRT900_${protocol.razonSocial || 'Borrador'}`)}
                 className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
               >
                 <Printer size={15} /> Imprimir / Exportar PDF
               </button>
             </div>
             <div className="bg-slate-200 dark:bg-slate-900 p-4 rounded-xl border border-slate-300 dark:border-slate-700 overflow-x-auto shadow-inner">
-              <GroundingProtocolPdf data={protocol} />
+              <GroundingProtocolPdf data={protocol} customId="grounding-form-inline-preview" />
             </div>
           </div>
         )}
@@ -1176,11 +1179,20 @@ export default function GroundingProtocolForm(): React.ReactElement | null {
               onClick: () => navigate('/grounding')
             },
             {
-              id: 'preview',
-              label: showPreview ? 'Ocultar PDF' : 'Vista Previa PDF',
+              id: 'previewModal',
+              label: 'PREVIA A4',
               icon: <Eye size={16} />,
               variant: 'info',
-              onClick: () => setShowPreview(!showPreview)
+              onClick: () => { setPreviewModalOpen(true); setFormPreviewZoom(1); }
+            },
+            {
+              id: 'printDirect',
+              label: 'IMPRIMIR PDF',
+              icon: <Printer size={16} />,
+              variant: 'warning',
+              onClick: () => {
+                printElementAsDocument('grounding-form-print', `Protocolo_PAT_SRT900_${protocol.razonSocial || 'Borrador'}`);
+              }
             },
             {
               id: 'save',
@@ -1192,6 +1204,83 @@ export default function GroundingProtocolForm(): React.ReactElement | null {
           ]}
         />
       </div>
+      {/* Modal Vista Previa A4 */}
+      {previewModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-slate-100 dark:bg-slate-900 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl border border-slate-300 dark:border-slate-700">
+            <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-800 rounded-t-2xl">
+              <div>
+                <h3 className="font-bold text-slate-900 dark:text-white text-base">
+                  Vista Previa Oficial A4 · Res. SRT 900/15
+                </h3>
+                <p className="text-xs text-slate-500">
+                  {protocol.razonSocial || 'Borrador'} · Medición: {protocol.fechaMedicion}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
+                  <button
+                    type="button"
+                    onClick={() => setFormPreviewZoom(z => Math.max(0.6, z - 0.1))}
+                    className="p-1 rounded hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors"
+                    title="Reducir Zoom"
+                  >
+                    <ZoomOut size={15} />
+                  </button>
+                  <span className="text-[11px] font-bold px-1.5 min-w-[42px] text-center text-slate-700 dark:text-slate-200">
+                    {Math.round(formPreviewZoom * 100)}%
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setFormPreviewZoom(z => Math.min(1.5, z + 0.1))}
+                    className="p-1 rounded hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors"
+                    title="Aumentar Zoom"
+                  >
+                    <ZoomIn size={15} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormPreviewZoom(1)}
+                    className="p-1 rounded hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors"
+                    title="Restablecer Zoom"
+                  >
+                    <RotateCcw size={14} />
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    printElementAsDocument('grounding-form-preview-modal', `Protocolo_PAT_SRT900_${protocol.razonSocial || 'Borrador'}`);
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <Printer size={15} /> <span className="hidden sm:inline">Imprimir / </span>Guardar PDF
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewModalOpen(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors cursor-pointer"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 overflow-y-auto flex-1 flex justify-center bg-slate-200/80 dark:bg-slate-950">
+              <div style={{ transform: `scale(${formPreviewZoom})`, transformOrigin: 'top center', transition: 'transform 0.2s ease-out' }}>
+                <GroundingProtocolPdf data={protocol} customId="grounding-form-preview-modal" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contenedor offscreen para impresión aislada directa */}
+      <div className="ats-pdf-offscreen" id="grounding-form-print" aria-hidden="true">
+        <GroundingProtocolPdf data={protocol} customId="grounding-form-print" />
+      </div>
+
     </ModuleFormLayout>
   );
 }

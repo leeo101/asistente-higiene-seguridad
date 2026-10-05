@@ -16,7 +16,7 @@ export function ModuleActionBar({ actions, className = '' }: ModuleActionBarProp
     >
       <div
         style={{ pointerEvents: 'auto' }}
-        className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 p-2 sm:p-2.5 rounded-full bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 shadow-[0_10px_30px_rgba(0,0,0,0.18)] max-w-fit mx-auto transition-all"
+        className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-3 p-1.5 sm:p-2.5 rounded-2xl sm:rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 shadow-[0_10px_30px_rgba(0,0,0,0.18)] max-w-fit mx-auto transition-all"
       >
         {actions.map((action) => {
           let bgColor = '#2563eb';
@@ -53,7 +53,7 @@ export function ModuleActionBar({ actions, className = '' }: ModuleActionBarProp
                   e.currentTarget.style.transform = 'none';
                 }
               }}
-              className={`flex flex-none items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full font-bold transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none cursor-pointer text-xs sm:text-sm ${
+              className={`flex flex-none items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-full font-bold transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none cursor-pointer text-[11px] sm:text-sm ${
                 action.hideOnMobile ? 'hidden sm:flex' : 'flex'
               }`}
             >

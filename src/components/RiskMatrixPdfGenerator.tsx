@@ -3,6 +3,7 @@ import { ShieldCheck, Calendar, MapPin, UserCheck, AlertTriangle } from 'lucide-
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import ReportContentRenderer from './reports/ReportContentRenderer';
 
 const getRiskLevel = (p, s) => {
   const val = p * s;
@@ -11,7 +12,7 @@ const getRiskLevel = (p, s) => {
   return { label: 'CRÍTICO', bg: '#fee2e2', color: '#dc2626' };
 };
 
-export default function RiskMatrixPdfGenerator({ data }: {data: any;}): React.ReactElement | null {
+export default function RiskMatrixPdfGenerator({ data, customId }: { data: any; customId?: string }): React.ReactElement | null {
   if (!data) return null;
   const finalData = data;
 
@@ -24,7 +25,7 @@ export default function RiskMatrixPdfGenerator({ data }: {data: any;}): React.Re
   return (
     <div className="w-[100%] flex justify-center">
             <div
-        id="pdf-content"
+        id={customId || "pdf-content"}
         className="pdf-container print-area border-none shadow-none w-[100%] max-w-[297mm] min-h-[210mm] p-[15mm] bg-[#ffffff] text-[#000000] box-sizing-[border-box] m-[0_auto] text-[9pt] font-family-[system-ui,_-apple-system,_sans-serif]">
 
 
@@ -136,12 +137,16 @@ export default function RiskMatrixPdfGenerator({ data }: {data: any;}): React.Re
                 const level = getRiskLevel(row.probability || 1, row.severity || 1);
                 return (
                   <tr className="avoid-break border-bottom-[1px_solid_#e2e8f0] page-break-inside-[avoid]" key={idx} style={{ background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
-                                        <td className="p-[0.6rem_0.8rem] text-[0.8rem] font-[700] text-[#1e293b] white-space-[pre-wrap] word-break-[break-word] overflow-wrap-[anywhere]">{row.task}</td>
-                                        <td className="p-[0.6rem_0.8rem] text-[0.75rem] text-[#334155] white-space-[pre-wrap] word-break-[break-word] overflow-wrap-[anywhere]">
-                                            <div className="font-[800] text-[#0f172a]">{row.hazardType}</div>
-                                            <div className="mt-[0.1rem]">{row.hazard}</div>
+                                        <td className="p-[0.6rem_0.8rem] text-[0.8rem] font-[700] text-[#1e293b] word-break-[break-word] overflow-wrap-[anywhere]">
+                                            <ReportContentRenderer content={row.task} />
                                         </td>
-                                        <td className="p-[0.6rem_0.8rem] text-[0.75rem] text-[#475569] white-space-[pre-wrap] word-break-[break-word] overflow-wrap-[anywhere]">{row.probableEffect}</td>
+                                        <td className="p-[0.6rem_0.8rem] text-[0.75rem] text-[#334155] word-break-[break-word] overflow-wrap-[anywhere]">
+                                            {row.hazardType && <div className="font-[800] text-[#0f172a] mb-1">{row.hazardType}</div>}
+                                            <ReportContentRenderer content={row.hazard} />
+                                        </td>
+                                        <td className="p-[0.6rem_0.8rem] text-[0.75rem] text-[#475569] word-break-[break-word] overflow-wrap-[anywhere]">
+                                            <ReportContentRenderer content={row.probableEffect} />
+                                        </td>
                                         <td className="p-[0.6rem_0.8rem] text-[0.8rem] text-center font-[800] text-[#3b82f6]">{row.exposedCount}</td>
                                         <td className="p-[0.6rem_0.8rem]">
                                             <div style={{ background: level.bg, color: level.color }} className="p-[0.4rem_0.2rem] rounded-[6px] text-center flex flex-col items-center">
@@ -149,7 +154,9 @@ export default function RiskMatrixPdfGenerator({ data }: {data: any;}): React.Re
                                                 <span className="text-[0.5rem] font-[900] letter-spacing-[0.05em]">{level.label}</span>
                                             </div>
                                         </td>
-                                        <td className="p-[0.6rem_0.8rem] text-[0.75rem] text-[#166534] font-[600] white-space-[pre-wrap] word-break-[break-word] overflow-wrap-[anywhere]">{row.controls}</td>
+                                        <td className="p-[0.6rem_0.8rem] text-[0.75rem] text-[#166534] font-[600] word-break-[break-word] overflow-wrap-[anywhere]">
+                                            <ReportContentRenderer content={row.controls} />
+                                        </td>
                                     </tr>);
 
               })}

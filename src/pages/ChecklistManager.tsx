@@ -28,7 +28,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
-import { generatePdfBlob } from '../utils/pdfHelper';
+import { generatePdfBlob, printElementAsDocument } from '../utils/pdfHelper';
 import { savePdfBlob, getPdfBlob } from '../utils/indexedDBHelper';
 import IndustryChecklistModal from '../components/IndustryChecklistModal';
 import type { IndustryChecklistTemplate } from '../data/industryChecklists';
@@ -577,6 +577,25 @@ export default function ChecklistManager(): React.ReactElement | null {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [qrTarget, setQrTarget] = useState(null);
   const [shareItem, setShareItem] = useState(null);
+  const [previewItem, setPreviewItem] = useState<any>(null);
+  const [directPrintItem, setDirectPrintItem] = useState<any>(null);
+
+  const handleDirectPrint = (item: any) => {
+    requirePro(() => {
+      let stored = localStorage.getItem('checklist_' + item.id);
+      let parsed = stored ? JSON.parse(stored) : item;
+      setDirectPrintItem(parsed);
+      setTimeout(() => {
+        printElementAsDocument('checklist-direct-print');
+      }, 150);
+    });
+  };
+
+  const handlePreview = (item: any) => {
+    let stored = localStorage.getItem('checklist_' + item.id);
+    let parsed = stored ? JSON.parse(stored) : item;
+    setPreviewItem(parsed);
+  };
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEmpresa, setFilterEmpresa] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -1209,6 +1228,20 @@ export default function ChecklistManager(): React.ReactElement | null {
     accessor: 'id',
     render: (item: any) => (
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+        <button
+          onClick={() => handlePreview(item)}
+          title="Vista Previa A4"
+          style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <EyeIcon size={12} /> Previa A4
+        </button>
+
+        <button
+          onClick={() => handleDirectPrint(item)}
+          title="Imprimir PDF Directo"
+          style={{ backgroundColor: '#475569', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Printer size={12} /> PDF
+        </button>
+
         <button
           onClick={() => { setSearchParams({ id: item.id }); setShowForm(true); }}
           title="Ver / Editar Checklist"
@@ -2229,10 +2262,16 @@ export default function ChecklistManager(): React.ReactElement | null {
           }
           {currentStep === totalSteps && 
               <>
-                 <button onClick={() => requirePro(() => {
+                 <button type="button" onClick={() => {
                    const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, showFooter, operatorSignature, signature, supervisorSignature, equipo: inspectionInfo?.item || checklistTitle || 'Checklist', empresa: companyInfo?.name || '-', fecha: inspectionInfo?.date || new Date().toISOString() };
-                   setAutoPrintShare(true);
-                   setShareItem(data as any);
+                   setPreviewItem(data);
+                 }} style={{ backgroundColor: '#0284c7', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><EyeIcon size={16} /> PREVIA A4</button>
+                 <button type="button" onClick={() => requirePro(() => {
+                   const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, showFooter, operatorSignature, signature, supervisorSignature, equipo: inspectionInfo?.item || checklistTitle || 'Checklist', empresa: companyInfo?.name || '-', fecha: inspectionInfo?.date || new Date().toISOString() };
+                   setDirectPrintItem(data);
+                   setTimeout(() => {
+                     printElementAsDocument('checklist-direct-print');
+                   }, 150);
                  })} style={{ backgroundColor: '#1e293b', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><Printer size={16} /> IMPRIMIR</button>
                  <button onClick={() => requirePro(() => {
                    const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, showFooter, operatorSignature, signature, supervisorSignature, equipo: inspectionInfo?.item || checklistTitle || 'Checklist', empresa: companyInfo?.name || '-', fecha: inspectionInfo?.date || new Date().toISOString() };
@@ -2246,6 +2285,76 @@ export default function ChecklistManager(): React.ReactElement | null {
       </>
       }
     
+      {/* Modal de Previsualización A4 Realista */}
+      {previewItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-500/20 text-blue-400 rounded-xl">
+                  <FileText size={20} />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+                    Vista Previa A4 • Checklist de Inspección
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    {previewItem.checklistTitle || previewItem.equipo || 'Inspección de Seguridad'} • Visualización exacta para impresión
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => requirePro(() => printElementAsDocument('checklist-preview-modal-content'))}
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-lg shadow-blue-500/20 transition-all cursor-pointer"
+                >
+                  <Printer size={16} /> Imprimir / PDF
+                </button>
+                <button
+                  onClick={() => setPreviewItem(null)}
+                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                  title="Cerrar vista previa"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/70 flex justify-center">
+              <div className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
+                <ChecklistPdfGenerator
+                  checklistData={{ ...previewItem, availableNorms }}
+                  isHeadless={true}
+                  customId="checklist-preview-modal-content"
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
+              <span>Formato reglamentario Ley 19.587 / Dec. 351 / Dec. 911 • Renglones y párrafos preservados</span>
+              <button
+                onClick={() => setPreviewItem(null)}
+                className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contenedor Offscreen para Impresión Directa */}
+      {directPrintItem && (
+        <div className="ats-pdf-offscreen" id="checklist-direct-print" aria-hidden="true">
+          <ChecklistPdfGenerator
+            checklistData={{ ...directPrintItem, availableNorms }}
+            isHeadless={true}
+            customId="checklist-direct-print"
+          />
+        </div>
+      )}
+
       <ShareModal 
         isOpen={!!shareItem} 
         open={!!shareItem} 

@@ -3,6 +3,7 @@ import { ShieldCheck, HeartPulse, LifeBuoy, User, MapPin, Calendar, Ruler, Alert
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
+import ReportContentRenderer from './reports/ReportContentRenderer';
 import { calculateFallClearanceDistance } from '../utils/srtProtocols';
 
 const WORK_TYPE_NAMES: Record<string, string> = {
@@ -23,7 +24,7 @@ const PRIORITY_NAMES: Record<string, string> = {
   low: 'BAJA'
 };
 
-export default function WorkingAtHeightPdf({ data }: { data: any }): React.ReactElement | null {
+export default function WorkingAtHeightPdf({ data, customId }: { data: any; customId?: string }): React.ReactElement | null {
   if (!data) return null;
 
   const workTypeName = WORK_TYPE_NAMES[data.workType] || data.workType || 'No especificado';
@@ -73,7 +74,7 @@ export default function WorkingAtHeightPdf({ data }: { data: any }): React.React
   return (
     <div className="w-full flex justify-center py-4 bg-slate-100 print:bg-white print:py-0">
       <div
-        id="pdf-content"
+        id={customId || "pdf-content"}
         className="pdf-container print-area w-full max-w-[210mm] min-h-[297mm] p-8 sm:p-10 bg-white text-slate-900 shadow-xl rounded-2xl box-border mx-auto text-xs font-sans print:shadow-none print:p-4 print:max-w-none print:rounded-none"
       >
         <style type="text/css" media="print">
@@ -311,18 +312,37 @@ export default function WorkingAtHeightPdf({ data }: { data: any }): React.React
               <div className="text-[9px] font-bold text-slate-800">
                 <span className="text-emerald-600">✓</span> Plan de rescate en altura para prevención de trauma por suspensión
               </div>
+              {data.rescuePlan && (
+                <div className="mt-1.5 p-1.5 bg-amber-50/80 border border-amber-200 rounded text-[9px] text-amber-950 font-medium">
+                  <span className="font-extrabold text-amber-900 block uppercase flex items-center gap-1 mb-0.5">
+                    <LifeBuoy size={11} className="text-amber-700" /> Procedimiento de Rescate y Descenso:
+                  </span>
+                  <ReportContentRenderer content={data.rescuePlan} />
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Cuadro 5: Observaciones e Instrucciones Técnicas */}
-        {data.observations && (
-          <div className="border border-slate-300 rounded-lg overflow-hidden mb-3 page-break-inside-avoid">
+        {(data.observations || data.description) && (
+          <div className="border border-slate-300 rounded-lg overflow-hidden mb-3">
             <div className="bg-slate-900 text-white px-3 py-1 font-black text-[9.5px] uppercase tracking-wider">
               5. INSTRUCCIONES OPERATIVAS Y MEDIDAS PREVENTIVAS ESPECÍFICAS
             </div>
-            <div className="p-2.5 bg-slate-50 text-[10px] font-medium text-slate-800 leading-relaxed whitespace-pre-wrap">
-              {data.observations}
+            <div className="p-2.5 bg-slate-50 text-[10px] text-slate-800 leading-relaxed">
+              {data.description && (
+                <div className="mb-2 pb-2 border-b border-slate-200">
+                  <span className="font-bold text-slate-600 block uppercase text-[8.5px] mb-1">Descripción del Trabajo:</span>
+                  <ReportContentRenderer content={data.description} />
+                </div>
+              )}
+              {data.observations && (
+                <div>
+                  <span className="font-bold text-slate-600 block uppercase text-[8.5px] mb-1">Medidas Preventivas y Observaciones:</span>
+                  <ReportContentRenderer content={data.observations} />
+                </div>
+              )}
             </div>
           </div>
         )}

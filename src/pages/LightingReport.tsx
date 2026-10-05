@@ -5,7 +5,7 @@ import {
   ArrowLeft, Save, Plus, Trash2, Lightbulb, Calculator,
   FileText, Printer, Building2, Layout, Maximize2,
   Info, TriangleAlert, ShieldCheck, History, Share2, Sun, Sparkles, Loader2, Check,
-  CheckCircle2, XCircle, Pencil, QrCode, Download } from 'lucide-react';
+  CheckCircle2, XCircle, Pencil, QrCode, Download, Eye, X, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
@@ -14,6 +14,8 @@ import QRModal from '../components/QRModal';
 import AnimatedPage from '../components/AnimatedPage';
 import { DataTable } from '../components/DataTable';
 import LightingPdfGenerator from '../components/LightingPdfGenerator';
+import { printElementAsDocument } from '../utils/pdfHelper';
+import { formatLocalDate } from '../utils/dateUtils';
 import { downloadCSV } from '../services/exportCsv';
 import toast from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
@@ -98,6 +100,18 @@ export default function LightingReport(): React.ReactElement | null {
   const [searchTerm, setSearchTerm] = useState('');
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
   const [statusFilter, setStatusFilter] = useState<'all' | 'cumple' | 'noCumple'>('all');
+  const [a4PreviewReport, setA4PreviewReport] = useState<any | null>(null);
+  const [previewZoom, setPreviewZoom] = useState(typeof window !== 'undefined' && window.innerWidth < 640 ? 0.45 : 1);
+  const [directPrintReport, setDirectPrintReport] = useState<any | null>(null);
+  const [isFormPreviewOpen, setIsFormPreviewOpen] = useState(false);
+
+  const handleDirectPrint = (item: any) => {
+    const reportData = item.datos ? { ...item.datos, results: item.results, fecha: item.date } : item;
+    setDirectPrintReport(reportData);
+    setTimeout(() => {
+      printElementAsDocument('lighting-direct-print', `Protocolo_Iluminacion_${reportData.empresa || 'Estudio'}`);
+    }, 120);
+  };
   const [selectedReport, setSelectedReport] = useState<any>(null);
   const [qrTarget, setQrTarget] = useState<any>(null);
   const [shareItem, setShareItem] = useState<any>(null);
@@ -456,12 +470,12 @@ export default function LightingReport(): React.ReactElement | null {
             <ArrowLeft size={16} /> Volver al Historial
           </button>
           <button 
-            onClick={() => window.print()} 
+            onClick={() => printElementAsDocument('lighting-report-print', `Protocolo_Iluminacion_${selectedReport.empresa || 'Estudio'}`)} 
             className="flex items-center gap-2 px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-extrabold text-xs cursor-pointer shadow-lg shadow-amber-500/30 transition-all">
             <Printer size={16} /> Imprimir / PDF
           </button>
         </div>
-        <LightingPdfGenerator data={selectedReport} />
+        <LightingPdfGenerator data={selectedReport} customId="lighting-report-print" />
       </div>
     );
   }
@@ -474,7 +488,7 @@ export default function LightingReport(): React.ReactElement | null {
         sortable: true,
         render: (item: any) => (
           <span style={{ color: '#000000', fontWeight: '900', fontSize: '13px', display: 'block' }}>
-            {new Date(item.date || item.datos?.fecha || Date.now()).toLocaleDateString('es-AR')}
+            {formatLocalDate(item.date || item.datos?.fecha || Date.now())}
           </span>
         )
       },
@@ -539,9 +553,21 @@ export default function LightingReport(): React.ReactElement | null {
         render: (item: any) => (
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
             <button 
-              onClick={() => setSelectedReport(item.datos ? { ...item.datos, results: item.results, fecha: item.date } : item)} 
-              style={{ backgroundColor: '#475569', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(71, 85, 105, 0.2)' }}>
-              <FileText size={12} /> Ver PDF
+              onClick={() => {
+                const reportData = item.datos ? { ...item.datos, results: item.results, fecha: item.date } : item;
+                setA4PreviewReport(reportData);
+                setPreviewZoom(1);
+              }} 
+              title="Vista Previa A4 Protocolo Oficial"
+              style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)' }}>
+              <Eye size={12} /> Previa A4
+            </button>
+
+            <button 
+              onClick={() => handleDirectPrint(item)} 
+              title="Imprimir / Exportar PDF Oficial Directo"
+              style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '5px 11px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)' }}>
+              <Printer size={12} /> PDF
             </button>
             
             <button 
@@ -665,12 +691,12 @@ export default function LightingReport(): React.ReactElement | null {
             title={`Estudio de Iluminación - ${shareItem?.empresa || ''}`} 
             text={shareItem ? `💡 Estudio de Iluminación\n🏢 Empresa: ${shareItem.empresa}\n📍 Sector: ${shareItem.sector}\n📅 Fecha: ${shareItem.fecha}\n💡 Promedio: ${shareItem.results?.promedioLux || 0} Lux` : ''} 
             rawMessage={shareItem ? `💡 Estudio de Iluminación\n🏢 Empresa: ${shareItem.empresa}` : ''} 
-            elementIdToPrint="pdf-content" 
+            elementIdToPrint="lighting-history-share" 
             fileName={`Iluminacion_${shareItem?.empresa || 'Estudio'}.pdf`} 
           />
 
-          <div id="pdf-content" className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
-            {shareItem && <LightingPdfGenerator data={shareItem} />}
+          <div id="lighting-history-share" className="ats-pdf-offscreen" aria-hidden="true">
+            {shareItem && <LightingPdfGenerator data={shareItem} customId="lighting-history-share" />}
           </div>
 
           <main className="w-full max-w-[1200px] mx-auto pb-8 mt-6">
@@ -762,17 +788,90 @@ export default function LightingReport(): React.ReactElement | null {
             />
           </main>
         </div>
+              {/* Modal Vista Previa A4 desde Historial */}
+        {a4PreviewReport && (
+          <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+            <div className="bg-slate-100 dark:bg-slate-900 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl border border-slate-300 dark:border-slate-700">
+              <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-800 rounded-t-2xl">
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base">
+                    Protocolo Oficial Res. SRT 84/12 · Vista Previa A4
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    {a4PreviewReport.empresa || 'Estudio de Iluminación'} · Sector: {a4PreviewReport.sector || 'General'}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewZoom(z => Math.max(0.6, z - 0.1))}
+                      className="p-1 rounded hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors"
+                      title="Reducir Zoom"
+                    >
+                      <ZoomOut size={15} />
+                    </button>
+                    <span className="text-[11px] font-bold px-1.5 min-w-[42px] text-center text-slate-700 dark:text-slate-200">
+                      {Math.round(previewZoom * 100)}%
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewZoom(z => Math.min(1.5, z + 0.1))}
+                      className="p-1 rounded hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors"
+                      title="Aumentar Zoom"
+                    >
+                      <ZoomIn size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewZoom(1)}
+                      className="p-1 rounded hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors"
+                      title="Restablecer Zoom"
+                    >
+                      <RotateCcw size={14} />
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      printElementAsDocument('lighting-preview-modal', `Protocolo_Iluminacion_${a4PreviewReport.empresa || 'Estudio'}`);
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <Printer size={15} /> Imprimir / PDF
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setA4PreviewReport(null)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors cursor-pointer"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6 overflow-y-auto flex-1 flex justify-center bg-slate-200/80 dark:bg-slate-950">
+                <div style={{ transform: `scale(${previewZoom})`, transformOrigin: 'top center', transition: 'transform 0.2s ease-out' }}>
+                  <LightingPdfGenerator data={a4PreviewReport} customId="lighting-preview-modal" />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Contenedor offscreen para impresión aislada directa de historial */}
+        {directPrintReport && (
+          <div className="ats-pdf-offscreen" id="lighting-direct-print" aria-hidden="true">
+            <LightingPdfGenerator data={directPrintReport} customId="lighting-direct-print" />
+          </div>
+        )}
       </AnimatedPage>
     );
   }
 
   return (
     <div className="min-h-[100vh] bg-[var(--color-background)] pb-[2rem] pt-[6.5rem] lighting-report-container">
-      {/* Contenedor oficial imprimible del PDF */}
-      <div id="pdf-content" className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
-        <LightingPdfGenerator data={{ ...formData, fecha: (formData as any).fecha || new Date().toISOString(), results }} />
-      </div>
-
       <ShareModal 
         isOpen={showShare} 
         open={showShare} 
@@ -780,7 +879,7 @@ export default function LightingReport(): React.ReactElement | null {
         title={`Estudio de Iluminación - ${formData.empresa || 'Protocolo'}`} 
         text={`💡 Estudio de Iluminación\n🏢 Empresa: ${formData.empresa}\n📍 Sector: ${formData.sector}\n💡 Promedio: ${results?.promedioLux || 0} Lux`} 
         rawMessage={`💡 Estudio de Iluminación\n🏢 Empresa: ${formData.empresa}`} 
-        elementIdToPrint="pdf-content" 
+        elementIdToPrint="lighting-form-print" 
         fileName={`Iluminacion_${formData.empresa || 'Estudio'}.pdf`} 
       />
 

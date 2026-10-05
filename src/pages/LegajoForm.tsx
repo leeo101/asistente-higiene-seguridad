@@ -6,7 +6,8 @@ import { db } from '../firebase';
 import { doc, setDoc, getDoc, serverTimestamp, collection } from 'firebase/firestore';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
-import { Printer, Share2, Camera, X, Trash2 } from 'lucide-react';
+import { Printer, Share2, Camera, X, Trash2, Eye, FileText, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import {
   Building2,
   PenTool,
@@ -386,11 +387,12 @@ export default function LegajoForm() {
   const { requirePro } = usePaywall();
   const { id } = useParams();
   const { currentUser } = useAuth();
-  const { isPro } = usePaywall();
-  const isAdmin = currentUser?.email?.toLowerCase().trim() === 'enzorodriguez31@gmail.com';
+  const { isPro, isAdmin } = usePaywall();
   const hasAccess = isPro || isAdmin;
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('empresa');
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [previewZoom, setPreviewZoom] = useState(() => (typeof window !== "undefined" && window.innerWidth < 640 ? 0.45 : 1));
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -488,14 +490,9 @@ export default function LegajoForm() {
       return;
     }
 
-    try {
-      setTimeout(() => {
-        window.print();
-      }, 500);
-    } catch (error) {
-      console.error("Error generating PDF", error);
-      alert("Hubo un error al generar el PDF");
-    }
+    requirePro(() => {
+      printElementAsDocument('legajo-form-print', `Legajo_Tecnico_${formData.empresa?.razonSocial || 'Obra'}`);
+    });
   };
 
   const handleChange = (section: keyof typeof formData, field: string, value: any) => {
@@ -605,9 +602,7 @@ export default function LegajoForm() {
 
   return (
     <>
-      <div className="print-only" id="pdf-content">
-        <LegajoPdf data={{ ...formData, professionalName: currentUser?.displayName || 'Profesional H&S' }} />
-      </div>
+
       <div className="no-print pt-24 pb-20 min-h-screen bg-slate-50 dark:bg-slate-900">
         <main className="px-4 py-8 max-w-[1000px] mx-auto flex flex-col gap-6">
         <PremiumHeader
@@ -1997,31 +1992,53 @@ export default function LegajoForm() {
             </button>
           ) : (
             <>
-              {id && (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleGeneratePDF();
-                  }}
-                  className="px-6 py-2.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all text-white border-none cursor-pointer shadow-lg shadow-orange-500/20"
-                  style={{ 
-                    backgroundColor: '#f97316',
-                    color: '#ffffff',
-                    border: 'none',
-                    minHeight: '44px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.backgroundColor = '#ea580c';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.backgroundColor = '#f97316';
-                  }}
-                >
-                  <Printer size={18} style={{ color: '#ffffff' }} /> IMPRIMIR PDF
-                </button>
-              )}
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setPreviewModalOpen(true);
+                }}
+                className="px-6 py-2.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all text-white border-none cursor-pointer shadow-lg shadow-sky-500/20"
+                style={{ 
+                  backgroundColor: '#0284c7', 
+                  color: '#ffffff',
+                  border: 'none',
+                  minHeight: '44px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.backgroundColor = '#0369a1';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.backgroundColor = '#0284c7';
+                }}
+              >
+                <Eye size={18} style={{ color: '#ffffff' }} /> PREVIA A4
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleGeneratePDF();
+                }}
+                className="px-6 py-2.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all text-white border-none cursor-pointer shadow-lg shadow-orange-500/20"
+                style={{ 
+                  backgroundColor: '#f97316',
+                  color: '#ffffff',
+                  border: 'none',
+                  minHeight: '44px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.backgroundColor = '#ea580c';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.backgroundColor = '#f97316';
+                }}
+              >
+                <Printer size={18} style={{ color: '#ffffff' }} /> IMPRIMIR PDF
+              </button>
 
               <button
                 onClick={(e) => {
@@ -2052,6 +2069,111 @@ export default function LegajoForm() {
 
       </div>
 
+
+      {/* Contenedor Offscreen para Generar/Imprimir PDF */}
+      <div className="absolute left-0 opacity-[0.001] top-[-9999px] pointer-events-none">
+        <LegajoPdf
+          data={{ ...formData, professionalName: currentUser?.displayName || 'Profesional H&S' }}
+          customId="legajo-form-print"
+        />
+      </div>
+
+      {/* Modal de Previsualización A4 Realista */}
+      {previewModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-500/20 text-blue-400 rounded-xl flex-shrink-0">
+                  <FileText size={20} />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-sm sm:text-base font-bold text-white leading-tight truncate">
+                    Vista Previa A4 • Legajo Técnico de Obra / Establecimiento
+                  </h2>
+                  <p className="text-[11px] sm:text-xs text-slate-400 truncate">
+                    {formData.empresa?.razonSocial || 'Establecimiento'} • Dec. 351/79 & Ley 19.587
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+                {/* Controles de Zoom */}
+                <div className="flex items-center gap-1 bg-slate-700/60 rounded-xl p-1">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewZoom(z => Math.max(0.35, z - 0.1))}
+                    className="p-1 rounded text-slate-300 hover:text-white hover:bg-slate-600 transition-colors"
+                    title="Reducir Zoom"
+                  >
+                    <ZoomOut size={15} />
+                  </button>
+                  <span className="text-[11px] font-bold px-1.5 min-w-[38px] text-center text-slate-200">
+                    {Math.round(previewZoom * 100)}%
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewZoom(z => Math.min(1.5, z + 0.1))}
+                    className="p-1 rounded text-slate-300 hover:text-white hover:bg-slate-600 transition-colors"
+                    title="Aumentar Zoom"
+                  >
+                    <ZoomIn size={15} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewZoom(typeof window !== 'undefined' && window.innerWidth < 640 ? 0.45 : 1)}
+                    className="p-1 rounded text-slate-300 hover:text-white hover:bg-slate-600 transition-colors"
+                    title="Restablecer Zoom"
+                  >
+                    <RotateCcw size={14} />
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => requirePro(() => printElementAsDocument('legajo-form-preview-modal', `Legajo_Tecnico_${formData.empresa?.razonSocial || 'Obra'}`))}
+                    className="flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-blue-400 to-indigo-500 hover:from-blue-500 hover:to-indigo-600 rounded-xl shadow-lg shadow-blue-500/20 transition-all cursor-pointer whitespace-nowrap"
+                  >
+                    <Printer size={15} /> <span className="hidden sm:inline">Imprimir / </span>Guardar PDF
+                  </button>
+                  <button
+                    onClick={() => setPreviewModalOpen(false)}
+                    className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                    title="Cerrar vista previa"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-auto p-2 sm:p-6 bg-slate-950/70 flex justify-center items-start">
+              <div 
+                style={{
+                  zoom: previewZoom,
+                  transformOrigin: 'top center'
+                }}
+                className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300"
+              >
+                <LegajoPdf
+                  data={{ ...formData, professionalName: currentUser?.displayName || 'Profesional H&S' }}
+                  customId="legajo-form-preview-modal"
+                />
+              </div>
+            </div>
+
+            <div className="px-4 sm:px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
+              <span className="truncate">8 Capítulos Técnicos Reglamentarios • Dec. 351/79 & Dec. 911/96</span>
+              <button
+                onClick={() => setPreviewModalOpen(false)}
+                className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       </main>
     </div>
   </>);

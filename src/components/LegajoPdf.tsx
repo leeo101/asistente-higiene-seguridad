@@ -3,8 +3,9 @@ import { Building2, AlertTriangle, Flame, ShieldCheck, Wind, PenTool, Wrench, Pa
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
+import ReportContentRenderer from './reports/ReportContentRenderer';
 
-export default function LegajoPdf({ data }: { data: any; }): React.ReactElement | null {
+export default function LegajoPdf({ data, customId }: { data: any; customId?: string }): React.ReactElement | null {
   if (!data) return null;
 
   const sectionColors: Record<string, string> = {
@@ -82,9 +83,9 @@ export default function LegajoPdf({ data }: { data: any; }): React.ReactElement 
       <span className="text-[0.7rem] font-[800] text-[#64748b] block mb-[0.4rem] uppercase letter-spacing-[0.05em]">
           {label}
       </span>
-      <span className="text-[0.95rem] font-[600] text-[#0f172a] block">
-          {value || '—'}
-      </span>
+      <div className="text-[0.95rem] font-[600] text-[#0f172a]">
+        <ReportContentRenderer content={value || '—'} />
+      </div>
     </div>
   );
 
@@ -134,7 +135,7 @@ export default function LegajoPdf({ data }: { data: any; }): React.ReactElement 
   };
 
   return (
-    <div className="pdf-document premium-legajo bg-[#ffffff] w-[100%] max-w-[100%] text-[#0f172a] font-family-[Inter,_system-ui,_sans-serif]" style={{ padding: '0px' }}>
+    <div id={customId || "pdf-content"} className="pdf-document premium-legajo bg-[#ffffff] w-[100%] max-w-[100%] text-[#0f172a] font-family-[Inter,_system-ui,_sans-serif]" style={{ padding: '0px' }}>
       <style type="text/css" media="print">{`
         @page { size: A4 portrait; margin: 15mm; }
         body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }

@@ -58,11 +58,21 @@ export default async function handler(req, res) {
                         });
                         
                         let currentExpiry = 0;
+                        let lastPaymentId = null;
                         if (userDocRes.ok) {
                             const docData = await userDocRes.json();
+                            if (docData.fields && docData.fields.lastPaymentId && docData.fields.lastPaymentId.stringValue) {
+                                lastPaymentId = docData.fields.lastPaymentId.stringValue;
+                            }
                             if (docData.fields && docData.fields.expiry && docData.fields.expiry.stringValue) {
                                 currentExpiry = parseInt(docData.fields.expiry.stringValue, 10);
                             }
+                        }
+
+                        // 🔒 IDEMPOTENCY GUARD: Evitar replay attacks o reintentos duplicados que sumen meses indebidamente
+                        if (lastPaymentId && String(lastPaymentId) === String(webhookId)) {
+                            console.log(`[Webhook] El pago ID ${webhookId} ya fue procesado para el usuario ${userId}. Omitiendo extensión duplicada.`);
+                            return res.status(200).send('Payment already processed');
                         }
 
                         // 2. Calculate new expiry

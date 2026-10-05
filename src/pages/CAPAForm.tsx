@@ -5,6 +5,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import CAPAPdf from '../components/CAPAPdf';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
@@ -47,6 +48,7 @@ export default function CAPAForm(): React.ReactElement | null {
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const { isPro } = usePaywall();
 

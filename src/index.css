@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 @import './styles/modal-fullscreen.css';
 
 *,
@@ -265,13 +266,15 @@ button {
   font-size: 0.95em;
   font-weight: 600;
   font-family: inherit;
-  background-color: var(--color-surface);
   cursor: pointer;
   transition: all var(--transition-base);
-  color: var(--color-text);
   box-shadow: var(--shadow-sm);
   letter-spacing: 0.01em;
-  min-height: 48px; /* Touch target accessibility */
+}
+
+button:not([class*="bg-"]):not([class*="btn-"]):not([style*="background"]) {
+  background-color: var(--color-surface);
+  color: var(--color-text);
 }
 
 button:not([class*="bg-"]):not([class*="btn-"]):hover {

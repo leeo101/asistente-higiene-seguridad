@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ClipboardCheck, Plus, Search,
-  FileText, Eye, Edit3, Trash2, CheckCircle2,
+  FileText, Eye, Edit3, Trash2, CheckCircle2, Printer,
   XCircle, Clock, User, Calendar,
   Shield, TrendingUp, AlertTriangle, BarChart3,
   Activity, CheckSquare, Target, Layers,
@@ -10,6 +10,7 @@ import {
 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import CAPAPdf from '../components/CAPAPdf';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import PremiumHeader from '../components/PremiumHeader';
 import ConfirmModal from '../components/ConfirmModal';
@@ -106,6 +107,15 @@ export default function CAPAManager(): React.ReactElement | null {
   const [showActionModal, setShowActionModal] = useState(false);
   const [currentCapaForAction, setCurrentCapaForAction] = useState(null);
   const [shareItem, setShareItem] = useState(null);
+  const [previewItem, setPreviewItem] = useState(null);
+  const [printItem, setPrintItem] = useState(null);
+
+  const handleDirectPrint = (capa: any) => {
+    setPrintItem(capa);
+    setTimeout(() => {
+      printElementAsDocument('capa-manager-direct-print');
+    }, 150);
+  };
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
@@ -760,7 +770,7 @@ function TabButton({ active, onClick, icon, label, count }) {
 
 }
 
-function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus, onView, onEdit, onShare, onAddAction, onDelete, isMobile }: any) {
+function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus, onView, onEdit, onPreview, onPrint, onShare, onAddAction, onDelete, isMobile }: any) {
   const isOverdue = capa.dueDate && new Date(capa.dueDate) < new Date() && capa.status !== 'closed';
   const daysUntilDue = capa.dueDate ? Math.ceil((new Date(capa.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : null;
 
@@ -1089,7 +1099,7 @@ function CreateCapaModal({ capa, setCapa, onSave, onClose, CAPA_TYPES, CAPA_SOUR
 }
 
 // Modal de Detalle
-function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose, onUpdateStatus, CAPA_TYPES, CAPA_SOURCES, CONTROL_HIERARCHY, onVerifyEffectiveness }) {
+function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose, onPreview, onPrint, onUpdateStatus, CAPA_TYPES, CAPA_SOURCES, CONTROL_HIERARCHY, onVerifyEffectiveness }: any) {
   const [showTimeline, setShowTimeline] = useState(false);
   const isOverdue = capa.dueDate && new Date(capa.dueDate) < new Date() && capa.status !== 'closed';
 
@@ -1229,6 +1239,23 @@ function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose
                         {capa.status === 'in_progress' && <button onClick={() => onUpdateStatus(capa.id, 'review')} className="btn-primary flex-[auto] m-[0] p-[0.75rem_1.25rem] bg-[linear-gradient(135deg,_#8b5cf6,_#7c3aed)] font-[800]">Enviar a Revisión</button>}
                         {capa.status === 'review' && <button onClick={() => onUpdateStatus(capa.id, 'completed')} className="btn-primary flex-[auto] m-[0] p-[0.75rem_1.25rem] bg-[linear-gradient(135deg,_#16a34a,_#059669)] font-[800]">Completar</button>}
                         {capa.status === 'completed' && <button onClick={() => onUpdateStatus(capa.id, 'closed')} className="btn-primary flex-[auto] m-[0] p-[0.75rem_1.25rem] bg-[linear-gradient(135deg,_#059669,_#047857)] font-[800]">Cerrar CAPA</button>}
+                    </div>
+
+                    <div className="flex gap-[0.75rem] mb-[1rem]">
+                        <button
+                          type="button"
+                          onClick={() => onPreview(capa)}
+                          className="flex-1 p-[0.75rem] bg-sky-600 hover:bg-sky-500 text-white rounded-[var(--radius-lg)] font-[800] text-[0.85rem] flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-md"
+                        >
+                          <Eye size={16} /> Vista Previa A4
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onPrint(capa)}
+                          className="flex-1 p-[0.75rem] bg-slate-700 hover:bg-slate-600 text-white rounded-[var(--radius-lg)] font-[800] text-[0.85rem] flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-md"
+                        >
+                          <Printer size={16} /> Imprimir / PDF
+                        </button>
                     </div>
 
                     <button onClick={onClose} className="w-[100%] p-[0.85rem] bg-[var(--color-surface)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-lg)] text-[var(--color-text)] font-[800] cursor-pointer transition-[all_0.2s]">Cerrar Vista</button>

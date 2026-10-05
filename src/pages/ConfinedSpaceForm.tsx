@@ -12,6 +12,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import SignatureCanvas from '../components/SignatureCanvas';
 import PdfSignatures from '../components/PdfSignatures';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
@@ -63,6 +64,7 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
 
@@ -980,24 +982,87 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
       <ModuleActionBar
         actions={[
           { id: 'cancel', label: 'VOLVER', icon: <ArrowLeft size={18} />, variant: 'secondary', onClick: () => navigate(-1) },
+          { id: 'preview', label: 'PREVIA A4', icon: <Eye size={18} />, variant: 'info', onClick: () => setPreviewModalOpen(true) },
+          { id: 'print', label: 'IMPRIMIR', icon: <Printer size={18} />, variant: 'secondary', onClick: () => requirePro(() => printElementAsDocument('confined-space-form-print')) },
           { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'info', onClick: () => setShowShareModal(true) },
           { id: 'save', label: 'GENERAR PERMISO PTSEC', icon: <Save size={18} />, variant: 'primary', onClick: (e: any) => { e.preventDefault(); requirePro(handleSave); } }
         ]}
       />
 
+      {/* Modal de Previsualización A4 Realista */}
+      {previewModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl">
+                  <FileText size={20} />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+                    Vista Previa A4 • Permiso en Espacio Confinado PTSEC
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    Res. SRT 953/10 • Estratificación de gases y firmas reglamentarias preservadas
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => requirePro(() => printElementAsDocument('confined-space-preview-modal'))}
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 rounded-xl shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
+                >
+                  <Printer size={16} /> Imprimir / PDF
+                </button>
+                <button
+                  onClick={() => setPreviewModalOpen(false)}
+                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                  title="Cerrar vista previa"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/70 flex justify-center">
+              <div className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
+                <ConfinedSpacePdf
+                  data={{ ...permit, createdAt: permit.createdAt || new Date().toISOString() }}
+                  customId="confined-space-preview-modal"
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
+              <span>Resolución SRT 953/10 & Res. 295/03 • Renglones y párrafos preservados</span>
+              <button
+                onClick={() => setPreviewModalOpen(false)}
+                className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ShareModal
         isOpen={showShareModal}
         open={showShareModal}
         onClose={() => setShowShareModal(false)}
-        elementIdToPrint="pdf-content"
+        elementIdToPrint="confined-space-form-print"
         title="Permiso de Ingreso a Espacio Confinado (PTSEC)"
         text={`Permiso PTSEC Res. SRT 953/10: ${permit.spaceName}`}
         rawMessage={`Permiso PTSEC Res. SRT 953/10: ${permit.spaceName}`}
         fileName={`Permiso_PTSEC_${permit.spaceName ? permit.spaceName.replace(/\s+/g, '_') : 'Espacio_Confinado'}.pdf`}
       />
 
-      <div className="print-only fixed left-0 opacity-[0.01] top-0 pointer-events-none">
-        <ConfinedSpacePdf data={{ ...permit, createdAt: permit.createdAt || new Date().toISOString() }} />
+      <div className="ats-pdf-offscreen" id="confined-space-form-print" aria-hidden="true">
+        <ConfinedSpacePdf
+          data={{ ...permit, createdAt: permit.createdAt || new Date().toISOString() }}
+          customId="confined-space-form-print"
+        />
       </div>
     </div>
   );

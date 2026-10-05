@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  ArrowLeft, Save, Plus, Trash2, Flame, Calculator,
+  ArrowLeft, Save, Plus, Trash2, Flame, Calculator, X, Eye,
   FileText, Printer, Building2, Layout, Maximize2,
   Info, TriangleAlert, AlertTriangle, ShieldCheck, History, Share2, Sparkles, Loader2, Calendar, QrCode, Search,
-  Download, Droplets, Wind
-} from 'lucide-react';
+  Download, Droplets, Wind, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 import { fireMaterials, riskActivityGroups } from '../data/fireMaterials';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useAuth } from '../contexts/AuthContext';
@@ -25,6 +24,7 @@ import { getCountryNormativa } from '../data/legislationData';
 import { DataTable } from '../components/DataTable';
 import QRModal from '../components/QRModal';
 import FireLoadPdfGenerator from '../components/FireLoadPdfGenerator';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import SignatureCanvas from '../components/SignatureCanvas';
 import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar, ModuleWizardFooter } from '../components/module';
 import FireLoadCalculatorWidget from '../components/FireLoadCalculatorWidget';
@@ -67,6 +67,25 @@ export default function FireLoad(): React.ReactElement | null {
   const [shareItem, setShareItem] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEmpresa, setFilterEmpresa] = useState('');
+  const [previewItem, setPreviewItem] = useState<any>(null);
+  const [directPrintItem, setDirectPrintItem] = useState<any>(null);
+  const [formPreviewOpen, setFormPreviewOpen] = useState(false);
+  const [previewZoom, setPreviewZoom] = useState(() => (typeof window !== "undefined" && window.innerWidth < 640 ? 0.45 : 1));
+
+  const handleDirectPrint = (item: any) => {
+    requirePro(() => {
+      setDirectPrintItem(item);
+      setTimeout(() => {
+        printElementAsDocument('fireload-direct-print', `Carga_de_Fuego_${item.sector || 'Estudio'}`);
+      }, 150);
+    });
+  };
+
+  const handleFormPrint = () => {
+    requirePro(() => {
+      printElementAsDocument('fireload-form-print', `Carga_de_Fuego_${formData.sector || 'Estudio'}`);
+    });
+  };
 
   useEffect(() => {
     const historyRaw = localStorage.getItem('fireload_history');
@@ -569,6 +588,20 @@ ${evalMetrics.requiereRociadoresAutomaticos ? 'Por densidad de carga térmica el
       render: (item: any) => (
         <div className="flex gap-1.5 flex-wrap">
           <button
+            onClick={() => setPreviewItem(item)}
+            title="Vista Previa A4 Realista"
+            className="p-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white transition-colors cursor-pointer"
+          >
+            <Eye size={14} />
+          </button>
+          <button
+            onClick={() => handleDirectPrint(item)}
+            title="Imprimir PDF Directo"
+            className="p-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer"
+          >
+            <Printer size={14} />
+          </button>
+          <button
             onClick={() => {
               setFormData(item);
               if (item.showSignatures) setShowSignatures(item.showSignatures);
@@ -741,8 +774,9 @@ ${evalMetrics.requiereRociadoresAutomaticos ? 'Por densidad de carga térmica el
       ) : (
         /* ─── VISTA 2: FORMULARIO Y EDITOR DE CÁLCULO ─── */
         <>
-          <div id="fireload-pdf-form" className="print-only">
+          <div className="ats-pdf-offscreen" id="fireload-form-print" aria-hidden="true">
             <FireLoadPdfGenerator
+              customId="fireload-form-print"
               data={{
                 ...formData,
                 metricas: evalMetrics,
@@ -1172,8 +1206,15 @@ ${evalMetrics.requiereRociadoresAutomaticos ? 'Por densidad de carga térmica el
                 <div className="flex gap-2.5">
                   <button
                     type="button"
-                    onClick={handlePrint}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-colors"
+                    onClick={() => setFormPreviewOpen(true)}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-colors cursor-pointer"
+                  >
+                    <Eye size={16} /> Previa A4
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleFormPrint}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-colors cursor-pointer"
                   >
                     <Printer size={16} /> Imprimir / PDF
                   </button>
@@ -1190,6 +1231,231 @@ ${evalMetrics.requiereRociadoresAutomaticos ? 'Por densidad de carga térmica el
           </div>
         </>
       )}
+
+      {/* Modal de Previsualización A4 Realista para Historial */}
+      {previewItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-500/20 text-orange-400 rounded-xl flex-shrink-0">
+                  <Flame size={20} />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-sm sm:text-base font-bold text-white leading-tight truncate">
+                    Vista Previa A4 • Memoria Carga de Fuego
+                  </h2>
+                  <p className="text-[11px] sm:text-xs text-slate-400 truncate">
+                    {previewItem.sector || 'Sector'} • {previewItem.razonSocial || previewItem.empresa || 'Empresa'} • Dec. 351/79 Anexo VII
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+                {/* Controles de Zoom */}
+                <div className="flex items-center gap-1 bg-slate-700/60 rounded-xl p-1">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewZoom(z => Math.max(0.35, z - 0.1))}
+                    className="p-1 rounded text-slate-300 hover:text-white hover:bg-slate-600 transition-colors"
+                    title="Reducir Zoom"
+                  >
+                    <ZoomOut size={15} />
+                  </button>
+                  <span className="text-[11px] font-bold px-1.5 min-w-[38px] text-center text-slate-200">
+                    {Math.round(previewZoom * 100)}%
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewZoom(z => Math.min(1.5, z + 0.1))}
+                    className="p-1 rounded text-slate-300 hover:text-white hover:bg-slate-600 transition-colors"
+                    title="Aumentar Zoom"
+                  >
+                    <ZoomIn size={15} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewZoom(typeof window !== 'undefined' && window.innerWidth < 640 ? 0.45 : 1)}
+                    className="p-1 rounded text-slate-300 hover:text-white hover:bg-slate-600 transition-colors"
+                    title="Restablecer Zoom"
+                  >
+                    <RotateCcw size={14} />
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => requirePro(() => printElementAsDocument('fireload-preview-modal', `Carga_de_Fuego_${previewItem.sector || 'Estudio'}`))}
+                    className="flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-orange-400 to-amber-500 hover:from-orange-500 hover:to-amber-600 rounded-xl shadow-lg shadow-orange-500/20 transition-all cursor-pointer whitespace-nowrap"
+                  >
+                    <Printer size={15} /> <span className="hidden sm:inline">Imprimir / </span>Guardar PDF
+                  </button>
+                  <button
+                    onClick={() => setPreviewItem(null)}
+                    className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                    title="Cerrar vista previa"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-auto p-2 sm:p-6 bg-slate-950/70 flex justify-center items-start">
+              <div 
+                style={{
+                  zoom: previewZoom,
+                  transformOrigin: 'top center'
+                }}
+                className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300"
+              >
+                <FireLoadPdfGenerator
+                  data={previewItem}
+                  customId="fireload-preview-modal"
+                />
+              </div>
+            </div>
+
+            <div className="px-4 sm:px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
+              <span className="truncate">Normas IRAM 3517-2 • Dec. PEN 351/79</span>
+              <button
+                onClick={() => setPreviewItem(null)}
+                className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Previsualización A4 Realista para Formulario */}
+      {formPreviewOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-500/20 text-orange-400 rounded-xl flex-shrink-0">
+                  <Flame size={20} />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-sm sm:text-base font-bold text-white leading-tight truncate">
+                    Vista Previa A4 • Memoria Carga de Fuego
+                  </h2>
+                  <p className="text-[11px] sm:text-xs text-slate-400 truncate">
+                    {formData.sector || 'Sector'} • {formData.razonSocial || formData.empresa || 'Empresa'} • Dec. 351/79 Anexo VII
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+                {/* Controles de Zoom */}
+                <div className="flex items-center gap-1 bg-slate-700/60 rounded-xl p-1">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewZoom(z => Math.max(0.35, z - 0.1))}
+                    className="p-1 rounded text-slate-300 hover:text-white hover:bg-slate-600 transition-colors"
+                    title="Reducir Zoom"
+                  >
+                    <ZoomOut size={15} />
+                  </button>
+                  <span className="text-[11px] font-bold px-1.5 min-w-[38px] text-center text-slate-200">
+                    {Math.round(previewZoom * 100)}%
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewZoom(z => Math.min(1.5, z + 0.1))}
+                    className="p-1 rounded text-slate-300 hover:text-white hover:bg-slate-600 transition-colors"
+                    title="Aumentar Zoom"
+                  >
+                    <ZoomIn size={15} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewZoom(typeof window !== 'undefined' && window.innerWidth < 640 ? 0.45 : 1)}
+                    className="p-1 rounded text-slate-300 hover:text-white hover:bg-slate-600 transition-colors"
+                    title="Restablecer Zoom"
+                  >
+                    <RotateCcw size={14} />
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => requirePro(() => printElementAsDocument('fireload-form-preview-modal', `Carga_de_Fuego_${formData.sector || 'Estudio'}`))}
+                    className="flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-orange-400 to-amber-500 hover:from-orange-500 hover:to-amber-600 rounded-xl shadow-lg shadow-orange-500/20 transition-all cursor-pointer whitespace-nowrap"
+                  >
+                    <Printer size={15} /> <span className="hidden sm:inline">Imprimir / </span>Guardar PDF
+                  </button>
+                  <button
+                    onClick={() => setFormPreviewOpen(false)}
+                    className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                    title="Cerrar vista previa"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-auto p-2 sm:p-6 bg-slate-950/70 flex justify-center items-start">
+              <div 
+                style={{
+                  zoom: previewZoom,
+                  transformOrigin: 'top center'
+                }}
+                className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
+                <FireLoadPdfGenerator
+                  data={{
+                    ...formData,
+                    metricas: evalMetrics,
+                    results: {
+                      cargaTermicaTotal: evalMetrics.cargaTermicaTotalKcal,
+                      maderaEquivalente: evalMetrics.maderaEquivalenteKg,
+                      cargaDeFuego: evalMetrics.cargaFuegoKgM2,
+                      cargaFuego: evalMetrics.cargaFuegoKgM2,
+                      rfRequerida: evalMetrics.resistenciaFuegoRequerida,
+                      resistenciaRequerida: evalMetrics.resistenciaFuegoRequerida,
+                      minMatafuegos: evalMetrics.minExtintores,
+                      cantidadMatafuegos: evalMetrics.minExtintores,
+                      potencialExtintor: evalMetrics.potencialExtintorNominal,
+                      requiereRedHidrantes: evalMetrics.requiereRedHidrantes,
+                      requiereRociadoresAutomaticos: evalMetrics.requiereRociadoresAutomaticos
+                    },
+                    showSignatures,
+                    professionalSignature: professional?.signature,
+                    professionalStamp: professional?.stamp,
+                    professionalName: professional?.name,
+                    professionalLicense: professional?.license
+                  }}
+                  customId="fireload-form-preview-modal"
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
+              <span>Normas IRAM 3517-2 • Decreto PEN 351/79 Cuadro de Protección Pasiva y Activa</span>
+              <button
+                onClick={() => setFormPreviewOpen(false)}
+                className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contenedor Offscreen para Impresión Directa desde Historial */}
+      {directPrintItem && (
+        <div className="ats-pdf-offscreen" id="fireload-direct-print" aria-hidden="true">
+          <FireLoadPdfGenerator
+            data={directPrintItem}
+            customId="fireload-direct-print"
+          />
+        </div>
+      )}
+
     </div>
   );
 }

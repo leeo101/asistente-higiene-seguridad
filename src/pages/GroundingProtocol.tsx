@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import {
   Zap, Plus, Search, FileText, Eye, Edit3, Trash2, CheckCircle2,
   Calendar, ShieldAlert, BarChart3, Share2, Download, Copy,
-  Building2, Gauge, AlertTriangle, ShieldCheck, Printer, X, TrendingUp
+  Building2, Gauge, AlertTriangle, ShieldCheck, Printer, X, TrendingUp, ZoomIn, ZoomOut, RotateCcw
 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import GroundingProtocolPdf from '../components/GroundingProtocolPdf';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import PremiumHeader from '../components/PremiumHeader';
 import ConfirmModal from '../components/ConfirmModal';
@@ -143,6 +144,15 @@ export default function GroundingProtocol(): React.ReactElement | null {
     id: null
   });
   const [showTrendChart, setShowTrendChart] = useState(false);
+  const [directPrintProtocol, setDirectPrintProtocol] = useState<GroundingProtocol | null>(null);
+  const [previewZoom, setPreviewZoom] = useState(typeof window !== 'undefined' && window.innerWidth < 640 ? 0.45 : 1);
+
+  const handleDirectPrint = (p: GroundingProtocol) => {
+    setDirectPrintProtocol(p);
+    setTimeout(() => {
+      printElementAsDocument('grounding-direct-print', `Protocolo_PAT_SRT900_${p.razonSocial || 'SRT'}`);
+    }, 120);
+  };
 
   const patTrendData = useMemo(() => {
     const points: { date: string; value: number; label: string }[] = [];
@@ -528,11 +538,19 @@ export default function GroundingProtocol(): React.ReactElement | null {
                     <div className="flex items-center gap-1.5 self-end lg:self-center">
                       <button
                         type="button"
-                        onClick={() => setSelectedProtocol(p)}
-                        title="Ver Protocolo Oficial PDF"
+                        onClick={() => { setSelectedProtocol(p); setPreviewZoom(1); }}
+                        title="Vista Previa A4 Protocolo Oficial"
                         className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                       >
                         <Eye size={17} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDirectPrint(p)}
+                        title="Imprimir / Exportar PDF Oficial Directo"
+                        className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
+                      >
+                        <Printer size={17} />
                       </button>
                       <button
                         type="button"
@@ -579,7 +597,7 @@ export default function GroundingProtocol(): React.ReactElement | null {
           <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 overflow-y-auto">
             <div className="bg-slate-100 dark:bg-slate-900 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl border border-slate-300 dark:border-slate-700">
               {/* Header del Modal */}
-              <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-800 rounded-t-2xl">
+              <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-800 rounded-t-2xl">
                 <div>
                   <h3 className="font-bold text-slate-900 dark:text-white text-base">
                     Protocolo Oficial Res. SRT 900/15
@@ -589,17 +607,50 @@ export default function GroundingProtocol(): React.ReactElement | null {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
+                  {/* Controles de Zoom */}
+                  <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewZoom(z => Math.max(0.6, z - 0.1))}
+                      className="p-1 rounded hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors"
+                      title="Reducir Zoom"
+                    >
+                      <ZoomOut size={15} />
+                    </button>
+                    <span className="text-[11px] font-bold px-1.5 min-w-[42px] text-center text-slate-700 dark:text-slate-200">
+                      {Math.round(previewZoom * 100)}%
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewZoom(z => Math.min(1.5, z + 0.1))}
+                      className="p-1 rounded hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors"
+                      title="Aumentar Zoom"
+                    >
+                      <ZoomIn size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewZoom(1)}
+                      className="p-1 rounded hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors"
+                      title="Restablecer Zoom"
+                    >
+                      <RotateCcw size={14} />
+                    </button>
+                  </div>
+
                   <button
                     type="button"
-                    onClick={() => window.print()}
-                    className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
+                    onClick={() => {
+                      printElementAsDocument('grounding-preview-modal', `Protocolo_PAT_SRT900_${selectedProtocol.razonSocial || 'SRT'}`);
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    <Printer size={15} /> Imprimir / Guardar PDF
+                    <Printer size={15} /> <span className="hidden sm:inline">Imprimir / </span>Guardar PDF
                   </button>
                   <button
                     type="button"
                     onClick={() => setSelectedProtocol(null)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors cursor-pointer"
                   >
                     <X size={20} />
                   </button>
@@ -608,9 +659,18 @@ export default function GroundingProtocol(): React.ReactElement | null {
 
               {/* Contenedor del PDF con scroll */}
               <div className="p-6 overflow-y-auto flex-1 flex justify-center bg-slate-200/80 dark:bg-slate-950">
-                <GroundingProtocolPdf data={selectedProtocol} />
+                <div style={{ transform: `scale(${previewZoom})`, transformOrigin: 'top center', transition: 'transform 0.2s ease-out' }}>
+                  <GroundingProtocolPdf data={selectedProtocol} customId="grounding-preview-modal" />
+                </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Contenedor offscreen para impresión aislada directa */}
+        {directPrintProtocol && (
+          <div className="ats-pdf-offscreen" id="grounding-direct-print" aria-hidden="true">
+            <GroundingProtocolPdf data={directPrintProtocol} customId="grounding-direct-print" />
           </div>
         )}
 

@@ -429,16 +429,30 @@ app.all('/api/mercadopago-webhook', async (req, res) => {
                 }
 
                 if (userId && userId !== 'guest' && admin.apps.length) {
+                    const subRef = admin.firestore().collection('users').doc(userId).collection('data').doc('subscriptionData');
+                    const subDoc = await subRef.get();
+                    const subData = subDoc.exists ? subDoc.data() : null;
+
+                    // 🔒 IDEMPOTENCY GUARD: Evitar replay attacks o reintentos duplicados que sumen meses indebidamente
+                    if (subData?.lastPaymentId && String(subData.lastPaymentId) === String(webhookId)) {
+                        console.log(`[Server] Webhook ${webhookId} ya fue procesado para el usuario ${userId}. Omitiendo extensión duplicada.`);
+                        return res.status(200).send('Payment already processed');
+                    }
+
                     await admin.auth().setCustomUserClaims(userId, { isPro: true });
-                    const oneMonthFromNow = Date.now() + 30 * 24 * 60 * 60 * 1000;
-                    await admin.firestore().collection('users').doc(userId).collection('data').doc('subscriptionData').set({
+                    const currentExpiry = subData?.expiry ? parseInt(subData.expiry, 10) : 0;
+                    const baseDate = (currentExpiry && currentExpiry > Date.now()) ? new Date(currentExpiry) : new Date();
+                    baseDate.setMonth(baseDate.getMonth() + 1);
+                    const newExpiry = baseDate.getTime();
+
+                    await subRef.set({
                         status: 'active',
-                        expiry: oneMonthFromNow.toString(),
+                        expiry: newExpiry.toString(),
                         provider: 'mercadopago',
                         lastPaymentId: String(webhookId),
                         updatedAt: Date.now()
                     }, { merge: true });
-                    console.log(`[Server] User ${userId} activated PRO via Webhook until ${new Date(oneMonthFromNow).toLocaleDateString()}`);
+                    console.log(`[Server] User ${userId} activated PRO via Webhook until ${new Date(newExpiry).toLocaleDateString()}`);
                 }
             }
         }

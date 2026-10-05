@@ -950,10 +950,28 @@ exports.generatePdf = onRequest({
         if (req.method === 'OPTIONS') {
             res.set('Access-Control-Allow-Origin', '*');
             res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
             return res.status(204).send('');
         }
         if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+
+        // SECURITY: Require authenticated user
+        const authHeader = req.headers.authorization || '';
+        if (!authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ error: 'No autorizado: Se requiere token de autenticación' });
+        }
+        const idToken = authHeader.split('Bearer ')[1];
+        let decodedToken;
+        try {
+            decodedToken = await admin.auth().verifyIdToken(idToken);
+        } catch (e) {
+            return res.status(401).json({ error: 'Token inválido o expirado' });
+        }
+
+        // SECURITY: Rate limit per user
+        if (!checkRateLimit(decodedToken.uid)) {
+            return res.status(429).json({ error: 'Límite de solicitudes alcanzado. Por favor espere un minuto antes de generar otro PDF.' });
+        }
 
         let browser = null;
         try {
@@ -976,17 +994,35 @@ exports.generatePdf = onRequest({
                     '--disable-setuid-sandbox',
                     '--disable-dev-shm-usage',
                     '--disable-gpu',
-                    '--disable-web-security',
                     '--font-render-hinting=none',
                     '--disable-features=VizDisplayCompositor'
                 ],
                 defaultViewport: chromium.defaultViewport,
                 executablePath,
                 headless: chromium.headless,
-                ignoreHTTPSErrors: true,
+                ignoreHTTPSErrors: false,
             });
 
             const page = await browser.newPage();
+
+            // SECURITY: SSRF Protection - intercept and block access to private IPs and cloud metadata
+            await page.setRequestInterception(true);
+            page.on('request', (interceptedReq) => {
+                const url = interceptedReq.url().toLowerCase();
+                if (
+                    url.includes('169.254.169.254') ||
+                    url.includes('metadata.google.internal') ||
+                    url.includes('metadata.google') ||
+                    url.startsWith('file:') ||
+                    url.includes('127.0.0.1') ||
+                    url.includes('localhost')
+                ) {
+                    logger.warn(`[generatePdf] SSRF attempt blocked for URL: ${url}`);
+                    interceptedReq.abort('accessdenied');
+                } else {
+                    interceptedReq.continue();
+                }
+            });
 
             // Inyectar el HTML completo del documento
             const fullHtml = `<!DOCTYPE html>

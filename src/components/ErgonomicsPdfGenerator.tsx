@@ -2,16 +2,24 @@ import React from 'react';
 import { Building2, MapPin, User, Briefcase, Activity, AlertTriangle, ShieldCheck, CheckCircle2, XCircle } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import ReportContentRenderer from './reports/ReportContentRenderer';
 import { OFFICIAL_PLANILLA1_FACTORS, calculateNioshSrt886 } from '../utils/srtProtocols';
 
 interface ErgonomicsPdfGeneratorProps {
   data: any;
-  profile: any;
-  signature: any;
-  showSignatures: { operator: boolean; supervisor: boolean; professional: boolean; };
+  profile?: any;
+  signature?: any;
+  showSignatures?: { operator: boolean; supervisor: boolean; professional: boolean; };
+  customId?: string;
 }
 
-export default function ErgonomicsPdfGenerator({ data, profile, signature, showSignatures }: ErgonomicsPdfGeneratorProps) {
+export default function ErgonomicsPdfGenerator({
+  data,
+  profile,
+  signature,
+  showSignatures = { operator: true, supervisor: true, professional: true },
+  customId = 'pdf-content'
+}: ErgonomicsPdfGeneratorProps) {
   if (!data) return null;
 
   // Normalizar datos de planilla 1
@@ -60,7 +68,7 @@ export default function ErgonomicsPdfGenerator({ data, profile, signature, showS
 
   return (
     <div
-      id="pdf-content"
+      id={customId}
       className="report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0 bg-[white] text-[#1e293b] p-[12mm_15mm] rounded-[8px] box-shadow-[0_4px_6px_rgba(0,0,0,0.1)] min-h-[29.7cm] h-[auto] font-family-[Helvetica,_Arial,_sans-serif] text-[8.5pt]"
       style={{ borderTop: `12px solid ${borderColor}` }}
     >
@@ -164,9 +172,9 @@ export default function ErgonomicsPdfGenerator({ data, profile, signature, showS
 
         <div className="p-2 bg-slate-50 text-[0.75rem]">
           <span className="text-[0.6rem] font-extrabold text-slate-500 uppercase block">DESCRIPCIÓN DE LA TAREA Y CICLO DE TRABAJO</span>
-          <p className="m-0 mt-0.5 font-medium text-slate-700">
-            {data.descripcionTarea || 'Operaciones habituales del puesto evaluado sin especificaciones adicionales.'}
-          </p>
+          <div className="m-0 mt-0.5 font-medium text-slate-700">
+            <ReportContentRenderer content={data.descripcionTarea || 'Operaciones habituales del puesto evaluado sin especificaciones adicionales.'} />
+          </div>
         </div>
       </div>
 
@@ -343,7 +351,7 @@ export default function ErgonomicsPdfGenerator({ data, profile, signature, showS
                   {hasLifting ? 'Levantamiento de Cargas' : 'Ergonomía General'}
                 </td>
                 <td className="p-1.5 border-r border-slate-200 text-slate-700">
-                  {data.recomendaciones || 'Capacitar a los trabajadores en métodos seguros de manipulación manual y pausas ergonómicas activas.'}
+                  <ReportContentRenderer content={data.recomendaciones || 'Capacitar a los trabajadores en métodos seguros de manipulación manual y pausas ergonómicas activas.'} />
                 </td>
                 <td className="p-1.5 border-r border-slate-200 text-center">
                   <span className="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[0.65rem] font-bold">
@@ -368,8 +376,8 @@ export default function ErgonomicsPdfGenerator({ data, profile, signature, showS
             Validez Anual
           </span>
         </div>
-        <div className="p-2.5 bg-slate-50/60 text-[0.78rem] text-slate-800 font-medium leading-relaxed whitespace-pre-wrap">
-          {data.conclusiones || data.recomendaciones || 'El puesto evaluado cumple con los parámetros ergonómicos básicos bajo las condiciones relevadas al momento del estudio.'}
+        <div className="p-2.5 bg-slate-50/60 text-[0.78rem] text-slate-800 font-medium leading-relaxed">
+          <ReportContentRenderer content={data.conclusiones || data.recomendaciones || 'El puesto evaluado cumple con los parámetros ergonómicos básicos bajo las condiciones relevadas al momento del estudio.'} />
         </div>
       </div>
 

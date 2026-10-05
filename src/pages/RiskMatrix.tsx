@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ArrowLeft, Plus, Trash2, Save, TriangleAlert, ShieldCheck, Flame, Zap, Leaf, Activity, Brain, Wrench, Share2, Printer } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, TriangleAlert, ShieldCheck, Flame, Zap, Leaf, Activity, Brain, Wrench, Share2, Printer, Eye, FileText, X } from 'lucide-react';
+import RiskMatrixPdfGenerator from '../components/RiskMatrixPdfGenerator';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
@@ -63,6 +65,7 @@ export default function RiskMatrix(): React.ReactElement | null {
   });
   const [rows, setRows] = useState([emptyRow()]);
   const [showShare, setShowShare] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
 
   useEffect(() => {
     if (location.state?.editData) {
@@ -134,7 +137,7 @@ export default function RiskMatrix(): React.ReactElement | null {
         title={`Matriz de Riesgos – ${projectData.name}`}
         text={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${projectData.name}\n📍 Ubicación: ${projectData.location}\n👷 Responsable: ${projectData.responsable}\n\nGenerado con Asistente HYS`}
         rawMessage={`📋 Matriz de Riesgos\n🏗️ Proyecto: ${projectData.name}\n📍 Ubicación: ${projectData.location}\n👷 Responsable: ${projectData.responsable}\n\nGenerado con Asistente HYS`}
-        elementIdToPrint="pdf-content"
+        elementIdToPrint="risk-matrix-form-print"
         fileName={`Matriz_${projectData.name || 'Riesgos'}.pdf`} />
       
 
@@ -424,10 +427,88 @@ export default function RiskMatrix(): React.ReactElement | null {
             </ModuleFormSection>
         </ModuleFormDocument>
         <ModuleActionBar actions={[
-            { id: 'save', label: 'GUARDAR', icon: <Save size={18} />, variant: 'primary', onClick: (e) => { e.preventDefault(); requirePro(handleSave); } },
-            { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'secondary', onClick: () => requirePro(() => setShowShare(true)) },
-            { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'secondary', onClick: () => requirePro(() => window.print()) }
+            { id: 'cancel', label: 'VOLVER', icon: <ArrowLeft size={18} />, variant: 'secondary', onClick: () => navigate(-1) },
+            { id: 'preview', label: 'PREVIA A4', icon: <Eye size={18} />, variant: 'info', onClick: () => setPreviewModalOpen(true) },
+            { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'secondary', onClick: () => requirePro(() => printElementAsDocument('risk-matrix-form-print', 'Matriz de Riesgos', true)) },
+            { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'info', onClick: () => requirePro(() => setShowShare(true)) },
+            { id: 'save', label: 'GUARDAR MATRIZ', icon: <Save size={18} />, variant: 'primary', onClick: (e) => { e.preventDefault(); requirePro(handleSave); } }
         ]} />
+
+      {/* Modal de Previsualización A4 Realista */}
+      {previewModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-[1100px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-indigo-500/20 text-indigo-400 rounded-xl">
+                  <FileText size={20} />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+                    Vista Previa A4 • Matriz de Riesgos IPER
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    {projectData.name || 'Sin Título'} • Formato Apaisado (Landscape) A4 • Renglones y controles preservados
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => requirePro(() => printElementAsDocument('risk-matrix-preview-modal', 'Matriz de Riesgos', true))}
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-indigo-400 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 rounded-xl shadow-lg shadow-indigo-500/20 transition-all cursor-pointer"
+                >
+                  <Printer size={16} /> Imprimir / PDF
+                </button>
+                <button
+                  onClick={() => setPreviewModalOpen(false)}
+                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                  title="Cerrar vista previa"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/70 flex justify-center">
+              <div className="w-full max-w-[297mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
+                <RiskMatrixPdfGenerator
+                  data={{
+                    id: (projectData as any).id || Date.now(),
+                    ...projectData,
+                    rows: activeRows.length > 0 ? activeRows : rows,
+                    createdAt: (projectData as any).createdAt || new Date().toISOString()
+                  }}
+                  customId="risk-matrix-preview-modal"
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
+              <span>Metodología IPERC 5x5 • ISO 45001 / IRAM 3800 • Controles y párrafos preservados</span>
+              <button
+                onClick={() => setPreviewModalOpen(false)}
+                className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contenedor Offscreen para Impresión Directa y Compartir */}
+      <div className="ats-pdf-offscreen" id="risk-matrix-form-print" aria-hidden="true">
+        <RiskMatrixPdfGenerator
+          data={{
+            id: (projectData as any).id || Date.now(),
+            ...projectData,
+            rows: activeRows.length > 0 ? activeRows : rows,
+            createdAt: (projectData as any).createdAt || new Date().toISOString()
+          }}
+          customId="risk-matrix-form-print"
+        />
+      </div>
     </ModuleFormLayout>);
 
 }

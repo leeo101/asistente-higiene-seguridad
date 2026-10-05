@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Plus, FileText, Download, Trash2, Edit, AlertCircle, Building2,
-  Search, Filter, CheckCircle2, Clock, AlertTriangle, ArrowLeft, X, QrCode
+  Search, Filter, CheckCircle2, Clock, AlertTriangle, ArrowLeft, X, QrCode,
+  Eye, Printer, ZoomIn, ZoomOut, RotateCcw
 } from 'lucide-react';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
 import { db } from '../firebase';
@@ -75,34 +77,32 @@ export default function Legajos() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const { currentUser } = useAuth();
-  const { isPro } = usePaywall();
-  const isAdmin = currentUser?.email?.toLowerCase().trim() === 'enzorodriguez31@gmail.com';
+  const { isPro, isAdmin } = usePaywall();
   const hasAccess = isPro || isAdmin;
   const navigate = useNavigate();
-  const [printingLegajo, setPrintingLegajo] = useState<Legajo | null>(null);
+  const [previewLegajo, setPreviewLegajo] = useState<Legajo | null>(null);
+  const [previewZoom, setPreviewZoom] = useState(() => (typeof window !== "undefined" && window.innerWidth < 640 ? 0.45 : 1));
+  const [directPrintLegajo, setDirectPrintLegajo] = useState<Legajo | null>(null);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
   const [qrTarget, setQrTarget] = useState<{ text: string; title: string } | null>(null);
   const [showQRModal, setShowQRModal] = useState(false);
 
-  const handleGeneratePDF = (e: React.MouseEvent, legajo: Legajo) => {
+  const handleDirectPrint = (e: React.MouseEvent, legajo: Legajo) => {
     e.stopPropagation();
     if (!hasAccess) {
       alert("La exportación a PDF requiere una suscripción PRO");
       navigate('/subscribe');
       return;
     }
-    setPrintingLegajo(legajo);
+    setDirectPrintLegajo(legajo);
     setTimeout(() => {
-      const cleanup = () => {
-        setPrintingLegajo(null);
-        window.removeEventListener('afterprint', cleanup);
-        window.removeEventListener('focus', cleanup);
-      };
-      window.addEventListener('afterprint', cleanup);
-      window.addEventListener('focus', cleanup);
-      setTimeout(cleanup, 2000);
-      window.print();
-    }, 500);
+      printElementAsDocument('legajo-direct-print', `Legajo_Tecnico_${legajo.empresa?.razonSocial || legajo.companyName || 'Obra'}`);
+    }, 150);
+  };
+
+  const handlePreview = (e: React.MouseEvent, legajo: Legajo) => {
+    e.stopPropagation();
+    setPreviewLegajo(legajo);
   };
 
   useEffect(() => {
@@ -163,12 +163,117 @@ export default function Legajos() {
     <AnimatedPage>
       <div className="container pb-[6rem] min-h-[100vh] flex flex-col pt-4">
         
-        {/* Hidden PDF Container */}
-        {printingLegajo && (
-          <div className="print-only fixed left-0 top-0 opacity-0 pointer-events-none">
-            <div id="pdf-content">
-              <LegajoPdf data={{ ...printingLegajo, professionalName: currentUser?.displayName || 'Profesional H&S' }} />
+        {/* Modal de Previsualización A4 Realista */}
+        {previewLegajo && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+            <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-500/20 text-blue-400 rounded-xl flex-shrink-0">
+                    <FileText size={20} />
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="text-sm sm:text-base font-bold text-white leading-tight truncate">
+                      Vista Previa A4 • Legajo Técnico
+                    </h2>
+                    <p className="text-[11px] sm:text-xs text-slate-400 truncate">
+                      {previewLegajo.empresa?.razonSocial || previewLegajo.companyName || 'Establecimiento'} • Dec. 351/79 & Ley 19.587
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+                  {/* Controles de Zoom */}
+                  <div className="flex items-center gap-1 bg-slate-700/60 rounded-xl p-1">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewZoom(z => Math.max(0.35, z - 0.1))}
+                      className="p-1 rounded text-slate-300 hover:text-white hover:bg-slate-600 transition-colors"
+                      title="Reducir Zoom"
+                    >
+                      <ZoomOut size={15} />
+                    </button>
+                    <span className="text-[11px] font-bold px-1.5 min-w-[38px] text-center text-slate-200">
+                      {Math.round(previewZoom * 100)}%
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewZoom(z => Math.min(1.5, z + 0.1))}
+                      className="p-1 rounded text-slate-300 hover:text-white hover:bg-slate-600 transition-colors"
+                      title="Aumentar Zoom"
+                    >
+                      <ZoomIn size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewZoom(typeof window !== 'undefined' && window.innerWidth < 640 ? 0.45 : 1)}
+                      className="p-1 rounded text-slate-300 hover:text-white hover:bg-slate-600 transition-colors"
+                      title="Restablecer Zoom"
+                    >
+                      <RotateCcw size={14} />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        if (!hasAccess) {
+                          alert("La exportación a PDF requiere una suscripción PRO");
+                          navigate('/subscribe');
+                          return;
+                        }
+                        printElementAsDocument('legajo-table-preview', `Legajo_Tecnico_${previewLegajo.empresa?.razonSocial || previewLegajo.companyName || 'Obra'}`);
+                      }}
+                      className="flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-blue-400 to-indigo-500 hover:from-blue-500 hover:to-indigo-600 rounded-xl shadow-lg shadow-blue-500/20 transition-all cursor-pointer whitespace-nowrap"
+                    >
+                      <Printer size={15} /> <span className="hidden sm:inline">Imprimir / </span>Guardar PDF
+                    </button>
+                    <button
+                      onClick={() => setPreviewLegajo(null)}
+                      className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                      title="Cerrar vista previa"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-auto p-2 sm:p-6 bg-slate-950/70 flex justify-center items-start">
+                <div 
+                  style={{
+                    zoom: previewZoom,
+                    transformOrigin: 'top center'
+                  }}
+                  className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300"
+                >
+                  <LegajoPdf
+                    data={{ ...previewLegajo, professionalName: currentUser?.displayName || 'Profesional H&S' }}
+                    customId="legajo-table-preview"
+                  />
+                </div>
+              </div>
+
+              <div className="px-4 sm:px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
+                <span className="truncate">8 Capítulos Técnicos Reglamentarios • Dec. 351/79 & Dec. 911/96</span>
+                <button
+                  onClick={() => setPreviewLegajo(null)}
+                  className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+                >
+                  Cerrar
+                </button>
+              </div>
             </div>
+          </div>
+        )}
+
+        {/* Contenedor Offscreen para Impresión Directa */}
+        {directPrintLegajo && (
+          <div className="ats-pdf-offscreen" id="legajo-direct-print" aria-hidden="true">
+            <LegajoPdf
+              data={{ ...directPrintLegajo, professionalName: currentUser?.displayName || 'Profesional H&S' }}
+              customId="legajo-direct-print"
+            />
           </div>
         )}
 
@@ -481,11 +586,18 @@ export default function Legajos() {
                         <QrCode size={12} /> Pasaporte QR
                       </button>
                       <button
-                        onClick={(e) => handleGeneratePDF(e, legajo)}
-                        title="Exportar PDF"
+                        onClick={(e) => handlePreview(e, legajo)}
+                        title="Vista Previa A4"
+                        style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '5px 12px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(2, 132, 199, 0.2)' }}
+                      >
+                        <Eye size={12} /> Previa A4
+                      </button>
+                      <button
+                        onClick={(e) => handleDirectPrint(e, legajo)}
+                        title="Imprimir / Exportar PDF"
                         style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '5px 12px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)' }}
                       >
-                        <Download size={12} /> PDF
+                        <Printer size={12} /> PDF
                       </button>
                       <button
                         onClick={() => handleDelete(legajo.id)}

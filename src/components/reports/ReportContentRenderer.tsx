@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import DOMPurify from 'dompurify';
 
 interface ReportContentRendererProps {
   content: string | undefined | null;
@@ -34,7 +35,20 @@ function prepareContentHtml(rawContent: string | undefined | null): string {
 }
 
 export default function ReportContentRenderer({ content, className = '', isPrint = false }: ReportContentRendererProps) {
-  const html = prepareContentHtml(content);
+  const sanitizedHtml = useMemo(() => {
+    const rawHtml = prepareContentHtml(content);
+    if (typeof window === 'undefined') return rawHtml;
+    return DOMPurify.sanitize(rawHtml, {
+      ALLOWED_TAGS: [
+        'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike',
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'ul', 'ol', 'li',
+        'table', 'thead', 'tbody', 'tr', 'th', 'td',
+        'blockquote', 'hr', 'div', 'span', 'code', 'pre'
+      ],
+      ALLOWED_ATTR: ['class', 'style', 'align', 'colspan', 'rowspan', 'border', 'width']
+    });
+  }, [content]);
 
   return (
     <div className={`report-content-renderer ${className}`}>
@@ -212,7 +226,7 @@ export default function ReportContentRenderer({ content, className = '', isPrint
       `}</style>
       <div
         className="report-html-output"
-        dangerouslySetInnerHTML={{ __html: html }}
+        dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
       />
     </div>
   );

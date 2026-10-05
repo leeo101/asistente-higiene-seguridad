@@ -6,8 +6,9 @@ import {
   FileText, Eye, Edit3, Trash2, CheckCircle2,
   XCircle, Clock, User, Users, Calendar,
   Shield, Wind, Droplets, Thermometer, Activity,
-  BarChart3, AlertCircle, CheckSquare, XSquare, Share2, ArrowLeft, Download } from
+  BarChart3, AlertCircle, CheckSquare, XSquare, Share2, ArrowLeft, Download, Printer } from
 'lucide-react';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
@@ -96,6 +97,21 @@ export default function ConfinedSpace(): React.ReactElement | null {
   const [shareItem, setShareItem] = useState(null);
   const [selectedPermit, setSelectedPermit] = useState(null);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
+  const [previewItem, setPreviewItem] = useState<any>(null);
+  const [directPrintItem, setDirectPrintItem] = useState<any>(null);
+
+  const handleDirectPrint = (item: any) => {
+    requirePro(() => {
+      setDirectPrintItem(item);
+      setTimeout(() => {
+        printElementAsDocument('confined-space-direct-print');
+      }, 150);
+    });
+  };
+
+  const handlePreview = (item: any) => {
+    setPreviewItem(item);
+  };
 
   // --- Pre-Entry Checklist State ---
   const PRE_ENTRY_ITEMS = [
@@ -330,6 +346,73 @@ export default function ConfinedSpace(): React.ReactElement | null {
 
   return (
     <div className="container pb-[6rem]">
+      {/* Modal de Previsualización A4 Realista */}
+      {previewItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl">
+                  <FileText size={20} />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+                    Vista Previa A4 • Permiso en Espacio Confinado PTSEC
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    {previewItem.spaceName || 'Recinto'} • {previewItem.location || 'Planta'} • Res. SRT 953/10
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => requirePro(() => printElementAsDocument('confined-space-table-preview'))}
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 rounded-xl shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
+                >
+                  <Printer size={16} /> Imprimir / PDF
+                </button>
+                <button
+                  onClick={() => setPreviewItem(null)}
+                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                  title="Cerrar vista previa"
+                >
+                  <XCircle size={20} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/70 flex justify-center">
+              <div className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
+                <ConfinedSpacePdf
+                  data={previewItem}
+                  customId="confined-space-table-preview"
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
+              <span>Resolución SRT 953/10 & Res. 295/03 • Renglones y párrafos preservados</span>
+              <button
+                onClick={() => setPreviewItem(null)}
+                className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contenedor Offscreen para Impresión Directa */}
+      <div className="ats-pdf-offscreen" id="confined-space-direct-print" aria-hidden="true">
+        {directPrintItem && (
+          <ConfinedSpacePdf
+            data={directPrintItem}
+            customId="confined-space-direct-print"
+          />
+        )}
+      </div>
       <ShareModal
         isOpen={!!shareItem}
         open={!!shareItem}
@@ -342,7 +425,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
       />
 
       <div id="pdf-content-confined" className="fixed left-[0] opacity-[0.01] top-[0] pointer-events-[none]">
-        {shareItem && <ConfinedSpacePdf data={shareItem} />}
+        {shareItem && <ConfinedSpacePdf data={shareItem} customId="pdf-content-confined" />}
       </div>
 
       <PremiumHeader
@@ -768,7 +851,7 @@ function TabButton({ active, onClick, icon, label, count, badge }) {
 
 }
 
-function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, onView, onEdit, onShare, onDelete }: any) {
+function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, onView, onEdit, onShare, onDelete, onPreview, onDirectPrint }: any) {
   const spaceType = CONFINED_SPACE_TYPES.find((t) => t.id === permit.spaceType);
   const isExpired = permit.validUntil && new Date(permit.validUntil) < new Date();
 
@@ -1193,7 +1276,7 @@ function DangerItem({ condition, consequence, color }) {
 
 
 // Modal de Detalle
-function PermitDetailModal({ permit, statusConfig, onClose, CONFINED_SPACE_TYPES, POTENTIAL_HAZARDS, EQUIPMENT_CHECKLIST, ROLES }) {
+function PermitDetailModal({ permit, statusConfig, onClose, onPreview, onDirectPrint, CONFINED_SPACE_TYPES, POTENTIAL_HAZARDS, EQUIPMENT_CHECKLIST, ROLES }: any) {
   const spaceType = CONFINED_SPACE_TYPES.find((t) => t.id === permit.spaceType);
   const isExpired = permit.validUntil && new Date(permit.validUntil) < new Date();
 
@@ -1404,13 +1487,26 @@ function PermitDetailModal({ permit, statusConfig, onClose, CONFINED_SPACE_TYPES
                     </div>
                 </div>
 
-                <button
-          onClick={onClose}
-          className="btn-primary w-[100%]">
-
-          
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => onPreview(permit)}
+                    className="flex-1 py-3 px-4 rounded-xl font-extrabold text-xs uppercase bg-sky-600 hover:bg-sky-500 text-white flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <Eye size={16} /> Previa A4
+                  </button>
+                  <button
+                    onClick={() => onDirectPrint(permit)}
+                    className="flex-1 py-3 px-4 rounded-xl font-extrabold text-xs uppercase bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <Printer size={16} /> PDF
+                  </button>
+                  <button
+                    onClick={onClose}
+                    className="btn-primary flex-1"
+                  >
                     Cerrar
-                </button>
+                  </button>
+                </div>
                 </div>
             </div>
         </div>);

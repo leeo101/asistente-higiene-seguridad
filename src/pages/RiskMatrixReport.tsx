@@ -3,7 +3,9 @@
 import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 
-import { ArrowLeft, Printer, Share2, TriangleAlert, X, Copy, Check, Mail, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Printer, Share2, TriangleAlert, X, Copy, Check, Mail, CheckCircle2, Edit3 } from 'lucide-react';
+import { printElementAsDocument } from '../utils/pdfHelper';
+import ReportContentRenderer from '../components/reports/ReportContentRenderer';
 import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import CompanyLogo from '../components/CompanyLogo';
@@ -135,7 +137,7 @@ export default function RiskMatrixReport(): React.ReactElement | null {
     return { label: 'CRÍTICO', color: '#dc2626', bg: '#fee2e2' };
   };
 
-  const handlePrint = () => requirePro(() => window.print());
+  const handlePrint = () => requirePro(() => printElementAsDocument('pdf-content', 'Matriz de Riesgos', true));
 
   return (
     <div className="container max-w-[1100px]">
@@ -150,11 +152,27 @@ export default function RiskMatrixReport(): React.ReactElement | null {
       
 
             {/* ─── Action Bar (no-print) ─── */}
-            <div className="no-print flex justify-space-between items-center mb-[2rem] bg-[transparent]">
-
-
-        
-                <></>
+            <div className="no-print flex justify-between items-center mb-6 pt-4">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition-colors cursor-pointer border border-slate-700"
+                >
+                    <ArrowLeft size={16} /> Volver
+                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => navigate('/risk-matrix', { state: { editData: matrix } })}
+                        className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
+                    >
+                        <Edit3 size={16} /> Editar Matriz
+                    </button>
+                    <button
+                        onClick={handlePrint}
+                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-lg shadow-indigo-600/20"
+                    >
+                        <Printer size={16} /> Imprimir / PDF
+                    </button>
+                </div>
             </div>
 
             {/* ─── Printable Report ─── */}
@@ -215,10 +233,18 @@ export default function RiskMatrixReport(): React.ReactElement | null {
                 return (
                   <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#fafafa' }}>
                                         <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] text-center font-[800] text-[#94a3b8]">{i + 1}</td>
-                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] word-break-[break-word] overflow-wrap-[anywhere]">{row.task}</td>
-                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] word-break-[break-word] overflow-wrap-[anywhere]">{row.hazardType}</td>
-                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] word-break-[break-word] overflow-wrap-[anywhere]">{row.hazard}</td>
-                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] word-break-[break-word] overflow-wrap-[anywhere]">{row.probableEffect}</td>
+                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] word-break-[break-word] overflow-wrap-[anywhere]">
+                                            <ReportContentRenderer content={row.task} />
+                                        </td>
+                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] word-break-[break-word] overflow-wrap-[anywhere]">
+                                            {row.hazardType}
+                                        </td>
+                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] word-break-[break-word] overflow-wrap-[anywhere]">
+                                            <ReportContentRenderer content={row.hazard} />
+                                        </td>
+                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] word-break-[break-word] overflow-wrap-[anywhere]">
+                                            <ReportContentRenderer content={row.probableEffect} />
+                                        </td>
                                         <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] text-center">{row.exposedCount}</td>
                                         <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] text-center font-[800]">{row.probability}</td>
                                         <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] text-center font-[800]">{row.severity}</td>
@@ -226,7 +252,9 @@ export default function RiskMatrixReport(): React.ReactElement | null {
                                         <td className="border-[1px_solid_#e2e8f0] p-[0.4rem] text-center">
                                             <span style={{ background: lv.bg, color: lv.color, border: `1px solid ${lv.color}40` }} className="rounded-[12px] p-[0.25rem_0.6rem] font-[900] text-[0.65rem] white-space-[nowrap]">{lv.label}</span>
                                         </td>
-                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] word-break-[break-word] overflow-wrap-[anywhere]">{row.controls}</td>
+                                        <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] word-break-[break-word] overflow-wrap-[anywhere]">
+                                            <ReportContentRenderer content={row.controls} />
+                                        </td>
                                     </tr>);
 
               })}

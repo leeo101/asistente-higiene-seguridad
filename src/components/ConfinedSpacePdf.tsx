@@ -3,13 +3,15 @@ import { ShieldCheck, Wind, AlertTriangle, Activity, Clock, MapPin, Building2, C
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
+import ReportContentRenderer from './reports/ReportContentRenderer';
 import { evaluateAtmosphericConditions } from '../utils/srtProtocols';
 
 interface ConfinedSpacePdfProps {
   data: any;
+  customId?: string;
 }
 
-export default function ConfinedSpacePdf({ data }: ConfinedSpacePdfProps): React.ReactElement | null {
+export default function ConfinedSpacePdf({ data, customId }: ConfinedSpacePdfProps): React.ReactElement | null {
   if (!data) return null;
 
   const gasReadings = data.gasMonitoring || { o2: '', lel: '', co: '', h2s: '', time: '', stratum: 'general' };
@@ -94,7 +96,7 @@ export default function ConfinedSpacePdf({ data }: ConfinedSpacePdfProps): React
   return (
     <div className="w-full flex justify-center py-4 bg-slate-100 print:bg-white print:py-0">
       <div
-        id="pdf-content"
+        id={customId || "pdf-content"}
         className="pdf-container print-area w-full max-w-[210mm] min-h-[297mm] p-8 sm:p-10 bg-white text-slate-900 shadow-xl rounded-2xl box-border mx-auto text-xs font-sans print:shadow-none print:p-4 print:max-w-none print:rounded-none"
       >
         <style type="text/css" media="print">
@@ -373,13 +375,24 @@ export default function ConfinedSpacePdf({ data }: ConfinedSpacePdfProps): React
         </div>
 
         {/* Cuadro 6: Observaciones y Conclusiones Técnicas */}
-        {data.observations && (
-          <div className="border border-slate-300 rounded-lg overflow-hidden mb-3 page-break-inside-avoid">
+        {(data.observations || data.workDescription) && (
+          <div className="border border-slate-300 rounded-lg overflow-hidden mb-3">
             <div className="bg-slate-900 text-white px-3 py-1 font-black text-[9.5px] uppercase tracking-wider">
               6. OBSERVACIONES, INSTRUCCIONES Y CONDICIONES ESPECÍFICAS
             </div>
-            <div className="p-2.5 bg-slate-50 text-[10px] font-medium text-slate-800 leading-relaxed whitespace-pre-wrap">
-              {data.observations}
+            <div className="p-2.5 bg-slate-50 text-[10px] text-slate-800 leading-relaxed">
+              {data.workDescription && (
+                <div className="mb-2 pb-2 border-b border-slate-200">
+                  <span className="font-bold text-slate-600 block uppercase text-[8.5px] mb-1">Descripción del Trabajo a Realizar:</span>
+                  <ReportContentRenderer content={data.workDescription} />
+                </div>
+              )}
+              {data.observations && (
+                <div>
+                  <span className="font-bold text-slate-600 block uppercase text-[8.5px] mb-1">Medidas Preventivas y Observaciones:</span>
+                  <ReportContentRenderer content={data.observations} />
+                </div>
+              )}
             </div>
           </div>
         )}

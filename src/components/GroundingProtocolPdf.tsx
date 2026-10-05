@@ -1,15 +1,17 @@
 import React from 'react';
 import { AlertTriangle, CheckCircle2, Zap, Shield, ShieldAlert, Calendar, Building2, User, Gauge } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import ReportContentRenderer from './reports/ReportContentRenderer';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import type { GroundingProtocol } from '../types/grounding';
 import { evaluateFullGroundingProtocol } from '../utils/srtProtocols';
 
 interface Props {
   data: GroundingProtocol;
+  customId?: string;
 }
 
-export default function GroundingProtocolPdf({ data }: Props): React.ReactElement | null {
+export default function GroundingProtocolPdf({ data, customId = 'pdf-content' }: Props): React.ReactElement | null {
   if (!data) return null;
 
   const evaluation = evaluateFullGroundingProtocol(data);
@@ -42,7 +44,7 @@ export default function GroundingProtocolPdf({ data }: Props): React.ReactElemen
   return (
     <div className="w-full flex justify-center">
       <div
-        id="pdf-content"
+        id={customId}
         className="pdf-container print-area w-full max-w-[210mm] min-h-[297mm] p-[12mm] bg-white text-slate-900 box-border mx-auto text-[9.5pt] font-sans"
       >
         <style type="text/css" media="print">
@@ -267,7 +269,7 @@ export default function GroundingProtocolPdf({ data }: Props): React.ReactElemen
                           {isContOk ? 'CORRECTA' : 'DEFECTUOSA'}
                         </span>
                       </td>
-                      <td className="p-1 border border-slate-300 text-slate-600 text-[7.5pt]">{m.observaciones || 'Sin anomalías'}</td>
+                      <td className="p-1 border border-slate-300 text-slate-600 text-[7.5pt]">{m.observaciones ? <ReportContentRenderer content={m.observaciones} /> : 'Sin anomalías'}</td>
                     </tr>
                   );
                 })
@@ -332,10 +334,14 @@ export default function GroundingProtocolPdf({ data }: Props): React.ReactElemen
             3. CONCLUSIONES Y RECOMENDACIONES TÉCNICAS
           </div>
           <p className="m-0 mb-1.5 text-slate-800 leading-relaxed font-medium">
-            {data.conclusiones || (
-              isConforme
-                ? 'La instalación evaluada cuenta con sistema de puesta a tierra reglamentario, continuidad de masas efectiva y protecciones diferenciales operativas, satisfaciendo las exigencias del Anexo I Res. SRT 900/15 y reglamentación AEA 90364.'
-                : 'La instalación presenta deficiencias que vulneran las condiciones de seguridad contra contactos eléctricos indirectos. Se deberán ejecutar las acciones correctivas señaladas a continuación.'
+            {data.conclusiones ? (
+              <ReportContentRenderer content={data.conclusiones} className="text-slate-800 leading-relaxed font-medium" />
+            ) : (
+              <p className="m-0 mb-1.5 text-slate-800 leading-relaxed font-medium">
+                {isConforme
+                  ? 'La instalación evaluada cuenta con sistema de puesta a tierra reglamentario, continuidad de masas efectiva y protecciones diferenciales operativas, satisfaciendo las exigencias del Anexo I Res. SRT 900/15 y reglamentación AEA 90364.'
+                  : 'La instalación presenta deficiencias que vulneran las condiciones de seguridad contra contactos eléctricos indirectos. Se deberán ejecutar las acciones correctivas señaladas a continuación.'}
+              </p>
             )}
           </p>
 

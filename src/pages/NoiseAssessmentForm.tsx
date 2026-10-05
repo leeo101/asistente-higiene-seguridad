@@ -20,6 +20,7 @@ import {
   ModuleActionBar,
 } from '../components/module';
 import { evaluateFullNoiseProtocolSRT85 } from '../utils/srtProtocols';
+import { printElementAsDocument } from '../utils/pdfHelper';
 
 const NOISE_LIMITS = {
   actionLevel: 80,
@@ -317,7 +318,7 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
         icon={<Volume2 size={32} color="#ffffff" />}
       />
 
-      <ModuleFormDocument id="pdf-content">
+      <ModuleFormDocument>
         {/* SECCIÓN 1: DATOS DEL ESTABLECIMIENTO */}
         <ModuleFormSection title="1. Datos del Establecimiento y Puesto Evaluado" icon={<Building2 />}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -830,7 +831,7 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
         actions={[
           { id: 'save', label: 'GUARDAR PROTOCOLO', icon: <Save />, variant: 'primary', onClick: () => requirePro(handleSave) },
           { id: 'share', label: 'COMPARTIR', icon: <Share2 />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) },
-          { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer />, variant: 'secondary', onClick: () => requirePro(() => window.print()) },
+          { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer />, variant: 'secondary', onClick: () => requirePro(() => printElementAsDocument('noise-pdf-content', `Protocolo_Ruido_${measurement.empresa || 'SRT85'}.pdf`)) },
           { id: 'cancel', label: 'VOLVER', icon: <ArrowLeft />, variant: 'danger', onClick: () => navigate('/noise-assessment') }
         ]}
       />
@@ -839,7 +840,7 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
         isOpen={showShareModal}
         open={showShareModal}
         onClose={() => setShowShareModal(false)}
-        elementIdToPrint="pdf-content"
+        elementIdToPrint="noise-pdf-content"
         title="Protocolo de Medición de Ruido — Res. SRT 85/12"
         text={`🔊 Protocolo de Ruido (Res. SRT 85/12)\n🏢 Empresa: ${measurement.empresa}\n👤 Trabajador: ${measurement.workerName}\n📈 Nivel LAeq: ${measurement.levels?.lavg} dB(A)\n📊 Dictamen: ${evalMetrics.dictamenGeneral}`}
         rawMessage={`Protocolo de Ruido - ${measurement.empresa || measurement.workerName}`}
@@ -847,7 +848,7 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
       />
 
       {/* Vista previa oculta para impresión y generación de PDF */}
-      <div className="print-only fixed left-[-9999px] top-0 opacity-[0.01] pointer-events-none" id="pdf-content">
+      <div className="print-only fixed left-[-9999px] top-0 opacity-[0.01] pointer-events-none" id="noise-pdf-content">
         <NoiseAssessmentPdf data={{
           ...measurement,
           professionalSignature: measurement.professionalSignature || professional.signature,
