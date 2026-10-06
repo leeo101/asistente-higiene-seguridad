@@ -6,7 +6,7 @@ import {
   HardHat, Users, Siren, Map, Accessibility, Scale, Camera,
   ShieldAlert, ThermometerSun, Shield, Plus, Zap, CheckCircle,
   MessageSquare, PieChart, Lock, Droplets, Volume2, Beaker,
-  ArrowUp, Truck, Timer, FileText, UserCircle } from
+  ArrowUp, Truck, Timer, FileText, UserCircle, Wind, Boxes, Archive } from
 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -70,7 +70,13 @@ const MODULES = [
 { nav: '/atex', icon: <Zap size={17} />, label: 'Atmósferas Explosivas (ATEX)', sub: 'Zonas IEC 60079 y Equipos Ex', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
 { nav: '/first-aid-aed', icon: <ShieldAlert size={17} />, label: 'Primeros Auxilios y DEA', sub: 'Cardioprotección Ley 27.159', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
 { nav: '/arc-flash', icon: <Zap size={17} />, label: 'Arco Eléctrico (Arc Flash)', sub: 'NFPA 70E y Res. SRT 3068/14', color: '#eab308', bg: 'rgba(234,179,8,0.1)' },
-{ nav: '/industrial-environment', icon: <Droplets size={17} />, label: 'Efluentes y Emisiones', sub: 'Monitoreo Ambiental Ley 25.675', color: '#0d9488', bg: 'rgba(13,148,136,0.1)' }];
+{ nav: '/industrial-environment', icon: <Droplets size={17} />, label: 'Efluentes y Emisiones', sub: 'Monitoreo Ambiental Ley 25.675', color: '#0d9488', bg: 'rgba(13,148,136,0.1)' },
+{ nav: '/forklifts', icon: <Truck size={17} />, label: 'Autoelevadores & Maquinaria', sub: 'Res. SRT 960/15 Carnet y Check Pre-op', color: '#d97706', bg: 'rgba(217,119,6,0.1)' },
+{ nav: '/legal-matrix', icon: <Scale size={17} />, label: 'Matriz Legal (ISO 45001)', sub: 'Evaluación Conformidad Ley 19.587', color: '#2563eb', bg: 'rgba(37,99,235,0.1)' },
+{ nav: '/ventilation', icon: <Wind size={17} />, label: 'Ventilación & Renovaciones', sub: 'Cálculo Oficial Dec. 351/79 Anexo III', color: '#0d9488', bg: 'rgba(13,148,136,0.1)' },
+{ nav: '/pts', icon: <FileText size={17} />, label: 'Procedimientos (PTS)', sub: 'Biblioteca de POETS/SOP ISO 45001', color: '#6366f1', bg: 'rgba(99,102,241,0.1)' },
+{ nav: '/racks', icon: <Boxes size={17} />, label: 'Racks & Estanterías (IRAM 38500)', sub: 'Inspección de Deformaciones y Semáforo', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+{ nav: '/dossier', icon: <Archive size={17} />, label: 'Dossier de Inspección (ZIP)', sub: 'Exportador Multidocumental de Legajo Único', color: '#6366f1', bg: 'rgba(99,102,241,0.1)' }];
 
 
 // ─── Acciones Rápidas ─────────────────────────────────────────────────────────

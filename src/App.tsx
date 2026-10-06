@@ -161,6 +161,12 @@ const ArcFlashManager = lazyWithRetry(() => import('./pages/ArcFlashManager'));
 const ArcFlashPermitForm = lazyWithRetry(() => import('./pages/ArcFlashPermitForm'));
 const IndustrialEnvironmentManager = lazyWithRetry(() => import('./pages/IndustrialEnvironmentManager'));
 const IndustrialEnvironmentForm = lazyWithRetry(() => import('./pages/IndustrialEnvironmentForm'));
+const ForkliftSrt960Manager = lazyWithRetry(() => import('./pages/ForkliftSrt960Manager'));
+const LegalComplianceMatrix = lazyWithRetry(() => import('./pages/LegalComplianceMatrix'));
+const VentilationStudyManager = lazyWithRetry(() => import('./pages/VentilationStudyManager'));
+const PTSProcedureManager = lazyWithRetry(() => import('./pages/PTSProcedureManager'));
+const RackInspectionManager = lazyWithRetry(() => import('./pages/RackInspectionManager'));
+const DossierZipManager = lazyWithRetry(() => import('./pages/DossierZipManager'));
 
 // SAFETY MODULE FORMS
 const AuditForm = lazyWithRetry(() => import('./pages/AuditForm'));
@@ -722,6 +728,24 @@ function App() {
 
                   <Route path="/industrial-environment" element={<ProtectedRoute><IndustrialEnvironmentManager /></ProtectedRoute>} />
                   <Route path="/industrial-environment/new" element={<ProtectedRoute><IndustrialEnvironmentForm /></ProtectedRoute>} />
+
+                  <Route path="/forklifts" element={<ProtectedRoute><ForkliftSrt960Manager /></ProtectedRoute>} />
+                  <Route path="/autoelevadores" element={<ProtectedRoute><ForkliftSrt960Manager /></ProtectedRoute>} />
+
+                  <Route path="/legal-matrix" element={<ProtectedRoute><LegalComplianceMatrix /></ProtectedRoute>} />
+                  <Route path="/matriz-legal" element={<ProtectedRoute><LegalComplianceMatrix /></ProtectedRoute>} />
+
+                  <Route path="/ventilation" element={<ProtectedRoute><VentilationStudyManager /></ProtectedRoute>} />
+                  <Route path="/ventilacion" element={<ProtectedRoute><VentilationStudyManager /></ProtectedRoute>} />
+
+                  <Route path="/pts" element={<ProtectedRoute><PTSProcedureManager /></ProtectedRoute>} />
+                  <Route path="/procedimientos-seguros" element={<ProtectedRoute><PTSProcedureManager /></ProtectedRoute>} />
+
+                  <Route path="/racks" element={<ProtectedRoute><RackInspectionManager /></ProtectedRoute>} />
+                  <Route path="/estanterias-iram-38500" element={<ProtectedRoute><RackInspectionManager /></ProtectedRoute>} />
+
+                  <Route path="/dossier" element={<ProtectedRoute><DossierZipManager /></ProtectedRoute>} />
+                  <Route path="/dossier-inspeccion" element={<ProtectedRoute><DossierZipManager /></ProtectedRoute>} />
 
                   {/* Dashboard & Tools */}
                   <Route path="/risk" element={<RiskAssessment />} />

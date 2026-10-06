@@ -10,7 +10,7 @@ import {
   ChatText, Sun, Moon, Star, ChartPieSlice,
   CreditCard, Crown, Image as ImageIconPh, UploadSimple,
   CheckCircle, Info, Bell, Pulse as Activity,
-  Tent, Drop as Droplets, SpeakerHigh, Flask, MagnifyingGlass, TrendUp as TrendingUp, Truck, Crane, Timer, Sparkle, Lightning } from
+  Tent, Drop as Droplets, SpeakerHigh, Flask, MagnifyingGlass, TrendUp as TrendingUp, Truck, Crane, Timer, Sparkle, Lightning, Wind, Package, Archive } from
 '@phosphor-icons/react';
 import { User as FirebaseUser } from 'firebase/auth';
 import { collection, getDocs } from 'firebase/firestore';
@@ -153,7 +153,13 @@ const quickLinks: QuickLink[] = [
 { to: '/atex', icon: <Lightning weight="duotone" size={26} />, label: 'Atmósferas Explosivas (ATEX)', sub: 'Zonificación 0, 1, 2 / 20, 21, 22 e Inventario Equipos Ex — IEC 60079', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true, category: 'specific', featured: true, badge: 'IEC 60079', norm: 'IEC 60079' },
 { to: '/first-aid-aed', icon: <Activity weight="duotone" size={26} />, label: 'Primeros Auxilios y DEA', sub: 'Cardioprotección Ley 27.159, Botiquines y Atenciones Menores', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', premium: true, category: 'management', featured: true, badge: 'Ley 27.159', norm: 'Ley 27.159' },
 { to: '/arc-flash', icon: <Lightning weight="duotone" size={26} />, label: 'Arco Eléctrico (Arc Flash)', sub: 'Cálculo de Energía Incidente (cal/cm²), EPP y Tensión — NFPA 70E & Res. SRT 3068/14', color: '#eab308', bg: 'rgba(234,179,8,0.1)', premium: true, category: 'critical', featured: true, badge: 'NFPA 70E', norm: 'NFPA 70E' },
-{ to: '/industrial-environment', icon: <Droplets weight="duotone" size={26} />, label: 'Efluentes y Emisiones', sub: 'Monitoreo Ambiental en Chimeneas y Vertidos — Ley 25.675 & Dec. 351/79', color: '#0d9488', bg: 'rgba(13,148,136,0.1)', premium: true, category: 'specific', featured: true, badge: 'Ley 25.675', norm: 'Ley 25.675' }].
+{ to: '/industrial-environment', icon: <Droplets weight="duotone" size={26} />, label: 'Efluentes y Emisiones', sub: 'Monitoreo Ambiental en Chimeneas y Vertidos — Ley 25.675 & Dec. 351/79', color: '#0d9488', bg: 'rgba(13,148,136,0.1)', premium: true, category: 'specific', featured: true, badge: 'Ley 25.675', norm: 'Ley 25.675' },
+{ to: '/forklifts', icon: <Truck weight="duotone" size={26} />, label: 'Autoelevadores (SRT 960)', sub: 'Carnet Anexo I, Check Pre-op y Mantenimiento — Res. SRT 960/15', color: '#d97706', bg: 'rgba(217,119,6,0.1)', premium: true, category: 'critical', featured: true, badge: 'Res. 960/15', norm: 'Res. SRT 960/15' },
+{ to: '/legal-matrix', icon: <Gavel weight="duotone" size={26} />, label: 'Matriz Legal (ISO 45001)', sub: 'Evaluación de Conformidad Legal — ISO 45001 Cl. 9.1.2 & Ley 19.587', color: '#2563eb', bg: 'rgba(37,99,235,0.1)', premium: true, category: 'management', featured: true, badge: 'ISO 45001', norm: 'ISO 45001' },
+{ to: '/ventilation', icon: <Wind weight="duotone" size={26} />, label: 'Ventilación (Dec. 351)', sub: 'Cálculo de Caudales y Renovaciones — Dec. 351/79 Cap. 11 y Anexo III', color: '#0d9488', bg: 'rgba(13,148,136,0.1)', premium: true, category: 'specific', featured: true, badge: 'Dec. 351/79', norm: 'Dec. 351/79' },
+{ to: '/pts', icon: <FileText weight="duotone" size={26} />, label: 'Procedimientos (PTS)', sub: 'Biblioteca y Generador de POETS/SOP — ISO 45001 y Ley 19.587', color: '#6366f1', bg: 'rgba(99,102,241,0.1)', premium: true, category: 'docs', featured: true, badge: 'ISO 45001', norm: 'ISO 45001' },
+{ to: '/racks', icon: <Package weight="duotone" size={26} />, label: 'Racks (IRAM 38500)', sub: 'Inspección de Estanterías y Deformaciones — IRAM 38500 y EN 15635', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', premium: true, category: 'critical', featured: true, badge: 'IRAM 38500', norm: 'IRAM 38500' },
+{ to: '/dossier', icon: <Archive weight="duotone" size={26} />, label: 'Dossier ZIP', sub: 'Exportador de Legajo Único en ZIP para ART y Auditorías', color: '#6366f1', bg: 'rgba(99,102,241,0.1)', premium: true, category: 'docs', featured: true, badge: 'ZIP', norm: 'ART / SRT' }].
 sort((a, b) => a.label.localeCompare(b.label, 'es-AR'));
 
 // Counter hook
