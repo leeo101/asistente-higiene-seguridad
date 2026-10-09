@@ -54,8 +54,16 @@ export default function StopCards(): React.ReactElement | null {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const history = JSON.parse(localStorage.getItem('stop_cards_history') || '[]');
-    setCards(history);
+    try {
+      const raw = localStorage.getItem('stop_cards_history');
+      if (raw && !raw.startsWith('data:')) {
+        setCards(JSON.parse(raw));
+      } else {
+        setCards([]);
+      }
+    } catch {
+      setCards([]);
+    }
   }, [syncPulse]);
 
   const confirmDelete = () => {

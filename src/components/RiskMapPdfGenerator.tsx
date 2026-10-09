@@ -137,9 +137,11 @@ export default function RiskMapPdfGenerator({
   }, [mapData]);
 
   const renderPdfSvgElement = (el: any) => {
-    const stroke = el.color || '#0f172a';
-    const sw = el.strokeWidth || 2.5;
-    const dashArr = el.lineStyle === 'dashed' ? '8,4' : 'none';
+    if (!el) return null;
+    try {
+      const stroke = el.color || '#0f172a';
+      const sw = el.strokeWidth || 2.5;
+      const dashArr = el.lineStyle === 'dashed' ? '8,4' : 'none';
 
     if (el.type === 'rect') {
       const rx = Math.min(el.startX, el.endX);
@@ -520,6 +522,9 @@ export default function RiskMapPdfGenerator({
     }
 
     return null;
+    } catch {
+      return null;
+    }
   };
 
   return (

@@ -301,6 +301,18 @@ function ThemeApplier() {
     const localSecondary = localStorage.getItem('secondaryColor');
     applyColors(localPrimary, localSecondary);
 
+    // Sanitizar formato legado de companyLogo si quedó guardado como JSON { value: ... }
+    try {
+      const rawLogo = localStorage.getItem('companyLogo');
+      if (rawLogo && rawLogo.startsWith('{')) {
+        const parsed = JSON.parse(rawLogo);
+        if (parsed && typeof parsed === 'object') {
+          if (parsed.value) localStorage.setItem('companyLogo', String(parsed.value));
+          else if (parsed.logo) localStorage.setItem('companyLogo', String(parsed.logo));
+        }
+      }
+    } catch {}
+
     if (currentUser?.uid) {
         import('./services/cloudSync').then(({ listenToValue }) => {
             listenToValue<string>(currentUser.uid, 'primaryColor', (val) => {

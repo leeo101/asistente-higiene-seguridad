@@ -153,7 +153,13 @@ export default function StopCardsForm(): React.ReactElement | null {
       return;
     }
 
-    let history = JSON.parse(localStorage.getItem('stop_cards_history') || '[]');
+    let history: any[] = [];
+    try {
+      const raw = localStorage.getItem('stop_cards_history');
+      if (raw && !raw.startsWith('data:')) history = JSON.parse(raw);
+    } catch {
+      history = [];
+    }
 
     if (editData) {
       history = history.map((item: any) => item.id === editData.id ? formData : item);

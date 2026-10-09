@@ -24,6 +24,7 @@ import AnimatedPage from '../components/AnimatedPage';
 import StarryBackground from '../components/StarryBackground';
 import StickyCtaBanner from '../components/StickyCtaBanner';
 import CommandCenterDashboard from '../components/CommandCenterDashboard';
+import { safeJsonParse, safeGetLocalStorage } from '../utils/storageHelper';
 
 // Marketing Landing para usuarios no autenticados
 const MarketingLanding = lazy(() => import('../components/landing/MarketingLanding'));
@@ -84,16 +85,8 @@ const typeColors: Record<string, {bg: string;text: string;icon: React.ReactEleme
   'Eval. Riesgo': { bg: 'rgba(239, 68, 68, 0.12)', text: '#ef4444', icon: <Shield weight="duotone" size={18} /> }
 };
 
-let userCountry = 'argentina';
-try {
-  const savedData = localStorage.getItem('personalData');
-  if (savedData) {
-    const parsed = JSON.parse(savedData);
-    userCountry = parsed.country?.toLowerCase() || 'argentina';
-  }
-} catch (error) {
-  console.error('[HOME] Error parsing personalData:', error);
-}
+const personalDataObj = safeGetLocalStorage<Record<string, any>>('personalData', {});
+const userCountry = personalDataObj.country?.toLowerCase() || 'argentina';
 
 const getRegSub = (module: string): string => {
   const norms: any = getCountryNormativa(userCountry);
@@ -342,14 +335,13 @@ export default function Home(): React.ReactElement {
         return;
       }
 
-      const savedData = localStorage.getItem('personalData');
-      if (savedData) {
-        const parsed = JSON.parse(savedData);
+      const parsed = safeGetLocalStorage<Record<string, any>>('personalData', {});
+      if (parsed.name || parsed.profession) {
         let name = parsed.name || 'Profesional';
         if (parsed.profession) {
           const prof = parsed.profession.toLowerCase();
-          if (prof.includes('lic')) name = `Lic. ${name}`;else
-          if (prof.includes('téc')) name = `Téc. ${name}`;else
+          if (prof.includes('lic')) name = `Lic. ${name}`; else
+          if (prof.includes('téc')) name = `Téc. ${name}`; else
           if (prof.includes('ing')) name = `Ing. ${name}`;
         }
         setUserName(name);
@@ -362,8 +354,9 @@ export default function Home(): React.ReactElement {
     const loadStats = (): void => {
       const newStats = stats.map((stat) => {
         try {
-          const history = localStorage.getItem(stat.key);
-          const count = history ? JSON.parse(history).length : 0;
+          const raw = localStorage.getItem(stat.key);
+          const list = safeJsonParse<any[]>(raw, []);
+          const count = Array.isArray(list) ? list.length : 0;
           return { ...stat, value: count };
         } catch (e) {
           console.error(`[HOME] Error parsing ${stat.key}:`, e);
@@ -427,12 +420,10 @@ export default function Home(): React.ReactElement {
       try {
         const today = new Date().toDateString();
         const cached = localStorage.getItem('daily_insight_cache');
-        if (cached) {
-          const { date, data } = JSON.parse(cached);
-          if (date === today) {
-            setDailyInsight(data);
-            return;
-          }
+        const parsedCache = safeJsonParse<{ date?: string; data?: any } | null>(cached, null);
+        if (parsedCache && parsedCache.date === today && parsedCache.data) {
+          setDailyInsight(parsedCache.data);
+          return;
         }
 
         const token = await auth.currentUser?.getIdToken(true);
@@ -490,8 +481,9 @@ export default function Home(): React.ReactElement {
       const counts: Record<string, number> = {};
       for (const [route, key] of Object.entries(routeToKey)) {
         try {
-          const data = localStorage.getItem(key);
-          counts[route] = data ? JSON.parse(data).length : 0;
+          const raw = localStorage.getItem(key);
+          const list = safeJsonParse<any[]>(raw, []);
+          counts[route] = Array.isArray(list) ? list.length : 0;
         } catch {
           counts[route] = 0;
         }
@@ -745,7 +737,8 @@ export default function Home(): React.ReactElement {
                   {stats.filter((s) => ['ATS', 'Permisos', 'Checklists'].includes(s.label)).map((stat, i) => {
                     const buildSparkline = (key: string) => {
                       try {
-                        const items: any[] = JSON.parse(localStorage.getItem(key) || '[]');
+                        const raw = localStorage.getItem(key);
+                        const items = safeJsonParse<any[]>(raw, []);
                         const weeks: number[] = Array(7).fill(0);
                         items.forEach((item: any) => {
                           const d = new Date(item.fecha || item.createdAt || item.date || 0);

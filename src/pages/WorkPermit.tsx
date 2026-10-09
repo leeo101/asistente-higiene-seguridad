@@ -29,6 +29,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import WorkPermitPdfGenerator from '../components/WorkPermitPdfGenerator';
 import { validateWorkerMedicalStatus } from '../utils/workerValidation';
+import { safeJsonParse, safeGetLocalStorage } from '../utils/storageHelper';
 
 export default function WorkPermit(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -71,8 +72,10 @@ export default function WorkPermit(): React.ReactElement | null {
   };
 
   useEffect(() => {
-    const saved = localStorage.getItem('loto_active_db');
-    if (saved) setActiveLOTOs(JSON.parse(saved));
+    try {
+      const saved = localStorage.getItem('loto_active_db');
+      if (saved) setActiveLOTOs(safeJsonParse(saved, []));
+    } catch {}
   }, []);
 
   const openLegajosModal = () => {
@@ -81,9 +84,9 @@ export default function WorkPermit(): React.ReactElement | null {
       const rawMedical = localStorage.getItem('ehs_medical_db') || localStorage.getItem('medical_aptitudes_db') || '[]';
       const rawContractors = localStorage.getItem('contractors_matrix_workers') || '[]';
 
-      const legajos = JSON.parse(rawLegajos);
-      const medical = JSON.parse(rawMedical);
-      const contractors = JSON.parse(rawContractors);
+      const legajos = safeJsonParse(rawLegajos, []);
+      const medical = safeJsonParse(rawMedical, []);
+      const contractors = safeJsonParse(rawContractors, []);
 
       const map = new Map();
       legajos.forEach((item: any) => {
@@ -212,28 +215,26 @@ export default function WorkPermit(): React.ReactElement | null {
 
   // Load History
   useEffect(() => {
-    const saved = localStorage.getItem('work_permits_history');
-    if (saved) {
-      setHistory(JSON.parse(saved));
-    }
+    setHistory(safeGetLocalStorage<any[]>('work_permits_history', []));
   }, [showForm]);
 
   // Load professional data
   useEffect(() => {
-    const savedData = localStorage.getItem('personalData');
+    const data = safeGetLocalStorage<Record<string, any>>('personalData', {});
     const savedSigData = localStorage.getItem('signatureStampData');
     const legacySignature = localStorage.getItem('capturedSignature');
 
     let signature = legacySignature || null;
     let stamp = null;
     if (savedSigData) {
-      const parsed = JSON.parse(savedSigData);
-      signature = parsed.signature || signature;
-      stamp = parsed.stamp || null;
+      const parsed = safeJsonParse<any>(savedSigData, null);
+      if (parsed && typeof parsed === 'object') {
+        signature = parsed.signature || signature;
+        stamp = parsed.stamp || null;
+      }
     }
 
-    if (savedData) {
-      const data = JSON.parse(savedData);
+    if (data.name || data.license) {
       setProfessional({
         name: data.name || 'Profesional',
         license: data.license || '',
@@ -313,8 +314,7 @@ export default function WorkPermit(): React.ReactElement | null {
       toast.error('Por favor complete el nombre de la empresa');
       return;
     }
-    const historyRaw = localStorage.getItem('work_permits_history');
-    const history = historyRaw ? JSON.parse(historyRaw) : [];
+    const history = safeGetLocalStorage<any[]>('work_permits_history', []);
     const entryId = formData.id || Date.now().toString();
 
     const newEntry = {

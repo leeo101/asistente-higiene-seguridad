@@ -264,7 +264,13 @@ export default function WorkingAtHeightForm(): React.ReactElement | null {
       return;
     }
 
-    const saved = JSON.parse(localStorage.getItem('working_at_height_permits_db') || '[]');
+    let saved: any[] = [];
+    try {
+      const raw = localStorage.getItem('working_at_height_permits_db');
+      if (raw && !raw.startsWith('data:')) saved = JSON.parse(raw);
+    } catch {
+      saved = [];
+    }
     let updated;
 
     const saveObj = {

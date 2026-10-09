@@ -199,19 +199,25 @@ export default function AuditForm(): React.ReactElement | null {
     let signature = legacySignature || null;
     let stamp = null;
     if (savedSigData) {
-      const parsed = JSON.parse(savedSigData);
-      signature = parsed.signature || signature;
-      stamp = parsed.stamp || null;
+      try {
+        const parsed = JSON.parse(savedSigData);
+        signature = parsed?.signature || signature;
+        stamp = parsed?.stamp || null;
+      } catch {
+        if (savedSigData.startsWith('data:')) signature = savedSigData;
+      }
     }
 
     if (savedData) {
-      const data = JSON.parse(savedData);
-      setProfessional({
-        name: data.name || '',
-        license: data.license || '',
-        signature: signature,
-        stamp: stamp
-      });
+      try {
+        const data = JSON.parse(savedData);
+        setProfessional({
+          name: data?.name || '',
+          license: data?.license || '',
+          signature: signature,
+          stamp: stamp
+        });
+      } catch {}
     } else {
       setProfessional((prev) => ({ ...prev, signature, stamp }));
     }

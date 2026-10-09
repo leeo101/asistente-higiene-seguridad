@@ -11,8 +11,10 @@ export default function AiReportPdfGenerator({ item }: {item: any;}): React.Reac
 
   const data = item;
   const company = data.company || 'Empresa Local';
-  const profile = JSON.parse(localStorage.getItem('personalData') || 'null');
-  const signature = JSON.parse(localStorage.getItem('signatureStampData') || 'null');
+  let profile: any = null;
+  let signature: any = null;
+  try { profile = JSON.parse(localStorage.getItem('personalData') || 'null'); } catch { profile = null; }
+  try { signature = JSON.parse(localStorage.getItem('signatureStampData') || 'null'); } catch { signature = null; }
 
   return (
     <div className="ai-report-wrapper w-[100%] block">

@@ -132,10 +132,12 @@ export default function WorkingAtHeight(): React.ReactElement | null {
   useEffect(() => {
     window.scrollTo(0, 0);
     const loadData = () => {
-      const savedPermits = localStorage.getItem('working_height_permits_db');
-      const savedActive = localStorage.getItem('working_height_active_db');
-      if (savedPermits) setPermits(JSON.parse(savedPermits));
-      if (savedActive) setActivePermits(JSON.parse(savedActive));
+      try {
+        const savedPermits = localStorage.getItem('working_height_permits_db');
+        const savedActive = localStorage.getItem('working_height_active_db');
+        if (savedPermits && !savedPermits.startsWith('data:')) setPermits(JSON.parse(savedPermits));
+        if (savedActive && !savedActive.startsWith('data:')) setActivePermits(JSON.parse(savedActive));
+      } catch {}
     };
 
     loadData();

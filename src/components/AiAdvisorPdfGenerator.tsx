@@ -10,8 +10,10 @@ export default function AiAdvisorPdfGenerator({ data }: {data: any;}): React.Rea
 
   if (!data) return null;
 
-  const personalData = JSON.parse(localStorage.getItem('personalData') || '{}');
-  const signature = JSON.parse(localStorage.getItem('signatureStampData') || 'null');
+  let personalData: any = {};
+  let signature: any = null;
+  try { personalData = JSON.parse(localStorage.getItem('personalData') || '{}'); } catch { personalData = {}; }
+  try { signature = JSON.parse(localStorage.getItem('signatureStampData') || 'null'); } catch { signature = null; }
   const profName = personalData.fullName || 'Profesional Responsable';
   const profTitle = personalData.profession || 'Lic. en Higiene y Seguridad';
   const profMat = personalData.license || '-------';

@@ -24,6 +24,7 @@ import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { printElementAsDocument } from '../utils/pdfHelper';
 import ReportRichEditor from '../components/reports/ReportRichEditor';
 import ReportPreviewModal from '../components/reports/ReportPreviewModal';
+import { safeJsonParse, safeGetLocalStorage } from '../utils/storageHelper';
 
 class ReportErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
   constructor(props: {children: React.ReactNode}) {
@@ -150,9 +151,8 @@ export default function Reports(): React.ReactElement | null {
       setSignature(data.signature || '');
       setSupervisorSignature(data.supervisorSignature || '');
     } else {
-      const savedProfile = localStorage.getItem('personalData');
-      if (savedProfile) {
-        const parsed = JSON.parse(savedProfile);
+      const parsed = safeGetLocalStorage<Record<string, any>>('personalData', {});
+      if (parsed.name || parsed.license) {
         setProjectData((prev) => ({ ...prev, responsable: parsed.name || '' }));
 
         const sd = localStorage.getItem('signatureStampData');
@@ -160,9 +160,11 @@ export default function Reports(): React.ReactElement | null {
         let sig = lg || null;
         let stamp = null;
         if (sd) {
-          const p = JSON.parse(sd);
-          sig = p.signature || sig;
-          stamp = p.stamp || null;
+          const p = safeJsonParse<any>(sd, null);
+          if (p && typeof p === 'object') {
+            sig = p.signature || sig;
+            stamp = p.stamp || null;
+          }
         }
         setProfessional({ name: parsed.name, license: parsed.license, signature: sig, stamp });
       }
@@ -403,7 +405,7 @@ export default function Reports(): React.ReactElement | null {
       supervisorSignature
     };
 
-    const history = JSON.parse(localStorage.getItem('reports_history') || '[]');
+    const history = safeGetLocalStorage<any[]>('reports_history', []);
     let updated;
     if (projectData.id) {
       updated = history.map((h: any) => h.id === entryId ? newReport : h);
@@ -421,7 +423,7 @@ export default function Reports(): React.ReactElement | null {
 
   const confirmDelete = () => {
     if (!deleteTarget) return;
-    const current = JSON.parse(localStorage.getItem('reports_history') || '[]');
+    const current = safeGetLocalStorage<any[]>('reports_history', []);
     const updated = current.filter((item: any) => String(item.id) !== String(deleteTarget));
     localStorage.setItem('reports_history', JSON.stringify(updated));
     syncCollection('reports_history', updated);

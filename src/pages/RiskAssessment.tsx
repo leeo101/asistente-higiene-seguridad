@@ -142,7 +142,11 @@ export default function RiskAssessment(): React.ReactElement | null {
       createdAt: new Date().toISOString()
     };
 
-    const history = JSON.parse(localStorage.getItem('risk_assessment_history') || '[]');
+    let history: any[] = [];
+    try {
+      const raw = localStorage.getItem('risk_assessment_history');
+      if (raw && !raw.startsWith('data:')) history = JSON.parse(raw);
+    } catch {}
 
     let updated;
     if (projectData.id) {

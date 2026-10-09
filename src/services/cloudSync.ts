@@ -46,15 +46,23 @@ export function getDirtyKeys(): string[] {
 }
 
 export function markAsDirty(key: string) {
-  const dirty = new Set(getDirtyKeys());
-  dirty.add(key);
-  localStorage.setItem(DIRTY_KEYS_STORAGE, JSON.stringify(Array.from(dirty)));
+  try {
+    const dirty = new Set(getDirtyKeys());
+    dirty.add(key);
+    localStorage.setItem(DIRTY_KEYS_STORAGE, JSON.stringify(Array.from(dirty)));
+  } catch (e) {
+    console.warn('[SyncQueue] No se pudo guardar dirty key:', e);
+  }
 }
 
 export function removeFromDirty(key: string) {
-  const dirty = new Set(getDirtyKeys());
-  dirty.delete(key);
-  localStorage.setItem(DIRTY_KEYS_STORAGE, JSON.stringify(Array.from(dirty)));
+  try {
+    const dirty = new Set(getDirtyKeys());
+    dirty.delete(key);
+    localStorage.setItem(DIRTY_KEYS_STORAGE, JSON.stringify(Array.from(dirty)));
+  } catch (e) {
+    console.warn('[SyncQueue] No se pudo remover dirty key:', e);
+  }
 }
 
 /**
@@ -74,9 +82,27 @@ export async function processSyncQueue(uid: string): Promise<void> {
     
     try {
       if (SYNC_COLLECTIONS.includes(key)) {
-        await saveCollection(uid, key, JSON.parse(raw));
+        let items: SyncItem[] = [];
+        try {
+          if (!raw.startsWith('data:')) {
+            items = JSON.parse(raw);
+          }
+        } catch {
+          items = [];
+        }
+        await saveCollection(uid, key, items);
       } else if (SYNC_DOCUMENTS.includes(key)) {
-        await saveDocument(uid, key, JSON.parse(raw));
+        let docData: SyncDocument = {};
+        try {
+          if (!raw.startsWith('data:')) {
+            docData = JSON.parse(raw);
+          }
+        } catch {
+          docData = {};
+        }
+        await saveDocument(uid, key, docData);
+      } else if (SYNC_VALUES.includes(key)) {
+        await saveValue(uid, key, raw);
       }
       removeFromDirty(key);
     } catch (e) {
@@ -96,11 +122,15 @@ export function listenToCollection<T = SyncItem>(
   if (!uid) return () => {};
   
   return onSnapshot(userDocRef(uid, key), (snap: DocumentSnapshot) => {
-    if (snap.exists()) {
-      const data = snap.data() as { items?: T[] };
-      callback(data.items || []);
-    } else {
-      callback([]);
+    try {
+      if (snap.exists()) {
+        const data = snap.data() as { items?: T[] };
+        callback(data.items || []);
+      } else {
+        callback([]);
+      }
+    } catch (err) {
+      console.warn(`[cloudSync] Error en callback de listenToCollection(${key}):`, err);
     }
   });
 }
@@ -116,12 +146,16 @@ export function listenToDocument<T = SyncDocument>(
   if (!uid) return () => {};
   
   return onSnapshot(userDocRef(uid, key), (snap: DocumentSnapshot) => {
-    if (snap.exists()) {
-      const data = snap.data() as T & { updatedAt?: number };
-      const { updatedAt, ...rest } = data;
-      callback(rest as T);
-    } else {
-      callback(null);
+    try {
+      if (snap.exists()) {
+        const data = snap.data() as T & { updatedAt?: number };
+        const { updatedAt, ...rest } = data;
+        callback(rest as T);
+      } else {
+        callback(null);
+      }
+    } catch (err) {
+      console.warn(`[cloudSync] Error en callback de listenToDocument(${key}):`, err);
     }
   });
 }
@@ -137,11 +171,15 @@ export function listenToValue<T = string | boolean>(
   if (!uid) return () => {};
   
   return onSnapshot(userDocRef(uid, key), (snap: DocumentSnapshot) => {
-    if (snap.exists()) {
-      const data = snap.data() as { value?: T };
-      callback(data.value ?? null);
-    } else {
-      callback(null);
+    try {
+      if (snap.exists()) {
+        const data = snap.data() as { value?: T };
+        callback(data.value ?? null);
+      } else {
+        callback(null);
+      }
+    } catch (err) {
+      console.warn(`[cloudSync] Error en callback de listenToValue(${key}):`, err);
     }
   });
 }
@@ -386,7 +424,9 @@ export const SYNC_COLLECTIONS: string[] = [
   'training_sessions_db',
   'thermal_history',
   'legislation_favorites',
-  'legislation_notes'
+  'legislation_notes',
+  'extinguisher_checks',
+  'extinguisher_ai_history'
 ];
 
 
@@ -394,8 +434,13 @@ export const SYNC_DOCUMENTS: string[] = [
   'personalData',
   'signatureStampData',
   'subscriptionData',
+];
+
+export const SYNC_VALUES: string[] = [
   'companyLogo',
   'showCompanyLogo',
+  'primaryColor',
+  'secondaryColor',
 ];
 
 /**
@@ -407,27 +452,37 @@ export async function pullAllFromCloud(uid: string): Promise<void> {
   for (const key of SYNC_COLLECTIONS) {
     const items = await loadCollection(uid, key);
     if (items.length > 0) {
-      localStorage.setItem(key, JSON.stringify(items));
+      try {
+        localStorage.setItem(key, JSON.stringify(items));
+      } catch (e) {
+        console.warn(`[cloudSync] Fallo pull setItem en ${key}:`, e);
+      }
     }
   }
   
-  // Documents handled differently based on how they were stored:
-  // companyLogo and showCompanyLogo use saveValue ({value: X}), read as raw strings.
-  // Other documents use saveDocument ({...fields}).
-  const VALUE_KEYS = ['companyLogo', 'showCompanyLogo'];
-  
   for (const key of SYNC_DOCUMENTS) {
-    if (VALUE_KEYS.includes(key)) {
-      // These were saved via saveValue → stored as { value: X } in Firestore
-      const val = await getValue(uid, key);
-      if (val !== null && val !== undefined) {
-        // Store as plain string in localStorage (how CompanyLogo and LogoSettings read them)
-        localStorage.setItem(key, String(val));
-      }
-    } else {
-      const data = await loadDocument(uid, key);
-      if (data) {
+    const data = await loadDocument(uid, key);
+    if (data) {
+      try {
         localStorage.setItem(key, JSON.stringify(data));
+      } catch (e) {
+        console.warn(`[cloudSync] Fallo pull setItem en ${key}:`, e);
+      }
+    }
+  }
+
+  for (const key of SYNC_VALUES) {
+    const val = await getValue(uid, key);
+    if (val !== null && val !== undefined) {
+      let strVal = String(val);
+      // Si por versiones previas vino envuelto en { value: "..." }, desenvolverlo
+      if (typeof val === 'object' && val !== null && 'value' in (val as Record<string, unknown>)) {
+        strVal = String((val as Record<string, unknown>).value);
+      }
+      try {
+        localStorage.setItem(key, strVal);
+      } catch (e) {
+        console.warn(`[cloudSync] Fallo pull setItem en ${key}:`, e);
       }
     }
   }
@@ -441,7 +496,7 @@ export async function pushAllToCloud(uid: string): Promise<void> {
   
   for (const key of SYNC_COLLECTIONS) {
     const raw = localStorage.getItem(key);
-    if (raw) {
+    if (raw && !raw.startsWith('data:')) {
       try {
         await saveCollection(uid, key, JSON.parse(raw));
       } catch {
@@ -452,9 +507,20 @@ export async function pushAllToCloud(uid: string): Promise<void> {
   
   for (const key of SYNC_DOCUMENTS) {
     const raw = localStorage.getItem(key);
-    if (raw) {
+    if (raw && !raw.startsWith('data:')) {
       try {
         await saveDocument(uid, key, JSON.parse(raw));
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  for (const key of SYNC_VALUES) {
+    const raw = localStorage.getItem(key);
+    if (raw !== null && raw !== undefined) {
+      try {
+        await saveValue(uid, key, raw);
       } catch {
         // ignore
       }

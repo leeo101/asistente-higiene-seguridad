@@ -147,14 +147,25 @@ export default function SafetyCalendar(): React.ReactElement | null {
     title: '', date: today.toISOString().split('T')[0], time: '09:00', type: 'Inspection', description: ''
   });
 
-  const savedData = localStorage.getItem('personalData');
-  const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+  let userCountry = 'argentina';
+  try {
+    const savedData = localStorage.getItem('personalData');
+    if (savedData && !savedData.startsWith('data:')) {
+      userCountry = JSON.parse(savedData).country || 'argentina';
+    }
+  } catch {}
 
   // Load events
   useEffect(() => {
-    const saved = localStorage.getItem('safety_calendar_events');
-    const loaded = saved ? JSON.parse(saved) : getCountryEvents(userCountry, today.getFullYear());
-    if (!saved) localStorage.setItem('safety_calendar_events', JSON.stringify(loaded));
+    let loaded = getCountryEvents(userCountry, today.getFullYear());
+    try {
+      const saved = localStorage.getItem('safety_calendar_events');
+      if (saved && !saved.startsWith('data:')) {
+        loaded = JSON.parse(saved);
+      } else if (!saved) {
+        localStorage.setItem('safety_calendar_events', JSON.stringify(loaded));
+      }
+    } catch {}
 
     const auto = loadAutoSyncEvents();
     setManualEvents(loaded);

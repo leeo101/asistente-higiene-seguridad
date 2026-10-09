@@ -6,6 +6,7 @@ import {
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../config';
 import { auth } from '../firebase';
+import { compressImage } from '../utils/imageCompressor';
 
 export interface ManometerAnalysisResult {
   extinguisherDetected: boolean;
@@ -82,25 +83,33 @@ export const ExtinguisherManometerAnalyzer: React.FC<ExtinguisherManometerAnalyz
     const ctx = canvas.getContext('2d');
     if (ctx) {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const imgData = canvas.toDataURL('image/jpeg', 0.85);
+      const imgData = canvas.toDataURL('image/jpeg', 0.72);
       setCapturedImage(imgData);
       stopCamera();
       analyzeImageWithAi(imgData);
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64 = event.target?.result as string;
-      setCapturedImage(base64);
+    try {
+      const compressed = await compressImage(file, { maxDimension: 800, quality: 0.72 });
+      setCapturedImage(compressed);
       stopCamera();
-      analyzeImageWithAi(base64);
-    };
-    reader.readAsDataURL(file);
+      analyzeImageWithAi(compressed);
+    } catch (err) {
+      console.warn('Error al comprimir archivo de extintor:', err);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64 = event.target?.result as string;
+        setCapturedImage(base64);
+        stopCamera();
+        analyzeImageWithAi(base64);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const analyzeImageWithAi = async (imageBase64: string) => {

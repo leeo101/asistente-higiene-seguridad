@@ -23,8 +23,10 @@ export default function WorkingAtHeightPage(): React.ReactElement | null {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);
-    const saved = localStorage.getItem('working_at_height_permits');
-    if (saved) setPermits(JSON.parse(saved));
+    try {
+      const saved = localStorage.getItem('working_at_height_permits');
+      if (saved && !saved.startsWith('data:')) setPermits(JSON.parse(saved));
+    } catch {}
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 

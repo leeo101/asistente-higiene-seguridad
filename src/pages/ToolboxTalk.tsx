@@ -319,8 +319,10 @@ Ninguna tarea es tan urgente como para realizarla sin las condiciones de segurid
   }, [form.showSignatures]);
 
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) setTalks(JSON.parse(raw));
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw && !raw.startsWith('data:')) setTalks(JSON.parse(raw));
+    } catch {}
 
     // Load professional data
     try {
@@ -329,9 +331,13 @@ Ninguna tarea es tan urgente como para realizarla sin las condiciones de segurid
       const lg = localStorage.getItem('capturedSignature');
       let sig = lg || null;
       let stamp = null as string | null;
-      if (sd) {const p = JSON.parse(sd);sig = p.signature || sig;stamp = p.stamp || null;}
-      const name = pd ? JSON.parse(pd).name || '' : '';
-      const license = pd ? JSON.parse(pd).license || '' : '';
+      if (sd && !sd.startsWith('data:')) {
+        const p = JSON.parse(sd);
+        sig = p.signature || sig;
+        stamp = p.stamp || null;
+      }
+      const name = pd && !pd.startsWith('data:') ? JSON.parse(pd).name || '' : '';
+      const license = pd && !pd.startsWith('data:') ? JSON.parse(pd).license || '' : '';
       setProfessional({ name, license, signature: sig, stamp });
     } catch {}
   }, []);

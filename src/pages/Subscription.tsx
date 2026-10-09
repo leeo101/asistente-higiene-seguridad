@@ -34,7 +34,13 @@ export default function Subscription(): React.ReactElement | null {
     const paymentStatus = urlParams.get('status') || urlParams.get('collection_status');
     const payment_id = urlParams.get('payment_id') || urlParams.get('collection_id');
     const session_id = urlParams.get('session_id');
-    const subData = JSON.parse(localStorage.getItem('subscriptionData') || '{}');
+    let subData: any = {};
+    try {
+      const rawSub = localStorage.getItem('subscriptionData');
+      if (rawSub && !rawSub.startsWith('data:')) {
+        subData = JSON.parse(rawSub);
+      }
+    } catch {}
 
     // Check if user is active
     if (isPro) {

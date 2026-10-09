@@ -21,6 +21,7 @@ import AdBanner from '../components/AdBanner';
 import { SAFETY_ICONS } from '../data/mapIcons';
 import PremiumHeader from '../components/PremiumHeader';
 import RiskMapTemplateSelectorModal, { PlanElement } from '../components/RiskMapTemplateSelectorModal';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 // ─── Layer helpers ─────────────────────────────────────────────────────────
 const getLayer = (el) => {
@@ -825,9 +826,19 @@ export default function RiskMapGenerator(): React.ReactElement | null {
       updatedAt: new Date().toISOString()
     };
 
-    let hist = JSON.parse(localStorage.getItem('risk_map_history') || '[]');
+    let hist: any[] = [];
+    try {
+      const raw = localStorage.getItem('risk_map_history');
+      if (raw && !raw.startsWith('data:')) hist = JSON.parse(raw);
+    } catch {
+      hist = [];
+    }
     hist = editData ? hist.map((it) => it.id === editData.id ? mapData : it) : [mapData, ...hist];
-    localStorage.setItem('risk_map_history', JSON.stringify(hist));
+    try {
+      localStorage.setItem('risk_map_history', JSON.stringify(hist));
+    } catch (e) {
+      console.warn('[RiskMapGenerator] Fallo al guardar en localStorage:', e);
+    }
     syncCollection('risk_map_history', hist);
 
     if (!currentUser) {
@@ -2047,7 +2058,9 @@ export default function RiskMapGenerator(): React.ReactElement | null {
                 overflow: 'hidden'
               }}
             >
+              <ErrorBoundary fallback={null}>
                 <RiskMapPdfGenerator data={{ ...meta, elements, backgroundImage }} onBack={() => {}} onShare={() => setShowShareModal(true)} />
+              </ErrorBoundary>
             </div>
 
             <RiskMapTemplateSelectorModal

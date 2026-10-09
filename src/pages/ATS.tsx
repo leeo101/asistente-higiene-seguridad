@@ -565,17 +565,23 @@ export default function ATS(): React.ReactElement | null {
 
     let signature = legacySignature || null;
     if (savedSigData) {
-      const parsed = JSON.parse(savedSigData);
-      signature = parsed.signature || signature;
+      try {
+        const parsed = JSON.parse(savedSigData);
+        signature = parsed?.signature || signature;
+      } catch {
+        if (savedSigData.startsWith('data:')) signature = savedSigData;
+      }
     }
 
     if (savedData) {
-      const data = JSON.parse(savedData);
-      setProfessional({
-        name: data.name || 'Juan Pérez',
-        license: data.license || '',
-        signature: signature
-      });
+      try {
+        const data = JSON.parse(savedData);
+        setProfessional({
+          name: data?.name || 'Juan Pérez',
+          license: data?.license || '',
+          signature: signature
+        });
+      } catch {}
     } else {
       setProfessional((prev) => ({ ...prev, signature }));
     }

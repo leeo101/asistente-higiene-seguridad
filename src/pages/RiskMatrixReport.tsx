@@ -115,17 +115,22 @@ export default function RiskMatrixReport(): React.ReactElement | null {
   const [showShare, setShowShare] = useState(false);
   const [showSignatures, setShowSignatures] = useState({ operator: true, supervisor: true, professional: true });
 
-  const savedData = localStorage.getItem('personalData');
-  const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+  let userCountry = 'argentina';
+  try {
+    const savedData = localStorage.getItem('personalData');
+    if (savedData && !savedData.startsWith('data:')) {
+      userCountry = JSON.parse(savedData).country || 'argentina';
+    }
+  } catch {}
   const countryNorms = getCountryNormativa(userCountry);
 
   useEffect(() => {
     const current = localStorage.getItem('current_risk_matrix');
     const prof = localStorage.getItem('personalData');
     const sig = localStorage.getItem('signatureStampData');
-    if (current) setMatrix(JSON.parse(current));
-    if (prof) setProfile(JSON.parse(prof));
-    if (sig) setSignature(JSON.parse(sig));
+    if (current && !current.startsWith('data:')) { try { setMatrix(JSON.parse(current)); } catch {} }
+    if (prof && !prof.startsWith('data:')) { try { setProfile(JSON.parse(prof)); } catch {} }
+    if (sig && !sig.startsWith('data:')) { try { setSignature(JSON.parse(sig)); } catch {} }
   }, []);
 
   if (!matrix) return <div className="container">Cargando...</div>;

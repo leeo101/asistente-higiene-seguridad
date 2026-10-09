@@ -11,11 +11,66 @@ if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({
     dsn: import.meta.env.VITE_SENTRY_DSN,
     environment: import.meta.env.MODE || 'development',
+    enabled: import.meta.env.PROD,
     integrations: [
       Sentry.browserTracingIntegration(),
     ],
-    tracesSampleRate: 1.0,
-    sendDefaultPii: true,
+    tracesSampleRate: 0.2,
+    sendDefaultPii: false,
+    ignoreErrors: [
+      'int64',
+      /int64/i,
+      'QuotaExceededError',
+      'DOMException: QuotaExceededError',
+      /QuotaExceededError/i,
+      /excedió la cuota/i,
+      /quota.*exceeded/i,
+      'NS_ERROR_DOM_QUOTA_REACHED',
+      'ResizeObserver loop limit exceeded',
+      'ResizeObserver loop completed with undelivered notifications',
+      'Non-Error promise rejection captured',
+      /Script error/i,
+    ],
+    denyUrls: [
+      /googlesyndication\.com/i,
+      /pagead2?\.googlesyndication\.com/i,
+      /pagead/i,
+      /doubleclick\.net/i,
+      /clarity\.ms/i,
+      /chrome-extension:\/\//i,
+      /moz-extension:\/\//i,
+    ],
+    beforeSend(event, hint) {
+      const error = hint?.originalException;
+      const errorMsg =
+        (typeof error === 'string'
+          ? error
+          : (error as any)?.message || (error as any)?.name) ||
+        event?.message ||
+        '';
+
+      if (
+        typeof errorMsg === 'string' &&
+        (/int64/i.test(errorMsg) ||
+         /quota/i.test(errorMsg) ||
+         /excedió la cuota/i.test(errorMsg))
+      ) {
+        return null;
+      }
+
+      // Filtrar errores causados por scripts externos (AdSense, Clarity, extensiones)
+      const frames = event.exception?.values?.[0]?.stacktrace?.frames || [];
+      const isThirdParty = frames.some((f) => {
+        const file = f.filename || '';
+        return /googlesyndication|doubleclick|clarity|pagead|rum___|chrome-extension|moz-extension/i.test(file);
+      });
+
+      if (isThirdParty) {
+        return null;
+      }
+
+      return event;
+    },
   });
 }
 

@@ -33,6 +33,7 @@ import { savePdfBlob, getPdfBlob } from '../utils/indexedDBHelper';
 import IndustryChecklistModal from '../components/IndustryChecklistModal';
 import type { IndustryChecklistTemplate } from '../data/industryChecklists';
 import { compressImage } from '../utils/imageCompressor';
+import { safeSetLocalStorage, safeGetLocalStorage, safeJsonParse } from '../utils/storageHelper';
 
 interface DefaultTemplateItem {
   title: string;
@@ -526,22 +527,13 @@ function DeleteConfirm({ onConfirm, onCancel }: any) {
 }
 
 const getChecklistStatus = (id: string, fallbackItem?: any) => {
-  let parsed: any = null;
-  const stored = localStorage.getItem(`checklist_${id}`);
-  if (stored) {
-    try { parsed = JSON.parse(stored); } catch {}
-  }
+  let parsed: any = safeGetLocalStorage(`checklist_${id}`, null);
   if (!parsed || (!parsed.activeSections && !parsed.items && !parsed.checks)) {
     if (fallbackItem && (fallbackItem.activeSections || fallbackItem.items || fallbackItem.checks)) {
       parsed = fallbackItem;
     } else {
-      const historyRaw = localStorage.getItem('tool_checklists_history');
-      if (historyRaw) {
-        try {
-          const hist = JSON.parse(historyRaw);
-          parsed = hist.find((h: any) => h.id === id);
-        } catch {}
-      }
+      const hist = safeGetLocalStorage<any[]>('tool_checklists_history', []);
+      parsed = hist.find((h: any) => h.id === id);
     }
   }
   if (!parsed) return { label: 'Aprobado', color: '#10b981', bg: 'rgba(16,185,129,0.1)' };
@@ -582,8 +574,7 @@ export default function ChecklistManager(): React.ReactElement | null {
 
   const handleDirectPrint = (item: any) => {
     requirePro(() => {
-      let stored = localStorage.getItem('checklist_' + item.id);
-      let parsed = stored ? JSON.parse(stored) : item;
+      let parsed = safeGetLocalStorage('checklist_' + item.id, item);
       setDirectPrintItem(parsed);
       setTimeout(() => {
         printElementAsDocument('checklist-direct-print');
@@ -592,8 +583,7 @@ export default function ChecklistManager(): React.ReactElement | null {
   };
 
   const handlePreview = (item: any) => {
-    let stored = localStorage.getItem('checklist_' + item.id);
-    let parsed = stored ? JSON.parse(stored) : item;
+    let parsed = safeGetLocalStorage('checklist_' + item.id, item);
     setPreviewItem(parsed);
   };
   const [searchTerm, setSearchTerm] = useState('');
@@ -761,20 +751,11 @@ export default function ChecklistManager(): React.ReactElement | null {
       setShowForm(true);
       setCurrentStep(1); // Jump to step 1 so they can see templates and company info
 
-      let parsed: any = null;
-      const savedData = localStorage.getItem(`checklist_${id}`);
-      if (savedData) {
-        try { parsed = JSON.parse(savedData); } catch {}
-      }
+      let parsed: any = safeGetLocalStorage(`checklist_${id}`, null);
       if (!parsed || (!parsed.activeSections && !parsed.items && !parsed.checks)) {
-        const historyRaw = localStorage.getItem('tool_checklists_history');
-        if (historyRaw) {
-          try {
-            const hist = JSON.parse(historyRaw);
-            const found = hist.find((h: any) => h.id === id);
-            if (found) parsed = found;
-          } catch {}
-        }
+        const hist = safeGetLocalStorage<any[]>('tool_checklists_history', []);
+        const found = hist.find((h: any) => h.id === id);
+        if (found) parsed = found;
       }
 
       if (parsed) {
@@ -923,40 +904,26 @@ export default function ChecklistManager(): React.ReactElement | null {
       };
 
       // Deep save for specific report persistence with quota protection
-      try {
-        localStorage.setItem(`checklist_${id}`, JSON.stringify(fullData));
-      } catch (storageErr) {
-        console.warn('Quota exceeded saving deep checklist, saving without heavy media:', storageErr);
-        try {
-          const lightweight = { ...fullData, fotos: [] };
-          localStorage.setItem(`checklist_${id}`, JSON.stringify(lightweight));
-        } catch {}
-      }
+      safeSetLocalStorage(`checklist_${id}`, JSON.stringify(fullData));
 
       // Sync with history list
-      let history: any[] = [];
-      try {
-        history = JSON.parse(localStorage.getItem('tool_checklists_history') || '[]');
-      } catch {
-        history = [];
-      }
+      let history: any[] = safeGetLocalStorage<any[]>('tool_checklists_history', []);
+
+      // Para el historial global guardamos un registro optimizado sin fotos pesadas duplicadas
+      const historyItem = {
+        ...fullData,
+        fotos: [],
+      };
 
       const existingIndex = history.findIndex((h: any) => h.id === id);
       if (existingIndex >= 0) {
-        history[existingIndex] = fullData;
+        history[existingIndex] = historyItem;
       } else {
-        history.unshift(fullData);
+        history.unshift(historyItem);
       }
 
-      try {
-        localStorage.setItem('tool_checklists_history', JSON.stringify(history));
-      } catch (histErr) {
-        console.warn('History storage quota reached, saving trimmed history:', histErr);
-        const trimmed = history.slice(0, 40).map(h => ({ ...h, fotos: [] }));
-        try {
-          localStorage.setItem('tool_checklists_history', JSON.stringify(trimmed));
-        } catch {}
-      }
+      // Guardar historial protegido con safeSetLocalStorage (máximo 50 registros)
+      safeSetLocalStorage('tool_checklists_history', JSON.stringify(history.slice(0, 50)));
 
       setHistory(history);
 
@@ -1067,9 +1034,9 @@ export default function ChecklistManager(): React.ReactElement | null {
   const confirmDelete = () => {
     const updated = history.filter((item: any) => item.id !== deleteTarget);
     setHistory(updated);
-    localStorage.setItem('tool_checklists_history', JSON.stringify(updated));
+    safeSetLocalStorage('tool_checklists_history', JSON.stringify(updated));
     syncCollection('tool_checklists_history', updated);
-    localStorage.removeItem(`checklist_${deleteTarget}`);
+    try { localStorage.removeItem(`checklist_${deleteTarget}`); } catch {}
     setDeleteTarget(null);
   };
 
@@ -1138,9 +1105,8 @@ export default function ChecklistManager(): React.ReactElement | null {
    */
   const handleShareFromHistory = async (item: any) => {
     requirePro(async () => {
-      // 1. Cargar datos completos desde localStorage
-      let stored = localStorage.getItem('checklist_' + item.id);
-      let parsed = stored ? JSON.parse(stored) : item;
+      // 1. Cargar datos completos desde localStorage de forma segura
+      let parsed = safeGetLocalStorage('checklist_' + item.id, item);
 
       // 2. Abrir ShareModal estándar con regeneración fresca de ChecklistPdfGenerator
       setShareItem(parsed);
@@ -1175,14 +1141,12 @@ export default function ChecklistManager(): React.ReactElement | null {
     render: (item: any) => {
       let title = item.title;
       if (!title) {
-        try {
-          const parsed = JSON.parse(localStorage.getItem('checklist_' + item.id) || '{}');
-          title = parsed.checklistTitle;
-          if (!title && parsed.activeSections && parsed.activeSections.length > 0) {
-            title = parsed.activeSections.map((s: any) => s.title).join(' + ');
-          }
-          title = title || 'General';
-        } catch {title = 'General';}
+        const parsed = safeGetLocalStorage<any>('checklist_' + item.id, {});
+        title = parsed.checklistTitle;
+        if (!title && parsed.activeSections && parsed.activeSections.length > 0) {
+          title = parsed.activeSections.map((s: any) => s.title).join(' + ');
+        }
+        title = title || 'General';
       }
 
       // Limpiar prefijo "Checklist (de)"
@@ -1828,7 +1792,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                               const compressedPhotos = [];
                               for (const file of files) {
                                 try {
-                                  const comp = await compressImage(file, { maxDimension: 900, quality: 0.72 });
+                                  const comp = await compressImage(file, { maxDimension: 640, quality: 0.65 });
                                   if (comp) compressedPhotos.push(comp);
                                 } catch (err) {
                                   console.warn('Error compressing item photo:', err);
@@ -1972,7 +1936,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                                                       const file = e.target.files?.[0];
                                                       if (file) {
                                                           try {
-                                                              const compressed = await compressImage(file, { maxDimension: 900, quality: 0.72 });
+                                                              const compressed = await compressImage(file, { maxDimension: 640, quality: 0.65 });
                                                               const newFotos = [...(fotos || [])];
                                                               newFotos[index] = compressed || '';
                                                               setFotos(newFotos);

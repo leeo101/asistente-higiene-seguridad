@@ -40,10 +40,12 @@ export default function RiskAssessmentHistory(): React.ReactElement | null {
   const [shareItem, setShareItem] = useState(null);
 
   useEffect(() => {
-    const raw = localStorage.getItem('risk_assessment_history');
-    if (raw) {
-      setData(JSON.parse(raw));
-    }
+    try {
+      const raw = localStorage.getItem('risk_assessment_history');
+      if (raw && !raw.startsWith('data:')) {
+        setData(JSON.parse(raw));
+      }
+    } catch {}
     setLoading(false);
   }, [syncPulse]);
 
@@ -53,7 +55,11 @@ export default function RiskAssessmentHistory(): React.ReactElement | null {
   };
 
   const confirmDelete = () => {
-    const current = JSON.parse(localStorage.getItem('risk_assessment_history') || '[]');
+    let current = [];
+    try {
+      const raw = localStorage.getItem('risk_assessment_history');
+      if (raw && !raw.startsWith('data:')) current = JSON.parse(raw);
+    } catch {}
     const updated = current.filter((item) => String(item.id) !== String(deleteTarget));
     localStorage.setItem('risk_assessment_history', JSON.stringify(updated));
     syncCollection('risk_assessment_history', updated);

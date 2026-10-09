@@ -9,9 +9,9 @@ import {
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
-import { pushAllToCloud, pullAllFromCloud, SYNC_COLLECTIONS, SYNC_DOCUMENTS } from '../services/cloudSync';
+import { pushAllToCloud, pullAllFromCloud, SYNC_COLLECTIONS, SYNC_DOCUMENTS, SYNC_VALUES } from '../services/cloudSync';
 
-const BACKUP_KEYS = [...SYNC_COLLECTIONS, ...SYNC_DOCUMENTS];
+const BACKUP_KEYS = [...SYNC_COLLECTIONS, ...SYNC_DOCUMENTS, ...SYNC_VALUES];
 
 export default function AppSettings(): React.ReactElement | null {
   const navigate = useNavigate();

@@ -23,6 +23,7 @@ import AnimatedPage from '../components/AnimatedPage';
 import { useAuth } from '../contexts/AuthContext';
 import ExtinguisherManometerAnalyzer, { ManometerAnalysisResult } from '../components/ExtinguisherManometerAnalyzer';
 import { printElementAsDocument } from '../utils/pdfHelper';
+import { compressImage } from '../utils/imageCompressor';
 
 const EXTINTOR_INFO: Record<string, { name: string; fires: string; color: string; icon: string; usage: string }> = {
   'ABC': {
@@ -92,6 +93,63 @@ export default function ExtinguisherAI() {
   const [signature, setSignature] = useState<string | null>(null);
   const [inspectorName, setInspectorName] = useState('');
 
+  // Limpieza y poda de historial para proteger la cuota de localStorage (5 MB)
+  const sanitizeAndPruneHistory = (items: any[]): any[] => {
+    return items.slice(0, 50).map((item, idx) => {
+      // Conservar imagen solo en las 6 inspecciones más recientes
+      if (idx >= 6 && item.image) {
+        return { ...item, image: null };
+      }
+      // Purgar imágenes excesivamente pesadas (> 250 KB) en registros anteriores
+      if (idx >= 3 && item.image && item.image.length > 250000) {
+        return { ...item, image: null };
+      }
+      return item;
+    });
+  };
+
+  // Persistencia multi-nivel anti QuotaExceededError
+  const persistHistory = (list: any[]): any[] => {
+    let sanitized = sanitizeAndPruneHistory(list);
+
+    const tryWrite = (data: any[]): boolean => {
+      try {
+        const serialized = JSON.stringify(data);
+        localStorage.setItem('extinguisher_checks', serialized);
+        localStorage.setItem('extinguisher_ai_history', serialized);
+        return true;
+      } catch (e) {
+        console.warn('[ExtinguisherAI] Cuota de almacenamiento alcanzada, reduciendo datos...', e);
+        return false;
+      }
+    };
+
+    // Nivel 1: Guardado normal saneado (hasta 6 miniaturas livianas)
+    if (!tryWrite(sanitized)) {
+      // Nivel 2: Conservar sólo las 2 imágenes más recientes
+      sanitized = sanitized.map((item, idx) => (idx >= 2 ? { ...item, image: null } : item));
+      if (!tryWrite(sanitized)) {
+        // Nivel 3: Eliminar imágenes del historial completo pero salvaguardar todos los metadatos técnicos
+        sanitized = sanitized.map((item) => ({ ...item, image: null }));
+        if (!tryWrite(sanitized)) {
+          // Nivel 4: Conservar las 20 inspecciones más recientes sin imágenes
+          sanitized = sanitized.slice(0, 20);
+          tryWrite(sanitized);
+        }
+      }
+    }
+
+    // Sincronización en la nube segura
+    try {
+      syncCollection('extinguisher_checks', sanitized);
+      syncCollection('extinguisher_ai_history', sanitized);
+    } catch (e) {
+      console.warn('[ExtinguisherAI] Cloud sync fallback:', e);
+    }
+
+    return sanitized;
+  };
+
   // Carga inicial y reactiva del historial
   const loadHistory = () => {
     const raw1 = localStorage.getItem('extinguisher_checks');
@@ -114,7 +172,20 @@ export default function ExtinguisherAI() {
       return db - da;
     });
 
-    setHistory(merged);
+    const sanitized = sanitizeAndPruneHistory(merged);
+    setHistory(sanitized);
+
+    // Si había imágenes históricas gigantescas que ocupaban cuota innecesaria, compactarlas
+    const hasBloat = merged.some((item, idx) => (idx >= 6 && item.image) || (item.image && item.image.length > 250000));
+    if (hasBloat) {
+      try {
+        const serialized = JSON.stringify(sanitized);
+        localStorage.setItem('extinguisher_checks', serialized);
+        localStorage.setItem('extinguisher_ai_history', serialized);
+      } catch (e) {
+        console.warn('[ExtinguisherAI] Error al compactar cuota en loadHistory:', e);
+      }
+    }
   };
 
   useEffect(() => {
@@ -125,11 +196,8 @@ export default function ExtinguisherAI() {
   const confirmDelete = () => {
     if (!deleteTarget) return;
     const updated = history.filter((item) => item.id !== deleteTarget);
-    setHistory(updated);
-    localStorage.setItem('extinguisher_checks', JSON.stringify(updated));
-    localStorage.setItem('extinguisher_ai_history', JSON.stringify(updated));
-    syncCollection('extinguisher_checks', updated);
-    syncCollection('extinguisher_ai_history', updated);
+    const saved = persistHistory(updated);
+    setHistory(saved);
     setDeleteTarget(null);
     toast.success('Inspección eliminada');
   };
@@ -182,14 +250,28 @@ export default function ExtinguisherAI() {
   };
 
   // Guardar nueva inspección desde la cámara
-  const handleSaveInspection = () => {
+  const handleSaveInspection = async () => {
     if (!analysisResult) return;
+
+    // Generar miniatura ultraliviana para almacenamiento permanente (~20-35 KB)
+    let storageThumbnail: string | null = null;
+    if (capturedImage) {
+      try {
+        storageThumbnail = await compressImage(capturedImage, {
+          maxDimension: 400,
+          quality: 0.65,
+          force: true
+        });
+      } catch {
+        storageThumbnail = capturedImage.length < 250000 ? capturedImage : null;
+      }
+    }
 
     const newRecord = {
       id: Date.now().toString(),
       date: new Date().toISOString(),
       savedAt: new Date().toISOString(),
-      image: capturedImage,
+      image: storageThumbnail,
       type: analysisResult.type || 'ABC',
       status: analysisResult.status || analysisResult.expirationStatus || 'vigente',
       manometerStatus: analysisResult.manometerStatus || 'zona_verde',
@@ -211,11 +293,8 @@ export default function ExtinguisherAI() {
     };
 
     const updated = [newRecord, ...history];
-    setHistory(updated);
-    localStorage.setItem('extinguisher_checks', JSON.stringify(updated.slice(0, 100)));
-    localStorage.setItem('extinguisher_ai_history', JSON.stringify(updated.slice(0, 100)));
-    syncCollection('extinguisher_checks', updated.slice(0, 100));
-    syncCollection('extinguisher_ai_history', updated.slice(0, 100));
+    const saved = persistHistory(updated);
+    setHistory(saved);
 
     toast.success('✅ Inspección guardada en el historial');
     setIsCameraVisible(false);

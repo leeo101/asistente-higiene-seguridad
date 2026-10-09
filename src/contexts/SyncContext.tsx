@@ -9,8 +9,10 @@ import {
   saveDocument,
   SYNC_COLLECTIONS,
   SYNC_DOCUMENTS,
+  SYNC_VALUES,
   listenToCollection,
-  listenToDocument
+  listenToDocument,
+  listenToValue
 } from '../services/cloudSync';
 
 interface SyncContextType {
@@ -121,9 +123,20 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
         // Ignorar snapshots si tenemos datos sucios locales pendientes de subir
         if (getDirtyKeys().includes(key)) return;
 
-        const local = JSON.parse(localStorage.getItem(key) || '[]');
+        let local: unknown[] = [];
+        try {
+          const raw = localStorage.getItem(key);
+          if (raw && !raw.startsWith('data:')) local = JSON.parse(raw);
+        } catch {
+          local = [];
+        }
+
         if (JSON.stringify(local) !== JSON.stringify(items)) {
-          localStorage.setItem(key, JSON.stringify(items));
+          try {
+            localStorage.setItem(key, JSON.stringify(items));
+          } catch (e) {
+            console.warn(`[SyncContext] Fallo setItem listener en ${key}:`, e);
+          }
           setSyncPulse(p => p + 1);
         }
       });
@@ -134,10 +147,48 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
       const unsub = listenToDocument(currentUser.uid, key, (data: any) => {
         if (getDirtyKeys().includes(key)) return;
 
-        const local = JSON.parse(localStorage.getItem(key) || 'null');
+        let local: any = null;
+        try {
+          const raw = localStorage.getItem(key);
+          if (raw && !raw.startsWith('data:')) local = JSON.parse(raw);
+        } catch {
+          local = null;
+        }
+
         if (JSON.stringify(local) !== JSON.stringify(data)) {
-          if (data) localStorage.setItem(key, JSON.stringify(data));
-          else localStorage.removeItem(key);
+          try {
+            if (data) localStorage.setItem(key, JSON.stringify(data));
+            else localStorage.removeItem(key);
+          } catch (e) {
+            console.warn(`[SyncContext] Fallo setItem listener doc en ${key}:`, e);
+          }
+          setSyncPulse(p => p + 1);
+        }
+      });
+      unsubscribes.push(unsub);
+    });
+
+    SYNC_VALUES.forEach(key => {
+      const unsub = listenToValue(currentUser.uid, key, (val: any) => {
+        if (getDirtyKeys().includes(key)) return;
+
+        const local = localStorage.getItem(key);
+        let incoming: string | null = null;
+        if (val !== null && val !== undefined) {
+          if (typeof val === 'object' && 'value' in val) {
+            incoming = String(val.value);
+          } else {
+            incoming = String(val);
+          }
+        }
+
+        if (local !== incoming) {
+          try {
+            if (incoming !== null) localStorage.setItem(key, incoming);
+            else localStorage.removeItem(key);
+          } catch (e) {
+            console.warn(`[SyncContext] Fallo setItem listener val en ${key}:`, e);
+          }
           setSyncPulse(p => p + 1);
         }
       });
@@ -148,7 +199,11 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
   }, [currentUser?.uid]);
 
   const syncCollection = async (key: string, items: unknown[]): Promise<void> => {
-    localStorage.setItem(key, JSON.stringify(items));
+    try {
+      localStorage.setItem(key, JSON.stringify(items));
+    } catch (e) {
+      console.warn(`[SyncContext] Cuota excedida al guardar localmente ${key}:`, e);
+    }
     if (currentUser) {
       if (!navigator.onLine) {
         markAsDirty(key);
@@ -165,7 +220,11 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
   };
 
   const syncDocument = async (key: string, data: Record<string, unknown>): Promise<void> => {
-    localStorage.setItem(key, JSON.stringify(data));
+    try {
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch (e) {
+      console.warn(`[SyncContext] Cuota excedida al guardar doc localmente ${key}:`, e);
+    }
     if (currentUser) {
       if (!navigator.onLine) {
         markAsDirty(key);
@@ -182,7 +241,13 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
   };
 
   const deleteFromCollection = async (key: string, id: string | number): Promise<unknown[]> => {
-    const current = JSON.parse(localStorage.getItem(key) || '[]');
+    let current: any[] = [];
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw && !raw.startsWith('data:')) current = JSON.parse(raw);
+    } catch {
+      current = [];
+    }
     const updated = current.filter((item: { id: string | number }) => String(item.id) !== String(id));
     await syncCollection(key, updated);
     return updated;

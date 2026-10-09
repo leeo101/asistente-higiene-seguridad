@@ -26,8 +26,13 @@ export default function ReportsReport(): React.ReactElement | null {
     professional: true
   });
 
-  const savedData = localStorage.getItem('personalData');
-  const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+  let userCountry = 'argentina';
+  try {
+    const savedData = localStorage.getItem('personalData');
+    if (savedData && !savedData.startsWith('data:')) {
+      userCountry = JSON.parse(savedData).country || 'argentina';
+    }
+  } catch {}
   const countryNorms = getCountryNormativa(userCountry);
 
   useEffect(() => {
@@ -35,15 +40,23 @@ export default function ReportsReport(): React.ReactElement | null {
     const prof = localStorage.getItem('personalData');
     const sig = localStorage.getItem('signatureStampData');
 
-    if (current) {
-      const parsed = JSON.parse(current);
-      setReport(parsed);
-      if (parsed.showSignatures) {
-        setShowSignatures(parsed.showSignatures);
+    if (current && !current.startsWith('data:')) {
+      try {
+        const parsed = JSON.parse(current);
+        setReport(parsed);
+        if (parsed.showSignatures) {
+          setShowSignatures(parsed.showSignatures);
+        }
+      } catch (e) {
+        console.warn('Error parsing current report:', e);
       }
     }
-    if (prof) setProfile(JSON.parse(prof));
-    if (sig) setSignature(JSON.parse(sig));
+    if (prof && !prof.startsWith('data:')) {
+      try { setProfile(JSON.parse(prof)); } catch {}
+    }
+    if (sig && !sig.startsWith('data:')) {
+      try { setSignature(JSON.parse(sig)); } catch {}
+    }
   }, []);
 
   if (!report) return <div className="container">Cargando...</div>;

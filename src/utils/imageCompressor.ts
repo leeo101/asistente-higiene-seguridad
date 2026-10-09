@@ -8,6 +8,7 @@ export interface CompressOptions {
   maxDimension?: number; // Máximo ancho o alto (px)
   quality?: number;      // Calidad de compresión JPEG (0.1 a 1.0)
   mimeType?: string;     // Formato de salida ('image/jpeg', 'image/webp')
+  force?: boolean;       // Forzar redimensionamiento aunque el input sea pequeño
 }
 
 /**
@@ -20,13 +21,14 @@ export async function compressImage(
   const {
     maxDimension = 1000,
     quality = 0.78,
-    mimeType = 'image/jpeg'
+    mimeType = 'image/jpeg',
+    force = false
   } = options;
 
   if (!input) return '';
 
-  // Si ya es un dataURL pequeño (ej. menor a 120 KB), retornarlo directamente
-  if (typeof input === 'string' && input.startsWith('data:') && input.length < 160000) {
+  // Si ya es un dataURL pequeño y no se forzó compresión/thumbnail específico
+  if (!force && maxDimension >= 800 && typeof input === 'string' && input.startsWith('data:') && input.length < 160000) {
     return input;
   }
 

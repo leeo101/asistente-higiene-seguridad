@@ -52,9 +52,13 @@ export default function RiskMatrix(): React.ReactElement | null {
   const { requirePro } = usePaywall();
   const navigate = useNavigate();
   const location = useLocation();
-  const { syncCollection } = useSync();
-  const savedData = localStorage.getItem('personalData');
-  const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+  let userCountry = 'argentina';
+  try {
+    const savedData = localStorage.getItem('personalData');
+    if (savedData && !savedData.startsWith('data:')) {
+      userCountry = JSON.parse(savedData).country || 'argentina';
+    }
+  } catch {}
   const countryNorms = getCountryNormativa(userCountry);
 
   useDocumentTitle('Matriz de Riesgos');
@@ -81,11 +85,13 @@ export default function RiskMatrix(): React.ReactElement | null {
         setRows(data.rows);
       }
     } else {
-      const saved = localStorage.getItem('personalData');
-      if (saved) {
-        const p = JSON.parse(saved);
-        setProjectData((prev) => ({ ...prev, responsable: p.name || '' }));
-      }
+      try {
+        const saved = localStorage.getItem('personalData');
+        if (saved && !saved.startsWith('data:')) {
+          const p = JSON.parse(saved);
+          setProjectData((prev) => ({ ...prev, responsable: p.name || '' }));
+        }
+      } catch {}
     }
   }, [location.state]);
 
@@ -104,7 +110,13 @@ export default function RiskMatrix(): React.ReactElement | null {
     }
     const entryId = (projectData as any).id || Date.now();
     const entry = { id: entryId, ...projectData, rows: activeRowsToSave, createdAt: new Date().toISOString() };
-    const history = JSON.parse(localStorage.getItem('risk_matrix_history') || '[]');
+    let history: any[] = [];
+    try {
+      const raw = localStorage.getItem('risk_matrix_history');
+      if (raw && !raw.startsWith('data:')) history = JSON.parse(raw);
+    } catch {
+      history = [];
+    }
 
     let updated;
     if ((projectData as any).id) {

@@ -26,7 +26,11 @@ export default function SubscriptionRenewalBanner() {
 
   if (!shouldShow) return null;
 
-  const handleDismiss = () => {
+  const handleDismiss = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     sessionStorage.setItem('dismissed_renewal_banner', 'true');
     setDismissed(true);
   };
@@ -99,7 +103,10 @@ export default function SubscriptionRenewalBanner() {
         <div className="flex items-center gap-3 w-full sm:w-auto shrink-0 justify-center sm:justify-end">
           <button
             type="button"
-            onClick={() => navigate('/subscribe')}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate('/subscribe');
+            }}
             style={{
               backgroundColor: '#f59e0b',
               color: '#000000',
