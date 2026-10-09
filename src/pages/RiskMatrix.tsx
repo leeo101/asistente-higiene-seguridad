@@ -7,6 +7,7 @@ import { printElementAsDocument } from '../utils/pdfHelper';
 import { useSync } from '../contexts/SyncContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
+import { safeSetLocalStorage, safeGetLocalStorage } from '../utils/storageHelper';
 import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { getCountryNormativa } from '../data/legislationData';
@@ -50,6 +51,7 @@ const emptyRow = () => {
 
 export default function RiskMatrix(): React.ReactElement | null {
   const { requirePro } = usePaywall();
+  const { syncCollection } = useSync();
   const navigate = useNavigate();
   const location = useLocation();
   let userCountry = 'argentina';
@@ -110,13 +112,7 @@ export default function RiskMatrix(): React.ReactElement | null {
     }
     const entryId = (projectData as any).id || Date.now();
     const entry = { id: entryId, ...projectData, rows: activeRowsToSave, createdAt: new Date().toISOString() };
-    let history: any[] = [];
-    try {
-      const raw = localStorage.getItem('risk_matrix_history');
-      if (raw && !raw.startsWith('data:')) history = JSON.parse(raw);
-    } catch {
-      history = [];
-    }
+    const history: any[] = safeGetLocalStorage<any[]>('risk_matrix_history', []);
 
     let updated;
     if ((projectData as any).id) {
@@ -126,8 +122,13 @@ export default function RiskMatrix(): React.ReactElement | null {
       // Add new
       updated = [entry, ...history];
     }
-    await syncCollection('risk_matrix_history', updated);
-    localStorage.setItem('current_risk_matrix', JSON.stringify(entry));
+    safeSetLocalStorage('risk_matrix_history', JSON.stringify(updated));
+    safeSetLocalStorage('current_risk_matrix', JSON.stringify(entry));
+    try {
+      await syncCollection('risk_matrix_history', updated);
+    } catch (syncErr) {
+      console.warn('SyncCollection warning:', syncErr);
+    }
     navigate('/risk-matrix-report');
   };
 
