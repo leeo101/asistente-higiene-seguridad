@@ -920,6 +920,13 @@ export default function Home(): React.ReactElement {
                     <span>Favoritos ({favorites.length})</span>
                   </button>
 
+                  <button
+                    onClick={() => setActiveCategory('new')}
+                    style={{ scrollSnapAlign: 'start' }}
+                    className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] flex items-center gap-1.5 ${activeCategory === 'new' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-500 shadow-[0_4px_15px_rgba(59,130,246,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>
+                    <span>🚀 Nuevos 2026</span>
+                  </button>
+
                   {categories.includes('docs') && <button onClick={() => setActiveCategory('docs')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'docs' ? 'bg-[#10b981] text-white border-[#10b981] shadow-[0_4px_15px_rgba(16,185,129,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>📋 Docs</button>}
                   {categories.includes('critical') && <button onClick={() => setActiveCategory('critical')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'critical' ? 'bg-[#ef4444] text-white border-[#ef4444] shadow-[0_4px_15px_rgba(239,68,68,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>🛡️ Crítico</button>}
                   {categories.includes('specific') && <button onClick={() => setActiveCategory('specific')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'specific' ? 'bg-[#f59e0b] text-white border-[#f59e0b] shadow-[0_4px_15px_rgba(245,158,11,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>⚙️ Específicos</button>}
@@ -947,6 +954,12 @@ export default function Home(): React.ReactElement {
               {filteredQuickLinks
                 .filter((link) => {
                   if (activeCategory === 'fav') return favorites.includes(link.to);
+                  if (activeCategory === 'new') {
+                    return (
+                      ['/forklifts', '/grounding', '/noise-assessment', '/lighting', '/legal-matrix', '/ventilation', '/pts', '/racks', '/dossier', '/toolbox-talk', '/rgrl', '/rar', '/working-at-height', '/ppe-tracker', '/arc-flash', '/atex'].includes(link.to) ||
+                      link.badge === 'Nuevo'
+                    );
+                  }
                   if (activeCategory !== 'all' && link.category !== activeCategory) return false;
                   if (!searchQuery.trim()) return true;
                   const q = searchQuery.toLowerCase();
@@ -960,6 +973,12 @@ export default function Home(): React.ReactElement {
                 filteredQuickLinks
                   .filter((link) => {
                     if (activeCategory === 'fav') return favorites.includes(link.to);
+                    if (activeCategory === 'new') {
+                      return (
+                        ['/forklifts', '/grounding', '/noise-assessment', '/lighting', '/legal-matrix', '/ventilation', '/pts', '/racks', '/dossier', '/toolbox-talk', '/rgrl', '/rar', '/working-at-height', '/ppe-tracker', '/arc-flash', '/atex'].includes(link.to) ||
+                        link.badge === 'Nuevo'
+                      );
+                    }
                     if (activeCategory !== 'all' && link.category !== activeCategory) return false;
                     if (!searchQuery.trim()) return true;
                     const q = searchQuery.toLowerCase();

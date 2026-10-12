@@ -63,16 +63,16 @@ const plansData = [
     btnLabel: 'Activar Profesional ($2 USD)',
     popular: true,
     features: [
-      { label: 'PDFs con TU LOGO e Identidad', desc: 'Presentación profesional con tu marca de agua y membrete en todos los informes' },
-      { label: 'Firma Digital & QR de Validación', desc: 'Firma táctil en pantalla y verificación pública por QR para auditorías' },
-      { label: 'Asesor IA Normativo Ilimitado', desc: 'Consultas 24/7 sin límite (Dec. 351/79, SRT, NFPA, OSHA, Ley 19587/16744/29783)' },
-      { label: 'Cámara IA & Visión Computacional', desc: 'Detección automática de EPP, actos inseguros y riesgos en fotos de terreno' },
-      { label: 'Módulos Críticos Desbloqueados', desc: 'ATS, Trabajo en Altura, Espacios Confinados, LOTO (Bloqueo) & Módulo CAPA' },
-      { label: 'Carga de Fuego & Extintores', desc: 'Cálculos de calorías, masa combustible, cantidad de extintores e inventario QR' },
-      { label: 'Checklists, Matriz IPERC & Legajos', desc: 'Formularios en terreno, árbol de causas y legajos por cliente' },
-      { label: 'Envío Instantáneo a WhatsApp & Mail', desc: 'Compartí el PDF generado con el cliente o responsable con 1 solo clic' },
-      { label: 'Exportación a Excel / CSV', desc: 'Descarga planillas ejecutivas completas para análisis y auditorías' },
-      { label: 'Sincronización Nube & Modo Offline', desc: 'Cargá datos en obra sin internet y respaldá automáticamente al conectar' },
+      { label: 'PDFs A4 Vectoriales con TU LOGO e Identidad', desc: 'Presentación profesional con tu marca de agua, membrete y matrícula en todos los informes' },
+      { label: 'Firma Digital Remota & QR de Validación', desc: 'Firma táctil en pantalla y verificación pública por QR para auditorías y fiscalizaciones' },
+      { label: 'Protocolos Oficiales SRT Habilitados', desc: 'Puesta a Tierra (Res. 900/15), Ruido (85/12), Iluminación (84/12), RGRL (463/09), RAR (37/10) y EPP (299/11)' },
+      { label: 'Módulos Críticos de Terreno & Obras', desc: 'ATS, Autoelevadores (SRT 960/15), Trabajo en Altura (Res. 61/23), Confinados (953/10) y LOTO' },
+      { label: 'Planos de Evacuación CAD & Dossier ZIP', desc: 'Diseño arquitectónico de vías de escape y descarga masiva de legajos para ART en 1 clic' },
+      { label: 'Asesor IA Normativo 24/7 Ilimitado', desc: 'Consultas sin límite entrenadas en Ley 19.587, Decretos 351/79, 911/96, NFPA y normas IRAM' },
+      { label: 'Cámara IA & Visión Computacional', desc: 'Detección automática de EPP, actos inseguros y riesgos en fotos tomadas en el lugar' },
+      { label: 'Carga de Fuego & Extintores QR', desc: 'Cálculo de madera equivalente, RF requerida, inventario y control de vencimientos' },
+      { label: 'Envío Instantáneo a WhatsApp & Mail', desc: 'Compartí el informe con clientes y contratistas en tiempo real desde la obra' },
+      { label: 'Sincronización Nube & Modo Offline', desc: 'Cargá datos sin internet en campo y respaldá automáticamente al conectar' },
     ],
   },
 ];
@@ -286,17 +286,21 @@ export default function PricingDark({ onStart }: PricingDarkProps) {
         </div>
 
         {/* Trust line */}
-        <div style={{ textAlign: 'center', marginTop: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
-          <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.82rem', fontWeight: 600 }}>
-            🔒 Sin contratos de permanencia
+        <div style={{ textAlign: 'center', marginTop: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.2rem', flexWrap: 'wrap' }}>
+          <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', fontWeight: 700 }}>
+            🇦🇷 Mercado Pago (Pesos)
           </span>
           <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.82rem' }}>•</span>
-          <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.82rem', fontWeight: 600 }}>
-            💳 Pago 100% seguro
+          <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', fontWeight: 700 }}>
+            🌎 Stripe (USD Internacional)
           </span>
           <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.82rem' }}>•</span>
-          <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.82rem', fontWeight: 600 }}>
-            ⚡ Activación inmediata
+          <span style={{ color: '#34d399', fontSize: '0.82rem', fontWeight: 700 }}>
+            ✓ Validez Oficial ante ART y Ministerio
+          </span>
+          <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.82rem' }}>•</span>
+          <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.82rem', fontWeight: 600 }}>
+            🔒 Cancelá cuando quieras sin permanencia
           </span>
         </div>
       </div>

@@ -50,7 +50,7 @@ export default function PaywallModal({ isOpen, onClose }: PaywallModalProps): Re
       badgeBg: 'rgba(251,191,36,0.25)',
       badgeColor: '#fbbf24',
       popular: true,
-      desc: 'PDFs con tu LOGO, Firma Digital, QR de Verificación, Asesor IA Ilimitado, Cámara Visión, Módulos Críticos y Nube.',
+      desc: 'PDFs A4 con tu LOGO y matrícula, Protocolos Oficiales SRT (PAT 900/15, Ruido, Luz, RGRL), Autoelevadores SRT 960, Firmas QR, Planos CAD, Dossier ZIP e IA Ilimitada.',
       buttonLabel: 'Activar Profesional ($2 USD)',
       buttonBg: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
       buttonColor: '#ffffff',

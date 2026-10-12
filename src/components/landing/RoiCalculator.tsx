@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { TrendUp, Clock, CurrencyDollar, ArrowRight } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 
-export default function RoiCalculator() {
+interface RoiCalculatorProps {
+  onStart?: () => void;
+}
+
+export default function RoiCalculator({ onStart }: RoiCalculatorProps = {}) {
   const [reportsPerWeek, setReportsPerWeek] = useState(15);
   const navigate = useNavigate();
 
@@ -308,7 +312,7 @@ export default function RoiCalculator() {
                 Con este volumen, la suscripción PRO se paga sola en el <strong style={{ color: '#34d399' }}>primer día de uso.</strong>
               </p>
               <button
-                onClick={() => navigate('/login', { state: { view: 'register' } })}
+                onClick={() => onStart ? onStart() : navigate('/login', { state: { view: 'register' } })}
                 style={{
                   padding: '0.7rem 1.4rem',
                   borderRadius: '100px',

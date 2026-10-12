@@ -4,28 +4,32 @@ import { useNavigate } from 'react-router-dom';
 
 const items = [
   {
-    q: '¿Es realmente gratis?',
-    a: 'Sí, la carga de datos y el uso de los módulos es 100% gratuito e ilimitado. Podés completar ATS, hacer mediciones y cargar registros sin pagar. El plan PRO solo es necesario si deseás exportar esos resultados a PDF profesional, compartirlos por WhatsApp o sincronizarlos en la nube.',
+    q: '¿Los informes y protocolos tienen validez legal formal ante la ART y el Ministerio?',
+    a: 'Totalmente. Cada módulo fue diseñado respetando taxativamente las resoluciones vigentes de la SRT (Res. 900/15 de Puesta a Tierra, Res. 84/12 de Iluminación, Res. 85/12 de Ruido, Res. 463/09 de RGRL, Res. 960/15 de Autoelevadores, Dec. 351/79 y Dec. 911/96). Los PDFs emitidos incluyen tu membrete, matrícula profesional, sello digital y código QR de validación pública de autenticidad.',
   },
   {
-    q: '¿Puedo usar la IA gratis?',
-    a: '¡Sí! Podés usar la Cámara IA y el Asesor IA de forma gratuita para ver los resultados y análisis en tiempo real en tu pantalla. La versión PRO te permite incluir esos hallazgos en reportes exportables y compartirlos.',
+    q: '¿Los trabajadores o contratistas necesitan crearse una cuenta para firmar?',
+    a: 'No. El operario o supervisor no necesita registrarse ni descargar ninguna aplicación. Desde tu teléfono generás el código QR del permiso o charla; el operario lo escanea con la cámara de su celular (o se lo enviás por WhatsApp) y firma directamente en la pantalla con el dedo. La firma y la geolocalización quedan estampadas al instante en el documento oficial.',
   },
   {
-    q: '¿Cumple con la normativa de mi país?',
-    a: 'Los cálculos están basados en la Ley 19.587, el Dec. 351/79, resoluciones SRT, ISO 45001 y normativas vigentes de Argentina, Chile, Bolivia, Paraguay y Uruguay.',
+    q: '¿Cómo puedo pagar la suscripción PRO desde Argentina?',
+    a: 'Podés pagar de forma muy sencilla en pesos argentinos a través de Mercado Pago (tarjeta de débito, crédito o dinero en cuenta) o en USD a través de Stripe si estás en el exterior. La suscripción cuesta solo $2 USD (o su equivalente oficial) y se activa de manera 100% automática en tu cuenta.',
   },
   {
-    q: '¿Mis datos están seguros?',
-    a: 'Sí. Usamos Firebase (Google) para autenticación y almacenamiento cifrado. Tu información está protegida y bajo tu control total.',
+    q: '¿Es realmente gratis la prueba?',
+    a: 'Sí, la carga de datos, el uso de las calculadoras y los módulos es 100% gratuito e ilimitado para que pruebes la herramienta en tu trabajo diario. La suscripción PRO solo es necesaria cuando querés exportar los documentos vectoriales A4 con tu logo sin marcas de agua, almacenar en la nube o emitir el Dossier ZIP masivo.',
   },
   {
-    q: '¿Funciona en el celular?',
-    a: 'Perfecto. Está optimizada para mobile y podés instalarla directamente en tu pantalla de inicio como una app nativa (PWA). Funciona 100% offline en zonas sin cobertura.',
+    q: '¿Funciona en el celular sin señal de internet en obra?',
+    a: 'Perfecto. La plataforma está construida como una PWA (Progressive Web App). Podés instalarla en la pantalla de inicio de tu celular Android o iPhone y usarla en zonas rurales, subsuelos o galpones sin cobertura. Cuando tu teléfono recupera señal de Wi-Fi o datos, todo se sincroniza automáticamente a la nube.',
+  },
+  {
+    q: '¿Puedo descargar toda la carpeta o legajo de un cliente de una sola vez?',
+    a: 'Sí. Con el módulo Dossier ZIP podés seleccionar la empresa o planta y el rango de fechas, y el sistema compila automáticamente todos los ATS, protocolos SRT, constancias de entrega de EPP y registros de capacitación en un único archivo comprimido listo para entregar al auditor o inspector.',
   },
   {
     q: '¿Cómo cancelo la suscripción PRO?',
-    a: 'En cualquier momento desde tu perfil, en la sección Suscripción. No hay contratos de permanencia ni cargos ocultos.',
+    a: 'En cualquier momento con 1 solo clic desde tu perfil en la sección Suscripción. No hay períodos de permanencia obligatorios ni costos de cancelación ocultos.',
   },
 ];
 

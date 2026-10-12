@@ -329,10 +329,12 @@ export default function Subscription(): React.ReactElement | null {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-[1.2rem]">
             {[
-              { icon: <ShieldCheck />, title: 'Informes Instantáneos', desc: 'PDFs profesionales con tu logo listos para enviar al cliente.' },
-              { icon: <CreditCard />, title: 'Cobro Multimoneda Global', desc: 'Pagá con tarjeta desde Argentina o cualquier país en USD.' },
-              { icon: <Lock />, title: '100% Confidencial & Nube', desc: 'Respaldo automático y seguridad cifrada de nivel bancario.' },
-              { icon: <CheckCircle2 />, title: 'Asesoría IA Ilimitada', desc: 'Respuestas normativas y diagnósticos técnicos en segundos.' }
+              { icon: <ShieldCheck />, title: 'Protocolos Oficiales SRT', desc: 'Puesta a Tierra (900/15), Ruido (85/12), Luz (84/12), RGRL (463/09) y Autoelevadores (960/15).' },
+              { icon: <CheckCircle2 />, title: 'PDFs A4 con tu Logo & Matrícula', desc: 'Presentación formal con membrete y sello digital listo para presentar a la ART o cliente.' },
+              { icon: <CreditCard />, title: 'Firmas por QR y WhatsApp', desc: 'Los operarios y contratistas firman desde su celular en segundos sin crear cuenta.' },
+              { icon: <Sparkles />, title: 'Dossier ZIP & Planos CAD', desc: 'Exportación masiva de legajos y editor de planos de evacuación 2D normalizado.' },
+              { icon: <Lock />, title: '100% Nube & Modo Offline', desc: 'Cargá datos en obra sin señal de internet y sincronizá al volver con respaldo cifrado.' },
+              { icon: <Globe />, title: 'Mercado Pago (ARS) o Stripe (USD)', desc: 'Activación inmediata y automática. Cancelá en cualquier momento con un solo clic.' }
             ].map((item, i) => (
               <div key={i} className="glass-card p-[1.2rem] flex flex-col gap-[0.8rem] items-start rounded-[18px]">
                 <div className="text-white bg-[linear-gradient(135deg,_#3b82f6,_#8b5cf6)] p-[0.7rem] rounded-[12px] shadow-md">

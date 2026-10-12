@@ -138,7 +138,7 @@ export default function InteractiveHeroDemo() {
                     <div style={{ color: 'white', fontWeight: 800, fontSize: '0.85rem' }}>Asistente IA H&S</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                         <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#34d399', animation: 'pulse-soft 2s ease infinite' }} />
-                        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.68rem', fontWeight: 600 }}>En línea · Normativa actualizada 2024</span>
+                        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.68rem', fontWeight: 600 }}>En línea · Normativa oficial vigente (2026)</span>
                     </div>
                 </div>
                 <div style={{ padding: '0.2rem 0.6rem', background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.25)', borderRadius: '20px', color: '#c084fc', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.5px' }}>

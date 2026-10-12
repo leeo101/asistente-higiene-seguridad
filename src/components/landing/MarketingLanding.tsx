@@ -9,6 +9,9 @@ import {
 import BeforeAndAfter from './BeforeAndAfter';
 import PricingDark from './PricingDark';
 import FaqAndCtaDark from './FaqAndCtaDark';
+import ModulesGrid from './ModulesGrid';
+import RoiCalculator from './RoiCalculator';
+import WallOfLove from './WallOfLove';
 
 interface MarketingLandingProps {
   onStart: () => void;
@@ -45,15 +48,25 @@ export default function MarketingLanding({ onStart, onLogin }: MarketingLandingP
             </span>
           </div>
 
-          <div className="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-300">
+          <div className="hidden lg:flex items-center gap-5 text-sm font-semibold text-slate-300">
             <button onClick={() => scrollToSection('soluciones')} className="hover:text-white transition-colors cursor-pointer bg-transparent border-none">
               ¿Para qué sirve?
+            </button>
+            <button onClick={() => scrollToSection('modulos')} className="hover:text-blue-400 transition-colors cursor-pointer bg-transparent border-none flex items-center gap-1">
+              <span>Módulos</span>
+              <span className="text-[10px] bg-blue-500/20 text-blue-300 px-1.5 py-0.2 rounded font-bold border border-blue-500/30">+45</span>
+            </button>
+            <button onClick={() => scrollToSection('calculadora')} className="hover:text-emerald-400 transition-colors cursor-pointer bg-transparent border-none">
+              Ahorro de Tiempo
             </button>
             <button onClick={() => scrollToSection('industrias')} className="hover:text-white transition-colors cursor-pointer bg-transparent border-none">
               Industrias
             </button>
             <button onClick={() => scrollToSection('comparativa')} className="hover:text-white transition-colors cursor-pointer bg-transparent border-none">
               Antes vs Después
+            </button>
+            <button onClick={() => scrollToSection('testimonios')} className="hover:text-white transition-colors cursor-pointer bg-transparent border-none">
+              Colegas
             </button>
             <button onClick={() => scrollToSection('precios')} className="hover:text-amber-400 transition-colors cursor-pointer bg-transparent border-none flex items-center gap-1">
               <span>Precios</span>
@@ -206,10 +219,13 @@ export default function MarketingLanding({ onStart, onLogin }: MarketingLandingP
               { label: 'Ley 19.587', sub: 'Higiene y Seguridad' },
               { label: 'Dec. 351/79', sub: 'Industria' },
               { label: 'Dec. 911/96', sub: 'Construcción' },
-              { label: 'Dec. 617/97', sub: 'Agro' },
-              { label: 'Res. SRT 84/12 & 85/12', sub: 'Luz y Ruido' },
+              { label: 'Res. SRT 960/15', sub: 'Autoelevadores' },
               { label: 'Res. SRT 900/15', sub: 'Puesta a Tierra' },
-              { label: 'Res. SRT 463/09', sub: 'RGRL ART' },
+              { label: 'Res. SRT 84/12 & 85/12', sub: 'Luz y Ruido' },
+              { label: 'Res. SRT 61/23', sub: 'Altura' },
+              { label: 'Res. SRT 953/10', sub: 'Confinados' },
+              { label: 'Res. SRT 463/09 & 37/10', sub: 'RGRL & RAR' },
+              { label: 'ISO 45001', sub: 'SST' },
               { label: 'NFPA 51B / 70E', sub: 'Caliente y Arco' }
             ].map((n, i) => (
               <span key={i} className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-slate-300 flex items-center gap-1">
@@ -378,6 +394,14 @@ export default function MarketingLanding({ onStart, onLogin }: MarketingLandingP
         </div>
       </section>
 
+      {/* ── BLOQUE: VITRINA COMPLETA DE MÓDULOS (+45) ── */}
+      <ModulesGrid onStart={onStart} />
+
+      {/* ── BLOQUE: CALCULADORA DE RETORNO DE INVERSIÓN (ROI) ── */}
+      <section id="calculadora">
+        <RoiCalculator onStart={onStart} />
+      </section>
+
       {/* ── BLOQUE 3: GALERÍA DE INDUSTRIAS ── */}
       <section id="industrias" className="py-20 bg-slate-950/80 border-y border-white/10 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto space-y-12">
@@ -451,6 +475,11 @@ export default function MarketingLanding({ onStart, onLogin }: MarketingLandingP
       {/* ── BLOQUE 4: ANTES VS DESPUÉS ── */}
       <section id="comparativa">
         <BeforeAndAfter />
+      </section>
+
+      {/* ── BLOQUE: TESTIMONIOS DE COLEGAS ── */}
+      <section id="testimonios">
+        <WallOfLove />
       </section>
 
       {/* ── BLOQUE 5: TABLA DE PRECIOS ── */}
