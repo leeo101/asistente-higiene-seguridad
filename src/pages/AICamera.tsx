@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ArrowLeft, Camera, RefreshCw, CheckCircle, TriangleAlert, ShieldCheck, Zap, ZapOff, FlipHorizontal } from 'lucide-react';
 import { API_BASE_URL } from '../config';
@@ -11,17 +11,20 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { uploadImageToStorage } from '../services/storageService';
 import { safeSetLocalStorage } from '../utils/storageHelper';
 import { getErrorMessage } from '../utils/errorUtils';
+import { captureFromNativeCamera, isMobileDevice } from '../utils/nativeCamera';
 
 export default function AICamera(): React.ReactElement | null {
   const { isPro, loading } = usePaywall();
   const navigate = useNavigate();
+  const location = useLocation();
+  const initialImage = (location.state as any)?.initialImage;
   const { syncCollection } = useSync();
   useDocumentTitle('Cámara Inteligente EPP');
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [stream, _setStream] = useState(null);
   const streamRef = useRef(null);
-  const [capturedImage, setCapturedImage] = useState(null);
+  const [capturedImage, setCapturedImage] = useState(initialImage || null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
@@ -43,11 +46,17 @@ export default function AICamera(): React.ReactElement | null {
   useEffect(() => {
     if (loading || !isPro) return;
     window.scrollTo(0, 0);
+
+    if (initialImage) {
+      analyzeImage(initialImage);
+      return;
+    }
+
     startCamera();
     return () => {
       stopStream();
     };
-  }, [facingMode, isPro, loading]);
+  }, [initialImage, facingMode, isPro, loading]);
 
   const stopStream = () => {
     if (streamRef.current) {
@@ -379,6 +388,19 @@ export default function AICamera(): React.ReactElement | null {
     startCamera();
   };
 
+  const handleNativeCapture = async () => {
+    try {
+      const photo = await captureFromNativeCamera({ maxDimension: 1400 });
+      if (photo) {
+        setCapturedImage(photo);
+        stopStream();
+        analyzeImage(photo);
+      }
+    } catch (err) {
+      console.warn('Native camera capture error:', err);
+    }
+  };
+
   if (loading) {
     return (
       <div className="container flex items-center justify-center min-h-[50vh]">
@@ -496,17 +518,27 @@ export default function AICamera(): React.ReactElement | null {
               </button>
             </div>
 
-            {/* Botón de Captura Elegante */}
-            <div className="absolute bottom-8 left-0 w-full flex justify-center z-20">
+            {/* Botón de Captura y Acceso a Cámara Nativa HD */}
+            <div className="absolute bottom-6 left-0 w-full flex items-center justify-center gap-4 z-20 px-4">
+              <button
+                type="button"
+                onClick={handleNativeCapture}
+                className="px-4 py-3 rounded-2xl bg-slate-900/85 hover:bg-slate-800 text-white font-black text-xs flex items-center gap-2 border border-blue-400/60 shadow-xl backdrop-blur-md transition-all active:scale-95 cursor-pointer"
+                title="Abrir cámara del teléfono en alta resolución"
+              >
+                <Camera size={18} className="text-blue-400" />
+                <span>Cámara Teléfono HD</span>
+              </button>
+
               <button
                 onClick={handleCapture}
-                className="group relative w-20 h-20 rounded-full bg-white/10 backdrop-blur-md cursor-pointer flex items-center justify-center border-2 border-white/60 transition-all duration-300 hover:scale-110 active:scale-95 shadow-xl"
+                className="group relative w-16 h-16 rounded-full bg-white/10 backdrop-blur-md cursor-pointer flex items-center justify-center border-2 border-white/60 transition-all duration-300 hover:scale-110 active:scale-95 shadow-xl"
                 style={{ outline: 'none' }}
-                title="Escanear EPP con IA"
+                title="Capturar desde visor web"
               >
                 <div className="absolute inset-0 rounded-full border-2 border-blue-500 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-500 animate-ping" />
-                <div className="w-14 h-14 rounded-full bg-blue-600 border-2 border-white group-hover:bg-blue-500 transition-all duration-300 flex items-center justify-center shadow-inner">
-                  <Camera className="text-white" size={26} />
+                <div className="w-12 h-12 rounded-full bg-blue-600 border-2 border-white group-hover:bg-blue-500 transition-all duration-300 flex items-center justify-center shadow-inner">
+                  <Camera className="text-white" size={22} />
                 </div>
               </button>
             </div>
@@ -572,8 +604,11 @@ export default function AICamera(): React.ReactElement | null {
                                       </div>
                                     }
                                 </div>
-                                <div className="flex gap-[0.8rem] w-[100%] justify-center mt-[1rem]">
-                                    <button onClick={handleRetry} className="flex-[1] h-[44px] rounded-[12px] bg-[rgba(255,255,255,0.12)] backdrop-filter-[blur(8px)] border-[1px_solid_rgba(255,255,255,0.25)] text-white flex items-center justify-center gap-[0.5rem] text-[0.85rem] font-[700] cursor-pointer transition-all hover:bg-[rgba(255,255,255,0.22)] active:scale-98">
+                                <div className="flex gap-[0.6rem] w-[100%] justify-center mt-[1rem]">
+                                    <button onClick={handleNativeCapture} className="flex-[1] h-[44px] rounded-[12px] bg-blue-600/85 hover:bg-blue-600 border border-blue-400 text-white flex items-center justify-center gap-[0.4rem] text-[0.82rem] font-[800] cursor-pointer shadow-md transition-all active:scale-98" title="Tomar otra foto con la cámara nativa">
+                                        <Camera size={16} /> Cámara HD
+                                    </button>
+                                    <button onClick={handleRetry} className="flex-[1] h-[44px] rounded-[12px] bg-[rgba(255,255,255,0.12)] backdrop-filter-[blur(8px)] border-[1px_solid_rgba(255,255,255,0.25)] text-white flex items-center justify-center gap-[0.4rem] text-[0.82rem] font-[700] cursor-pointer transition-all hover:bg-[rgba(255,255,255,0.22)] active:scale-98">
                                         <RefreshCw size={16} /> Reintentar
                                     </button>
                                     <button onClick={handleSaveReport} disabled={isSaving} className="flex-[2] h-[44px] rounded-[12px] bg-emerald-600 hover:bg-emerald-500 border-none text-white flex items-center justify-center gap-[0.5rem] text-[0.88rem] font-[800] cursor-pointer shadow-md transition-all hover:brightness-[1.1] active:scale-98" style={{ opacity: isSaving ? 0.7 : 1 }}>

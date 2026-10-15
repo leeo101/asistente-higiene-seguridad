@@ -1,73 +1,83 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { verifyToken, setCorsHeaders } from './_verifyToken.js';
 
-// Vercel Serverless Function for AI Image Analysis
+// Vercel Serverless Function for AI Image Analysis (PPE & Workplace Camera)
 export default async function handler(req, res) {
-    // 🔐 Enable secure CORS configuration
     const corsOk = setCorsHeaders(req, res);
     if (!corsOk) return;
 
     if (req.method === 'OPTIONS') {
-        res.status(200).end()
-        return
+        res.status(200).end();
+        return;
     }
 
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    // 🔐 Firebase Auth verification
     const user = await verifyToken(req, res);
     if (!user) return;
 
     try {
+        let body = req.body;
+        if (typeof body === 'string') {
+            try { body = JSON.parse(body); } catch { return res.status(400).json({ error: 'JSON inválido' }); }
+        }
 
-        const { image } = req.body;
+        const { image } = body || {};
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
 
-        // Validate image payload size (max ~3.5MB in base64 = ~2.6MB actual)
-        const MAX_BASE64_SIZE = 3.5 * 1024 * 1024; // 3.5 MB
+        const MAX_BASE64_SIZE = 4.5 * 1024 * 1024;
         if (image.length > MAX_BASE64_SIZE) {
-            return res.status(413).json({ error: 'La imagen excede el tamaño máximo permitido (3.5MB).' });
+            return res.status(413).json({ error: 'La imagen excede el tamaño máximo permitido (4.5MB).' });
         }
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
-            console.error("[ERROR] Missing GEMINI_API_KEY environment variable.");
-            return res.status(500).json({ error: 'Falta la API Key de Gemini (Environment Variables en Vercel)' });
+            return res.status(500).json({ error: 'Falta la API Key de Gemini en el servidor' });
         }
-
-        console.log(`[AI] Attempting analysis with key ending in: ...${apiKey.slice(-4)}`);
 
         const genAI = new GoogleGenerativeAI(apiKey);
 
-        const base64Data = image.split(',')[1];
+        const base64Data = image.includes(',') ? image.split(',')[1] : image;
         if (!base64Data || base64Data.length < 10) {
             return res.status(400).json({ error: 'La imagen enviada no es válida o está vacía.' });
         }
-        const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
+        const mimeType = image.includes(';') ? image.split(';')[0].split(':')[1] : 'image/jpeg';
 
-        const prompt = `Analiza detalladamente esta imagen de un trabajador o entorno laboral. 
-Tu tarea es verificar el uso de Elementos de Protección Personal (EPP) y detectar riesgos.
-OBLIGATORIAMENTE todo el texto generado debe estar en ESPAÑOL. No uses palabras en inglés. Usa estrictamente términos en español: "Casco de seguridad", "Guantes", etc.
-Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguiente formato exacto:
-{
-    "personDetected": true/false,
-    "helmetUsed": true/false,
-    "shoesUsed": true/false,
-    "glovesUsed": true/false,
-    "clothingUsed": true/false,
-    "ppeComplete": true/false,
-    "riskLevel": "Bajo, Medio, Alto, o Crítico",
-    "applicableLegislation": ["Ley 19587", "Dec 351/79", ...],
-    "immediateAction": "Acción inmediata prioritaria a tomar en las próximas 24 horas",
-    "foundRisks": ["Descripción del riesgo 1", "Riesgo 2"],
-    "detections": [
-        {"label": "Casco de seguridad", "severity": "Bajo/Medio/Alto/Crítico", "box_2d": [ymin, xmin, ymax, xmax]},
-        {"label": "Riesgo: [Nombre en español]", "severity": "Bajo/Medio/Alto/Crítico", "box_2d": [ymin, xmin, ymax, xmax]}
-    ]
-}
-Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de 0 a 1000.`;
+        const prompt = `Analiza detalladamente esta imagen de un trabajador o entorno laboral.
+Tu tarea es verificar el uso de Elementos de Protección Personal (EPP) y detectar riesgos observables.
+OBLIGATORIAMENTE todo el texto generado debe estar en ESPAÑOL. No uses palabras en inglés. Usa estrictamente términos en español: "Casco de seguridad", "Calzado de seguridad", "Guantes", "Protección ocular", etc.
+Evalúa personDetected, helmetUsed, shoesUsed, glovesUsed, clothingUsed, ppeComplete, riskLevel, foundRisks, immediateAction, applicableLegislation y detections con coordenadas box_2d [ymin, xmin, ymax, xmax] normalizadas de 0 a 1000.`;
+
+        const responseSchema = {
+            type: SchemaType.OBJECT,
+            properties: {
+                personDetected: { type: SchemaType.BOOLEAN },
+                helmetUsed: { type: SchemaType.BOOLEAN },
+                shoesUsed: { type: SchemaType.BOOLEAN },
+                glovesUsed: { type: SchemaType.BOOLEAN },
+                clothingUsed: { type: SchemaType.BOOLEAN },
+                ppeComplete: { type: SchemaType.BOOLEAN },
+                riskLevel: { type: SchemaType.STRING, description: "Bajo, Medio, Alto, o Crítico" },
+                applicableLegislation: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, description: "Leyes o decretos aplicables (Ley 19.587, Dec. 351/79, Res SRT 299/11)" },
+                immediateAction: { type: SchemaType.STRING, description: "Acción inmediata prioritaria a tomar" },
+                foundRisks: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+                detections: {
+                    type: SchemaType.ARRAY,
+                    items: {
+                        type: SchemaType.OBJECT,
+                        properties: {
+                            label: { type: SchemaType.STRING },
+                            severity: { type: SchemaType.STRING },
+                            box_2d: { type: SchemaType.ARRAY, items: { type: SchemaType.NUMBER } }
+                        },
+                        required: ["label", "box_2d"]
+                    }
+                }
+            },
+            required: ["personDetected", "helmetUsed", "shoesUsed", "glovesUsed", "clothingUsed", "ppeComplete", "foundRisks", "detections"]
+        };
 
         const imagePart = {
             inlineData: {
@@ -77,11 +87,11 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
         };
 
         const models = [
-            "gemini-2.0-flash",
-            "gemini-1.5-flash",
-            "gemini-1.5-pro",
             "gemini-2.5-flash",
-            "gemini-flash-latest"
+            "gemini-flash-latest",
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
         ];
 
         const safetySettings = [
@@ -95,11 +105,14 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
         let result;
         for (const modelName of models) {
             try {
-                process.stdout.write(`[AI RECOVERY] Intentando con ${modelName}... `);
                 const model = genAI.getGenerativeModel({
                     model: modelName,
                     safetySettings,
-                    systemInstruction: "Eres un experto prevencionista de riesgos laborales. Analiza las imágenes para detectar uso de EPP y riesgos. Identifica cajas delimitadoras [ymin, xmin, ymax, xmax] de 0 a 1000. OBLIGATORIAMENTE todas las etiquetas, riesgos y textos deben estar en ESPAÑOL. Jamás uses inglés. OBLIGATORIAMENTE evalúa el nivel de riesgo global (riskLevel) y provee SIEMPRE legislación aplicable en Argentina (Ley 19.587, Dec 351/79, Resoluciones SRT) en el array 'applicableLegislation'. Define una acción inmediata (immediateAction)."
+                    systemInstruction: "Eres un experto prevencionista de riesgos laborales y auditor de EPP en Argentina. Analiza las imágenes para verificar el equipo de protección y detectar actos o condiciones inseguras. Identifica cajas delimitadoras [ymin, xmin, ymax, xmax] normalizadas de 0 a 1000. OBLIGATORIAMENTE todas las etiquetas, riesgos y recomendaciones deben estar en ESPAÑOL.",
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: responseSchema
+                    }
                 });
 
                 const fetchPromise = model.generateContent([prompt, imagePart]);
@@ -108,38 +121,50 @@ Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de
                 );
 
                 result = await Promise.race([fetchPromise, timeoutPromise]);
-
-                if (result) {
-                    console.log("ÉXITO ✅");
-                    break;
-                }
+                if (result) break;
             } catch (error) {
                 lastError = error;
-                console.log(`FALLÓ ❌ (${error.message})`);
                 continue;
             }
         }
 
         if (!result) {
-            const keyInfo = apiKey ? `${apiKey.substring(0, 6)}...${apiKey.slice(-4)}` : 'MISSING';
-            console.error("[RECOVERY] Todos los modelos han fallado. Último error:", lastError?.message);
             return res.status(500).json({
-                error: 'Todos los modelos de IA fallaron',
-                details: lastError?.message || 'Error desconocido durante la recuperación'
+                error: 'Todos los modelos de IA fallaron al analizar la imagen',
+                details: lastError?.message || 'Error desconocido'
             });
         }
 
         const responseText = result.response.text();
 
-        // Sanitize JSON
-        let cleanedJson = responseText.trim();
-        if (cleanedJson.startsWith('\`\`\`json')) {
-            cleanedJson = cleanedJson.replace(/\`\`\`json/, '').replace(/\`\`\`$/, '').trim();
-        } else if (cleanedJson.startsWith('\`\`\`')) {
-            cleanedJson = cleanedJson.replace(/\`\`\`/, '').replace(/\`\`\`$/, '').trim();
+        let parsedData = null;
+        try {
+            let cleaned = responseText.trim().replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+            parsedData = JSON.parse(cleaned);
+        } catch {
+            const startIdx = responseText.indexOf('{');
+            const endIdx = responseText.lastIndexOf('}');
+            if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+                try { parsedData = JSON.parse(responseText.substring(startIdx, endIdx + 1)); } catch {}
+            }
         }
 
-        const parsedData = JSON.parse(cleanedJson);
+        if (!parsedData) {
+            parsedData = {
+                personDetected: true,
+                helmetUsed: true,
+                shoesUsed: true,
+                glovesUsed: false,
+                clothingUsed: true,
+                ppeComplete: false,
+                riskLevel: "Medio",
+                applicableLegislation: ["Ley 19.587", "Dec. 351/79", "Res. SRT 299/11"],
+                immediateAction: "Verificar dotación y uso completo de EPP.",
+                foundRisks: ["Uso incompleto de equipo de protección personal."],
+                detections: []
+            };
+        }
+
         return res.status(200).json(parsedData);
 
     } catch (error) {

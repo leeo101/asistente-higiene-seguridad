@@ -37,8 +37,9 @@ export default async function handler(req, res) {
         const models = [
             "gemini-2.5-flash",
             "gemini-flash-latest",
-            "gemini-2.0-flash-exp",
-            "gemini-1.5-flash-latest"
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
         ];
 
         const prompt = `Como experto legislativo en Higiene y Seguridad en Argentina, realiza un resumen directo de esta norma: "${ley}".

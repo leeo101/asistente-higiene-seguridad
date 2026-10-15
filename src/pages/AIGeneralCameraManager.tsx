@@ -19,6 +19,7 @@ import AnimatedPage from '../components/AnimatedPage';
 import ConfirmModal from '../components/ConfirmModal';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import { usePaywall } from '../hooks/usePaywall';
+import { captureFromNativeCamera, isMobileDevice } from '../utils/nativeCamera';
 
 export default function AIGeneralCameraManager(): React.ReactElement | null {
   const { isPro, loading } = usePaywall();
@@ -96,6 +97,28 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
     setHistory(history.filter((item: any) => item.id !== deleteTarget));
     setDeleteTarget(null);
     toast.success("Análisis de riesgos eliminado");
+  };
+
+  const [isOpeningCamera, setIsOpeningCamera] = useState(false);
+
+  const handleNewDetection = async () => {
+    if (isMobileDevice()) {
+      setIsOpeningCamera(true);
+      const toastId = toast.loading('Abriendo cámara de alta resolución...');
+      try {
+        const photo = await captureFromNativeCamera({ maxDimension: 1400 });
+        toast.dismiss(toastId);
+        setIsOpeningCamera(false);
+        if (photo) {
+          navigate('/ai-general-camera', { state: { initialImage: photo } });
+          return;
+        }
+      } catch (err) {
+        toast.dismiss(toastId);
+        setIsOpeningCamera(false);
+      }
+    }
+    navigate('/ai-general-camera');
   };
 
   const handleExportCSV = () => {
@@ -284,7 +307,8 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
               {/* Botón Nueva Detección */}
               <button
                 type="button"
-                onClick={() => navigate('/ai-general-camera')}
+                onClick={handleNewDetection}
+                disabled={isOpeningCamera}
                 style={{
                   backgroundColor: '#059669',
                   color: '#ffffff',
@@ -386,7 +410,7 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
               title="No hay análisis de riesgos en entorno"
               description="Apunta la cámara a tu área de trabajo para detectar en tiempo real cables sueltos, obstrucciones, falta de orden y condiciones peligrosas."
               actionLabel="Nueva Detección IA"
-              onAction={() => navigate('/ai-general-camera')}
+              onAction={handleNewDetection}
             />
           </div>
         ) : (

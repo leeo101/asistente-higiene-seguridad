@@ -33,11 +33,11 @@ export default async function handler(req, res) {
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const models = [
-            "gemini-2.0-flash",
-            "gemini-1.5-flash",
-            "gemini-1.5-pro",
             "gemini-2.5-flash",
-            "gemini-flash-latest"
+            "gemini-flash-latest",
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
         ];
 
         const base64Data = image.includes(',') ? image.split(',')[1] : image;

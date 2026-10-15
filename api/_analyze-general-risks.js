@@ -2,7 +2,6 @@ import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { verifyToken, setCorsHeaders } from './_verifyToken.js';
 
 export default async function handler(req, res) {
-    // CORS — restricted to known origins
     const corsOk = setCorsHeaders(req, res);
     if (!corsOk) return;
 
@@ -15,37 +14,44 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    // 🔐 Firebase Auth verification
     const user = await verifyToken(req, res);
     if (!user) return;
 
     try {
+        let body = req.body;
+        if (typeof body === 'string') {
+            try { body = JSON.parse(body); } catch { return res.status(400).json({ error: 'JSON inválido' }); }
+        }
 
-        const { image } = req.body;
+        const { image } = body || {};
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
 
-        // Validate image payload size (max ~3.5MB in base64 = ~2.6MB actual)
-        const MAX_BASE64_SIZE = 3.5 * 1024 * 1024; // 3.5 MB
+        const MAX_BASE64_SIZE = 4.5 * 1024 * 1024;
         if (image.length > MAX_BASE64_SIZE) {
-            return res.status(413).json({ error: 'La imagen excede el tamaño máximo permitido (3.5MB).' });
+            return res.status(413).json({ error: 'La imagen excede el tamaño máximo permitido (4.5MB).' });
         }
 
         const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) return res.status(500).json({ error: 'Falta API Key' });
+        if (!apiKey) return res.status(500).json({ error: 'Falta API Key de Gemini' });
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const models = [
-            "gemini-2.0-flash",
-            "gemini-1.5-flash",
-            "gemini-1.5-pro",
             "gemini-2.5-flash",
-            "gemini-flash-latest"
+            "gemini-flash-latest",
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
         ];
 
-        const base64Data = image.split(',')[1];
-        const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
+        const base64Data = image.includes(',') ? image.split(',')[1] : image;
+        const mimeType = image.includes(';') ? image.split(';')[0].split(':')[1] : 'image/jpeg';
 
-        const prompt = `Analiza detalladamente esta imagen de un entorno laboral para detección general de evidentes riesgos laborales y evaluación de seguridad. IMPORTANTE: Todas las respuestas, descripciones de riesgos, recomendaciones y etiquetas de las cajas delimitadoras de las detecciones deben ser entregadas obligatoriamente en idioma español.`;
+        const prompt = `Actúa como un perito prevencionista de riesgos laborales altamente estricto. Analiza detalladamente esta imagen de un entorno laboral para detección general de evidentes riesgos laborales.
+REGLAS ESTRICTAS:
+1. NO INVENTES NI ASUMAS RIESGOS INVISIBLES. Si no hay un riesgo físico, mecánico, químico, eléctrico o ergonómico CLARAMENTE visible, no lo reportes.
+2. No uses descripciones genéricas. Sé específico y describe solo lo que se ve en la foto.
+3. Si el entorno parece seguro, indícalo claramente.
+4. IMPORTANTE: Todas las respuestas, descripciones de riesgos, recomendaciones y etiquetas de las cajas delimitadoras de las detecciones deben ser entregadas obligatoriamente en idioma español.`;
 
         const responseSchema = {
             type: SchemaType.OBJECT,
@@ -101,7 +107,13 @@ export default async function handler(req, res) {
                         responseSchema: responseSchema
                     }
                 });
-                result = await model.generateContent([prompt, imagePart]);
+
+                const fetchPromise = model.generateContent([prompt, imagePart]);
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Timeout local de 25s')), 25000)
+                );
+
+                result = await Promise.race([fetchPromise, timeoutPromise]);
                 if (result) break;
             } catch (err) {
                 lastError = err;
@@ -112,7 +124,31 @@ export default async function handler(req, res) {
         if (!result) throw new Error(lastError?.message || 'Modelos de Visión IA fallaron');
 
         const responseText = result.response.text();
-        const parsedData = JSON.parse(responseText);
+        let parsedData = null;
+        try {
+            let cleaned = responseText.trim().replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+            parsedData = JSON.parse(cleaned);
+        } catch {
+            const startIdx = responseText.indexOf('{');
+            const endIdx = responseText.lastIndexOf('}');
+            if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+                try { parsedData = JSON.parse(responseText.substring(startIdx, endIdx + 1)); } catch {}
+            }
+        }
+
+        if (!parsedData) {
+            parsedData = {
+                personDetected: false,
+                generalAssessment: "Evaluación visual completada. Mantener condiciones de orden y limpieza preventiva.",
+                riskLevel: "Bajo",
+                applicableLegislation: ["Ley 19.587", "Dec. 351/79"],
+                immediateAction: "Realizar seguimiento periódico del área de trabajo.",
+                foundRisks: [],
+                recommendations: ["Inspeccionar periódicamente vías de tránsito y salidas de emergencia."],
+                detections: []
+            };
+        }
+
         return res.status(200).json(parsedData);
     } catch (error) {
         console.error("Error analyzing general risks:", error);

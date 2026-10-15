@@ -251,7 +251,7 @@ Estructura clara:
 4. PREGUNTA CLAVE DE COMPROBACIÓN para hacerle al equipo antes de iniciar.
 Tono directo, profesional y aplicable a campo.`;
 
-      const response = await fetch(`${API_BASE_URL}/chat`, {
+      const response = await fetch(`${API_BASE_URL}/api/ai-chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: prompt })

@@ -175,7 +175,7 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
 Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de 0 a 1000.`;
 
             const imagePart = { inlineData: { data: base64Data, mimeType } };
-            const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"];
+            const models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-pro-latest"];
 
             let result;
             let lastError;
@@ -255,7 +255,7 @@ Devolvé tu análisis en formato JSON estricto con la siguiente estructura:
   "recomendaciones": ["Rec 1", "Rec 2"]
 }`;
 
-            const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"];
+            const models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-pro-latest"];
             let result;
             let lastError;
             for (const modelName of models) {
@@ -335,7 +335,7 @@ ${companyContext}`;
             
 Mensaje del usuario: ${message}`;
 
-            const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"];
+            const models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-pro-latest"];
             let result;
             let lastError;
             for (const modelName of models) {
@@ -405,7 +405,7 @@ Devolvé UNICAMENTE un JSON array válido con los pasos a seguir, donde cada obj
                 }
             };
 
-            const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"];
+            const models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-pro-latest"];
             let result;
             let lastError;
             for (const modelName of models) {
@@ -817,7 +817,7 @@ exports.analyzeGeneralRisks = onRequest({ timeoutSeconds: 300, memory: "1GiB" },
 
             const apiKey = process.env.GEMINI_API_KEY || "dummy_key_for_build";
             const genAI = new GoogleGenerativeAI(apiKey);
-            const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"];
+            const models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-pro-latest"];
             
             const prompt = `Actúa como experto en higiene y seguridad. Analiza esta imagen y detecta riesgos laborales.
 Devuelve ÚNICAMENTE un objeto JSON estricto con esta estructura:
@@ -891,22 +891,32 @@ exports.analyzeExtinguisher = onRequest({ timeoutSeconds: 300, memory: "1GiB" },
 
             const apiKey = process.env.GEMINI_API_KEY || "dummy_key_for_build";
             const genAI = new GoogleGenerativeAI(apiKey);
-            const models = ["gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"];
+            const models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-pro-latest"];
             
-            const prompt = `Actúa como inspector de extintores. Analiza esta imagen.
+            const prompt = `Actúa como un inspector estricto y certificado de extintores y protección contra incendios. Analiza detalladamente la imagen de este extintor (matafuegos) e inspecciona sus componentes críticos.
 Devuelve ÚNICAMENTE un JSON estricto con esta estructura:
 {
   "extinguisherDetected": true,
   "type": "ABC",
-  "confidence": 0.95,
+  "confidenceScore": 95,
+  "confidence": 95,
   "capacity": "5kg",
   "status": "vigente",
   "lastCheck": "2023-10-15",
   "nextCheck": "2024-10-15",
   "phDate": "2028-10-15",
+  "expirationDate": "2024-10-15",
+  "manometerStatus": "zona_verde",
+  "manometerMessage": "Manómetro en zona verde operativa (1.2 - 1.4 MPa)",
+  "sealStatus": "intacto",
+  "pinStatus": "presente",
+  "hoseStatus": "bueno",
   "recommendations": ["rec1", "rec2"]
 }
-Si no se detecta un extintor, extinguisherDetected debe ser false y el resto puede estar vacío.`;
+NOTAS CLAVE:
+- manometerStatus puede ser: "zona_verde", "descargado", "sobrepresionado", o "no_aplica" (ej. CO2 o si no tiene manómetro).
+- sealStatus puede ser: "intacto", "dañado", o "ausente".
+- Si no se detecta un extintor, extinguisherDetected debe ser false y el resto de los campos con null/vacío.`;
 
             const base64Data = image.split(',')[1] || image;
             const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
@@ -927,8 +937,19 @@ Si no se detecta un extintor, extinguisherDetected debe ser false y el resto pue
             if (!result) throw new Error(lastError ? lastError.message : 'Todos los modelos fallaron');
 
             const responseText = result.response.text();
-            let cleanedJson = responseText.trim().replace(/^```json/, '').replace(/```$/, '').trim();
-            const parsedData = JSON.parse(cleanedJson);
+            let cleanedJson = responseText.trim().replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '').trim();
+            let parsedData;
+            try {
+                parsedData = JSON.parse(cleanedJson);
+            } catch (_) {
+                const firstBrace = cleanedJson.indexOf('{');
+                const lastBrace = cleanedJson.lastIndexOf('}');
+                if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                    parsedData = JSON.parse(cleanedJson.substring(firstBrace, lastBrace + 1));
+                } else {
+                    throw new Error('Respuesta JSON inválida de la IA');
+                }
+            }
             res.json(parsedData);
         } catch (error) {
             logger.error("Error analyzeExtinguisher", error);

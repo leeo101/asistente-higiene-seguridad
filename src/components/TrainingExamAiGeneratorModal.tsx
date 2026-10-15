@@ -107,23 +107,57 @@ export const TrainingExamAiGeneratorModal: React.FC<TrainingExamAiGeneratorModal
   const generateExamWithAi = async () => {
     setIsGenerating(true);
     const toastId = toast.loading('✨ Generando examen con IA (Gemini)...');
-
     try {
-      // Intento de llamada a backend AI
+      // Llamada al endpoint AI
+      const prompt = `Actúa como especialista senior en Higiene y Seguridad Laboral en Argentina. Genera un examen Multiple Choice de exactamente ${questionCount} preguntas sobre el tema: "${topic}". Dificultad: ${difficulty}.
+Devuelve ÚNICAMENTE un array JSON válido con la siguiente estructura (sin texto adicional fuera del JSON):
+[
+  {
+    "id": 1,
+    "question": "Texto de la pregunta...",
+    "options": ["Opción 1", "Opción 2", "Opción 3", "Opción 4"],
+    "correctAnswerIndex": 0,
+    "justification": "Explicación técnica o normativa"
+  }
+]`;
+
       const res = await fetch(`${API_BASE_URL}/api/ai-chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: `Genera un examen Multiple Choice de ${questionCount} preguntas sobre el tema: "${topic}". Dificultad: ${difficulty}. Para capacitaciones de Higiene y Seguridad Laboral en Argentina.`
-        })
+        body: JSON.stringify({ message: prompt })
       });
 
       if (res.ok) {
         const data = await res.json();
-        // Si el backend responde texto o JSON, parseamos preguntas
+        let candidateList: any[] | null = null;
+        if (Array.isArray(data)) {
+          candidateList = data;
+        } else if (Array.isArray(data?.questions)) {
+          candidateList = data.questions;
+        } else {
+          const rawText = data?.response || data?.text || data?.content || '';
+          const match = rawText.match(/\[\s*\{[\s\S]*\}\s*\]/);
+          if (match) {
+            try { candidateList = JSON.parse(match[0]); } catch {}
+          }
+        }
+
+        if (Array.isArray(candidateList) && candidateList.length > 0) {
+          const formatted: ExamQuestion[] = candidateList.map((q, idx) => ({
+            id: idx + 1,
+            question: q.question || `Pregunta ${idx + 1}`,
+            options: Array.isArray(q.options) && q.options.length >= 2 ? q.options : ['Verdadero', 'Falso'],
+            correctAnswerIndex: typeof q.correctAnswerIndex === 'number' ? q.correctAnswerIndex : 0,
+            justification: q.justification || 'Normativa y criterios técnicos de Higiene y Seguridad.'
+          }));
+          setQuestions(formatted);
+          setIsGenerating(false);
+          toast.success('¡Examen generado exitosamente con IA!', { id: toastId });
+          return;
+        }
       }
     } catch (e) {
-      console.warn('Usando generador inteligente local de respaldo');
+      console.warn('Usando generador inteligente local de respaldo:', e);
     }
 
     // Algoritmo de Generación Inteligente de Respaldo según Tema

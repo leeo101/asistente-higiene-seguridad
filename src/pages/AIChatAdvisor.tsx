@@ -584,6 +584,9 @@ export default function AIChatAdvisor(): React.ReactElement | null {
         if (response.status === 503) {
           throw new Error('El servicio de IA o conexión está momentáneamente ocupado. Por favor, reintenta en unos instantes.');
         }
+        if (response.status === 501) {
+          throw new Error('El servidor local no pudo procesar la solicitud (501 Not Implemented). Conectando con los servicios en la nube...');
+        }
         if (response.status === 401 || response.status === 403) {
           throw new Error(errorData.error || 'Credenciales de acceso no válidas. Vuelve a iniciar sesión.');
         }

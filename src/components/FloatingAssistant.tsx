@@ -298,6 +298,12 @@ export default function FloatingAssistant() {
         if (response.status === 503) {
           throw new Error('El servicio de IA está momentáneamente ocupado. Reintenta en unos instantes.');
         }
+        if (response.status === 501) {
+          throw new Error('El servidor local no pudo procesar la solicitud (501 Not Implemented). Conectando con los servicios en la nube...');
+        }
+        if (response.status === 401 || response.status === 403) {
+          throw new Error(errorData.error || 'Credenciales de acceso no válidas. Vuelve a iniciar sesión.');
+        }
         throw new Error(errorData.error || `Error del servidor (${response.status})`);
       }
 

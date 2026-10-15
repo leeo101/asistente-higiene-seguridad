@@ -631,7 +631,10 @@ REGLAS ESTRICTAS:
         let result;
         const models = [
             "gemini-2.5-flash",
-            "gemini-flash-latest"
+            "gemini-flash-latest",
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
         ];
         const safetySettings = [
             { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
@@ -736,7 +739,10 @@ app.post('/api/analyze-contractor-doc', express.json({ limit: '50mb' }), express
 
         const models = [
             "gemini-2.5-flash",
-            "gemini-flash-latest"
+            "gemini-flash-latest",
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
         ];
 
         let result;
@@ -796,18 +802,36 @@ app.post('/api/daily-insight', aiLimiter, verifyFirebaseToken, requirePro, async
             required: ["title", "content", "category"]
         };
 
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.5-flash",
-            systemInstruction: `Actúa como un Asesor Senior en Higiene y Seguridad Laboral en ${country}. Genera un "Consejo del Día" breve y profesional. Devuelve obligatoriamente la categoría "Normativa", "Técnico", "Prevención" o "IA".`,
-            generationConfig: {
-                responseMimeType: "application/json",
-                responseSchema: responseSchema
+        const models = [
+            "gemini-2.5-flash",
+            "gemini-flash-latest",
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
+        ];
+
+        let result;
+        let lastError;
+        for (const modelName of models) {
+            try {
+                const model = genAI.getGenerativeModel({ 
+                    model: modelName,
+                    systemInstruction: `Actúa como un Asesor Senior en Higiene y Seguridad Laboral en ${country}. Genera un "Consejo del Día" breve y profesional. Devuelve obligatoriamente la categoría "Normativa", "Técnico", "Prevención" o "IA".`,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: responseSchema
+                    }
+                });
+
+                result = await model.generateContent(`Genera un consejo útil y novedoso aplicable en ${country}. Sea conciso (máximo 140 caracteres el contenido).`);
+                if (result) break;
+            } catch (err) {
+                lastError = err;
+                continue;
             }
-        });
+        }
 
-        const prompt = `Genera un consejo útil y novedoso aplicable en ${country}. Sea conciso (máximo 140 caracteres el contenido).`;
-
-        const result = await model.generateContent(prompt);
+        if (!result) throw new Error(lastError?.message || 'Todos los modelos fallaron');
         const parsedData = JSON.parse(result.response.text());
 
         res.json(parsedData);
@@ -829,8 +853,9 @@ app.post('/api/ai-advisor', aiLimiter, verifyFirebaseToken, requirePro, validate
         const models = [
             "gemini-2.5-flash",
             "gemini-flash-latest",
-            "gemini-2.0-flash-exp",
-            "gemini-1.5-flash-latest"
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
         ];
 
         const responseSchema = {
@@ -946,33 +971,53 @@ app.post('/api/analyze-extinguisher', express.json({ limit: '50mb' }), express.u
 
         const genAI = new GoogleGenerativeAI(apiKey);
 
-        const base64Data = image.split(',')[1];
-        const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
+        const base64Data = image.includes(',') ? image.split(',')[1] : image;
+        const mimeType = image.includes(';') ? (image.split(';')[0].split(':')[1] || 'image/jpeg') : 'image/jpeg';
 
-        const prompt = `Actúa como un inspector estricto y experto en seguridad e higiene. Analiza detalladamente la imagen de este extintor (matafuegos).
-REGLAS ESTRICTAS:
-1. NO INVENTES NINGÚN DATO NI NÚMERO. Si un dato no se lee claramente, devuelve null.
-2. Si NO hay un extintor visible, "extinguisherDetected" debe ser false y el resto de los campos vacíos.
-3. Si HAY un extintor: establece "extinguisherDetected" en true, identifica su tipo (ABC, CO2, Agua, Espuma, K).
-4. Capacidad: Extrae exactamente lo que dice la etiqueta (ej. "5 kg", "10 kg"). Si no se lee, pon null.
-5. Fechas: Busca la fecha de último control (lastCheck) y próximo vencimiento de carga (nextCheck). Busca Específicamente la fecha de "PH" o "Prueba Hidráulica" (phDate). Usa el formato YYYY-MM-DD o null si no se leen con claridad.
-6. Estado: Determina "vigente" o "vencido" comparando con la fecha actual.
-7. Brinda 1 o 2 recomendaciones muy breves de seguridad para el extintor.`;
+        const prompt = `Actúa como un inspector estricto y certificado de extintores y protección contra incendios. Analiza detalladamente la imagen de este extintor (matafuegos) e inspecciona sus componentes críticos.
+REGLAS:
+1. Si NO hay un extintor visible en la imagen, establece "extinguisherDetected" en false y completa los campos con valores por defecto/null.
+2. Si HAY un extintor:
+   - "extinguisherDetected": true
+   - "type": Tipo de extintor ("ABC", "CO2", "Agua", "Espuma", "K").
+   - "capacity": Capacidad indicada en la etiqueta o cilindro (ej. "5 kg", "10 kg", "2.5 kg"). Si no se lee, null.
+   - "confidenceScore": Nivel de certeza de 0 a 100.
+   - "status": "vigente" o "vencido" según la etiqueta y fechas.
+   - "lastCheck": Fecha del último control/recarga en YYYY-MM-DD o null si ilegible.
+   - "nextCheck": Fecha de próximo vencimiento/recarga en YYYY-MM-DD o null si ilegible.
+   - "phDate": Fecha de prueba hidráulica (PH) en YYYY-MM-DD o null si ilegible.
+   - "expirationDate": Fecha de vencimiento general en YYYY-MM-DD o null si ilegible.
+   - "manometerStatus": Inspecciona la aguja del manómetro de presión:
+       * "zona_verde" si la aguja está en el cuadrante verde central (operativo/presión correcta).
+       * "descargado" si la aguja está a la izquierda / sector de despresurización o recarga.
+       * "sobrepresionado" si la aguja está a la derecha / sobrepresión.
+       * "no_aplica" si el extintor no posee manómetro (ej. CO2) o no es visible.
+   - "manometerMessage": Breve explicación técnica del estado del manómetro y la presión observada.
+   - "sealStatus": Estado del precinto plástico/metálico de seguridad: "intacto", "dañado", o "ausente".
+   - "pinStatus": Pasador o chaveta de seguridad: "presente" o "ausente".
+   - "hoseStatus": Estado de la manguera y tobera: "bueno", "grietas", u "obstruido".
+   - "recommendations": Array con 2 a 4 recomendaciones prioritarias de seguridad preventiva para este extintor.`;
         
         const responseSchema = {
             type: SchemaType.OBJECT,
             properties: {
                 extinguisherDetected: { type: SchemaType.BOOLEAN },
                 type: { type: SchemaType.STRING },
-                confidence: { type: SchemaType.NUMBER },
+                confidenceScore: { type: SchemaType.NUMBER },
                 capacity: { type: SchemaType.STRING },
                 status: { type: SchemaType.STRING },
                 lastCheck: { type: SchemaType.STRING },
                 nextCheck: { type: SchemaType.STRING },
                 phDate: { type: SchemaType.STRING },
+                expirationDate: { type: SchemaType.STRING },
+                manometerStatus: { type: SchemaType.STRING },
+                manometerMessage: { type: SchemaType.STRING },
+                sealStatus: { type: SchemaType.STRING },
+                pinStatus: { type: SchemaType.STRING },
+                hoseStatus: { type: SchemaType.STRING },
                 recommendations: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
             },
-            required: ["extinguisherDetected", "type", "confidence", "capacity", "status", "recommendations"]
+            required: ["extinguisherDetected", "type", "confidenceScore", "capacity", "status", "manometerStatus", "manometerMessage", "sealStatus", "recommendations"]
         };
 
         const imagePart = { inlineData: { data: base64Data, mimeType } };
@@ -980,8 +1025,9 @@ REGLAS ESTRICTAS:
         const models = [
             "gemini-2.5-flash",
             "gemini-flash-latest",
-            "gemini-2.5-flash",
-            "gemini-flash-latest"
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
         ];
 
         let result;
@@ -998,7 +1044,7 @@ REGLAS ESTRICTAS:
                     }
                 });
                 
-                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout de 25s expiro')), 25000));
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout de 25s expiró')), 25000));
                 result = await Promise.race([model.generateContent([prompt, imagePart]), timeoutPromise]);
                 if (result) {
                     console.log("ÉXITO ✅");
@@ -1015,7 +1061,32 @@ REGLAS ESTRICTAS:
             throw new Error(lastError?.message || 'Modelos fallaron');
         }
 
-        res.json(JSON.parse(result.response.text()));
+        const responseText = result.response.text();
+        let cleanedJson = responseText.trim();
+        if (cleanedJson.startsWith('```json')) {
+            cleanedJson = cleanedJson.replace(/```json/, '').replace(/```$/, '').trim();
+        } else if (cleanedJson.startsWith('```')) {
+            cleanedJson = cleanedJson.replace(/```/, '').replace(/```$/, '').trim();
+        }
+
+        let parsedData;
+        try {
+            parsedData = JSON.parse(cleanedJson);
+        } catch (_) {
+            const firstBrace = cleanedJson.indexOf('{');
+            const lastBrace = cleanedJson.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                parsedData = JSON.parse(cleanedJson.substring(firstBrace, lastBrace + 1));
+            } else {
+                throw new Error('Respuesta JSON inválida de la IA');
+            }
+        }
+
+        if (parsedData.confidenceScore && !parsedData.confidence) {
+            parsedData.confidence = parsedData.confidenceScore;
+        }
+
+        res.json(parsedData);
     } catch (error) {
         console.error("Error analyzing extinguisher:", error.message);
         res.status(500).json({ error: 'Error en análisis de extintor', details: error.message });
@@ -1096,11 +1167,11 @@ REGLAS ESTRICTAS:
         const imagePart = { inlineData: { data: base64Data, mimeType } };
 
         const models = [
-            "gemini-2.0-flash",
-            "gemini-1.5-flash",
-            "gemini-1.5-pro",
             "gemini-2.5-flash",
-            "gemini-flash-latest"
+            "gemini-flash-latest",
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
         ];
 
         let result;
@@ -1157,8 +1228,9 @@ app.post('/api/ai-ats-generator', aiLimiter, verifyFirebaseToken, requirePro, va
         const models = [
             "gemini-2.5-flash",
             "gemini-flash-latest",
-            "gemini-2.0-flash-exp",
-            "gemini-1.5-flash-latest"
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
         ];
 
         const responseSchema = {
@@ -1222,7 +1294,13 @@ app.post('/api/ai-report-conclusion', aiLimiter, verifyFirebaseToken, requirePro
         if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const models = ["gemini-2.5-flash", "gemini-flash-latest"];
+        const models = [
+            "gemini-2.5-flash",
+            "gemini-flash-latest",
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
+        ];
 
         const responseSchema = {
             type: SchemaType.OBJECT,
@@ -1269,7 +1347,13 @@ app.post('/api/ai-legal-summary', aiLimiter, verifyFirebaseToken, requirePro, as
         if (!apiKey) return res.status(500).json({ error: 'Falta API Key' });
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const models = ["gemini-2.5-flash", "gemini-flash-latest"];
+        const models = [
+            "gemini-2.5-flash",
+            "gemini-flash-latest",
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
+        ];
 
         const responseSchema = {
             type: SchemaType.OBJECT,
@@ -1316,7 +1400,13 @@ app.post('/api/ai-stopcard', aiLimiter, verifyFirebaseToken, requirePro, validat
         if (!apiKey) return res.status(500).json({ error: 'Falta API Key' });
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const models = ["gemini-2.5-flash", "gemini-flash-latest"];
+        const models = [
+            "gemini-2.5-flash",
+            "gemini-flash-latest",
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
+        ];
 
         const responseSchema = {
             type: SchemaType.OBJECT,
@@ -1403,7 +1493,10 @@ REGLAS ESTRICTAS:
 
         const models = [
             "gemini-2.5-flash",
-            "gemini-flash-latest"
+            "gemini-flash-latest",
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
         ];
 
         let result;
@@ -1441,6 +1534,255 @@ REGLAS ESTRICTAS:
     } catch (error) {
         console.error("Error analyzing general risks:", error.message);
         res.status(500).json({ error: 'Error en análisis de riesgos', details: error.message });
+    }
+});
+
+// ==========================================
+// AI CHAT & VOICE DICTATION & EXAMS
+// ==========================================
+app.post('/api/ai-chat', aiLimiter, async (req, res) => {
+    try {
+        const { message, messages, systemInstruction } = req.body || {};
+        let prompt = '';
+        if (message && typeof message === 'string') {
+            prompt = message;
+        } else if (Array.isArray(messages) && messages.length > 0) {
+            prompt = messages.map(m => `${m.role === 'system' ? 'INSTRUCCIÓN' : m.role === 'user' ? 'USUARIO' : 'ASISTENTE'}: ${m.content}`).join('\n\n');
+        } else {
+            return res.status(400).json({ error: 'Falta el mensaje o lista de mensajes' });
+        }
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-pro-latest"];
+
+        let result;
+        let lastError;
+        for (const modelName of models) {
+            try {
+                const model = genAI.getGenerativeModel({
+                    model: modelName,
+                    systemInstruction: systemInstruction || "Eres un Asistente Senior especializado en Higiene, Seguridad Laboral y Prevención de Riesgos en Argentina. Proporciona respuestas claras, técnicas y fundamentadas.",
+                });
+                const fetchPromise = model.generateContent(prompt);
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout de 25s')), 25000));
+                result = await Promise.race([fetchPromise, timeoutPromise]);
+                if (result) break;
+            } catch (err) {
+                lastError = err;
+                continue;
+            }
+        }
+
+        if (!result) return res.status(500).json({ error: 'Todos los modelos de IA fallaron', details: lastError?.message });
+
+        const responseText = result.response.text();
+        let jsonPayload = null;
+        try {
+            let cleaned = responseText.trim().replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+            jsonPayload = JSON.parse(cleaned);
+        } catch {
+            const startIdx = responseText.indexOf('{');
+            const endIdx = responseText.lastIndexOf('}');
+            if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+                try { jsonPayload = JSON.parse(responseText.substring(startIdx, endIdx + 1)); } catch {}
+            }
+        }
+
+        if (jsonPayload && typeof jsonPayload === 'object') {
+            return res.json({ response: responseText, content: responseText, text: responseText, ...jsonPayload });
+        }
+        return res.json({ response: responseText, content: responseText, text: responseText });
+    } catch (error) {
+        console.error("Error in AI Chat:", error.message);
+        res.status(500).json({ error: 'Error procesando la consulta de IA', details: error.message });
+    }
+});
+
+// ==========================================
+// PREDICTIVE ACCIDENTS AI
+// ==========================================
+app.post('/api/predict-accidents', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
+    try {
+        const { historyData } = req.body || {};
+        if (!historyData || !Array.isArray(historyData) || historyData.length === 0) {
+            return res.status(400).json({ error: 'historyData array requerido' });
+        }
+
+        const safeHistory = historyData.slice(0, 30);
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-pro-latest"];
+
+        const responseSchema = {
+            type: SchemaType.OBJECT,
+            properties: {
+                prediccionPrincipal: { type: SchemaType.STRING },
+                zonasRiesgo: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+                tareasCriticas: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+                recomendaciones: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
+            },
+            required: ["prediccionPrincipal", "zonasRiesgo", "tareasCriticas", "recomendaciones"]
+        };
+
+        const prompt = `Actúa como un perito analista en Higiene, Seguridad y Ergonomía Laboral.
+Analiza el siguiente historial de accidentes laborales de una empresa y genera una predicción predictiva fundada para el próximo mes con zonas de riesgo, tareas críticas y recomendaciones prioritarias.
+Historial registrado:
+${JSON.stringify(safeHistory, null, 2)}`;
+
+        let result;
+        let lastError;
+        for (const modelName of models) {
+            try {
+                const model = genAI.getGenerativeModel({
+                    model: modelName,
+                    systemInstruction: "Eres un analista de datos y prevencionista senior en Argentina. Proporciona predicciones fundamentadas y de alto valor preventivo.",
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: responseSchema
+                    }
+                });
+                const fetchPromise = model.generateContent(prompt);
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout de 25s')), 25000));
+                result = await Promise.race([fetchPromise, timeoutPromise]);
+                if (result) break;
+            } catch (err) {
+                lastError = err;
+                continue;
+            }
+        }
+
+        if (!result) return res.status(500).json({ error: 'Todos los modelos de IA fallaron', details: lastError?.message });
+        res.json(JSON.parse(result.response.text()));
+    } catch (error) {
+        console.error("Error in Predict Accidents:", error.message);
+        res.status(500).json({ error: 'Error generando predicción de accidentes', details: error.message });
+    }
+});
+
+// ==========================================
+// EMERGENCY CHAT BOT
+// ==========================================
+app.post('/api/emergency-chat', aiLimiter, async (req, res) => {
+    try {
+        const { message, context = 'general', companyContext = '' } = req.body || {};
+        if (!message) return res.status(400).json({ error: 'Mensaje requerido' });
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-pro-latest"];
+
+        const prompt = `Emergencia reportada por el usuario: "${message}".
+Tipo/Contexto: "${context}".
+Empresa/Ubicación: "${companyContext}".
+Instrucciones estrictas:
+- Actúa inmediatamente indicando si se debe llamar a Bomberos (100), SAME/Ambulancia (107) o Policía (911).
+- Proporciona pasos de primeros auxilios y evacuación breves, ordenados con viñetas numéricas ("1.", "2.", "3.").
+- Sé extremadamente claro, sereno y directo. No agregues introducciones largas.`;
+
+        let result;
+        let lastError;
+        for (const modelName of models) {
+            try {
+                const model = genAI.getGenerativeModel({
+                    model: modelName,
+                    systemInstruction: "Eres un Asistente de Emergencias Críticas EHS para establecimientos laborales y fábricas en Argentina. Tu prioridad absoluta es salvar vidas, ordenar la evacuación segura y coordinar la respuesta médica inicial.",
+                });
+                const fetchPromise = model.generateContent(prompt);
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout de 20s')), 20000));
+                result = await Promise.race([fetchPromise, timeoutPromise]);
+                if (result) break;
+            } catch (err) {
+                lastError = err;
+                continue;
+            }
+        }
+
+        if (!result) return res.status(500).json({ error: 'Todos los modelos de emergencia fallaron', details: lastError?.message });
+        res.json({ response: result.response.text() });
+    } catch (error) {
+        console.error("Error in Emergency Chat:", error.message);
+        res.status(500).json({ error: 'Error procesando respuesta de emergencia', details: error.message });
+    }
+});
+
+// ==========================================
+// VISION ATS
+// ==========================================
+app.post('/api/vision-ats', express.json({ limit: '50mb' }), express.urlencoded({ limit: '50mb', extended: true }), aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
+    try {
+        const { imageBase64 } = req.body || {};
+        if (!imageBase64) return res.status(400).json({ error: 'No se envió imagen' });
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'Falta API Key de Gemini' });
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
+        const mimeType = imageBase64.includes(';') ? imageBase64.split(';')[0].split(':')[1] : 'image/jpeg';
+
+        const imagePart = { inlineData: { data: base64Data, mimeType } };
+
+        const prompt = `Analiza esta imagen tomada en un lugar de trabajo (obra, taller, fábrica o faena).
+Desglosa las operaciones que se observan o se requieren en pasos lógicos de trabajo para un Análisis de Trabajo Seguro (ATS).
+Para cada paso, identifica los riesgos o peligros visibles y la medida de control o EPP preventivo correspondiente.
+Devuelve ÚNICAMENTE un array JSON válido con la siguiente estructura:
+[
+  {
+    "paso": "Descripción del paso o tarea",
+    "riesgo": "Riesgo o peligro inherente observado",
+    "control": "Medida preventiva o control a aplicar"
+  }
+]`;
+
+        const responseSchema = {
+            type: SchemaType.ARRAY,
+            items: {
+                type: SchemaType.OBJECT,
+                properties: {
+                    paso: { type: SchemaType.STRING },
+                    riesgo: { type: SchemaType.STRING },
+                    control: { type: SchemaType.STRING }
+                },
+                required: ["paso", "riesgo", "control"]
+            }
+        };
+
+        const models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-pro-latest"];
+
+        let result;
+        let lastError;
+        for (const modelName of models) {
+            try {
+                const model = genAI.getGenerativeModel({
+                    model: modelName,
+                    systemInstruction: "Eres un especialista senior en Análisis de Trabajo Seguro (ATS) en Argentina. Identificas condiciones de riesgo y medidas de control según Ley 19.587, Dec. 351/79 y Dec. 911/96.",
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: responseSchema
+                    }
+                });
+                const fetchPromise = model.generateContent([prompt, imagePart]);
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout de 25s')), 25000));
+                result = await Promise.race([fetchPromise, timeoutPromise]);
+                if (result) break;
+            } catch (err) {
+                lastError = err;
+                continue;
+            }
+        }
+
+        if (!result) return res.status(500).json({ error: 'Todos los modelos de visión fallaron', details: lastError?.message });
+        res.json(JSON.parse(result.response.text()));
+    } catch (error) {
+        console.error("Error in Vision ATS:", error.message);
+        res.status(500).json({ error: 'Error procesando la imagen de ATS', details: error.message });
     }
 });
 

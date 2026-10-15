@@ -131,6 +131,30 @@
             "destination": "/api/ai.js"
         },
         {
+            "source": "/api/ai-chat",
+            "destination": "/api/ai.js"
+        },
+        {
+            "source": "/api/ai-stopcard",
+            "destination": "/api/ai.js"
+        },
+        {
+            "source": "/api/analyze-contractor-doc",
+            "destination": "/api/ai.js"
+        },
+        {
+            "source": "/api/predict-accidents",
+            "destination": "/api/ai.js"
+        },
+        {
+            "source": "/api/emergency-chat",
+            "destination": "/api/ai.js"
+        },
+        {
+            "source": "/api/vision-ats",
+            "destination": "/api/ai.js"
+        },
+        {
             "source": "/api/daily-insight",
             "destination": "/api/ai.js"
         },

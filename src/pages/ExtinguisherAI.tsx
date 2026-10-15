@@ -24,6 +24,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ExtinguisherManometerAnalyzer, { ManometerAnalysisResult } from '../components/ExtinguisherManometerAnalyzer';
 import { printElementAsDocument } from '../utils/pdfHelper';
 import { compressImage } from '../utils/imageCompressor';
+import { captureFromNativeCamera, isMobileDevice } from '../utils/nativeCamera';
 
 const EXTINTOR_INFO: Record<string, { name: string; fires: string; color: string; icon: string; usage: string }> = {
   'ABC': {
@@ -247,6 +248,29 @@ export default function ExtinguisherAI() {
       }
     );
     toast.success('Historial exportado a CSV');
+  };
+
+  const [isOpeningCamera, setIsOpeningCamera] = useState(false);
+
+  const handleNewInspection = async () => {
+    if (isMobileDevice()) {
+      setIsOpeningCamera(true);
+      const toastId = toast.loading('Abriendo cámara de alta resolución...');
+      try {
+        const photo = await captureFromNativeCamera({ maxDimension: 1600, quality: 0.85 });
+        toast.dismiss(toastId);
+        setIsOpeningCamera(false);
+        if (photo) {
+          setCapturedImage(photo);
+          setIsCameraVisible(true);
+          return;
+        }
+      } catch (err) {
+        toast.dismiss(toastId);
+        setIsOpeningCamera(false);
+      }
+    }
+    setIsCameraVisible(true);
   };
 
   // Guardar nueva inspección desde la cámara
@@ -573,7 +597,11 @@ Generado con Asistente HYS`
             {/* Escáner de Visión Inteligente */}
             {!analysisResult ? (
               <ExtinguisherManometerAnalyzer
-                onCancel={() => setIsCameraVisible(false)}
+                initialImage={capturedImage || undefined}
+                onCancel={() => {
+                  setIsCameraVisible(false);
+                  setCapturedImage(null);
+                }}
                 onAnalysisComplete={(res, img) => {
                   setCapturedImage(img);
                   setAnalysisResult({
@@ -583,7 +611,7 @@ Generado con Asistente HYS`
                     expirationStatus: res.expirationStatus,
                     manometerStatus: res.manometerStatus,
                     manometerMessage: res.manometerMessage,
-                    confidence: res.confidenceScore / 100,
+                    confidence: (res.confidenceScore || 95) / 100,
                     recommendations: res.recommendations
                   });
                 }}
@@ -816,7 +844,8 @@ Generado con Asistente HYS`
                   {/* Botón Nueva Inspección */}
                   <button
                     type="button"
-                    onClick={() => setIsCameraVisible(true)}
+                    onClick={handleNewInspection}
+                    disabled={isOpeningCamera}
                     style={{
                       backgroundColor: '#059669',
                       color: '#ffffff',
@@ -918,7 +947,7 @@ Generado con Asistente HYS`
                   title="No hay inspecciones de extintores"
                   description="Apunta la cámara al extintor para analizar automáticamente su manómetro de presión, etiqueta, vigencia y precinto de seguridad."
                   actionLabel="Nueva Inspección IA"
-                  onAction={() => setIsCameraVisible(true)}
+                  onAction={handleNewInspection}
                 />
               </div>
             ) : (

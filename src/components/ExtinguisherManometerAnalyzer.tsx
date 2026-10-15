@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../config';
 import { auth } from '../firebase';
 import { compressImage } from '../utils/imageCompressor';
+import { captureFromNativeCamera, isMobileDevice } from '../utils/nativeCamera';
 
 export interface ManometerAnalysisResult {
   extinguisherDetected: boolean;
@@ -23,12 +24,14 @@ export interface ManometerAnalysisResult {
 }
 
 interface ExtinguisherManometerAnalyzerProps {
+  initialImage?: string;
   onAnalysisComplete?: (result: ManometerAnalysisResult, imageBase64: string) => void;
   onCancel?: () => void;
   className?: string;
 }
 
 export const ExtinguisherManometerAnalyzer: React.FC<ExtinguisherManometerAnalyzerProps> = ({
+  initialImage,
   onAnalysisComplete,
   onCancel,
   className = ''
@@ -38,17 +41,34 @@ export const ExtinguisherManometerAnalyzer: React.FC<ExtinguisherManometerAnalyz
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(initialImage || null);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [analysisResult, setAnalysisResult] = useState<ManometerAnalysisResult | null>(null);
   const [torchOn, setTorchOn] = useState<boolean>(false);
 
   useEffect(() => {
+    if (initialImage) {
+      analyzeImageWithAi(initialImage);
+      return;
+    }
     startCamera();
     return () => {
       stopCamera();
     };
-  }, []);
+  }, [initialImage]);
+
+  const handleNativeCapture = async () => {
+    try {
+      const photo = await captureFromNativeCamera({ maxDimension: 1600, quality: 0.85 });
+      if (photo) {
+        setCapturedImage(photo);
+        stopCamera();
+        analyzeImageWithAi(photo);
+      }
+    } catch (err) {
+      console.warn('Native camera capture fallback:', err);
+    }
+  };
 
   const startCamera = async () => {
     try {
@@ -129,20 +149,27 @@ export const ExtinguisherManometerAnalyzer: React.FC<ExtinguisherManometerAnalyz
 
       if (res.ok) {
         const data = await res.json();
+        if (data.extinguisherDetected === false) {
+          setIsAnalyzing(false);
+          toast.error('No se detectó un extintor en la imagen. Intenta con una toma más cercana y nítida.', { id: toastId });
+          return;
+        }
+
         const parsedResult: ManometerAnalysisResult = {
           extinguisherDetected: true,
           type: data.type || 'ABC',
           manometerStatus: data.manometerStatus || 'zona_verde',
           manometerMessage: data.manometerMessage || 'Manómetro en Rango Operativo (Zona Verde: 1.2-1.4 MPa).',
           sealStatus: data.sealStatus || 'intacto',
-          pinStatus: 'presente',
-          hoseStatus: 'bueno',
-          expirationStatus: data.status === 'vencido' ? 'vencido' : 'vigente',
-          expirationDate: data.expirationDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          confidenceScore: 96,
+          pinStatus: data.pinStatus || 'presente',
+          hoseStatus: data.hoseStatus || 'bueno',
+          expirationStatus: (data.status === 'vencido' || data.expirationStatus === 'vencido') ? 'vencido' : 'vigente',
+          expirationDate: data.expirationDate || data.nextCheck || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          confidenceScore: data.confidenceScore || data.confidence || 96,
           recommendations: data.recommendations || ['Mantener extintor señalizado y accesible sin obstrucciones.']
         };
         setAnalysisResult(parsedResult);
+        setIsAnalyzing(false);
         toast.success('Análisis completado', { id: toastId });
         if (onAnalysisComplete) onAnalysisComplete(parsedResult, imageBase64);
         return;
@@ -241,21 +268,31 @@ export const ExtinguisherManometerAnalyzer: React.FC<ExtinguisherManometerAnalyz
           </div>
 
           {/* Botones de Control de Captura */}
-          <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-4 px-4 z-20">
+          <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-2.5 px-3 z-20">
+            <button
+              type="button"
+              onClick={handleNativeCapture}
+              className="p-3 bg-rose-600 hover:bg-rose-500 text-white rounded-2xl border border-rose-400 shadow-xl transition-all flex items-center gap-1.5 text-xs font-bold cursor-pointer active:scale-95"
+              title="Abrir cámara del teléfono en alta resolución"
+            >
+              <Camera size={16} /> Cámara Teléfono HD
+            </button>
+
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="p-3.5 bg-slate-900/90 hover:bg-slate-800 text-white rounded-2xl border border-slate-700 shadow-xl transition-all flex items-center gap-2 text-xs font-bold"
+              className="p-3 bg-slate-900/90 hover:bg-slate-800 text-white rounded-2xl border border-slate-700 shadow-xl transition-all flex items-center gap-1.5 text-xs font-bold"
             >
-              <Upload size={18} /> Subir Foto
+              <Upload size={16} /> Subir
             </button>
 
             <button
               type="button"
               onClick={handleCapture}
-              className="p-4 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white rounded-full border-4 border-white/20 shadow-2xl transition-transform active:scale-95 flex items-center justify-center cursor-pointer"
+              className="p-3.5 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white rounded-full border-4 border-white/20 shadow-2xl transition-transform active:scale-95 flex items-center justify-center cursor-pointer"
+              title="Capturar desde visor web"
             >
-              <Camera size={26} />
+              <Camera size={22} />
             </button>
           </div>
         </div>

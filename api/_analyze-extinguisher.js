@@ -7,8 +7,8 @@ export default async function handler(req, res) {
     if (!corsOk) return;
 
     if (req.method === 'OPTIONS') {
-        res.status(200).end()
-        return
+        res.status(200).end();
+        return;
     }
 
     if (req.method !== 'POST') {
@@ -19,12 +19,17 @@ export default async function handler(req, res) {
     if (!user) return;
 
     try {
-        const { image } = req.body;
+        let body = req.body;
+        if (typeof body === 'string') {
+            try { body = JSON.parse(body); } catch (_) {}
+        }
+
+        const image = body?.image;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
 
-        const MAX_BASE64_SIZE = 3.5 * 1024 * 1024;
+        const MAX_BASE64_SIZE = 12 * 1024 * 1024;
         if (image.length > MAX_BASE64_SIZE) {
-            return res.status(413).json({ error: 'La imagen excede el tamaño máximo permitido (3.5MB).' });
+            return res.status(413).json({ error: 'La imagen excede el tamaño máximo permitido.' });
         }
 
         const apiKey = process.env.GEMINI_API_KEY;
@@ -32,31 +37,60 @@ export default async function handler(req, res) {
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const models = [
-            "gemini-2.0-flash",
-            "gemini-1.5-flash",
-            "gemini-1.5-pro",
             "gemini-2.5-flash",
-            "gemini-flash-latest"
+            "gemini-flash-latest",
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
         ];
 
-        const base64Data = image.split(',')[1];
-        const mimeType = image.split(';')[0].split(':')[1] || 'image/jpeg';
+        const base64Data = image.includes(',') ? image.split(',')[1] : image;
+        const mimeType = image.includes(';') ? (image.split(';')[0].split(':')[1] || 'image/jpeg') : 'image/jpeg';
 
-        const prompt = `Analiza esta imagen y verifica si contiene un extintor de incendios (matafuegos). Si NO hay un extintor en la imagen, debes establecer "extinguisherDetected" en false. Si HAY un extintor, establece "extinguisherDetected" en true, identifica su tipo (ABC, CO2, Agua, Espuma, o K), lee la etiqueta para encontrar la capacidad (ej. 5kg, 10kg), el estado ("vigente" o "vencido"), la fecha de último control (lastCheck) y la de próximo vencimiento (nextCheck). También incluye algunas recomendaciones de seguridad. Usa formato YYYY-MM-DD para las fechas si las encuentras, o null si no se pueden leer.`;
+        const prompt = `Actúa como un inspector estricto y certificado de extintores y protección contra incendios. Analiza detalladamente la imagen de este extintor (matafuegos) e inspecciona sus componentes críticos.
+REGLAS:
+1. Si NO hay un extintor visible en la imagen, establece "extinguisherDetected" en false y completa los campos con valores por defecto/null.
+2. Si HAY un extintor:
+   - "extinguisherDetected": true
+   - "type": Tipo de extintor ("ABC", "CO2", "Agua", "Espuma", "K").
+   - "capacity": Capacidad indicada en la etiqueta o cilindro (ej. "5 kg", "10 kg", "2.5 kg"). Si no se lee, null.
+   - "confidenceScore": Nivel de certeza de 0 a 100.
+   - "status": "vigente" o "vencido" según la etiqueta y fechas.
+   - "lastCheck": Fecha del último control/recarga en YYYY-MM-DD o null si ilegible.
+   - "nextCheck": Fecha de próximo vencimiento/recarga en YYYY-MM-DD o null si ilegible.
+   - "phDate": Fecha de prueba hidráulica (PH) en YYYY-MM-DD o null si ilegible.
+   - "expirationDate": Fecha de vencimiento general en YYYY-MM-DD o null si ilegible.
+   - "manometerStatus": Inspecciona la aguja del manómetro de presión:
+       * "zona_verde" si la aguja está en el cuadrante verde central (operativo/presión correcta).
+       * "descargado" si la aguja está a la izquierda / sector de despresurización o recarga.
+       * "sobrepresionado" si la aguja está a la derecha / sobrepresión.
+       * "no_aplica" si el extintor no posee manómetro (ej. CO2) o no es visible.
+   - "manometerMessage": Breve explicación técnica del estado del manómetro y la presión observada.
+   - "sealStatus": Estado del precinto plástico/metálico de seguridad: "intacto", "dañado", o "ausente".
+   - "pinStatus": Pasador o chaveta de seguridad: "presente" o "ausente".
+   - "hoseStatus": Estado de la manguera y tobera: "bueno", "grietas", u "obstruido".
+   - "recommendations": Array con 2 a 4 recomendaciones prioritarias de seguridad preventiva para este extintor.`;
 
         const responseSchema = {
             type: SchemaType.OBJECT,
             properties: {
                 extinguisherDetected: { type: SchemaType.BOOLEAN },
                 type: { type: SchemaType.STRING },
-                confidence: { type: SchemaType.NUMBER },
+                confidenceScore: { type: SchemaType.NUMBER },
                 capacity: { type: SchemaType.STRING },
                 status: { type: SchemaType.STRING },
                 lastCheck: { type: SchemaType.STRING },
                 nextCheck: { type: SchemaType.STRING },
+                phDate: { type: SchemaType.STRING },
+                expirationDate: { type: SchemaType.STRING },
+                manometerStatus: { type: SchemaType.STRING },
+                manometerMessage: { type: SchemaType.STRING },
+                sealStatus: { type: SchemaType.STRING },
+                pinStatus: { type: SchemaType.STRING },
+                hoseStatus: { type: SchemaType.STRING },
                 recommendations: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
             },
-            required: ["extinguisherDetected", "type", "confidence", "capacity", "status", "recommendations"]
+            required: ["extinguisherDetected", "type", "confidenceScore", "capacity", "status", "manometerStatus", "manometerMessage", "sealStatus", "recommendations"]
         };
 
         const imagePart = { inlineData: { data: base64Data, mimeType } };
@@ -74,7 +108,12 @@ export default async function handler(req, res) {
                     }
                 });
                 
-                result = await model.generateContent([prompt, imagePart]);
+                const fetchPromise = model.generateContent([prompt, imagePart]);
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Timeout de 25s')), 25000)
+                );
+
+                result = await Promise.race([fetchPromise, timeoutPromise]);
                 if (result) break;
             } catch (err) {
                 lastError = err;
@@ -86,13 +125,30 @@ export default async function handler(req, res) {
 
         const responseText = result.response.text();
         let cleanedJson = responseText.trim();
-        if (cleanedJson.startsWith('\`\`\`json')) {
-            cleanedJson = cleanedJson.replace(/\`\`\`json/, '').replace(/\`\`\`$/, '').trim();
-        } else if (cleanedJson.startsWith('\`\`\`')) {
-            cleanedJson = cleanedJson.replace(/\`\`\`/, '').replace(/\`\`\`$/, '').trim();
+        if (cleanedJson.startsWith('```json')) {
+            cleanedJson = cleanedJson.replace(/```json/, '').replace(/```$/, '').trim();
+        } else if (cleanedJson.startsWith('```')) {
+            cleanedJson = cleanedJson.replace(/```/, '').replace(/```$/, '').trim();
         }
 
-        const parsedData = JSON.parse(cleanedJson);
+        let parsedData;
+        try {
+            parsedData = JSON.parse(cleanedJson);
+        } catch (_) {
+            const firstBrace = cleanedJson.indexOf('{');
+            const lastBrace = cleanedJson.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                parsedData = JSON.parse(cleanedJson.substring(firstBrace, lastBrace + 1));
+            } else {
+                throw new Error('Respuesta JSON inválida de la IA');
+            }
+        }
+
+        // Retrocompatibilidad con componentes que lean confidence en lugar de confidenceScore
+        if (parsedData.confidenceScore && !parsedData.confidence) {
+            parsedData.confidence = parsedData.confidenceScore;
+        }
+
         return res.status(200).json(parsedData);
     } catch (error) {
         console.error("Error analyzing extinguisher:", error);

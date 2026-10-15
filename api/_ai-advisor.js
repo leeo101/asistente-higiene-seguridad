@@ -20,15 +20,24 @@ export default async function handler(req, res) {
     if (!user) return;
 
     try {
-        const { taskDescription, contextData } = req.body;
+        let body = req.body;
+        if (typeof body === 'string') {
+            try {
+                body = JSON.parse(body);
+            } catch {
+                return res.status(400).json({ error: 'Cuerpo de solicitud inválido' });
+            }
+        }
+
+        const { taskDescription, contextData, country = 'argentina' } = body || {};
 
         if (!taskDescription || typeof taskDescription !== 'string' || !taskDescription.trim()) {
             return res.status(400).json({ error: 'Falta la descripción de la tarea' });
         }
 
         // 🛡️ Seguridad anti-gasto: limitar longitud de entrada para evitar consumo abusivo de tokens
-        if (taskDescription.length > 3000) {
-            return res.status(400).json({ error: 'La descripción de la tarea no puede superar los 3.000 caracteres.' });
+        if (taskDescription.length > 4000) {
+            return res.status(400).json({ error: 'La descripción de la tarea no puede superar los 4.000 caracteres.' });
         }
         if (contextData && typeof contextData === 'string' && contextData.length > 5000) {
             return res.status(400).json({ error: 'El contexto de datos no puede superar los 5.000 caracteres.' });
@@ -41,11 +50,12 @@ export default async function handler(req, res) {
         const models = [
             "gemini-2.5-flash",
             "gemini-flash-latest",
-            "gemini-2.0-flash-exp",
-            "gemini-1.5-flash-latest"
+            "gemini-3.5-flash",
+            "gemini-3.8-flash",
+            "gemini-pro-latest"
         ];
 
-        let prompt = `Eres un Consultor Senior Especialista en Higiene, Seguridad y Medio Ambiente (HSE) en Argentina y normativas internacionales (Ley 19.587, Dec. 351/79, Dec. 911/96, Ley 24.449 de Tránsito, Res. SRT, Normas IRAM, NFPA).
+        let prompt = `Eres un Consultor Senior Especialista en Higiene, Seguridad y Medio Ambiente (HSE) de ${country} y normativas internacionales (ej. en Argentina: Ley 19.587, Dec. 351/79, Dec. 911/96, Ley 24.449 de Tránsito, Res. SRT, Normas IRAM, NFPA).
 Analiza la siguiente tarea, situación o consulta: "${taskDescription}".`;
 
         if (contextData) {
@@ -73,6 +83,7 @@ Analiza la siguiente tarea, situación o consulta: "${taskDescription}".`;
    - "Permiso de Trabajo Especial" (ruta: "/work-permit"): Para trabajos en caliente, soldadura o fuego.
    - "Plan de Emergencias" (ruta: "/emergency-plan"): Roles de brigada, contingencias y comunicaciones.
    - "Primeros Auxilios y DEA" (ruta: "/first-aid-aed"): Dotación de botiquines de primeros auxilios.
+   - "Investigación de Accidentes" (ruta: "/accident-investigation"): Método árbol de causas.
 
 Proporciona un análisis exhaustivo en formato JSON con los siguientes campos EXACTOS:
 {
@@ -87,14 +98,19 @@ Proporciona un análisis exhaustivo en formato JSON con los siguientes campos EX
         { "nombre": "Nombre del módulo", "ruta": "/ruta-modulo", "motivo": "Para qué sirve en este caso" }
     ]
 }
-IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON válido, sin texto fuera del bloque JSON.`;
+IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON válido, sin texto adicional fuera del JSON.`;
 
         let result;
         let lastError;
         for (const modelName of models) {
             try {
                 console.log(`[AI ADVISOR] Intentando con ${modelName}...`);
-                const model = genAI.getGenerativeModel({ model: modelName });
+                const model = genAI.getGenerativeModel({
+                    model: modelName,
+                    generationConfig: {
+                        responseMimeType: "application/json"
+                    }
+                });
 
                 const fetchPromise = model.generateContent(prompt);
                 const timeoutPromise = new Promise((_, reject) =>
@@ -109,7 +125,7 @@ IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON válido, sin texto fuera del blo
                 }
             } catch (err) {
                 lastError = err;
-                console.warn(`[AI Advisor] Model ${modelName} failed (${err.message}), trying next...`);
+                console.warn(`[AI Advisor] Model ${modelName} falló (${err.message}), probando siguiente...`);
                 // Si el modelo falló por sobrecarga (503) o rate-limit (429), esperar brevemente
                 if (err.status === 503 || err.status === 429 || (err.message && err.message.includes('503'))) {
                     await new Promise(r => setTimeout(r, 600));
@@ -120,22 +136,48 @@ IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON válido, sin texto fuera del blo
 
         if (!result) {
             return res.status(500).json({
-                error: 'Todos los modelos de IA fallaron',
+                error: 'Todos los modelos de IA fallaron al procesar la solicitud.',
                 details: lastError?.message || 'Error desconocido'
             });
         }
 
         const responseText = result.response.text();
 
-        // Sanitize JSON
-        let cleanedJson = responseText.trim();
-        if (cleanedJson.startsWith('\`\`\`json')) {
-            cleanedJson = cleanedJson.replace(/\`\`\`json/, '').replace(/\`\`\`$/, '').trim();
-        } else if (cleanedJson.startsWith('\`\`\`')) {
-            cleanedJson = cleanedJson.replace(/\`\`\`/, '').replace(/\`\`\`$/, '').trim();
+        // Parseo y sanitización defensiva del JSON
+        let parsedData = null;
+        try {
+            let cleaned = responseText.trim();
+            if (cleaned.startsWith('```json')) {
+                cleaned = cleaned.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+            } else if (cleaned.startsWith('```')) {
+                cleaned = cleaned.replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+            }
+            parsedData = JSON.parse(cleaned);
+        } catch {
+            const startIdx = responseText.indexOf('{');
+            const endIdx = responseText.lastIndexOf('}');
+            if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+                try {
+                    parsedData = JSON.parse(responseText.substring(startIdx, endIdx + 1));
+                } catch (e2) {
+                    console.error("[AI ADVISOR] Fallo parseando JSON extraído:", e2.message);
+                }
+            }
         }
 
-        const parsedData = JSON.parse(cleanedJson);
+        if (!parsedData) {
+            parsedData = {
+                task: taskDescription.slice(0, 80),
+                chatResponse: responseText,
+                planDeAccion: ["Evaluar riesgos en el puesto de trabajo.", "Implementar medidas preventivas inmediatas."],
+                riesgos: ["Riesgos específicos de la actividad laboral."],
+                epp: ["EPP reglamentario según normativa aplicable."],
+                recomendaciones: ["Verificar cumplimiento de protocolos de trabajo seguro."],
+                normativa: ["Ley 19.587", "Dec. 351/79"],
+                modulosRecomendados: []
+            };
+        }
+
         return res.status(200).json(parsedData);
 
     } catch (error) {

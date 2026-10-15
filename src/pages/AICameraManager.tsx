@@ -19,6 +19,7 @@ import AnimatedPage from '../components/AnimatedPage';
 import ConfirmModal from '../components/ConfirmModal';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import { usePaywall } from '../hooks/usePaywall';
+import { captureFromNativeCamera, isMobileDevice } from '../utils/nativeCamera';
 
 export default function AICameraManager(): React.ReactElement | null {
   const { isPro, loading } = usePaywall();
@@ -110,6 +111,28 @@ export default function AICameraManager(): React.ReactElement | null {
       return true;
     });
   }, [history, filterStatus, searchTerm]);
+
+  const [isOpeningCamera, setIsOpeningCamera] = useState(false);
+
+  const handleNewDetection = async () => {
+    if (isMobileDevice()) {
+      setIsOpeningCamera(true);
+      const toastId = toast.loading('Abriendo cámara de alta resolución...');
+      try {
+        const photo = await captureFromNativeCamera({ maxDimension: 1400 });
+        toast.dismiss(toastId);
+        setIsOpeningCamera(false);
+        if (photo) {
+          navigate('/ai-camera', { state: { initialImage: photo } });
+          return;
+        }
+      } catch (err) {
+        toast.dismiss(toastId);
+        setIsOpeningCamera(false);
+      }
+    }
+    navigate('/ai-camera');
+  };
 
   const confirmDelete = () => {
     if (!deleteTarget) return;
@@ -339,7 +362,8 @@ export default function AICameraManager(): React.ReactElement | null {
               {/* Botón Nueva Detección */}
               <button
                 type="button"
-                onClick={() => navigate('/ai-camera')}
+                onClick={handleNewDetection}
+                disabled={isOpeningCamera}
                 style={{
                   backgroundColor: '#059669',
                   color: '#ffffff',
@@ -441,7 +465,7 @@ export default function AICameraManager(): React.ReactElement | null {
               title="No hay inspecciones EPP registradas"
               description="Apunta la cámara hacia los operarios para auditar el uso reglamentario de casco y elementos de protección personal con visión artificial."
               actionLabel="Nueva Detección EPP"
-              onAction={() => navigate('/ai-camera')}
+              onAction={handleNewDetection}
             />
           </div>
         ) : (
