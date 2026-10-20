@@ -4,9 +4,10 @@ import React, { useState } from 'react';
 import { Flame, Sparkles, Camera, X, ChevronRight } from 'lucide-react';
 
 import { getCountryNormativa } from '../data/legislationData';
+import { safeJsonParse } from '../utils/storageHelper';
 
 const savedData = localStorage.getItem('personalData');
-const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+const userCountry = savedData ? safeJsonParse<any>(savedData, {}).country || 'argentina' : 'argentina';
 const countryNorms = getCountryNormativa(userCountry);
 
 const STEPS = [

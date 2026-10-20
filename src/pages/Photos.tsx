@@ -3,6 +3,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ArrowLeft, Camera, Trash2, CheckCircle2, RefreshCw, Upload } from 'lucide-react';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 export default function Photos(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -14,9 +15,8 @@ export default function Photos(): React.ReactElement | null {
 
   // Load existing photos if any
   useEffect(() => {
-    const current = localStorage.getItem('current_inspection');
-    if (current) {
-      const inspection = JSON.parse(current);
+    const inspection = safeGetLocalStorage<any>('current_inspection', null);
+    if (inspection) {
       if (fromObservation && itemId) {
         const obs = inspection.observations?.find((o) => o.itemId === itemId);
         if (obs && obs.photos) {
@@ -53,9 +53,8 @@ export default function Photos(): React.ReactElement | null {
   };
 
   const handleSave = () => {
-    const current = localStorage.getItem('current_inspection');
-    if (current) {
-      const inspection = JSON.parse(current);
+    const inspection = safeGetLocalStorage<any>('current_inspection', null);
+    if (inspection) {
 
       if (fromObservation && itemId) {
         // Attach to specific observation

@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import { useCompany } from '../contexts/CompanyContext';
 import toast from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 interface ShareAuditorModalProps {
   isOpen: boolean;
@@ -26,7 +27,7 @@ export default function ShareAuditorModal({
 
   const handleCopyLink = () => {
     // Store token in localStorage
-    const existing = JSON.parse(localStorage.getItem('hys_auditor_tokens') || '[]');
+    const existing = safeGetLocalStorage<any[]>('hys_auditor_tokens', []);
     const tokenObj = {
       token,
       companyId: activeCompany?.id || 'all',

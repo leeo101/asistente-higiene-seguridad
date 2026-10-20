@@ -13,6 +13,7 @@ import { useSync } from '../contexts/SyncContext';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from './AdBanner';
 import SidebarUserProfile from './sidebar/SidebarUserProfile';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 // Tipos
 interface NavItem {
@@ -82,9 +83,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
     }
 
     setUserInfo((prev) => ({ ...prev, name: currentUser?.displayName || currentUser?.email || 'Usuario' }));
-    const savedData = localStorage.getItem('personalData');
-    if (savedData) {
-      const parsed = JSON.parse(savedData);
+    const parsed = safeGetLocalStorage<any>('personalData', null);
+    if (parsed) {
       setUserInfo((prev) => ({ ...prev, photo: parsed.photo, profession: parsed.profession || '' }));
     }
 

@@ -13,6 +13,7 @@ import { API_BASE_URL } from '../config';
 import toast from 'react-hot-toast';
 import GlobalQRScanner from './GlobalQRScanner';
 import { auth } from '../firebase';
+import { safeGetLocalStorage, safeJsonParse } from '../utils/storageHelper';
 
 export default function FloatingAssistant() {
   const navigate = useNavigate();
@@ -115,7 +116,8 @@ export default function FloatingAssistant() {
       let totalRecords = 0;
       keys.forEach((k) => {
         const data = localStorage.getItem(k);
-        if (data) totalRecords += JSON.parse(data).length;
+        const records = safeJsonParse<any[]>(data, []);
+        if (Array.isArray(records)) totalRecords += records.length;
       });
 
       // Lógica simple de score: cada registro suma, capeado en 100
@@ -226,9 +228,9 @@ export default function FloatingAssistant() {
 
     setTimeout(() => {
       // Lógica de escaneo real de localStorage
-      const atsCount = JSON.parse(localStorage.getItem('ats_history') || '[]').length;
-      const accidentCount = JSON.parse(localStorage.getItem('accident_history') || '[]').length;
-      const inspCount = JSON.parse(localStorage.getItem('inspections_history') || '[]').length;
+      const atsCount = safeGetLocalStorage<any[]>('ats_history', []).length;
+      const accidentCount = safeGetLocalStorage<any[]>('accident_history', []).length;
+      const inspCount = safeGetLocalStorage<any[]>('inspections_history', []).length;
 
       const reportText = `📊 REPORTE GERENCIAL SEMANAL (IA)\n\n• Gestión: ${atsCount} ATS generados.\n• Control: ${inspCount} Inspecciones realizadas.\n• Seguridad: ${accidentCount} Accidentes reportados.\n\n💡 CONCLUSIÓN IA: "La actividad preventiva es estable. Se recomienda reforzar la supervisión en tareas de altura debido al incremento de ATS en dicha categoría."\n\n¿Querés que exporte este resumen a PDF comercial?`;
 

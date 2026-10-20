@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
 import { printElementAsDocument } from '../utils/pdfHelper';
@@ -292,7 +293,7 @@ export default function ConfinedSpaceForm(): React.ReactElement | null {
       return;
     }
 
-    const saved = JSON.parse(localStorage.getItem('confined_space_permits_db') || '[]');
+    const saved = safeGetLocalStorage<any[]>('confined_space_permits_db', []);
     let updated;
 
     const saveObj = {

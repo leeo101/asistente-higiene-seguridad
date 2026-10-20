@@ -148,7 +148,21 @@ export async function printElementAsDocument(
     @media print {
       @page {
         size: A4 ${isLandscape ? 'landscape' : 'portrait'};
-        margin: 10mm 10mm 10mm 10mm;
+        margin: 10mm 10mm 12mm 10mm;
+        @bottom-right {
+          content: "Página " counter(page) " de " counter(pages);
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-size: 7.5pt;
+          font-weight: 600;
+          color: #64748b;
+        }
+        @bottom-left {
+          content: "Documento Oficial Foliado · Validez Legal SRT / ART";
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-size: 7pt;
+          font-weight: 500;
+          color: #94a3b8;
+        }
       }
     }
     *, *::before, *::after {

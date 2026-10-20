@@ -11,6 +11,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import CompanyLogo from '../components/CompanyLogo';
 import PdfSignatures from '../components/PdfSignatures';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
@@ -31,14 +32,12 @@ export default function Report(): React.ReactElement | null {
 
   useEffect(() => {
     // Load inspection data and update history if not already final
-    const current = localStorage.getItem('current_inspection');
-    if (current) {
-      const inspection = JSON.parse(current);
+    const inspection = safeGetLocalStorage<any>('current_inspection', null);
+    if (inspection) {
       setInspectionData(inspection);
 
       // Update history with latest inspection data and mark as final
-      const historyRaw = localStorage.getItem('inspections_history');
-      const history = historyRaw ? JSON.parse(historyRaw) : [];
+      const history = safeGetLocalStorage<any[]>('inspections_history', []);
 
       const existingIndex = history.findIndex((item: any) => item.id === inspection.id);
       if (existingIndex >= 0) {
@@ -51,7 +50,7 @@ export default function Report(): React.ReactElement | null {
 
         // Integración CAPA Automático (Task 2.2)
         if (inspection.observations && inspection.observations.length > 0) {
-          const currentCapas = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
+          const currentCapas = safeGetLocalStorage<any[]>('ehs_capa_db', []);
           const newCapas = inspection.observations.map((obs: any, idx: number) => ({
             id: `CAPA-${Date.now()}-${idx}`,
             title: `Hallazgo Inspección: ${obs.category}`,
@@ -89,27 +88,25 @@ export default function Report(): React.ReactElement | null {
     }
 
     // Load Risk Assessment (IPER)
-    const iper = localStorage.getItem('risk_assessment');
+    const iper = safeGetLocalStorage<any>('risk_assessment', null);
     if (iper) {
-      setRiskAssessment(JSON.parse(iper));
+      setRiskAssessment(iper);
     }
 
     // Load professional data
-    const savedData = localStorage.getItem('personalData');
-    const savedSigData = localStorage.getItem('signatureStampData');
+    const savedData = safeGetLocalStorage<any>('personalData', null);
+    const savedSigData = safeGetLocalStorage<any>('signatureStampData', null);
     const legacySignature = localStorage.getItem('capturedSignature');
 
     let signature = legacySignature || null;
-    if (savedSigData) {
-      const parsed = JSON.parse(savedSigData);
-      signature = parsed.signature || signature;
+    if (savedSigData && typeof savedSigData === 'object') {
+      signature = savedSigData.signature || signature;
     }
 
-    if (savedData) {
-      const data = JSON.parse(savedData);
+    if (savedData && typeof savedData === 'object') {
       setProfessional({
-        name: data.name || 'Profesional',
-        license: data.license || '',
+        name: savedData.name || 'Profesional',
+        license: savedData.license || '',
         signature: signature
       });
     }

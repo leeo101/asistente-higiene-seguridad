@@ -729,9 +729,8 @@ export default function ChecklistManager(): React.ReactElement | null {
 
   useEffect(() => {
     // Obtener país del usuario desde personalData
-    const savedData = localStorage.getItem('personalData');
-    if (savedData) {
-      const parsed = JSON.parse(savedData);
+    const parsed = safeGetLocalStorage<any>('personalData', null);
+    if (parsed) {
       const country = parsed.country || 'argentina';
       setUserCountry(country);
       setAvailableNorms(getNormsForCountry(country));
@@ -741,8 +740,8 @@ export default function ChecklistManager(): React.ReactElement | null {
   }, []);
 
   useEffect(() => {
-    const historyRaw = localStorage.getItem('tool_checklists_history');
-    if (historyRaw) setHistory(JSON.parse(historyRaw));
+    const list = safeGetLocalStorage<any[]>('tool_checklists_history', []);
+    setHistory(list);
   }, [syncPulse]);
 
   useEffect(() => {

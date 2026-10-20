@@ -20,6 +20,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from '../components/AdBanner';
 import SignatureCanvas from '../components/SignatureCanvas';
 import AnimatedPage from '../components/AnimatedPage';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 export default function DrillsForm(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -186,7 +187,7 @@ export default function DrillsForm(): React.ReactElement | null {
       professionalStamp: formData.professionalStamp || professional.stamp
     };
 
-    let history = JSON.parse(localStorage.getItem('drills_history') || '[]');
+    let history = safeGetLocalStorage<any[]>('drills_history', []);
 
     if (editData) {
       history = history.map((item: any) => item.id === editData.id ? report : item);

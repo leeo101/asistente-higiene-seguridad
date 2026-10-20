@@ -18,6 +18,7 @@ import { printElementAsDocument } from '../utils/pdfHelper';
 import { formatLocalDate } from '../utils/dateUtils';
 import { downloadCSV } from '../services/exportCsv';
 import toast from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import CompanyLogo from '../components/CompanyLogo';
 import PdfSignatures from '../components/PdfSignatures';
@@ -174,8 +175,7 @@ export default function LightingReport(): React.ReactElement | null {
   }, []);
 
   useEffect(() => {
-    const savedHistory = localStorage.getItem('lighting_history');
-    if (savedHistory) setHistory(JSON.parse(savedHistory));
+    setHistory(safeGetLocalStorage<any[]>('lighting_history', []));
   }, [isFormVisible]);
 
   const handleDelete = (id: string, e: React.MouseEvent) => {

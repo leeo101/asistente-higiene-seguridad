@@ -10,6 +10,7 @@ import {
 import ShareModal from '../components/ShareModal';
 import { printElementAsDocument } from '../utils/pdfHelper';
 import { toast } from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import AuditPdf from '../components/AuditPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import ConfirmModal from '../components/ConfirmModal';
@@ -173,10 +174,8 @@ export default function AuditManager(): React.ReactElement | null {
   });
 
   useEffect(() => {
-    const savedAudits = localStorage.getItem('ehs_audits_db');
-    const savedFindings = localStorage.getItem('ehs_audit_findings_db');
-    if (savedAudits) setAudits(JSON.parse(savedAudits));
-    if (savedFindings) setFindings(JSON.parse(savedFindings));
+    setAudits(safeGetLocalStorage<any[]>('ehs_audits_db', []));
+    setFindings(safeGetLocalStorage<any[]>('ehs_audit_findings_db', []));
   }, []);
 
   const saveAudits = (data: any) => {

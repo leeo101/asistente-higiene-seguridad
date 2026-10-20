@@ -5,6 +5,7 @@ import ShareModal from '../components/ShareModal';
 import ConfinedSpacePdf from '../components/ConfinedSpacePdf';
 import ConfirmModal from '../components/ConfirmModal';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 const PERMIT_STATUS = {
   draft: { label: 'BORRADOR', color: '#6b7280', bg: '#f3f4f6' },
@@ -26,8 +27,7 @@ export default function ConfinedSpacePage(): React.ReactElement | null {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);
-    const saved = localStorage.getItem('confined_space_permits_db');
-    if (saved) setPermits(JSON.parse(saved));
+    setPermits(safeGetLocalStorage<any[]>('confined_space_permits_db', []));
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 

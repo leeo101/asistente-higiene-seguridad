@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import ShareModal from '../components/ShareModal';
 import GroundingProtocolPdf from '../components/GroundingProtocolPdf';
 import { printElementAsDocument } from '../utils/pdfHelper';
@@ -418,7 +419,7 @@ export default function GroundingProtocolForm(): React.ReactElement | null {
       return;
     }
 
-    const saved = JSON.parse(localStorage.getItem('grounding_protocols_db') || '[]');
+    const saved = safeGetLocalStorage<any[]>('grounding_protocols_db', []);
     const recordToSave: GroundingProtocol = {
       ...protocol,
       cumpleNormativa: evaluation.isFullyCompliant,

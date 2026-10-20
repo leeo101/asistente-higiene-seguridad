@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ClipboardList, ShieldCheck, ScrollText, Camera, HardHat, TriangleAlert } from 'lucide-react';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 const STATS_CONFIG = [
 { key: 'ats_history', label: 'ATS', color: '#10b981', bg: 'rgba(16,185,129,0.1)', icon: <ClipboardList size={18} /> },
@@ -101,7 +102,7 @@ export default function StatsBar() {
     // +10 per 5 ATS/Inspections
     // -5 per urgent EPP alert
     let score = 100;
-    const accidents = JSON.parse(localStorage.getItem('accident_history') || '[]');
+    const accidents = safeGetLocalStorage<any[]>('accident_history', []);
     const accidentsThisMonth = accidents.filter((a) => new Date(a.date).getTime() >= monthStart).length;
     score -= accidentsThisMonth * 15;
     score += Math.min(20, Math.floor(monthTotal / 5) * 10);

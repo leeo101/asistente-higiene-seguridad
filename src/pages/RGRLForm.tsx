@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import RGRLPdf from '../components/RGRLPdf';
 import SignatureCanvas from '../components/SignatureCanvas';
 import ShareModal from '../components/ShareModal';
@@ -275,7 +276,7 @@ export default function RGRLForm(): React.ReactElement | null {
       return;
     }
 
-    const saved = JSON.parse(localStorage.getItem('rgrl_surveys_db') || '[]');
+    const saved = safeGetLocalStorage<any[]>('rgrl_surveys_db', []);
     const metrics = calculateRGRLMetrics(survey.items);
     const toSave: RGRLSurvey = {
       ...survey,

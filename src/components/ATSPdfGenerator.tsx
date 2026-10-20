@@ -1,6 +1,7 @@
 import React from 'react';
 import PdfSignatures from './PdfSignatures';
 import CompanyLogo from './CompanyLogo';
+import DualPdfHeader from './DualPdfHeader';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import { evaluateATSSafetyCompliance } from '../utils/srtProtocols';
 import ReportContentRenderer from './reports/ReportContentRenderer';
@@ -198,46 +199,20 @@ export default function ATSPdfGenerator({ atsData, pdfElementId = 'pdf-content' 
         {/* Accent top bar tricolor de seguridad institucional */}
         <div className="w-full h-2 bg-gradient-to-r from-blue-900 via-blue-600 via-amber-500 to-emerald-600 rounded-t-xl mb-4" />
 
-        {/* Header Corporativo / ISO */}
-        <div className="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-4">
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span style={{ ...B, backgroundColor: '#0f172a', color: '#fff', padding: '3px 8px', borderRadius: '4px', fontSize: '9px', letterSpacing: '0.05em' }}>
-                SISTEMA INTEGRADO DE GESTIÓN HYS
-              </span>
-              <span style={{ ...B, backgroundColor: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1', padding: '3px 8px', borderRadius: '4px', fontSize: '9px' }}>
-                LEGISLACIÓN ARG. LEY 19.587 / DEC. 911/96
-              </span>
-              <span style={{ ...B, backgroundColor: riskBg, color: '#fff', padding: '3px 8px', borderRadius: '4px', fontSize: '9px', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>
-                {riskLabel}
-              </span>
-            </div>
-            <h1 className="m-0 text-xl font-black text-slate-950 uppercase tracking-tight flex items-center gap-2">
-              ANÁLISIS DE TRABAJO SEGURO <span className="text-blue-700">(ATS)</span>
-            </h1>
-            <div className="text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">
-              EVALUACIÓN PREVENTIVA DE RIESGOS EN TAREA Y LIBERACIÓN OPERATIVA
-            </div>
-          </div>
-          <div className="flex flex-col items-end gap-1.5 shrink-0">
-            <CompanyLogo style={{ maxHeight: '44px', maxWidth: '150px', objectFit: 'contain' }} />
-            <div className="flex items-center gap-2 bg-slate-50 border border-slate-300 px-2.5 py-1 rounded-lg text-right shadow-2xs">
-              <div>
-                <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-tight">DOC REF</div>
-                <div className="text-xs font-black text-blue-800 leading-tight">#{docId}</div>
-              </div>
-              <div className="h-6 w-px bg-slate-200 mx-0.5" />
-              <div>
-                <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-tight">DICTAMEN LEGAL</div>
-                <div className={`text-[10px] font-black uppercase leading-tight ${
-                  compliance.dictamen === 'CONFORME' ? 'text-emerald-700' : compliance.dictamen === 'OBSERVADO' ? 'text-amber-700' : 'text-red-700'
-                }`}>
-                  {compliance.dictamen}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Header Corporativo / ISO con Doble Membrete */}
+        <DualPdfHeader
+          title="ANÁLISIS DE TRABAJO SEGURO (ATS)"
+          subtitle="Evaluación Preventiva de Riesgos en Tarea y Liberación Operativa · IPERC"
+          normBadge="Ley 19.587 · Dec. 911/96 · ISO 45001"
+          normBadgeColor="emerald"
+          documentId={docId}
+          establishmentName={atsData?.empresa || atsData?.obra}
+          establishmentCuit={atsData?.cuit}
+          establishmentAddress={atsData?.obra}
+          consultantName={actName || atsData?.professionalName}
+          consultantLicense={actLic || atsData?.professionalLicense}
+          date={formatDate(atsData?.fecha)}
+        />
 
         {/* Resumen Ejecutivo / Métricas de Control (KPIs) */}
         <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="grid grid-cols-4 gap-2 mb-4">

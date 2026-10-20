@@ -23,6 +23,7 @@ import {
   ModuleActionBar,
 } from '../components/module';
 import toast from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import RootCauseAnalyzer from '../components/RootCauseAnalyzer';
 import {
@@ -585,7 +586,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
   };
 
   const loadHistory = () => {
-    const h = JSON.parse(localStorage.getItem('accident_history') || '[]');
+    const h = safeGetLocalStorage<any[]>('accident_history', []);
     setHistory(h.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()));
   };
 
@@ -700,7 +701,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
       professionalStamp: formData.professionalStamp || professional.stamp
     };
 
-    const currentHistory = JSON.parse(localStorage.getItem('accident_history') || '[]');
+    const currentHistory = safeGetLocalStorage<any[]>('accident_history', []);
     let updated;
     if (isEdit) {
       updated = currentHistory.map((item: any) => item.id === formData.id ? report : item);
@@ -713,7 +714,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
 
     // Integración CAPA Automático (Task 2.1)
     if (!isEdit) {
-      const currentCapas = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
+      const currentCapas = safeGetLocalStorage<any[]>('ehs_capa_db', []);
       const newCapa = {
         id: `CAPA-${Date.now()}`,
         title: `Investigación Accidente: ${formData.victimaNombre}`,
@@ -803,7 +804,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
 
   const confirmDelete = () => {
     if (!deleteTarget) return;
-    const currentHistory = JSON.parse(localStorage.getItem('accident_history') || '[]');
+    const currentHistory = safeGetLocalStorage<any[]>('accident_history', []);
     const updated = currentHistory.filter((item: any) => String(item.id) !== String(deleteTarget));
     localStorage.setItem('accident_history', JSON.stringify(updated));
     syncCollection('accident_history', updated);
@@ -1792,7 +1793,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                                         toast.error('Ingrese al menos una medida correctiva con descripción.');
                                         return;
                                     }
-                                    const existingCapas = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
+                                    const existingCapas = safeGetLocalStorage<any[]>('ehs_capa_db', []);
                                     const newCapas = validMedidas.map((m: any, idx: number) => ({
                                         id: `CAPA-ACC-${Date.now()}-${idx}`,
                                         createdAt: new Date().toISOString(),

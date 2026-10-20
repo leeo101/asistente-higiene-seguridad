@@ -5,6 +5,7 @@ import { ArrowLeft, Printer, Share2, CheckCircle2, FileEdit } from 'lucide-react
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import { toast } from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import { printElementAsDocument } from '../utils/pdfHelper';
 import ErgonomicsPdfGenerator from '../components/ErgonomicsPdfGenerator';
 
@@ -25,7 +26,7 @@ export default function ErgonomicsReport(): React.ReactElement | null {
   useEffect(() => {
     window.scrollTo(0, 0);
     const id = searchParams.get('id');
-    const history = JSON.parse(localStorage.getItem('ergonomics_history') || '[]');
+    const history = safeGetLocalStorage<any[]>('ergonomics_history', []);
     const found = history.find((item: any) => String(item.id) === String(id));
     if (found) {
       setData(found);

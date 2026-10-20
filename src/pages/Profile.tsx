@@ -4,6 +4,7 @@ import { ArrowLeft, User, Settings, PenTool, Database, Shield, LogOut, ChevronRi
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { getCountryNormativa } from '../data/legislationData';
 
@@ -32,9 +33,8 @@ export default function Profile(): React.ReactElement | null {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedData = localStorage.getItem('personalData');
-      if (savedData) {
-        const parsed = JSON.parse(savedData);
+      const parsed = safeGetLocalStorage<any>('personalData', null);
+      if (parsed) {
         setUserData(parsed);
         setUserCountry(parsed.country || 'argentina');
       }

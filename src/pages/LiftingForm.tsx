@@ -5,6 +5,7 @@ import { Crane } from '@phosphor-icons/react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import PremiumHeader from '../components/PremiumHeader';
 import { toast } from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
@@ -45,7 +46,7 @@ export default function LiftingForm(): React.ReactElement | null {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const saved = JSON.parse(localStorage.getItem('lifting_plans_db') || '[]');
+    const saved = safeGetLocalStorage<any[]>('lifting_plans_db', []);
     setPlans(saved);
   }, [isFormVisible]);
 
@@ -125,23 +126,21 @@ export default function LiftingForm(): React.ReactElement | null {
   const showSignatures = plan.showSignatures || { operator: true, professional: true, supervisor: true };
 
   useEffect(() => {
-    const savedData = localStorage.getItem('personalData');
-    const savedSigData = localStorage.getItem('signatureStampData');
+    const savedData = safeGetLocalStorage<any>('personalData', null);
+    const savedSigData = safeGetLocalStorage<any>('signatureStampData', null);
     const legacySignature = localStorage.getItem('capturedSignature');
 
     let signature = legacySignature || null;
     let stamp = null;
-    if (savedSigData) {
-      const parsed = JSON.parse(savedSigData);
-      signature = parsed.signature || signature;
-      stamp = parsed.stamp || null;
+    if (savedSigData && typeof savedSigData === 'object') {
+      signature = savedSigData.signature || signature;
+      stamp = savedSigData.stamp || null;
     }
 
-    if (savedData) {
-      const data = JSON.parse(savedData);
+    if (savedData && typeof savedData === 'object') {
       setProfessional({
-        name: data.name || '',
-        license: data.license || '',
+        name: savedData.name || '',
+        license: savedData.license || '',
         signature: signature,
         stamp: stamp
       });
@@ -185,7 +184,7 @@ export default function LiftingForm(): React.ReactElement | null {
       return;
     }
 
-    const saved = JSON.parse(localStorage.getItem('lifting_plans_db') || '[]');
+    const saved = safeGetLocalStorage<any[]>('lifting_plans_db', []);
     let updated;
 
     const planWithSignatures = {

@@ -1,10 +1,12 @@
 import React from 'react';
 import { Lightbulb, Sun, Layout, FileText, Building2, MapPin, Calendar, AlertTriangle, CheckCircle, Shield, Award } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import DualPdfHeader from './DualPdfHeader';
 import ReportContentRenderer from './reports/ReportContentRenderer';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
 import { getCountryNormativa } from '../data/legislationData';
+import { safeJsonParse } from '../utils/storageHelper';
 
 interface Props {
   data: any;
@@ -15,7 +17,7 @@ export default function LightingPdfGenerator({ data, customId = 'pdf-content' }:
   if (!data) return null;
 
   const savedPersonal = localStorage.getItem('personalData');
-  const userCountry = savedPersonal ? JSON.parse(savedPersonal).country || 'argentina' : 'argentina';
+  const userCountry = savedPersonal ? safeJsonParse<any>(savedPersonal, {}).country || 'argentina' : 'argentina';
   const countryNorms = getCountryNormativa(userCountry);
 
   const {
@@ -84,27 +86,19 @@ export default function LightingPdfGenerator({ data, customId = 'pdf-content' }:
           `}
         </style>
 
-        {/* Header Oficial Res. SRT 84/12 */}
-        <div className="flex flex-row justify-between items-start border-b-2 border-slate-200 pb-2.5 mb-3 w-full">
-          <div className="flex-1 text-left">
-            <p className="m-0 font-extrabold text-[0.62rem] uppercase text-slate-500 tracking-wider">Superintendencia de Riesgos del Trabajo</p>
-            <p style={{ color: cumple ? '#d97706' : '#dc2626' }} className="m-0 font-black text-[0.75rem] uppercase">
-              {cumple ? 'PROTOCOLO OFICIAL RES. S.R.T. N° 84/12' : '⚠ PROTOCOLO CON NO CONFORMIDADES'}
-            </p>
-          </div>
-
-          <div className="flex-[2] flex flex-col items-center justify-center text-center">
-            <h1 className="m-0 font-black text-xl tracking-tight uppercase leading-none text-slate-900">ILUMINACIÓN LABORAL</h1>
-            <div style={{ background: cumple ? '#eab308' : '#dc2626' }} className="mt-1 text-white px-2.5 py-0.5 rounded-full text-[0.6rem] font-black tracking-wider uppercase">
-              Dec. 351/79 Anexo IV • Res. SRT 84/12 • IRAM AADL J 20-06
-            </div>
-          </div>
-
-          <div className="flex-1 text-right flex flex-col items-end gap-1">
-            <CompanyLogo style={{ maxHeight: '36px', maxWidth: '120px', objectFit: 'contain' }} />
-            <span className="text-[0.62rem] font-bold text-slate-400">Anexo I - Hoja 1/1</span>
-          </div>
-        </div>
+        {/* Header Oficial Res. SRT 84/12 con Doble Membrete */}
+        <DualPdfHeader
+          title="MEDICIÓN DE ILUMINACIÓN LABORAL"
+          subtitle="Evaluación de Niveles de Iluminación y Uniformidad · Dec. 351/79 Anexo IV · IRAM AADL J 20-06"
+          normBadge={cumple ? "Protocolo Oficial · Res. S.R.T. N° 84/12" : "Res. S.R.T. N° 84/12 (No Conforme)"}
+          normBadgeColor={cumple ? "amber" : "red"}
+          normBadgeIcon={<Lightbulb size={13} className={cumple ? "text-amber-600" : "text-red-600"} />}
+          documentId={data.id}
+          establishmentName={empresa}
+          establishmentCuit={cuit}
+          establishmentAddress={direccion}
+          date={fecha}
+        />
 
         {/* 1. Datos del Establecimiento */}
         <div className="border border-slate-300 rounded-lg mb-2.5 overflow-hidden">

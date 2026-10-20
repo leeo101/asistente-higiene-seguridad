@@ -1,9 +1,16 @@
 export function safeJsonParse<T>(value: unknown, fallback: T): T {
   if (value === null || value === undefined || value === '') return fallback;
   if (typeof value !== 'string') return value as T;
-  // Si comienza con data: o http, es un asset/imagen, no JSON
   const trimmed = value.trim();
-  if (trimmed.startsWith('data:') || trimmed.startsWith('blob:') || trimmed.startsWith('http:') || trimmed.startsWith('https:')) {
+  // Si comienza con data:, blob:, http: o comillas envolviendo un data URL, es un asset/imagen, no JSON
+  if (
+    trimmed.startsWith('data:') ||
+    trimmed.startsWith('blob:') ||
+    trimmed.startsWith('http:') ||
+    trimmed.startsWith('https:') ||
+    trimmed.startsWith('"data:') ||
+    trimmed.startsWith('\'data:')
+  ) {
     return fallback;
   }
   try {
@@ -73,32 +80,41 @@ export const safeSetLocalStorage = (key: string, value: string): boolean => {
     } catch (e2) {
       console.warn(`LocalStorage still full for '${key}'. Stripping media/deep pruning...`, e2);
       try {
-        // 2. Si todavía falla y el valor es JSON, intentar guardar versión liviana sin base64 pesado
-        const parsed = JSON.parse(value);
-        if (parsed && typeof parsed === 'object') {
-          if (parsed.fotos) parsed.fotos = [];
-          if (Array.isArray(parsed.activeSections)) {
-            parsed.activeSections.forEach((s: any) => {
-              if (Array.isArray(s.items)) {
-                s.items.forEach((it: any) => {
-                  if (it.photos) it.photos = [];
-                });
-              }
-            });
-          }
-          if (Array.isArray(parsed)) {
-            const trimmed = parsed.slice(0, 20).map((h: any) => {
-              if (typeof h === 'object' && h !== null) {
-                return { ...h, fotos: [] };
-              }
-              return h;
-            });
-            localStorage.setItem(key, JSON.stringify(trimmed));
+        // 2. Si todavía falla y el valor es JSON ({ o [), intentar guardar versión liviana sin base64 pesado
+        const trimmedVal = typeof value === 'string' ? value.trim() : '';
+        if (
+          trimmedVal &&
+          !trimmedVal.startsWith('data:') &&
+          !trimmedVal.startsWith('blob:') &&
+          !trimmedVal.startsWith('"data:') &&
+          (trimmedVal.startsWith('{') || trimmedVal.startsWith('['))
+        ) {
+          const parsed = JSON.parse(trimmedVal);
+          if (parsed && typeof parsed === 'object') {
+            if (parsed.fotos) parsed.fotos = [];
+            if (Array.isArray(parsed.activeSections)) {
+              parsed.activeSections.forEach((s: any) => {
+                if (Array.isArray(s.items)) {
+                  s.items.forEach((it: any) => {
+                    if (it.photos) it.photos = [];
+                  });
+                }
+              });
+            }
+            if (Array.isArray(parsed)) {
+              const trimmed = parsed.slice(0, 20).map((h: any) => {
+                if (typeof h === 'object' && h !== null) {
+                  return { ...h, fotos: [] };
+                }
+                return h;
+              });
+              localStorage.setItem(key, JSON.stringify(trimmed));
+              return true;
+            }
+
+            localStorage.setItem(key, JSON.stringify(parsed));
             return true;
           }
-
-          localStorage.setItem(key, JSON.stringify(parsed));
-          return true;
         }
       } catch (stripErr) {
         console.warn(`Could not save stripped version for '${key}':`, stripErr);

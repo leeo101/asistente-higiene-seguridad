@@ -5,6 +5,7 @@ import ShareModal from '../components/ShareModal';
 import CAPAPdf from '../components/CAPAPdf';
 import ConfirmModal from '../components/ConfirmModal';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 const CAPA_TYPES = [{ id: 'corrective', name: 'Correctiva', icon: '🔧' }, { id: 'preventive', name: 'Preventiva', icon: '🛡️' }, { id: 'improvement', name: 'Mejora', icon: '📈' }, { id: 'containment', name: 'Contención', icon: '🚨' }];
 const PRIORITY = { critical: { label: 'CRÍTICA', color: '#dc2626', days: 3, icon: '🔴' }, high: { label: 'ALTA', color: '#f59e0b', days: 7, icon: '🟠' }, medium: { label: 'MEDIA', color: '#3b82f6', days: 15, icon: '🔵' }, low: { label: 'BAJA', color: '#16a34a', days: 30, icon: '🟢' } };
@@ -19,7 +20,7 @@ export default function CAPAPage(): React.ReactElement | null {
   const [isMobile, setIsMobile] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
-  useEffect(() => {const h = () => setIsMobile(window.innerWidth < 768);h();window.addEventListener('resize', h);const s = localStorage.getItem('ehs_capa_db');if (s) setCapas(JSON.parse(s));return () => window.removeEventListener('resize', h);}, []);
+  useEffect(() => {const h = () => setIsMobile(window.innerWidth < 768);h();window.addEventListener('resize', h);setCapas(safeGetLocalStorage<any[]>('ehs_capa_db', []));return () => window.removeEventListener('resize', h);}, []);
   const save = (d: any[]) => {localStorage.setItem('ehs_capa_db', JSON.stringify(d));setCapas(d);};
   const updateStatus = (id: string, s: string) => save(capas.map((c: any) => c.id === id ? { ...c, status: s } : c));
   const del = (id: string) => {setConfirmModal({ isOpen: true, payload: id });};

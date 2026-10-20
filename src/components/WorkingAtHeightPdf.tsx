@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShieldCheck, HeartPulse, LifeBuoy, User, MapPin, Calendar, Ruler, AlertTriangle, CheckCircle2, XCircle, Wind, Anchor, Activity, Building2 } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import DualPdfHeader from './DualPdfHeader';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
 import ReportContentRenderer from './reports/ReportContentRenderer';
@@ -103,40 +104,21 @@ export default function WorkingAtHeightPdf({ data, customId }: { data: any; cust
           }`}
         ></div>
 
-        {/* Encabezado Institucional SRT / Dec. 911/96 */}
-        <div className="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-4">
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <span className="bg-slate-950 text-white font-black text-[9px] px-2.5 py-0.5 rounded uppercase tracking-wider">
-                RESOLUCIÓN S.R.T. N° 61/23
-              </span>
-              <span className="bg-amber-800 text-white font-black text-[9px] px-2.5 py-0.5 rounded uppercase tracking-wider">
-                DEC. 911/96 (ARTS. 54-70) & DEC. 351/79
-              </span>
-              <span
-                className={`text-white font-black text-[9px] px-2 py-0.5 rounded uppercase ${
-                  dlc.isClearanceSafe && data.medicalFitness ? 'bg-emerald-600' : 'bg-rose-600'
-                }`}
-              >
-                {dlc.isClearanceSafe && data.medicalFitness ? 'PERMISO HABILITADO' : '⚠ ALERTA / NO HABILITADO'}
-              </span>
-            </div>
-            <h1 className="m-0 text-xl font-black text-slate-900 uppercase tracking-tight">
-              PERMISO DE TRABAJO SEGURO EN ALTURA (PTSA)
-            </h1>
-            <div className="text-[11px] font-bold text-amber-800 uppercase tracking-wide">
-              CÁLCULO DE DISTANCIA LIBRE DE CAÍDA (DLC) • ANCLAJES 22 kN • APTITUD MÉDICA
-            </div>
-          </div>
-
-          <div className="flex flex-col items-end gap-1.5 shrink-0">
-            <CompanyLogo style={{ maxHeight: '42px', maxWidth: '140px', objectFit: 'contain' }} />
-            <div className="text-right bg-slate-50 border border-slate-300 px-3 py-1 rounded-lg shadow-2xs">
-              <div className="text-[8px] font-black text-slate-500 uppercase tracking-widest">N° PERMISO PTSA</div>
-              <div className="text-sm font-black text-amber-700">#ALT-{docId}</div>
-            </div>
-          </div>
-        </div>
+        {/* Encabezado Institucional SRT / Dec. 911/96 con Doble Membrete */}
+        <DualPdfHeader
+          title="PERMISO DE TRABAJO SEGURO EN ALTURA (PTSA)"
+          subtitle="Cálculo de Distancia Libre de Caída (DLC) · Anclajes 22 kN · Dec. 911/96 Arts. 54-70"
+          normBadge={dlc.isClearanceSafe && data.medicalFitness ? "Res. S.R.T. N° 61/23 (Habilitado)" : "Res. S.R.T. N° 61/23 (Alerta / Observado)"}
+          normBadgeColor={dlc.isClearanceSafe && data.medicalFitness ? "emerald" : "red"}
+          normBadgeIcon={<ShieldCheck size={13} className={dlc.isClearanceSafe && data.medicalFitness ? "text-emerald-600" : "text-red-600"} />}
+          documentId={`ALT-${docId}`}
+          establishmentName={empresa}
+          establishmentCuit={cuit}
+          establishmentAddress={address}
+          consultantName={actName}
+          consultantLicense={actLic}
+          date={data.date ? new Date(data.date).toLocaleDateString('es-AR') : undefined}
+        />
 
         {/* Cuadro 1: Identificación Patronal y del Establecimiento */}
         <div className="border border-slate-400 rounded-lg overflow-hidden mb-3 bg-white page-break-inside-avoid">

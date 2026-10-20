@@ -25,6 +25,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import { usePaywall } from '../hooks/usePaywall';
 import toast from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import { printElementAsDocument } from '../utils/pdfHelper';
 import { validateWorkerMedicalStatus } from '../utils/workerValidation';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
@@ -553,8 +554,8 @@ export default function ATS(): React.ReactElement | null {
 
   // Cargar historial
   useEffect(() => {
-    const historyRaw = localStorage.getItem('ats_history');
-    if (historyRaw) setHistory(JSON.parse(historyRaw));
+    const list = safeGetLocalStorage<any[]>('ats_history', []);
+    setHistory(list);
   }, [syncPulse]);
 
   // Cargar datos del profesional
@@ -648,8 +649,7 @@ export default function ATS(): React.ReactElement | null {
   };
 
   const handleSave = async () => {
-    const historyRaw = localStorage.getItem('ats_history');
-    const history = historyRaw ? JSON.parse(historyRaw) : [];
+    const history = safeGetLocalStorage<any[]>('ats_history', []);
     const entryId = formData.id || Date.now().toString();
     const newEntry = {
       ...formData,
@@ -823,7 +823,7 @@ export default function ATS(): React.ReactElement | null {
         </button>
 
         <button
-          onClick={() => requirePro(() => setShareItem(JSON.parse(localStorage.getItem('ats_' + item.id) || 'null') || item))}
+          onClick={() => requirePro(() => setShareItem(safeGetLocalStorage<any>('ats_' + item.id, null) || item))}
           title="Compartir Informe"
           style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
           <Share2 size={12} /> Compartir

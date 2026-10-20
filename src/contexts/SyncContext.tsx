@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
+import { safeJsonParse } from '../utils/storageHelper';
 import {
   pullAllFromCloud,
   processSyncQueue,
@@ -126,7 +127,7 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
         let local: unknown[] = [];
         try {
           const raw = localStorage.getItem(key);
-          if (raw && !raw.startsWith('data:')) local = JSON.parse(raw);
+          local = safeJsonParse<unknown[]>(raw, []);
         } catch {
           local = [];
         }
@@ -150,7 +151,7 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
         let local: any = null;
         try {
           const raw = localStorage.getItem(key);
-          if (raw && !raw.startsWith('data:')) local = JSON.parse(raw);
+          local = safeJsonParse<any>(raw, null);
         } catch {
           local = null;
         }
@@ -244,7 +245,7 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
     let current: any[] = [];
     try {
       const raw = localStorage.getItem(key);
-      if (raw && !raw.startsWith('data:')) current = JSON.parse(raw);
+      current = safeJsonParse<any[]>(raw, []);
     } catch {
       current = [];
     }

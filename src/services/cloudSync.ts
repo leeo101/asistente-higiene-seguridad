@@ -5,6 +5,7 @@
  */
 
 import { db } from '../firebase';
+import { safeJsonParse } from '../utils/storageHelper';
 import {
   doc,
   getDoc,
@@ -82,24 +83,10 @@ export async function processSyncQueue(uid: string): Promise<void> {
     
     try {
       if (SYNC_COLLECTIONS.includes(key)) {
-        let items: SyncItem[] = [];
-        try {
-          if (!raw.startsWith('data:')) {
-            items = JSON.parse(raw);
-          }
-        } catch {
-          items = [];
-        }
+        const items = safeJsonParse<SyncItem[]>(raw, []);
         await saveCollection(uid, key, items);
       } else if (SYNC_DOCUMENTS.includes(key)) {
-        let docData: SyncDocument = {};
-        try {
-          if (!raw.startsWith('data:')) {
-            docData = JSON.parse(raw);
-          }
-        } catch {
-          docData = {};
-        }
+        const docData = safeJsonParse<SyncDocument>(raw, {});
         await saveDocument(uid, key, docData);
       } else if (SYNC_VALUES.includes(key)) {
         await saveValue(uid, key, raw);
@@ -496,9 +483,12 @@ export async function pushAllToCloud(uid: string): Promise<void> {
   
   for (const key of SYNC_COLLECTIONS) {
     const raw = localStorage.getItem(key);
-    if (raw && !raw.startsWith('data:')) {
+    if (raw) {
       try {
-        await saveCollection(uid, key, JSON.parse(raw));
+        const items = safeJsonParse<SyncItem[]>(raw, []);
+        if (items.length > 0) {
+          await saveCollection(uid, key, items);
+        }
       } catch {
         // ignore
       }
@@ -507,9 +497,12 @@ export async function pushAllToCloud(uid: string): Promise<void> {
   
   for (const key of SYNC_DOCUMENTS) {
     const raw = localStorage.getItem(key);
-    if (raw && !raw.startsWith('data:')) {
+    if (raw) {
       try {
-        await saveDocument(uid, key, JSON.parse(raw));
+        const docData = safeJsonParse<SyncDocument>(raw, {});
+        if (Object.keys(docData).length > 0) {
+          await saveDocument(uid, key, docData);
+        }
       } catch {
         // ignore
       }

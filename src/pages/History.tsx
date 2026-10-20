@@ -18,6 +18,7 @@ import ReportPdfGenerator from '../components/ReportPdfGenerator';
 import { downloadCSV } from '../services/exportCsv';
 import { printElementAsDocument } from '../utils/pdfHelper';
 import { usePaywall } from '../hooks/usePaywall';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 // ─── Reusable delete confirmation dialog ───────────────────────────
 function DeleteConfirm({ onConfirm, onCancel }: any) {
@@ -165,7 +166,7 @@ export default function History(): React.ReactElement | null {
 
   const confirmDelete = () => {
     const { storageKey, id } = deleteTarget;
-    const current = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    const current = safeGetLocalStorage<any[]>(storageKey, []);
     const updated = current.filter((item) => String(item.id) !== String(id));
     localStorage.setItem(storageKey, JSON.stringify(updated));
     syncCollection(storageKey, updated);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { XCircle, ClipboardCheck, AlertTriangle, Clock, CheckCircle2, Shield, ArrowLeft } from 'lucide-react';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 const AUDIT_TYPES = [
 { id: 'internal', name: 'Auditoría Interna', icon: '📋', color: '#3b82f6' },
@@ -36,20 +37,13 @@ export default function AuditDetail(): React.ReactElement | null {
   const [newFinding, setNewFinding] = useState({ title: '', description: '', severity: 'minor', responsible: '', dueDate: '' });
 
   useEffect(() => {
-    const auditsDb = localStorage.getItem('ehs_audits_db');
-    const findingsDb = localStorage.getItem('ehs_audit_findings_db');
+    const audits = safeGetLocalStorage<any[]>('ehs_audits_db', []);
+    const found = audits.find((a: any) => a.id === id);
+    if (found) setAudit(found);
 
-    if (auditsDb) {
-      const audits = JSON.parse(auditsDb);
-      const found = audits.find((a: any) => a.id === id);
-      if (found) setAudit(found);
-    }
-
-    if (findingsDb) {
-      const allFindings = JSON.parse(findingsDb);
-      const auditFindings = allFindings.filter((f: any) => f.auditId === id);
-      setFindings(auditFindings);
-    }
+    const allFindings = safeGetLocalStorage<any[]>('ehs_audit_findings_db', []);
+    const auditFindings = allFindings.filter((f: any) => f.auditId === id);
+    setFindings(auditFindings);
   }, [id]);
 
   const handleAddFinding = () => {
@@ -71,10 +65,8 @@ export default function AuditDetail(): React.ReactElement | null {
   };
 
   const updateAuditStatus = (status: string) => {
-    const auditsDb = localStorage.getItem('ehs_audits_db');
-    if (!auditsDb || !audit) return;
-
-    const audits = JSON.parse(auditsDb);
+    if (!audit) return;
+    const audits = safeGetLocalStorage<any[]>('ehs_audits_db', []);
     const updated = audits.map((a: any) =>
     a.id === id ? { ...a, status } : a
     );

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import RARPdf from '../components/RARPdf';
 import {
   ModuleFormLayout,
@@ -287,7 +288,7 @@ export default function RARForm(): React.ReactElement | null {
       return;
     }
 
-    const saved = JSON.parse(localStorage.getItem('rar_surveys_db') || '[]');
+    const saved = safeGetLocalStorage<any[]>('rar_surveys_db', []);
     const toSave: RARSurvey = {
       ...survey,
       updatedAt: new Date().toISOString()

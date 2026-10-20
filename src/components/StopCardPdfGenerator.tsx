@@ -3,6 +3,7 @@ import { MapPin, Calendar, Clock, User, AlertCircle, AlertTriangle, ShieldCheck,
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
 import { getCountryNormativa } from '../data/legislationData';
+import { safeJsonParse } from '../utils/storageHelper';
 import PdfBrandingFooter from './PdfBrandingFooter';
 
 export default function StopCardPdfGenerator({ card }: {card: any;}): React.ReactElement | null {
@@ -11,7 +12,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
   if (!card) return null;
 
   const savedData = localStorage.getItem('personalData');
-  const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+  const userCountry = savedData ? safeJsonParse<any>(savedData, {}).country || 'argentina' : 'argentina';
   const countryNorms = getCountryNormativa(userCountry);
 
   const getTypeConfig = (type) => {

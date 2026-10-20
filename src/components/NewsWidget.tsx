@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Newspaper, ChevronRight, ExternalLink, BellRing } from 'lucide-react';
+import { safeJsonParse } from '../utils/storageHelper';
 
 const NEWS_BY_COUNTRY = {
   argentina: [
@@ -131,7 +132,7 @@ const NEWS_BY_COUNTRY = {
 
 export default function NewsWidget() {
   const savedData = localStorage.getItem('personalData');
-  const userCountry = (savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina').toLowerCase().trim();
+  const userCountry = (savedData ? safeJsonParse<any>(savedData, {}).country || 'argentina' : 'argentina').toLowerCase().trim();
   const NEWS_ITEMS = NEWS_BY_COUNTRY[userCountry] || NEWS_BY_COUNTRY.generic;
 
   const [currentIndex, setCurrentIndex] = useState(0);

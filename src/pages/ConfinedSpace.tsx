@@ -15,6 +15,7 @@ import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import ConfirmModal from '../components/ConfirmModal';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 // Límites atmosféricos según Resolución S.R.T. N° 953/10 y Res. MTEySS 295/03 Anexo IV
 const ATMOSPHERIC_LIMITS = {
@@ -140,10 +141,8 @@ export default function ConfinedSpace(): React.ReactElement | null {
     window.scrollTo(0, 0);
     const loadData = () => {
 
-      const savedPermits = localStorage.getItem('confined_space_permits_db');
-      const savedActive = localStorage.getItem('confined_space_active_db');
-      if (savedPermits) setPermits(JSON.parse(savedPermits));
-      if (savedActive) setActivePermits(JSON.parse(savedActive));
+      setPermits(safeGetLocalStorage<any[]>('confined_space_permits_db', []));
+      setActivePermits(safeGetLocalStorage<any[]>('confined_space_active_db', []));
     };
 
     loadData();

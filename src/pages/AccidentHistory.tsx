@@ -11,6 +11,7 @@ import ShareModal from '../components/ShareModal';
 import QRModal from '../components/QRModal';
 import { DataTable } from '../components/DataTable';
 import AnimatedPage from '../components/AnimatedPage';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 const severityConfig = {
   'Leve': { color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
@@ -32,7 +33,7 @@ export default function AccidentHistory(): React.ReactElement | null {
   const [selectedReport, setSelectedReport] = useState(null);
 
   useEffect(() => {
-    const h = JSON.parse(localStorage.getItem('accident_history') || '[]');
+    const h = safeGetLocalStorage<any[]>('accident_history', []);
     setHistory(h.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()));
   }, [syncing]);
 

@@ -10,6 +10,7 @@ import NoiseAssessmentPdf from '../components/NoiseAssessmentPdf';
 import CompanyLogo from '../components/CompanyLogo';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import ConfirmModal from '../components/ConfirmModal';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 const NOISE_LIMITS = {
   actionLevel: 80,
@@ -33,8 +34,8 @@ export default function NoiseAssessmentPage(): React.ReactElement | null {
     handleResize();
     window.addEventListener('resize', handleResize);
 
-    const saved = localStorage.getItem('noise_assessments_db');
-    if (saved) setMeasurements(JSON.parse(saved));
+
+    setMeasurements(safeGetLocalStorage<any[]>('noise_assessments_db', []));
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);

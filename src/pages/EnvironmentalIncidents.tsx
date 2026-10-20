@@ -12,6 +12,7 @@ import ShareModal from '../components/ShareModal';
 import EnvironmentalIncidentPdf from '../components/EnvironmentalIncidentPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import toast from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 const INCIDENT_TYPES = ['Derrame / Fuga', 'Emisión a la Atmósfera', 'Gestión Inadecuada de Residuos', 'Queja de la Comunidad', 'Ruido Ambiental', 'Incendio / Explosión', 'Otro'];
 const SEVERITIES = [
@@ -54,8 +55,7 @@ export default function EnvironmentalIncidents() {
   useEffect(() => {
     window.scrollTo(0, 0);
     const loadData = () => {
-      const saved = localStorage.getItem('environmental_incidents_db');
-      if (saved) setIncidents(JSON.parse(saved));
+      setIncidents(safeGetLocalStorage<any[]>('environmental_incidents_db', []));
     };
     loadData();
   }, []);

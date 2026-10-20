@@ -10,6 +10,7 @@ import PdfSignatures from '../components/PdfSignatures';
 import { toast } from 'react-hot-toast';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { printElementAsDocument } from '../utils/pdfHelper';
+import { safeJsonParse, safeGetLocalStorage } from '../utils/storageHelper';
 
 export default function AIReport(): React.ReactElement | null {
   const { requirePro, isPro, loading } = usePaywall();
@@ -40,14 +41,16 @@ export default function AIReport(): React.ReactElement | null {
     const prof = localStorage.getItem('personalData');
     const sig = localStorage.getItem('signatureStampData');
 
-    if (current) {
-      const parsedData = JSON.parse(current);
+    const parsedData = safeGetLocalStorage<any>('current_ai_inspection', null);
+    if (parsedData) {
       setData(parsedData);
       setCompany(parsedData.company || 'Empresa Local');
       setLocation(parsedData.location || 'Planta Principal');
     }
-    if (prof) setProfile(JSON.parse(prof));
-    if (sig) setSignature(JSON.parse(sig));
+    const profData = safeGetLocalStorage<any>('personalData', null);
+    if (profData) setProfile(profData);
+    const sigData = safeGetLocalStorage<any>('signatureStampData', null);
+    if (sigData) setSignature(sigData);
   }, [isPro, loading]);
 
   if (loading) {

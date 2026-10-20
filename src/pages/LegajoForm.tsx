@@ -22,6 +22,7 @@ import {
 import LegajoPdf from '../components/LegajoPdf';
 import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 const TABS = [
 { id: 'empresa', label: 'Empresa', icon: Building2, color: '#2563eb' },
@@ -540,7 +541,7 @@ export default function LegajoForm() {
       return;
     }
 
-    const history = JSON.parse(localStorage.getItem('training_history') || '[]');
+    const history = safeGetLocalStorage<any[]>('training_history', []);
     if (history.length === 0) {
       alert("💡 No hay capacitaciones registradas en el historial general del sistema. Crea capacitaciones en el Módulo de Capacitaciones primero.");
       return;

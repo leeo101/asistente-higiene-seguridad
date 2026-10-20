@@ -8,6 +8,8 @@ interface PdfBrandingFooterProps {
     signedBy?: string;
     timestamp?: string;
     hash?: string;
+    pageNumber?: string | number;
+    totalPages?: string | number;
 }
 
 /**
@@ -19,7 +21,9 @@ export default function PdfBrandingFooter({
     verificationUrl,
     signedBy,
     timestamp,
-    hash
+    hash,
+    pageNumber,
+    totalPages
 }: PdfBrandingFooterProps) {
     const baseUrl = typeof window !== 'undefined' && window.location.origin 
         ? window.location.origin 
@@ -201,7 +205,7 @@ export default function PdfBrandingFooter({
                     {documentId && <span>ID: {documentId} | </span>}
                     {hash && <span title={hash}>SHA-256: {hash.substring(0, 16).toUpperCase()}... | </span>}
                     {signedBy && <span>Firmado: {signedBy} | </span>}
-                    <span>Emisión: {formattedDate}</span>
+                    <span>Emisión: {formattedDate}</span>{pageNumber && <span> | Pág. {pageNumber}{totalPages ? (' de ' + totalPages) : ''}</span>}
                 </div>
             </div>
         </div>

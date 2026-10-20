@@ -27,16 +27,28 @@ function readLogoFromStorage(): string | null {
   try {
     const raw = localStorage.getItem('companyLogo');
     if (!raw || raw === 'null' || raw === 'undefined' || raw === '') return null;
+    const trimmed = raw.trim();
     // Si el valor empieza con data: o http, es directamente el logo
-    if (raw.startsWith('data:') || raw.startsWith('http')) return raw;
-    // Puede ser JSON {value: "..."} guardado por pullAllFromCloud (bug anterior)
-    try {
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === 'object') {
-        if (typeof parsed.value === 'string' && parsed.value) return parsed.value;
-        if (typeof parsed.logo === 'string' && parsed.logo) return parsed.logo;
+    if (trimmed.startsWith('data:') || trimmed.startsWith('http:') || trimmed.startsWith('https:') || trimmed.startsWith('blob:')) {
+      return trimmed;
+    }
+    if (trimmed.startsWith('"data:') && trimmed.endsWith('"')) {
+      try {
+        return JSON.parse(trimmed);
+      } catch {
+        return trimmed.slice(1, -1);
       }
-    } catch {/* no era JSON */}
+    }
+    // Puede ser JSON {value: "..."} guardado por pullAllFromCloud (bug anterior)
+    if (trimmed.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (parsed && typeof parsed === 'object') {
+          if (typeof parsed.value === 'string' && parsed.value) return parsed.value;
+          if (typeof parsed.logo === 'string' && parsed.logo) return parsed.logo;
+        }
+      } catch {/* no era JSON */}
+    }
     return raw;
   } catch {
     return null;
@@ -47,13 +59,17 @@ function readShowLogoFromStorage(): boolean {
   try {
     const raw = localStorage.getItem('showCompanyLogo');
     if (raw === null) return true; // default: mostrar
-    if (raw === 'false') return false;
-    if (raw === 'true') return true;
+    const trimmed = raw.trim();
+    if (trimmed === 'false') return false;
+    if (trimmed === 'true') return true;
+    if (trimmed.startsWith('data:') || trimmed.startsWith('"data:') || trimmed.startsWith('http')) return true;
     // Puede ser JSON {value: true/false} guardado por pullAllFromCloud (bug anterior)
-    try {
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === 'object' && 'value' in parsed) return Boolean(parsed.value);
-    } catch {/* no era JSON */}
+    if (trimmed.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (parsed && typeof parsed === 'object' && 'value' in parsed) return Boolean(parsed.value);
+      } catch {/* no era JSON */}
+    }
     return true;
   } catch {
     return true;

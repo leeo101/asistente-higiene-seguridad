@@ -1,6 +1,7 @@
 import React from 'react';
 import { Volume2, ShieldCheck, AlertTriangle, Activity, Headphones, Award, Building2, Clock, Calendar, CheckCircle2, XCircle } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import DualPdfHeader from './DualPdfHeader';
 import PdfSignatures from './PdfSignatures';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import { evaluateFullNoiseProtocolSRT85 } from '../utils/srtProtocols';
@@ -160,27 +161,21 @@ export default function NoiseAssessmentPdf({ data }: { data: any }): React.React
           `}
         </style>
 
-        {/* Encabezado Oficial Res. SRT 85/12 */}
-        <div className="flex flex-row justify-between items-start border-b-2 border-slate-200 pb-2.5 mb-3 w-full">
-          <div className="flex-1 text-left">
-            <p className="m-0 font-extrabold text-[0.62rem] uppercase text-slate-500 tracking-wider">Superintendencia de Riesgos del Trabajo</p>
-            <p style={{ color: isCritical ? '#dc2626' : isConforme ? '#059669' : '#d97706' }} className="m-0 font-black text-[0.75rem] uppercase">
-              {isCritical ? '⚠ PROTOCOLO CON EXCESO DE LMPE' : 'PROTOCOLO OFICIAL RES. S.R.T. N° 85/12'}
-            </p>
-          </div>
-
-          <div className="flex-[2] flex flex-col items-center justify-center text-center">
-            <h1 className="m-0 font-black text-xl tracking-tight uppercase leading-none text-slate-900">RUIDO LABORAL</h1>
-            <div style={{ background: isCritical ? '#dc2626' : isConforme ? '#10b981' : '#f59e0b' }} className="mt-1 text-white px-2.5 py-0.5 rounded-full text-[0.6rem] font-black tracking-wider uppercase">
-              Dec. 351/79 Anexo V • Res. MTEySS 295/03 Anexo V • Res. SRT 85/12
-            </div>
-          </div>
-
-          <div className="flex-1 text-right flex flex-col items-end gap-1">
-            <CompanyLogo style={{ maxHeight: '36px', maxWidth: '120px', objectFit: 'contain' }} />
-            <span className="text-[0.62rem] font-bold text-slate-400">Anexo I - Hoja 1/1</span>
-          </div>
-        </div>
+        {/* Encabezado Oficial Res. SRT 85/12 con Doble Membrete */}
+        <DualPdfHeader
+          title="MEDICIÓN DE RUIDO LABORAL"
+          subtitle="Determinación de Dosis de Ruido, NSCE y Atenuación de EPP · Dec. 351/79 Anexo V · Res. 295/03"
+          normBadge={isCritical ? "Res. S.R.T. 85/12 (Exceso LMPE)" : "Protocolo Oficial · Res. S.R.T. N° 85/12"}
+          normBadgeColor={isCritical ? "red" : isConforme ? "emerald" : "amber"}
+          normBadgeIcon={<Volume2 size={13} className={isCritical ? "text-red-600" : isConforme ? "text-emerald-600" : "text-amber-600"} />}
+          documentId={data.id}
+          establishmentName={rSocial}
+          establishmentCuit={cuit}
+          establishmentAddress={direccion}
+          consultantName={actName}
+          consultantLicense={actLic}
+          date={fMed ? new Date(fMed).toLocaleDateString('es-AR') : undefined}
+        />
 
         {/* 1. Datos del Establecimiento y Empleador */}
         <div className="border border-slate-300 rounded-lg mb-2.5 overflow-hidden">

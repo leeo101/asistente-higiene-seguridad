@@ -3,6 +3,7 @@ import { Building2, MapPin, Calendar } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
 import { getCountryNormativa } from '../data/legislationData';
+import { safeJsonParse } from '../utils/storageHelper';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import ReportContentRenderer from './reports/ReportContentRenderer';
 
@@ -12,7 +13,7 @@ export default function ProfessionalReportPdfGenerator({ currentReport, customId
   const report = currentReport;
 
   const savedData = localStorage.getItem('personalData');
-  const userCountry = savedData ? JSON.parse(savedData).country || 'argentina' : 'argentina';
+  const userCountry = savedData ? safeJsonParse<any>(savedData, {}).country || 'argentina' : 'argentina';
   const countryNorms = getCountryNormativa(userCountry);
 
   return (

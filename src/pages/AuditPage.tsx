@@ -5,6 +5,7 @@ import ShareModal from '../components/ShareModal';
 import AuditPdf from '../components/AuditPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import ConfirmModal from '../components/ConfirmModal';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 const AUDIT_TYPES = [{ id: 'internal', name: 'Interna', icon: '📋' }, { id: 'external', name: 'Externa', icon: '🏢' }, { id: 'certification', name: 'Certificación', icon: '📜' }, { id: 'surveillance', name: 'Seguimiento', icon: '👁️' }];
 const STATUS = { draft: { label: 'BORRADOR', color: '#6b7280', bg: '#f3f4f6' }, planned: { label: 'PLANIFICADA', color: '#3b82f6', bg: '#eff6ff' }, in_progress: { label: 'EN CURSO', color: '#f59e0b', bg: '#fffbeb' }, completed: { label: 'COMPLETADA', color: '#16a34a', bg: '#f0fdf4' } };
@@ -18,7 +19,7 @@ export default function AuditPage(): React.ReactElement | null {
   const [isMobile, setIsMobile] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, payload: null as any });
 
-  useEffect(() => {const h = () => setIsMobile(window.innerWidth < 768);h();window.addEventListener('resize', h);const s = localStorage.getItem('ehs_audits_db');if (s) setAudits(JSON.parse(s));return () => window.removeEventListener('resize', h);}, []);
+  useEffect(() => {const h = () => setIsMobile(window.innerWidth < 768);h();window.addEventListener('resize', h);setAudits(safeGetLocalStorage<any[]>('ehs_audits_db', []));return () => window.removeEventListener('resize', h);}, []);
   const save = (d: any[]) => {localStorage.setItem('ehs_audits_db', JSON.stringify(d));setAudits(d);};
   const updateStatus = (id: string, s: string) => save(audits.map((a: any) => a.id === id ? { ...a, status: s } : a));
   const del = (id: string) => {setConfirmModal({ isOpen: true, payload: id });};

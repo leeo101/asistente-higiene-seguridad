@@ -4,6 +4,7 @@ import { ArrowLeft, Save, CarFront, AlertTriangle, ShieldCheck, Printer, Share2,
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import PremiumHeader from '../components/PremiumHeader';
 import { toast } from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
 import SignatureCanvas from '../components/SignatureCanvas';
@@ -79,7 +80,7 @@ export default function FleetForm(): React.ReactElement | null {
   }, []);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('fleet_inspections_db') || '[]');
+    const saved = safeGetLocalStorage<any[]>('fleet_inspections_db', []);
     setInspections(saved);
   }, [isFormVisible]);
 
@@ -143,23 +144,21 @@ export default function FleetForm(): React.ReactElement | null {
   const showSignatures = form.showSignatures || { operator: true, professional: true, supervisor: true };
 
   useEffect(() => {
-    const savedData = localStorage.getItem('personalData');
-    const savedSigData = localStorage.getItem('signatureStampData');
+    const savedData = safeGetLocalStorage<any>('personalData', null);
+    const savedSigData = safeGetLocalStorage<any>('signatureStampData', null);
     const legacySignature = localStorage.getItem('capturedSignature');
 
     let signature = legacySignature || null;
     let stamp = null;
-    if (savedSigData) {
-      const parsed = JSON.parse(savedSigData);
-      signature = parsed.signature || signature;
-      stamp = parsed.stamp || null;
+    if (savedSigData && typeof savedSigData === 'object') {
+      signature = savedSigData.signature || signature;
+      stamp = savedSigData.stamp || null;
     }
 
-    if (savedData) {
-      const data = JSON.parse(savedData);
+    if (savedData && typeof savedData === 'object') {
       setProfessional({
-        name: data.name || '',
-        license: data.license || '',
+        name: savedData.name || '',
+        license: savedData.license || '',
         signature: signature,
         stamp: stamp
       });
@@ -208,7 +207,7 @@ export default function FleetForm(): React.ReactElement | null {
       return;
     }
 
-    const saved = JSON.parse(localStorage.getItem('fleet_inspections_db') || '[]');
+    const saved = safeGetLocalStorage<any[]>('fleet_inspections_db', []);
     let updated;
 
     const formWithSignatures = {

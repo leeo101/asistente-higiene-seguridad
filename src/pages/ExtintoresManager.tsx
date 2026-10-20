@@ -14,6 +14,7 @@ import { API_BASE_URL } from '../config';
 import { getErrorMessage } from '../utils/errorUtils';
 import QRCode from 'qrcode';
 import toast from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import Breadcrumbs from '../components/Breadcrumbs';
 import PremiumHeader from '../components/PremiumHeader';
 import ShareModal from '../components/ShareModal';
@@ -1250,10 +1251,10 @@ export default function ExtintoresManager() {
                         </div>
                         <div className="overflow-y-auto flex-1 pr-1 custom-scrollbar">
                             {(() => {
-                                const historyRaw = localStorage.getItem('extintores_history');
+                                const historyRaw = safeGetLocalStorage<any[]>('extintores_history', []);
                                 let pastInspections: any[] = [];
-                                if (historyRaw) {
-                                    pastInspections = JSON.parse(historyRaw).filter((h: any) => 
+                                if (Array.isArray(historyRaw)) {
+                                    pastInspections = historyRaw.filter((h: any) => 
                                         String(h.extintorId) === String(showHistoryModal.id) ||
                                         String(h.extintorNum) === String(showHistoryModal.numero || showHistoryModal.chapa)
                                     );

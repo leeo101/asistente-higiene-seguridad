@@ -10,6 +10,7 @@ import BeforeAndAfter from './BeforeAndAfter';
 import PricingDark from './PricingDark';
 import FaqAndCtaDark from './FaqAndCtaDark';
 import ModulesGrid from './ModulesGrid';
+import SamplePdfsSection from './SamplePdfsSection';
 import RoiCalculator from './RoiCalculator';
 import WallOfLove from './WallOfLove';
 
@@ -55,6 +56,10 @@ export default function MarketingLanding({ onStart, onLogin }: MarketingLandingP
             <button onClick={() => scrollToSection('modulos')} className="hover:text-blue-400 transition-colors cursor-pointer bg-transparent border-none flex items-center gap-1">
               <span>Módulos</span>
               <span className="text-[10px] bg-blue-500/20 text-blue-300 px-1.5 py-0.2 rounded font-bold border border-blue-500/30">+45</span>
+            </button>
+            <button onClick={() => scrollToSection('muestras-pdf')} className="hover:text-amber-400 transition-colors cursor-pointer bg-transparent border-none flex items-center gap-1">
+              <span>Muestras PDF</span>
+              <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded font-bold">Oficiales</span>
             </button>
             <button onClick={() => scrollToSection('calculadora')} className="hover:text-emerald-400 transition-colors cursor-pointer bg-transparent border-none">
               Ahorro de Tiempo
@@ -396,6 +401,9 @@ export default function MarketingLanding({ onStart, onLogin }: MarketingLandingP
 
       {/* ── BLOQUE: VITRINA COMPLETA DE MÓDULOS (+45) ── */}
       <ModulesGrid onStart={onStart} />
+
+      {/* ── BLOQUE: INFORMES TÉCNICOS Y PDFS DE MUESTRA ── */}
+      <SamplePdfsSection onStart={onStart} />
 
       {/* ── BLOQUE: CALCULADORA DE RETORNO DE INVERSIÓN (ROI) ── */}
       <section id="calculadora">

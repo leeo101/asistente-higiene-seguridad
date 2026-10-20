@@ -8,6 +8,7 @@ import ShareModal from '../components/ShareModal';
 import LOTOPdf from '../components/LOTOPdf';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import ConfirmModal from '../components/ConfirmModal';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 const LOTO_STATUS = {
   draft: { label: 'BORRADOR', color: '#6b7280', bg: '#f3f4f6' },
@@ -30,8 +31,8 @@ export default function LOTOPage(): React.ReactElement | null {
     handleResize();
     window.addEventListener('resize', handleResize);
 
-    const saved = localStorage.getItem('loto_procedures_db');
-    if (saved) setProcedures(JSON.parse(saved));
+
+    setProcedures(safeGetLocalStorage<any[]>('loto_procedures_db', []));
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);

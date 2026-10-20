@@ -8,6 +8,7 @@ import {
   Zap, Thermometer, Droplets, Snowflake, Beaker, Briefcase, Pencil, Tag, AlertTriangle, Printer, FileText } from
 'lucide-react';
 import toast from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import { useSync } from '../contexts/SyncContext';
 import { downloadCSV } from '../services/exportCsv';
 import { usePaywall } from '../hooks/usePaywall';
@@ -203,8 +204,8 @@ export default function PPETracker(): React.ReactElement | null {
   }, []);
 
   useEffect(() => {
-    const saved = localStorage.getItem('ppe_items');
-    if (saved) setItems(JSON.parse(saved));
+
+    setItems(safeGetLocalStorage<any[]>('ppe_items', []));
   }, []);
 
   useEffect(() => {

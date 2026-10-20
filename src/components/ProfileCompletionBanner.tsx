@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { X, AlertCircle, User } from 'lucide-react';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 export default function ProfileCompletionBanner() {
   const navigate = useNavigate();
@@ -9,7 +10,8 @@ export default function ProfileCompletionBanner() {
   useEffect(() => {
     const personalData = localStorage.getItem('personalData');
     if (personalData) {
-      const data = JSON.parse(personalData);
+      const data = safeGetLocalStorage<any>('personalData', null);
+      if (!data) return;
       // Mostrar banner si profileComplete es false o si faltan datos importantes
       const hasIncompleteProfile = !data.profileComplete ||
       !data.dni ||

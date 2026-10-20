@@ -1,6 +1,7 @@
 import React from 'react';
 import { AlertTriangle, CheckCircle2, Zap, Shield, ShieldAlert, Calendar, Building2, User, Gauge } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import DualPdfHeader from './DualPdfHeader';
 import ReportContentRenderer from './reports/ReportContentRenderer';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import type { GroundingProtocol } from '../types/grounding';
@@ -56,24 +57,21 @@ export default function GroundingProtocolPdf({ data, customId = 'pdf-content' }:
           `}
         </style>
 
-        {/* Encabezado Institucional SRT */}
-        <div className="flex justify-between items-center border-b-2 border-slate-800 pb-3 mb-4">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-amber-100 text-amber-900 text-[8pt] font-black tracking-wider uppercase mb-1">
-              <Zap size={13} className="text-amber-600" /> Protocolo Oficial · Res. S.R.T. N° 900/15
-            </div>
-            <h1 className="m-0 text-[1.3rem] font-black tracking-tight text-slate-900 leading-tight">
-              MEDICIÓN DE PUESTA A TIERRA Y CONTINUIDAD DE LAS MASAS
-            </h1>
-            <p className="m-0 text-[8.5pt] text-slate-600 font-semibold">
-              Reglamentación para la Ejecución de Instalaciones Eléctricas en Inmuebles (AEA 90364) · Ley 19.587 Dec. 351/79
-            </p>
-          </div>
-          <div className="text-right flex flex-col items-end">
-            <CompanyLogo style={{ maxHeight: '42px', maxWidth: '130px', objectFit: 'contain' }} />
-            <span className="text-[7.5pt] font-mono font-bold text-slate-500 mt-1">ID: {data.id?.slice(0, 10)}</span>
-          </div>
-        </div>
+        {/* Encabezado Institucional SRT con Doble Membrete */}
+        <DualPdfHeader
+          title="MEDICIÓN DE PUESTA A TIERRA Y CONTINUIDAD DE LAS MASAS"
+          subtitle="Reglamentación para la Ejecución de Instalaciones Eléctricas en Inmuebles (AEA 90364) · Ley 19.587 Dec. 351/79"
+          normBadge="Protocolo Oficial · Res. S.R.T. N° 900/15"
+          normBadgeColor="amber"
+          normBadgeIcon={<Zap size={13} className="text-amber-600" />}
+          documentId={data.id}
+          establishmentName={data.razonSocial || data.establecimiento}
+          establishmentCuit={data.cuit}
+          establishmentAddress={data.direccion}
+          consultantName={actName || data.profesionalNombre}
+          consultantLicense={actLic || data.profesionalMatricula}
+          date={data.fechaMedicion}
+        />
 
         {/* Banner de Resultado Global */}
         <div className={`p-3 rounded-lg border-2 mb-4 flex items-center justify-between ${

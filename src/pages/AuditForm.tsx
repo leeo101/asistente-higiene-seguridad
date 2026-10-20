@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Save, ClipboardCheck, Shield, AlertTriangle, Clock, CheckCircle2, User, MapPin, Calendar, FileText, Eye, Printer, Share2, Pencil, Award, X } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import ShareModal from '../components/ShareModal';
 import AuditPdf from '../components/AuditPdf';
 import { printElementAsDocument } from '../utils/pdfHelper';
@@ -288,7 +289,7 @@ export default function AuditForm(): React.ReactElement | null {
       return;
     }
 
-    const saved = JSON.parse(localStorage.getItem('ehs_audits_db') || '[]');
+    const saved = safeGetLocalStorage<any[]>('ehs_audits_db', []);
     let updated;
 
     if (isEdit) {

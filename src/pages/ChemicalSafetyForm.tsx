@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import ShareModal from '../components/ShareModal';
 import ChemicalSafetyPdf from '../components/ChemicalSafetyPdf';
 import { usePaywall } from '../hooks/usePaywall';
@@ -201,7 +202,7 @@ export default function ChemicalSafetyForm(): React.ReactElement | null {
 
   const handleSave = () => {
     const id = editData?.id || Date.now().toString();
-    const history = JSON.parse(localStorage.getItem('chemical_safety_db') || '[]');
+    const history = safeGetLocalStorage<any[]>('chemical_safety_db', []);
 
     const finalReport = {
       ...formData,

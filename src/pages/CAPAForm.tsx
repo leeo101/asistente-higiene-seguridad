@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Save, RefreshCw, Shield, AlertTriangle, Clock, CheckCircle2, User, Calendar, FileText, Target, Info, Eye, Printer, Share2, Pencil } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import ShareModal from '../components/ShareModal';
 import CAPAPdf from '../components/CAPAPdf';
 import { printElementAsDocument } from '../utils/pdfHelper';
@@ -179,7 +180,7 @@ export default function CAPAForm(): React.ReactElement | null {
       return;
     }
 
-    const saved = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
+    const saved = safeGetLocalStorage<any[]>('ehs_capa_db', []);
     let updated;
 
     if (isEdit) {

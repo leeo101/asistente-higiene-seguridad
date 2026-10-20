@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ArrowLeft, Camera, Shield, Save, Clock, User } from 'lucide-react';
 import VoiceDictationButton from '../components/VoiceDictationButton';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 export default function Observation(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -22,9 +23,8 @@ export default function Observation(): React.ReactElement | null {
 
   const handleSave = () => {
     // Guardar la observación actual en el relevamiento
-    const current = localStorage.getItem('current_inspection');
-    if (current) {
-      const inspection = JSON.parse(current);
+    const inspection = safeGetLocalStorage<any>('current_inspection', null);
+    if (inspection) {
       if (!inspection.observations) inspection.observations = [];
 
       // Si ya existe una observación para este ítem, la actualizamos

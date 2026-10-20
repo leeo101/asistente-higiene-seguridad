@@ -12,6 +12,7 @@ import QRModal from '../components/QRModal';
 import { usePaywall } from '../hooks/usePaywall';
 import { DataTable } from '../components/DataTable';
 import AnimatedPage from '../components/AnimatedPage';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import PremiumHeader from '../components/PremiumHeader';
 import { downloadCSV } from '../services/exportCsv';
 import toast from 'react-hot-toast';
@@ -31,7 +32,7 @@ export default function DrillsHistory(): React.ReactElement | null {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const h = JSON.parse(localStorage.getItem('drills_history') || '[]');
+    const h = safeGetLocalStorage<any[]>('drills_history', []);
     setHistory(h.sort((a: any, b: any) => (new Date(b.fecha) as any) - (new Date(a.fecha) as any)));
   }, [syncing]);
 

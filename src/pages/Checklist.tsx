@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import CompanyLogo from '../components/CompanyLogo';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { ArrowLeft, CheckCircle2, AlertCircle, ClipboardCheck, ChevronRight, Shield } from 'lucide-react';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 export default function Checklist(): React.ReactElement | null {
   const navigate = useNavigate();
@@ -59,9 +60,8 @@ export default function Checklist(): React.ReactElement | null {
 
   // Load responses on mount
   useEffect(() => {
-    const current = localStorage.getItem('current_inspection');
-    if (current) {
-      const inspection = JSON.parse(current);
+    const inspection = safeGetLocalStorage<any>('current_inspection', null);
+    if (inspection) {
       if (inspection.title || inspection.type) {
         setTitle(inspection.title || inspection.type);
       }

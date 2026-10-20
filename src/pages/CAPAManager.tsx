@@ -14,6 +14,7 @@ import { printElementAsDocument } from '../utils/pdfHelper';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import PremiumHeader from '../components/PremiumHeader';
 import ConfirmModal from '../components/ConfirmModal';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 // Form styles
 const labelStyle = {
@@ -155,8 +156,8 @@ export default function CAPAManager(): React.ReactElement | null {
 
   useEffect(() => {
     const loadCapas = () => {
-      const savedCapas = localStorage.getItem('ehs_capa_db');
-      if (savedCapas) setCapas(JSON.parse(savedCapas));
+
+      setCapas(safeGetLocalStorage<any[]>('ehs_capa_db', []));
     };
 
     loadCapas();

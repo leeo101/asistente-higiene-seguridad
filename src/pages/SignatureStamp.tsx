@@ -23,18 +23,21 @@ export default function SignatureStamp(): React.ReactElement | null {
 
   useEffect(() => {
     const savedData = localStorage.getItem('signatureStampData');
-    if (savedData && !savedData.startsWith('data:')) {
-      try {
-        const parsed = JSON.parse(savedData);
-        if (parsed && typeof parsed === 'object') {
-          setSignatureImage(parsed.signature || null);
-          setStampImage(parsed.stamp || null);
+    if (savedData) {
+      const trimmed = savedData.trim();
+      if (trimmed.startsWith('data:') || trimmed.startsWith('"data:')) {
+        setSignatureImage(trimmed.startsWith('"') ? trimmed.slice(1, -1) : trimmed);
+      } else {
+        try {
+          const parsed = JSON.parse(trimmed);
+          if (parsed && typeof parsed === 'object') {
+            setSignatureImage(parsed.signature || null);
+            setStampImage(parsed.stamp || null);
+          }
+        } catch (e) {
+          console.warn('Error parsing signatureStampData:', e);
         }
-      } catch (e) {
-        console.warn('Error parsing signatureStampData:', e);
       }
-    } else if (savedData && savedData.startsWith('data:')) {
-      setSignatureImage(savedData);
     }
   }, []);
 

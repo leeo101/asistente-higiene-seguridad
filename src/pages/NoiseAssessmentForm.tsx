@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import ShareModal from '../components/ShareModal';
 import NoiseAssessmentPdf from '../components/NoiseAssessmentPdf';
 import PdfSignatures from '../components/PdfSignatures';
@@ -172,31 +173,29 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
     handleResize();
     window.addEventListener('resize', handleResize);
 
-    const savedData = localStorage.getItem('personalData');
-    const savedSigData = localStorage.getItem('signatureStampData');
+    const savedData = safeGetLocalStorage<any>('personalData', null);
+    const savedSigData = safeGetLocalStorage<any>('signatureStampData', null);
     const legacySignature = localStorage.getItem('capturedSignature');
 
     let signature = legacySignature || null;
     let stamp = null;
-    if (savedSigData) {
-      const parsed = JSON.parse(savedSigData);
-      signature = parsed.signature || signature;
-      stamp = parsed.stamp || null;
+    if (savedSigData && typeof savedSigData === 'object') {
+      signature = savedSigData.signature || signature;
+      stamp = savedSigData.stamp || null;
     }
 
-    if (savedData) {
-      const data = JSON.parse(savedData);
+    if (savedData && typeof savedData === 'object') {
       setProfessional({
-        name: data.name || '',
-        license: data.license || '',
+        name: savedData.name || '',
+        license: savedData.license || '',
         signature: signature,
         stamp: stamp
       });
       if (!measurement.technician) {
         setMeasurement((prev: any) => ({
           ...prev,
-          technician: prev.technician || data.name || '',
-          technicianLicense: prev.technicianLicense || data.license || ''
+          technician: prev.technician || savedData.name || '',
+          technicianLicense: prev.technicianLicense || savedData.license || ''
         }));
       }
     } else {
@@ -267,7 +266,7 @@ export default function NoiseAssessmentForm(): React.ReactElement | null {
       return;
     }
 
-    const saved = JSON.parse(localStorage.getItem('noise_assessments_db') || '[]');
+    const saved = safeGetLocalStorage<any[]>('noise_assessments_db', []);
     let updated;
 
     const entryToSave = {

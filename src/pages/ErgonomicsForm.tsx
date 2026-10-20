@@ -11,6 +11,7 @@ import {
 import { printElementAsDocument } from '../utils/pdfHelper';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import { API_BASE_URL } from '../config';
 import { auth } from '../firebase';
 import {
@@ -156,7 +157,7 @@ export default function ErgonomicsForm(): React.ReactElement | null {
 
   const handleSave = () => {
     const id = editData?.id || Date.now().toString();
-    let history = JSON.parse(localStorage.getItem('ergonomics_history') || '[]');
+    let history = safeGetLocalStorage<any[]>('ergonomics_history', []);
 
     const finalReport = {
       ...formData,

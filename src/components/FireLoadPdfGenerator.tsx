@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Flame, ShieldCheck, Info, FileText, Building2, Droplets, Wind, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import DualPdfHeader from './DualPdfHeader';
 import PdfSignatures from './PdfSignatures';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import ReportContentRenderer from './reports/ReportContentRenderer';
@@ -82,30 +83,19 @@ export default function FireLoadPdfGenerator({ data, customId = "pdf-content" }:
           `}
         </style>
 
-        {/* Encabezado Oficial Institucional Dec. 351/79 Anexo VII */}
-        <div className="border-b-2 border-slate-900 pb-3 mb-4">
-          <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[9pt] font-black uppercase tracking-wider bg-slate-900 text-white px-2 py-0.5 rounded">
-                  ESTUDIO TÉCNICO OFICIAL
-                </span>
-                <span className="text-[9pt] font-bold text-slate-600">
-                  Decreto PEN N° 351/79 Anexo VII (Capítulo 18) • IRAM 3517-2
-                </span>
-              </div>
-              <h1 className="text-[15pt] font-black text-slate-900 uppercase tracking-tight leading-snug m-0">
-                Memoria de Carga de Fuego y Potencial Extintor
-              </h1>
-              <p className="text-[8pt] text-slate-500 m-0">
-                Determinación de madera equivalente, resistencia al fuego estructural (F) y dotación de protección contra incendios
-              </p>
-            </div>
-            <div className="ml-4 flex-shrink-0">
-              <CompanyLogo style={{ maxHeight: '44px', maxWidth: '140px', objectFit: 'contain' }} className="p-1 border border-slate-200 rounded" />
-            </div>
-          </div>
-        </div>
+        {/* Encabezado Oficial Institucional Dec. 351/79 Anexo VII con Doble Membrete */}
+        <DualPdfHeader
+          title="Memoria de Carga de Fuego y Potencial Extintor"
+          subtitle="Determinación de madera equivalente, resistencia al fuego estructural (F) y dotación de protección contra incendios · IRAM 3517-2"
+          normBadge="Decreto PEN N° 351/79 Anexo VII"
+          normBadgeColor="red"
+          normBadgeIcon={<Flame size={13} className="text-orange-600" />}
+          documentId={report.id ? String(report.id) : undefined}
+          establishmentName={razonSocial}
+          establishmentCuit={cuit}
+          establishmentAddress={direccion}
+          date={report.fecha ? new Date(report.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : undefined}
+        />
 
         {/* 1. Datos del Establecimiento y Sector de Incendio */}
         <div className="mb-3">

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { toast } from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import ShareModal from '../components/ShareModal';
 import LOTOPdf from '../components/LOTOPdf';
 import PdfSignatures from '../components/PdfSignatures';
@@ -196,23 +197,21 @@ export default function LOTOForm(): React.ReactElement | null {
     handleResize();
     window.addEventListener('resize', handleResize);
 
-    const savedData = localStorage.getItem('personalData');
-    const savedSigData = localStorage.getItem('signatureStampData');
+    const savedData = safeGetLocalStorage<any>('personalData', null);
+    const savedSigData = safeGetLocalStorage<any>('signatureStampData', null);
     const legacySignature = localStorage.getItem('capturedSignature');
 
     let signature = legacySignature || null;
     let stamp = null;
-    if (savedSigData) {
-      const parsed = JSON.parse(savedSigData);
-      signature = parsed.signature || signature;
-      stamp = parsed.stamp || null;
+    if (savedSigData && typeof savedSigData === 'object') {
+      signature = savedSigData.signature || signature;
+      stamp = savedSigData.stamp || null;
     }
 
-    if (savedData) {
-      const data = JSON.parse(savedData);
+    if (savedData && typeof savedData === 'object') {
       setProfessional({
-        name: data.name || '',
-        license: data.license || '',
+        name: savedData.name || '',
+        license: savedData.license || '',
         signature: signature,
         stamp: stamp
       });
@@ -321,7 +320,7 @@ export default function LOTOForm(): React.ReactElement | null {
       return;
     }
 
-    const saved = JSON.parse(localStorage.getItem('loto_procedures_db') || '[]');
+    const saved = safeGetLocalStorage<any[]>('loto_procedures_db', []);
     let updated;
 
     const entryToSave = {

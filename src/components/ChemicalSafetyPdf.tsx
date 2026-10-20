@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShieldCheck, FlaskConical, Building2, MapPin, User, AlertTriangle, CheckCircle2, XCircle, Activity } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import DualPdfHeader from './DualPdfHeader';
 import PdfSignatures from './PdfSignatures';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import { evaluateChemicalAgentExposure } from '../utils/srtProtocols';
@@ -95,41 +96,21 @@ export default function ChemicalSafetyPdf({ data, professional }: ChemicalSafety
           `}
         </style>
 
-        {/* Encabezado Principal Institucional */}
-        <div
-          style={{
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #4338ca 100%)',
-            color: '#ffffff',
-            padding: '0.85rem 1.25rem',
-            borderRadius: '8px',
-            marginBottom: '0.75rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}
-          className="avoid-break"
-        >
-          <div className="flex items-center gap-3">
-            <div style={{ background: 'rgba(255,255,255,0.15)', padding: '8px', borderRadius: '8px' }}>
-              <FlaskConical size={28} color="#818cf8" strokeWidth={2.5} />
-            </div>
-            <div>
-              <h1 style={{ color: '#ffffff', margin: 0, fontSize: '14pt', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.3px', lineHeight: 1 }}>
-                FICHA DE SEGURIDAD Y ESTUDIO HIGIÉNICO
-              </h1>
-              <p style={{ color: '#c7d2fe', margin: '3px 0 0 0', fontSize: '7pt', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-                SGA (RES. SRT 801/15) • CONTAMINANTES EN AIRE (RES. MTEySS 295/03 ANEXO IV)
-              </p>
-            </div>
-          </div>
-
-          <div className="ml-4 shrink-0 text-right flex flex-col items-end gap-1">
-            <CompanyLogo style={{ maxHeight: '36px', maxWidth: '120px', objectFit: 'contain' }} className="bg-white p-1 rounded" />
-            <div style={{ color: '#cbd5e1', fontSize: '0.55rem', fontWeight: 800, textTransform: 'uppercase' }}>
-              Protocolo Oficial HSE
-            </div>
-          </div>
-        </div>
+        {/* Encabezado Principal Institucional con Doble Membrete */}
+        <DualPdfHeader
+          title="FICHA DE SEGURIDAD Y ESTUDIO HIGIÉNICO"
+          subtitle="SGA / GHS (Res. SRT 801/15) · Contaminantes en Aire (Res. 295/03 Anexo IV)"
+          normBadge={isSuperaCMP ? "Res. 295/03 (Supera CMP)" : "Protocolo Oficial SGA · Res. 801/15"}
+          normBadgeColor={isSuperaCMP ? "red" : isNivelAccion ? "amber" : "purple"}
+          normBadgeIcon={<FlaskConical size={13} className={isSuperaCMP ? "text-red-600" : "text-purple-600"} />}
+          documentId={data.id ? String(data.id) : undefined}
+          establishmentName={data.empresa || data.razonSocial}
+          establishmentCuit={data.cuit}
+          establishmentAddress={data.direccion}
+          consultantName={professional?.name}
+          consultantLicense={professional?.license}
+          date={formatDateSafe(data.fecha)}
+        />
 
         {/* Cuadro I: Datos del Establecimiento y Puesto */}
         <div className="border border-slate-300 rounded-md mb-2.5 overflow-hidden avoid-break">

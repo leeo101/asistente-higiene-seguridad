@@ -10,6 +10,7 @@ import {
 import { useSync } from '../contexts/SyncContext';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 import QRModal from '../components/QRModal';
 import { downloadCSV } from '../services/exportCsv';
 import ShareModal from '../components/ShareModal';
@@ -87,7 +88,7 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
 
   const confirmDelete = () => {
     if (!deleteTarget) return;
-    const raw = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
+    const raw = safeGetLocalStorage<any[]>('ai_camera_history', []);
     const updated = raw.filter((item: any) => item.id !== deleteTarget);
 
     localStorage.setItem('ai_camera_history', JSON.stringify(updated));
@@ -470,8 +471,8 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
                       type="button"
                       onClick={() => {
                         const fullReportKey = `ai_report_full_${item.id}`;
-                        const savedFull = localStorage.getItem(fullReportKey);
-                        const reportToLoad = { ...item, ...(savedFull ? JSON.parse(savedFull) : {}) };
+                        const savedFull = safeGetLocalStorage<any>(fullReportKey, {});
+                        const reportToLoad = { ...item, ...savedFull };
                         localStorage.setItem('current_ai_inspection', JSON.stringify(reportToLoad));
                         navigate('/ai-report');
                       }}
@@ -500,8 +501,8 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
                       type="button"
                       onClick={() => {
                         const fullReportKey = `ai_report_full_${item.id}`;
-                        const savedFull = localStorage.getItem(fullReportKey);
-                        const reportToLoad = { ...item, ...(savedFull ? JSON.parse(savedFull) : {}) };
+                        const savedFull = safeGetLocalStorage<any>(fullReportKey, {});
+                        const reportToLoad = { ...item, ...savedFull };
                         setShareItem(reportToLoad);
                       }}
                       title="Compartir Informe"
