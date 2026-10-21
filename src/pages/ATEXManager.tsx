@@ -14,6 +14,7 @@ import { ATEXZoneAssessment, ATEX_ZONES_GUIDE } from '../data/atexData';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import toast from 'react-hot-toast';
+import { drawJsPdfSignatures, getSavedProfessionalData } from '../utils/jsPdfSignatureHelper';
 
 export default function ATEXManager(): React.ReactElement | null {
   const navigate = useNavigate();
@@ -214,18 +215,29 @@ export default function ATEXManager(): React.ReactElement | null {
         currentY += 12;
       }
 
-      doc.setFontSize(7.5);
-      doc.text('________________________________________', 25, currentY);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Firma Especialista en Áreas Clasificadas', 25, currentY + 4);
-      doc.setFont('helvetica', 'normal');
-      doc.text(item.auditorName || 'Especialista HyS', 25, currentY + 8);
+      // Bloque de Firmas Normalizado y Centrado
+      const proData = getSavedProfessionalData();
+      const proTitle = (proData.profession || 'ESPECIALISTA EN ÁREAS CLASIFICADAS').toUpperCase();
+      const proName = (item.auditorName || proData.name || 'PROFESIONAL HYS ACTUANTE').toUpperCase();
 
-      doc.text('________________________________________', 125, currentY);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Firma Responsable Higiene y Seguridad', 125, currentY + 4);
-      doc.setFont('helvetica', 'normal');
-      doc.text('Servicio de Seguridad y Medio Ambiente', 125, currentY + 8);
+      drawJsPdfSignatures(doc, {
+        startY: currentY,
+        maxY: 245,
+        box1: {
+          title: proTitle,
+          subtitle: proName,
+          license: proData.license || null,
+          signatureUrl: proData.signature,
+          stampUrl: proData.stamp,
+          isProfessional: true
+        },
+        box2: {
+          title: 'RESPONSABLE HIGIENE Y SEGURIDAD',
+          subtitle: (activeCompany?.name || 'SERVICIO DE SEGURIDAD Y MEDIO AMBIENTE').toUpperCase(),
+          secondarySubtitle: 'Conformidad Técnica Normas IEC 60079',
+          isProfessional: false
+        }
+      });
 
       // Pie de página legal
       doc.setDrawColor(203, 213, 225);

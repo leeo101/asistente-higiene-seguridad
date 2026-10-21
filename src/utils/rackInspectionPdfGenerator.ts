@@ -6,6 +6,7 @@ import {
   RACK_TYPE_LABELS,
   RACK_RISK_INFO
 } from '../data/rackInspectionData';
+import { drawJsPdfSignatures, getSavedProfessionalData } from './jsPdfSignatureHelper';
 
 export function generateRackTechnicalReportPdf(
   report: RackInspectionReport,
@@ -302,36 +303,33 @@ export function generateRackTechnicalReportPdf(
     currentY += splittedPlan.length * 3.5 + 8;
   }
 
-  // ─── 5. FIRMAS DE RESPONSABILIDAD TÉCNICA ─────────────────────────────────
-  if (currentY > 250) {
-    doc.addPage();
-    currentY = 30;
-  }
+  // ─── 5. FIRMAS DE RESPONSABILIDAD TÉCNICA NORMALIZADAS ───────────────────────
+  const proData = getSavedProfessionalData();
+  const proDisplayTitle = (report.inspectorTitle || proData.profession || 'INSPECTOR TÉCNICO IRAM 38500').toUpperCase();
+  const proDisplayName = (report.inspectorName || proData.name || 'INSPECTOR HYS').toUpperCase();
+  const proLic = report.inspectorRegistration || proData.license || null;
+  const proSig = report.inspectorSignature || proData.signature;
+  const proStamp = proData.stamp;
 
-  const signWidth = 60;
-  const signY = Math.max(currentY + 4, 255);
-
-  // Inspector
-  doc.setDrawColor(100, 116, 139);
-  doc.line(25, signY, 25 + signWidth, signY);
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(15, 23, 42);
-  doc.text(report.inspectorName || 'Lic. en Higiene y Seguridad', 25 + signWidth / 2, signY + 4, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6.5);
-  doc.text(report.inspectorRegistration || 'Especialista en Seguridad Laboral', 25 + signWidth / 2, signY + 7.5, { align: 'center' });
-  doc.text('Inspector Técnico Autorizado IRAM 38500', 25 + signWidth / 2, signY + 11, { align: 'center' });
-
-  // Responsable Almacén / Empresa
-  doc.line(pageWidth - 25 - signWidth, signY, pageWidth - 25, signY);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
-  doc.text('Responsable de Almacén / Logística', pageWidth - 25 - signWidth / 2, signY + 4, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6.5);
-  doc.text(companyName, pageWidth - 25 - signWidth / 2, signY + 7.5, { align: 'center' });
-  doc.text('Toma de Conocimiento y Bloqueo', pageWidth - 25 - signWidth / 2, signY + 11, { align: 'center' });
+  drawJsPdfSignatures(doc, {
+    startY: currentY + 4,
+    maxY: 250,
+    box1: {
+      title: proDisplayTitle,
+      subtitle: proDisplayName,
+      license: proLic,
+      signatureUrl: proSig,
+      stampUrl: proStamp,
+      isProfessional: true
+    },
+    box2: {
+      title: 'RESPONSABLE DE ALMACÉN / LOGÍSTICA',
+      subtitle: companyName.toUpperCase(),
+      secondarySubtitle: 'Toma de Conocimiento y Bloqueo Operativo',
+      signatureUrl: report.responsibleSignature || null,
+      isProfessional: false
+    }
+  });
 
   doc.save(`Informe_Tecnico_IRAM38500_${report.rackCode}_${report.inspectionDate}.pdf`);
 }

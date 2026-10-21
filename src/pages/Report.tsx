@@ -107,7 +107,9 @@ export default function Report(): React.ReactElement | null {
       setProfessional({
         name: savedData.name || 'Profesional',
         license: savedData.license || '',
-        signature: signature
+        profession: savedData.profession || '',
+        signature: signature,
+        stamp: savedSigData?.stamp || null
       });
     }
   }, []);
@@ -427,8 +429,12 @@ export default function Report(): React.ReactElement | null {
           data={{
             ...inspectionData,
             professionalSignature: professional?.signature,
+            professionalStamp: professional?.stamp,
             professionalName: professional?.name,
-            professionalLicense: professional?.license
+            responsable: professional?.name,
+            professionalLicense: professional?.license,
+            professionalTitle: professional?.profession,
+            profession: professional?.profession
           }}
           box1={showSignatures.operator ? {
             title: 'OPERADOR / RESPONSABLE',

@@ -12,6 +12,7 @@ import { HazardousWasteRecord, HAZARDOUS_Y_STREAMS } from '../data/hazardousWast
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import toast from 'react-hot-toast';
+import { drawJsPdfSignatures, getSavedProfessionalData } from '../utils/jsPdfSignatureHelper';
 
 export default function HazardousWasteManager(): React.ReactElement | null {
   const navigate = useNavigate();
@@ -106,13 +107,29 @@ export default function HazardousWasteManager(): React.ReactElement | null {
         headStyles: { fillColor: [15, 118, 110] }
       });
 
-      const currentY = (doc as any).lastAutoTable.finalY + 15;
-      doc.setFontSize(8);
-      doc.text('________________________________________', 25, currentY);
-      doc.text('Firma y Aclaración Responsable Ambiental / HyS', 25, currentY + 5);
+      // Bloque de Firmas Normalizado y Centrado
+      const proData = getSavedProfessionalData();
+      const proTitle = (proData.profession || 'RESPONSABLE AMBIENTAL / HYS').toUpperCase();
+      const proName = (proData.name || 'PROFESIONAL DE HIGIENE, SEGURIDAD Y MEDIO AMBIENTE').toUpperCase();
 
-      doc.text('________________________________________', 125, currentY);
-      doc.text('Firma y Sello Representante Legal de la Empresa', 125, currentY + 5);
+      drawJsPdfSignatures(doc, {
+        startY: (doc as any).lastAutoTable.finalY + 14,
+        maxY: 245,
+        box1: {
+          title: proTitle,
+          subtitle: proName,
+          license: proData.license || null,
+          signatureUrl: proData.signature,
+          stampUrl: proData.stamp,
+          isProfessional: true
+        },
+        box2: {
+          title: 'REPRESENTANTE LEGAL DE LA EMPRESA',
+          subtitle: (activeCompany?.name || 'ESTABLECIMIENTO GENERADOR').toUpperCase(),
+          secondarySubtitle: 'Ley Nacional 24.051 de Residuos Peligrosos',
+          isProfessional: false
+        }
+      });
 
       doc.save(`Libro_Residuos_Peligrosos_${Date.now()}.pdf`);
       toast.success('Libro de residuos exportado en PDF');

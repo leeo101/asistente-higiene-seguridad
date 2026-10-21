@@ -12,6 +12,7 @@ import { auth } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { API_BASE_URL } from '../config';
 import { countryList } from '../data/legislationData';
+import { PROFESSION_GROUPS, DEFAULT_PROFESSION } from '../data/professionOptions';
 import toast from 'react-hot-toast';
 
 // Tipos
@@ -109,7 +110,8 @@ export default function Login(): React.ReactElement {
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [dni, setDni] = useState<string>('');
   const [license, setLicense] = useState<string>('');
-  const [profession, setProfession] = useState<string>('');
+  const [profession, setProfession] = useState<string>(DEFAULT_PROFESSION);
+  const [isCustomTitle, setIsCustomTitle] = useState<boolean>(false);
   const [phone, setPhone] = useState<string>('');
   const [address, setAddress] = useState<string>('');
   const [country, setCountry] = useState<string>('argentina');
@@ -750,21 +752,48 @@ export default function Login(): React.ReactElement {
                 <div className="p-4 pt-1 space-y-3 border-t border-white/10 text-left">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-400 mb-1">Título / Profesión</label>
+                      <label className="block text-[11px] font-bold text-slate-400 mb-1">Título / Rama Profesional</label>
                       <div className="flex items-center rounded-lg bg-slate-950/80 border border-white/10 px-2.5 py-0.5">
                         <Award size={14} className="text-slate-400 shrink-0 mr-2" />
                         <select
-                          value={profession}
-                          onChange={(e) => setProfession(e.target.value)}
+                          value={isCustomTitle ? 'CUSTOM_OPTION' : profession}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === 'CUSTOM_OPTION') {
+                              setIsCustomTitle(true);
+                              setProfession('');
+                            } else {
+                              setIsCustomTitle(false);
+                              setProfession(val);
+                            }
+                          }}
                           className="w-full py-1.5 bg-transparent text-white text-xs focus:outline-none border-none"
                           style={{ background: 'transparent', border: 'none', color: '#ffffff', outline: 'none', margin: 0, padding: '0.4rem 0' }}
                         >
-                          <option value="" className="bg-slate-900 text-white">Seleccionar...</option>
-                          <option value="Técnico" className="bg-slate-900 text-white">Técnico Superior HyS</option>
-                          <option value="Licenciado" className="bg-slate-900 text-white">Licenciado en HyS</option>
-                          <option value="Ingeniero" className="bg-slate-900 text-white">Ingeniero Especialista</option>
+                          <option value="" className="bg-slate-900 text-white">Seleccione su rama o título...</option>
+                          {PROFESSION_GROUPS.map((grp) => (
+                            <optgroup key={grp.label} label={grp.label} className="bg-slate-900 text-amber-400 font-bold">
+                              {grp.options.map((opt) => (
+                                <option key={opt} value={opt} className="bg-slate-900 text-white">
+                                  {opt}
+                                </option>
+                              ))}
+                            </optgroup>
+                          ))}
+                          <option value="CUSTOM_OPTION" className="bg-slate-900 text-amber-300">
+                            ✍️ Otra Especialidad / Título Personalizado...
+                          </option>
                         </select>
                       </div>
+                      {isCustomTitle && (
+                        <input
+                          type="text"
+                          placeholder="Escriba su título profesional completo..."
+                          value={profession}
+                          onChange={(e) => setProfession(e.target.value)}
+                          className="w-full mt-2 py-1.5 px-2.5 bg-slate-950 border border-amber-500/40 rounded-lg text-white text-xs placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                        />
+                      )}
                     </div>
                     <div>
                       <label className="block text-[11px] font-bold text-slate-400 mb-1">Matrícula Profesional</label>

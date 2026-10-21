@@ -17,6 +17,7 @@ import {
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import toast from 'react-hot-toast';
+import { drawJsPdfSignatures, getSavedProfessionalData } from '../utils/jsPdfSignatureHelper';
 
 export default function FirstAidAEDManager(): React.ReactElement | null {
   const navigate = useNavigate();
@@ -387,13 +388,29 @@ export default function FirstAidAEDManager(): React.ReactElement | null {
         headStyles: { fillColor: [220, 38, 38] }
       });
 
-      const currentY = (doc as any).lastAutoTable.finalY + 22;
-      doc.setFontSize(8);
-      doc.text('________________________________________', 25, currentY);
-      doc.text('Firma Responsable Médico / HyS', 25, currentY + 5);
+      // Bloque de Firmas Normalizado y Centrado
+      const proData = getSavedProfessionalData();
+      const proTitle = (proData.profession || 'RESPONSABLE MÉDICO / HYS').toUpperCase();
+      const proName = (proData.name || 'PROFESIONAL DE SEGURIDAD Y SALUD').toUpperCase();
 
-      doc.text('________________________________________', 125, currentY);
-      doc.text('Firma Dirección del Establecimiento', 125, currentY + 5);
+      drawJsPdfSignatures(doc, {
+        startY: (doc as any).lastAutoTable.finalY + 12,
+        maxY: 245,
+        box1: {
+          title: proTitle,
+          subtitle: proName,
+          license: proData.license || null,
+          signatureUrl: proData.signature,
+          stampUrl: proData.stamp,
+          isProfessional: true
+        },
+        box2: {
+          title: 'DIRECCIÓN DEL ESTABLECIMIENTO',
+          subtitle: (activeCompany?.name || 'ESTABLECIMIENTO INDUSTRIAL').toUpperCase(),
+          secondarySubtitle: 'Área Cardioprotegida Ley 27.159',
+          isProfessional: false
+        }
+      });
 
       // Pie de página legal
       doc.setDrawColor(203, 213, 225);
@@ -503,13 +520,29 @@ export default function FirstAidAEDManager(): React.ReactElement | null {
         headStyles: { fillColor: [5, 150, 105] }
       });
 
-      const currentY = (doc as any).lastAutoTable.finalY + 20;
-      doc.setFontSize(8);
-      doc.text('________________________________________', 25, currentY);
-      doc.text('Firma Auditor / Servicio HyS', 25, currentY + 5);
+      // Bloque de Firmas Normalizado y Centrado
+      const proData = getSavedProfessionalData();
+      const proTitle = (proData.profession || 'AUDITOR / SERVICIO HYS').toUpperCase();
+      const proName = (proData.name || 'PROFESIONAL DE HIGIENE Y SEGURIDAD').toUpperCase();
 
-      doc.text('________________________________________', 125, currentY);
-      doc.text('Firma Encargado de Sector / Planta', 125, currentY + 5);
+      drawJsPdfSignatures(doc, {
+        startY: (doc as any).lastAutoTable.finalY + 12,
+        maxY: 245,
+        box1: {
+          title: proTitle,
+          subtitle: proName,
+          license: proData.license || null,
+          signatureUrl: proData.signature,
+          stampUrl: proData.stamp,
+          isProfessional: true
+        },
+        box2: {
+          title: 'ENCARGADO DE SECTOR / PLANTA',
+          subtitle: kit.sector ? kit.sector.toUpperCase() : 'SECTOR AUDITADO',
+          secondarySubtitle: 'Revisión y Reposición de Insumos',
+          isProfessional: false
+        }
+      });
 
       const fileName = `Inspeccion_Botiquin_${kit.code}.pdf`;
 

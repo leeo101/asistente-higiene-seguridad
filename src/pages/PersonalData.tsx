@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, User, Mail, CreditCard, Award, Phone, MapPin, Camera, Trash2, GraduationCap, Globe, CheckCircle } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
 import { countryList } from '../data/legislationData';
+import { PROFESSION_GROUPS, ALL_PROFESSIONS_FLAT, DEFAULT_PROFESSION, formatProfessionTitle } from '../data/professionOptions';
 import toast from 'react-hot-toast';
 
 const FieldGroup = ({ icon, label, children }: {icon: React.ReactNode;label: string;children: React.ReactNode;}) =>
@@ -39,44 +40,17 @@ export default function PersonalData(): React.ReactElement | null {
 
   const [isCustomTitle, setIsCustomTitle] = useState(false);
 
-  const PROFESSION_OPTIONS = [
-    // TÉCNICOS
-    "Técnico Universitario en Higiene y Seguridad Laboral",
-    "Técnico Universitario en Higiene y Seguridad en el Trabajo",
-    "Técnico Superior en Higiene y Seguridad en el Trabajo",
-    "Técnico Superior en Control de Gestión Ambiental y SyST",
-    "Técnico Superior en Ergonomía Ocupacional",
-    "Técnico en Higiene, Seguridad y Medio Ambiente",
-    "Técnico en Seguridad e Higiene Industrial",
-    // LICENCIADOS
-    "Licenciado en Higiene y Seguridad en el Trabajo",
-    "Licenciado en Seguridad, Higiene y Control Ambiental",
-    "Licenciado en Gestión de la Salud y Seguridad Ocupacional",
-    "Licenciado en Ergonomía Ocupacional",
-    "Licenciado en Ciencias Ambientales y SyST",
-    // INGENIEROS
-    "Ingeniero Especialista en Higiene y Seguridad en el Trabajo",
-    "Ingeniero en Seguridad Laboral y Ambiental",
-    "Ingeniero Industrial con Especialización en SyST",
-    "Ingeniero Químico / Ambiental",
-    // ESPECIALISTAS Y OTROS
-    "Especialista en Ergonomía y Salud Ocupacional",
-    "Auditor Líder en Sistemas de Gestión ISO 45001 / 14001",
-    "Médico del Trabajo / Salud Ocupacional",
-    "CUSTOM_OPTION"
-  ];
-
   useEffect(() => {
     const savedData = localStorage.getItem('personalData');
     if (savedData) {
       try {
         const parsed = JSON.parse(savedData);
         if (!parsed.profession || parsed.profession === 'Técnico' || parsed.profession === 'PROFESIONAL') {
-          parsed.profession = 'Técnico Universitario en Higiene y Seguridad Laboral';
+          parsed.profession = DEFAULT_PROFESSION;
           localStorage.setItem('personalData', JSON.stringify(parsed));
         }
         setFormData(parsed);
-        if (parsed.profession && !PROFESSION_OPTIONS.includes(parsed.profession)) {
+        if (parsed.profession && !ALL_PROFESSIONS_FLAT.includes(parsed.profession)) {
           setIsCustomTitle(true);
         }
       } catch (e) {}
@@ -91,7 +65,7 @@ export default function PersonalData(): React.ReactElement | null {
         address: '',
         country: 'argentina',
         photo: null,
-        profession: 'Técnico Universitario en Higiene y Seguridad Laboral'
+        profession: DEFAULT_PROFESSION
       };
       localStorage.setItem('personalData', JSON.stringify(initial));
       setFormData(initial);
@@ -277,33 +251,13 @@ export default function PersonalData(): React.ReactElement | null {
                       }}
                       style={{ ...inputStyle }} className="appearance-[none] mb-2">
                         <option value="">Seleccione su título profesional...</option>
-                        <optgroup label="TÉCNICOS">
-                          <option value="Técnico Universitario en Higiene y Seguridad Laboral">Técnico Universitario en Higiene y Seguridad Laboral</option>
-                          <option value="Técnico Universitario en Higiene y Seguridad en el Trabajo">Técnico Universitario en Higiene y Seguridad en el Trabajo</option>
-                          <option value="Técnico Superior en Higiene y Seguridad en el Trabajo">Técnico Superior en Higiene y Seguridad en el Trabajo</option>
-                          <option value="Técnico Superior en Control de Gestión Ambiental y SyST">Técnico Superior en Control de Gestión Ambiental y SyST</option>
-                          <option value="Técnico Superior en Ergonomía Ocupacional">Técnico Superior en Ergonomía Ocupacional</option>
-                          <option value="Técnico en Higiene, Seguridad y Medio Ambiente">Técnico en Higiene, Seguridad y Medio Ambiente</option>
-                          <option value="Técnico en Seguridad e Higiene Industrial">Técnico en Seguridad e Higiene Industrial</option>
-                        </optgroup>
-                        <optgroup label="LICENCIADOS">
-                          <option value="Licenciado en Higiene y Seguridad en el Trabajo">Licenciado en Higiene y Seguridad en el Trabajo</option>
-                          <option value="Licenciado en Seguridad, Higiene y Control Ambiental">Licenciado en Seguridad, Higiene y Control Ambiental</option>
-                          <option value="Licenciado en Gestión de la Salud y Seguridad Ocupacional">Licenciado en Gestión de la Salud y Seguridad Ocupacional</option>
-                          <option value="Licenciado en Ergonomía Ocupacional">Licenciado en Ergonomía Ocupacional</option>
-                          <option value="Licenciado en Ciencias Ambientales y SyST">Licenciado en Ciencias Ambientales y SyST</option>
-                        </optgroup>
-                        <optgroup label="INGENIEROS">
-                          <option value="Ingeniero Especialista en Higiene y Seguridad en el Trabajo">Ingeniero Especialista en Higiene y Seguridad en el Trabajo</option>
-                          <option value="Ingeniero en Seguridad Laboral y Ambiental">Ingeniero en Seguridad Laboral y Ambiental</option>
-                          <option value="Ingeniero Industrial con Especialización en SyST">Ingeniero Industrial con Especialización en SyST</option>
-                          <option value="Ingeniero Químico / Ambiental">Ingeniero Químico / Ambiental</option>
-                        </optgroup>
-                        <optgroup label="ESPECIALISTAS Y OTROS">
-                          <option value="Especialista en Ergonomía y Salud Ocupacional">Especialista en Ergonomía y Salud Ocupacional</option>
-                          <option value="Auditor Líder en Sistemas de Gestión ISO 45001 / 14001">Auditor Líder en Sistemas de Gestión ISO 45001 / 14001</option>
-                          <option value="Médico del Trabajo / Salud Ocupacional">Médico del Trabajo / Salud Ocupacional</option>
-                        </optgroup>
+                        {PROFESSION_GROUPS.map((grp) => (
+                          <optgroup key={grp.label} label={grp.label}>
+                            {grp.options.map((opt) => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </optgroup>
+                        ))}
                         <option value="CUSTOM_OPTION">✍️ Otro Título / Personalizado...</option>
                     </select>
                     {isCustomTitle && (

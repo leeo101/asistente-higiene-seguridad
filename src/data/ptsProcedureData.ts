@@ -49,8 +49,13 @@ export interface PTSProcedure {
 
   // Control de firmas
   preparedBy: string; // Elaboró (HyS)
+  preparedByTitle?: string;
+  preparedByLicense?: string;
+  preparedBySignature?: string;
   reviewedBy: string; // Revisó (Supervisor/Planta)
+  reviewedBySignature?: string;
   approvedBy: string; // Aprobó (Gerencia)
+  approvedBySignature?: string;
 
   // Registro de difusión
   acknowledgements: PTSWorkerAcknowledge[];

@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { VentilationStudy, ENVIRONMENT_AIR_CHANGES } from '../data/ventilationData';
+import { drawJsPdfSignatures, getSavedProfessionalData } from './jsPdfSignatureHelper';
 
 export function generateVentilationProtocolPdf(
   study: VentilationStudy,
@@ -158,26 +159,32 @@ export function generateVentilationProtocolPdf(
 
   doc.text(doc.splitTextToSize(recText, pageWidth - 36), 18, measY + 10);
 
-  // Firmas
-  const signY = measY + 24;
-  doc.setDrawColor(148, 163, 184);
-  doc.line(20, signY + 12, 85, signY + 12);
-  doc.line(125, signY + 12, 190, signY + 12);
+  // Bloque de Firmas Normalizado y Centrado
+  const proData = getSavedProfessionalData();
+  const proDisplayTitle = (study.evaluatorTitle || proData.profession || 'PROFESIONAL DE HIGIENE Y SEGURIDAD').toUpperCase();
+  const proDisplayName = (study.evaluatorName || proData.name || 'PROFESIONAL ACTUANTE').toUpperCase();
+  const proLicense = study.evaluatorLicense || proData.license || null;
+  const proSig = study.evaluatorSignature || proData.signature;
+  const proStamp = proData.stamp;
 
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(15, 23, 42);
-  doc.text(study.evaluatorName, 52.5, signY + 16, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6.5);
-  doc.text(`Firma y Sello Profesional HyS (${study.evaluatorLicense})`, 52.5, signY + 19.5, { align: 'center' });
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
-  doc.text('Representante Legal de la Empresa', 157.5, signY + 16, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6.5);
-  doc.text('Constancia de Recepción y Archivo en Legajo Técnico', 157.5, signY + 19.5, { align: 'center' });
+  drawJsPdfSignatures(doc, {
+    startY: measY + 20,
+    box1: {
+      title: proDisplayTitle,
+      subtitle: proDisplayName,
+      license: proLicense,
+      signatureUrl: proSig,
+      stampUrl: proStamp,
+      isProfessional: true
+    },
+    box2: {
+      title: 'REPRESENTANTE LEGAL DE LA EMPRESA',
+      subtitle: companyName,
+      secondarySubtitle: 'Constancia de Recepción y Archivo en Legajo Técnico',
+      signatureUrl: study.representativeSignature || null,
+      isProfessional: false
+    }
+  });
 
   // Pie de página legal
   doc.setFontSize(6);

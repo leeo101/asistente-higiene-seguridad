@@ -22,6 +22,8 @@ import {
   PTS_TEMPLATES
 } from '../data/ptsProcedureData';
 import { generatePTSDocumentPdf } from '../utils/ptsPdfGenerator';
+import { getSavedProfessionalData } from '../utils/jsPdfSignatureHelper';
+import SignatureCanvas from '../components/SignatureCanvas';
 
 const STORAGE_KEY = 'hys_pts_procedures_data';
 
@@ -83,7 +85,9 @@ export default function PTSProcedureManager(): React.ReactElement | null {
       'PROHIBIDO utilizar teléfonos celulares o distractores durante la maniobra.'
     ],
     emergencyProtocol: 'En caso de accidente o emergencia: Detener la maniobra inmediatamente. Dar aviso al supervisor y llamar al servicio médico interno o a la ART contratada.',
-    preparedBy: 'Lic. en Higiene y Seguridad en el Trabajo',
+    preparedByTitle: getSavedProfessionalData().profession || 'PROFESIONAL DE HIGIENE Y SEGURIDAD',
+    preparedBy: getSavedProfessionalData().name || 'Lic. en Higiene y Seguridad en el Trabajo',
+    preparedByLicense: getSavedProfessionalData().license || 'Matrícula Vigente',
     reviewedBy: 'Jefe de Planta / Operaciones',
     approvedBy: 'Gerencia General',
     acknowledgements: []
@@ -187,7 +191,9 @@ export default function PTSProcedureManager(): React.ReactElement | null {
         'PROHIBIDO utilizar teléfonos celulares o distractores durante la maniobra.'
       ],
       emergencyProtocol: 'En caso de accidente o emergencia: Detener la maniobra inmediatamente. Dar aviso al supervisor y llamar al servicio médico interno o a la ART contratada.',
-      preparedBy: 'Lic. en Higiene y Seguridad en el Trabajo',
+      preparedByTitle: getSavedProfessionalData().profession || 'PROFESIONAL DE HIGIENE Y SEGURIDAD',
+      preparedBy: getSavedProfessionalData().name || 'Lic. en Higiene y Seguridad en el Trabajo',
+      preparedByLicense: getSavedProfessionalData().license || 'Matrícula Vigente',
       reviewedBy: 'Jefe de Planta / Operaciones',
       approvedBy: 'Gerencia General',
       acknowledgements: []
@@ -1067,36 +1073,80 @@ export default function PTSProcedureManager(): React.ReactElement | null {
 
                 {/* 6. Firmas de Control */}
                 <div className="space-y-4 pt-4 border-t border-slate-800">
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4" /> 6. Firmantes Responsables
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                    <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-400" /> 6. Firmantes Responsables (Digital o Convencional)</span>
+                    <span className="text-[10px] text-slate-500 font-normal">Opcional: Si no firma en pantalla, se imprimirán los recuadros para firma física</span>
                   </h4>
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
+                      <label className="block text-xs font-medium text-slate-400 mb-1">Título Profesional (Elaborador)</label>
+                      <input
+                        type="text"
+                        value={formData.preparedByTitle || ''}
+                        onChange={e => setFormData({ ...formData, preparedByTitle: e.target.value })}
+                        placeholder="Ej: Lic. en Higiene y Seguridad"
+                        className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500 mb-2"
+                      />
                       <label className="block text-xs font-medium text-slate-400 mb-1">Elaboró (Servicio HyS)</label>
                       <input
                         type="text"
                         value={formData.preparedBy || ''}
                         onChange={e => setFormData({ ...formData, preparedBy: e.target.value })}
-                        className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500 mb-2"
                       />
+                      <label className="block text-xs font-medium text-slate-400 mb-1">Matrícula Profesional</label>
+                      <input
+                        type="text"
+                        value={formData.preparedByLicense || ''}
+                        onChange={e => setFormData({ ...formData, preparedByLicense: e.target.value })}
+                        placeholder="Mat. Profesional"
+                        className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500 mb-3"
+                      />
+                      <div className="bg-slate-900/60 p-2 rounded-xl border border-slate-800">
+                        <SignatureCanvas
+                          label="Firma Elaboró (HyS)"
+                          initialImage={formData.preparedBySignature}
+                          onSave={(sig) => setFormData(prev => ({ ...prev, preparedBySignature: sig || undefined }))}
+                          height={100}
+                        />
+                      </div>
                     </div>
+
                     <div>
-                      <label className="block text-xs font-medium text-slate-400 mb-1">Revisó (Supervisión)</label>
+                      <label className="block text-xs font-medium text-slate-400 mb-1">Revisó (Supervisión / Planta)</label>
                       <input
                         type="text"
                         value={formData.reviewedBy || ''}
                         onChange={e => setFormData({ ...formData, reviewedBy: e.target.value })}
-                        className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500 mb-3"
                       />
+                      <div className="bg-slate-900/60 p-2 rounded-xl border border-slate-800 mt-[70px]">
+                        <SignatureCanvas
+                          label="Firma Revisó (Supervisión)"
+                          initialImage={formData.reviewedBySignature}
+                          onSave={(sig) => setFormData(prev => ({ ...prev, reviewedBySignature: sig || undefined }))}
+                          height={100}
+                        />
+                      </div>
                     </div>
+
                     <div>
                       <label className="block text-xs font-medium text-slate-400 mb-1">Aprobó (Dirección / Gerencia)</label>
                       <input
                         type="text"
                         value={formData.approvedBy || ''}
                         onChange={e => setFormData({ ...formData, approvedBy: e.target.value })}
-                        className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500 mb-3"
                       />
+                      <div className="bg-slate-900/60 p-2 rounded-xl border border-slate-800 mt-[70px]">
+                        <SignatureCanvas
+                          label="Firma Aprobó (Dirección)"
+                          initialImage={formData.approvedBySignature}
+                          onSave={(sig) => setFormData(prev => ({ ...prev, approvedBySignature: sig || undefined }))}
+                          height={100}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

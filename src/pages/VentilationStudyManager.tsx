@@ -26,6 +26,8 @@ import {
   DEFAULT_VENTILATION_STUDIES
 } from '../data/ventilationData';
 import { generateVentilationProtocolPdf } from '../utils/ventilationPdfGenerator';
+import { getSavedProfessionalData } from '../utils/jsPdfSignatureHelper';
+import SignatureCanvas from '../components/SignatureCanvas';
 
 export default function VentilationStudyManager(): React.ReactElement | null {
   const navigate = useNavigate();
@@ -48,8 +50,11 @@ export default function VentilationStudyManager(): React.ReactElement | null {
   const [heightM, setHeightM] = useState<number>(4);
   const [workersCount, setWorkersCount] = useState<number>(5);
   const [naturalOpeningsAreaM2, setNaturalOpeningsAreaM2] = useState<number>(2);
-  const [evaluatorName, setEvaluatorName] = useState('Ing. / Lic. Higiene y Seguridad');
-  const [evaluatorLicense, setEvaluatorLicense] = useState('Matrícula Profesional Vigente');
+  const [evaluatorTitle, setEvaluatorTitle] = useState(() => getSavedProfessionalData().profession || 'PROFESIONAL DE HIGIENE Y SEGURIDAD');
+  const [evaluatorName, setEvaluatorName] = useState(() => getSavedProfessionalData().name || 'Ing. / Lic. Higiene y Seguridad');
+  const [evaluatorLicense, setEvaluatorLicense] = useState(() => getSavedProfessionalData().license || 'Matrícula Profesional Vigente');
+  const [evaluatorSignature, setEvaluatorSignature] = useState<string | null>(null);
+  const [representativeSignature, setRepresentativeSignature] = useState<string | null>(null);
   const [studyDate, setStudyDate] = useState(new Date().toISOString().split('T')[0]);
   const [recommendations, setRecommendations] = useState('');
 
@@ -122,6 +127,12 @@ export default function VentilationStudyManager(): React.ReactElement | null {
   const handleOpenNew = () => {
     setEditingId(null);
     setSectorName('Depósito y Logística');
+    const pro = getSavedProfessionalData();
+    setEvaluatorTitle(pro.profession || 'PROFESIONAL DE HIGIENE Y SEGURIDAD');
+    setEvaluatorName(pro.name || 'Ing. / Lic. Higiene y Seguridad');
+    setEvaluatorLicense(pro.license || 'Matrícula Profesional Vigente');
+    setEvaluatorSignature(null);
+    setRepresentativeSignature(null);
     setActivityType('moderada');
     setEnvironmentType('deposito_logistica');
     setSurfaceM2(150);
@@ -148,8 +159,11 @@ export default function VentilationStudyManager(): React.ReactElement | null {
     setHeightM(study.heightM);
     setWorkersCount(study.workersCount);
     setNaturalOpeningsAreaM2(study.naturalOpeningsAreaM2);
+    setEvaluatorTitle(study.evaluatorTitle || 'PROFESIONAL DE HIGIENE Y SEGURIDAD');
     setEvaluatorName(study.evaluatorName);
     setEvaluatorLicense(study.evaluatorLicense);
+    setEvaluatorSignature(study.evaluatorSignature || null);
+    setRepresentativeSignature(study.representativeSignature || null);
     setStudyDate(study.date);
     setRecommendations(study.recommendations);
     setEquipments(study.equipments || []);
@@ -227,8 +241,11 @@ export default function VentilationStudyManager(): React.ReactElement | null {
       activityType,
       environmentType,
       date: studyDate,
+      evaluatorTitle,
       evaluatorName,
       evaluatorLicense,
+      evaluatorSignature: evaluatorSignature || undefined,
+      representativeSignature: representativeSignature || undefined,
       surfaceM2,
       heightM,
       volumeM3: calculated.volumeM3,
@@ -805,6 +822,69 @@ export default function VentilationStudyManager(): React.ReactElement | null {
                     onChange={(e) => setRecommendations(e.target.value)}
                     className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
                   />
+                </div>
+
+                {/* 6. Profesional Actuante y Firmas */}
+                <div className="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-3">
+                  <span className="font-bold text-slate-900 dark:text-white block">
+                    Profesional Actuante y Firmas (Digital o Convencional):
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Título Profesional</label>
+                      <input
+                        type="text"
+                        value={evaluatorTitle}
+                        onChange={(e) => setEvaluatorTitle(e.target.value)}
+                        placeholder="Ej: Lic. en Higiene y Seguridad"
+                        className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Nombre y Apellido</label>
+                      <input
+                        type="text"
+                        value={evaluatorName}
+                        onChange={(e) => setEvaluatorName(e.target.value)}
+                        className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Matrícula Profesional</label>
+                      <input
+                        type="text"
+                        value={evaluatorLicense}
+                        onChange={(e) => setEvaluatorLicense(e.target.value)}
+                        className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+                      <span className="font-bold text-slate-800 dark:text-slate-200 text-[11px]">
+                        Captura de Firma Digital (Opcional - dejar vacío para firma física)
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <SignatureCanvas
+                          label="Firma Profesional HyS Actuante"
+                          initialImage={evaluatorSignature}
+                          onSave={(sig) => setEvaluatorSignature(sig)}
+                          height={110}
+                        />
+                      </div>
+                      <div className="bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <SignatureCanvas
+                          label="Firma Representante Legal de la Empresa"
+                          initialImage={representativeSignature}
+                          onSave={(sig) => setRepresentativeSignature(sig)}
+                          height={110}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">

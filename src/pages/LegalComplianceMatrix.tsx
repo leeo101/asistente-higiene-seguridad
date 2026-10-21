@@ -23,6 +23,8 @@ import {
   DEFAULT_LEGAL_REQUIREMENTS
 } from '../data/legalMatrixData';
 import { generateLegalCompliancePdf } from '../utils/legalMatrixPdfGenerator';
+import { getSavedProfessionalData } from '../utils/jsPdfSignatureHelper';
+import SignatureCanvas from '../components/SignatureCanvas';
 
 export default function LegalComplianceMatrix(): React.ReactElement | null {
   const navigate = useNavigate();
@@ -56,10 +58,16 @@ export default function LegalComplianceMatrix(): React.ReactElement | null {
   });
 
   const [showPdfModal, setShowPdfModal] = useState(false);
-  const [pdfForm, setPdfForm] = useState({
-    auditorName: 'Lic. / Ing. Especialista en Higiene y Seguridad',
-    auditorLicense: 'COPIME / CIPBA N° 12450',
-    establishmentName: 'Planta Principal - Sector Operativo'
+  const [auditorSignature, setAuditorSignature] = useState<string | null>(null);
+  const [representativeSignature, setRepresentativeSignature] = useState<string | null>(null);
+  const [pdfForm, setPdfForm] = useState(() => {
+    const pro = getSavedProfessionalData();
+    return {
+      auditorTitle: pro.profession || 'RESPONSABLE HIGIENE Y SEGURIDAD',
+      auditorName: pro.name || 'Lic. / Especialista en Higiene y Seguridad',
+      auditorLicense: pro.license || 'Matrícula Vigente',
+      establishmentName: 'Planta Principal - Sector Operativo'
+    };
   });
 
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
@@ -214,8 +222,11 @@ export default function LegalComplianceMatrix(): React.ReactElement | null {
       companyName: activeCompany?.name || 'Establecimiento Industrial',
       companyCuit: activeCompany?.cuit || '30-XXXXXXXX-X',
       establishmentName: pdfForm.establishmentName,
+      auditorTitle: pdfForm.auditorTitle,
       auditorName: pdfForm.auditorName,
       auditorLicense: pdfForm.auditorLicense,
+      auditorSignature: auditorSignature || undefined,
+      representativeSignature: representativeSignature || undefined,
       auditDate: new Date().toISOString().split('T')[0],
       requirements
     });
@@ -841,8 +852,8 @@ export default function LegalComplianceMatrix(): React.ReactElement | null {
 
         {/* MODAL: DESCARGAR INFORME OFICIAL PDF */}
         {showPdfModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-md w-full p-6 text-xs space-y-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-2xl w-full p-6 text-xs space-y-4 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                 <h3 className="font-black text-sm text-slate-900 dark:text-white flex items-center gap-2">
                   <Printer className="w-4 h-4 text-blue-600" />
@@ -854,40 +865,87 @@ export default function LegalComplianceMatrix(): React.ReactElement | null {
               </div>
 
               <div className="space-y-3">
-                <div>
-                  <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                    Auditor / Responsable Técnico HyS
-                  </label>
-                  <input
-                    type="text"
-                    value={pdfForm.auditorName}
-                    onChange={(e) => setPdfForm({ ...pdfForm, auditorName: e.target.value })}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                      Título / Rama Profesional
+                    </label>
+                    <input
+                      type="text"
+                      value={pdfForm.auditorTitle}
+                      onChange={(e) => setPdfForm({ ...pdfForm, auditorTitle: e.target.value })}
+                      placeholder="Ej: Lic. en Higiene y Seguridad"
+                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                      Auditor / Responsable HyS
+                    </label>
+                    <input
+                      type="text"
+                      value={pdfForm.auditorName}
+                      onChange={(e) => setPdfForm({ ...pdfForm, auditorName: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                    Matrícula y Colegio Profesional
-                  </label>
-                  <input
-                    type="text"
-                    value={pdfForm.auditorLicense}
-                    onChange={(e) => setPdfForm({ ...pdfForm, auditorLicense: e.target.value })}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                      Matrícula y Colegio Profesional
+                    </label>
+                    <input
+                      type="text"
+                      value={pdfForm.auditorLicense}
+                      onChange={(e) => setPdfForm({ ...pdfForm, auditorLicense: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                      Establecimiento / Planta Auditada
+                    </label>
+                    <input
+                      type="text"
+                      value={pdfForm.establishmentName}
+                      onChange={(e) => setPdfForm({ ...pdfForm, establishmentName: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                    Establecimiento / Planta Auditada
-                  </label>
-                  <input
-                    type="text"
-                    value={pdfForm.establishmentName}
-                    onChange={(e) => setPdfForm({ ...pdfForm, establishmentName: e.target.value })}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
-                  />
+                {/* Firmas Digitales o Convencionales */}
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+                    <span className="font-bold text-slate-800 dark:text-slate-200">
+                      Firmas del Dictamen (Digital o Convencional)
+                    </span>
+                    <span className="text-[10px] text-slate-500">
+                      Opcional: Si no firma en pantalla, saldrán los recuadros para firma física
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="bg-slate-50 dark:bg-slate-900/50 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
+                      <SignatureCanvas
+                        label="Firma Auditor HyS"
+                        initialImage={auditorSignature}
+                        onSave={(sig) => setAuditorSignature(sig)}
+                        height={110}
+                      />
+                    </div>
+                    <div className="bg-slate-50 dark:bg-slate-900/50 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
+                      <SignatureCanvas
+                        label="Firma Representante Legal"
+                        initialImage={representativeSignature}
+                        onSave={(sig) => setRepresentativeSignature(sig)}
+                        height={110}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 

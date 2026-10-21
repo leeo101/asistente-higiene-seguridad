@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { LegalRequirement, CATEGORY_LABELS } from '../data/legalMatrixData';
+import { drawJsPdfSignatures, getSavedProfessionalData } from './jsPdfSignatureHelper';
 
 export interface LegalReportData {
   companyName: string;
@@ -8,6 +9,10 @@ export interface LegalReportData {
   establishmentName: string;
   auditorName: string;
   auditorLicense: string;
+  auditorTitle?: string;
+  auditorSignature?: string;
+  stampUrl?: string;
+  representativeSignature?: string;
   auditDate: string;
   requirements: LegalRequirement[];
 }
@@ -193,32 +198,40 @@ export function generateLegalCompliancePdf(data: LegalReportData) {
 }
 
 function renderSignatureBlock(doc: jsPDF, y: number, data: LegalReportData) {
-  doc.setDrawColor(148, 163, 184);
-  doc.line(20, y + 16, 85, y + 16);
-  doc.line(125, y + 16, 190, y + 16);
+  const proData = getSavedProfessionalData();
+  const proDisplayTitle = (data.auditorTitle || proData.profession || 'RESPONSABLE HIGIENE Y SEGURIDAD').toUpperCase();
+  const proDisplayName = (data.auditorName || proData.name || 'AUDITOR TÉCNICO HYS').toUpperCase();
+  const proLicense = data.auditorLicense || proData.license || null;
+  const proSig = data.auditorSignature || proData.signature;
+  const proStamp = data.stampUrl || proData.stamp;
 
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(15, 23, 42);
-  doc.text(data.auditorName || 'Auditor Técnico HyS', 52.5, y + 20, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6.5);
-  doc.text(`Firma y Sello Resp. Higiene y Seguridad (Mat. ${data.auditorLicense || 'Vigente'})`, 52.5, y + 23.5, { align: 'center' });
+  const finalY = drawJsPdfSignatures(doc, {
+    startY: y,
+    box1: {
+      title: proDisplayTitle,
+      subtitle: proDisplayName,
+      license: proLicense,
+      signatureUrl: proSig,
+      stampUrl: proStamp,
+      isProfessional: true
+    },
+    box2: {
+      title: 'DIRECCIÓN / REPRESENTANTE LEGAL',
+      subtitle: data.companyName || 'REPRESENTANTE DE LA EMPRESA',
+      secondarySubtitle: 'Toma de conocimiento y aprobación',
+      signatureUrl: data.representativeSignature || null,
+      isProfessional: false
+    }
+  });
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
-  doc.text('Dirección / Representante Legal de la Empresa', 157.5, y + 20, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6.5);
-  doc.text('Toma de Conocimiento y Aprobación de Planes de Acción', 157.5, y + 23.5, { align: 'center' });
-
+  const pageWidth = doc.internal.pageSize.getWidth();
   doc.setFontSize(6);
   doc.setFont('helvetica', 'italic');
   doc.setTextColor(100, 116, 139);
   doc.text(
     'Documento confidencial emitido conforme a la Cláusula 9.1.2 de la Norma ISO 45001:2018. Validez legal ante inspecciones de la SRT y ART.',
-    105,
-    y + 35,
+    pageWidth / 2,
+    finalY + 3,
     { align: 'center' }
   );
 }

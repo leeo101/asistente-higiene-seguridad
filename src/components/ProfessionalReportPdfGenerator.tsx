@@ -1,9 +1,11 @@
 import React from 'react';
-import { Building2, MapPin, Calendar } from 'lucide-react';
+import { Building2, MapPin, Calendar, UserCheck, AlertTriangle, GraduationCap, PackageCheck, ClipboardCheck, Info } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
 import { getCountryNormativa } from '../data/legislationData';
 import { safeJsonParse } from '../utils/storageHelper';
+import { formatProfessionTitle, DEFAULT_PROFESSION } from '../data/professionOptions';
+import { formatDisplayDate } from '../utils/dateHelper';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import ReportContentRenderer from './reports/ReportContentRenderer';
 
@@ -12,9 +14,29 @@ export default function ProfessionalReportPdfGenerator({ currentReport, customId
 
   const report = currentReport;
 
-  const savedData = localStorage.getItem('personalData');
-  const userCountry = savedData ? safeJsonParse<any>(savedData, {}).country || 'argentina' : 'argentina';
+  const savedData = typeof window !== 'undefined' ? localStorage.getItem('personalData') : null;
+  const parsedPersonal = savedData ? safeJsonParse<any>(savedData, {}) : {};
+  const userCountry = parsedPersonal.country || 'argentina';
   const countryNorms = getCountryNormativa(userCountry);
+
+  // Nombre, matrícula y título del profesional actuante
+  const proName = (report.responsable || report.professionalName || parsedPersonal.name || 'Profesional Actuante').toUpperCase();
+  const rawTitle = report.professionalTitle || report.profession || parsedPersonal.profession || DEFAULT_PROFESSION;
+  const proTitle = formatProfessionTitle(rawTitle).toUpperCase();
+  const proLicense = report.professionalLicense || report.license || parsedPersonal.license;
+
+  const hasExtraFields = report.extraFields && Object.keys(report.extraFields).some(k => report.extraFields[k] && String(report.extraFields[k]).trim() !== '');
+
+  // Plantilla visual y etiqueta
+  const templateLabels: Record<string, { label: string; badge: string; color: string }> = {
+    general: { label: 'INFORME TÉCNICO DE SEGURIDAD', badge: 'RELEVAMIENTO GENERAL', color: '#0284c7' },
+    accident: { label: 'INFORME DE INVESTIGACIÓN DE ACCIDENTE', badge: 'ÁRBOL DE CAUSAS & CONTROL', color: '#dc2626' },
+    training: { label: 'REGISTRO OFICIAL DE CAPACITACIÓN', badge: 'FORMACIÓN CONTINUA ISO 45001', color: '#059669' },
+    rgrl: { label: 'PROTOCOLO RGRL - RELEVAMIENTO DE RIESGOS', badge: 'RES. SRT 463/09', color: '#d97706' },
+    epp: { label: 'CONSTANCIA DE ENTREGA DE EPP', badge: 'RES. SRT 299/11', color: '#7c3aed' }
+  };
+
+  const tplInfo = templateLabels[report.template] || templateLabels.general;
 
   return (
     <div className="w-[100%] flex justify-center">
@@ -65,82 +87,186 @@ export default function ProfessionalReportPdfGenerator({ currentReport, customId
           `}
         </style>
 
-        {/* Header Rediseñado */}
-        <div className="flex justify-between items-start border-bottom-[3px_solid_#0f172a] pb-[1.5rem] mb-[2rem]">
-          <div className="flex-[1]">
-            <div className="inline-block bg-[#0f172a] text-[#ffffff] font-[800] text-[0.7rem] uppercase letter-spacing-[2px] p-[0.3rem_0.8rem] rounded-full mb-[1rem]">
-              Documento Oficial
+        {/* Header Rediseñado con Logo, Título Oficial y Datos Profesionales */}
+        <div className="flex justify-between items-start border-b-[3px] border-slate-900 pb-5 mb-6">
+          <div className="flex-[1] pr-4">
+            <div 
+              style={{ backgroundColor: tplInfo.color }}
+              className="inline-block text-white font-extrabold text-[10px] uppercase tracking-wider px-3 py-1 rounded-full mb-2"
+            >
+              {tplInfo.badge}
             </div>
-            <h1 className="m-[0_0_0.3rem_0] text-[#0f172a] text-[2.2rem] font-[900] letter-spacing-[-0.5px] leading-tight">
-              INFORME TÉCNICO
+            <h1 className="m-0 text-slate-900 text-2xl sm:text-3xl font-black tracking-tight leading-tight uppercase">
+              {tplInfo.label}
             </h1>
-            <p className="m-[0] text-[1.1rem] text-[#334155] font-[600]">
-              {report.title || 'Reporte de Higiene y Seguridad'}
+            <p className="m-0 mt-1 text-base font-bold text-slate-700">
+              {report.title || 'Informe Técnico Profesional de Higiene y Seguridad'}
             </p>
           </div>
-          <div className="flex flex-col items-end gap-[1rem]">
-            <div className="h-[65px] flex items-center">
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            <div className="h-[55px] flex items-center justify-end">
               <CompanyLogo style={{ maxHeight: '48px', maxWidth: '140px', objectFit: 'contain' }} />
             </div>
-            <div className="text-right">
-              <p className="m-[0] font-[900] text-[1.1rem] text-[#0f172a] letter-spacing-[1px]">PROFESIONAL HYS</p>
+            <div className="text-right flex flex-col items-end">
+              <span className="font-black text-[10px] text-emerald-800 uppercase tracking-wider">
+                {proTitle}
+              </span>
+              <span className="font-black text-xs text-slate-900 uppercase">
+                {proName}
+              </span>
+              {proLicense && (
+                <span className="text-[10px] font-extrabold text-slate-600 uppercase">
+                  Matrícula: {proLicense}
+                </span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Metadata Grid Rediseñada */}
-        <div className="flex flex-wrap gap-[1rem] mb-[2.5rem] bg-[#f8fafc] p-[1.2rem_1.5rem] rounded-[12px] border-[1px_solid_#cbd5e1]">
-          <div className="flex-[1] min-w-[150px] border-right-[1px_solid_#e2e8f0] pr-[1rem]">
-            <div className="flex items-center gap-[0.5rem] mb-[0.3rem]">
-              <Building2 size={16} className="text-[#3b82f6]" />
-              <span className="text-[0.75rem] text-[#64748b] font-[700] uppercase letter-spacing-[1px]">Empresa</span>
+        {/* Metadata Grid Rediseñada y Completa */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-300">
+          <div className="border-r border-slate-200 pr-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Building2 size={14} className="text-sky-600 shrink-0" />
+              <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider">Empresa / Cliente</span>
             </div>
-            <p className="m-[0] font-[800] text-[1rem] text-[#0f172a]">{report.company || '-'}</p>
+            <p className="m-0 font-black text-xs text-slate-900 truncate">{report.company || '-'}</p>
           </div>
-          <div className="flex-[1] min-w-[150px] border-right-[1px_solid_#e2e8f0] pr-[1rem]">
-            <div className="flex items-center gap-[0.5rem] mb-[0.3rem]">
-              <MapPin size={16} className="text-[#3b82f6]" />
-              <span className="text-[0.75rem] text-[#64748b] font-[700] uppercase letter-spacing-[1px]">Ubicación</span>
+
+          <div className="border-r border-slate-200 pr-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <MapPin size={14} className="text-sky-600 shrink-0" />
+              <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider">Ubicación / Planta</span>
             </div>
-            <p className="m-[0] font-[800] text-[1rem] text-[#0f172a]">{report.location || 'N/A'}</p>
+            <p className="m-0 font-black text-xs text-slate-900 truncate">{report.location || 'Sede Operativa'}</p>
           </div>
-          <div className="flex-[1] min-w-[150px]">
-            <div className="flex items-center gap-[0.5rem] mb-[0.3rem]">
-              <Calendar size={16} className="text-[#3b82f6]" />
-              <span className="text-[0.75rem] text-[#64748b] font-[700] uppercase letter-spacing-[1px]">Fecha</span>
+
+          <div className="border-r border-slate-200 pr-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Calendar size={14} className="text-sky-600 shrink-0" />
+              <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider">Fecha Relevamiento</span>
             </div>
-            <p className="m-[0] font-[800] text-[1rem] text-[#0f172a]">
-              {report.date ? new Date(report.date).toLocaleDateString('es-AR') : new Date().toLocaleDateString('es-AR')}
+            <p className="m-0 font-black text-xs text-slate-900">
+              {formatDisplayDate(report.date || report.createdAt)}
             </p>
           </div>
+
+          <div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <UserCheck size={14} className="text-emerald-600 shrink-0" />
+              <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider">Profesional H&S</span>
+            </div>
+            <p className="m-0 font-black text-xs text-slate-900 truncate">{proName}</p>
+          </div>
         </div>
 
-        {/* Contenido Principal (permitiendo paginación fluida sin forzar avoid-break sobre todo el bloque) */}
-        <div className="mb-[2.5rem]">
-          <div className="flex items-center gap-[0.8rem] mb-[1.2rem] avoid-break">
-            <div className="w-[8px] h-[24px] bg-[#3b82f6] rounded-[4px]"></div>
-            <h3 className="m-[0] text-[#0f172a] font-[800] text-[1.1rem] uppercase letter-spacing-[1px]">
-              Detalle / Observaciones
+        {/* SECCIÓN DE DETALLE ESPECÍFICO (EXTRA FIELDS) - GARANTIZA QUE SALGAN AL IMPRIMIR */}
+        {hasExtraFields && (
+          <div className="mb-6 avoid-break">
+            <div className="flex items-center gap-2 mb-2.5">
+              <div className="w-2 h-5 bg-amber-500 rounded-sm"></div>
+              <h3 className="m-0 text-slate-900 font-black text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <ClipboardCheck size={16} className="text-amber-600" />
+                Detalle y Parámetros del Relevamiento
+              </h3>
+            </div>
+            <div className="bg-amber-50/60 border border-amber-200 rounded-xl p-3.5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {report.extraFields.topic && (
+                <div>
+                  <span className="block text-[10px] font-extrabold text-amber-800 uppercase tracking-wider">Tema de Capacitación</span>
+                  <span className="font-black text-xs text-slate-900">{report.extraFields.topic}</span>
+                </div>
+              )}
+              {report.extraFields.duration && (
+                <div>
+                  <span className="block text-[10px] font-extrabold text-amber-800 uppercase tracking-wider">Duración</span>
+                  <span className="font-black text-xs text-slate-900">{report.extraFields.duration} minutos</span>
+                </div>
+              )}
+              {report.extraFields.eventTime && (
+                <div>
+                  <span className="block text-[10px] font-extrabold text-red-800 uppercase tracking-wider">Hora del Evento</span>
+                  <span className="font-black text-xs text-slate-900">{report.extraFields.eventTime} hs</span>
+                </div>
+              )}
+              {report.extraFields.affectedPerson && (
+                <div>
+                  <span className="block text-[10px] font-extrabold text-red-800 uppercase tracking-wider">Trabajador Afectado</span>
+                  <span className="font-black text-xs text-slate-900">{report.extraFields.affectedPerson}</span>
+                </div>
+              )}
+              {report.extraFields.jobRole && (
+                <div>
+                  <span className="block text-[10px] font-extrabold text-slate-700 uppercase tracking-wider">Puesto / Tarea</span>
+                  <span className="font-bold text-xs text-slate-900">{report.extraFields.jobRole}</span>
+                </div>
+              )}
+              {report.extraFields.eppType && (
+                <div>
+                  <span className="block text-[10px] font-extrabold text-purple-800 uppercase tracking-wider">Elementos de Protección Entregados</span>
+                  <span className="font-bold text-xs text-slate-900">{report.extraFields.eppType}</span>
+                </div>
+              )}
+              {report.extraFields.eppNorm && (
+                <div>
+                  <span className="block text-[10px] font-extrabold text-purple-800 uppercase tracking-wider">Certificación / Norma</span>
+                  <span className="font-bold text-xs text-slate-900">{report.extraFields.eppNorm}</span>
+                </div>
+              )}
+              {report.extraFields.rgrlNorm && (
+                <div>
+                  <span className="block text-[10px] font-extrabold text-amber-800 uppercase tracking-wider">Marco Normativo</span>
+                  <span className="font-bold text-xs text-slate-900">{report.extraFields.rgrlNorm}</span>
+                </div>
+              )}
+              {/* Cualquier otro campo extra */}
+              {Object.entries(report.extraFields).map(([key, val]) => {
+                if (['topic', 'duration', 'eventTime', 'affectedPerson', 'jobRole', 'eppType', 'eppNorm', 'rgrlNorm'].includes(key) || !val) {
+                  return null;
+                }
+                return (
+                  <div key={key}>
+                    <span className="block text-[10px] font-extrabold text-slate-700 uppercase tracking-wider">{key}</span>
+                    <span className="font-bold text-xs text-slate-900">{String(val)}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Contenido Principal y Desarrollo del Informe */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-2.5 avoid-break">
+            <div className="w-2 h-5 bg-sky-600 rounded-sm"></div>
+            <h3 className="m-0 text-slate-900 font-black text-xs uppercase tracking-wider">
+              Desarrollo Técnico y Observaciones
             </h3>
           </div>
-          <div className="bg-[#ffffff] p-[1.5rem] rounded-[12px] border-[1px_solid_#e2e8f0] shadow-sm">
+          <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-300 shadow-xs">
             <ReportContentRenderer content={report.content} isPrint={true} />
           </div>
         </div>
 
-        {/* Fotos de Evidencia si existen */}
+        {/* Registro Fotográfico si existen fotos */}
         {report.photos && report.photos.length > 0 && (
-          <div className="mb-[3rem] avoid-break">
-            <div className="flex items-center gap-[0.8rem] mb-[1.2rem]">
-              <div className="w-[8px] h-[24px] bg-[#3b82f6] rounded-[4px]"></div>
-              <h3 className="m-[0] text-[#0f172a] font-[800] text-[1.1rem] uppercase letter-spacing-[1px]">Registro Fotográfico</h3>
+          <div className="mb-6 avoid-break">
+            <div className="flex items-center gap-2 mb-2.5">
+              <div className="w-2 h-5 bg-sky-600 rounded-sm"></div>
+              <h3 className="m-0 text-slate-900 font-black text-xs uppercase tracking-wider">
+                Registro Fotográfico de Evidencias ({report.photos.length})
+              </h3>
             </div>
-            <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(250px,_1fr))] gap-[1rem]">
+            <div className="grid grid-cols-2 gap-3">
               {report.photos.map((photo: any, index: number) => (
-                <div key={photo.id || index} className="border-[1px_solid_#e2e8f0] rounded-[12px] overflow-hidden bg-[#f8fafc] p-[0.5rem] avoid-break break-inside-[avoid]">
-                  <img src={photo.url} alt="Evidencia" className="w-[100%] h-[200px] rounded-[8px] border-[1px_solid_#cbd5e1]" style={{ objectFit: 'cover' }} />
+                <div key={photo.id || index} className="border border-slate-300 rounded-xl overflow-hidden bg-slate-50 p-2 avoid-break break-inside-avoid shadow-xs">
+                  <img 
+                    src={photo.url || photo} 
+                    alt={`Evidencia ${index + 1}`} 
+                    className="w-full h-44 object-cover rounded-lg border border-slate-200" 
+                  />
                   {photo.description && (
-                    <p className="m-[0.8rem_0_0.3rem_0] text-[0.85rem] text-[#475569] text-center font-[600]">{photo.description}</p>
+                    <p className="mt-2 mb-0 text-[11px] text-slate-700 text-center font-bold">{photo.description}</p>
                   )}
                 </div>
               ))}
@@ -148,29 +274,31 @@ export default function ProfessionalReportPdfGenerator({ currentReport, customId
           </div>
         )}
 
-        {/* Personal Interviniente */}
+        {/* Personal Interviniente para Capacitación o Entrega de EPP */}
         {(report.template === 'training' || report.template === 'epp') && report.personnel && report.personnel.length > 0 && (
-          <div className="mb-[3rem] avoid-break">
-            <div className="flex items-center gap-[0.8rem] mb-[1.2rem]">
-              <div className="w-[8px] h-[24px] bg-[#3b82f6] rounded-[4px]"></div>
-              <h3 className="m-[0] text-[#0f172a] font-[800] text-[1.1rem] uppercase letter-spacing-[1px]">Personal Interviniente</h3>
+          <div className="mb-6 avoid-break">
+            <div className="flex items-center gap-2 mb-2.5">
+              <div className="w-2 h-5 bg-sky-600 rounded-sm"></div>
+              <h3 className="m-0 text-slate-900 font-black text-xs uppercase tracking-wider">
+                Nómina de Personal Interviniente y Firmas
+              </h3>
             </div>
-            <div className="border-[1px_solid_#cbd5e1] rounded-[12px] overflow-hidden">
-              <table className="w-[100%] border-collapse-[collapse] text-[0.9rem]">
+            <div className="border border-slate-300 rounded-xl overflow-hidden">
+              <table className="w-full border-collapse text-xs">
                 <thead>
-                  <tr className="bg-[#0f172a] text-[#ffffff]">
-                    <th className="p-[1rem] text-left font-[700] w-[40%]">Nombre y Apellido</th>
-                    <th className="p-[1rem] text-left font-[700] w-[25%]">DNI / CUIL</th>
-                    <th className="p-[1rem] text-center font-[700] w-[35%]">Firma del Trabajador</th>
+                  <tr className="bg-slate-900 text-white">
+                    <th className="p-2.5 text-left font-black w-2/5">Nombre y Apellido</th>
+                    <th className="p-2.5 text-left font-black w-1/4">DNI / CUIL</th>
+                    <th className="p-2.5 text-center font-black w-1/3">Firma del Trabajador</th>
                   </tr>
                 </thead>
                 <tbody>
                   {report.personnel.map((p: any, idx: number) => (
-                    <tr className="avoid-break striped-row border-bottom-[1px_solid_#e2e8f0]" key={p.id || idx}>
-                      <td className="p-[1rem] text-[#0f172a] font-[700]">{p.name}</td>
-                      <td className="p-[1rem] text-[#334155]">{p.dni}</td>
-                      <td className="p-[1rem] h-[80px] vertical-align-[bottom]">
-                        <div className="border-bottom-[1px_dashed_#94a3b8] w-[80%] m-[0_auto]"></div>
+                    <tr className="avoid-break striped-row border-b border-slate-200" key={p.id || idx}>
+                      <td className="p-2.5 text-slate-900 font-bold">{p.name || '-'}</td>
+                      <td className="p-2.5 text-slate-700 font-semibold">{p.dni || '-'}</td>
+                      <td className="p-2.5 h-12 align-bottom text-center">
+                        <div className="border-b border-dashed border-slate-400 w-4/5 mx-auto"></div>
                       </td>
                     </tr>
                   ))}
@@ -180,16 +308,27 @@ export default function ProfessionalReportPdfGenerator({ currentReport, customId
           </div>
         )}
 
-        {/* Firmas */}
-        <div className="avoid-break mt-[2rem]">
-          <PdfSignatures data={report} />
+        {/* Firmas Digitales y Sellos (Centrados y con el Título Profesional Oficial) */}
+        <div className="avoid-break mt-6">
+          <PdfSignatures 
+            data={{
+              ...report,
+              professionalName: proName,
+              responsable: proName,
+              professionalTitle: proTitle,
+              profession: proTitle,
+              professionalLicense: proLicense,
+              professionalSignature: report.signature || report.professionalSignature,
+              professionalStamp: report.stamp || report.professionalStamp
+            }} 
+          />
         </div>
 
         <PdfBrandingFooter />
 
         {/* Footer Legal */}
-        <div className="w-[100%] text-center text-[0.75rem] text-[#64748b] mt-[3rem] font-[600] border-top-[1px_solid_#cbd5e1] pt-[1.5rem]">
-          Documento generado por Asistente de Higiene y Seguridad - Conforme a {countryNorms.general}
+        <div className="w-full text-center text-[10px] text-slate-500 mt-6 font-semibold border-t border-slate-300 pt-3">
+          Documento generado por Asistente de Higiene y Seguridad • Conforme a {countryNorms.general} • Auditoría ISO 45001
         </div>
       </div>
     </div>

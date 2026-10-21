@@ -6,6 +6,7 @@ import {
   ForkliftDailyCheck,
   DAILY_INSPECTION_ITEMS
 } from '../data/forkliftSrt960Data';
+import { drawJsPdfSignatures, getSavedProfessionalData } from './jsPdfSignatureHelper';
 
 /**
  * Genera la Credencial / Carnet Habilitante Oficial Anexo I Res. SRT 960/15
@@ -112,6 +113,14 @@ export function generateForkliftCredentialPdf(
   doc.text(typesText.length > 55 ? typesText.substring(0, 52) + '...' : typesText, 4, 27);
 
   // Firmas obligatorias
+  const proCredData = getSavedProfessionalData();
+  const proCredTitle = (proCredData.profession || 'SERV. HIGIENE Y SEGURIDAD').toUpperCase();
+  if (proCredData.signature) {
+    try {
+      doc.addImage(proCredData.signature, 'PNG', 49, 36, 28, 7, undefined, 'FAST');
+    } catch {}
+  }
+
   doc.setDrawColor(148, 163, 184);
   doc.line(6, 44, 38, 44);
   doc.line(47, 44, 79, 44);
@@ -120,7 +129,7 @@ export function generateForkliftCredentialPdf(
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(71, 85, 105);
   doc.text('FIRMA CONDUCTOR HABILITADO', 22, 47, { align: 'center' });
-  doc.text('FIRMA SERV. HIGIENE Y SEGURIDAD', 63, 47, { align: 'center' });
+  doc.text(proCredTitle.length > 28 ? proCredTitle.substring(0, 26) + '...' : proCredTitle, 63, 47, { align: 'center' });
 
   doc.setFontSize(4);
   doc.setFont('helvetica', 'italic');
@@ -260,26 +269,29 @@ export function generateForkliftInspectionPdf(
   doc.setFontSize(7);
   doc.text(check.observations || 'Sin observaciones adicionales. Equipo liberado para tareas operativas de carga y estiba.', 18, finalY + 11);
 
-  // Bloque de Firmas
-  const signY = finalY + 22;
-  doc.setDrawColor(148, 163, 184);
-  doc.line(20, signY + 12, 85, signY + 12);
-  doc.line(125, signY + 12, 190, signY + 12);
+  // Bloque de Firmas Normalizado y Centrado
+  const proData = getSavedProfessionalData();
+  const proDisplayTitle = (proData.profession || 'SERVICIO DE HIGIENE Y SEGURIDAD').toUpperCase();
+  const proDisplayName = (proData.name || check.supervisorSignatureName || 'RESPONSABLE HYS').toUpperCase();
 
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(15, 23, 42);
-  doc.text(check.driverSignatureName || check.driverName, 52.5, signY + 16, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6.5);
-  doc.text('Firma y Aclaración del Conductor Habilitado', 52.5, signY + 19.5, { align: 'center' });
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
-  doc.text(check.supervisorSignatureName || 'Servicio de Higiene y Seguridad en el Trabajo', 157.5, signY + 16, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6.5);
-  doc.text('Firma y Sello Resp. Higiene y Seguridad / Supervisor', 157.5, signY + 19.5, { align: 'center' });
+  drawJsPdfSignatures(doc, {
+    startY: finalY + 18,
+    box1: {
+      title: 'CONDUCTOR HABILITADO',
+      subtitle: check.driverSignatureName || check.driverName,
+      secondarySubtitle: `CUIL: ${check.driverCuil || 'Habilitado Res. 960/15'}`,
+      signatureUrl: check.driverSignature || null,
+      isProfessional: false
+    },
+    box2: {
+      title: proDisplayTitle,
+      subtitle: proDisplayName,
+      license: proData.license || null,
+      signatureUrl: check.supervisorSignature || proData.signature,
+      stampUrl: proData.stamp,
+      isProfessional: true
+    }
+  });
 
   // Pie de página legal
   doc.setFontSize(6);

@@ -28,6 +28,8 @@ import {
   generateRackTechnicalReportPdf,
   generateRackLockoutTagPdf
 } from '../utils/rackInspectionPdfGenerator';
+import { getSavedProfessionalData } from '../utils/jsPdfSignatureHelper';
+import SignatureCanvas from '../components/SignatureCanvas';
 
 const STORAGE_RACKS_KEY = 'hys_rack_systems_data';
 const STORAGE_INSPECTIONS_KEY = 'hys_rack_inspections_data';
@@ -69,27 +71,31 @@ export default function RackInspectionManager(): React.ReactElement | null {
   });
 
   // Formulario de Inspección
-  const [inspectionForm, setInspectionForm] = useState<Partial<RackInspectionReport>>({
-    rackId: '',
-    rackCode: '',
-    warehouseSector: '',
-    inspectionDate: new Date().toISOString().split('T')[0],
-    inspectorName: 'Lic. en Higiene y Seguridad',
-    inspectorRegistration: 'Mat. HyS Profesional',
-    overallResult: 'conforme',
-    generalChecks: {
-      loadPlatesPresent: true,
-      safetyPinsPresent: true,
-      groundAnchorsSecured: true,
-      columnProtectorsPresent: true,
-      verticalityCompliant: true,
-      clearAisles: true,
-      palletConditionGood: true
-    },
-    damages: [],
-    conclusions: 'La estantería inspeccionada cumple satisfactoriamente con los parámetros de la Norma IRAM 38500. Sin deformaciones de riesgo.',
-    actionPlan: 'Continuar con las inspecciones periódicas anuales y chequeos visuales semanales por el personal de depósito.',
-    immediateUnloadRequired: false
+  const [inspectionForm, setInspectionForm] = useState<Partial<RackInspectionReport>>(() => {
+    const pro = getSavedProfessionalData();
+    return {
+      rackId: '',
+      rackCode: '',
+      warehouseSector: '',
+      inspectionDate: new Date().toISOString().split('T')[0],
+      inspectorTitle: pro.profession || 'INSPECTOR TÉCNICO IRAM 38500',
+      inspectorName: pro.name || 'Lic. en Higiene y Seguridad',
+      inspectorRegistration: pro.license || 'Mat. HyS Profesional',
+      overallResult: 'conforme',
+      generalChecks: {
+        loadPlatesPresent: true,
+        safetyPinsPresent: true,
+        groundAnchorsSecured: true,
+        columnProtectorsPresent: true,
+        verticalityCompliant: true,
+        clearAisles: true,
+        palletConditionGood: true
+      },
+      damages: [],
+      conclusions: 'La estantería inspeccionada cumple satisfactoriamente con los parámetros de la Norma IRAM 38500. Sin deformaciones de riesgo.',
+      actionPlan: 'Continuar con las inspecciones periódicas anuales y chequeos visuales semanales por el personal de depósito.',
+      immediateUnloadRequired: false
+    };
   });
 
   // Estado temporal de daño a agregar en el modal de inspección
@@ -251,13 +257,15 @@ export default function RackInspectionManager(): React.ReactElement | null {
       return;
     }
 
+    const pro = getSavedProfessionalData();
     setInspectionForm({
       rackId: defaultTarget.id,
       rackCode: defaultTarget.rackCode,
       warehouseSector: defaultTarget.warehouseSector,
       inspectionDate: new Date().toISOString().split('T')[0],
-      inspectorName: 'Lic. en Higiene y Seguridad',
-      inspectorRegistration: 'Mat. HyS Profesional',
+      inspectorTitle: pro.profession || 'INSPECTOR TÉCNICO IRAM 38500',
+      inspectorName: pro.name || 'Lic. en Higiene y Seguridad',
+      inspectorRegistration: pro.license || 'Mat. HyS Profesional',
       overallResult: 'conforme',
       generalChecks: {
         loadPlatesPresent: true,
@@ -1508,6 +1516,69 @@ export default function RackInspectionManager(): React.ReactElement | null {
                       onChange={e => setInspectionForm({ ...inspectionForm, actionPlan: e.target.value })}
                       className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500"
                     />
+                  </div>
+                </div>
+
+                {/* 4. Firmas de Responsabilidad Técnica (Digital o Convencional) */}
+                <div className="space-y-3 pt-3 border-t border-slate-800">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                      4. Firmas y Responsables (Digital o Convencional)
+                    </h4>
+                    <span className="text-[10px] text-slate-500">
+                      Opcional: Si no firma en pantalla, se imprimirán los recuadros para firma física
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-400 mb-1">Título / Rama Profesional</label>
+                      <input
+                        type="text"
+                        value={inspectionForm.inspectorTitle || ''}
+                        onChange={e => setInspectionForm({ ...inspectionForm, inspectorTitle: e.target.value })}
+                        placeholder="Ej: Lic. en Higiene y Seguridad"
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-400 mb-1">Nombre Inspector HyS</label>
+                      <input
+                        type="text"
+                        value={inspectionForm.inspectorName || ''}
+                        onChange={e => setInspectionForm({ ...inspectionForm, inspectorName: e.target.value })}
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-400 mb-1">Matrícula Profesional</label>
+                      <input
+                        type="text"
+                        value={inspectionForm.inspectorRegistration || ''}
+                        onChange={e => setInspectionForm({ ...inspectionForm, inspectorRegistration: e.target.value })}
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+                      <SignatureCanvas
+                        label="Firma Inspector Técnico HyS"
+                        initialImage={inspectionForm.inspectorSignature}
+                        onSave={(sig) => setInspectionForm(prev => ({ ...prev, inspectorSignature: sig || undefined }))}
+                        height={110}
+                      />
+                    </div>
+                    <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+                      <SignatureCanvas
+                        label="Firma Responsable Almacén / Logística"
+                        initialImage={inspectionForm.responsibleSignature}
+                        onSave={(sig) => setInspectionForm(prev => ({ ...prev, responsibleSignature: sig || undefined }))}
+                        height={110}
+                      />
+                    </div>
                   </div>
                 </div>
 

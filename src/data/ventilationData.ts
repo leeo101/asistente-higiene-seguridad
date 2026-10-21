@@ -38,6 +38,9 @@ export interface VentilationStudy {
   date: string; // YYYY-MM-DD
   evaluatorName: string;
   evaluatorLicense: string;
+  evaluatorTitle?: string;
+  evaluatorSignature?: string;
+  representativeSignature?: string;
 
   // Dimensiones del local
   surfaceM2: number;

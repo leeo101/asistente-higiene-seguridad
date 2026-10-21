@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { PTSProcedure } from '../data/ptsProcedureData';
+import { drawJsPdfSignatures, getSavedProfessionalData } from './jsPdfSignatureHelper';
 
 export function generatePTSDocumentPdf(
   procedure: PTSProcedure,
@@ -189,30 +190,40 @@ export function generatePTSDocumentPdf(
 
   afterTableY += 16;
 
-  // 7. CUADRO DE FIRMAS DE CONTROL DOCUMENTAL
-  if (afterTableY > 240) {
-    doc.addPage();
-    afterTableY = 20;
-  }
+  // 7. CUADRO DE FIRMAS DE CONTROL DOCUMENTAL NORMALIZADO
+  const proData = getSavedProfessionalData();
+  const prepTitle = (procedure.preparedByTitle || proData.profession || 'ELABORÓ (SERVICIO HYS)').toUpperCase();
+  const prepName = (procedure.preparedBy || proData.name || 'RESPONSABLE HYS').toUpperCase();
+  const prepLic = procedure.preparedByLicense || proData.license || null;
+  const prepSig = procedure.preparedBySignature || proData.signature;
+  const prepStamp = proData.stamp;
 
-  doc.setDrawColor(148, 163, 184);
-  doc.line(16, afterTableY + 12, 65, afterTableY + 12);
-  doc.line(75, afterTableY + 12, 130, afterTableY + 12);
-  doc.line(140, afterTableY + 12, 195, afterTableY + 12);
-
-  doc.setFontSize(6.5);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(15, 23, 42);
-  doc.text(procedure.preparedBy || 'Servicio HyS', 40.5, afterTableY + 15.5, { align: 'center' });
-  doc.text(procedure.reviewedBy || 'Jefe de Planta / Supervisor', 102.5, afterTableY + 15.5, { align: 'center' });
-  doc.text(procedure.approvedBy || 'Gerencia de Operaciones', 167.5, afterTableY + 15.5, { align: 'center' });
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6);
-  doc.setTextColor(100, 116, 139);
-  doc.text('ELABORÓ (SERVICIO HYS)', 40.5, afterTableY + 18.5, { align: 'center' });
-  doc.text('REVISÓ (PRODUCCIÓN / PLANTA)', 102.5, afterTableY + 18.5, { align: 'center' });
-  doc.text('APROBÓ (DIRECCIÓN)', 167.5, afterTableY + 18.5, { align: 'center' });
+  drawJsPdfSignatures(doc, {
+    startY: afterTableY,
+    maxY: 245,
+    box1: {
+      title: prepTitle,
+      subtitle: prepName,
+      license: prepLic,
+      signatureUrl: prepSig,
+      stampUrl: prepStamp,
+      isProfessional: true
+    },
+    box2: {
+      title: 'REVISÓ (PRODUCCIÓN / PLANTA)',
+      subtitle: (procedure.reviewedBy || 'JEFE DE PLANTA').toUpperCase(),
+      secondarySubtitle: 'Revisión Técnica de Operaciones',
+      signatureUrl: procedure.reviewedBySignature || null,
+      isProfessional: false
+    },
+    box3: {
+      title: 'APROBÓ (DIRECCIÓN)',
+      subtitle: (procedure.approvedBy || 'GERENCIA DE OPERACIONES').toUpperCase(),
+      secondarySubtitle: 'Aprobación y Puesta en Vigencia',
+      signatureUrl: procedure.approvedBySignature || null,
+      isProfessional: false
+    }
+  });
 
   // ─── PÁGINA 2 / ANEXO: PLANILLA DE DIFUSIÓN Y TOMA DE CONOCIMIENTO ──────
   doc.addPage();

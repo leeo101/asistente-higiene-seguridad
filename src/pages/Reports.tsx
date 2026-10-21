@@ -25,6 +25,8 @@ import { printElementAsDocument } from '../utils/pdfHelper';
 import ReportRichEditor from '../components/reports/ReportRichEditor';
 import ReportPreviewModal from '../components/reports/ReportPreviewModal';
 import { safeJsonParse, safeGetLocalStorage } from '../utils/storageHelper';
+import { formatProfessionTitle, DEFAULT_PROFESSION } from '../data/professionOptions';
+import { getLocalTodayIso, formatDisplayDate } from '../utils/dateHelper';
 
 class ReportErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
   constructor(props: {children: React.ReactNode}) {
@@ -90,7 +92,7 @@ export default function Reports(): React.ReactElement | null {
     title: '',
     company: '',
     location: '',
-    date: new Date().toISOString().split('T')[0],
+    date: getLocalTodayIso(),
     responsable: ''
   });
 
@@ -110,7 +112,13 @@ export default function Reports(): React.ReactElement | null {
   
   const [isPrinting, setIsPrinting] = useState(false);
   const [printData, setPrintData] = useState<any>(null);
-  const [professional, setProfessional] = useState({ name: '', license: '', signature: null as string | null, stamp: null as string | null });
+  const [professional, setProfessional] = useState({ 
+    name: '', 
+    license: '', 
+    profession: DEFAULT_PROFESSION, 
+    signature: null as string | null, 
+    stamp: null as string | null 
+  });
 
   const loadHistory = () => {
     try {
@@ -125,6 +133,29 @@ export default function Reports(): React.ReactElement | null {
     window.scrollTo(0, 0);
     loadHistory();
 
+    const parsed = safeGetLocalStorage<Record<string, any>>('personalData', {});
+    const initialProfTitle = formatProfessionTitle(parsed.profession);
+
+    const sd = localStorage.getItem('signatureStampData');
+    const lg = localStorage.getItem('capturedSignature');
+    let sig = lg || null;
+    let stamp = null;
+    if (sd) {
+      const p = safeJsonParse<any>(sd, null);
+      if (p && typeof p === 'object') {
+        sig = p.signature || sig;
+        stamp = p.stamp || null;
+      }
+    }
+
+    setProfessional({
+      name: parsed.name || '',
+      license: parsed.license || '',
+      profession: initialProfTitle,
+      signature: sig,
+      stamp
+    });
+
     if (location.state?.editData) {
       setIsFormVisible(true);
       const data = location.state.editData;
@@ -134,8 +165,8 @@ export default function Reports(): React.ReactElement | null {
         title: data.title || '',
         company: data.company || '',
         location: data.location || '',
-        date: data.date || new Date().toISOString().split('T')[0],
-        responsable: data.responsable || ''
+        date: data.date || getLocalTodayIso(),
+        responsable: data.responsable || data.professionalName || parsed.name || ''
       });
       setContent(data.content || '');
       setExtraFields(data.extraFields || {});
@@ -148,25 +179,11 @@ export default function Reports(): React.ReactElement | null {
         else if (typeof data.showSignatures === 'boolean') setShowSignatures({ operator: data.showSignatures, supervisor: data.showSignatures, professional: data.showSignatures });
       }
       setOperatorSignature(data.operatorSignature || '');
-      setSignature(data.signature || '');
+      setSignature(data.signature || data.professionalSignature || sig || '');
       setSupervisorSignature(data.supervisorSignature || '');
     } else {
-      const parsed = safeGetLocalStorage<Record<string, any>>('personalData', {});
-      if (parsed.name || parsed.license) {
-        setProjectData((prev) => ({ ...prev, responsable: parsed.name || '' }));
-
-        const sd = localStorage.getItem('signatureStampData');
-        const lg = localStorage.getItem('capturedSignature');
-        let sig = lg || null;
-        let stamp = null;
-        if (sd) {
-          const p = safeJsonParse<any>(sd, null);
-          if (p && typeof p === 'object') {
-            sig = p.signature || sig;
-            stamp = p.stamp || null;
-          }
-        }
-        setProfessional({ name: parsed.name, license: parsed.license, signature: sig, stamp });
+      if (parsed.name) {
+        setProjectData((prev) => ({ ...prev, responsable: prev.responsable || parsed.name || '' }));
       }
     }
   }, [location.state]);
@@ -243,24 +260,51 @@ export default function Reports(): React.ReactElement | null {
     }
   };
 
-  const handlePrintFromForm = async () => {
-    const data = {
-      id: projectData.id || Date.now(),
+  const getLiveContent = () => {
+    try {
+      const editorEl = document.querySelector('.word-page-sheet') as HTMLElement;
+      if (editorEl && editorEl.innerHTML && editorEl.innerHTML !== '<p><br></p>' && editorEl.innerHTML.trim() !== '') {
+        return editorEl.innerHTML;
+      }
+    } catch {}
+    return content;
+  };
+
+  const buildReportData = (customId?: any, overrideContent?: string) => {
+    const entryId = customId || projectData.id || Date.now();
+    const finalResponsable = projectData.responsable || professional?.name || 'Profesional Actuante';
+    const profTitle = professional?.profession || DEFAULT_PROFESSION;
+    const finalContent = overrideContent !== undefined ? overrideContent : getLiveContent();
+
+    return {
+      id: entryId,
       template,
       ...projectData,
-      content,
+      date: projectData.date || getLocalTodayIso(),
+      responsable: finalResponsable,
+      professionalName: finalResponsable,
+      professionalLicense: professional?.license || '',
+      professionalTitle: profTitle,
+      profession: profTitle,
+      professionalSignature: signature || professional?.signature || null,
+      professionalStamp: professional?.stamp || null,
+      content: finalContent,
       extraFields,
       photos,
       personnel: template === 'training' || template === 'epp' ? personnel : [],
-      createdAt: new Date().toISOString(),
+      createdAt: projectData.id ? (location.state?.editData?.createdAt || new Date().toISOString()) : new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       showSignatures,
       operatorSignature,
-      signature,
-      supervisorSignature,
-      professionalSignature: professional?.signature,
-      professionalName: professional?.name,
-      professionalLicense: professional?.license
+      signature: signature || professional?.signature || null,
+      supervisorSignature
     };
+  };
+
+  const handlePrintFromForm = async () => {
+    const liveContent = getLiveContent();
+    setContent(liveContent);
+    const data = buildReportData(undefined, liveContent);
 
     setPrintData(data);
     setIsPrinting(true);
@@ -295,25 +339,39 @@ export default function Reports(): React.ReactElement | null {
   };
 
   const handleOpenPreview = () => {
-    const data = {
-      id: projectData.id || Date.now(),
-      template,
-      ...projectData,
-      content,
-      extraFields,
-      photos,
-      personnel: template === 'training' || template === 'epp' ? personnel : [],
-      createdAt: new Date().toISOString(),
-      showSignatures,
-      operatorSignature,
-      signature,
-      supervisorSignature,
-      professionalSignature: professional?.signature,
-      professionalName: professional?.name,
-      professionalLicense: professional?.license
-    };
+    const liveContent = getLiveContent();
+    setContent(liveContent);
+    const data = buildReportData(undefined, liveContent);
     setPreviewData(data);
     setPreviewModalOpen(true);
+  };
+
+  const handleStartEdit = (item: any) => {
+    setTemplate(item.template || 'general');
+    setProjectData({
+      id: item.id,
+      title: item.title || '',
+      company: item.company || '',
+      location: item.location || '',
+      date: item.date || getLocalTodayIso(),
+      responsable: item.responsable || item.professionalName || professional?.name || ''
+    });
+    setContent(item.content || '');
+    setExtraFields(item.extraFields || {});
+    setPhotos(item.photos || []);
+    if (item.personnel && item.personnel.length > 0) {
+      setPersonnel(item.personnel);
+    } else {
+      setPersonnel([{ id: Date.now(), name: '', dni: '' }]);
+    }
+    if (item.showSignatures !== undefined) {
+      if (typeof item.showSignatures === 'object') setShowSignatures(item.showSignatures);
+      else if (typeof item.showSignatures === 'boolean') setShowSignatures({ operator: item.showSignatures, supervisor: item.showSignatures, professional: item.showSignatures });
+    }
+    setOperatorSignature(item.operatorSignature || '');
+    setSignature(item.signature || item.professionalSignature || professional?.signature || '');
+    setSupervisorSignature(item.supervisorSignature || '');
+    setIsFormVisible(true);
   };
 
   const handleDuplicateReport = (item: any) => {
@@ -321,7 +379,7 @@ export default function Reports(): React.ReactElement | null {
       title: `${item.title || 'Informe'} (Copia)`,
       company: item.company || '',
       location: item.location || '',
-      date: new Date().toISOString().split('T')[0],
+      date: getLocalTodayIso(),
       responsable: professional?.name || item.responsable || ''
     });
     setTemplate(item.template || 'general');
@@ -350,7 +408,7 @@ export default function Reports(): React.ReactElement | null {
     const headers = ['ID', 'Fecha', 'Titulo', 'Empresa', 'Ubicacion', 'Tipo', 'Responsable'];
     const rows = reportsHistory.map(r => [
       `"${r.id || ''}"`,
-      `"${new Date(r.createdAt || r.date).toLocaleDateString('es-AR')}"`,
+      `"${formatDisplayDate(r.date || r.createdAt)}"`,
       `"${(r.title || '').replace(/"/g, '""')}"`,
       `"${(r.company || '').replace(/"/g, '""')}"`,
       `"${(r.location || '').replace(/"/g, '""')}"`,
@@ -362,7 +420,7 @@ export default function Reports(): React.ReactElement | null {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Historial_Informes_HYS_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `Historial_Informes_HYS_${getLocalTodayIso()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -389,21 +447,10 @@ export default function Reports(): React.ReactElement | null {
       return;
     }
 
+    const liveContent = getLiveContent();
+    setContent(liveContent);
     const entryId = projectData.id || Date.now();
-    const newReport = {
-      id: entryId,
-      template,
-      ...projectData,
-      content,
-      extraFields,
-      photos,
-      personnel: template === 'training' || template === 'epp' ? personnel : [],
-      createdAt: new Date().toISOString(),
-      showSignatures,
-      operatorSignature,
-      signature,
-      supervisorSignature
-    };
+    const newReport = buildReportData(entryId, liveContent);
 
     const history = safeGetLocalStorage<any[]>('reports_history', []);
     let updated;
@@ -477,7 +524,7 @@ export default function Reports(): React.ReactElement | null {
           open={!!shareItem}
           onClose={() => setShareItem(null)}
           title={`Informe - ${shareItem?.data?.title || ''}`}
-          text={shareItem ? `📄 Informe Profesional de Higiene y Seguridad\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt || shareItem.data.date).toLocaleDateString('es-AR')}` : ''}
+          text={shareItem ? `📄 Informe Profesional de Higiene y Seguridad\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${formatDisplayDate(shareItem.data.date || shareItem.data.createdAt)}` : ''}
           rawMessage={shareItem ? `📄 Informe Profesional de Higiene y Seguridad\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}` : ''}
           elementIdToPrint="pdf-content"
           fileName={`Informe_${shareItem?.data?.title || 'Profesional'}.pdf`}
@@ -630,7 +677,7 @@ export default function Reports(): React.ReactElement | null {
                   render: (item: any) => (
                     <span className="flex items-center gap-1.5 text-xs text-black dark:text-slate-100 font-extrabold whitespace-nowrap">
                       <Calendar size={14} className="text-amber-600 shrink-0 stroke-[2.5]" /> 
-                      {new Date(item.createdAt || item.date).toLocaleDateString('es-AR')}
+                      {formatDisplayDate(item.date || item.createdAt)}
                     </span>
                   )
                 },
@@ -715,8 +762,7 @@ export default function Reports(): React.ReactElement | null {
 
                       <button
                         onClick={() => {
-                          navigate('/reports', { state: { editData: item } });
-                          setIsFormVisible(true);
+                          handleStartEdit(item);
                         }}
                         style={{
                           backgroundColor: '#f59e0b',
@@ -809,7 +855,7 @@ export default function Reports(): React.ReactElement | null {
           open={!!shareItem}
           onClose={() => setShareItem(null)}
           title={`Informe - ${shareItem?.data?.title || ''}`}
-          text={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${new Date(shareItem.data.createdAt || shareItem.data.date).toLocaleDateString('es-AR')}` : ''}
+          text={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${formatDisplayDate(shareItem.data.date || shareItem.data.createdAt)}` : ''}
           rawMessage={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}` : ''}
           elementIdToPrint="pdf-content"
           fileName={`Informe_${shareItem?.data?.title || 'Profesional'}.pdf`}
@@ -998,11 +1044,11 @@ export default function Reports(): React.ReactElement | null {
             </div>
           </div>
 
-          {/* CAMPOS ESPECÍFICOS PARA ACCIDENTES O CAPACITACIONES */}
+          {/* CAMPOS ESPECÍFICOS SEGÚN PLANTILLA SELECCIONADA */}
           {template === 'training' && (
             <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
               <h3 className="text-emerald-600 dark:text-emerald-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-4">
-                <GraduationCap size={20} /> Datos de la Capacitación
+                <GraduationCap size={20} /> Datos Específicos de la Capacitación
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-2">
@@ -1011,7 +1057,7 @@ export default function Reports(): React.ReactElement | null {
                   </label>
                   <input
                     type="text"
-                    placeholder="Ej: Uso seguro de extintores y plan de evacuación"
+                    placeholder="Ej: Uso seguro de extintores, plan de evacuación y primeros auxilios"
                     value={extraFields.topic || ''}
                     onChange={(e) => setExtraFields({ ...extraFields, topic: e.target.value })}
                     className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-emerald-500 outline-none shadow-xs"
@@ -1038,7 +1084,7 @@ export default function Reports(): React.ReactElement | null {
               <h3 className="text-red-600 dark:text-red-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-4">
                 <AlertCircle size={20} /> Datos del Incidente / Accidente
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Hora del Evento
@@ -1052,7 +1098,7 @@ export default function Reports(): React.ReactElement | null {
                 </div>
                 <div>
                   <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                    Trabajador / Persona Afectada
+                    Trabajador / Damnificado
                   </label>
                   <input
                     type="text"
@@ -1060,6 +1106,86 @@ export default function Reports(): React.ReactElement | null {
                     value={extraFields.affectedPerson || ''}
                     onChange={(e) => setExtraFields({ ...extraFields, affectedPerson: e.target.value })}
                     className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-red-500 outline-none shadow-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Puesto / Tarea
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Operador de autoelevador"
+                    value={extraFields.jobRole || ''}
+                    onChange={(e) => setExtraFields({ ...extraFields, jobRole: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-red-500 outline-none shadow-xs"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {template === 'rgrl' && (
+            <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
+              <h3 className="text-amber-600 dark:text-amber-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-4">
+                <ClipboardCheck size={20} /> Parámetros del Protocolo RGRL
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Marco Normativo
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Resolución SRT 463/09 - Dec. 351/79"
+                    value={extraFields.rgrlNorm || 'Resolución SRT 463/09 - Dec. 351/79'}
+                    onChange={(e) => setExtraFields({ ...extraFields, rgrlNorm: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-amber-500 outline-none shadow-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    CIIU / Rama de Actividad
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Industria Metalúrgica / Construcción"
+                    value={extraFields.jobRole || ''}
+                    onChange={(e) => setExtraFields({ ...extraFields, jobRole: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-amber-500 outline-none shadow-xs"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {template === 'epp' && (
+            <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
+              <h3 className="text-purple-600 dark:text-purple-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-4">
+                <Package size={20} /> Detalle de Elementos de Protección Personal (Res. SRT 299/11)
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Elementos Entregados
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Casco IRAM, Guantes de nitrilo, Botines con puntera"
+                    value={extraFields.eppType || ''}
+                    onChange={(e) => setExtraFields({ ...extraFields, eppType: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-purple-500 outline-none shadow-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Norma / Certificación de Calidad
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="IRAM / Sello IRAM / Certificación CE"
+                    value={extraFields.eppNorm || 'IRAM - Homologación SRT'}
+                    onChange={(e) => setExtraFields({ ...extraFields, eppNorm: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-sm focus:border-purple-500 outline-none shadow-xs"
                   />
                 </div>
               </div>
@@ -1205,28 +1331,33 @@ export default function Reports(): React.ReactElement | null {
               <PdfSignatures
                 data={{
                   ...projectData,
-                  professionalSignature: professional?.signature,
-                  professionalName: professional?.name,
-                  professionalLicense: professional?.license
+                  responsable: projectData.responsable || professional?.name,
+                  professionalName: projectData.responsable || professional?.name,
+                  professionalSignature: signature || professional?.signature,
+                  professionalStamp: professional?.stamp,
+                  professionalLicense: professional?.license,
+                  professionalTitle: professional?.profession,
+                  profession: professional?.profession
                 }}
                 box1={showSignatures?.operator ? {
-                  title: 'OPERADOR',
+                  title: 'OPERADOR / TRABAJADOR',
                   subtitle: 'Firma / Aclaración',
                   signatureUrl: operatorSignature || null,
                   isProfessional: false
                 } : null}
-                box2={showSignatures?.supervisor ? {
-                  title: 'SUPERVISOR',
-                  subtitle: 'Firma / Aclaración',
-                  signatureUrl: supervisorSignature || null,
-                  isProfessional: false
-                } : null}
-                box3={showSignatures?.professional ? {
-                  title: 'PROFESIONAL ACTUANTE',
-                  subtitle: (professional?.name || 'Firma y Sello').toUpperCase(),
+                box2={showSignatures?.professional ? {
+                  title: (professional?.profession || 'Técnico Universitario en Higiene y Seguridad Laboral').toUpperCase(),
+                  subtitle: (projectData.responsable || professional?.name || 'Firma y Sello').toUpperCase(),
                   signatureUrl: signature || professional?.signature || null,
                   isProfessional: true,
-                  license: professional?.license
+                  license: professional?.license,
+                  profession: professional?.profession
+                } : null}
+                box3={showSignatures?.supervisor ? {
+                  title: 'SUPERVISOR / JEFE DE PLANTA',
+                  subtitle: 'Aprobación y Validación',
+                  signatureUrl: supervisorSignature || null,
+                  isProfessional: false
                 } : null}
               />
               <PdfBrandingFooter />

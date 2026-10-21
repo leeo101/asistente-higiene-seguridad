@@ -14,6 +14,7 @@ import PremiumHeader from '../components/PremiumHeader';
 import AnimatedPage from '../components/AnimatedPage';
 import ConfirmModal from '../components/ConfirmModal';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
+import SignatureCanvas from '../components/SignatureCanvas';
 import toast from 'react-hot-toast';
 import {
   ForkliftVehicle,
@@ -103,6 +104,8 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
   const [checkHours, setCheckHours] = useState<number>(0);
   const [checkResponses, setCheckResponses] = useState<{ [id: string]: 'conforme' | 'no_conforme' | 'no_aplica' }>({});
   const [checkObservations, setCheckObservations] = useState('');
+  const [driverSignature, setDriverSignature] = useState<string | null>(null);
+  const [supervisorSignature, setSupervisorSignature] = useState<string | null>(null);
 
   const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
   const [maintenanceForm, setMaintenanceForm] = useState<Partial<ForkliftMaintenance>>({
@@ -337,6 +340,8 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
     setSelectedDriverForCheck(drivers.length > 0 ? drivers[0].id : '');
     setCheckShift('manana');
     setCheckObservations('');
+    setDriverSignature(null);
+    setSupervisorSignature(null);
 
     // Iniciar con todo 'conforme' por defecto para agilizar
     const initResp: { [id: string]: 'conforme' | 'no_conforme' | 'no_aplica' } = {};
@@ -387,7 +392,9 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
       hasCriticalFailure: hasCrit,
       result: hasCrit ? 'bloqueado_fuera_de_servicio' : 'aprobado',
       driverSignatureName: drv.fullName,
+      driverSignature: driverSignature || undefined,
       supervisorSignatureName: 'Servicio de Higiene y Seguridad',
+      supervisorSignature: supervisorSignature || undefined,
       resolved: !hasCrit,
       createdAt: new Date().toISOString()
     };
@@ -1663,6 +1670,36 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
                   onChange={(e) => setCheckObservations(e.target.value)}
                   className="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
                 />
+              </div>
+
+              {/* Sección de Firmas (Digital o Convencional) */}
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+                  <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                    Firmas del Registro (Digital o Convencional)
+                  </span>
+                  <span className="text-[11px] text-slate-500">
+                    Opcional: Si no firma en pantalla, se imprimirán los recuadros para firma física
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <SignatureCanvas
+                      label="Firma Conductor Habilitado"
+                      initialImage={driverSignature}
+                      onSave={(sig) => setDriverSignature(sig)}
+                      height={120}
+                    />
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <SignatureCanvas
+                      label="Firma Responsable HyS / Supervisor"
+                      initialImage={supervisorSignature}
+                      onSave={(sig) => setSupervisorSignature(sig)}
+                      height={120}
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">

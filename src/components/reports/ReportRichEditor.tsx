@@ -20,6 +20,8 @@ export default function ReportRichEditor({
   templateType = 'general'
 }: ReportRichEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
+  const isInternalChangeRef = useRef(false);
+  const lastEmittedValueRef = useRef('');
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
   const [selectedFont, setSelectedFont] = useState('sans-serif');
@@ -31,24 +33,33 @@ export default function ReportRichEditor({
     align: 'left'
   });
 
-  // Inicializar contenido
+  // Inicializar y sincronizar contenido SOLO cuando cambie value externamente
   useEffect(() => {
-    if (editorRef.current) {
-      if (editorRef.current.innerHTML !== value) {
-        // Si el valor recibido no es HTML pero tiene texto plano, adaptarlo
-        if (value && !/<\/?(p|div|h[1-6]|ul|ol|table|br)/i.test(value)) {
-          const formatted = value
-            .split(/\r?\n\r?\n/)
-            .map(p => `<p>${p.replace(/\r?\n/g, '<br>') || '<br>'}</p>`)
-            .join('');
-          editorRef.current.innerHTML = formatted;
-        } else {
-          editorRef.current.innerHTML = value || '<p><br></p>';
-        }
+    if (!editorRef.current) return;
+
+    // Si el cambio fue generado por el propio usuario escribiendo, ignorar la actualización del prop
+    if (isInternalChangeRef.current) {
+      isInternalChangeRef.current = false;
+      return;
+    }
+
+    const currentHtml = editorRef.current.innerHTML;
+
+    // Solo actualizar el DOM si el valor recibido de afuera es realmente diferente a lo que ya hay
+    if (value !== undefined && value !== lastEmittedValueRef.current && currentHtml !== value) {
+      if (value && !/<\/?(p|div|h[1-6]|ul|ol|table|br)/i.test(value)) {
+        const formatted = value
+          .split(/\r?\n\r?\n/)
+          .map(p => `<p>${p.replace(/\r?\n/g, '<br>') || '<br>'}</p>`)
+          .join('');
+        editorRef.current.innerHTML = formatted;
+      } else {
+        editorRef.current.innerHTML = value || '<p><br></p>';
       }
+      lastEmittedValueRef.current = value || '';
       updateCounts();
     }
-  }, []); // Solo al montar o sincronizar inicialmente
+  }, [value]);
 
   const updateCounts = () => {
     if (!editorRef.current) return;
@@ -61,6 +72,8 @@ export default function ReportRichEditor({
   const handleInput = () => {
     if (!editorRef.current) return;
     const html = editorRef.current.innerHTML;
+    isInternalChangeRef.current = true;
+    lastEmittedValueRef.current = html;
     onChange(html);
     updateCounts();
   };
@@ -239,6 +252,39 @@ export default function ReportRichEditor({
 
         <h2>3. EVALUACIÓN DE ASIMILACIÓN Y CONCLUSIÓN</h2>
         <p>Se realizó consulta interactiva y práctica directa con los asistentes, verificando comprensión satisfactoria de los procedimientos.</p>
+        <p><br></p>
+      `;
+    } else if (type === 'rgrl') {
+      tpl = `
+        <h2>1. RELEVAMIENTO GENERAL DE RIESGOS LABORALES (RGRL)</h2>
+        <p>Inspección de condiciones de higiene y seguridad conforme a las directrices de la Resolución SRT 463/09 y Decreto 351/79.</p>
+
+        <h2>2. ESTADO DE CUMPLIMIENTO POR RUBRO</h2>
+        <ul>
+          <li><strong>Servicio de Higiene y Seguridad:</strong> Horas profesionales asignadas y documentación al día.</li>
+          <li><strong>Instalación Eléctrica:</strong> Medición de puesta a tierra y disyuntores diferenciales conformes.</li>
+          <li><strong>Protección contra Incendios:</strong> Dotación y señalización de extintores según carga de fuego.</li>
+          <li><strong>Ergonomía:</strong> Evaluación de puestos según Res. MTEySS 295/03 y 886/15.</li>
+        </ul>
+
+        <h2>3. CRONOGRAMA DE REGULARIZACIÓN</h2>
+        <p>Plazos de adecuación para las observaciones detectadas durante el relevamiento.</p>
+        <p><br></p>
+      `;
+    } else if (type === 'epp') {
+      tpl = `
+        <h2>1. ENTREGA Y REPOSICIÓN DE ELEMENTOS DE PROTECCIÓN PERSONAL</h2>
+        <p>Constancia oficial de dotación de EPP conforme a las exigencias de la Resolución SRT 299/11.</p>
+
+        <h2>2. ESPECIFICACIONES DE LOS EQUIPOS ENTREGADOS</h2>
+        <ul>
+          <li>Protección craneana: Casco de seguridad industrial homologado norma IRAM.</li>
+          <li>Protección ocular: Gafas de seguridad anti-impacto y anti-empaño.</li>
+          <li>Calzado de seguridad: Botines con puntera de acero certificada.</li>
+        </ul>
+
+        <h2>3. CONSTANCIA DE CAPACITACIÓN EN USO Y MANTENIMIENTO</h2>
+        <p>Los trabajadores firmantes en nómina declaran haber recibido la capacitación sobre el uso obligatorio, ajuste, conservación y aviso de recambio de los elementos provistos.</p>
         <p><br></p>
       `;
     } else {
@@ -555,6 +601,9 @@ export default function ReportRichEditor({
           contentEditable
           onInput={handleInput}
           onBlur={handleInput}
+          onKeyUp={handleInput}
+          onPaste={() => setTimeout(handleInput, 30)}
+          onDrop={() => setTimeout(handleInput, 30)}
           data-placeholder={placeholder}
           className="word-page-sheet w-full max-w-[820px] min-h-[420px] bg-white text-slate-900 rounded-lg shadow-2xl p-6 sm:p-10 outline-none transition-all"
           style={{

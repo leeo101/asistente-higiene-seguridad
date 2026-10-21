@@ -49,6 +49,9 @@ export interface RackInspectionReport {
   inspectionDate: string; // YYYY-MM-DD
   inspectorName: string;
   inspectorRegistration: string; // Matrícula HyS o Ing.
+  inspectorTitle?: string;
+  inspectorSignature?: string;
+  responsibleSignature?: string;
   overallResult: 'conforme' | 'riesgo_ambar' | 'peligro_rojo_descarga_inmediata';
 
   // Verificaciones Generales IRAM 38500 / EN 15635

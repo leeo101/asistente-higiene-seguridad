@@ -184,7 +184,9 @@ export interface ForkliftDailyCheck {
   hasCriticalFailure: boolean;
   result: 'aprobado' | 'bloqueado_fuera_de_servicio' | 'aprobado_con_observacion';
   driverSignatureName: string;
+  driverSignature?: string;
   supervisorSignatureName?: string;
+  supervisorSignature?: string;
   resolved: boolean;
   createdAt: string;
 }

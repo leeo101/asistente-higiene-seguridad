@@ -2,11 +2,14 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Building2, Users, ShieldCheck, ShieldAlert, AlertTriangle, CheckCircle2, XCircle, 
-  Search, Filter, Plus, Edit, Trash2, Download, Printer, ArrowLeft, Calendar, FileText, Check, X, RefreshCw
+  Search, Filter, Plus, Edit, Trash2, Download, Printer, ArrowLeft, Calendar, 
+  FileText, Check, X, RefreshCw, PenTool
 } from 'lucide-react';
 import AnimatedPage from '../components/AnimatedPage';
 import PremiumHeader from '../components/PremiumHeader';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
+import PdfSignatures from '../components/PdfSignatures';
+import SignatureCanvas from '../components/SignatureCanvas';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
 import toast from 'react-hot-toast';
@@ -72,6 +75,9 @@ export default function ContractorMatrix() {
   const [isWorkerModalOpen, setIsWorkerModalOpen] = useState(false);
   const [isDocUpdateModalOpen, setIsDocUpdateModalOpen] = useState(false);
   const [isGaritaAccessModalOpen, setIsGaritaAccessModalOpen] = useState(false);
+  const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+  const [garitaSignature, setGaritaSignature] = useState<string | null>(null);
+  const [hysSignature, setHysSignature] = useState<string | null>(null);
 
   const [editingContractor, setEditingContractor] = useState<Partial<ContractorCompany>>({});
   const [editingWorker, setEditingWorker] = useState<Partial<WorkerItem>>({});
@@ -615,14 +621,20 @@ export default function ContractorMatrix() {
           </tbody>
         </table>
 
-        <div style={{ marginTop: '20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: '#475569', paddingTop: '12px' }}>
-          <div style={{ width: '42%', textAlign: 'center', paddingTop: '20px', borderTop: '1px solid #94a3b8' }}>
-            Firma y Aclaración - Control de Garita
-          </div>
-          <div style={{ width: '42%', textAlign: 'center', paddingTop: '20px', borderTop: '1px solid #94a3b8' }}>
-            Firma y Aclaración - Responsable HyS / Planta
-          </div>
-        </div>
+        {/* BLOQUE DE FIRMAS NORMALIZADO */}
+        <PdfSignatures
+          data={{}}
+          box1={{
+            title: 'CONTROL DE GARITA / VIGILANCIA',
+            subtitle: 'VERIFICACIÓN DE ACCESO',
+            signatureUrl: garitaSignature,
+            isProfessional: false
+          }}
+          box2={{
+            isProfessional: true,
+            signatureUrl: hysSignature
+          }}
+        />
 
         {/* PIE DE PÁGINA CON BRANDING Y CÓDIGO QR */}
         <PdfBrandingFooter
@@ -660,6 +672,26 @@ export default function ContractorMatrix() {
               }}
             >
               <ShieldCheck size={16} /> Control de Acceso Garita
+            </button>
+
+            <button
+              onClick={() => setIsSignatureModalOpen(true)}
+              style={{
+                backgroundColor: '#0f766e',
+                color: '#ffffff',
+                border: 'none',
+                padding: '0.6rem 1.2rem',
+                borderRadius: '12px',
+                fontWeight: 800,
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                boxShadow: '0 4px 12px rgba(15, 118, 110, 0.25)'
+              }}
+            >
+              <PenTool size={16} /> Firmas Garita / HyS
             </button>
 
             <button
@@ -1413,6 +1445,56 @@ export default function ContractorMatrix() {
         companies={contractors}
         workers={workers}
       />
+
+      {/* MODAL DE FIRMAS DIGITALES O CONVENCIONALES */}
+      {isSignatureModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-2xl w-full p-6 text-xs space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="font-black text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                <PenTool className="w-4 h-4 text-teal-600" />
+                Firmas para la Planilla de Garita de Contratistas
+              </h3>
+              <button onClick={() => setIsSignatureModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-slate-500 text-[11px]">
+              Capture las firmas en pantalla si desea incluirlas digitalmente. Si prefiere firmar físicamente en papel, puede dejar los paneles vacíos y el sistema imprimirá los recuadros oficiales para firma y sello convencional.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <SignatureCanvas
+                  label="Firma Vigilancia / Garita"
+                  initialImage={garitaSignature}
+                  onSave={(sig) => setGaritaSignature(sig)}
+                  height={130}
+                />
+              </div>
+              <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <SignatureCanvas
+                  label="Firma Responsable HyS / Planta"
+                  initialImage={hysSignature}
+                  onSave={(sig) => setHysSignature(sig)}
+                  height={130}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsSignatureModalOpen(false)}
+                className="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold"
+              >
+                Listo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AnimatedPage>
   );
 }
