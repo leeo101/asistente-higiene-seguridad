@@ -494,6 +494,7 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     // html2pdf maneja los saltos de página basándose en las directivas de CSS
     // 'page-break-inside: avoid' y la lista de selectores de 'opt.pagebreak.avoid'.
     // Únicamente para tablas 'tbody.ext-row' se inserta spacer si excede la página.
+    const cloneRect = clone.getBoundingClientRect();
     if (cloneRect.height > exactPxPageHeight + 15) {
       // Manejar tbody.ext-row dentro de tablas (html2canvas requiere tbody spacer en tables)
       const extRowEls = Array.from(clone.querySelectorAll('tbody.ext-row')) as HTMLElement[];

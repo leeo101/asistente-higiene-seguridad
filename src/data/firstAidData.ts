@@ -28,6 +28,7 @@ export interface FirstAidKit {
   companyId?: string;
   code: string;
   location: string;
+  sector?: string;
   type: 'type_a_small' | 'type_b_medium' | 'type_c_industrial';
   lastInspectionDate: string;
   inspectorName: string;

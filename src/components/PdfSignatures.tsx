@@ -2,7 +2,7 @@ import React from 'react';
 import { formatProfessionTitle } from '../data/professionOptions';
 
 export interface SignatureBoxProps {
-  title: string;
+  title?: string;
   subtitle?: string;
   signatureUrl?: string | null;
   stampUrl?: string | null;

@@ -631,6 +631,7 @@ export default function ContractorMatrix() {
             isProfessional: false
           }}
           box2={{
+            title: 'RESPONSABLE HIGIENE Y SEGURIDAD',
             isProfessional: true,
             signatureUrl: hysSignature
           }}

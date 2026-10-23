@@ -538,7 +538,7 @@ export default function FirstAidAEDManager(): React.ReactElement | null {
         },
         box2: {
           title: 'ENCARGADO DE SECTOR / PLANTA',
-          subtitle: kit.sector ? kit.sector.toUpperCase() : 'SECTOR AUDITADO',
+          subtitle: (kit.sector || kit.location || 'SECTOR AUDITADO').toUpperCase(),
           secondarySubtitle: 'Revisión y Reposición de Insumos',
           isProfessional: false
         }

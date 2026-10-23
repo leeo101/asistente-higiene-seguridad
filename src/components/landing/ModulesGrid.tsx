@@ -4,7 +4,7 @@ import {
   ChartBar, GraduationCap, Lock, HardHat, ClipboardText,
   Lightning, ArrowRight, Lightbulb, SpeakerHigh, Truck,
   Crane, Tent, Wind, Package, Archive, Gavel, Warning,
-  Robot, Droplets, ThermometerHot, Pulse, MapTrifold,
+  Robot, ThermometerHot, Pulse, MapTrifold,
   MagnifyingGlass, CheckCircle, Sparkle
 } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
