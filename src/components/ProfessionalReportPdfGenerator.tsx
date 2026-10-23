@@ -42,6 +42,7 @@ export default function ProfessionalReportPdfGenerator({ currentReport, customId
     <div className="w-[100%] flex justify-center">
       <div
         id={customId || "pdf-content"}
+        data-orientation="portrait"
         className="pdf-container print-area border-none shadow-none w-[100%] max-w-[210mm] min-h-[297mm] p-[10mm_15mm] bg-[#ffffff] text-[#1e293b] box-sizing-[border-box] m-[0_auto] text-[10pt] font-family-[system-ui,_-apple-system,_sans-serif]"
       >
         <style type="text/css" media="print">
@@ -66,28 +67,47 @@ export default function ProfessionalReportPdfGenerator({ currentReport, customId
             .striped-row:nth-child(even) { background-color: #f8fafc; }
             
             /* Preservación estricta de saltos de renglón y separación de párrafos en impresión */
+            .report-content-renderer {
+              white-space: pre-wrap !important;
+              word-break: normal !important;
+              overflow-wrap: break-word !important;
+              line-height: 1.65 !important;
+            }
             .report-content-renderer p {
               margin-top: 0 !important;
               margin-bottom: 0.85rem !important;
-              min-height: 1.25em !important;
+              min-height: 1.5em !important;
               line-height: 1.65 !important;
+              white-space: pre-wrap !important;
+              word-break: normal !important;
+              overflow-wrap: break-word !important;
+              break-inside: auto !important;
+              page-break-inside: auto !important;
+              orphans: 2 !important;
+              widows: 2 !important;
             }
             .report-content-renderer p:empty,
             .report-content-renderer p > br:only-child {
-              display: inline-block !important;
-              min-height: 1.25em !important;
-              content: "" !important;
+              display: block !important;
+              min-height: 1.5em !important;
             }
             .report-content-renderer h1,
             .report-content-renderer h2,
-            .report-content-renderer h3 {
+            .report-content-renderer h3,
+            .report-content-renderer h4 {
               page-break-after: avoid !important;
               break-after: avoid !important;
+            }
+            .report-development-box {
+              border: none !important;
+              box-shadow: none !important;
+              padding: 0 !important;
+              background: transparent !important;
             }
           `}
         </style>
 
-        {/* Header Rediseñado con Logo, Título Oficial y Datos Profesionales */}
+        {/* Header Rediseñado con Logo y Título Oficial */}
         <div className="flex justify-between items-start border-b-[3px] border-slate-900 pb-5 mb-6">
           <div className="flex-[1] pr-4">
             <div 
@@ -107,19 +127,6 @@ export default function ProfessionalReportPdfGenerator({ currentReport, customId
             <div className="h-[55px] flex items-center justify-end">
               <CompanyLogo style={{ maxHeight: '48px', maxWidth: '140px', objectFit: 'contain' }} />
             </div>
-            <div className="text-right flex flex-col items-end">
-              <span className="font-black text-[10px] text-emerald-800 uppercase tracking-wider">
-                {proTitle}
-              </span>
-              <span className="font-black text-xs text-slate-900 uppercase">
-                {proName}
-              </span>
-              {proLicense && (
-                <span className="text-[10px] font-extrabold text-slate-600 uppercase">
-                  Matrícula: {proLicense}
-                </span>
-              )}
-            </div>
           </div>
         </div>
 
@@ -130,15 +137,15 @@ export default function ProfessionalReportPdfGenerator({ currentReport, customId
               <Building2 size={14} className="text-sky-600 shrink-0" />
               <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider">Empresa / Cliente</span>
             </div>
-            <p className="m-0 font-black text-xs text-slate-900 truncate">{report.company || '-'}</p>
+            <p className="m-0 font-black text-xs text-slate-900 break-words leading-snug">{report.company || '-'}</p>
           </div>
 
-          <div className="border-r border-slate-200 pr-3">
+          <div className="border-r-0 sm:border-r border-slate-200 sm:pr-3">
             <div className="flex items-center gap-1.5 mb-1">
               <MapPin size={14} className="text-sky-600 shrink-0" />
               <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider">Ubicación / Planta</span>
             </div>
-            <p className="m-0 font-black text-xs text-slate-900 truncate">{report.location || 'Sede Operativa'}</p>
+            <p className="m-0 font-black text-xs text-slate-900 break-words leading-snug">{report.location || 'Sede Operativa'}</p>
           </div>
 
           <div className="border-r border-slate-200 pr-3">
@@ -156,7 +163,7 @@ export default function ProfessionalReportPdfGenerator({ currentReport, customId
               <UserCheck size={14} className="text-emerald-600 shrink-0" />
               <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider">Profesional H&S</span>
             </div>
-            <p className="m-0 font-black text-xs text-slate-900 truncate">{proName}</p>
+            <p className="m-0 font-black text-xs text-slate-900 break-words leading-snug">{proName}</p>
           </div>
         </div>
 
@@ -243,7 +250,7 @@ export default function ProfessionalReportPdfGenerator({ currentReport, customId
               Desarrollo Técnico y Observaciones
             </h3>
           </div>
-          <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-300 shadow-xs">
+          <div className="report-development-box p-0 bg-transparent border-none shadow-none">
             <ReportContentRenderer content={report.content} isPrint={true} />
           </div>
         </div>
@@ -308,8 +315,11 @@ export default function ProfessionalReportPdfGenerator({ currentReport, customId
           </div>
         )}
 
-        {/* Firmas Digitales y Sellos (Centrados y con el Título Profesional Oficial) */}
-        <div className="avoid-break mt-6">
+        {/* BLOQUE UNIFICADO DE FIRMAS, VERIFICACIÓN Y AVISO LEGAL (INDIVISIBLE) */}
+        <div 
+          className="avoid-break avoid-break-strictly break-inside-avoid mt-6"
+          style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+        >
           <PdfSignatures 
             data={{
               ...report,
@@ -322,13 +332,10 @@ export default function ProfessionalReportPdfGenerator({ currentReport, customId
               professionalStamp: report.stamp || report.professionalStamp
             }} 
           />
-        </div>
-
-        <PdfBrandingFooter />
-
-        {/* Footer Legal */}
-        <div className="w-full text-center text-[10px] text-slate-500 mt-6 font-semibold border-t border-slate-300 pt-3">
-          Documento generado por Asistente de Higiene y Seguridad • Conforme a {countryNorms.general} • Auditoría ISO 45001
+          <PdfBrandingFooter />
+          <div className="w-full text-center text-[10px] text-slate-500 mt-4 font-semibold border-t border-slate-300 pt-2">
+            Documento generado por Asistente de Higiene y Seguridad • Conforme a {countryNorms.general} • Auditoría ISO 45001
+          </div>
         </div>
       </div>
     </div>

@@ -305,7 +305,7 @@ export default function ReportRichEditor({
   return (
     <div className="report-rich-editor-wrapper w-full flex flex-col rounded-2xl border border-slate-700 bg-slate-900/90 shadow-2xl overflow-hidden backdrop-blur-md">
       {/* BARRA DE HERRAMIENTAS ESTILO WORD */}
-      <div className="word-ribbon-toolbar bg-slate-800/95 border-b border-slate-700 p-2 sm:p-3 flex flex-wrap items-center gap-1.5 sm:gap-2 select-none sticky top-0 z-30 shadow-md">
+      <div className="word-ribbon-toolbar bg-slate-800/95 border-b border-slate-700 p-2 sm:p-3 flex flex-wrap items-center gap-1.5 sm:gap-2 select-none sticky top-0 z-30 shadow-md max-w-full overflow-x-auto">
         
         {/* Deshacer / Rehacer */}
         <div className="flex items-center gap-0.5 border-r border-slate-700 pr-1.5 sm:pr-2">
@@ -595,7 +595,7 @@ export default function ReportRichEditor({
       </div>
 
       {/* ÁREA DE EDICIÓN ESTILO HOJA DE DOCUMENTO WORD */}
-      <div className="editor-canvas-container p-4 sm:p-8 bg-slate-950/80 flex justify-center items-start min-h-[480px] max-h-[750px] overflow-y-auto">
+      <div className="editor-canvas-container p-2 sm:p-8 bg-slate-950/80 flex justify-center items-start min-h-[400px] max-h-[750px] overflow-y-auto w-full">
         <div
           ref={editorRef}
           contentEditable
@@ -605,26 +605,29 @@ export default function ReportRichEditor({
           onPaste={() => setTimeout(handleInput, 30)}
           onDrop={() => setTimeout(handleInput, 30)}
           data-placeholder={placeholder}
-          className="word-page-sheet w-full max-w-[820px] min-h-[420px] bg-white text-slate-900 rounded-lg shadow-2xl p-6 sm:p-10 outline-none transition-all"
+          className="word-page-sheet w-full max-w-[820px] min-h-[380px] bg-white text-slate-900 rounded-lg shadow-2xl p-3.5 sm:p-10 outline-none transition-all box-border"
           style={{
             fontFamily: selectedFont === 'serif' ? 'Georgia, serif' : selectedFont === 'monospace' ? 'Courier New, monospace' : 'Inter, system-ui, sans-serif',
             fontSize: '1rem',
-            lineHeight: 1.65,
+            lineHeight: 1.7,
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'normal',
+            overflowWrap: 'break-word',
             boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5)'
           }}
         />
       </div>
 
       {/* BARRA INFERIOR DE ESTADO Y MÉTRICAS */}
-      <div className="editor-status-bar bg-slate-800/90 border-t border-slate-700/80 px-4 py-2 flex items-center justify-between text-xs text-slate-400 font-medium select-none">
-        <div className="flex items-center gap-4">
+      <div className="editor-status-bar bg-slate-800/90 border-t border-slate-700/80 px-3 sm:px-4 py-2 flex items-center justify-between text-xs text-slate-400 font-medium select-none">
+        <div className="flex items-center gap-3 sm:gap-4">
           <span>Palabras: <strong className="text-slate-200">{wordCount}</strong></span>
           <span>Caracteres: <strong className="text-slate-200">{charCount}</strong></span>
           <span className="hidden sm:inline text-emerald-400 flex items-center gap-1">
             ● Editor enriquecido activo (Formato preservado para impresión)
           </span>
         </div>
-        <div className="text-[11px] text-slate-400 italic">
+        <div className="text-[11px] text-slate-400 italic hidden md:block">
           Tip: Presione Enter para dejar renglones; se mantendrán separados al imprimir.
         </div>
       </div>
@@ -639,12 +642,16 @@ export default function ReportRichEditor({
         .word-page-sheet p {
           margin-top: 0;
           margin-bottom: 0.85rem;
-          min-height: 1.25em; /* Asegura que renglones vacíos no se colapsen */
+          min-height: 1.5em; /* Asegura que renglones vacíos no se colapsen */
+          line-height: 1.7;
+          white-space: pre-wrap;
+          word-break: normal;
+          overflow-wrap: break-word;
         }
         .word-page-sheet p:empty,
         .word-page-sheet p > br:only-child {
-          display: inline-block;
-          min-height: 1.25em;
+          display: block;
+          min-height: 1.5em;
           width: 100%;
         }
         .word-page-sheet h1 {

@@ -524,9 +524,10 @@ export default function Reports(): React.ReactElement | null {
           open={!!shareItem}
           onClose={() => setShareItem(null)}
           title={`Informe - ${shareItem?.data?.title || ''}`}
-          text={shareItem ? `📄 Informe Profesional de Higiene y Seguridad\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${formatDisplayDate(shareItem.data.date || shareItem.data.createdAt)}` : ''}
-          rawMessage={shareItem ? `📄 Informe Profesional de Higiene y Seguridad\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}` : ''}
+          text={shareItem ? `📄 Informe Profesional de Higiene y Seguridad\n📌 Título: ${shareItem.data.title || 'Sin título'}\n🏢 Empresa: ${shareItem.data.company || '-'}\n📅 Fecha: ${formatDisplayDate(shareItem.data.date || shareItem.data.createdAt)}` : ''}
+          rawMessage={shareItem ? `📄 Informe Profesional de Higiene y Seguridad\n📌 Título: ${shareItem.data.title || 'Sin título'}\n🏢 Empresa: ${shareItem.data.company || '-'}\n📅 Fecha: ${formatDisplayDate(shareItem.data.date || shareItem.data.createdAt)}` : ''}
           elementIdToPrint="pdf-content"
+          isLandscape={false}
           fileName={`Informe_${shareItem?.data?.title || 'Profesional'}.pdf`}
         />
 
@@ -855,9 +856,10 @@ export default function Reports(): React.ReactElement | null {
           open={!!shareItem}
           onClose={() => setShareItem(null)}
           title={`Informe - ${shareItem?.data?.title || ''}`}
-          text={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}\n📅 ${formatDisplayDate(shareItem.data.date || shareItem.data.createdAt)}` : ''}
-          rawMessage={shareItem ? `📄 Informe Profesional\n🏗️ ${shareItem.data.title}\n🏢 ${shareItem.data.company}` : ''}
+          text={shareItem ? `📄 Informe Profesional de Higiene y Seguridad\n📌 Título: ${shareItem.data.title || 'Sin título'}\n🏢 Empresa: ${shareItem.data.company || '-'}\n📅 Fecha: ${formatDisplayDate(shareItem.data.date || shareItem.data.createdAt)}` : ''}
+          rawMessage={shareItem ? `📄 Informe Profesional de Higiene y Seguridad\n📌 Título: ${shareItem.data.title || 'Sin título'}\n🏢 Empresa: ${shareItem.data.company || '-'}\n📅 Fecha: ${formatDisplayDate(shareItem.data.date || shareItem.data.createdAt)}` : ''}
           elementIdToPrint="pdf-content"
+          isLandscape={false}
           fileName={`Informe_${shareItem?.data?.title || 'Profesional'}.pdf`}
         />
 
@@ -870,68 +872,6 @@ export default function Reports(): React.ReactElement | null {
         />
 
         <main className="p-4 sm:p-6 max-w-[1100px] mx-auto">
-          {/* BARRA DE ACCIÓN PRINCIPAL DEL FORMULARIO */}
-          <div className="mb-6">
-            <ModuleActionBar
-              actions={[
-                {
-                  id: 'cancel',
-                  label: 'VOLVER',
-                  icon: <X size={18} />,
-                  variant: 'secondary',
-                  onClick: () => setIsFormVisible(false)
-                },
-                {
-                  id: 'preview',
-                  label: 'PREVISUALIZAR',
-                  icon: <Eye size={18} />,
-                  variant: 'info',
-                  onClick: handleOpenPreview
-                },
-                {
-                  id: 'share',
-                  label: 'COMPARTIR',
-                  icon: <Share2 size={18} />,
-                  variant: 'info',
-                  onClick: () => {
-                    const data = {
-                      id: projectData.id || Date.now(),
-                      template,
-                      ...projectData,
-                      content,
-                      extraFields,
-                      photos,
-                      personnel: template === 'training' || template === 'epp' ? personnel : [],
-                      createdAt: new Date().toISOString(),
-                      showSignatures,
-                      operatorSignature,
-                      signature,
-                      supervisorSignature,
-                      professionalSignature: professional?.signature,
-                      professionalName: professional?.name,
-                      professionalLicense: professional?.license
-                    };
-                    setShareItem({ type: 'report', data });
-                  }
-                },
-                {
-                  id: 'print',
-                  label: 'IMPRIMIR PDF',
-                  icon: <Printer size={18} />,
-                  variant: 'warning',
-                  onClick: handlePrintFromForm
-                },
-                {
-                  id: 'save',
-                  label: 'GUARDAR',
-                  icon: <Save size={18} />,
-                  variant: 'primary',
-                  onClick: () => requirePro(handleSave)
-                }
-              ]}
-            />
-          </div>
-
           {/* SELECTOR DE PLANTILLAS CON DISEÑO MEJORADO */}
           <div className="mb-8">
             <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
@@ -972,7 +912,7 @@ export default function Reports(): React.ReactElement | null {
           </div>
 
           {/* DATOS GENERALES */}
-          <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
+          <div className="mb-8 p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
             <h3 className="text-amber-600 dark:text-amber-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-6">
               <FileText size={20} /> Datos Generales del Informe
             </h3>
@@ -1046,7 +986,7 @@ export default function Reports(): React.ReactElement | null {
 
           {/* CAMPOS ESPECÍFICOS SEGÚN PLANTILLA SELECCIONADA */}
           {template === 'training' && (
-            <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
+            <div className="mb-8 p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
               <h3 className="text-emerald-600 dark:text-emerald-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-4">
                 <GraduationCap size={20} /> Datos Específicos de la Capacitación
               </h3>
@@ -1080,7 +1020,7 @@ export default function Reports(): React.ReactElement | null {
           )}
 
           {template === 'accident' && (
-            <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
+            <div className="mb-8 p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
               <h3 className="text-red-600 dark:text-red-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-4">
                 <AlertCircle size={20} /> Datos del Incidente / Accidente
               </h3>
@@ -1125,7 +1065,7 @@ export default function Reports(): React.ReactElement | null {
           )}
 
           {template === 'rgrl' && (
-            <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
+            <div className="mb-8 p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
               <h3 className="text-amber-600 dark:text-amber-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-4">
                 <ClipboardCheck size={20} /> Parámetros del Protocolo RGRL
               </h3>
@@ -1159,7 +1099,7 @@ export default function Reports(): React.ReactElement | null {
           )}
 
           {template === 'epp' && (
-            <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
+            <div className="mb-8 p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
               <h3 className="text-purple-600 dark:text-purple-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-4">
                 <Package size={20} /> Detalle de Elementos de Protección Personal (Res. SRT 299/11)
               </h3>
@@ -1194,7 +1134,7 @@ export default function Reports(): React.ReactElement | null {
 
           {/* NÓMINA DE PERSONAL INTERVINIENTE (CAPACITACIÓN / ENTREGA EPP) */}
           {(template === 'training' || template === 'epp') && (
-            <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
+            <div className="mb-8 p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
               <div className="flex justify-between items-center mb-4">
                 <label className="text-sm font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">
                   Nómina de Personal Interviniente / Firmas
@@ -1274,7 +1214,7 @@ export default function Reports(): React.ReactElement | null {
           </div>
 
           {/* FOTOS DE EVIDENCIA */}
-          <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
+          <div className="mb-8 p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
             <PhotoAttachments
               photos={photos}
               onChange={setPhotos}
@@ -1284,7 +1224,7 @@ export default function Reports(): React.ReactElement | null {
           </div>
 
           {/* FIRMAS Y AUTORIZACIONES */}
-          <div className="mb-8 p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
+          <div className="mb-8 p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
             <h3 className="text-amber-600 dark:text-amber-400 font-black text-base uppercase tracking-wider flex items-center gap-2 mb-6">
               ✍️ Firmas Digitales y Sellos
             </h3>
@@ -1395,37 +1335,59 @@ export default function Reports(): React.ReactElement | null {
             </div>
           </div>
 
-          {/* BARRA DE ACCIÓN INFERIOR */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-xl">
+          {/* BARRA DE ACCIÓN INFERIOR PRINCIPAL (UNIFICADA Y 100% RESPONSIVE) */}
+          <div className="mt-8 p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-3 sm:gap-4 backdrop-blur-md">
             <button
               type="button"
               onClick={() => setIsFormVisible(false)}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 text-xs sm:text-sm font-bold transition-colors cursor-pointer"
+              className="w-full lg:w-auto px-5 py-3 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-xs"
             >
-              Cancelar
+              <X size={16} /> Cancelar / Volver
             </button>
 
-            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 w-full lg:w-auto justify-end">
+              {/* Botón Previsualizar */}
               <button
                 type="button"
                 onClick={handleOpenPreview}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-amber-400 border border-sky-300 dark:border-slate-700 text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs"
+                className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 border border-slate-300 dark:border-slate-700 text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs active:scale-95"
               >
-                <Eye size={18} className="stroke-[2.2]" /> Previsualizar
+                <Eye size={17} className="text-amber-500 stroke-[2.2]" />
+                <span>Previsualizar</span>
               </button>
+
+              {/* Botón Compartir */}
+              <button
+                type="button"
+                onClick={() => {
+                  const liveContent = getLiveContent();
+                  const data = buildReportData(undefined, liveContent);
+                  setShareItem({ type: 'report', data });
+                }}
+                className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-3 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 dark:bg-sky-950/40 dark:hover:bg-sky-900/50 dark:text-sky-300 border border-sky-300 dark:border-sky-800 text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+              >
+                <Share2 size={17} className="text-sky-600 dark:text-sky-400 stroke-[2.2]" />
+                <span>Compartir</span>
+              </button>
+
+              {/* Botón Imprimir PDF */}
               <button
                 type="button"
                 onClick={handlePrintFromForm}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 text-xs sm:text-sm font-black shadow-lg shadow-amber-500/25 transition-all cursor-pointer active:scale-95"
+                className="flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 text-xs sm:text-sm font-black shadow-lg shadow-amber-500/25 transition-all cursor-pointer active:scale-95"
               >
-                <Printer size={18} className="stroke-[2.2]" /> Imprimir PDF
+                <Printer size={17} className="stroke-[2.2]" />
+                <span>Imprimir PDF</span>
               </button>
+
+              {/* Botón Guardar */}
               <button
                 type="button"
                 onClick={() => requirePro(handleSave)}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white text-xs sm:text-sm font-black shadow-lg shadow-emerald-500/25 transition-all cursor-pointer active:scale-95"
+                className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1.5 sm:gap-2 px-5 sm:px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white text-xs sm:text-sm font-black shadow-lg shadow-emerald-500/25 transition-all cursor-pointer active:scale-95"
               >
-                <Save size={18} className="stroke-[2.2]" /> Guardar
+                <Save size={17} className="stroke-[2.2]" />
+                <span>Guardar Informe</span>
               </button>
             </div>
           </div>

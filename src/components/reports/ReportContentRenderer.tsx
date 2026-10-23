@@ -21,7 +21,9 @@ function prepareContentHtml(rawContent: string | undefined | null): string {
   const hasHtmlTags = /<\/?(p|div|h[1-6]|ul|ol|li|table|blockquote|br|hr|span|strong|em|b|i|u)[>\s]/i.test(trimmed);
 
   if (hasHtmlTags) {
-    return trimmed;
+    // Si contiene tags HTML, asegurar que párrafos vacíos contengan <br /> para reservar altura
+    return trimmed
+      .replace(/<p>\s*<\/p>/gi, '<p><br /></p>');
   }
 
   // Si es texto plano heredado, convertir dobles saltos en párrafos y saltos simples en <br/>
@@ -56,32 +58,30 @@ export default function ReportContentRenderer({ content, className = '', isPrint
         .report-content-renderer {
           font-family: inherit;
           color: inherit;
-          line-height: 1.65;
-          word-break: break-word;
-          overflow-wrap: anywhere;
+          line-height: 1.7;
+          word-break: normal;
+          overflow-wrap: break-word;
+          hyphens: manual;
+          white-space: pre-wrap;
         }
 
         /* Párrafos y Renglones en blanco */
         .report-content-renderer p {
           margin-top: 0;
           margin-bottom: 0.85rem;
-          min-height: 1.25em; /* Vital: asegura que los renglones vacíos no se colapsen */
-          line-height: 1.65;
+          min-height: 1.5em; /* Asegura que los renglones vacíos no se colapsen */
+          line-height: 1.7;
+          white-space: pre-wrap;
+          word-break: normal;
+          overflow-wrap: break-word;
         }
 
         /* Cuando un párrafo está vacío o solo contiene un <br>, mantener su altura de renglón */
         .report-content-renderer p:empty,
         .report-content-renderer p > br:only-child {
-          display: inline-block;
-          min-height: 1.25em;
-          width: 100%;
-          content: "";
-        }
-
-        .report-content-renderer br {
-          content: "";
           display: block;
-          margin-top: 0.25rem;
+          min-height: 1.5em;
+          width: 100%;
         }
 
         /* Encabezados */
@@ -93,6 +93,7 @@ export default function ReportContentRenderer({ content, className = '', isPrint
           color: #0f172a;
           page-break-after: avoid;
           break-after: avoid;
+          white-space: normal;
         }
 
         .report-content-renderer h2 {
@@ -103,6 +104,7 @@ export default function ReportContentRenderer({ content, className = '', isPrint
           color: #1e293b;
           page-break-after: avoid;
           break-after: avoid;
+          white-space: normal;
         }
 
         .report-content-renderer h3 {
@@ -113,6 +115,7 @@ export default function ReportContentRenderer({ content, className = '', isPrint
           color: #334155;
           page-break-after: avoid;
           break-after: avoid;
+          white-space: normal;
         }
 
         /* Listas */
@@ -120,17 +123,22 @@ export default function ReportContentRenderer({ content, className = '', isPrint
           list-style-type: disc;
           margin: 0.5rem 0 1rem 1.75rem;
           padding-left: 0.5rem;
+          white-space: normal;
         }
 
         .report-content-renderer ol {
           list-style-type: decimal;
           margin: 0.5rem 0 1rem 1.75rem;
           padding-left: 0.5rem;
+          white-space: normal;
         }
 
         .report-content-renderer li {
           margin-bottom: 0.35rem;
-          line-height: 1.55;
+          line-height: 1.6;
+          white-space: normal;
+          word-break: normal;
+          overflow-wrap: break-word;
         }
 
         /* Tablas tipo Word */
@@ -141,6 +149,7 @@ export default function ReportContentRenderer({ content, className = '', isPrint
           page-break-inside: avoid;
           break-inside: avoid;
           font-size: 0.92rem;
+          white-space: normal;
         }
 
         .report-content-renderer th,
@@ -149,6 +158,9 @@ export default function ReportContentRenderer({ content, className = '', isPrint
           padding: 8px 12px;
           text-align: left;
           vertical-align: top;
+          white-space: normal;
+          word-break: normal;
+          overflow-wrap: break-word;
         }
 
         .report-content-renderer th {
@@ -173,6 +185,12 @@ export default function ReportContentRenderer({ content, className = '', isPrint
           border-left: 4px solid;
           page-break-inside: avoid;
           break-inside: avoid;
+          white-space: normal;
+        }
+
+        .report-content-renderer .report-callout p {
+          white-space: pre-wrap;
+          margin-bottom: 0.35rem;
         }
 
         .report-content-renderer .report-callout-info {
@@ -201,16 +219,36 @@ export default function ReportContentRenderer({ content, className = '', isPrint
 
         /* Reglas estrictas para impresión */
         @media print {
+          .report-content-renderer {
+            line-height: 1.65 !important;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            white-space: pre-wrap !important;
+          }
           .report-content-renderer p {
+            margin-top: 0 !important;
             margin-bottom: 0.85rem !important;
-            min-height: 1.25em !important;
-            line-height: 1.6 !important;
+            min-height: 1.5em !important;
+            line-height: 1.65 !important;
+            white-space: pre-wrap !important;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            break-inside: auto !important;
+            page-break-inside: auto !important;
+            orphans: 2 !important;
+            widows: 2 !important;
           }
           .report-content-renderer p:empty,
           .report-content-renderer p > br:only-child {
-            display: inline-block !important;
-            min-height: 1.25em !important;
-            content: "" !important;
+            display: block !important;
+            min-height: 1.5em !important;
+          }
+          .report-content-renderer h1,
+          .report-content-renderer h2,
+          .report-content-renderer h3,
+          .report-content-renderer h4 {
+            page-break-after: avoid !important;
+            break-after: avoid !important;
           }
           .report-content-renderer table {
             page-break-inside: avoid !important;

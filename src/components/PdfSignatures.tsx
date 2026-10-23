@@ -147,10 +147,10 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
   if (boxes.length === 0) return null;
 
   return (
-    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="pdf-signatures-wrapper avoid-break avoid-break-strictly break-inside-avoid w-full block mt-4 border-t-2 border-slate-300 pt-4 pb-2 text-center">
+    <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="pdf-signatures-wrapper avoid-break avoid-break-strictly break-inside-avoid w-full block mt-4 border-t-2 border-slate-300 pt-4 pb-2 text-center mx-auto">
       <div 
-        style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} 
-        className="avoid-break avoid-break-strictly break-inside-avoid flex justify-center items-stretch w-full gap-4 flex-wrap sm:flex-nowrap mx-auto"
+        style={{ breakInside: 'avoid', pageBreakInside: 'avoid', display: 'flex', justifyContent: 'center', alignItems: 'center' }} 
+        className="avoid-break avoid-break-strictly break-inside-avoid flex justify-center items-center w-full gap-4 flex-wrap mx-auto text-center"
       >
         {boxes.map((box, idx) => {
           const isPro = box.isProfessional;
@@ -166,7 +166,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
               style={{
                 breakInside: 'avoid',
                 pageBreakInside: 'avoid',
-                flex: boxes.length === 1 ? '0 0 320px' : '1 1 0',
+                flex: boxes.length === 1 ? '0 1 340px' : '1 1 0',
                 margin: '0 auto',
                 borderColor: borderCol,
                 backgroundColor: bgCol,
@@ -174,9 +174,9 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'flex-start'
+                justifyContent: 'center'
               }}
-              className={`avoid-break avoid-break-strictly break-inside-avoid p-3.5 text-center rounded-xl border-2 shadow-sm relative min-w-[200px] max-w-[320px] box-border ${
+              className={`avoid-break avoid-break-strictly break-inside-avoid p-3.5 text-center rounded-xl border-2 shadow-sm relative min-w-[220px] max-w-[340px] box-border ${
                 isPro ? 'ring-1 ring-emerald-400' : ''
               }`}
             >
@@ -185,7 +185,7 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
               )}
               
               {/* Contenedor centrado de firma e imagen de sello */}
-              <div className="min-h-[60px] h-auto w-full text-center border-b border-dashed border-slate-300 pb-2 mb-2.5 flex items-center justify-center gap-2 mx-auto">
+              <div className="min-h-[60px] h-auto w-full text-center border-b border-dashed border-slate-300 pb-2 mb-2 flex items-center justify-center gap-2 mx-auto">
                 {hasSig && (
                   <img
                     src={box.signatureUrl!}
@@ -219,26 +219,26 @@ export default function PdfSignatures({ data, box1, box2, box3 }: PdfSignaturesP
 
               {/* NOMBRE Y APELLIDO DEL FIRMANTE / PROFESIONAL (CENTRADO Y CLARO) */}
               <p 
-                className="m-0 mt-1 font-extrabold text-[11px] sm:text-xs uppercase text-slate-900 tracking-tight leading-tight text-center w-full"
+                className="m-0 mt-1 font-extrabold text-[12px] uppercase text-slate-900 tracking-tight leading-tight text-center w-full"
               >
                 {box.subtitle}
               </p>
 
-              {/* MATRÍCULA PROFESIONAL DESTACADA (CENTRADA) */}
+              {/* MATRÍCULA PROFESIONAL DESTACADA Y CENTRADA UN POCO MÁS ARRIBA */}
               {isPro && box.license && (
-                <div className="flex justify-center items-center w-full mt-2">
+                <div className="flex justify-center items-center w-full mt-1.5">
                   <div style={{ 
                     display: 'inline-flex', 
                     alignItems: 'center', 
                     justifyContent: 'center', 
-                    lineHeight: '1', 
-                    padding: '4px 10px', 
+                    lineHeight: '1.2', 
+                    padding: '3px 10px', 
                     backgroundColor: '#15803d', 
                     color: '#ffffff', 
                     borderRadius: '6px', 
                     fontWeight: 900, 
                     fontSize: '10px', 
-                    letterSpacing: '0.06em', 
+                    letterSpacing: '0.05em', 
                     textTransform: 'uppercase' 
                   }}>
                     Mat. N° {box.license}

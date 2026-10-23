@@ -37,4 +37,13 @@ describe('ReportContentRenderer', () => {
     expect(container.querySelectorAll('li').length).toBe(2);
     expect(container.querySelector('.report-callout-warning')).toBeInTheDocument();
   });
+
+  it('preserves empty paragraphs for user line breaks and spacing', () => {
+    const htmlWithEmptyParagraph = '<p>Línea 1</p><p></p><p>Línea 2 después de renglón en blanco</p>';
+    const { container } = render(<ReportContentRenderer content={htmlWithEmptyParagraph} />);
+    const paragraphs = container.querySelectorAll('p');
+    expect(paragraphs.length).toBe(3);
+    // El párrafo vacío se normaliza con un <br> para asegurar su renderizado y altura de renglón
+    expect(paragraphs[1].querySelector('br')).toBeInTheDocument();
+  });
 });

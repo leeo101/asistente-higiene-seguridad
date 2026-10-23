@@ -580,27 +580,26 @@ export default function ShareModal({
                         border: 1px solid var(--color-border);
                     }
                     .share-title {
-                        font-size: 1.4rem;
+                        font-size: 1.35rem;
                         font-weight: 900;
                         color: var(--color-text);
-                        margin-bottom: 0.3rem;
+                        margin-bottom: 0.35rem;
                         letter-spacing: -0.3px;
-                        word-break: break-word;
+                        word-break: normal;
                         overflow-wrap: break-word;
-                        line-height: 1.2;
+                        hyphens: manual;
+                        line-height: 1.25;
                     }
                     .share-subtitle {
                         color: var(--color-text-muted);
-                        font-size: 0.78rem;
-                        font-weight: 500;
+                        font-size: 0.82rem;
+                        font-weight: 600;
                         margin: 0;
                         padding: 0 0.5rem;
-                        display: -webkit-box;
-                        -webkit-line-clamp: 2;
-                        -webkit-box-orient: vertical;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        line-height: 1.3;
+                        line-height: 1.4;
+                        word-break: normal;
+                        overflow-wrap: break-word;
+                        hyphens: manual;
                     }
                     .share-grid {
                         display: grid;
@@ -610,13 +609,14 @@ export default function ShareModal({
                     .share-item-button {
                         display: flex;
                         align-items: center;
-                        gap: 0.6rem;
+                        gap: 0.5rem;
                         border-radius: 14px;
                         text-decoration: none;
                         font-weight: 800;
                         transition: all 0.2s;
                         justify-content: center;
                         cursor: pointer;
+                        white-space: nowrap;
                     }
                     .share-btn-now {
                         padding: 0.9rem;
@@ -628,8 +628,8 @@ export default function ShareModal({
                         box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
                     }
                     .share-opt-btn {
-                        padding: 0.9rem;
-                        font-size: 0.9rem;
+                        padding: 0.85rem 0.5rem;
+                        font-size: 0.88rem;
                     }
                     .share-message-box {
                         padding: 0.85rem 1rem;
@@ -639,7 +639,6 @@ export default function ShareModal({
                         position: relative;
                         margin-top: 0.75rem;
                         min-width: 0;
-                        overflow: hidden;
                     }
                     .share-copy-btn {
                         position: absolute;
@@ -657,13 +656,16 @@ export default function ShareModal({
                         transition: all 0.2s;
                     }
                     .share-message-text {
-                        font-size: 0.75rem;
+                        font-size: 0.78rem;
                         color: var(--color-text-muted);
                         margin: 0;
-                        padding-right: 3rem;
-                        word-break: break-word;
+                        padding-right: 2.8rem;
+                        word-break: normal;
+                        overflow-wrap: break-word;
+                        hyphens: manual;
                         white-space: pre-wrap;
                         font-weight: 600;
+                        line-height: 1.45;
                     }
                     .mobile-safe-area {
                         display: none;
