@@ -3,16 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import {
   Pickaxe, Plus, Search, Calendar, FileText, Download,
   Trash2, AlertTriangle, CheckCircle2, Clock, Ruler, ShieldAlert,
-  FileSpreadsheet, Eye, X, ShieldCheck, Layers, MapPin
+  FileSpreadsheet, Eye, X, ShieldCheck, Layers, MapPin, Loader2
 } from 'lucide-react';
 import { useCompany } from '../contexts/CompanyContext';
 import PremiumHeader from '../components/PremiumHeader';
 import AnimatedPage from '../components/AnimatedPage';
 import ConfirmModal from '../components/ConfirmModal';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
+import ExcavationPdf from '../components/ExcavationPdf';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import { ExcavationPermitData, SOIL_TYPES_INFO } from '../data/excavationData';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import toast from 'react-hot-toast';
 
 export default function ExcavationSafetyManager(): React.ReactElement | null {
@@ -23,6 +23,8 @@ export default function ExcavationSafetyManager(): React.ReactElement | null {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [viewPermit, setViewPermit] = useState<ExcavationPermitData | null>(null);
+  const [printPermit, setPrintPermit] = useState<ExcavationPermitData | null>(null);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -128,130 +130,24 @@ export default function ExcavationSafetyManager(): React.ReactElement | null {
     toast.success('Padrón de permisos de excavación exportado en CSV.');
   };
 
-  const exportPDF = (permit: ExcavationPermitData, downloadOnly: boolean = false) => {
-    try {
-      const doc = new jsPDF();
-      doc.setFillColor(180, 83, 9);
-      doc.rect(0, 0, 210, 26, 'F');
-      
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text('PERMISO Y HABILITACIÓN DE EXCAVACIÓN Y ZANJAS', 14, 12);
-      doc.setFontSize(8.5);
-      doc.setFont('helvetica', 'normal');
-      doc.text('Decreto 911/96 Cap. 10, Res. SRT 550/11 y OSHA 1926 Subparte P', 14, 19);
+  const handlePrint = (permit: ExcavationPermitData) => {
+    setIsPrinting(true);
+    setPrintPermit(permit);
+    const toastId = toast.loading('Preparando impresión del Permiso Oficial...');
 
-      doc.setTextColor(30, 41, 59);
-      doc.setFontSize(8.5);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`N° Permiso: ${permit.permitNumber}`, 14, 34);
-      doc.text(`Fecha: ${permit.date}`, 145, 34);
-
-      autoTable(doc, {
-        startY: 38,
-        theme: 'grid',
-        head: [['Parámetros Geotécnicos y Operativos', 'Detalle']],
-        headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
-        body: [
-          ['Empresa / Obra', activeCompany ? `${activeCompany.name} (CUIT: ${activeCompany.cuit})` : permit.projectOrSite],
-          ['Ubicación Específica', permit.location],
-          ['Dimensiones de la Excavación', `Profundidad: ${permit.depthMeters} m | Ancho: ${permit.widthMeters} m | Longitud: ${permit.lengthMeters} m`],
-          ['Clasificación del Suelo', `Suelo Tipo ${permit.soilType} - ${SOIL_TYPES_INFO[permit.soilType].name}`],
-          ['Talud Reglamentario Recomendado', SOIL_TYPES_INFO[permit.soilType].maxSlope],
-          ['Sistema de Protección / Entibado', permit.depthMeters > 1.20 ? `OBLIGATORIO (${permit.shoringType})` : 'No obligatorio por profundidad (<1.20m)'],
-          ['Persona Competente Designada', permit.competentPersonName],
-          ['Supervisor / Capataz a Cargo', permit.supervisorName]
-        ],
-        styles: { fontSize: 7.5, cellPadding: 2 },
-        columnStyles: {
-          0: { fontStyle: 'bold', cellWidth: 70 },
-          1: { cellWidth: 112 }
-        }
-      });
-
-      let currentY = (doc as any).lastAutoTable.finalY + 6;
-
-      autoTable(doc, {
-        startY: currentY,
-        theme: 'striped',
-        head: [['Puntos de Control de Seguridad en Excavación (Dec. 911/96)', 'Estado']],
-        headStyles: { fillColor: [180, 83, 9], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
-        body: [
-          ['Interferencias subterráneas sondeadas (Gas, Luz, Agua)', permit.checklist.utilitiesLocated ? 'VERIFICADO / CONFORME' : 'NO CUMPLE'],
-          ['Acopio de tierra a más de 1.00 metro del borde superior', permit.checklist.spoilDistance1m ? 'VERIFICADO / CONFORME' : 'NO CUMPLE'],
-          ['Escaleras reglamentarias de acceso/egreso cada 7.50 metros', permit.checklist.safeAccessLadders7m ? 'VERIFICADO / CONFORME' : 'NO CUMPLE'],
-          ['Distancia segura de maquinaria pesada / vibración', permit.checklist.machineryDistanceSafe ? 'VERIFICADO / CONFORME' : 'NO CUMPLE'],
-          ['Vallado perimetral rígido y señalización nocturna', permit.checklist.perimeterBarricades ? 'VERIFICADO / CONFORME' : 'NO CUMPLE'],
-          ['Monitoreo de atmósfera en zanja profunda (> 1.20m)', permit.checklist.atmosphereTested ? 'VERIFICADO / CONFORME' : 'NO CUMPLE'],
-          ['Control y evacuación de agua/drenaje instalado', permit.checklist.waterControlInstalled ? 'VERIFICADO / CONFORME' : 'NO CUMPLE']
-        ],
-        styles: { fontSize: 7.5, cellPadding: 2 }
-      });
-
-      currentY = (doc as any).lastAutoTable.finalY + 14;
-      doc.setFontSize(7.5);
-      doc.text('________________________________________', 25, currentY);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Firma Persona Competente en Suelos', 25, currentY + 4);
-      doc.setFont('helvetica', 'normal');
-      doc.text(permit.competentPersonName || 'Persona Competente', 25, currentY + 8);
-
-      doc.text('________________________________________', 125, currentY);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Firma Responsable Higiene y Seguridad', 125, currentY + 4);
-      doc.setFont('helvetica', 'normal');
-      doc.text(permit.supervisorName || 'Servicio HyS', 125, currentY + 8);
-
-      // Pie de página legal
-      doc.setDrawColor(203, 213, 225);
-      doc.setLineWidth(0.4);
-      doc.line(14, 285, 196, 285);
-      doc.setFontSize(6.5);
-      doc.setTextColor(100, 116, 139);
-      doc.text('Documento oficial según Decreto 911/96 Cap. 10 y Res. SRT 550/11. Prohibido ingreso a zanja sin firma de Persona Competente.', 14, 289);
-      doc.text('Pág. 1 de 1', 196, 289, { align: 'right' });
-
-      const fileName = `Permiso_Excavacion_${permit.permitNumber}.pdf`;
-
-      if (downloadOnly) {
-        doc.save(fileName);
-        toast.success('Permiso de excavación descargado en PDF');
-      } else {
-        doc.autoPrint();
-        const blob = doc.output('blob');
-        const blobUrl = URL.createObjectURL(blob);
-        const iframe = document.createElement('iframe');
-        iframe.style.position = 'fixed';
-        iframe.style.right = '0';
-        iframe.style.bottom = '0';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = '0';
-        iframe.src = blobUrl;
-        document.body.appendChild(iframe);
-        iframe.onload = () => {
-          setTimeout(() => {
-            try {
-              iframe.contentWindow?.focus();
-              iframe.contentWindow?.print();
-            } catch {
-              window.open(blobUrl, '_blank');
-            }
-            setTimeout(() => {
-              try {
-                document.body.removeChild(iframe);
-                URL.revokeObjectURL(blobUrl);
-              } catch {}
-            }, 60000);
-          }, 300);
-        };
-        toast.success('Abriendo diálogo de impresión...');
+    setTimeout(async () => {
+      try {
+        await printElementAsDocument('pdf-sheet-manager-excavation', `Permiso_Excavacion_${permit.permitNumber}`, false);
+        toast.dismiss(toastId);
+        toast.success('Documento enviado a impresión');
+      } catch (e) {
+        console.error(e);
+        toast.dismiss(toastId);
+        toast.error('Error al generar la impresión del permiso');
+      } finally {
+        setIsPrinting(false);
       }
-    } catch (e) {
-      console.error(e);
-      toast.error('Error al generar PDF');
-    }
+    }, 250);
   };
 
   return (
@@ -559,8 +455,9 @@ export default function ExcavationSafetyManager(): React.ReactElement | null {
                       {/* Botón PDF */}
                       <button
                         type="button"
-                        onClick={() => exportPDF(permit, false)}
-                        title="Imprimir / Exportar Permiso en PDF"
+                        onClick={() => handlePrint(permit)}
+                        disabled={isPrinting}
+                        title="Imprimir Permiso Oficial A4"
                         style={{
                           backgroundColor: '#059669',
                           color: '#ffffff',
@@ -569,15 +466,17 @@ export default function ExcavationSafetyManager(): React.ReactElement | null {
                           fontSize: '11px',
                           fontWeight: '800',
                           borderRadius: '6px',
-                          cursor: 'pointer',
+                          cursor: isPrinting ? 'not-allowed' : 'pointer',
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '4px',
                           minHeight: 'unset',
-                          boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)'
+                          boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)',
+                          opacity: isPrinting ? 0.7 : 1
                         }}
                       >
-                        <FileText size={12} /> PDF
+                        {isPrinting ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />}
+                        <span>Imprimir A4</span>
                       </button>
 
                       {/* Botón Ver */}
@@ -637,8 +536,8 @@ export default function ExcavationSafetyManager(): React.ReactElement | null {
 
         {/* Modal de Detalle / Ver Permiso de Excavación */}
         {viewPermit && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5 max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5 my-auto animate-scale-up max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-2.5">
                   <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600">
@@ -731,7 +630,8 @@ export default function ExcavationSafetyManager(): React.ReactElement | null {
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
-                  onClick={() => exportPDF(viewPermit, false)}
+                  onClick={() => handlePrint(viewPermit)}
+                  disabled={isPrinting}
                   style={{
                     backgroundColor: '#059669',
                     color: '#ffffff',
@@ -740,15 +640,17 @@ export default function ExcavationSafetyManager(): React.ReactElement | null {
                     fontSize: '12px',
                     fontWeight: '800',
                     borderRadius: '8px',
-                    cursor: 'pointer',
+                    cursor: isPrinting ? 'not-allowed' : 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '6px',
                     minHeight: 'unset',
-                    boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
+                    boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)',
+                    opacity: isPrinting ? 0.7 : 1
                   }}
                 >
-                  <FileText size={14} /> Imprimir PDF
+                  {isPrinting ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
+                  <span>Imprimir A4</span>
                 </button>
                 <button
                   type="button"
@@ -769,6 +671,13 @@ export default function ExcavationSafetyManager(): React.ReactElement | null {
                 </button>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Componente PDF fuera de pantalla para impresión A4 de alta fidelidad */}
+        {printPermit && (
+          <div className="ats-pdf-offscreen" id="pdf-manager-excavation">
+            <ExcavationPdf data={printPermit} customId="pdf-sheet-manager-excavation" />
           </div>
         )}
 

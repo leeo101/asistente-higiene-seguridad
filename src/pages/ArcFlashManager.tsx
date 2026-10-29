@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Zap, Plus, Search, Calendar, FileText,
@@ -10,9 +10,9 @@ import PremiumHeader from '../components/PremiumHeader';
 import AnimatedPage from '../components/AnimatedPage';
 import ConfirmModal from '../components/ConfirmModal';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
+import ArcFlashPdfGenerator from '../components/ArcFlashPdfGenerator';
+import { printElementAsDocument, generatePdfBlob } from '../utils/pdfHelper';
 import { ArcFlashPermitData, PPE_CATEGORY_DESCRIPTIONS } from '../data/arcFlashData';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import toast from 'react-hot-toast';
 
 export default function ArcFlashManager(): React.ReactElement | null {
@@ -23,6 +23,8 @@ export default function ArcFlashManager(): React.ReactElement | null {
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [viewPermit, setViewPermit] = useState<ArcFlashPermitData | null>(null);
+  const [targetPrintPermit, setTargetPrintPermit] = useState<ArcFlashPermitData | null>(null);
+  const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const raw = localStorage.getItem('arc_flash_permits_db');
@@ -145,239 +147,35 @@ export default function ArcFlashManager(): React.ReactElement | null {
   };
 
   const exportPDF = (permit: ArcFlashPermitData, downloadOnly: boolean = false) => {
-    try {
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-
-      // Encabezado Superior (Banner Cálido de Seguridad)
-      doc.setFillColor(180, 83, 9);
-      doc.rect(0, 0, pageWidth, 28, 'F');
-
-      // Título y Normativa
-      doc.setTextColor(255, 255, 255);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.text('PERMISO DE TRABAJO CON TENSIÓN Y RIESGO DE ARCO ELÉCTRICO', 14, 11);
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
-      doc.text('Conforme a Normas NFPA 70E, IEEE 1584, Res. S.R.T. N° 3068/14 y Ley N° 19.587 (Dec. 351/79 Cap. 14)', 14, 18);
-      doc.setFontSize(7.5);
-      const companyHeader = activeCompany ? activeCompany.name + ' (CUIT: ' + activeCompany.cuit + ')' : 'Establecimiento Industrial';
-      doc.text('Empresa: ' + companyHeader + ' | Fecha de Emisión: ' + permit.date, 14, 24);
-
-      // Datos de Control del Permiso
-      doc.setTextColor(15, 23, 42);
-      doc.setFontSize(8.5);
-      doc.setFont('helvetica', 'bold');
-      doc.text('N° Permiso: ' + permit.permitNumber, 14, 34);
-      doc.text('Horario Autorizado: ' + permit.startTime + ' a ' + permit.endTime + ' hs', 120, 34);
-
-      // Tabla 1: Parámetros del Tablero y Análisis de Energía Incidente
-      const voltType = permit.nominalVoltageV > 1000 ? 'Media Tensión' : 'Baja Tensión';
-      const energyRisk = permit.calculatedIncidentEnergyCalCm2 <= 1.2 ? 'Bajo Umbral 2° Grado' : 'Riesgo Térmico de Quemadura';
-      const catLabel = permit.ppeCategory === 'prohibited' ? 'TRABAJO PROHIBIDO (>40 cal/cm²)' : 'CATEGORÍA ' + permit.ppeCategory;
-      const ppeDesc = (PPE_CATEGORY_DESCRIPTIONS as any)[permit.ppeCategory]?.desc || 'EPP dieléctrico e ignífugo';
-
-      autoTable(doc, {
-        startY: 38,
-        theme: 'grid',
-        head: [['Parámetros Técnicos y del Circuito Eléctrico', 'Especificación y Valores Verificados']],
-        headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
-        body: [
-          ['Tablero / Celda / Equipo a Intervenir', permit.panelOrEquipmentTag || 'No especificado'],
-          ['Ubicación / Subestación / Nave', permit.substationOrLocation || 'No especificado'],
-          ['Tensión Nominal del Circuito', permit.nominalVoltageV + ' V (' + voltType + ')'],
-          ['Corriente de Cortocircuito Presunta (Icc)', permit.shortCircuitKa + ' kA'],
-          ['Tiempo de Despeje de Protecciones', permit.clearingTimeSeconds + ' segundos'],
-          ['Distancia de Trabajo Estimada', permit.workingDistanceCm + ' cm'],
-          ['ENERGÍA INCIDENTE CALCULADA', permit.calculatedIncidentEnergyCalCm2 + ' cal/cm² (' + energyRisk + ')'],
-          ['FRONTERA DE ARCO ELÉCTRICO (AFB)', permit.arcFlashBoundaryMeters + ' metros'],
-          ['NIVEL DE EPP REQUERIDO', catLabel],
-          ['Equipamiento de Protección Obligatorio', ppeDesc],
-          ['Guantes Dieléctricos Reglamentarios', 'Clase ' + permit.gloveClass + ' | Último Ensayo Rigidez: ' + permit.gloveLastTestDate + ' (< 6 meses)']
-        ],
-        bodyStyles: { fontSize: 7.5, cellPadding: 2 },
-        columnStyles: {
-          0: { fontStyle: 'bold', cellWidth: 70 },
-          1: { cellWidth: 112 }
-        }
-      });
-
-      let currentY = (doc as any).lastAutoTable.finalY + 6;
-
-      // Tabla 2: Verificaciones Preventivas Res. SRT 3068/14
-      autoTable(doc, {
-        startY: currentY,
-        theme: 'striped',
-        head: [['Verificaciones Obligatorias Res. SRT 3068/14 y NFPA 70E', 'Norma Legal', 'Estado']],
-        headStyles: { fillColor: [15, 118, 110], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
-        body: [
-          ['Justificación formal de imposibilidad de desenergizar', 'Res. SRT 3068/14 Art. 3', permit.checklist?.justificationLiveWorkDocumented ? 'CUMPLE' : 'NO CUMPLE'],
-          ['Evaluación de condición de trabajo eléctricamente segura completada', 'NFPA 70E Art. 120', permit.checklist?.electricallySafeWorkConditionEvaluated ? 'CUMPLE' : 'NO CUMPLE'],
-          ['Herramientas manuales aisladas 1000V certificadas IRAM/IEC', 'IRAM 2404 / IEC 60900', permit.checklist?.insulatedTools1000vInspected ? 'CUMPLE' : 'NO CUMPLE'],
-          ['Guantes dieléctricos con prueba de rigidez vigente (< 6 meses)', 'IRAM 3604 / ASTM D120', permit.checklist?.dielectricGlovesClassVerified ? 'CUMPLE' : 'NO CUMPLE'],
-          ['Detector de tensión acústico/óptico verificado antes de iniciar', 'IEC 61243-1', permit.checklist?.voltageDetectorCalibrated ? 'CUMPLE' : 'NO CUMPLE'],
-          ['Traje para arco eléctrico con escafandra certificada al valor cal/cm²', 'NFPA 70E Tabla 130.7', permit.checklist?.arcFlashSuitCertified ? 'CUMPLE' : 'NO CUMPLE'],
-          ['Pértiga de salvamento dieléctrica accesible al pie', 'Res. SRT 3068/14 Art. 8', permit.checklist?.rescueHookAvailable ? 'CUMPLE' : 'NO CUMPLE'],
-          ['Personal electricista habilitado según Res. SRT 3068/14', 'Res. SRT 3068/14 Art. 4', permit.checklist?.trainedPersonnelCertified ? 'CUMPLE' : 'NO CUMPLE']
-        ],
-        bodyStyles: { fontSize: 7, cellPadding: 1.8 },
-        columnStyles: {
-          0: { cellWidth: 120 },
-          1: { cellWidth: 38, fontStyle: 'italic', textColor: [100, 116, 139] },
-          2: { cellWidth: 24, fontStyle: 'bold', halign: 'center' }
-        },
-        didParseCell: (data) => {
-          if (data.column.index === 2 && data.cell.section === 'body') {
-            if (data.cell.raw === 'CUMPLE') {
-              data.cell.styles.textColor = [5, 150, 105];
-            } else {
-              data.cell.styles.textColor = [220, 38, 38];
-            }
-          }
-        }
-      });
-
-      currentY = (doc as any).lastAutoTable.finalY + 6;
-
-      if (permit.notes && permit.notes.trim()) {
-        doc.setFontSize(7.5);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Instrucciones Particulares y Secuencia de Maniobra:', 14, currentY);
-        doc.setFont('helvetica', 'normal');
-        doc.text(permit.notes.trim(), 14, currentY + 4, { maxWidth: 182 });
-        currentY += 12;
-      }
-
-      // ==========================================
-      // BLOQUE DE 3 FIRMAS REGLAMENTARIAS
-      // ==========================================
-      const sigY = Math.min(currentY + 16, pageHeight - 38);
-
-      // Renderizar firmas digitales si están almacenadas
-      if (permit.electricianSignature) {
-        try {
-          doc.addImage(permit.electricianSignature, 'PNG', 14, sigY - 14, 46, 13);
-        } catch (e) {
-          console.error('Error dibujando firma electricista en PDF:', e);
-        }
-      }
-      if (permit.supervisorSignature) {
-        try {
-          doc.addImage(permit.supervisorSignature, 'PNG', 80, sigY - 14, 46, 13);
-        } catch (e) {
-          console.error('Error dibujando firma supervisor en PDF:', e);
-        }
-      }
-      if (permit.plantManagerSignature) {
-        try {
-          doc.addImage(permit.plantManagerSignature, 'PNG', 146, sigY - 14, 46, 13);
-        } catch (e) {
-          console.error('Error dibujando firma emisor planta en PDF:', e);
-        }
-      }
-
-      doc.setFontSize(7.5);
-      doc.setTextColor(30, 41, 59);
-
-      // Firma 1: Electricista Habilitado
-      doc.line(14, sigY, 64, sigY);
-      doc.setFont('helvetica', 'bold');
-      doc.text(permit.leadElectrician || 'Firma Electricista Habilitado', 14, sigY + 4);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(6.5);
-      doc.text('Electricista Habilitado Responsable', 14, sigY + 7.5);
-      doc.text('Mat. / DNI: ' + (permit.electricianLicense || '................................'), 14, sigY + 10.5);
-
-      // Firma 2: Supervisor HyS
-      doc.setFontSize(7.5);
-      doc.line(80, sigY, 130, sigY);
-      doc.setFont('helvetica', 'bold');
-      doc.text(permit.safetySupervisor || 'Firma Responsable HyS', 80, sigY + 4);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(6.5);
-      doc.text('Servicio de Higiene y Seguridad', 80, sigY + 7.5);
-      doc.text('Mat. Prof. HyS: ' + (permit.supervisorLicense || '................................'), 80, sigY + 10.5);
-
-      // Firma 3: Autorizante de Planta
-      doc.setFontSize(7.5);
-      doc.line(146, sigY, 196, sigY);
-      doc.setFont('helvetica', 'bold');
-      doc.text(permit.plantManager || 'Firma Emisor de Planta', 146, sigY + 4);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(6.5);
-      doc.text('Autorizante de Planta / Mantenimiento', 146, sigY + 7.5);
-      doc.text('Operaciones / Producción', 146, sigY + 10.5);
-
-      // ==========================================
-      // PIE DE PÁGINA OFICIAL Y LEGAL
-      // ==========================================
-      const footerY = pageHeight - 8;
-      doc.setDrawColor(203, 213, 225);
-      doc.setLineWidth(0.4);
-      doc.line(14, footerY - 3, pageWidth - 14, footerY - 3);
-
-      doc.setFontSize(6.5);
-      doc.setTextColor(100, 116, 139);
-      doc.text(
-        'Documento operacional oficial según Res. SRT N° 3068/14, NFPA 70E y Dec. 351/79 Cap. 14. Prohibida la maniobra sin las 3 firmas autorizantes.',
-        14,
-        footerY
-      );
-      doc.text(
-        'Pág. 1 de 1 • Emitido: ' + new Date().toLocaleDateString('es-AR') + ' ' + new Date().toLocaleTimeString('es-AR'),
-        pageWidth - 14,
-        footerY,
-        { align: 'right' }
-      );
-
-      const fileName = 'Permiso_Arco_Electrico_' + permit.permitNumber + '.pdf';
+    setTargetPrintPermit(permit);
+    setTimeout(async () => {
+      const sanitizedTag = (permit.panelOrEquipmentTag || 'Tablero').replace(/\s+/g, '_');
+      const fileName = `Permiso_Arco_Electrico_${permit.permitNumber}_${sanitizedTag}.pdf`;
+      const targetId = viewPermit?.id === permit.id && !downloadOnly
+        ? 'pdf-content-arc-flash-modal'
+        : 'pdf-content-arc-flash-manager';
 
       if (downloadOnly) {
-        doc.save(fileName);
-        toast.success('Permiso eléctrico descargado en PDF con firmas oficiales');
+        const loadingToast = toast.loading('Generando documento PDF oficial...');
+        try {
+          const blob = await generatePdfBlob('pdf-content-arc-flash-manager', false);
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(() => URL.revokeObjectURL(url), 10000);
+          toast.success('Permiso eléctrico descargado en PDF con firmas oficiales', { id: loadingToast });
+        } catch (e) {
+          console.error(e);
+          toast.error('Error al generar PDF', { id: loadingToast });
+        }
       } else {
-        // Disparar ventana de impresión directa
-        doc.autoPrint();
-        const blob = doc.output('blob');
-        const blobUrl = URL.createObjectURL(blob);
-
-        const iframe = document.createElement('iframe');
-        iframe.style.position = 'fixed';
-        iframe.style.right = '0';
-        iframe.style.bottom = '0';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = '0';
-        iframe.src = blobUrl;
-        document.body.appendChild(iframe);
-
-        iframe.onload = () => {
-          setTimeout(() => {
-            try {
-              iframe.contentWindow?.focus();
-              iframe.contentWindow?.print();
-            } catch (err) {
-              console.error('Error al imprimir iframe, abriendo en pestaña:', err);
-              const win = window.open(blobUrl, '_blank');
-              if (win) win.focus();
-            }
-            setTimeout(() => {
-              try {
-                document.body.removeChild(iframe);
-                URL.revokeObjectURL(blobUrl);
-              } catch {}
-            }, 60000);
-          }, 300);
-        };
-
-        toast.success('Abriendo ventana de impresión del permiso...');
+        await printElementAsDocument(targetId, `Permiso de Trabajo con Tensión ${permit.permitNumber}`, false);
       }
-    } catch (e) {
-      console.error(e);
-      toast.error('Error al generar PDF');
-    }
+    }, 150);
   };
 
   const getCategoryColor = (cat: any) => {
@@ -813,108 +611,67 @@ export default function ArcFlashManager(): React.ReactElement | null {
           </div>
         )}
 
-        {/* Modal Detalle Técnico del Permiso */}
+        {/* CONTENEDOR A4 OFFSCREEN PARA IMPRESIÓN Y DESCARGA PDF DIRECTA */}
+        {targetPrintPermit && (
+          <div
+            className="ats-pdf-offscreen"
+            style={{
+              position: 'fixed',
+              left: '-9999px',
+              top: 0,
+              width: '210mm',
+              backgroundColor: '#ffffff',
+              zIndex: -1
+            }}
+            ref={printRef}
+          >
+            <ArcFlashPdfGenerator
+              permit={targetPrintPermit}
+              companyName={activeCompany?.name}
+              pdfElementId="pdf-content-arc-flash-manager"
+            />
+          </div>
+        )}
+
+        {/* Modal Vista Previa Oficial A4 del Permiso */}
         {viewPermit && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl relative border border-slate-200 dark:border-slate-800 space-y-5 my-8">
-              <button
-                type="button"
-                onClick={() => setViewPermit(null)}
-                className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-transparent border-none cursor-pointer p-1 rounded-lg"
-              >
-                <X size={20} />
-              </button>
-
-              <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
-                  <Zap size={24} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-extrabold text-slate-900 dark:text-white m-0">
-                    {viewPermit.panelOrEquipmentTag}
-                  </h3>
-                  <p className="text-slate-500 text-xs font-semibold mt-0.5">
-                    Permiso N° {viewPermit.permitNumber} • {viewPermit.substationOrLocation}
-                  </p>
-                </div>
-              </div>
-
-              {/* Grid de parámetros eléctricos */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Energía Incidente</span>
-                  <span className="text-base font-black text-amber-600 dark:text-amber-400">
-                    {viewPermit.calculatedIncidentEnergyCalCm2} cal/cm²
-                  </span>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Frontera de Arco</span>
-                  <span className="text-base font-black text-slate-800 dark:text-slate-100">
-                    {viewPermit.arcFlashBoundaryMeters} m
-                  </span>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Tensión Nominal</span>
-                  <span className="text-base font-black text-slate-800 dark:text-slate-100">
-                    {viewPermit.nominalVoltageV} V
-                  </span>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Cortocircuito (kA)</span>
-                  <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                    {viewPermit.shortCircuitKa} kA
-                  </span>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Apertura Protecciones</span>
-                  <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                    {viewPermit.clearingTimeSeconds} seg
-                  </span>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Guantes Dieléctricos</span>
-                  <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                    Clase {viewPermit.gloveClass} ({viewPermit.gloveLastTestDate})
-                  </span>
-                </div>
-              </div>
-
-              {/* Protocolo SRT 3068/14 */}
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2">
-                <span className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                  <ShieldCheck size={16} className="text-emerald-500" />
-                  Verificaciones Obligatorias Res. SRT 3068/14
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              backgroundColor: 'rgba(15, 23, 42, 0.78)',
+              backdropFilter: 'blur(4px)',
+              zIndex: 9999,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '1.25rem',
+              overflowY: 'auto'
+            }}
+          >
+            <div
+              style={{
+                width: '100%',
+                maxWidth: '210mm',
+                background: '#0f172a',
+                color: '#ffffff',
+                padding: '0.85rem 1.25rem',
+                borderRadius: '12px 12px 0 0',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: '0.75rem',
+                flexWrap: 'wrap'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <Zap size={18} color="#fbbf24" />
+                <span style={{ fontWeight: 900, fontSize: '0.9rem' }}>
+                  Permiso de Trabajo con Tensión N° {viewPermit.permitNumber} — {viewPermit.panelOrEquipmentTag}
                 </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-300 pt-1">
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${viewPermit.checklist?.justificationLiveWorkDocumented ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                    <span>Justificación formal de tensión</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${viewPermit.checklist?.insulatedTools1000vInspected ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                    <span>Herramientas aisladas 1000V</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${viewPermit.checklist?.dielectricGlovesClassVerified ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                    <span>Guantes dieléctricos ensayados</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${viewPermit.checklist?.voltageDetectorCalibrated ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                    <span>Detector de tensión acústico</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${viewPermit.checklist?.arcFlashSuitCertified ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                    <span>Traje Arc Flash certificado</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${viewPermit.checklist?.rescueHookAvailable ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                    <span>Pértiga de salvamento al pie</span>
-                  </div>
-                </div>
               </div>
 
-              {/* Botones del Modal */}
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <button
                   type="button"
                   onClick={() => exportPDF(viewPermit, false)}
@@ -922,16 +679,14 @@ export default function ArcFlashManager(): React.ReactElement | null {
                     backgroundColor: '#0284c7',
                     color: '#ffffff',
                     border: 'none',
-                    padding: '8px 16px',
+                    padding: '6px 14px',
                     fontSize: '12px',
-                    fontWeight: '800',
+                    fontWeight: 800,
                     borderRadius: '8px',
                     cursor: 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    minHeight: 'unset',
-                    boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)'
+                    gap: '6px'
                   }}
                 >
                   <Printer size={14} /> Imprimir
@@ -943,16 +698,14 @@ export default function ArcFlashManager(): React.ReactElement | null {
                     backgroundColor: '#059669',
                     color: '#ffffff',
                     border: 'none',
-                    padding: '8px 16px',
+                    padding: '6px 14px',
                     fontSize: '12px',
-                    fontWeight: '800',
+                    fontWeight: 800,
                     borderRadius: '8px',
                     cursor: 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    minHeight: 'unset',
-                    boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
+                    gap: '6px'
                   }}
                 >
                   <Download size={14} /> Descargar PDF
@@ -961,20 +714,36 @@ export default function ArcFlashManager(): React.ReactElement | null {
                   type="button"
                   onClick={() => setViewPermit(null)}
                   style={{
-                    backgroundColor: '#475569',
+                    backgroundColor: 'rgba(255,255,255,0.12)',
                     color: '#ffffff',
                     border: 'none',
-                    padding: '8px 16px',
-                    fontSize: '12px',
-                    fontWeight: '800',
+                    padding: '6px 10px',
                     borderRadius: '8px',
                     cursor: 'pointer',
-                    minHeight: 'unset'
+                    display: 'inline-flex',
+                    alignItems: 'center'
                   }}
                 >
-                  Cerrar
+                  <X size={16} />
                 </button>
               </div>
+            </div>
+
+            <div
+              style={{
+                width: '100%',
+                maxWidth: '210mm',
+                background: '#ffffff',
+                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.45)',
+                borderRadius: '0 0 12px 12px',
+                overflow: 'hidden'
+              }}
+            >
+              <ArcFlashPdfGenerator
+                permit={viewPermit}
+                companyName={activeCompany?.name}
+                pdfElementId="pdf-content-arc-flash-modal"
+              />
             </div>
           </div>
         )}

@@ -17,6 +17,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { getCountryNormativa } from '../data/legislationData';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { usePaywall } from '../hooks/usePaywall';
 import { API_BASE_URL } from '../config';
 import { auth, db } from '../firebase';
@@ -229,6 +230,7 @@ export default function Home(): React.ReactElement {
   const { currentUser } = useAuth() as {currentUser: FirebaseUser | null;};
   const { syncPulse } = useSync();
   const { isPro, daysRemaining } = usePaywall();
+  const { t, language, selectedFramework, countryNorms, adaptText } = useLanguage();
 
   const heroWords = ['ATS', 'Carga de Fuego', 'Auditorías', 'Matrices de Riesgo', 'Capacitaciones'];
   const typedWord = useTypewriter(heroWords);
@@ -247,11 +249,21 @@ export default function Home(): React.ReactElement {
     });
   };
 
+  const localizedQuickLinks = useMemo(() => {
+    return quickLinks.map((link) => ({
+      ...link,
+      label: adaptText(link.label),
+      sub: adaptText(link.sub),
+      badge: link.badge ? adaptText(link.badge) : undefined,
+      norm: link.norm === 'Legal' ? countryNorms.general : (link.norm ? adaptText(link.norm) : undefined)
+    }));
+  }, [language, selectedFramework, countryNorms, adaptText]);
+
   const filteredQuickLinks = useMemo(() => {
-    if (!isInspectorMode) return quickLinks;
+    if (!isInspectorMode) return localizedQuickLinks;
     const allowed = ['/ats', '/checklists', '/work-permit', '/ai-camera-manager', '/ai-general-camera-manager'];
-    return quickLinks.filter(link => allowed.includes(link.to));
-  }, [isInspectorMode]);
+    return localizedQuickLinks.filter(link => allowed.includes(link.to));
+  }, [isInspectorMode, localizedQuickLinks]);
 
   const [stats, setStats] = useState<StatItem[]>([
   { label: 'Accidentes', value: 0, icon: <Siren weight="duotone" />, color: '#ef4444', grad: 'linear-gradient(135deg,#ef4444,#b91c1c)', key: 'accident_history' },
@@ -590,23 +602,36 @@ export default function Home(): React.ReactElement {
               }
             `}</style>
             <div className="stagger-item animation-delay-[0.1s]">
-              <div style={{ backdropFilter: isMobile ? 'none' : 'blur(8px)' }} className="display-[inline-flex] items-center gap-[0.5rem] p-[0.4rem_0.8rem] bg-[rgba(59,130,246,0.15)] border-[1px_solid_rgba(59,130,246,0.3)] rounded-[100px] mb-[2rem]">
-                <Shield size={14} color="#60a5fa" weight="bold" />
-                <span className="text-[0.75rem] font-[800] text-[#60a5fa] uppercase letter-spacing-[1px]">Dashboard Privado</span>
+              <div className="flex items-center gap-[0.6rem] flex-wrap mb-[2rem]">
+                <div style={{ backdropFilter: isMobile ? 'none' : 'blur(8px)' }} className="display-[inline-flex] items-center gap-[0.5rem] p-[0.4rem_0.8rem] bg-[rgba(59,130,246,0.15)] border-[1px_solid_rgba(59,130,246,0.3)] rounded-[100px]">
+                  <Shield size={14} color="#60a5fa" weight="bold" />
+                  <span className="text-[0.75rem] font-[800] text-[#60a5fa] uppercase letter-spacing-[1px]">{t('home.private_dashboard')}</span>
+                </div>
+                <div
+                  onClick={() => navigate('/legislation')}
+                  style={{ backdropFilter: isMobile ? 'none' : 'blur(8px)' }}
+                  className="display-[inline-flex] items-center gap-[0.5rem] p-[0.4rem_0.85rem] bg-[rgba(16,185,129,0.15)] border-[1px_solid_rgba(16,185,129,0.35)] rounded-[100px] cursor-pointer hover:bg-[rgba(16,185,129,0.25)] transition-colors"
+                  title="Ver biblioteca legal del país activo"
+                >
+                  <Gavel size={14} color="#34d399" weight="bold" />
+                  <span className="text-[0.75rem] font-[800] text-[#34d399] uppercase letter-spacing-[0.5px]">
+                    {countryNorms.flag} {countryNorms.name} · {countryNorms.general} / {countryNorms.decree}
+                  </span>
+                </div>
               </div>
               
               <div style={{ backdropFilter: isMobile ? 'none' : 'blur(12px)' }} className="flex items-center gap-[1.5rem] bg-[rgba(255,255,255,0.03)] border-[1px_solid_rgba(255,255,255,0.08)] p-[1.5rem] rounded-[24px] box-shadow-[0_20px_40px_rgba(0,0,0,0.2)] relative overflow-[hidden]">
                 <div className="absolute top-[-50%] left-[-10%] w-[150px] h-[150px] bg-[radial-gradient(circle,_rgba(59,130,246,0.15)_0%,_transparent_70%)] pointer-events-[none]" />
                 
-                <div className="w-[70px] h-[70px] bg-[linear-gradient(135deg,_rgba(255,255,255,0.1),_rgba(255,255,255,0.02))] border-[1px_solid_rgba(255,255,255,0.2)] rounded-[18px] p-[12px] flex-shrink-[0] box-shadow-[0_8px_16px_rgba(0,0,0,0.2)]">
-                  <img src="/logo.png" alt="Logo" className="w-[100%] h-[100%] object-fit-[contain]" />
+                <div className="w-[115px] h-[64px] bg-transparent flex items-center justify-center flex-shrink-[0]">
+                  <img src="/logo.png?v=3" alt="Logo" className="w-[100%] h-[100%] object-fit-[contain] filter-[drop-shadow(0_4px_10px_rgba(0,0,0,0.45))]" />
                 </div>
                 <div className="relative z-[1]">
                   <h1 className="text-[clamp(1.8rem,_4vw,_2.4rem)] font-[900] text-[white] m-[0] line-height-[1.1] font-family-[var(--font-heading)]">
-                    Hola, {userName} {isSubscribed && <Crown size={24} color="#f59e0b" weight="fill" className="display-[inline] vertical-align-[middle] ml-[0.5rem] filter-[drop-shadow(0_2px_8px_rgba(245,158,11,0.4))]" />}
+                    {t('home.hello')}, {userName} {isSubscribed && <Crown size={24} color="#f59e0b" weight="fill" className="display-[inline] vertical-align-[middle] ml-[0.5rem] filter-[drop-shadow(0_2px_8px_rgba(245,158,11,0.4))]" />}
                   </h1>
                   <p className="text-[rgba(255,255,255,0.6)] text-[1.05rem] m-[0.4rem_0_0] font-[500]">
-                    Tu centro de control de Higiene y Seguridad con IA.
+                    {t('home.subtitle')}
                   </p>
                 </div>
               </div>
@@ -620,13 +645,13 @@ export default function Home(): React.ReactElement {
                   <div>
                     <div className="display-[inline-flex] items-center gap-[0.4rem] bg-[rgba(168,85,247,0.15)] border-[1px_solid_rgba(168,85,247,0.3)] rounded-[100px] p-[0.25rem_0.7rem] mb-[0.7rem]">
                       <Sparkle size={12} color="#c084fc" weight="fill" />
-                      <span className="text-[0.65rem] font-[800] text-[#c084fc] uppercase letter-spacing-[1px]">IA · Hoy</span>
+                      <span className="text-[0.65rem] font-[800] text-[#c084fc] uppercase letter-spacing-[1px]">{t('home.ai_today')}</span>
                     </div>
                     <h2 className="text-[clamp(1.3rem,_2.5vw,_1.7rem)] font-[900] text-[white] m-[0] line-height-[1.1] font-family-[var(--font-heading)]">
-                      Resumen Diario
+                      {t('home.daily_summary')}
                     </h2>
                     <p className="text-[rgba(255,255,255,0.55)] text-[0.85rem] m-[0.3rem_0_0] font-[500]">
-                      Consejos y análisis de tu asistente
+                      {t('home.daily_subtitle')}
                     </p>
                   </div>
                   <div className="w-[42px] h-[42px] rounded-[14px] bg-[linear-gradient(135deg,_rgba(139,92,246,0.3),_rgba(59,130,246,0.2))] border-[1px_solid_rgba(139,92,246,0.3)] flex items-center justify-center flex-shrink-[0]">
@@ -842,16 +867,16 @@ export default function Home(): React.ReactElement {
                 <div className="flex items-center justify-between mb-[0.8rem]">
                   <h3 className="m-0 text-[0.95rem] font-[800] text-[white] flex items-center gap-[0.4rem]">
                     <Star size={16} color="#f59e0b" weight="fill" />
-                    Mis Favoritos
+                    {t('home.my_favorites')}
                   </h3>
                   <span className="text-[0.65rem] text-[rgba(255,255,255,0.4)] font-[600]">
-                    {favorites.length} fijados
+                    {favorites.length} {t('home.pinned')}
                   </span>
                 </div>
                 <div className="grid gap-[0.5rem] flex-[1]" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))' }}>
-                  {(quickLinks.filter((l) => favorites.includes(l.to)).length > 0
-                    ? quickLinks.filter((l) => favorites.includes(l.to)).slice(0, 8)
-                    : quickLinks.filter((l) => l.featured).slice(0, 6)
+                  {(localizedQuickLinks.filter((l) => favorites.includes(l.to)).length > 0
+                    ? localizedQuickLinks.filter((l) => favorites.includes(l.to)).slice(0, 8)
+                    : localizedQuickLinks.filter((l) => l.featured).slice(0, 6)
                   ).map((link) => {
                     const hexToRgb = (hex: string) => {
                       const m = hex.replace('#', '').match(/.{2}/g);
@@ -893,12 +918,15 @@ export default function Home(): React.ReactElement {
             <div className="flex flex-col gap-[1.5rem] mb-[2rem]" style={{ minWidth: 0 }}>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-[1rem]">
                 <div>
-                  <h2 className="text-[clamp(1.5rem,_4vw,_2rem)] font-[900] m-[0] text-[var(--color-text)] flex items-center gap-[0.6rem] letter-spacing-[-1px]">
+                  <h2 className="text-[clamp(1.5rem,_4vw,_2rem)] font-[900] m-[0] text-[var(--color-text)] flex items-center gap-[0.6rem] letter-spacing-[-1px] flex-wrap">
                     <Star size={28} weight="fill" color="#f59e0b" />
-                    Bóveda Pro
+                    <span>{t('home.pro_vault')}</span>
+                    <span className="text-xs font-extrabold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                      {countryNorms.flag} {countryNorms.name} ({countryNorms.general})
+                    </span>
                   </h2>
                   <p className="m-[0.3rem_0_0] text-[var(--color-text-muted)] text-[0.95rem]">
-                    Herramientas y módulos avanzados para tu gestión de seguridad.
+                    {t('home.pro_vault_sub')}
                   </p>
                 </div>
               </div>
@@ -909,7 +937,7 @@ export default function Home(): React.ReactElement {
                     onClick={() => setActiveCategory('all')}
                     style={{ scrollSnapAlign: 'start' }}
                     className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'all' ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-[0_4px_15px_rgba(59,130,246,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] hover:border-[rgba(59,130,246,0.3)] shadow-xs'}`}>
-                    ✨ Todos
+                    {t('home.cat_all')}
                   </button>
 
                   <button
@@ -917,28 +945,28 @@ export default function Home(): React.ReactElement {
                     style={{ scrollSnapAlign: 'start' }}
                     className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] flex items-center gap-1.5 ${activeCategory === 'fav' ? 'bg-amber-500 text-white border-amber-500 shadow-[0_4px_15px_rgba(245,158,11,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-amber-400 shadow-xs'}`}>
                     <Star size={14} weight="fill" className="text-amber-400" />
-                    <span>Favoritos ({favorites.length})</span>
+                    <span>{t('home.cat_fav')} ({favorites.length})</span>
                   </button>
 
                   <button
                     onClick={() => setActiveCategory('new')}
                     style={{ scrollSnapAlign: 'start' }}
                     className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] flex items-center gap-1.5 ${activeCategory === 'new' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-500 shadow-[0_4px_15px_rgba(59,130,246,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>
-                    <span>🚀 Nuevos 2026</span>
+                    <span>{t('home.cat_new')}</span>
                   </button>
 
-                  {categories.includes('docs') && <button onClick={() => setActiveCategory('docs')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'docs' ? 'bg-[#10b981] text-white border-[#10b981] shadow-[0_4px_15px_rgba(16,185,129,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>📋 Docs</button>}
-                  {categories.includes('critical') && <button onClick={() => setActiveCategory('critical')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'critical' ? 'bg-[#ef4444] text-white border-[#ef4444] shadow-[0_4px_15px_rgba(239,68,68,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>🛡️ Crítico</button>}
-                  {categories.includes('specific') && <button onClick={() => setActiveCategory('specific')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'specific' ? 'bg-[#f59e0b] text-white border-[#f59e0b] shadow-[0_4px_15px_rgba(245,158,11,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>⚙️ Específicos</button>}
-                  {categories.includes('management') && <button onClick={() => setActiveCategory('management')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'management' ? 'bg-[#3b82f6] text-white border-[#3b82f6] shadow-[0_4px_15px_rgba(59,130,246,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>📊 Gestión</button>}
-                  {categories.includes('ia') && <button onClick={() => setActiveCategory('ia')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'ia' ? 'bg-[#a855f7] text-white border-[#a855f7] shadow-[0_4px_15px_rgba(168,85,247,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>🤖 IA</button>}
+                  {categories.includes('docs') && <button onClick={() => setActiveCategory('docs')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'docs' ? 'bg-[#10b981] text-white border-[#10b981] shadow-[0_4px_15px_rgba(16,185,129,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>{t('home.cat_docs')}</button>}
+                  {categories.includes('critical') && <button onClick={() => setActiveCategory('critical')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'critical' ? 'bg-[#ef4444] text-white border-[#ef4444] shadow-[0_4px_15px_rgba(239,68,68,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>{t('home.cat_critical')}</button>}
+                  {categories.includes('specific') && <button onClick={() => setActiveCategory('specific')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'specific' ? 'bg-[#f59e0b] text-white border-[#f59e0b] shadow-[0_4px_15px_rgba(245,158,11,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>{t('home.cat_specific')}</button>}
+                  {categories.includes('management') && <button onClick={() => setActiveCategory('management')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'management' ? 'bg-[#3b82f6] text-white border-[#3b82f6] shadow-[0_4px_15px_rgba(59,130,246,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>{t('home.cat_management')}</button>}
+                  {categories.includes('ia') && <button onClick={() => setActiveCategory('ia')} style={{ scrollSnapAlign: 'start' }} className={`whitespace-nowrap px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] ${activeCategory === 'ia' ? 'bg-[#a855f7] text-white border-[#a855f7] shadow-[0_4px_15px_rgba(168,85,247,0.35)] -translate-y-0.5' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] shadow-xs'}`}>{t('home.cat_ia')}</button>}
                   
                   <button 
                     onClick={handleToggleInspectorMode}
                     style={{ scrollSnapAlign: 'start' }}
                     className={`flex items-center gap-[0.5rem] px-[1.1rem] py-[0.55rem] rounded-[100px] font-[800] text-[0.85rem] transition-all flex-shrink-0 cursor-pointer border-[1px] outline-none ${isInspectorMode ? 'bg-[#10b981] text-white border-[#10b981] shadow-[0_4px_15px_rgba(16,185,129,0.35)] transform translate-y-[-2px]' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] hover:border-[rgba(16,185,129,0.3)] hover:translate-y-[-1px] shadow-sm'}`}
                   >
-                    <span>Modo Campo</span>
+                    <span>{t('home.field_mode')}</span>
                     <div className={`relative w-[30px] h-[18px] rounded-full transition-colors ${isInspectorMode ? 'bg-[rgba(255,255,255,0.4)]' : 'bg-[rgba(100,116,139,0.3)]'}`}>
                       <div className={`absolute top-[2px] left-[2px] w-[14px] h-[14px] rounded-full bg-[white] transition-transform ${isInspectorMode ? 'translate-x-[12px]' : 'translate-x-[0px]'} shadow-[0_1px_3px_rgba(0,0,0,0.3)]`} />
                     </div>

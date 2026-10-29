@@ -7,10 +7,12 @@ import toast from 'react-hot-toast';
 import { safeGetLocalStorage } from '../utils/storageHelper';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { getCountryNormativa } from '../data/legislationData';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Profile(): React.ReactElement | null {
   const navigate = useNavigate();
   const { isPro } = usePaywall();
+  const { selectedFramework } = useLanguage();
   useDocumentTitle('Mi Perfil');
   const [linkCopied, setLinkCopied] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -29,19 +31,21 @@ export default function Profile(): React.ReactElement | null {
 
   const [isSubscribed, setIsSubscribed] = useState(false);
 
-  const [userCountry, setUserCountry] = useState('argentina');
+  const [userCountry, setUserCountry] = useState(selectedFramework || 'argentina');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const parsed = safeGetLocalStorage<any>('personalData', null);
       if (parsed) {
         setUserData(parsed);
-        setUserCountry(parsed.country || 'argentina');
+        setUserCountry(selectedFramework || parsed.country || 'argentina');
+      } else if (selectedFramework) {
+        setUserCountry(selectedFramework);
       }
       const proStatus = isPro;
       setIsSubscribed(proStatus);
     }
-  }, [isPro]);
+  }, [isPro, selectedFramework]);
 
   const countryNorms = getCountryNormativa(userCountry);
 
@@ -110,8 +114,8 @@ export default function Profile(): React.ReactElement | null {
 
                 <div className="relative z-[1]">
                     <img
-            src="/logo.png"
-            alt="Logo de Asistente HYS" className="w-[auto] h-[40px] m-[0_auto_2rem_auto] block filter-[drop-shadow(0_4px_6px_rgba(0,0,0,0.05))]" />
+                      src="/logo.png?v=3"
+                      alt="Logo de Asistente HYS" className="w-[auto] h-[52px] m-[0_auto_2rem_auto] block object-contain filter-[drop-shadow(0_4px_8px_rgba(0,0,0,0.25))]" />
 
 
 

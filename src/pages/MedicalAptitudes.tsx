@@ -3,7 +3,7 @@ import {
   Shield, Plus, Search, Calendar, HeartPulse, UserCheck, AlertTriangle, 
   FileText, CheckCircle2, XCircle, QrCode, ExternalLink, Trash2, Filter, 
   Building2, User, HardHat, FileSpreadsheet, Sparkles, Zap, Truck, ArrowUpRight, ArrowLeft, X,
-  Download, Clock, AlertOctagon, Info
+  Download, Clock, AlertOctagon, Info, Pencil, Printer, Eye
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -15,6 +15,9 @@ import toast from 'react-hot-toast';
 import { QRCodeSVG } from 'qrcode.react';
 import ShareModal from '../components/ShareModal';
 import MedicalPdfGenerator from '../components/MedicalPdfGenerator';
+import PdfSignatures from '../components/PdfSignatures';
+import SignatureCanvas from '../components/SignatureCanvas';
+import { printElementAsDocument } from '../utils/pdfHelper';
 import type { MedicalRecord, MedicalExamType, MedicalFitnessVerdict } from '../types/medical';
 import { 
   evaluateMedicalFitnessCompliance, 
@@ -34,6 +37,25 @@ export default function MedicalAptitudes() {
   const [isMobile, setIsMobile] = useState(false);
   const [qrModal, setQrModal] = useState<any>(null);
   const [shareItem, setShareItem] = useState<any>(null);
+  const [previewItem, setPreviewItem] = useState<any>(null);
+  const [showSignatures, setShowSignatures] = useState({
+    operator: true,
+    supervisor: true,
+    professional: true
+  });
+  const [professional, setProfessional] = useState<{
+    name: string;
+    license: string;
+    title: string;
+    signature: string | null;
+    stamp: string | null;
+  }>({
+    name: '',
+    license: '',
+    title: '',
+    signature: null,
+    stamp: null
+  });
 
   const defaultExamDate = new Date().toISOString().split('T')[0];
   const defaultExpDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -60,6 +82,13 @@ export default function MedicalAptitudes() {
     allowConfined: boolean;
     allowMachinery: boolean;
     allowElectrical: boolean;
+    operatorSignature: string;
+    supervisorSignature: string;
+    professionalSignature: string;
+    professionalStamp: string;
+    professionalName: string;
+    professionalLicense: string;
+    professionalTitle: string;
   }>({
     id: '',
     workerName: '',
@@ -81,7 +110,14 @@ export default function MedicalAptitudes() {
     allowHeight: false,
     allowConfined: false,
     allowMachinery: false,
-    allowElectrical: false
+    allowElectrical: false,
+    operatorSignature: '',
+    supervisorSignature: '',
+    professionalSignature: '',
+    professionalStamp: '',
+    professionalName: '',
+    professionalLicense: '',
+    professionalTitle: ''
   });
 
   useEffect(() => {
@@ -110,6 +146,42 @@ export default function MedicalAptitudes() {
         setLegajos(JSON.parse(legajosCache));
       } catch (e) {}
     }
+
+    // Load Professional Profile & Digitized Signature/Stamp
+    try {
+      const lsPersonal = localStorage.getItem('personalData');
+      const lsStamp = localStorage.getItem('signatureStampData');
+      const legacySig = localStorage.getItem('capturedSignature');
+      let name = '';
+      let license = '';
+      let title = '';
+      let signature: string | null = null;
+      let stamp: string | null = null;
+
+      if (lsPersonal) {
+        const pd = JSON.parse(lsPersonal);
+        name = pd.name || pd.fullName || '';
+        license = pd.license || pd.matricula || '';
+        title = pd.profession || pd.profesion || pd.title || '';
+      }
+      if (lsStamp) {
+        const sd = JSON.parse(lsStamp);
+        signature = sd.signature || null;
+        stamp = sd.stamp || null;
+      } else if (legacySig) {
+        signature = legacySig;
+      }
+
+      setProfessional({ name, license, title, signature, stamp });
+      setFormData(prev => ({
+        ...prev,
+        professionalName: prev.professionalName || name,
+        professionalLicense: prev.professionalLicense || license,
+        professionalTitle: prev.professionalTitle || title,
+        professionalSignature: prev.professionalSignature || signature || '',
+        professionalStamp: prev.professionalStamp || stamp || ''
+      }));
+    } catch (e) {}
   }, []);
 
   // Auto-calculate 1 year expiration when examDate changes
@@ -157,7 +229,13 @@ export default function MedicalAptitudes() {
 
     const newRecord: MedicalRecord = {
       ...formData,
-      id: formData.id || `MED-${Date.now()}`
+      id: formData.id || `MED-${Date.now()}`,
+      professionalSignature: formData.professionalSignature || professional.signature || '',
+      professionalStamp: formData.professionalStamp || professional.stamp || '',
+      professionalName: formData.professionalName || professional.name || '',
+      professionalLicense: formData.professionalLicense || professional.license || '',
+      professionalTitle: formData.professionalTitle || professional.title || '',
+      showSignatures
     };
 
     let updated: MedicalRecord[];
@@ -187,6 +265,7 @@ export default function MedicalAptitudes() {
   };
 
   const resetForm = () => {
+    setShowSignatures({ operator: true, supervisor: true, professional: true });
     setFormData({
       id: '',
       workerName: '',
@@ -208,7 +287,14 @@ export default function MedicalAptitudes() {
       allowHeight: false,
       allowConfined: false,
       allowMachinery: false,
-      allowElectrical: false
+      allowElectrical: false,
+      operatorSignature: '',
+      supervisorSignature: '',
+      professionalSignature: professional.signature || '',
+      professionalStamp: professional.stamp || '',
+      professionalName: professional.name || '',
+      professionalLicense: professional.license || '',
+      professionalTitle: professional.title || ''
     });
   };
 
@@ -512,6 +598,14 @@ _Generado con Asistente H&S - Conforme Res. SRT 37/2010 y Ley 19.587_`;
       accessor: 'id',
       render: (item: any) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          {/* Botón Vista Previa A4 */}
+          <button 
+            onClick={() => setPreviewItem(item)} 
+            title="Vista Previa e Impresión A4"
+            style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Eye size={12} /> Previa
+          </button>
+
           {/* Botón PDF Certificado */}
           <button 
             onClick={() => setShareItem(item)} 
@@ -522,7 +616,20 @@ _Generado con Asistente H&S - Conforme Res. SRT 37/2010 y Ley 19.587_`;
 
           {/* Botón Editar con fondo Amarillo/Ámbar sólido */}
           <button 
-            onClick={() => { setFormData(item); setShowForm(true); }} 
+            onClick={() => {
+              setShowSignatures(item.showSignatures || { operator: true, supervisor: true, professional: true });
+              setFormData({
+                ...item,
+                operatorSignature: item.operatorSignature || '',
+                supervisorSignature: item.supervisorSignature || '',
+                professionalSignature: item.professionalSignature || professional.signature || '',
+                professionalStamp: item.professionalStamp || professional.stamp || '',
+                professionalName: item.professionalName || professional.name || '',
+                professionalLicense: item.professionalLicense || professional.license || '',
+                professionalTitle: item.professionalTitle || professional.title || ''
+              });
+              setShowForm(true);
+            }} 
             style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
             <FileText size={12} /> Editar
           </button>
@@ -1139,13 +1246,165 @@ _Generado con Asistente H&S - Conforme Res. SRT 37/2010 y Ley 19.587_`;
               />
             </div>
 
-            {/* Form Actions - Botones Cancelar y Guardar destacados */}
+            {/* ─── SECCIÓN 4: FIRMAS DIGITALIZADAS Y AUTORIZACIONES (ESTILO ATS) ─── */}
+            <div className="pt-6 border-t border-slate-200 dark:border-slate-700 space-y-6">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
+                    <Pencil size={20} />
+                  </div>
+                  <div>
+                    <h4 className="m-0 font-black text-sm uppercase text-slate-900 dark:text-white tracking-tight">
+                      4. Firmas Digitalizadas y Validación Documental
+                    </h4>
+                    <p className="m-0 text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                      Si el obrero no está presente ahora, su recuadro queda en blanco para que firme luego en el lugar. El Profesional H&amp;S queda firmado digitalmente.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Selector de Firmas a Incluir en el Certificado */}
+              <div className="p-5 bg-slate-100/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl flex flex-col gap-3 items-center justify-center">
+                <div className="text-slate-800 dark:text-slate-200 font-extrabold text-xs uppercase tracking-wider">
+                  INCLUIR FIRMAS EN EL CERTIFICADO IMPRESO / PDF:
+                </div>
+                <div className="flex gap-3 flex-wrap justify-center">
+                  {[
+                    { id: 'operator', label: 'Trabajador / Obrero (Opcional en obra)' },
+                    { id: 'supervisor', label: 'Médico Evaluador Laboral' },
+                    { id: 'professional', label: 'Profesional H&S (Digitalizada)' }
+                  ].map((sig) => {
+                    const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                    return (
+                      <label
+                        key={sig.id}
+                        className="flex items-center gap-2 cursor-pointer select-none px-4 py-2 rounded-full font-extrabold text-xs transition-all whitespace-nowrap"
+                        style={{
+                          border: isChecked ? '1.5px solid #059669' : '1px solid #cbd5e1',
+                          background: isChecked ? 'rgba(5, 150, 105, 0.12)' : 'transparent',
+                          color: isChecked ? '#059669' : '#64748b'
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))}
+                          className="hidden"
+                        />
+                        <div
+                          style={{
+                            border: isChecked ? '2px solid #059669' : '2px solid #94a3b8',
+                            background: isChecked ? '#059669' : 'transparent'
+                          }}
+                          className="w-4 h-4 rounded flex items-center justify-center transition-all"
+                        >
+                          {isChecked && <CheckCircle2 size={12} color="white" />}
+                        </div>
+                        {sig.label}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Vista Previa Visual en Vivo de los Recuadros de Firma en el Contenido */}
+              <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs">
+                <div className="text-[11px] font-black uppercase tracking-wider text-slate-400 text-center mb-1">
+                  VISTA PREVIA DE FIRMAS EN EL DOCUMENTO
+                </div>
+                <PdfSignatures
+                  data={{
+                    ...formData,
+                    showSignatures,
+                    professionalSignature: formData.professionalSignature || professional.signature,
+                    professionalStamp: formData.professionalStamp || professional.stamp,
+                    professionalName: formData.professionalName || professional.name,
+                    professionalLicense: formData.professionalLicense || professional.license,
+                    professionalTitle: formData.professionalTitle || professional.title
+                  }}
+                  box1={showSignatures.operator ? {
+                    title: 'NOTIFICACIÓN DEL TRABAJADOR',
+                    subtitle: (formData.workerName || 'FIRMA EN LUGAR / ACLARACIÓN').toUpperCase(),
+                    signatureUrl: formData.operatorSignature || null,
+                    isProfessional: false
+                  } : null}
+                  box2={showSignatures.supervisor ? {
+                    title: 'MÉDICO EVALUADOR LABORAL',
+                    subtitle: (formData.doctor || 'FIRMA Y SELLO MÉDICO').toUpperCase(),
+                    signatureUrl: formData.supervisorSignature || null,
+                    license: formData.doctorLicense || null,
+                    isProfessional: false
+                  } : null}
+                  box3={showSignatures.professional ? {
+                    title: (formData.professionalTitle || professional.title || 'PROFESIONAL HIGIENE Y SEGURIDAD').toUpperCase(),
+                    subtitle: (formData.professionalName || professional.name || 'FIRMA Y SELLO PROFESIONAL').toUpperCase(),
+                    signatureUrl: formData.professionalSignature || professional.signature || null,
+                    stampUrl: formData.professionalStamp || professional.stamp || null,
+                    isProfessional: true,
+                    license: formData.professionalLicense || professional.license || null,
+                    profession: formData.professionalTitle || professional.title || null
+                  } : null}
+                />
+              </div>
+
+              {/* Paneles Interactivos de Firma Digital en Pantalla */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
+                {showSignatures.operator && (
+                  <div className="p-4 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xs">
+                    <SignatureCanvas
+                      onSave={(sig) => setFormData((prev) => ({ ...prev, operatorSignature: sig || '' }))}
+                      initialImage={formData.operatorSignature}
+                      label="Firma del Trabajador (Opcional — en blanco si firma en obra)"
+                    />
+                  </div>
+                )}
+
+                {showSignatures.supervisor && (
+                  <div className="p-4 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xs">
+                    <SignatureCanvas
+                      onSave={(sig) => setFormData((prev) => ({ ...prev, supervisorSignature: sig || '' }))}
+                      initialImage={formData.supervisorSignature}
+                      label="Firma del Médico Laboral (Opcional)"
+                    />
+                  </div>
+                )}
+
+                {showSignatures.professional && (
+                  <div className="p-4 bg-emerald-50/40 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl shadow-xs">
+                    <SignatureCanvas
+                      onSave={(sig) => setFormData((prev) => ({ ...prev, professionalSignature: sig || '' }))}
+                      initialImage={formData.professionalSignature || professional.signature || ''}
+                      label={`Firma Profesional H&S (${formData.professionalName || professional.name || 'Actuante'})`}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Form Actions - Botones Cancelar, Vista Previa/Imprimir y Guardar destacados */}
             <div className="flex flex-wrap items-center justify-end gap-3 pt-6 border-t border-slate-200 dark:border-slate-700">
               <button 
                 type="button"
                 onClick={() => { setShowForm(false); resetForm(); }} 
                 style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '12px 24px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)' }}>
                 <ArrowLeft size={18} /> Cancelar / Volver
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewItem({
+                  ...formData,
+                  id: formData.id || `MED-${Date.now()}`,
+                  professionalSignature: formData.professionalSignature || professional.signature || '',
+                  professionalStamp: formData.professionalStamp || professional.stamp || '',
+                  professionalName: formData.professionalName || professional.name || '',
+                  professionalLicense: formData.professionalLicense || professional.license || '',
+                  professionalTitle: formData.professionalTitle || professional.title || '',
+                  showSignatures
+                })}
+                style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '12px 24px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(2, 132, 199, 0.3)' }}
+              >
+                <Printer size={18} /> Vista Previa / Imprimir A4
               </button>
               <button 
                 type="button"
@@ -1361,6 +1620,54 @@ _Generado con Asistente H&S - Conforme Res. SRT 37/2010 y Ley 19.587_`;
           </div>
         )}
 
+        {/* Modal de Vista Previa A4 e Impresión Directa */}
+        {previewItem && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in no-print">
+            <div className="relative w-full max-w-[920px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl">
+                    <FileText size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-bold text-white leading-tight m-0">
+                      Vista Previa de Impresión A4 (1 Hoja)
+                    </h2>
+                    <p className="text-xs text-slate-400 m-0">
+                      Certificado de Aptitud Médica • {previewItem.workerName || 'Trabajador'} (DNI: {previewItem.dni || '-'})
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => printElementAsDocument('pdf-modal-preview-medical', `Aptitud_Medica_${previewItem.workerName || 'Trabajador'}`)}
+                    style={{ backgroundColor: '#f59e0b', color: '#0f172a', border: 'none', padding: '8px 16px', fontSize: '12px', fontWeight: '900', borderRadius: '10px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                  >
+                    <Printer size={16} /> Imprimir / PDF
+                  </button>
+                  <button
+                    onClick={() => setPreviewItem(null)}
+                    className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer bg-transparent border-none"
+                    title="Cerrar vista previa"
+                  >
+                    <XCircle size={20} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/70 flex justify-center">
+                <div className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
+                  <MedicalPdfGenerator
+                    medicalData={previewItem}
+                    pdfElementId="pdf-modal-preview-medical"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Share & PDF Modal */}
         {shareItem && (
           <ShareModal
@@ -1376,7 +1683,7 @@ _Generado con Asistente H&S - Conforme Res. SRT 37/2010 y Ley 19.587_`;
         )}
 
         <div className="ats-pdf-offscreen" style={{ position: 'absolute', left: '-9999px', top: '-9999px' }} aria-hidden="true">
-          <MedicalPdfGenerator medicalData={shareItem} />
+          <MedicalPdfGenerator medicalData={shareItem} pdfElementId="pdf-content" />
         </div>
 
       </div>

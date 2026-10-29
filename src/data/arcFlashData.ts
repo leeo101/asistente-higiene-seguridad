@@ -37,9 +37,17 @@ export interface ArcFlashPermitData {
   electricianLicense?: string;
   supervisorLicense?: string;
   plantManager?: string;
+  plantManagerSector?: string;
   electricianSignature?: string | null;
   supervisorSignature?: string | null;
   plantManagerSignature?: string | null;
+  professionalStamp?: string | null;
+  professionalTitle?: string;
+  showSignatures?: {
+    operator: boolean;
+    supervisor: boolean;
+    professional: boolean;
+  };
   status: 'active' | 'completed' | 'suspended';
   notes?: string;
   createdAt: string;

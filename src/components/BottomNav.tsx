@@ -5,6 +5,7 @@ import {
   Camera, ShieldCheck, Key, Warning, QrCode, ClipboardText 
 } from '@phosphor-icons/react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface BottomNavProps {
   onMenuClick: () => void;
@@ -74,6 +75,7 @@ export default function BottomNav({ onMenuClick }: BottomNavProps): React.ReactE
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const { t, adaptText } = useLanguage();
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
@@ -117,13 +119,13 @@ export default function BottomNav({ onMenuClick }: BottomNavProps): React.ReactE
   };
 
   const navLeft = [
-    { to: '/', icon: <House size={22} weight={location.pathname === '/' ? 'fill' : 'regular'} />, label: 'Inicio' },
-    { to: '/mensajes', icon: <ChatText size={22} weight={location.pathname.includes('/mensajes') || location.pathname.includes('/chat') ? 'fill' : 'regular'} />, label: 'Mensajes' },
+    { to: '/', icon: <House size={22} weight={location.pathname === '/' ? 'fill' : 'regular'} />, label: t('nav.home') },
+    { to: '/mensajes', icon: <ChatText size={22} weight={location.pathname.includes('/mensajes') || location.pathname.includes('/chat') ? 'fill' : 'regular'} />, label: t('nav.messages') },
   ];
 
   const navRight = [
-    { to: '/ai-advisor', icon: <Robot size={22} weight={location.pathname.includes('/ai-advisor') ? 'fill' : 'regular'} />, label: 'Asesor IA' },
-    { to: '/dashboard', icon: <ChartPieSlice size={22} weight={location.pathname === '/dashboard' ? 'fill' : 'regular'} />, label: 'KPIs' },
+    { to: '/ai-advisor', icon: <Robot size={22} weight={location.pathname.includes('/ai-advisor') ? 'fill' : 'regular'} />, label: t('nav.ai_advisor') },
+    { to: '/dashboard', icon: <ChartPieSlice size={22} weight={location.pathname === '/dashboard' ? 'fill' : 'regular'} />, label: t('nav.kpis') },
   ];
 
   return (
@@ -150,8 +152,8 @@ export default function BottomNav({ onMenuClick }: BottomNavProps): React.ReactE
         
         <div className="flex items-center justify-between mb-4">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400 block">Acciones de Campo</span>
-            <h3 className="text-lg font-bold text-white m-0">Acceso Rápido In Situ</h3>
+            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400 block">{t('nav.field_actions')}</span>
+            <h3 className="text-lg font-bold text-white m-0">{t('nav.quick_access')}</h3>
           </div>
           <button 
             onClick={() => setIsActionSheetOpen(false)}
@@ -175,8 +177,8 @@ export default function BottomNav({ onMenuClick }: BottomNavProps): React.ReactE
                 {action.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <span className="font-semibold text-sm block text-white truncate leading-snug">{action.label}</span>
-                <span className="text-[11px] text-gray-400 block truncate mt-0.5">{action.desc}</span>
+                <span className="font-semibold text-sm block text-white truncate leading-snug">{adaptText(action.label)}</span>
+                <span className="text-[11px] text-gray-400 block truncate mt-0.5">{adaptText(action.desc)}</span>
               </div>
             </button>
           ))}
@@ -232,7 +234,7 @@ export default function BottomNav({ onMenuClick }: BottomNavProps): React.ReactE
           >
             <Plus size={26} weight="bold" />
           </button>
-          <span className="text-[9px] font-bold text-emerald-400 mt-0.5 uppercase tracking-tighter">Campo</span>
+          <span className="text-[9px] font-bold text-emerald-400 mt-0.5 uppercase tracking-tighter">{t('nav.field')}</span>
         </div>
 
         {/* Lado Derecho */}
@@ -264,7 +266,7 @@ export default function BottomNav({ onMenuClick }: BottomNavProps): React.ReactE
             onClick={() => { triggerHaptic(); onMenuClick(); }}
             className="flex flex-col items-center justify-center bg-transparent border-none text-[var(--color-text-muted,#94a3b8)] w-full h-full gap-1 p-0 cursor-pointer active:scale-95 transition-transform duration-150">
             <List size={22} weight="regular" />
-            <span className="text-[10px] font-[500] tracking-tight">Más</span>
+            <span className="text-[10px] font-[500] tracking-tight">{t('nav.more')}</span>
           </button>
         </div>
       </nav>

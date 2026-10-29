@@ -313,7 +313,7 @@ export default function Subscription(): React.ReactElement | null {
         <div className="lg:col-span-7">
           <div className="flex items-center gap-[1rem] text-[#3b82f6] mb-[1.5rem]">
             <div className="bg-[transparent] rounded-[10px]">
-              <img src="/logo.png" alt="Logo de Asistente H&S" className="w-[48px] h-[48px] object-contain" />
+              <img src="/logo.png" alt="Logo de Asistente H&S" className="h-[48px] w-auto object-contain" />
             </div>
             <span className="font-[800] tracking-widest text-[1.3rem] uppercase text-[var(--color-text)]">ASISTENTE H&S</span>
           </div>

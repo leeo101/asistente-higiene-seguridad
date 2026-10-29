@@ -161,6 +161,7 @@ export default function AuditForm(): React.ReactElement | null {
     title: '',
     auditType: 'internal',
     auditor: '',
+    auditorRole: 'Profesional de Higiene y Seguridad',
     date: new Date().toISOString().split('T')[0],
     location: '',
     objective: '',
@@ -212,15 +213,30 @@ export default function AuditForm(): React.ReactElement | null {
     if (savedData) {
       try {
         const data = JSON.parse(savedData);
+        const userProf = data?.profession || data?.profesion || '';
+        const defaultRole = (userProf.toLowerCase().includes('técnico') || userProf.toLowerCase().includes('tecnico'))
+          ? 'Técnico en Higiene y Seguridad'
+          : 'Profesional de Higiene y Seguridad';
+
         setProfessional({
           name: data?.name || '',
           license: data?.license || '',
           signature: signature,
           stamp: stamp
         });
+
+        setAudit(prev => ({
+          ...prev,
+          auditor: prev.auditor || data?.name || data?.fullName || '',
+          auditorRole: prev.auditorRole || defaultRole,
+          signature: prev.signature || signature || ''
+        }));
       } catch {}
     } else {
       setProfessional((prev) => ({ ...prev, signature, stamp }));
+      if (signature) {
+        setAudit(prev => ({ ...prev, signature: prev.signature || signature }));
+      }
     }
   }, []);
 
@@ -315,9 +331,10 @@ export default function AuditForm(): React.ReactElement | null {
     <>
         <ModuleFormLayout>
             <ModuleFormToolbar
-        title={isEdit ? 'Editar Auditoría' : 'Nueva Auditoría EHS'}
-        subtitle={isEdit ? 'Actualice la información de la auditoría en curso.' : 'Registre una nueva inspección o auditoría para evaluar el cumplimiento de EHS.'}
-        icon={<Shield />} />
+              title={isEdit ? 'Editar Auditoría' : 'Nueva Auditoría EHS'}
+              subtitle={isEdit ? 'Actualice la información de la auditoría en curso.' : 'Registre una nueva inspección o auditoría para evaluar el cumplimiento de EHS según ISO 45001.'}
+              icon={<Shield />}
+              onBack={() => navigate('/audit')} />
       
         <ModuleFormDocument>
             <ModuleFormSection title="Datos de la Auditoría" icon={<FileText />}>
@@ -333,90 +350,72 @@ export default function AuditForm(): React.ReactElement | null {
 
           }} className="grid gap-[1.25rem] bg-[rgba(248,_250,_252,_0.5)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)]">
                         <div style={isMobile ? {} : { gridColumn: 'span 2' }}>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Título de la Auditoría *</label>
-                            <div className="relative w-full">
-                                <input
-                  type="text"
-                  className={`module-form-input has-left-icon ${errors.includes('title') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
-                  style={{ paddingLeft: '3.25rem' }}
-                  value={audit.title}
-                  onChange={(e) => {
-                    setAudit({ ...audit, title: e.target.value });
-                    if (errors.includes('title')) setErrors(errors.filter(err => err !== 'title'));
-                  }}
-                  placeholder="Ej: Auditoría Interna Trimestral - Planta Norte" />
-                
-                                <div className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center pointer-events-none z-10 shadow-sm">
-                                    <FileText size={16} />
-                                </div>
-                            </div>
+                            <label className="flex items-center gap-1.5 mb-2 text-sm font-semibold text-slate-400">
+                              <FileText size={15} className="text-blue-500" /> Título de la Auditoría *
+                            </label>
+                            <input
+                              type="text"
+                              className={`module-form-input ${errors.includes('title') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
+                              style={{ padding: '10px 14px', margin: 0 }}
+                              value={audit.title}
+                              onChange={(e) => {
+                                setAudit({ ...audit, title: e.target.value });
+                                if (errors.includes('title')) setErrors(errors.filter(err => err !== 'title'));
+                              }}
+                              placeholder="Ej: Auditoría Interna Trimestral - Planta Norte" />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Tipo de Auditoría</label>
-                            <div className="relative w-full">
-                                <select
-                  value={audit.auditType}
-                  onChange={(e) => setAudit({ ...audit, auditType: e.target.value })}
-                  className="module-form-input has-left-icon"
-                  style={{ paddingLeft: '3.25rem' }}>
-                                    {AUDIT_TYPES.map((t) => <option key={t.id} value={t.id}>{t.icon} {t.name}</option>)}
-                                </select>
-                                <div className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center pointer-events-none z-10 shadow-sm">
-                                    <Shield size={16} />
-                                </div>
-                            </div>
+                            <label className="flex items-center gap-1.5 mb-2 text-sm font-semibold text-slate-400">
+                              <Shield size={15} className="text-emerald-500" /> Tipo de Auditoría
+                            </label>
+                            <select
+                              value={audit.auditType}
+                              onChange={(e) => setAudit({ ...audit, auditType: e.target.value })}
+                              className="module-form-input"
+                              style={{ padding: '10px 14px', margin: 0, height: '42px', lineHeight: 'normal' }}>
+                                {AUDIT_TYPES.map((t) => <option key={t.id} value={t.id}>{t.icon} {t.name}</option>)}
+                            </select>
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Fecha Planificada *</label>
-                            <div className="relative w-full">
-                                <input
-                  type="date"
-                  value={audit.date}
-                  onChange={(e) => {
-                    setAudit({ ...audit, date: e.target.value });
-                    if (errors.includes('date')) setErrors(errors.filter(err => err !== 'date'));
-                  }}
-                  className={`module-form-input has-left-icon ${errors.includes('date') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
-                  style={{ paddingLeft: '3.25rem' }} />
-                                <div className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-cyan-600 text-white flex items-center justify-center pointer-events-none z-10 shadow-sm">
-                                    <Calendar size={16} />
-                                </div>
-                            </div>
+                            <label className="flex items-center gap-1.5 mb-2 text-sm font-semibold text-slate-400">
+                              <Calendar size={15} className="text-cyan-500" /> Fecha Planificada *
+                            </label>
+                            <input
+                              type="date"
+                              value={audit.date}
+                              onChange={(e) => {
+                                setAudit({ ...audit, date: e.target.value });
+                                if (errors.includes('date')) setErrors(errors.filter(err => err !== 'date'));
+                              }}
+                              className={`module-form-input ${errors.includes('date') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
+                              style={{ padding: '10px 14px', margin: 0 }} />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Auditor Líder *</label>
-                            <div className="relative w-full">
-                                <input
-                  type="text"
-                  value={audit.auditor}
-                  onChange={(e) => {
-                    setAudit({ ...audit, auditor: e.target.value });
-                    if (errors.includes('auditor')) setErrors(errors.filter(err => err !== 'auditor'));
-                  }}
-                  className={`module-form-input has-left-icon ${errors.includes('auditor') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
-                  style={{ paddingLeft: '3.25rem' }}
-                  placeholder="Nombre del auditor" />
-                
-                                <div className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-amber-600 text-white flex items-center justify-center pointer-events-none z-10 shadow-sm">
-                                    <User size={16} />
-                                </div>
-                            </div>
+                            <label className="flex items-center gap-1.5 mb-2 text-sm font-semibold text-slate-400">
+                              <User size={15} className="text-amber-500" /> Auditor Líder / Especialista Actuante *
+                            </label>
+                            <input
+                              type="text"
+                              value={audit.auditor}
+                              onChange={(e) => {
+                                setAudit({ ...audit, auditor: e.target.value });
+                                if (errors.includes('auditor')) setErrors(errors.filter(err => err !== 'auditor'));
+                              }}
+                              className={`module-form-input ${errors.includes('auditor') ? 'border-red-500 bg-red-50 dark:bg-red-900/20 shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
+                              style={{ padding: '10px 14px', margin: 0 }}
+                              placeholder="Nombre del auditor" />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-semibold text-slate-400">Ubicación / Sector</label>
-                            <div className="relative w-full">
-                                <input
-                  type="text"
-                  value={audit.location}
-                  onChange={(e) => setAudit({ ...audit, location: e.target.value })}
-                  className="module-form-input has-left-icon"
-                  style={{ paddingLeft: '3.25rem' }}
-                  placeholder="Ej: Nave de Producción" />
-                
-                                <div className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-rose-600 text-white flex items-center justify-center pointer-events-none z-10 shadow-sm">
-                                    <MapPin size={16} />
-                                </div>
-                            </div>
+                            <label className="flex items-center gap-1.5 mb-2 text-sm font-semibold text-slate-400">
+                              <MapPin size={15} className="text-rose-500" /> Ubicación / Sector
+                            </label>
+                            <input
+                              type="text"
+                              value={audit.location}
+                              onChange={(e) => setAudit({ ...audit, location: e.target.value })}
+                              className="module-form-input"
+                              style={{ padding: '10px 14px', margin: 0 }}
+                              placeholder="Ej: Nave de Producción" />
                         </div>
                     </div>
 
@@ -474,72 +473,83 @@ export default function AuditForm(): React.ReactElement | null {
 
                 }} className="absolute left-[0] top-[0] bottom-[0] w-[4px] transition-[background_0.3s_ease]" />
 
-                                    <div style={{ flexWrap: isMobile ? 'wrap' : 'nowrap' }} className="flex justify-space-between gap-[1rem] mb-[1.25rem] items-start">
-                                        <div style={{ paddingLeft: '0.5rem' }} className="flex-[1] ">
-                                            <div className="flex gap-[0.5rem] flex-wrap items-center mb-[0.5rem]">
-                                                <span className="display-[inline-flex] items-center p-[0.2rem_0.6rem] rounded-[var(--radius-full)] text-[0.65rem] font-[850] bg-[rgba(var(--color-primary-rgb),_0.1)] text-[var(--color-primary)] border-[1px_solid_rgba(var(--color-primary-rgb),_0.2)] uppercase letter-spacing-[0.5px]">
+                                    <div className="flex flex-col sm:flex-row justify-between gap-3 mb-3 items-stretch sm:items-start">
+                                        <div className="flex-1 min-w-0 pl-1 sm:pl-2">
+                                            <div className="flex gap-2 flex-wrap items-center mb-2">
+                                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 uppercase tracking-wider">
                                                     {item.legal}
                                                 </span>
 
-                                                {item.status === 'si' &&
-                      <span className="display-[inline-flex] items-center gap-[0.25rem] p-[0.2rem_0.6rem] rounded-[var(--radius-full)] text-[0.65rem] font-[800] bg-[rgba(16,_185,_129,_0.1)] text-[#10b981] border-[1px_solid_rgba(16,_185,_129,_0.2)] uppercase letter-spacing-[0.5px]">
+                                                {item.status === 'si' && (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
                                                         <CheckCircle2 size={12} /> Conforme
                                                     </span>
-                      }
+                                                )}
 
-                                                {item.status === 'no' &&
-                      <span className="display-[inline-flex] items-center gap-[0.25rem] p-[0.2rem_0.6rem] rounded-[var(--radius-full)] text-[0.65rem] font-[800] bg-[rgba(239,_68,_68,_0.1)] text-[#ef4444] border-[1px_solid_rgba(239,_68,_68,_0.2)] uppercase letter-spacing-[0.5px]">
+                                                {item.status === 'no' && (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 uppercase tracking-wider">
                                                         <AlertTriangle size={12} /> Desvío Detectado
                                                     </span>
-                      }
+                                                )}
                                             </div>
-                                            <div className="font-[700] text-[1rem] text-[var(--color-text)] line-height-[1.4]">{item.question}</div>
+                                            <div className="font-bold text-sm sm:text-base text-slate-800 dark:text-slate-100 leading-snug">{item.question}</div>
                                         </div>
 
                                         {/* Segmented glows selector */}
-                                        <div className="flex bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[var(--radius-lg)] p-[0.25rem] gap-[0.25rem] h-[fit-content]">
+                                        <div className="flex w-full sm:w-auto bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1 gap-1 h-fit shrink-0">
                                             {['si', 'no', 'na'].map((status) => {
-                      const isSelected = item.status === status;
-                      const styles = getStatusStyles(status, isSelected);
-                      return (
-                        <button
-                          key={status}
-                          onClick={() => {
-                            const newChecklist = [...audit.checklist];
-                            newChecklist[idx].status = status;
-                            setAudit({ ...audit, checklist: newChecklist });
-                          }}
-                          style={{
-                            borderColor: styles.borderColor,
-                            background: styles.background,
-                            color: styles.color,
-                            boxShadow: styles.boxShadow,
-                            opacity: styles.opacity
-                          }} className="p-[0.45rem_1rem] text-[0.75rem] font-[800] rounded-[var(--radius-md)] border-[1px_solid] cursor-pointer uppercase transition-[all_0.2s_cubic-bezier(0.4,_0,_0.2,_1)]">
-                          
-                                                        {status === 'si' && '✓ si'}
-                                                        {status === 'no' && '✗ no'}
-                                                        {status === 'na' && '• n/a'}
-                                                    </button>);
-
-                    })}
+                                                const isSelected = item.status === status;
+                                                const styles = getStatusStyles(status, isSelected);
+                                                return (
+                                                    <button
+                                                        key={status}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const newChecklist = [...audit.checklist];
+                                                            newChecklist[idx].status = status;
+                                                            setAudit({ ...audit, checklist: newChecklist });
+                                                        }}
+                                                        style={{
+                                                            borderColor: styles.borderColor,
+                                                            background: styles.background,
+                                                            color: styles.color,
+                                                            boxShadow: styles.boxShadow,
+                                                            opacity: styles.opacity
+                                                        }}
+                                                        className="flex-1 sm:flex-initial text-center py-2 sm:py-1.5 px-2.5 sm:px-4 text-[11px] sm:text-xs font-black rounded-lg border cursor-pointer uppercase transition-all whitespace-nowrap flex items-center justify-center"
+                                                    >
+                                                        {status === 'si' && '✓ CONFORME'}
+                                                        {status === 'no' && '✗ DESVÍO'}
+                                                        {status === 'na' && '• N/A'}
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
                                     </div>
 
                                     {/* Observación / Hallazgo */}
-                                    <div style={{ paddingLeft: '0.5rem' }} className="relative mt-[0.5rem] flex items-center">
+                                    <div className="mt-2 w-full">
                                         <input
-                    type="text"
-                    className="module-form-input pl-10"
-                    value={item.observation}
-                    onChange={(e) => {
-                      const newChecklist = [...audit.checklist];
-                      newChecklist[idx].observation = e.target.value;
-                      setAudit({ ...audit, checklist: newChecklist });
-                    }}
-                    placeholder={item.status === 'no' ? "Describa detalladamente el hallazgo o desvío crítico..." : "Observaciones opcionales..."} />
-                  
-                                        <FileText size={15} className="absolute left-[1.2rem] text-slate-400 pointer-events-none z-10" />
+                                          type="text"
+                                          style={{
+                                            padding: '10px 14px',
+                                            margin: 0,
+                                            marginBottom: 0,
+                                            boxSizing: 'border-box',
+                                            fontSize: '13px'
+                                          }}
+                                          className={`w-full rounded-xl border transition-all outline-none font-medium ${
+                                            item.status === 'no'
+                                              ? 'border-rose-400 bg-rose-50/60 dark:bg-rose-950/30 text-rose-950 dark:text-rose-100 placeholder:text-rose-400 shadow-xs'
+                                              : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:border-blue-500'
+                                          }`}
+                                          value={item.observation}
+                                          onChange={(e) => {
+                                            const newChecklist = [...audit.checklist];
+                                            newChecklist[idx].observation = e.target.value;
+                                            setAudit({ ...audit, checklist: newChecklist });
+                                          }}
+                                          placeholder={item.status === 'no' ? "Describa detalladamente el desvío crítico, evidencia detectada o riesgo..." : "Observaciones o evidencias técnicas opcionales..."} />
                                     </div>
                                 </div>
               )}
@@ -552,42 +562,40 @@ export default function AuditForm(): React.ReactElement | null {
                     <div className="card bg-[rgba(var(--color-primary-rgb),_0.02)] p-[2rem] rounded-[var(--radius-xl)] border-[1px_solid_var(--glass-border)] box-shadow-[inset_0_0_20px_rgba(var(--color-primary-rgb),_0.01)]">
                         <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem]">
                             <div>
-                                <label className="block mb-2 text-sm font-semibold text-slate-400">Participantes en el Cierre</label>
-                                <div className="relative flex items-center">
-                                    <input
-                    type="text"
-                    value={audit.closingMeeting.participants}
-                    onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, participants: e.target.value } })}
-                    className="module-form-input pl-12"
-                    placeholder="Nombres de los presentes" />
-                  
-                                    <User size={16} className="absolute left-3 text-slate-400 pointer-events-none z-10" />
-                                </div>
+                                <label className="flex items-center gap-1.5 mb-2 text-sm font-semibold text-slate-400">
+                                  <User size={15} className="text-blue-500" /> Participantes en el Cierre
+                                </label>
+                                <input
+                                  type="text"
+                                  value={audit.closingMeeting.participants}
+                                  onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, participants: e.target.value } })}
+                                  style={{ padding: '10px 14px', margin: 0, boxSizing: 'border-box' }}
+                                  className="module-form-input"
+                                  placeholder="Nombres de los presentes" />
                             </div>
                             <div>
-                                <label className="block mb-2 text-sm font-semibold text-slate-400">Fecha de Reunión de Cierre</label>
-                                <div className="relative flex items-center">
-                                    <input
-                    type="date"
-                    value={audit.closingMeeting.date}
-                    onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, date: e.target.value } })}
-                    className="module-form-input pl-12" />
-                                    <Calendar size={16} className="absolute left-3 text-slate-400 pointer-events-none z-10" />
-                                </div>
+                                <label className="flex items-center gap-1.5 mb-2 text-sm font-semibold text-slate-400">
+                                  <Calendar size={15} className="text-cyan-500" /> Fecha de Reunión de Cierre
+                                </label>
+                                <input
+                                  type="date"
+                                  value={audit.closingMeeting.date}
+                                  onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, date: e.target.value } })}
+                                  style={{ padding: '10px 14px', margin: 0, boxSizing: 'border-box' }}
+                                  className="module-form-input" />
                             </div>
                             <div style={{ gridColumn: isMobile ? 'span 1' : 'span 2' }}>
-                                <label className="block mb-2 text-sm font-semibold text-slate-400">Conclusiones Generales</label>
-                                <div className="relative">
-                                    <textarea
-                    value={audit.closingMeeting.conclusions}
-                    onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, conclusions: e.target.value } })}
-                    className="module-form-input pl-12 pt-3"
-                    rows={4}
-                    placeholder="Resumen de hallazgos críticos, fortalezas detectadas y cumplimiento general de la norma..." />
-                  
-                                    <Award size={16} className="absolute left-3 top-3 text-slate-400 pointer-events-none z-10" />
-                                </div>
-                              </div>
+                                <label className="flex items-center gap-1.5 mb-2 text-sm font-semibold text-slate-400">
+                                  <Award size={15} className="text-amber-500" /> Conclusiones Generales
+                                </label>
+                                <textarea
+                                  value={audit.closingMeeting.conclusions}
+                                  onChange={(e) => setAudit({ ...audit, closingMeeting: { ...audit.closingMeeting, conclusions: e.target.value } })}
+                                  style={{ padding: '12px 14px', margin: 0, boxSizing: 'border-box' }}
+                                  className="module-form-input"
+                                  rows={4}
+                                  placeholder="Resumen de hallazgos críticos, fortalezas detectadas y cumplimiento general de la norma..." />
+                            </div>
                     </div>
                     </div>
             </ModuleFormSection>
@@ -601,7 +609,7 @@ export default function AuditForm(): React.ReactElement | null {
                             <div className="flex gap-[1rem] flex-wrap justify-center">
                                 {[
                 { id: 'operator', label: 'Persona Auditada' },
-                { id: 'professional', label: 'Auditor Líder' },
+                { id: 'professional', label: (audit.auditorRole || 'Profesional de Higiene y Seguridad') },
                 { id: 'supervisor', label: 'Supervisión / Cierre' }].
                 map((sig) => {
                   const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
@@ -664,8 +672,8 @@ export default function AuditForm(): React.ReactElement | null {
                   isProfessional: false
                 } : null}
                 box2={showSignatures.professional ? {
-                  title: 'AUDITOR LÍDER / ESPECIALISTA',
-                  subtitle: (audit.auditor || professional.name || 'Firma de Especialista').toUpperCase(),
+                  title: (audit.auditorRole || (professional.license ? 'PROFESIONAL DE HIGIENE Y SEGURIDAD' : 'PROFESIONAL DE HIGIENE Y SEGURIDAD')).toUpperCase(),
+                  subtitle: (audit.auditor || professional.name || 'Firma y Sello').toUpperCase(),
                   signatureUrl: audit.signature || professional.signature || null,
                   stampUrl: professional.stamp || null,
                   isProfessional: true,
@@ -698,7 +706,7 @@ export default function AuditForm(): React.ReactElement | null {
                                     <SignatureCanvas
                   onSave={(sig) => setAudit((prev) => ({ ...prev, signature: sig || '' }))}
                   initialImage={audit.signature}
-                  label="Firma de Auditor Líder" />
+                  label={`Firma de ${audit.auditorRole || 'Profesional de Higiene y Seguridad'}`} />
                 
                                 </div>
               }
@@ -719,9 +727,9 @@ export default function AuditForm(): React.ReactElement | null {
 
             <ModuleActionBar
               actions={[
-                { id: 'save', label: 'GUARDAR AUDITORÍA', icon: <Save size={18} />, variant: 'primary', onClick: () => requirePro(handleSave) },
-                { id: 'preview', label: 'PREVISUALIZAR', icon: <Eye size={18} />, variant: 'info', onClick: () => setShowPreviewModal(true) },
-                { id: 'print', label: 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'warning', onClick: () => requirePro(handleDirectPrint) },
+                { id: 'save', label: isMobile ? 'GUARDAR' : 'GUARDAR AUDITORÍA', icon: <Save size={18} />, variant: 'primary', onClick: () => requirePro(handleSave) },
+                { id: 'preview', label: isMobile ? 'PREVIA' : 'PREVISUALIZAR', icon: <Eye size={18} />, variant: 'info', onClick: () => setShowPreviewModal(true) },
+                { id: 'print', label: isMobile ? 'IMPRIMIR' : 'IMPRIMIR PDF', icon: <Printer size={18} />, variant: 'warning', onClick: () => requirePro(handleDirectPrint) },
                 { id: 'share', label: 'COMPARTIR', icon: <Share2 size={18} />, variant: 'secondary', onClick: () => requirePro(() => setShowShareModal(true)) }
               ]}
             />

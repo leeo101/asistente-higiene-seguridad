@@ -1,24 +1,28 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Pickaxe, ArrowLeft, Save, AlertTriangle,
-  ShieldCheck, CheckCircle2, Check, Printer, Download
+  Pickaxe, ArrowLeft, Save, AlertTriangle, ShieldCheck,
+  CheckCircle2, Check, Printer, Download, Eye, Share2,
+  User, Calendar, MapPin, Layers, Ruler, ShieldAlert,
+  Clock, X, Pencil, Award, FileText
 } from 'lucide-react';
-import SignatureCanvas from '../components/SignatureCanvas';
 import { useCompany } from '../contexts/CompanyContext';
 import PremiumHeader from '../components/PremiumHeader';
 import AnimatedPage from '../components/AnimatedPage';
-import {
-  ExcavationPermitData, SOIL_TYPES_INFO
-} from '../data/excavationData';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
+import ExcavationPdf from '../components/ExcavationPdf';
+import ShareModal from '../components/ShareModal';
+import { printElementAsDocument } from '../utils/pdfHelper';
+import { safeGetLocalStorage } from '../utils/storageHelper';
+import { ExcavationPermitData, SOIL_TYPES_INFO } from '../data/excavationData';
 import toast from 'react-hot-toast';
 
 export default function ExcavationSafetyForm(): React.ReactElement | null {
   const navigate = useNavigate();
   const { activeCompany } = useCompany();
 
+  // Estados del permiso
   const [permitNumber] = useState(`EXC-${Date.now().toString().slice(-6)}`);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [location, setLocation] = useState('');
@@ -29,36 +33,103 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
   const [soilType, setSoilType] = useState<'A' | 'B' | 'C'>('B');
   const [shoringType, setShoringType] = useState<any>('trench_box');
 
+  // Puntos críticos de control en terreno (Dec. 911/96 y Res. SRT 550/11)
   const [checklist, setChecklist] = useState({
-    soilClassificationVerified: true,
     utilitiesLocated: true,
+    soilClassificationVerified: true,
     spoilDistance1m: true,
     safeAccessLadders7m: true,
     machineryDistanceSafe: true,
     perimeterBarricades: true,
-    atmosphereTested: false,
-    waterControlInstalled: false
+    waterControlInstalled: false,
+    atmosphereTested: false
   });
 
-  const [competentPersonName, setCompetentPersonName] = useState('');
-  const [supervisorName, setSupervisorName] = useState('');
+  // Datos de responsables
   const [operatorName, setOperatorName] = useState('');
+  const [supervisorName, setSupervisorName] = useState('');
+  const [competentPersonName, setCompetentPersonName] = useState('');
   const [notes, setNotes] = useState('');
 
-  const [competentSig, setCompetentSig] = useState<string | null>(null);
-  const [supervisorSig, setSupervisorSig] = useState<string | null>(null);
+  // Firmas táctiles / digitales
   const [operatorSig, setOperatorSig] = useState<string | null>(null);
+  const [supervisorSig, setSupervisorSig] = useState<string | null>(null);
+  const [competentSig, setCompetentSig] = useState<string | null>(null);
+
+  // Perfil del profesional heredado de localStorage (igual que en ATS)
+  const [professionalName, setProfessionalName] = useState('');
+  const [professionalLicense, setProfessionalLicense] = useState('');
+  const [professionalRole, setProfessionalRole] = useState('Profesional de Higiene y Seguridad');
+  const [professionalSignature, setProfessionalSignature] = useState<string | null>(null);
+  const [professionalStamp, setProfessionalStamp] = useState<string | null>(null);
+
+  // Switches para incluir firmas en el documento oficial (Idéntico a ATS)
+  const [showSignatures, setShowSignatures] = useState({
+    operator: true,
+    professional: true,
+    supervisor: true
+  });
+
+  // Modales de impresión y compartir
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   const isDeep = depthMeters > 1.20;
   const soilInfo = SOIL_TYPES_INFO[soilType];
 
+  // Carga automática del perfil profesional y sellos digitales
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    try {
+      const lsPersonal = localStorage.getItem('personalData');
+      if (lsPersonal) {
+        const pd = JSON.parse(lsPersonal);
+        const name = pd.name || pd.fullName || '';
+        const lic = pd.license || pd.matricula || '';
+        const prof = pd.profession || pd.profesion || '';
+
+        setProfessionalName(name);
+        setProfessionalLicense(lic);
+        setCompetentPersonName(prev => prev || name);
+
+        if (prof.toLowerCase().includes('técnico') || prof.toLowerCase().includes('tecnico')) {
+          setProfessionalRole('Técnico en Higiene y Seguridad');
+        } else {
+          setProfessionalRole('Profesional de Higiene y Seguridad');
+        }
+      }
+
+      // Cargar sello y firma digitalizada guardada
+      const lsStamp = localStorage.getItem('signatureStampData') || localStorage.getItem('signature_stamp_data');
+      if (lsStamp) {
+        const parsed = JSON.parse(lsStamp);
+        if (parsed.signature) {
+          setProfessionalSignature(parsed.signature);
+          setCompetentSig(prev => prev || parsed.signature);
+        }
+        if (parsed.stamp) setProfessionalStamp(parsed.stamp);
+      } else {
+        const legacySig = localStorage.getItem('capturedSignature') || localStorage.getItem('digital_signature');
+        if (legacySig) {
+          setProfessionalSignature(legacySig);
+          setCompetentSig(prev => prev || legacySig);
+        }
+      }
+    } catch (e) {
+      console.warn('Error loading professional data:', e);
+    }
+  }, []);
+
   const checklistItems = [
-    { key: 'utilitiesLocated', label: 'Interferencias subterráneas sondeadas (Gas, Luz, Agua)', desc: 'Planos consultados y cateos manuales realizados antes de ingresar retroexcavadora.', law: 'Dec. 911/96 Art. 140' },
-    { key: 'spoilDistance1m', label: 'Acopio de tierra a más de 1.00 metro del borde superior', desc: 'Previene sobrecarga en la cresta del talud y caída de piedras al fondo de la zanja.', law: 'Dec. 911/96 Art. 143' },
-    { key: 'safeAccessLadders7m', label: 'Escaleras reglamentarias de egreso rápido cada 7.50 metros', desc: 'Sobresaliendo 1.00 m por encima del nivel del terreno y firmemente sujetas.', law: 'Dec. 911/96 Art. 147' },
-    { key: 'machineryDistanceSafe', label: 'Distancia de seguridad para maquinaria pesada / camiones', desc: 'Evita colapso por peso o vibración en cercanías del borde de excavación.', law: 'Res. SRT 550/11' },
-    { key: 'perimeterBarricades', label: 'Vallado perimetral rígido y señalización reflectiva', desc: 'Protección perimetral continua contra caídas de personas y vehículos al pozo.', law: 'Dec. 911/96 Art. 145' },
-    { key: 'atmosphereTested', label: 'Monitoreo de atmósfera en zanja profunda (> 1.20m)', desc: 'Verificación de O2, gases explosivos y monóxido en caso de tuberías subterráneas.', law: 'Dec. 911/96 Art. 150' }
+    { key: 'utilitiesLocated', label: 'Interferencias subterráneas sondeadas (Gas, Luz, Agua, Telecomunicaciones)', desc: 'Planos consultados y cateos manuales preventivos antes de ingresar retroexcavadora.', law: 'Dec. 911/96 Art. 140' },
+    { key: 'soilClassificationVerified', label: 'Clasificación de suelo y ángulo de reposo verificado en terreno', desc: 'Resistencia cohesiva comprobada. Pendiente de talud compatible con el tipo de suelo.', law: 'Res. SRT 550/11 Art. 3' },
+    { key: 'spoilDistance1m', label: 'Acopio de tierra extraída a más de 1.00 m del borde superior de la zanja', desc: 'Previene sobrecarga en la cresta del talud y caída de piedras o terrones al fondo.', law: 'Dec. 911/96 Art. 143' },
+    { key: 'safeAccessLadders7m', label: 'Escaleras reglamentarias de egreso rápido cada 7.50 m (sobresalen 1.00 m)', desc: 'Firmemente amarradas y sobresaliendo un metro por encima del nivel de la coronación.', law: 'Dec. 911/96 Art. 147' },
+    { key: 'machineryDistanceSafe', label: 'Distancia de seguridad para tránsito y radio de giro de maquinaria pesada', desc: 'Evita colapso por peso o vibración en cercanías del borde de excavación.', law: 'Res. SRT 550/11 Art. 5' },
+    { key: 'perimeterBarricades', label: 'Vallado perimetral rígido (1.00 m de altura), rodapié y señalización de advertencia', desc: 'Protección perimetral continua contra caídas de personas y vehículos al pozo.', law: 'Dec. 911/96 Art. 145' },
+    { key: 'waterControlInstalled', label: 'Control de agua, napas freáticas y drenajes o bombas de achique disponibles', law: 'Dec. 911/96 Art. 148', desc: 'Verificación de napas freáticas o escorrentías para evitar ablandamiento del fondo.' },
+    { key: 'atmosphereTested', label: 'Monitoreo de atmósfera peligrosa / gases pesados en zanjas profundas (> 1.20 m)', desc: 'Control de oxígeno (>19.5%) y gases tóxicos en cercanías de cañerías cloacales o de gas.', law: 'Dec. 911/96 Art. 150' }
   ];
 
   const totalChecks = checklistItems.length;
@@ -69,233 +140,92 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
     setChecklist(prev => ({ ...prev, [key]: !(prev as any)[key] }));
   };
 
-  const handlePrintPDF = (downloadOnly: boolean = false) => {
+  // Payload listo para PDF y vista previa
+  const pdfPayload = useMemo(() => ({
+    id: permitNumber,
+    permitNumber,
+    date,
+    location,
+    projectOrSite: projectOrSite || activeCompany?.name || 'Obra en Construcción',
+    companyName: activeCompany?.name || projectOrSite || 'Empresa Principal',
+    depthMeters,
+    widthMeters,
+    lengthMeters,
+    soilType,
+    shoringType,
+    requiresShoring: isDeep,
+    checklist,
+    operatorName: operatorName || 'Operador de Excavación',
+    supervisorName: supervisorName || 'Supervisión de Obra',
+    competentPersonName: competentPersonName || professionalName || 'Especialista en Seguridad',
+    professionalName: professionalName || competentPersonName,
+    professionalLicense: professionalLicense,
+    professionalRole: professionalRole,
+    professionalStamp: professionalStamp,
+    competentPersonSignature: competentSig || professionalSignature,
+    supervisorSignature: supervisorSig,
+    operatorSignature: operatorSig,
+    showSignatures,
+    notes,
+    createdAt: new Date().toISOString()
+  }), [
+    permitNumber, date, location, projectOrSite, activeCompany, depthMeters,
+    widthMeters, lengthMeters, soilType, shoringType, isDeep, checklist,
+    operatorName, supervisorName, competentPersonName, professionalName,
+    professionalLicense, professionalRole, professionalStamp, competentSig,
+    professionalSignature, supervisorSig, operatorSig, showSignatures, notes
+  ]);
+
+  // Impresión directa del documento A4 oficial (con neutralización de offscreen)
+  const handleDirectPrint = async () => {
+    setIsPrinting(true);
+    const toastId = toast.loading('Preparando impresión de permiso oficial...');
     try {
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-
-      // Encabezado Superior Slate Ejecutivo
-      doc.setFillColor(15, 23, 42); // Slate 900
-      doc.rect(0, 0, pageWidth, 28, 'F');
-
-      doc.setTextColor(255, 255, 255);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.text('PERMISO DE EXCAVACIONES Y ZANJAS SEGURAS', 14, 11);
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
-      doc.text('Conforme a Decreto 911/96 Cap. 10, Res. S.R.T. 550/11 y Ley 19.587 de Higiene y Seguridad', 14, 18);
-      doc.setFontSize(7.5);
-      const companyHeader = activeCompany ? activeCompany.name + ' (CUIT: ' + activeCompany.cuit + ')' : (projectOrSite || 'Obra en Construcción');
-      doc.text('Empresa / Obra: ' + companyHeader + ' | Fecha de Habilitación: ' + date, 14, 24);
-
-      // Metadatos
-      doc.setTextColor(15, 23, 42);
-      doc.setFontSize(8.5);
-      doc.setFont('helvetica', 'bold');
-      doc.text('N° Permiso: ' + permitNumber, 14, 34);
-      doc.text('Ubicación: ' + (location || 'Frente de obra principal'), 120, 34);
-
-      // Tabla de Parámetros Geotécnicos
-      const shoringNames: Record<string, string> = {
-        trench_box: 'Caja Metálica Blindada (Trench Box)',
-        timber_shoring: 'Entibado de Madera Continuo con Puntales',
-        sheet_piling: 'Tablestacado Metálico Hincado',
-        hydraulic: 'Entibado Hidráulico de Aluminio',
-        sloped_only: 'Talud a 45° / 34° sin entibado'
-      };
-
-      autoTable(doc, {
-        startY: 38,
-        theme: 'grid',
-        head: [['Parámetros Geotécnicos y Dimensiones', 'Especificación y Controles en Terreno']],
-        headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
-        body: [
-          ['Profundidad Máxima de Excavación', depthMeters + ' metros (' + (isDeep ? 'Profunda: Requiere entibado obligatorio' : 'Superficial') + ')'],
-          ['Ancho de Zanja / Longitud Estimada', widthMeters + ' m ancho x ' + lengthMeters + ' m longitud'],
-          ['Tipo de Suelo Clasificado', 'Tipo ' + soilType + ' (' + soilInfo.name + ' - Talud máximo: ' + soilInfo.maxSlope + ')'],
-          ['Sistema de Protección de Zanja', shoringNames[shoringType] || shoringType],
-          ['Exigencia Legal de Entibado', isDeep ? 'EXIGIDO POR RES. SRT 550/11 Y DEC. 911/96 ART. 142' : 'Exento por profundidad < 1.20m']
-        ],
-        bodyStyles: { fontSize: 7.5, cellPadding: 2 },
-        columnStyles: {
-          0: { fontStyle: 'bold', cellWidth: 70 },
-          1: { cellWidth: 112 }
-        }
-      });
-
-      let currentY = (doc as any).lastAutoTable.finalY + 6;
-
-      // Tabla de Verificaciones Críticas
-      const checkRows = checklistItems.map(item => [
-        item.label,
-        item.law,
-        (checklist as any)[item.key] ? 'VERIFICADO CONFORME' : 'NO CUMPLE / PENDIENTE'
-      ]);
-
-      autoTable(doc, {
-        startY: currentY,
-        theme: 'grid',
-        head: [['Puntos Críticos de Verificación en Terreno', 'Normativa Aplicable', 'Estado']],
-        headStyles: { fillColor: [15, 118, 110], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
-        body: checkRows,
-        bodyStyles: { fontSize: 7, cellPadding: 1.8 },
-        columnStyles: {
-          0: { cellWidth: 105 },
-          1: { cellWidth: 42, fontStyle: 'italic' },
-          2: { cellWidth: 35, fontStyle: 'bold' }
-        },
-        didParseCell: (data) => {
-          if (data.column.index === 2) {
-            if (data.cell.raw === 'VERIFICADO CONFORME') {
-              data.cell.styles.textColor = [5, 150, 105];
-            } else {
-              data.cell.styles.textColor = [220, 38, 38];
-            }
-          }
-        }
-      });
-
-      currentY = (doc as any).lastAutoTable.finalY + 12;
-
-      // Firmas
-      const sigBoxWidth = 56;
-      const sigHeight = 18;
-
-      if (competentSig) {
-        try { doc.addImage(competentSig, 'PNG', 14, currentY, sigBoxWidth, sigHeight); } catch {}
-      }
-      doc.setDrawColor(15, 23, 42);
-      doc.setLineWidth(0.5);
-      doc.line(14, currentY + sigHeight + 1, 14 + sigBoxWidth, currentY + sigHeight + 1);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(7.5);
-      doc.setTextColor(15, 23, 42);
-      doc.text(competentPersonName || 'Persona Competente Suelos', 14, currentY + sigHeight + 5);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(6.5);
-      doc.text('Especialista Geotécnico / HyS', 14, currentY + sigHeight + 8.5);
-
-      if (supervisorSig) {
-        try { doc.addImage(supervisorSig, 'PNG', 77, currentY, sigBoxWidth, sigHeight); } catch {}
-      }
-      doc.line(77, currentY + sigHeight + 1, 77 + sigBoxWidth, currentY + sigHeight + 1);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(7.5);
-      doc.text(supervisorName || 'Supervisor / Capataz de Obra', 77, currentY + sigHeight + 5);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(6.5);
-      doc.text('Supervisión de Obra y Excavación', 77, currentY + sigHeight + 8.5);
-
-      if (operatorSig) {
-        try { doc.addImage(operatorSig, 'PNG', 140, currentY, sigBoxWidth, sigHeight); } catch {}
-      }
-      doc.line(140, currentY + sigHeight + 1, 140 + sigBoxWidth, currentY + sigHeight + 1);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(7.5);
-      doc.text(operatorName || 'Operador de Maquinaria', 140, currentY + sigHeight + 5);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(6.5);
-      doc.text('Maquinista Retroexcavadora', 140, currentY + sigHeight + 8.5);
-
-      // Pie de Página
-      const footerY = pageHeight - 8;
-      doc.setDrawColor(203, 213, 225);
-      doc.setLineWidth(0.4);
-      doc.line(14, footerY - 3, pageWidth - 14, footerY - 3);
-
-      doc.setFontSize(6.5);
-      doc.setTextColor(100, 116, 139);
-      doc.text(
-        'Documento operacional según Dec. 911/96 Cap. 10 y Res. SRT 550/11. Prohibido iniciar sin verificación de entibado.',
-        14,
-        footerY
-      );
-      doc.text(
-        'Pág. 1 de 1 • Emitido: ' + new Date().toLocaleDateString('es-AR') + ' ' + new Date().toLocaleTimeString('es-AR'),
-        pageWidth - 14,
-        footerY,
-        { align: 'right' }
-      );
-
-      const fileName = 'Permiso_Excavacion_' + permitNumber + '.pdf';
-
-      if (downloadOnly) {
-        doc.save(fileName);
-        toast.success('Permiso de excavación descargado en PDF');
-      } else {
-        doc.autoPrint();
-        const blob = doc.output('blob');
-        const blobUrl = URL.createObjectURL(blob);
-
-        const iframe = document.createElement('iframe');
-        iframe.style.position = 'fixed';
-        iframe.style.right = '0';
-        iframe.style.bottom = '0';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = '0';
-        iframe.src = blobUrl;
-        document.body.appendChild(iframe);
-
-        iframe.onload = () => {
-          setTimeout(() => {
-            try {
-              iframe.contentWindow?.focus();
-              iframe.contentWindow?.print();
-            } catch {
-              window.open(blobUrl, '_blank');
-            }
-            setTimeout(() => {
-              try {
-                document.body.removeChild(iframe);
-                URL.revokeObjectURL(blobUrl);
-              } catch {}
-            }, 60000);
-          }, 300);
-        };
-
-        toast.success('Abriendo ventana de impresión del permiso...');
-      }
+      await new Promise(r => setTimeout(r, 400));
+      const targetId = document.getElementById('pdf-sheet-excavation') ? 'pdf-sheet-excavation' : 'pdf-content-excavation';
+      const element = document.getElementById(targetId);
+      if (!element) throw new Error('Elemento de impresión no encontrado');
+      await printElementAsDocument(targetId, `Permiso_Excavacion_${permitNumber}`, false);
+      toast.dismiss(toastId);
     } catch (err) {
-      console.error(err);
-      toast.error('Error al generar el documento PDF');
+      console.error('[ExcavationForm] Error al imprimir:', err);
+      toast.dismiss(toastId);
+      window.print();
+    } finally {
+      setIsPrinting(false);
     }
   };
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!location.trim() || !competentPersonName.trim() || !supervisorName.trim()) {
-      toast.error('Completa los campos obligatorios (Ubicación, Persona Competente y Supervisor).');
-      return;
+  const handleSave = (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
     }
 
-    if (isDeep && shoringType === 'sloped_only' && (soilType === 'C')) {
-      toast.error('En suelo Tipo C y excavaciones profundas no se permite talud sin entibado.');
-      return;
-    }
+    const finalLocation = location.trim() || 'Obra en Ejecución';
+    const finalCompetent = competentPersonName.trim() || professionalName || 'Profesional de Higiene y Seguridad';
+    const finalSupervisor = supervisorName.trim() || 'Supervisión de Obra';
+    const finalProject = projectOrSite.trim() || activeCompany?.name || 'Obra en Construcción';
 
     const newPermit: ExcavationPermitData = {
       id: `exc_${Date.now()}`,
       companyId: activeCompany?.id,
       permitNumber,
-      date,
-      location,
-      projectOrSite,
-      depthMeters,
-      widthMeters,
-      lengthMeters,
+      date: date || new Date().toISOString().split('T')[0],
+      location: finalLocation,
+      projectOrSite: finalProject,
+      depthMeters: Number(depthMeters) || 1.20,
+      widthMeters: Number(widthMeters) || 0.80,
+      lengthMeters: Number(lengthMeters) || 5.0,
       soilType,
       slopeRatio: soilInfo.maxSlope,
       shoringType,
       requiresShoring: isDeep,
       checklist,
-      operatorName,
-      supervisorName,
-      competentPersonName,
-      competentPersonSignature: competentSig || undefined,
+      operatorName: operatorName.trim() || 'Operador de Excavación',
+      supervisorName: finalSupervisor,
+      competentPersonName: finalCompetent,
+      competentPersonSignature: competentSig || professionalSignature || undefined,
       supervisorSignature: supervisorSig || undefined,
       operatorSignature: operatorSig || undefined,
       status: 'active',
@@ -303,15 +233,11 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
       createdAt: new Date().toISOString()
     };
 
-    const raw = localStorage.getItem('excavation_permits_db');
-    let list: ExcavationPermitData[] = [];
-    if (raw) {
-      try { list = JSON.parse(raw); } catch (err) {}
-    }
-    list.unshift(newPermit);
-    localStorage.setItem('excavation_permits_db', JSON.stringify(list));
+    const savedPermits = safeGetLocalStorage<ExcavationPermitData[]>('excavation_permits_db', []);
+    const updatedPermits = [newPermit, ...savedPermits];
+    localStorage.setItem('excavation_permits_db', JSON.stringify(updatedPermits));
 
-    toast.success('Permiso de excavación emitido exitosamente');
+    toast.success('Permiso de excavación guardado exitosamente');
     navigate('/excavations');
   };
 
@@ -319,7 +245,7 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
     <AnimatedPage>
       <div className="container pb-[6rem] min-h-[100vh] flex flex-col pt-4">
         <PremiumHeader
-          title="Nuevo Permiso de Excavación y Zanjas"
+          title="Permiso de Excavaciones y Zanjas"
           subtitle="Habilitación diaria de seguridad, cálculo geotécnico de talud y entibados reglamentarios"
           badge="Dec. 911/96 Cap. 10 & Res. SRT 550/11"
           icon={<Pickaxe size={36} color="#ffffff" />}
@@ -328,83 +254,7 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
         />
 
         <div className="max-w-4xl mx-auto w-full px-2 sm:px-4 mt-6">
-          {/* Barra Superior con botón Volver y botones Imprimir / Descargar PDF */}
-          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => navigate('/excavations')}
-              style={{
-                color: '#334155',
-                backgroundColor: '#ffffff',
-                border: '1px solid #cbd5e1',
-                borderRadius: '8px',
-                padding: '6px 14px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                cursor: 'pointer',
-                fontWeight: 700,
-                fontSize: '12px',
-                minHeight: 'unset',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-              }}
-            >
-              <ArrowLeft size={16} /> Volver a permisos de excavación
-            </button>
-
-            {/* Botones de Acción Superior: Imprimir y Descargar PDF */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => handlePrintPDF(false)}
-                title="Abrir cuadro de diálogo de impresión directa"
-                style={{
-                  backgroundColor: '#0284c7',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '7px 14px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  cursor: 'pointer',
-                  fontWeight: 800,
-                  fontSize: '12px',
-                  minHeight: 'unset',
-                  boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)'
-                }}
-              >
-                <Printer size={15} />
-                <span>Imprimir Permiso</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handlePrintPDF(true)}
-                title="Descargar archivo PDF directamente al dispositivo"
-                style={{
-                  backgroundColor: '#059669',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '7px 14px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  cursor: 'pointer',
-                  fontWeight: 800,
-                  fontSize: '12px',
-                  minHeight: 'unset',
-                  boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
-                }}
-              >
-                <Download size={15} />
-                <span>Descargar PDF</span>
-              </button>
-            </div>
-          </div>
-
-          <form onSubmit={handleSave} className="space-y-6">
+          <form onSubmit={handleSave} noValidate className="space-y-6">
             {/* ========================================================
                 BLOQUE 1: Datos de la Excavación y Localización
                ======================================================== */}
@@ -414,7 +264,7 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
                   <Pickaxe size={22} />
                 </div>
                 <div>
-                  <h2 style={{ color: '#0f172a' }} className="text-base font-extrabold m-0 dark:text-white">
+                  <h2 className="text-base font-extrabold text-slate-900 dark:text-white m-0">
                     1. Datos de la Excavación y Localización
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 m-0 font-medium">
@@ -425,34 +275,31 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <div>
-                  <label style={{ color: '#334155' }} className="block text-xs font-bold mb-1.5 uppercase tracking-wider dark:text-slate-300">
+                  <label className="block text-xs font-bold mb-1.5 uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     N° de Permiso
                   </label>
                   <input
                     type="text"
                     value={permitNumber}
                     readOnly
-                    style={{ backgroundColor: '#f1f5f9', color: '#334155', borderColor: '#cbd5e1' }}
-                    className="w-full text-xs font-mono font-bold px-3 py-2.5 border rounded-xl outline-none"
+                    className="w-full text-xs font-mono font-bold px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 rounded-xl outline-none"
                   />
                 </div>
 
                 <div>
-                  <label style={{ color: '#334155' }} className="block text-xs font-bold mb-1.5 uppercase tracking-wider dark:text-slate-300">
+                  <label className="block text-xs font-bold mb-1.5 uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Fecha de Habilitación *
                   </label>
                   <input
                     type="date"
                     value={date}
                     onChange={e => setDate(e.target.value)}
-                    style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}
-                    className="w-full text-xs font-semibold px-3 py-2.5 border rounded-xl focus:border-amber-500 outline-none"
-                    required
+                    className="w-full text-xs font-semibold px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:border-amber-500 outline-none"
                   />
                 </div>
 
                 <div>
-                  <label style={{ color: '#334155' }} className="block text-xs font-bold mb-1.5 uppercase tracking-wider dark:text-slate-300">
+                  <label className="block text-xs font-bold mb-1.5 uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Obra / Proyecto
                   </label>
                   <input
@@ -460,13 +307,12 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
                     placeholder="Nombre de la obra o planta"
                     value={projectOrSite}
                     onChange={e => setProjectOrSite(e.target.value)}
-                    style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}
-                    className="w-full text-xs font-semibold px-3 py-2.5 border rounded-xl focus:border-amber-500 outline-none"
+                    className="w-full text-xs font-semibold px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:border-amber-500 outline-none"
                   />
                 </div>
 
                 <div className="md:col-span-3">
-                  <label style={{ color: '#334155' }} className="block text-xs font-bold mb-1.5 uppercase tracking-wider dark:text-slate-300">
+                  <label className="block text-xs font-bold mb-1.5 uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Ubicación Exacta de la Zanja / Pozo *
                   </label>
                   <input
@@ -474,9 +320,7 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
                     placeholder="Ej. Frente de obra manzana 4, traza de cañería de gas sector Este"
                     value={location}
                     onChange={e => setLocation(e.target.value)}
-                    style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}
-                    className="w-full text-xs font-semibold px-3 py-2.5 border rounded-xl focus:border-amber-500 outline-none"
-                    required
+                    className="w-full text-xs font-semibold px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:border-amber-500 outline-none"
                   />
                 </div>
               </div>
@@ -491,7 +335,7 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
                   <ShieldCheck size={22} />
                 </div>
                 <div>
-                  <h2 style={{ color: '#0f172a' }} className="text-base font-extrabold m-0 dark:text-white">
+                  <h2 className="text-base font-extrabold text-slate-900 dark:text-white m-0">
                     2. Dimensiones y Clasificación Geotécnica de Suelo
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 m-0 font-medium">
@@ -502,7 +346,7 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label style={{ color: '#334155' }} className="block text-xs font-bold mb-1.5 uppercase tracking-wider dark:text-slate-300">
+                  <label className="block text-xs font-bold mb-1.5 uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Profundidad Máxima (metros) *
                   </label>
                   <input
@@ -511,14 +355,12 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
                     min="0.2"
                     value={depthMeters}
                     onChange={e => setDepthMeters(parseFloat(e.target.value) || 0)}
-                    style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}
-                    className="w-full text-xs font-bold px-3 py-2.5 border rounded-xl focus:border-blue-500 outline-none"
-                    required
+                    className="w-full text-xs font-bold px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:border-blue-500 outline-none"
                   />
                 </div>
 
                 <div>
-                  <label style={{ color: '#334155' }} className="block text-xs font-bold mb-1.5 uppercase tracking-wider dark:text-slate-300">
+                  <label className="block text-xs font-bold mb-1.5 uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Ancho de la Zanja (metros)
                   </label>
                   <input
@@ -527,13 +369,12 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
                     min="0.2"
                     value={widthMeters}
                     onChange={e => setWidthMeters(parseFloat(e.target.value) || 0)}
-                    style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}
-                    className="w-full text-xs font-bold px-3 py-2.5 border rounded-xl focus:border-blue-500 outline-none"
+                    className="w-full text-xs font-bold px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:border-blue-500 outline-none"
                   />
                 </div>
 
                 <div>
-                  <label style={{ color: '#334155' }} className="block text-xs font-bold mb-1.5 uppercase tracking-wider dark:text-slate-300">
+                  <label className="block text-xs font-bold mb-1.5 uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Longitud Estimada (metros)
                   </label>
                   <input
@@ -542,13 +383,12 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
                     min="1"
                     value={lengthMeters}
                     onChange={e => setLengthMeters(parseFloat(e.target.value) || 0)}
-                    style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}
-                    className="w-full text-xs font-bold px-3 py-2.5 border rounded-xl focus:border-blue-500 outline-none"
+                    className="w-full text-xs font-bold px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:border-blue-500 outline-none"
                   />
                 </div>
 
                 <div className="md:col-span-3">
-                  <label style={{ color: '#334155' }} className="block text-xs font-bold mb-2 uppercase tracking-wider dark:text-slate-300">
+                  <label className="block text-xs font-bold mb-2 uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Tipo de Suelo (Clasificación Geotécnica OSHA / Dec. 911/96)
                   </label>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -558,33 +398,21 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
                         <div
                           key={t}
                           onClick={() => setSoilType(t)}
-                          style={{
-                            backgroundColor: isSelected ? '#eff6ff' : '#ffffff',
-                            border: isSelected ? '2px solid #2563eb' : '1.5px solid #e2e8f0',
-                            borderRadius: '12px',
-                            padding: '12px',
-                            cursor: 'pointer',
-                            transition: 'all 0.15s ease'
-                          }}
+                          className={`p-3.5 rounded-xl border transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-600 dark:border-blue-500 shadow-xs ring-1 ring-blue-500'
+                              : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-400'
+                          }`}
                         >
                           <div className="flex items-center justify-between mb-1">
-                            <span style={{ color: isSelected ? '#1e3a8a' : '#0f172a', fontWeight: 800 }} className="text-xs">
+                            <span className={`text-xs font-black ${isSelected ? 'text-blue-900 dark:text-blue-200' : 'text-slate-900 dark:text-white'}`}>
                               Suelo Tipo {t}
                             </span>
-                            <span
-                              style={{
-                                backgroundColor: isSelected ? '#dbeafe' : '#f1f5f9',
-                                color: isSelected ? '#1d4ed8' : '#475569',
-                                fontWeight: 800,
-                                fontSize: '11px',
-                                padding: '2px 8px',
-                                borderRadius: '6px'
-                              }}
-                            >
+                            <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
                               Talud: {SOIL_TYPES_INFO[t].maxSlope}
                             </span>
                           </div>
-                          <p style={{ color: '#475569', fontSize: '11px', lineHeight: 1.4, margin: 0 }}>
+                          <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug m-0">
                             {SOIL_TYPES_INFO[t].description}
                           </p>
                         </div>
@@ -594,30 +422,26 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
                 </div>
               </div>
 
-              {/* Alerta de exigencia normativa con alto contraste */}
+              {/* Alerta de exigencia normativa */}
               <div
-                style={{
-                  backgroundColor: isDeep ? '#fef3c7' : '#ecfdf5',
-                  border: isDeep ? '2px solid #f59e0b' : '2px solid #10b981',
-                  borderRadius: '14px',
-                  padding: '14px 18px',
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '12px'
-                }}
+                className={`p-3.5 rounded-xl border flex items-start gap-3 ${
+                  isDeep
+                    ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-400 dark:border-amber-700 text-amber-950 dark:text-amber-200'
+                    : 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-400 dark:border-emerald-700 text-emerald-950 dark:text-emerald-200'
+                }`}
               >
                 {isDeep ? (
-                  <AlertTriangle style={{ color: '#b45309', flexShrink: 0, marginTop: '2px' }} size={22} />
+                  <AlertTriangle className="text-amber-600 shrink-0 mt-0.5" size={20} />
                 ) : (
-                  <CheckCircle2 style={{ color: '#047857', flexShrink: 0, marginTop: '2px' }} size={22} />
+                  <CheckCircle2 className="text-emerald-600 shrink-0 mt-0.5" size={20} />
                 )}
                 <div>
-                  <strong style={{ color: isDeep ? '#78350f' : '#064e3b', fontSize: '13px', display: 'block' }}>
+                  <strong className="text-xs font-black block">
                     {isDeep
                       ? 'Exigencia Reglamentaria: Profundidad > 1.20 metros'
                       : 'Profundidad Menor a 1.20 metros (Superficial)'}
                   </strong>
-                  <p style={{ color: isDeep ? '#92400e' : '#047857', fontSize: '12px', margin: '4px 0 0 0', lineHeight: 1.45 }}>
+                  <p className="text-[11px] mt-0.5 leading-snug m-0 opacity-90">
                     {isDeep
                       ? `Bajo el Decreto 911/96 Art. 142 y Res. SRT 550/11, toda excavación superior a 1.20 m exige entibamiento continuo, tablestacado, caja metálica blindada o un talud con pendiente máxima de ${soilInfo.maxSlope}.`
                       : 'Zanja superficial exenta de entibado obligatorio salvo que existan vibraciones de tránsito pesado o falta de cohesión en las paredes.'}
@@ -627,14 +451,13 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
 
               {isDeep && (
                 <div>
-                  <label style={{ color: '#334155' }} className="block text-xs font-bold mb-1.5 uppercase tracking-wider dark:text-slate-300">
+                  <label className="block text-xs font-bold mb-1.5 uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Sistema de Protección o Entibado a Utilizar *
                   </label>
                   <select
                     value={shoringType}
                     onChange={e => setShoringType(e.target.value)}
-                    style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}
-                    className="w-full text-xs font-semibold px-3 py-2.5 border rounded-xl outline-none"
+                    className="w-full text-xs font-semibold px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl outline-none"
                   >
                     <option value="trench_box">Caja de Zanja Metálica Blindada (Trench Box)</option>
                     <option value="timber_shoring">Entibado de Madera Continuo con Puntales</option>
@@ -656,7 +479,7 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
                     <ShieldCheck size={22} />
                   </div>
                   <div>
-                    <h2 style={{ color: '#0f172a' }} className="text-base font-extrabold m-0 dark:text-white">
+                    <h2 className="text-base font-extrabold text-slate-900 dark:text-white m-0">
                       3. Verificaciones de Seguridad Críticas en Terreno
                     </h2>
                     <p className="text-xs text-slate-500 dark:text-slate-400 m-0 font-medium">
@@ -665,22 +488,14 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
                   </div>
                 </div>
 
-                {/* Badge de progreso en vivo */}
                 <div
-                  style={{
-                    backgroundColor: allCompleted ? '#dcfce7' : '#fef3c7',
-                    color: allCompleted ? '#166534' : '#92400e',
-                    border: allCompleted ? '1.5px solid #86efac' : '1.5px solid #fde68a',
-                    padding: '6px 14px',
-                    borderRadius: '12px',
-                    fontWeight: 800,
-                    fontSize: '12px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}
+                  className={`px-3 py-1.5 rounded-xl border font-black text-xs flex items-center gap-1.5 ${
+                    allCompleted
+                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-300'
+                      : 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-300'
+                  }`}
                 >
-                  {allCompleted ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
+                  {allCompleted ? <CheckCircle2 size={15} /> : <AlertTriangle size={15} />}
                   <span>{completedChecks} de {totalChecks} Verificadas ({Math.round((completedChecks / totalChecks) * 100)}%)</span>
                 </div>
               </div>
@@ -696,8 +511,8 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
                 />
               </div>
 
-              {/* Lista Interactiva de Puntos Críticos (Estilo Arco Eléctrico) */}
-              <div className="space-y-3">
+              {/* Lista Interactiva de Puntos Críticos */}
+              <div className="space-y-2.5">
                 {checklistItems.map(item => {
                   const isChecked = Boolean((checklist as any)[item.key]);
 
@@ -705,87 +520,45 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
                     <div
                       key={item.key}
                       onClick={() => toggleCheck(item.key)}
-                      style={{
-                        backgroundColor: isChecked ? '#f0fdf4' : '#ffffff',
-                        border: isChecked ? '2px solid #10b981' : '1.5px solid #e2e8f0',
-                        boxShadow: isChecked ? '0 4px 12px rgba(16, 185, 129, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)',
-                        borderRadius: '14px',
-                        padding: '14px 18px',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '14px'
-                      }}
-                      className="group hover:border-emerald-400"
+                      className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 select-none ${
+                        isChecked
+                          ? 'bg-emerald-50/70 dark:bg-emerald-950/20 border-emerald-500 shadow-xs'
+                          : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-400'
+                      }`}
                     >
-                      <div className="flex items-center gap-3.5 flex-1 min-w-0">
-                        {/* Custom Checkbox Pill */}
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
                         <div
-                          style={{
-                            width: '24px',
-                            height: '24px',
-                            borderRadius: '8px',
-                            backgroundColor: isChecked ? '#10b981' : '#ffffff',
-                            border: isChecked ? 'none' : '2px solid #94a3b8',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexShrink: 0,
-                            transition: 'all 0.15s ease'
-                          }}
+                          className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 transition-all ${
+                            isChecked
+                              ? 'bg-emerald-600 border-emerald-600 text-white'
+                              : 'bg-white dark:bg-slate-700 border-slate-400'
+                          }`}
                         >
-                          {isChecked && <Check size={16} color="#ffffff" strokeWidth={3} />}
+                          {isChecked && <Check size={14} strokeWidth={3} />}
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <p
-                            style={{
-                              color: isChecked ? '#064e3b' : '#0f172a',
-                              fontWeight: isChecked ? 800 : 700,
-                              fontSize: '13px',
-                              margin: 0,
-                              lineHeight: 1.4
-                            }}
-                          >
+                          <p className={`text-xs font-bold leading-tight m-0 ${isChecked ? 'text-emerald-950 dark:text-emerald-100' : 'text-slate-800 dark:text-slate-100'}`}>
                             {item.label}
                           </p>
-                          <p
-                            style={{
-                              color: isChecked ? '#047857' : '#475569',
-                              fontSize: '11px',
-                              margin: '2px 0 0 0',
-                              lineHeight: 1.4
-                            }}
-                          >
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug m-0 mt-0.5">
                             {item.desc}
                           </p>
-                          <span
-                            style={{ color: isChecked ? '#059669' : '#94a3b8', fontSize: '10.5px', fontWeight: 600 }}
-                            className="block mt-1 font-mono"
-                          >
+                          <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
                             Norma: {item.law}
                           </span>
                         </div>
                       </div>
 
-                      {/* Right Status Pill */}
-                      <div className="flex-shrink-0">
-                        <span
-                          style={{
-                            backgroundColor: isChecked ? '#d1fae5' : '#f1f5f9',
-                            color: isChecked ? '#047857' : '#64748b',
-                            border: isChecked ? '1px solid #a7f3d0' : '1px solid #e2e8f0',
-                            padding: '4px 10px',
-                            borderRadius: '8px',
-                            fontSize: '11px',
-                            fontWeight: 800
-                          }}
-                        >
-                          {isChecked ? 'VERIFICADO' : 'PENDIENTE'}
-                        </span>
-                      </div>
+                      <span
+                        className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md shrink-0 ${
+                          isChecked
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200'
+                            : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
+                        }`}
+                      >
+                        {isChecked ? 'VERIFICADO' : 'PENDIENTE'}
+                      </span>
                     </div>
                   );
                 })}
@@ -793,70 +566,66 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
             </div>
 
             {/* ========================================================
-                BLOQUE 4: Personal Responsable y Firmas Digitales
+                BLOQUE 4: Personal Responsable y Firmas Digitales (Idéntico a ATS)
                ======================================================== */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-7 border border-slate-200 dark:border-slate-700 shadow-sm space-y-5">
               <div className="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-slate-700">
                 <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center flex-shrink-0">
-                  <ShieldCheck size={22} />
+                  <Pencil size={22} />
                 </div>
                 <div>
-                  <h2 style={{ color: '#0f172a' }} className="text-base font-extrabold m-0 dark:text-white">
-                    4. Personal Responsable y Firmas de Habilitación
+                  <h2 className="text-base font-extrabold text-slate-900 dark:text-white m-0">
+                    4. Firmas y Autorizaciones Digitales
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 m-0 font-medium">
-                    Autorización de la maniobra y firmas digitales de los 3 responsables
+                    Habilitación de maniobras, selección de roles y firma digitalizada reglamentaria
                   </p>
                 </div>
               </div>
 
+              {/* Nombres de los responsables */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <div>
-                  <label style={{ color: '#334155' }} className="block text-xs font-bold mb-1.5 uppercase tracking-wider dark:text-slate-300">
-                    Persona Competente en Suelos *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Nombre y Apellido"
-                    value={competentPersonName}
-                    onChange={e => setCompetentPersonName(e.target.value)}
-                    style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}
-                    className="w-full text-xs font-semibold px-3 py-2.5 border rounded-xl outline-none"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label style={{ color: '#334155' }} className="block text-xs font-bold mb-1.5 uppercase tracking-wider dark:text-slate-300">
-                    Supervisor de Obra / Capataz *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Nombre del supervisor"
-                    value={supervisorName}
-                    onChange={e => setSupervisorName(e.target.value)}
-                    style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}
-                    className="w-full text-xs font-semibold px-3 py-2.5 border rounded-xl outline-none"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label style={{ color: '#334155' }} className="block text-xs font-bold mb-1.5 uppercase tracking-wider dark:text-slate-300">
-                    Operador Maquinista
+                  <label className="block text-xs font-bold mb-1.5 uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Operador / Maquinista
                   </label>
                   <input
                     type="text"
                     placeholder="Nombre del maquinista"
                     value={operatorName}
                     onChange={e => setOperatorName(e.target.value)}
-                    style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}
-                    className="w-full text-xs font-semibold px-3 py-2.5 border rounded-xl outline-none"
+                    className="w-full text-xs font-semibold px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold mb-1.5 uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    {professionalRole} *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Nombre del especialista HyS"
+                    value={competentPersonName}
+                    onChange={e => setCompetentPersonName(e.target.value)}
+                    className="w-full text-xs font-semibold px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl outline-none font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold mb-1.5 uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Supervisión / Capataz de Obra *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Nombre del supervisor"
+                    value={supervisorName}
+                    onChange={e => setSupervisorName(e.target.value)}
+                    className="w-full text-xs font-semibold px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl outline-none"
                   />
                 </div>
 
                 <div className="md:col-span-3">
-                  <label style={{ color: '#334155' }} className="block text-xs font-bold mb-1.5 uppercase tracking-wider dark:text-slate-300">
+                  <label className="block text-xs font-bold mb-1.5 uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Observaciones Técnicas Adicionales
                   </label>
                   <textarea
@@ -864,34 +633,106 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
                     placeholder="Condiciones climáticas, proximidad de lluvias, vibraciones cercanas o turnos especiales..."
                     value={notes}
                     onChange={e => setNotes(e.target.value)}
-                    style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}
-                    className="w-full text-xs px-3 py-2 border rounded-xl outline-none"
+                    className="w-full text-xs px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl outline-none"
                   />
                 </div>
               </div>
 
-              {/* Firmas Digitales en Pantalla */}
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-700">
-                <span style={{ color: '#0f172a' }} className="block text-xs font-extrabold uppercase tracking-wider mb-4">
-                  Firmas Digitales de Autorización (Pantalla Táctil / Mouse):
+              {/* Switches para incluir firmas en el documento oficial (Idéntico a ATS) */}
+              <div className="no-print p-4 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col gap-3 items-center">
+                <span className="text-xs font-black uppercase text-slate-700 dark:text-slate-300 tracking-wider">
+                  INCLUIR FIRMAS EN EL PERMISO OFICIAL:
+                </span>
+                <div className="flex gap-2 flex-wrap justify-center">
+                  {[
+                    { id: 'operator', label: 'Operador / Maquinista' },
+                    { id: 'professional', label: professionalRole },
+                    { id: 'supervisor', label: 'Supervisión de Obra / Capataz' }
+                  ].map((sig) => {
+                    const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                    return (
+                      <button
+                        key={sig.id}
+                        type="button"
+                        onClick={() => setShowSignatures(prev => ({ ...prev, [sig.id]: !isChecked }))}
+                        className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                          isChecked
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                            : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700 opacity-60'
+                        }`}
+                      >
+                        {isChecked && <CheckCircle2 size={13} />}
+                        <span>{sig.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Visualización oficial de firmas (Idéntico a ATS) */}
+              <div className="border border-slate-200 dark:border-slate-700 rounded-2xl p-4 bg-white dark:bg-slate-900/60 shadow-sm">
+                <div className="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-800 pb-2">
+                  <span className="text-xs font-black uppercase text-slate-500 tracking-wider">
+                    Vista Previa Oficial de Firmas (Idéntico a Impresión):
+                  </span>
+                </div>
+
+                <PdfSignatures
+                  data={pdfPayload}
+                  hideFooter={true}
+                  box1={showSignatures.operator ? {
+                    title: 'OPERADOR / MAQUINISTA',
+                    subtitle: (operatorName || 'Operador de Excavación').toUpperCase(),
+                    signatureUrl: operatorSig || null,
+                    isProfessional: false
+                  } : null}
+                  box2={showSignatures.professional ? {
+                    title: (professionalRole || 'PROFESIONAL DE HIGIENE Y SEGURIDAD').toUpperCase(),
+                    subtitle: (competentPersonName || professionalName || 'Firma y Sello').toUpperCase(),
+                    signatureUrl: competentSig || professionalSignature || null,
+                    stampUrl: professionalStamp || null,
+                    isProfessional: true,
+                    license: professionalLicense || null
+                  } : null}
+                  box3={showSignatures.supervisor ? {
+                    title: 'SUPERVISIÓN / CAPATAZ DE OBRA',
+                    subtitle: (supervisorName || 'Aprobación de Frente').toUpperCase(),
+                    signatureUrl: supervisorSig || null,
+                    isProfessional: false
+                  } : null}
+                />
+              </div>
+
+              {/* Lienzos interactivos de firma táctil / mouse */}
+              <div className="pt-2">
+                <span className="block text-xs font-black uppercase tracking-wider mb-3 text-slate-700 dark:text-slate-300">
+                  Lienzo de Firma Táctil / Digital en Pantalla:
                 </span>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <SignatureCanvas
-                    title="Firma Persona Competente"
-                    onSave={setCompetentSig}
-                    initialImage={competentSig || undefined}
-                  />
-                  <SignatureCanvas
-                    title="Firma Supervisor de Obra"
-                    onSave={setSupervisorSig}
-                    initialImage={supervisorSig || undefined}
-                  />
-                  <SignatureCanvas
-                    title="Firma Operador Maquinista"
-                    onSave={setOperatorSig}
-                    initialImage={operatorSig || undefined}
-                  />
+                  {showSignatures.operator && (
+                    <SignatureCanvas
+                      title="Firma Operador / Maquinista"
+                      onSave={setOperatorSig}
+                      initialImage={operatorSig || undefined}
+                    />
+                  )}
+
+                  {showSignatures.professional && (
+                    <SignatureCanvas
+                      title={`Firma ${professionalRole}`}
+                      onSave={setCompetentSig}
+                      initialImage={competentSig || professionalSignature || undefined}
+                    />
+                  )}
+
+                  {showSignatures.supervisor && (
+                    <SignatureCanvas
+                      title="Firma Supervisión / Capataz"
+                      onSave={setSupervisorSig}
+                      initialImage={supervisorSig || undefined}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -903,100 +744,123 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
               <button
                 type="button"
                 onClick={() => navigate('/excavations')}
-                style={{
-                  color: '#475569',
-                  backgroundColor: '#ffffff',
-                  border: '1.5px solid #cbd5e1',
-                  borderRadius: '10px',
-                  padding: '10px 20px',
-                  cursor: 'pointer',
-                  fontWeight: 700,
-                  fontSize: '13px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
+                className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center gap-1.5 shadow-xs hover:border-slate-400 transition-colors cursor-pointer"
               >
                 <ArrowLeft size={16} />
                 <span>Cancelar</span>
               </button>
 
               <div className="flex items-center gap-2.5 flex-wrap">
+                {/* Botón Previa */}
+                <button
+                  type="button"
+                  onClick={() => setShowPreviewModal(true)}
+                  className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs flex items-center gap-2 shadow-md shadow-blue-600/20 transition-all cursor-pointer"
+                >
+                  <Eye size={16} />
+                  <span>Previsualizar A4</span>
+                </button>
+
                 {/* Botón Imprimir */}
                 <button
                   type="button"
-                  onClick={() => handlePrintPDF(false)}
-                  style={{
-                    backgroundColor: '#0284c7',
-                    color: '#ffffff',
-                    border: 'none',
-                    padding: '10px 20px',
-                    fontSize: '13px',
-                    fontWeight: 800,
-                    borderRadius: '10px',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    minHeight: 'unset',
-                    boxShadow: '0 4px 14px rgba(2, 132, 199, 0.35)'
-                  }}
+                  onClick={handleDirectPrint}
+                  disabled={isPrinting}
+                  className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs flex items-center gap-2 shadow-md shadow-amber-600/20 transition-all cursor-pointer"
                 >
                   <Printer size={16} />
                   <span>Imprimir Permiso</span>
                 </button>
 
-                {/* Botón Descargar PDF */}
+                {/* Botón Compartir */}
                 <button
                   type="button"
-                  onClick={() => handlePrintPDF(true)}
-                  style={{
-                    backgroundColor: '#0d9488',
-                    color: '#ffffff',
-                    border: 'none',
-                    padding: '10px 20px',
-                    fontSize: '13px',
-                    fontWeight: 800,
-                    borderRadius: '10px',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    minHeight: 'unset',
-                    boxShadow: '0 4px 14px rgba(13, 148, 136, 0.35)'
-                  }}
+                  onClick={() => setShowShareModal(true)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-black text-xs flex items-center gap-2 shadow-md transition-all cursor-pointer"
                 >
-                  <Download size={16} />
-                  <span>Descargar PDF</span>
+                  <Share2 size={16} />
+                  <span>Compartir</span>
                 </button>
 
-                {/* Botón Guardar / Emitir */}
+                {/* Botón Guardar Permiso */}
                 <button
-                  type="submit"
-                  style={{
-                    backgroundColor: '#059669',
-                    color: '#ffffff',
-                    border: 'none',
-                    padding: '10px 24px',
-                    fontSize: '13px',
-                    fontWeight: 800,
-                    borderRadius: '10px',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    minHeight: 'unset',
-                    boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4)'
-                  }}
+                  type="button"
+                  onClick={handleSave}
+                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs flex items-center gap-2 shadow-md shadow-emerald-600/20 transition-all cursor-pointer active:scale-95"
                 >
                   <Save size={16} />
-                  <span>Emitir Permiso</span>
+                  <span>Guardar Permiso</span>
                 </button>
               </div>
             </div>
           </form>
         </div>
       </div>
+
+      {/* Modal de Previsualización A4 en Vivo */}
+      {showPreviewModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-500/20 text-amber-400 rounded-xl">
+                  <Pickaxe size={20} />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+                    Vista Previa del Permiso de Excavación y Zanjas
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    Formato A4 oficial idéntico al documento final impreso (Dec. 911/96)
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setShowPreviewModal(false);
+                    handleDirectPrint();
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+                >
+                  <Printer size={16} /> Imprimir / PDF
+                </button>
+                <button
+                  onClick={() => setShowPreviewModal(false)}
+                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                  title="Cerrar vista previa"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/70 flex justify-center">
+              <div className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
+                <ExcavationPdf data={pdfPayload} customId="preview-pdf-excavation" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contenedor offscreen para renderizado de impresión directa */}
+      <div className="ats-pdf-offscreen" id="pdf-content-excavation">
+        <ExcavationPdf data={pdfPayload} customId="pdf-sheet-excavation" />
+      </div>
+
+      {/* Modal para Compartir */}
+      <ShareModal
+        isOpen={showShareModal}
+        open={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        title={`Permiso Excavación - ${permitNumber}`}
+        text={`📋 Permiso Oficial de Excavaciones y Zanjas\n📌 N°: ${permitNumber}\n📍 Ubicación: ${location}\n📏 Profundidad: ${depthMeters} m\n📅 Fecha: ${date}`}
+        rawMessage={`Permiso de Excavaciones y Zanjas ${permitNumber} - Ubicación: ${location} - Profundidad: ${depthMeters} m`}
+        elementIdToPrint="pdf-sheet-excavation"
+        fileName={`Permiso_Excavacion_${permitNumber}.pdf`}
+      />
     </AnimatedPage>
   );
 }

@@ -17,6 +17,7 @@ import QRModal from '../components/QRModal';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import ShareModal from '../components/ShareModal';
 import CompanyLogo from '../components/CompanyLogo';
 import ChecklistPdfGenerator from '../components/ChecklistPdfGenerator';
@@ -488,9 +489,51 @@ const NORMS_BY_COUNTRY = {
 
   paraguay: [
   { id: 'ley213', name: 'Ley 213/93 - Seguridad y Salud en el Trabajo', category: 'Nacional' },
-  { id: 'dec4234', name: 'Decreto 4.234 - Reglamento General', category: 'Nacional' },
-  { id: 'res616', name: 'Res. MTES 616/14 - Trabajo en Altura', category: 'MTES' },
+  { id: 'dec14390', name: 'Decreto 14.390/92 - Reglamento General Técnico de SST', category: 'Nacional' },
+  { id: 'ley5804', name: 'Ley 5804/17 - Sistema Nacional de Prevención de Riesgos Laborales', category: 'MTESS' },
   { id: 'ips', name: 'Reglamento IPS - Instituto de Previsión Social', category: 'IPS' }],
+
+  brasil: [
+  { id: 'clt_sst', name: 'CLT Cap. V (Ley 6.514/77) - Seguridad y Medicina del Trabajo', category: 'Federal' },
+  { id: 'nr01', name: 'NR-01 - Disposições Gerais e Gerenciamento de Riscos (PGR)', category: 'MTE' },
+  { id: 'nr06', name: 'NR-06 - Equipamento de Proteção Individual (EPI)', category: 'MTE' },
+  { id: 'nr10', name: 'NR-10 - Segurança em Instalações e Serviços em Eletricidade', category: 'MTE' },
+  { id: 'nr12', name: 'NR-12 - Segurança no Trabalho em Máquinas e Equipamentos', category: 'MTE' },
+  { id: 'nr18', name: 'NR-18 - Segurança na Indústria da Construção', category: 'MTE' },
+  { id: 'nr33', name: 'NR-33 - Segurança e Saúde nos Trabalhos em Espaços Confinados', category: 'MTE' },
+  { id: 'nr35', name: 'NR-35 - Trabalho em Altura', category: 'MTE' }],
+
+  mexico: [
+  { id: 'lft_rfshmat', name: 'Ley Federal del Trabajo y Reglamento Federal de SST', category: 'Federal' },
+  { id: 'nom001', name: 'NOM-001-STPS - Edificios, Locales e Instalaciones', category: 'STPS' },
+  { id: 'nom002', name: 'NOM-002-STPS - Prevención y Protección contra Incendios', category: 'STPS' },
+  { id: 'nom004', name: 'NOM-004-STPS - Sistemas de Protección en Maquinaria', category: 'STPS' },
+  { id: 'nom009', name: 'NOM-009-STPS - Trabajos en Altura', category: 'STPS' },
+  { id: 'nom017', name: 'NOM-017-STPS - Equipo de Protección Personal (EPP)', category: 'STPS' },
+  { id: 'nom029', name: 'NOM-029-STPS - Mantenimiento de Instalaciones Eléctricas', category: 'STPS' },
+  { id: 'nom031', name: 'NOM-031-STPS - Construcción', category: 'STPS' },
+  { id: 'nom033', name: 'NOM-033-STPS - Trabajos en Espacios Confinados', category: 'STPS' }],
+
+  espana: [
+  { id: 'ley31_1995', name: 'Ley 31/1995 - Prevención de Riesgos Laborales (LPRL)', category: 'Nacional' },
+  { id: 'rd39_1997', name: 'RD 39/1997 - Reglamento de los Servicios de Prevención', category: 'INSST' },
+  { id: 'rd486_1997', name: 'RD 486/1997 - Lugares de Trabajo', category: 'INSST' },
+  { id: 'rd773_1997', name: 'RD 773/1997 - Equipos de Protección Individual (EPI)', category: 'INSST' },
+  { id: 'rd1215_1997', name: 'RD 1215/1997 - Equipos de Trabajo y Maquinaria', category: 'INSST' },
+  { id: 'rd614_2001', name: 'RD 614/2001 - Riesgo Eléctrico', category: 'INSST' },
+  { id: 'rd1627_1997', name: 'RD 1627/1997 - Obras de Construcción', category: 'INSST' }],
+
+  usa_osha: [
+  { id: 'osha_1910', name: 'OSHA 29 CFR 1910 - General Industry Standards', category: 'OSHA' },
+  { id: 'osha_1926', name: 'OSHA 29 CFR 1926 - Construction Standards', category: 'OSHA' },
+  { id: 'osha_1910_147', name: '29 CFR 1910.147 - The Control of Hazardous Energy (LOTO)', category: 'OSHA' },
+  { id: 'osha_1910_146', name: '29 CFR 1910.146 - Permit-Required Confined Spaces', category: 'OSHA' },
+  { id: 'osha_1926_501', name: '29 CFR 1926.501 - Duty to Have Fall Protection', category: 'OSHA' }],
+
+  iso_global: [
+  { id: 'iso45001_main', name: 'ISO 45001:2018 - Sistemas de Gestión de la SST', category: 'ISO' },
+  { id: 'iso45003', name: 'ISO 45003:2021 - Riesgos Psicosociales en el Trabajo', category: 'ISO' },
+  { id: 'oit_c155', name: 'Convenio OIT 155 y 187 - Seguridad y Salud de los Trabajadores', category: 'OIT' }],
 
   internacional: [
   { id: 'iso45001', name: 'ISO 45001:2018 - Sistema de Gestión SST', category: 'ISO' },
@@ -562,6 +605,7 @@ export default function ChecklistManager(): React.ReactElement | null {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { syncCollection, syncPulse } = useSync();
+  const { selectedFramework } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [showForm, setShowForm] = useState(false);
@@ -728,16 +772,10 @@ export default function ChecklistManager(): React.ReactElement | null {
   }, []);
 
   useEffect(() => {
-    // Obtener país del usuario desde personalData
-    const parsed = safeGetLocalStorage<any>('personalData', null);
-    if (parsed) {
-      const country = parsed.country || 'argentina';
-      setUserCountry(country);
-      setAvailableNorms(getNormsForCountry(country));
-    } else {
-      setAvailableNorms(getNormsForCountry('argentina'));
-    }
-  }, []);
+    const country = selectedFramework || 'argentina';
+    setUserCountry(country);
+    setAvailableNorms(getNormsForCountry(country));
+  }, [selectedFramework]);
 
   useEffect(() => {
     const list = safeGetLocalStorage<any[]>('tool_checklists_history', []);

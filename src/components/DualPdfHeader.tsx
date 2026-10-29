@@ -97,9 +97,9 @@ export default function DualPdfHeader({
   const badgeClass = BADGE_COLORS[normBadgeColor] || BADGE_COLORS.blue;
 
   return (
-    <header className={`dual-pdf-header border-b-2 border-slate-800 pb-3 mb-4 avoid-break ${className}`} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+    <div className={`dual-pdf-header border-b-2 border-slate-800 pb-3 mb-4 avoid-break ${className}`} style={{ breakInside: 'avoid', pageBreakInside: 'avoid', display: 'block' }}>
       <div className="flex items-center justify-between gap-3">
-        {/* LADO IZQUIERDO: Membrete Consultora / Servicio H&S */}
+        {/* LADO IZQUIERDO: Membrete Consultora / Logo H&S */}
         <div className="flex items-center gap-2.5 max-w-[28%] min-w-[120px]">
           {showConsultantLogo && finalConsultantLogo ? (
             <img
@@ -108,24 +108,7 @@ export default function DualPdfHeader({
               className="object-contain max-h-[46px] max-w-[130px]"
               style={{ maxHeight: '46px', maxWidth: '130px', objectFit: 'contain' }}
             />
-          ) : (
-            <div className="flex items-center gap-2 p-1.5 rounded-lg bg-slate-50 border border-slate-200">
-              <ShieldCheck className="text-blue-600 flex-shrink-0" size={26} />
-              <div className="leading-tight">
-                <span className="block text-[7.5pt] font-black uppercase tracking-wider text-slate-800">
-                  SERVICIO DE H&S
-                </span>
-                <span className="block text-[6.5pt] font-medium text-slate-500 truncate max-w-[110px]">
-                  {finalConsultantName || 'Higiene y Seguridad'}
-                </span>
-                {finalConsultantLicense && (
-                  <span className="block text-[6pt] font-mono text-slate-600">
-                    Mat.: {finalConsultantLicense}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
+          ) : null}
         </div>
 
         {/* CENTRO: Título del Documento, Resolución y Normativa */}
@@ -192,6 +175,6 @@ export default function DualPdfHeader({
           </div>
         </div>
       </div>
-    </header>
+    </div>
   );
 }

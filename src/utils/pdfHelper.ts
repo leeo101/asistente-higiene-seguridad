@@ -126,18 +126,24 @@ export async function printElementAsDocument(
 
   const printHtml = el.outerHTML;
 
-  // Asegurar que el elemento impreso no herede posiciones off-screen (left: -9999px, etc.)
-  const cleanHtml = printHtml.replace(
-    /style="([^"]*)"/i,
-    (match, styleContent) => {
-      const sanitized = styleContent
-        .replace(/position\s*:\s*(?:absolute|fixed)/gi, 'position: static')
-        .replace(/left\s*:\s*-[0-9]+px/gi, 'left: 0')
-        .replace(/top\s*:\s*-[0-9]+px/gi, 'top: 0')
-        .replace(/z-index\s*:\s*-[0-9]+/gi, 'z-index: 1');
-      return `style="${sanitized}"`;
-    }
-  );
+  // Asegurar que el elemento impreso no herede clases ni posiciones off-screen
+  let cleanHtml = printHtml
+    .replace(/\bats-pdf-offscreen\b/g, '')
+    .replace(/\bopacity-0\b/g, '')
+    .replace(/\bpointer-events-none\b/g, '')
+    .replace(
+      /style="([^"]*)"/gi,
+      (match, styleContent) => {
+        const sanitized = styleContent
+          .replace(/position\s*:\s*(?:absolute|fixed)/gi, 'position: static')
+          .replace(/left\s*:\s*-[0-9]+px/gi, 'left: 0')
+          .replace(/top\s*:\s*-[0-9]+px/gi, 'top: 0')
+          .replace(/opacity\s*:\s*0/gi, 'opacity: 1')
+          .replace(/visibility\s*:\s*hidden/gi, 'visibility: visible')
+          .replace(/z-index\s*:\s*-[0-9]+/gi, 'z-index: 1');
+        return `style="${sanitized}"`;
+      }
+    );
 
   const htmlDocument = `<!DOCTYPE html>
 <html lang="es">
@@ -145,6 +151,8 @@ export async function printElementAsDocument(
   <meta charset="UTF-8" />
   <title>${title}</title>
   <style>
+    ${pageCss}
+
     @media print {
       @page {
         size: A4 ${isLandscape ? 'landscape' : 'portrait'};
@@ -171,20 +179,34 @@ export async function printElementAsDocument(
       print-color-adjust: exact !important;
     }
     html, body {
-      margin: 0;
-      padding: 0;
+      margin: 0 !important;
+      padding: 0 !important;
       background: #ffffff !important;
       color: #0f172a !important;
-      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important;
+      height: auto !important;
+      min-height: 0 !important;
+      display: block !important;
+      visibility: visible !important;
     }
-    /* Neutralizar cualquier clase o estilo de posición offscreen */
-    .ats-pdf-offscreen, #pdf-portal-container, #pdf-content-print {
+    body > * {
+      position: static !important;
+      left: auto !important;
+      top: auto !important;
+      margin: 0 auto !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: block !important;
+    }
+    /* Neutralizar cualquier clase o estilo de posición offscreen - PREVALECE SIEMPRE */
+    .ats-pdf-offscreen, #pdf-portal-container, #pdf-content-print, #pdf-content-forklift, #pdf-sheet-forklift, [id^="pdf-content"], [id^="pdf-sheet"], [id^="pdf-forklift"], [id^="pdf-"], .pdf-container, .print-area {
       position: static !important;
       left: 0 !important;
       top: 0 !important;
       z-index: auto !important;
       opacity: 1 !important;
       visibility: visible !important;
+      display: block !important;
       width: 100% !important;
       max-width: 100% !important;
       background: #ffffff !important;
@@ -217,7 +239,6 @@ export async function printElementAsDocument(
     thead { display: table-header-group !important; }
     tfoot { display: table-footer-group !important; }
     table { page-break-inside: auto !important; }
-    ${pageCss}
   </style>
 </head>
 <body>

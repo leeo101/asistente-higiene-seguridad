@@ -9,17 +9,20 @@ import {
 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
+import { useLanguage } from '../contexts/LanguageContext';
 import { API_BASE_URL } from '../config';
 import toast from 'react-hot-toast';
 import GlobalQRScanner from './GlobalQRScanner';
 import { auth } from '../firebase';
 import { safeGetLocalStorage, safeJsonParse } from '../utils/storageHelper';
+import { enrichAdvisorResponse } from '../utils/aiAdvisorEnricher';
 
 export default function FloatingAssistant() {
   const navigate = useNavigate();
   const location = useLocation();
   const { currentUser } = useAuth();
   const { isPro } = usePaywall();
+  const { selectedFramework } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -37,7 +40,7 @@ export default function FloatingAssistant() {
     role: 'ai' | 'user';
     text: string;
     timestamp: number;
-    modules?: Array<{ nombre: string; ruta: string; motivo: string }>;
+    modules?: Array<{ nombre: string; ruta: string; motivo: string; comoUsarlo?: string }>;
   }
 
   const renderFormattedMessageText = (text: string) => {
@@ -270,7 +273,7 @@ export default function FloatingAssistant() {
 
       const payload = JSON.stringify({
         taskDescription: userMsg,
-        country: 'argentina',
+        country: selectedFramework || 'argentina',
         isChat: true
       });
 
@@ -285,31 +288,19 @@ export default function FloatingAssistant() {
         });
       };
 
-      let response = await executeRequest(token);
-
-      if (response.status === 503 || response.status === 504) {
-        await new Promise(r => setTimeout(r, 1500));
-        try {
-          const freshToken = await auth.currentUser?.getIdToken(true);
-          if (freshToken) response = await executeRequest(freshToken);
-        } catch (e) {}
+      let rawData: any = {};
+      try {
+        let response = await executeRequest(token);
+        if (response.ok) {
+          rawData = await response.json().catch(() => ({}));
+        } else {
+          rawData = {};
+        }
+      } catch {
+        rawData = {};
       }
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        if (response.status === 503) {
-          throw new Error('El servicio de IA está momentáneamente ocupado. Reintenta en unos instantes.');
-        }
-        if (response.status === 501) {
-          throw new Error('El servidor local no pudo procesar la solicitud (501 Not Implemented). Conectando con los servicios en la nube...');
-        }
-        if (response.status === 401 || response.status === 403) {
-          throw new Error(errorData.error || 'Credenciales de acceso no válidas. Vuelve a iniciar sesión.');
-        }
-        throw new Error(errorData.error || `Error del servidor (${response.status})`);
-      }
-
-      const data = await response.json();
+      const data = enrichAdvisorResponse(rawData, userMsg, selectedFramework || 'argentina');
 
       let aiText = data.chatResponse;
       if (!aiText) {
@@ -407,9 +398,9 @@ export default function FloatingAssistant() {
       ];
     }
     return [
-      "Recordá verificar la vigencia de los matafuegos hoy",
-      "Resumen semanal de siniestralidad",
-      "Consultar marco legal local vigente"
+      "Necesito hacer un plano de evacuación, ¿cómo lo hago?",
+      "Me piden hacer un ATS, ¿qué pasos sigo y qué módulo uso?",
+      "¿Qué necesito para armar un Programa de Seguridad en Obra?"
     ];
   };
 
@@ -448,15 +439,9 @@ export default function FloatingAssistant() {
                     {/* Header */}
                     <div className="flex items-center justify-between mb-[1.2rem] px-1">
                         <div className="flex items-center gap-[0.9rem]">
-                                <div className="w-[48px] h-[48px] bg-[white] rounded-[14px] flex items-center justify-center border-[1px_solid_rgba(59,_130,_246,_0.1)] box-shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
-
-
-
-
-
-
-                
-                                    <img src="/logo.png" alt="Logo" className="assistant-logo-spin w-[32px] h-[32px] object-fit-[contain]" />
+                                <div className="w-[56px] h-[52px] bg-transparent flex flex-col items-center justify-center p-[2px]">
+                                    <img src="/logo-short.png?v=3" alt="HYS" className="w-[48px] h-[28px] object-fit-[contain]" />
+                                    <span className="text-[7.5px] font-[900] tracking-[0.6px] text-[var(--color-text)] uppercase leading-none mt-[2px]">ASISTENTE</span>
                                 </div>
                             <div>
                                 <h4 className="m-[0] text-[1.05rem] font-[900] letter-spacing-[-0.5px] text-[var(--color-text)]">Asistente IA</h4>
@@ -541,7 +526,7 @@ export default function FloatingAssistant() {
                                         <div className="w-[40px] h-[30px] bg-[linear-gradient(135deg,_#fcd34d_0%,_#fbbf24_100%)] rounded-[6px] opacity-80"></div>
                                         <div className="text-right">
                                             <div style={{ letterSpacing: '1px' }} className="text-[0.55rem] font-[900] opacity-60">H&S IDENTIFICATION</div>
-                                            <img src="/logo.png" alt="Logo" className="h-[18px] mt-[4px]" style={{ filter: 'brightness(0) invert(1)' }} />
+                                            <img src="/logo-short.png?v=3" alt="Logo" className="h-[22px] mt-[4px] ml-auto object-contain" />
                                         </div>
                                     </div>
 
@@ -656,8 +641,9 @@ export default function FloatingAssistant() {
                                     {messages.map((m, idx) => (
                                         <div key={idx} style={{ alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start' }} className="flex gap-[0.5rem] max-w-[90%] animation-[fadeIn_0.3s_ease]">
                                             {m.role === 'ai' && (
-                                                <div className="w-[30px] h-[30px] rounded-[50%] bg-[var(--gradient-premium)] flex-shrink-0 flex items-center justify-center box-shadow-[0_4px_10px_rgba(59,_130,_246,_0.2)]">
-                                                    <img src="/logo.png" alt="IA" className="w-[18px] h-[18px] filter-[brightness(0)_invert(1)]" />
+                                                <div className="w-[34px] h-[34px] bg-transparent flex-shrink-0 flex flex-col items-center justify-center p-[1px]">
+                                                    <img src="/logo-short.png?v=3" alt="IA" className="w-[28px] h-[16px] object-contain" />
+                                                    <span className="text-[4.5px] font-[900] text-[var(--color-text)] uppercase leading-none mt-[1px]">ASISTENTE</span>
                                                 </div>
                                             )}
                                             <div style={{
@@ -690,7 +676,8 @@ export default function FloatingAssistant() {
                                                                         >
                                                                             <div className="min-w-0 flex-1 pr-1.5">
                                                                                 <div className="font-bold text-[var(--color-primary)] truncate">{mod.nombre}</div>
-                                                                                {mod.motivo && <div className="text-[0.68rem] text-[var(--color-text-muted)] line-clamp-1">{mod.motivo}</div>}
+                                                                                {mod.motivo && <div className="text-[0.68rem] text-[var(--color-text)] mt-0.5 leading-snug">{mod.motivo}</div>}
+                                                                                {mod.comoUsarlo && <div className="text-[0.65rem] text-[var(--color-text-muted)] mt-0.5 leading-snug"><strong>Cómo usarlo:</strong> {mod.comoUsarlo}</div>}
                                                                             </div>
                                                                             <ArrowRight size={14} className="text-[var(--color-primary)] flex-shrink-0 group-hover:translate-x-1 transition-transform" />
                                                                         </button>
@@ -705,8 +692,9 @@ export default function FloatingAssistant() {
                                     ))}
                                     {isTyping && (
                                         <div className="flex gap-[0.5rem] align-self-[flex-start] max-w-[88%] animation-[fadeIn_0.3s_ease]">
-                                            <div className="w-[30px] h-[30px] rounded-[50%] bg-[var(--gradient-premium)] flex-shrink-0 flex items-center justify-center box-shadow-[0_4px_10px_rgba(59,_130,_246,_0.2)]">
-                                                <img src="/logo.png" alt="IA" className="w-[18px] h-[18px] filter-[brightness(0)_invert(1)]" />
+                                            <div className="w-[34px] h-[34px] bg-transparent flex-shrink-0 flex flex-col items-center justify-center p-[1px]">
+                                                <img src="/logo-short.png?v=3" alt="IA" className="w-[28px] h-[16px] object-contain" />
+                                                <span className="text-[4.5px] font-[900] text-[var(--color-text)] uppercase leading-none mt-[1px]">ASISTENTE</span>
                                             </div>
                                             <div className="p-[0.75rem_1rem] rounded-[4px_18px_18px_18px] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] flex items-center gap-[0.5rem]">
                                                 <div className="dot-flashing transform-[scale(0.8)]"></div>
@@ -805,46 +793,34 @@ export default function FloatingAssistant() {
       }
 
             <div style={{ bottom: isMobile ? '5.5rem' : '2rem', right: isMobile ? '1rem' : '2rem' }} className="fixed z-[9999] pointer-events-[none] transition-[bottom_0.3s_ease]">
-                {/* Main Trigger Button */}
+                {/* Main Trigger Button - Sin fondo blanco, solo las letras HYS + ASISTENTE abajo */}
                 <button
           onClick={toggleAssistant}
-          className={`w-[64px] h-[64px] rounded-[50%] bg-[var(--gradient-premium)] border-[1px_solid_rgba(255,255,255,0.2)] flex items-center justify-center text-[white] cursor-pointer pointer-events-[all] box-shadow-[var(--shadow-glow-primary)] transition-[all_0.5s_cubic-bezier(0.175,_0.885,_0.32,_1.275)] relative overflow-[visible] ${!isOpen ? "assistant-trigger-active" : ""}`}
+          className={`w-[72px] h-[64px] rounded-[16px] bg-transparent border-none flex flex-col items-center justify-center text-[var(--color-text)] cursor-pointer pointer-events-[all] transition-[all_0.35s_cubic-bezier(0.175,_0.885,_0.32,_1.275)] relative overflow-[visible] p-[2px] ${!isOpen ? "assistant-trigger-active" : ""}`}
           style={{
-
-
-
-
-
-
-
-
-
-
-
-
-
-            transform: isOpen ? 'rotate(90deg) scale(0.9)' : 'scale(1)'
-
-
+            background: 'transparent',
+            boxShadow: 'none',
+            transform: isOpen ? 'scale(0.92)' : 'scale(1)'
           }}>
           
                 {isOpen ?
-          <X size={28} /> :
+          <div className="w-[48px] h-[48px] rounded-full bg-slate-900/80 border border-white/20 flex items-center justify-center shadow-lg">
+            <X size={24} color="#ffffff" />
+          </div> :
 
-          <div className="relative w-[46px] h-[46px]">
-                        <img src="/logo.png" alt="Portal" className="w-[100%] h-[100%] object-fit-[contain] filter-[drop-shadow(0_0_10px_rgba(255,255,255,0.4))]" />
+          <div className="flex flex-col items-center justify-center w-full h-full">
+                        <img src="/logo-short.png?v=3" alt="HYS" className="w-[62px] h-[34px] object-fit-[contain] filter-[drop-shadow(0_3px_8px_rgba(0,0,0,0.65))]" />
+                        <span className="text-[9px] font-[900] tracking-[0.8px] text-[var(--color-text)] dark:text-white uppercase leading-none mt-[3px] filter-[drop-shadow(0_2px_4px_rgba(0,0,0,0.85))]">
+                          ASISTENTE
+                        </span>
                     </div>
           }
                 
                 {!isOpen &&
           <div style={{
-            top: -2, right: -2
-
-
-
-
-          }} className="absolute w-[22px] h-[22px] bg-[var(--color-primary)] rounded-[50%] border-[3px_solid_var(--color-background)] flex items-center justify-center z-[10]">
-                        <Sparkles size={10} color="white" fill="white" />
+            top: -2, right: 0
+          }} className="absolute w-[20px] h-[20px] bg-[var(--color-primary)] rounded-[50%] border-[2px_solid_var(--color-background)] flex items-center justify-center z-[10] box-shadow-[0_2px_6px_rgba(59,130,246,0.5)]">
+                        <Sparkles size={9} color="white" fill="white" />
                     </div>
           }
             </button>

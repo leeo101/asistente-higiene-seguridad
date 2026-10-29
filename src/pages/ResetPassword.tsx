@@ -99,16 +99,10 @@ export default function ResetPassword(): React.ReactElement | null {
     <div className="container flex flex-col justify-center min-h-[100vh] max-w-[450px]">
             <div className="card shadow-lg p-[2.5rem]">
                 <div className="text-center mb-[2rem]">
-                    <div className="w-[80px] h-[80px] m-[0_auto_1rem_auto]">
-
-
-
-            
+                    <div className="m-[0_auto_1rem_auto] inline-flex items-center justify-center">
                         <img
               src="/logo.png"
-              alt="Asistente H&S Logo" className="w-[100%] h-[100%] object-fit-[contain]" />
-
-            
+              alt="Asistente H&S Logo" className="h-[64px] w-auto object-fit-[contain]" />
                     </div>
                     <h1 className="text-[1.6rem] mb-[0.5rem]">Nueva Contraseña</h1>
                     <p className="text-[var(--color-text-muted)] text-[0.9rem]">Introduce tu nueva clave de acceso</p>

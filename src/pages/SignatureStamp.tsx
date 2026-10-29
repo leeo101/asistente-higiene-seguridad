@@ -106,10 +106,48 @@ export default function SignatureStamp(): React.ReactElement | null {
     }
   };
 
+  const cropCanvasDataUrl = (canvas: HTMLCanvasElement | null): string | null => {
+    if (!canvas) return null;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return canvas.toDataURL('image/png');
+    const w = canvas.width;
+    const h = canvas.height;
+    const { data } = ctx.getImageData(0, 0, w, h);
+    let minX = w, minY = h, maxX = 0, maxY = 0, found = false;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        if (data[(y * w + x) * 4 + 3] > 15) {
+          found = true;
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+    if (!found) return canvas.toDataURL('image/png');
+    const pad = 10;
+    minX = Math.max(0, minX - pad);
+    minY = Math.max(0, minY - pad);
+    maxX = Math.min(w, maxX + pad);
+    maxY = Math.min(h, maxY + pad);
+    const trimW = Math.max(1, maxX - minX);
+    const trimH = Math.max(1, maxY - minY);
+    const out = document.createElement('canvas');
+    out.width = trimW;
+    out.height = trimH;
+    const outCtx = out.getContext('2d');
+    if (outCtx) {
+      outCtx.drawImage(canvas, minX, minY, trimW, trimH, 0, 0, trimW, trimH);
+      return out.toDataURL('image/png');
+    }
+    return canvas.toDataURL('image/png');
+  };
+
   const handleSave = async () => {
     const data = {
-      signature: signatureImage || (signatureHasContent ? signatureCanvasRef.current?.toDataURL() : null),
-      stamp: stampImage || (stampHasContent ? stampCanvasRef.current?.toDataURL() : null)
+      signature: signatureImage || (signatureHasContent ? cropCanvasDataUrl(signatureCanvasRef.current) : null),
+      stamp: stampImage || (stampHasContent ? cropCanvasDataUrl(stampCanvasRef.current) : null)
     };
     await syncDocument('signatureStampData', data);
     setSaved(true);

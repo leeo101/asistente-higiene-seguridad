@@ -63,39 +63,49 @@ Analiza la siguiente tarea, situación o consulta: "${taskDescription}".`;
         }
 
         prompt += `\nINSTRUCCIONES CLAVE:
-1. SÉ LIBRE, EXHAUSTIVO, PEDAGÓGICO Y MUY DETALLADO: Desarrolla el programa de trabajo paso a paso sin respuestas cortas o telegráficas.
-2. EN CASO DE VEHÍCULOS / CASAS RODANTES / MOTORHOMES / CASILLAS:
-   - Riesgo de Monóxido de Carbono (CO) y Gas Licuado de Petróleo (GLP/garrafas). Detectores de CO y gas.
-   - Seguridad eléctrica dual (12V continua / 220V alterna, disyuntor, puesta a tierra).
-   - Prevención de incendios y extintores (matafuego vehicular y habitáculo triclase ABC, soporte reglamentario, manta ignífuga).
-   - Plan de evacuación (salida principal libre de trabas, salida de emergencia por ventana expulsable/escotilla, punto de encuentro exterior seguro a >15m).
-   - Estado cinemático y mecánico (enganche con cadenas cruzadas, luces y frenos según Ley 24.449).
-3. RECOMIENDA LOS MÓDULOS DE LA PLATAFORMA QUE PUEDE UTILIZAR:
-   Selecciona los módulos correspondientes entre:
-   - "Simulador y Plan de Evacuación" (ruta: "/evacuation-form"): Cálculo de anchos de salida, tiempos y protocolo de escape.
-   - "Inspección de Flota y Vehículos" (ruta: "/fleet-form"): Checklists de inspección vehicular, enganches, luces, neumáticos y matafuego.
-   - "Gestión de Extintores" (ruta: "/extintores"): Control e inspección periódica de extintores según IRAM 3517.
-   - "Carga de Fuego" (ruta: "/fire-load"): Cálculo de carga de fuego y potencial extintor según Dec. 351/79 Anexo VII.
-   - "Análisis de Trabajo Seguro (ATS)" (ruta: "/ats"): Desglose de tareas críticas, riesgos paso a paso y medidas de control.
-   - "Matriz de Riesgos IPER" (ruta: "/risk-matrix"): Evaluación matricial de probabilidad y severidad de riesgos.
-   - "Control y Entrega de EPP" (ruta: "/ppe-tracker"): Registro y firma de entrega de EPP según Res. SRT 299/11.
-   - "Legajo Técnico" (ruta: "/legajos"): Consolidación del expediente técnico, certificados y documentación legal.
-   - "Permiso de Trabajo Especial" (ruta: "/work-permit"): Para trabajos en caliente, soldadura o fuego.
-   - "Plan de Emergencias" (ruta: "/emergency-plan"): Roles de brigada, contingencias y comunicaciones.
-   - "Primeros Auxilios y DEA" (ruta: "/first-aid-aed"): Dotación de botiquines de primeros auxilios.
-   - "Investigación de Accidentes" (ruta: "/accident-investigation"): Método árbol de causas.
+1. SÉ LIBRE, EXHAUSTIVO, PEDAGÓGICO Y MUY DETALLADO: El usuario puede consultarte cualquier tema o tarea (ej. "necesito hacer un plano de evacuación", "me piden hacer un ATS para tal tarea", "¿cómo armo un programa de seguridad?", etc.). Debes explicarle QUÉ hacer, CÓMO hacerlo paso a paso en campo/gabinete y QUÉ módulo(s) de la plataforma usar para cada cosa.
+2. CATÁLOGO COMPLETO DE MÓDULOS DE LA PLATAFORMA (selecciona todos los pertinentes con sus rutas exactas):
+   - "Generador de Planos de Evacuación y Mapas de Riesgo" (ruta: "/risk-maps"): Diseñar/subir el plano o croquis de evacuación, rutas de escape, extintores, "Usted está aquí" y exportar PDF.
+   - "Simulador y Cálculo de Evacuación" (ruta: "/evacuation-form"): Cálculo de factor de ocupación, unidades de ancho de salida (UAS) y tiempos de escape (Dec. 351/79 Anexo VII).
+   - "Plan de Emergencias y Brigadas" (ruta: "/emergency-plan"): Roles de brigada, protocolo de emergencia y comunicaciones.
+   - "Actas de Simulacros de Emergencia" (ruta: "/drills"): Planificación y certificación de simulacros de evacuación.
+   - "Análisis de Trabajo Seguro (ATS)" (ruta: "/ats"): Desglose cronológico de tareas paso a paso, peligros, controles, EPP y firmas digitales.
+   - "Permiso de Trabajo con Tensión / Arc Flash" (ruta: "/arc-flash/new"): Trabajos eléctricos energizados bajo NFPA 70E y Res. SRT 3068/14 (cal/cm², frontera de arco, EPP y firmas).
+   - "Bloqueo y Etiquetado (LOTO)" (ruta: "/loto/new"): Aislamiento de energías, candado, tarjeta y Energía Cero.
+   - "Permiso de Trabajo en Altura" (ruta: "/working-at-height/new"): Trabajos > 2m, andamios, arnés, cabo de vida y punto de anclaje 22 kN.
+   - "Permiso de Trabajo en Caliente" (ruta: "/hot-work/new"): Soldadura, amolado u oxicorte (radio 11m, biombos, arrestallamas, extintor y guardia de cenizas).
+   - "Permiso de Espacios Confinados" (ruta: "/confined-space/new"): Ingreso a tanques/silos/cámaras, medición O2/LEL/CO/H2S, ventilación, trípode y vigía.
+   - "Seguridad en Excavaciones y Zanjeo" (ruta: "/excavations/new"): Zanjas, entibamiento, cateos de servicios y escaleras cada 7,5m.
+   - "Programa de Seguridad en Obra" (ruta: "/construction-safety-program/new"): Programas de seguridad Dec. 911/96 y Res. SRT 51/97, 35/98, 319/99.
+   - "Carga de Fuego y Potencial Extintor" (ruta: "/fire-load"): Cálculo de carga de fuego (kg madera/m²), F30/F60/F90 y potencial extintor.
+   - "Gestión e Inspección de Extintores" (ruta: "/extintores"): Padrón y control de matafuegos IRAM 3517.
+   - "Matriz de Riesgos IPER" (ruta: "/risk-matrix"): Evaluación de Probabilidad x Severidad y controles por puesto.
+   - "Protocolo de Puesta a Tierra SRT 900/15" (ruta: "/grounding/new"): Medición de PAT en Ohms, continuidad de masas y disyuntores.
+   - "Protocolo de Iluminación SRT 84/12" (ruta: "/lighting"): Medición de lux y uniformidad.
+   - "Protocolo de Ruido SRT 85/12" (ruta: "/noise-assessment/new"): Medición de NSCE (dBA) y dosis de ruido.
+   - "Estudio de Ergonomía SRT 886/15" (ruta: "/ergonomics-form"): Planillas 1, 2, 3 y 4 de ergonomía.
+   - "Evaluación de Estrés Térmico (TGBH)" (ruta: "/thermal-stress"): Cálculo de índice TGBH y descanso.
+   - "Estudio de Ventilación" (ruta: "/ventilation"): Cálculo de renovaciones de aire por hora (Cap. 11 Dec. 351/79).
+   - "Control y Entrega de EPP (Res. 299/11)" (ruta: "/ppe-tracker"): Planilla oficial de entrega de EPP certificado con firma.
+   - "Aptitudes Médicas Laborales" (ruta: "/medical"): Certificados de aptitud médica y habilitaciones para tareas de riesgo.
+   - "Gestión de Capacitaciones" (ruta: "/training-management") y "Charla de 5 Minutos" (ruta: "/toolbox-talk").
+   - "Relevamiento General de Riesgos Laborales (RGRL)" (ruta: "/rgrl/new") y "Relevamiento de Agentes de Riesgo (RAR)" (ruta: "/rar/new").
+   - "Autoelevadores Res. SRT 960/15" (ruta: "/forklifts"), "Inspección de Flota y Vehículos" (ruta: "/fleet-form") y "Operaciones de Izaje" (ruta: "/lifting-form").
+   - "Seguridad Química y SGA" (ruta: "/chemical-safety/new"), "Atmósferas Explosivas ATEX" (ruta: "/atex/new") y "Residuos Peligrosos" (ruta: "/hazardous-waste/new").
+   - "Investigación de Accidentes" (ruta: "/accident-investigation"), "Auditorías HSE" (ruta: "/audit/new"), "Acciones Correctivas CAPA" (ruta: "/capa/new").
+   - "Procedimientos de Trabajo Seguro (PTS)" (ruta: "/pts"), "Inspección de Estanterías y Racks" (ruta: "/racks"), "Control de Contratistas" (ruta: "/contractors"), "Tarjetas STOP" (ruta: "/stop-cards/new"), "Primeros Auxilios y DEA" (ruta: "/first-aid-aed"), "Matriz Legal" (ruta: "/legal-matrix"), "Legajo Técnico" (ruta: "/legajos") y "Dossier ZIP" (ruta: "/dossier").
 
 Proporciona un análisis exhaustivo en formato JSON con los siguientes campos EXACTOS:
 {
-    "task": "Nombre o título formal del programa o tarea",
-    "chatResponse": "Explicación completa, pedagógica y detallada en formato Markdown con viñetas, títulos y recomendación explícita de los módulos del sistema a utilizar",
-    "planDeAccion": ["Paso 1: Detalle del paso...", "Paso 2: Detalle del paso..."],
+    "task": "Nombre o título formal del programa, documento o tarea",
+    "chatResponse": "Explicación completa, pedagógica y detallada en formato Markdown explicando QUÉ hacer, CÓMO hacerlo paso a paso y QUÉ módulos del sistema usar para cada parte",
+    "planDeAccion": ["Paso 1: Detalle de qué hacer y cómo...", "Paso 2: Detalle..."],
     "riesgos": ["Detalle del riesgo 1", "Detalle del riesgo 2"],
     "epp": ["EPP o equipamiento de seguridad 1", "EPP 2"],
     "recomendaciones": ["Medida preventiva 1", "Medida preventiva 2"],
     "normativa": ["Ley o Decreto aplicable 1", "Norma 2"],
     "modulosRecomendados": [
-        { "nombre": "Nombre del módulo", "ruta": "/ruta-modulo", "motivo": "Para qué sirve en este caso" }
+        { "nombre": "Nombre del módulo", "ruta": "/ruta-modulo", "motivo": "Para qué sirve en este caso", "comoUsarlo": "Cómo usarlo y qué datos cargar paso a paso en la app" }
     ]
 }
 IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON válido, sin texto adicional fuera del JSON.`;
@@ -135,9 +145,9 @@ IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON válido, sin texto adicional fue
         }
 
         if (!result) {
-            return res.status(500).json({
-                error: 'Todos los modelos de IA fallaron al procesar la solicitud.',
-                details: lastError?.message || 'Error desconocido'
+            return res.status(200).json({
+                task: taskDescription,
+                fallback: true
             });
         }
 

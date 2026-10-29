@@ -72,8 +72,9 @@ export default function LoadingScreen() {
             animation: glowPulse 3s infinite ease-in-out;
           }
           .loading-logo {
-            width: 90px;
-            height: 90px;
+            width: 170px;
+            height: auto;
+            object-fit: contain;
             margin-bottom: 2rem;
             filter: drop-shadow(0 0 25px rgba(59, 130, 246, 0.4));
             animation: logoFloat 3s infinite ease-in-out;

@@ -27,6 +27,8 @@ import AiAdvisorPdfGenerator from '../components/AiAdvisorPdfGenerator';
 import { downloadCSV } from '../services/exportCsv';
 import { getErrorMessage } from '../utils/errorUtils';
 import { usePaywall } from '../hooks/usePaywall';
+import { useLanguage } from '../contexts/LanguageContext';
+import { enrichAdvisorResponse } from '../utils/aiAdvisorEnricher';
 
 function DeleteConfirm({ onConfirm, onCancel }: any) {
   return (
@@ -135,15 +137,18 @@ const LOADING_MESSAGES = [
 
 
 const QUICK_PROMPTS = [
-"Trabajos en altura con andamios",
-"Limpieza de tanque de combustible",
-"Excavación manual en vía pública",
-"Trabajos en caliente",
-"Uso de amoladora angular"];
+  "Necesito hacer un plano de evacuación, ¿qué hago y qué módulo uso?",
+  "Me piden hacer un ATS para montaje y soldadura en altura",
+  "Tengo que hacer un permiso de trabajo con tensión en un tablero",
+  "¿Cómo armo el Programa de Seguridad para una obra?",
+  "Me pidieron medir puesta a tierra, iluminación y carga de fuego",
+  "Limpieza e ingreso a tanque de combustible (espacio confinado)"
+];
 
 
 export default function AIChatAdvisor(): React.ReactElement | null {
   const { isPro, loading: loadingPaywall } = usePaywall();
+  const { selectedFramework } = useLanguage();
   useDocumentTitle('Asesor IA - H&S');
   const navigate = useNavigate();
   const location = useLocation();
@@ -153,7 +158,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
   const [loadingTextIndex, setLoadingTextIndex] = useState(0);
   const [result, setResult] = useState(null);
   const [copied, setCopied] = useState(false);
-  const [userCountry, setUserCountry] = useState('argentina');
+  const [userCountry, setUserCountry] = useState(selectedFramework || 'argentina');
 
   const { syncCollection, syncPulse } = useSync();
   const [history, setHistory] = useState([]);
@@ -198,16 +203,10 @@ export default function AIChatAdvisor(): React.ReactElement | null {
   }, [showForm, syncPulse]);
 
   useEffect(() => {
-    const savedData = localStorage.getItem('personalData');
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData);
-        if (parsed.country) setUserCountry(parsed.country);
-      } catch (err) {
-        console.error(err);
-      }
+    if (selectedFramework) {
+      setUserCountry(selectedFramework);
     }
-  }, []);
+  }, [selectedFramework]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -303,8 +302,9 @@ export default function AIChatAdvisor(): React.ReactElement | null {
   };
 
   const handleLoadHistory = (item) => {
-    setTask(item.task);
-    setResult(item);
+    const enriched = enrichAdvisorResponse(item, item?.task || '');
+    setTask(enriched.task);
+    setResult(enriched);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -565,35 +565,34 @@ export default function AIChatAdvisor(): React.ReactElement | null {
         });
       };
 
-      let response = await executeRequest(token);
+      let rawData: any = {};
+      try {
+        let response = await executeRequest(token);
 
-      // Auto-reintento una vez si el servidor o servicio de tokens devuelve 503 (sobrecarga temporal)
-      if (response.status === 503 || response.status === 504) {
-        console.warn('[Advisor IA] Servidor ocupado (503). Reintentando en 1.5s...');
-        await new Promise(r => setTimeout(r, 1500));
-        try {
-          const freshToken = await auth.currentUser?.getIdToken(true);
-          if (freshToken) response = await executeRequest(freshToken);
-        } catch (e) {
-          console.warn('[Advisor IA] Falló refresh en reintento:', e);
+        // Auto-reintento una vez si el servidor o servicio de tokens devuelve 503 (sobrecarga temporal)
+        if (response.status === 503 || response.status === 504) {
+          console.warn('[Advisor IA] Servidor ocupado (503). Reintentando en 1.5s...');
+          await new Promise(r => setTimeout(r, 1500));
+          try {
+            const freshToken = await auth.currentUser?.getIdToken(true);
+            if (freshToken) response = await executeRequest(freshToken);
+          } catch (e) {
+            console.warn('[Advisor IA] Falló refresh en reintento:', e);
+          }
         }
+
+        if (response.ok) {
+          rawData = await response.json().catch(() => ({}));
+        } else {
+          console.warn(`[Advisor IA] Backend devolvió ${response.status}. Activando motor experto EHS local...`);
+          rawData = {};
+        }
+      } catch (netErr) {
+        console.warn('[Advisor IA] Error de red con backend, activando motor experto EHS local:', netErr);
+        rawData = {};
       }
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        if (response.status === 503) {
-          throw new Error('El servicio de IA o conexión está momentáneamente ocupado. Por favor, reintenta en unos instantes.');
-        }
-        if (response.status === 501) {
-          throw new Error('El servidor local no pudo procesar la solicitud (501 Not Implemented). Conectando con los servicios en la nube...');
-        }
-        if (response.status === 401 || response.status === 403) {
-          throw new Error(errorData.error || 'Credenciales de acceso no válidas. Vuelve a iniciar sesión.');
-        }
-        throw new Error(errorData.error || `Error del servidor (${response.status})`);
-      }
-
-      const data = await response.json();
+      const data = enrichAdvisorResponse(rawData, task, userCountry);
       setResult(data);
 
       let history = [];
@@ -812,15 +811,15 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                     <div className="w-[40px] h-[40px] rounded-[12px] bg-[rgba(16,185,129,0.15)] flex items-center justify-center text-[#10b981]">
                         <Sparkles size={20} />
                     </div>
-                    <h3 className="m-[0] text-[1.25rem] font-[800] text-[var(--color-text)]">¿Qué tarea vas a analizar hoy?</h3>
+                    <h3 className="m-[0] text-[1.25rem] font-[800] text-[var(--color-text)]">¿Qué necesitás hacer o qué te pidieron hoy?</h3>
                 </div>
                 <p className="m-[0_0_1.5rem_0] text-[var(--color-text-muted)] text-[0.95rem] font-[500] pl-[3.25rem]">
-                    Describe la tarea con detalle. La Inteligencia Artificial evaluará riesgos, EPP y normas aplicables.
+                    Preguntale con total libertad (ej.: <em>"necesito hacer un plano de evacuación"</em>, <em>"me piden un ATS para tal tarea"</em> o <em>"¿cómo armo un programa de seguridad?"</em>). El Asesor IA te explicará <strong>qué hacer, cómo hacerlo paso a paso y qué módulo de la aplicación usar para cada cosa</strong>.
                 </p>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-[1.2rem]">
                     <div className="relative group">
                         <textarea
-                placeholder="Ej: Pintura de fachada con hidroelevador a 15 metros de altura cerca de tendido eléctrico..."
+                placeholder="Ej: Necesito hacer un plano de evacuación para un depósito, o me piden hacer un ATS para soldadura en altura..."
                 value={task}
                 onChange={(e) => setTask(e.target.value)}
                 disabled={loading}
@@ -938,73 +937,118 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                         </div>
                     </div>
 
-                    {/* Plan de Acción Detallado */}
-                    {((result as any).planDeAccion?.length > 0 || (result as any).chatResponse) && (
-                        <div className="card mb-[1.5rem] p-[1.5rem] rounded-[16px] bg-[var(--color-surface)] border border-[var(--color-border)] border-t-[4px] border-t-sky-500 shadow-sm transition-all">
-                            <div className="flex items-center gap-[0.8rem] text-sky-600 dark:text-sky-400 bg-[rgba(14,165,233,0.1)] p-[0.8rem] rounded-[10px] mb-[1.2rem]">
-                                <CheckSquare size={22} />
-                                <h4 className="m-[0] font-[700] text-[1.1rem]">Plan de Acción y Procedimiento Operativo</h4>
-                            </div>
-                            {(result as any).planDeAccion?.length > 0 ? (
-                                <div className="flex flex-col gap-[0.75rem]">
-                                    {((result as any).planDeAccion || []).map((step: string, i: number) => (
-                                        <div key={i} className="flex items-start gap-[0.75rem] p-[0.75rem] rounded-[10px] bg-[var(--color-background)] border border-[var(--color-border)]">
-                                            <span className="w-[24px] h-[24px] rounded-full bg-sky-500/15 text-sky-600 dark:text-sky-400 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
-                                                {i + 1}
-                                            </span>
-                                            <p className="m-0 text-[0.92rem] text-[var(--color-text)] leading-relaxed flex-1">
-                                                {step.replace(/^Paso\s*\d+\s*:\s*/i, '')}
-                                            </p>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="text-[0.95rem] leading-[1.7] text-[var(--color-text)] whitespace-pre-line">
-                                    {(result as any).chatResponse}
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Módulos Recomendados de la Plataforma */}
+                    {/* Módulos Recomendados de la Plataforma: ¿Qué módulo usar para cada cosa y cómo hacerlo? */}
                     {(result as any).modulosRecomendados?.length > 0 && (
                         <div className="card mb-[1.5rem] p-[1.5rem] rounded-[16px] bg-[var(--color-surface)] border border-[var(--color-border)] border-t-[4px] border-t-emerald-500 shadow-sm transition-all">
                             <div className="flex items-center justify-between gap-[0.8rem] mb-[1.2rem] flex-wrap">
                                 <div className="flex items-center gap-[0.8rem] text-emerald-600 dark:text-emerald-400 bg-[rgba(16,185,129,0.1)] p-[0.8rem] rounded-[10px]">
                                     <Layers size={22} />
-                                    <h4 className="m-[0] font-[700] text-[1.1rem]">Módulos Recomendados del Sistema</h4>
+                                    <h4 className="m-[0] font-[700] text-[1.1rem]">¿Qué Módulos usar para cada cosa y cómo hacerlo?</h4>
                                 </div>
                                 <span className="text-[0.8rem] text-[var(--color-text-muted)] font-medium">
-                                    Herramientas integradas para ejecutar y documentar este programa
+                                    Hacé clic en cualquier módulo para abrirlo directamente y confeccionar el documento
                                 </span>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[1rem]">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-[1rem]">
                                 {((result as any).modulosRecomendados || []).map((mod: any, i: number) => (
                                     <div
                                         key={i}
-                                        className="p-[1rem] rounded-[12px] bg-[var(--color-background)] border border-[var(--color-border)] hover:border-emerald-500 transition-all flex flex-col justify-between gap-[0.8rem] group"
+                                        className="p-[1.15rem] rounded-[14px] bg-[var(--color-background)] border border-[var(--color-border)] hover:border-emerald-500 transition-all flex flex-col justify-between gap-[0.85rem] group shadow-xs"
                                     >
-                                        <div>
-                                            <div className="flex items-center justify-between mb-1.5 gap-2">
-                                                <span className="font-bold text-[0.95rem] text-[var(--color-text)] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between gap-2">
+                                                <span className="font-extrabold text-[1rem] text-[var(--color-text)] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                                                     {mod.nombre}
                                                 </span>
-                                                <span className="text-[0.7rem] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-mono flex-shrink-0">
+                                                <span className="text-[0.7rem] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 rounded-full font-mono font-bold flex-shrink-0">
                                                     {mod.ruta}
                                                 </span>
                                             </div>
-                                            <p className="text-[0.82rem] text-[var(--color-text-muted)] m-0 leading-relaxed">
+                                            <p className="text-[0.85rem] text-[var(--color-text)] m-0 leading-relaxed">
+                                                <strong className="text-emerald-600 dark:text-emerald-400">¿Para qué sirve?: </strong>
                                                 {mod.motivo}
                                             </p>
+                                            {mod.comoUsarlo && (
+                                                <div className="p-2.5 rounded-lg bg-emerald-500/5 border border-emerald-500/15 text-[0.82rem] text-[var(--color-text-muted)] leading-relaxed">
+                                                    <strong className="text-[var(--color-text)]">¿Cómo hacerlo en este módulo?: </strong>
+                                                    {mod.comoUsarlo}
+                                                </div>
+                                            )}
                                         </div>
                                         <button
                                             type="button"
                                             onClick={() => navigate(mod.ruta)}
-                                            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-600 hover:text-white border border-emerald-200 dark:border-emerald-800 text-xs font-bold transition-all cursor-pointer"
+                                            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white border-none text-xs font-extrabold transition-all cursor-pointer shadow-sm"
                                         >
-                                            <span>Abrir Módulo</span>
+                                            <span>Ir al Módulo ({mod.nombre})</span>
                                             <ArrowRight size={14} />
                                         </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Explicación Libre y Guía Completa del Asesor IA (chatResponse) */}
+                    {(result as any).chatResponse && (
+                        <div className="card mb-[1.5rem] p-[1.5rem] rounded-[16px] bg-[var(--color-surface)] border border-[var(--color-border)] border-t-[4px] border-t-indigo-500 shadow-sm transition-all">
+                            <div className="flex items-center gap-[0.8rem] text-indigo-600 dark:text-indigo-400 bg-[rgba(99,102,241,0.1)] p-[0.8rem] rounded-[10px] mb-[1.2rem]">
+                                <Sparkles size={22} />
+                                <h4 className="m-[0] font-[700] text-[1.1rem]">Guía del Asesor IA: ¿Qué hacer y cómo hacerlo?</h4>
+                            </div>
+                            <div className="text-[0.94rem] leading-[1.7] text-[var(--color-text)] space-y-1.5">
+                                {String((result as any).chatResponse).split('\n').map((line: string, idx: number) => {
+                                    const trimmed = line.trim();
+                                    if (!trimmed) return <div key={idx} className="h-2" />;
+                                    if (trimmed.startsWith('## ')) {
+                                        return (
+                                            <h3 key={idx} className="text-[1.05rem] font-extrabold text-indigo-600 dark:text-indigo-400 mt-3 mb-1">
+                                                {trimmed.replace(/^##\s+/, '')}
+                                            </h3>
+                                        );
+                                    }
+                                    if (trimmed.startsWith('### ')) {
+                                        return (
+                                            <h4 key={idx} className="text-[0.96rem] font-bold text-[var(--color-text)] mt-2.5 mb-1">
+                                                {trimmed.replace(/^###\s+/, '')}
+                                            </h4>
+                                        );
+                                    }
+                                    const parts = line.split(/(\*\*.*?\*\*)/g);
+                                    return (
+                                        <p key={idx} className="m-0 leading-relaxed">
+                                            {parts.map((part, pIdx) =>
+                                                part.startsWith('**') && part.endsWith('**') ? (
+                                                    <strong key={pIdx} className="font-bold text-[var(--color-text)]">
+                                                        {part.slice(2, -2)}
+                                                    </strong>
+                                                ) : (
+                                                    part
+                                                )
+                                            )}
+                                        </p>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Plan de Acción Paso a Paso */}
+                    {(result as any).planDeAccion?.length > 0 && (
+                        <div className="card mb-[1.5rem] p-[1.5rem] rounded-[16px] bg-[var(--color-surface)] border border-[var(--color-border)] border-t-[4px] border-t-sky-500 shadow-sm transition-all">
+                            <div className="flex items-center gap-[0.8rem] text-sky-600 dark:text-sky-400 bg-[rgba(14,165,233,0.1)] p-[0.8rem] rounded-[10px] mb-[1.2rem]">
+                                <CheckSquare size={22} />
+                                <h4 className="m-[0] font-[700] text-[1.1rem]">Paso a Paso Operativo y de Gestión</h4>
+                            </div>
+                            <div className="flex flex-col gap-[0.75rem]">
+                                {((result as any).planDeAccion || []).map((step: string, i: number) => (
+                                    <div key={i} className="flex items-start gap-[0.75rem] p-[0.75rem] rounded-[10px] bg-[var(--color-background)] border border-[var(--color-border)]">
+                                        <span className="w-[24px] h-[24px] rounded-full bg-sky-500/15 text-sky-600 dark:text-sky-400 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                                            {i + 1}
+                                        </span>
+                                        <p className="m-0 text-[0.92rem] text-[var(--color-text)] leading-relaxed flex-1">
+                                            {step.replace(/^(Paso\s*\d+\s*[:.-]?\s*|\d+[.)-]\s*)/i, '')}
+                                        </p>
                                     </div>
                                 ))}
                             </div>

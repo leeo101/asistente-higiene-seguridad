@@ -36,9 +36,9 @@ export default function MarketingLanding({ onStart, onLogin }: MarketingLandingP
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 sm:gap-3 cursor-pointer shrink-0" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <img
-              src="/logo.png"
+              src="/logo.png?v=3"
               alt="Logo Asistente H&S"
-              className="w-7 h-7 sm:w-8 sm:h-8 object-contain rounded-lg shadow-md border border-white/10"
+              className="h-8 sm:h-9 w-auto object-contain drop-shadow-md"
               onError={(e) => {
                 (e.target as HTMLElement).style.display = 'none';
               }}

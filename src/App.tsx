@@ -16,7 +16,7 @@ import HeaderNotifications from './components/HeaderNotifications';
 import PWAReloadPrompt from './components/PWAReloadPrompt';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider, useSync } from './contexts/SyncContext';
-import { LanguageProvider } from './contexts/LanguageContext';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { CompanyProvider, useCompany } from './contexts/CompanyContext';
 import CompanySelectorModal from './components/CompanySelectorModal';
 import OfflineStatusBar from './components/OfflineStatusBar';
@@ -162,6 +162,7 @@ const ArcFlashPermitForm = lazyWithRetry(() => import('./pages/ArcFlashPermitFor
 const IndustrialEnvironmentManager = lazyWithRetry(() => import('./pages/IndustrialEnvironmentManager'));
 const IndustrialEnvironmentForm = lazyWithRetry(() => import('./pages/IndustrialEnvironmentForm'));
 const ForkliftSrt960Manager = lazyWithRetry(() => import('./pages/ForkliftSrt960Manager'));
+const ForkliftDailyCheckForm = lazyWithRetry(() => import('./pages/ForkliftDailyCheckForm'));
 const LegalComplianceMatrix = lazyWithRetry(() => import('./pages/LegalComplianceMatrix'));
 const VentilationStudyManager = lazyWithRetry(() => import('./pages/VentilationStudyManager'));
 const PTSProcedureManager = lazyWithRetry(() => import('./pages/PTSProcedureManager'));
@@ -435,6 +436,7 @@ function ScrollToTop() {
 function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v: boolean) => void, setIsSearchOpen: (v: boolean) => void }) {
   const { currentUser } = useAuth();
   const { activeCompany } = useCompany();
+  const { t } = useLanguage();
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const location = useLocation();
   const showMenuButton = !!currentUser && location.pathname !== '/login' && location.pathname !== '/subscribe' && location.pathname !== '/ai-camera';
@@ -466,7 +468,7 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
         <button
           className="hide-on-mobile"
           onClick={() => setIsSidebarOpen(true)}
-          aria-label="Abrir menú"
+          aria-label={t('header.open_menu')}
           style={{
             background: isDashboard ? 'rgba(255, 255, 255, 0.05)' : 'var(--color-background)',
             border: isDashboard ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid var(--color-border)',
@@ -486,8 +488,8 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
           <Menu weight="bold" size={22} />
         </button>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: isDashboard ? '#ffffff' : 'var(--color-text)', flex: 1, minWidth: 0, transition: 'opacity var(--transition-fast)' }}>
-          <img src={localStorage.getItem('companyLogo') || "/logo.png"} alt="Logo" style={{ width: '44px', height: '44px', flexShrink: 0, objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(59, 130, 246, 0.2))' }} />
-          <h1 className="header-title" style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: isDashboard ? '#ffffff' : 'var(--color-text)', letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Asistente HYS</h1>
+          <img src={localStorage.getItem('companyLogo') || "/logo.png?v=3"} alt="Logo" style={{ height: '38px', width: 'auto', maxWidth: '110px', flexShrink: 0, objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35))' }} />
+          <h1 className="header-title" style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: isDashboard ? '#ffffff' : 'var(--color-text)', letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t('app.short_name')}</h1>
         </Link>
 
         {/* Global Company Selector Chip */}
@@ -511,18 +513,18 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
             maxWidth: '220px',
             transition: 'all var(--transition-base)'
           }}
-          title="Cambiar empresa activa (Multi-empresa)"
+          title={t('header.change_company')}
         >
           <Building2 size={16} style={{ flexShrink: 0 }} />
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {activeCompany ? activeCompany.name : 'Todas las Empresas'}
+            {activeCompany ? activeCompany.name : t('header.all_companies')}
           </span>
         </button>
 
         <button
           onClick={() => setIsSearchOpen(true)}
-          aria-label="Buscar"
-          title="Buscar (Ctrl+K)"
+          aria-label={t('btn.search')}
+          title={`${t('btn.search')} (Ctrl+K)`}
           style={{
             background: isDashboard ? 'rgba(255, 255, 255, 0.08)' : 'var(--color-background)',
             border: isDashboard ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid var(--color-border)',
@@ -541,7 +543,7 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
           className="hover:scale-[1.02] active:scale-[0.98]"
         >
           <Search weight="bold" size={20} />
-          <span className="hide-on-mobile text-[0.82rem] font-[600] opacity-80">Buscar…</span>
+          <span className="hide-on-mobile text-[0.82rem] font-[600] opacity-80">{t('header.search')}</span>
           <kbd className="hide-on-mobile ml-1 px-1.5 py-0.5 text-[0.65rem] font-[800] rounded-md bg-[rgba(255,255,255,0.12)] text-[var(--color-text-muted)] border border-[rgba(255,255,255,0.15)] shadow-xs">
             Ctrl K
           </kbd>
@@ -742,7 +744,9 @@ function App() {
                   <Route path="/industrial-environment/new" element={<ProtectedRoute><IndustrialEnvironmentForm /></ProtectedRoute>} />
 
                   <Route path="/forklifts" element={<ProtectedRoute><ForkliftSrt960Manager /></ProtectedRoute>} />
+                  <Route path="/forklifts/check" element={<ProtectedRoute><ForkliftDailyCheckForm /></ProtectedRoute>} />
                   <Route path="/autoelevadores" element={<ProtectedRoute><ForkliftSrt960Manager /></ProtectedRoute>} />
+                  <Route path="/autoelevadores/check" element={<ProtectedRoute><ForkliftDailyCheckForm /></ProtectedRoute>} />
 
                   <Route path="/legal-matrix" element={<ProtectedRoute><LegalComplianceMatrix /></ProtectedRoute>} />
                   <Route path="/matriz-legal" element={<ProtectedRoute><LegalComplianceMatrix /></ProtectedRoute>} />

@@ -11,13 +11,15 @@ import { legislationData, countryList, regionalData, municipalData } from '../da
 import toast from 'react-hot-toast';
 import { auth } from '../firebase';
 import PremiumHeader from '../components/PremiumHeader';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Legislation(): React.ReactElement | null {
   const navigate = useNavigate();
+  const { selectedFramework, setSelectedFramework } = useLanguage();
 
   // 1. Hooks de estado en la parte superior
   const [searchTerm, setSearchTerm] = useState('');
-  const [userCountry, setUserCountry] = useState('argentina');
+  const [userCountry, setUserCountry] = useState(selectedFramework || 'argentina');
   const [selectedLevel, setSelectedLevel] = useState('all'); // all, national, regional, municipal
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedMunicipality, setSelectedMunicipality] = useState('');
@@ -44,22 +46,16 @@ export default function Legislation(): React.ReactElement | null {
 
   const [expandedNote, setExpandedNote] = useState<string | null>(null);
 
-  // 2. Efecto para cargar país del perfil
+  // 2. Efecto para sincronizar con el marco legal activo
   useEffect(() => {
     window.scrollTo(0, 0);
-    const savedData = localStorage.getItem('personalData');
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData);
-        if (parsed.country) {
-          const countryCode = parsed.country.toLowerCase();
-          setUserCountry(countryCode);
-        }
-      } catch (err) {
-        console.error('Error loading country from personalData:', err);
-      }
-    }
   }, []);
+
+  useEffect(() => {
+    if (selectedFramework && selectedFramework !== userCountry) {
+      setUserCountry(selectedFramework);
+    }
+  }, [selectedFramework]);
 
   // 3. Cálculos derivados (Filtrado y Ordenado)
   const countryInfo = countryList.find((c) => c.code === userCountry) || countryList[0];
@@ -171,7 +167,9 @@ export default function Legislation(): React.ReactElement | null {
                     <select
             value={userCountry}
             onChange={(e) => {
-              setUserCountry(e.target.value);
+              const nextCountry = e.target.value;
+              setUserCountry(nextCountry);
+              setSelectedFramework(nextCountry);
               setSelectedLevel('all');
               setSelectedRegion('');
             }} className="bg-[transparent] border-none p-[0] text-[0.85rem] text-[var(--color-primary)] font-[700] cursor-pointer outline-[none]">

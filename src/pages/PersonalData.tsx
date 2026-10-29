@@ -3,6 +3,7 @@ import { usePaywall } from '../hooks/usePaywall';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, User, Mail, CreditCard, Award, Phone, MapPin, Camera, Trash2, GraduationCap, Globe, CheckCircle } from 'lucide-react';
 import { useSync } from '../contexts/SyncContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { countryList } from '../data/legislationData';
 import { PROFESSION_GROUPS, ALL_PROFESSIONS_FLAT, DEFAULT_PROFESSION, formatProfessionTitle } from '../data/professionOptions';
 import toast from 'react-hot-toast';
@@ -25,6 +26,7 @@ export default function PersonalData(): React.ReactElement | null {
   const { requirePro } = usePaywall();
   const navigate = useNavigate();
   const { syncDocument } = useSync();
+  const { selectedFramework, setSelectedFramework } = useLanguage();
   const [saved, setSaved] = useState(false);
   const [formData, setFormData] = useState({
     name: 'Juan Pérez',
@@ -33,7 +35,7 @@ export default function PersonalData(): React.ReactElement | null {
     license: 'MP 5567',
     phone: '+54 9 11 1234-5678',
     address: 'Av. Corrientes 1234, CABA',
-    country: 'argentina',
+    country: selectedFramework || 'argentina',
     photo: null,
     profession: ''
   });
@@ -72,7 +74,14 @@ export default function PersonalData(): React.ReactElement | null {
     }
   }, []);
 
+  useEffect(() => {
+    if (selectedFramework && formData.country !== selectedFramework) {
+      setFormData((prev) => ({ ...prev, country: selectedFramework }));
+    }
+  }, [selectedFramework]);
+
   const handleSave = async () => {
+    setSelectedFramework(formData.country);
     await syncDocument('personalData', formData);
     setSaved(true);
     toast.success('Datos guardados correctamente');
@@ -274,7 +283,11 @@ export default function PersonalData(): React.ReactElement | null {
                 <FieldGroup icon={<Globe size={15} />} label="País / Región">
                     <select
             value={formData.country}
-            onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+            onChange={(e) => {
+              const nextCountry = e.target.value;
+              setFormData({ ...formData, country: nextCountry });
+              setSelectedFramework(nextCountry);
+            }}
             style={{ ...inputStyle }} className="appearance-[none]">
             
                         {countryList.map((c) =>

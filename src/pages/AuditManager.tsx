@@ -16,6 +16,7 @@ import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
 import ConfirmModal from '../components/ConfirmModal';
 import PremiumHeader from '../components/PremiumHeader';
 import Breadcrumbs from '../components/Breadcrumbs';
+import AnimatedPage from '../components/AnimatedPage';
 
 // Tipos de auditoría según ISO 45001
 const AUDIT_TYPES = [
@@ -40,11 +41,11 @@ const AUDIT_AREAS = [
 
 // Estados de auditoría
 const AUDIT_STATUS = {
-  draft: { label: 'BORRADOR', color: '#6b7280', bg: '#f3f4f6' },
-  planned: { label: 'PLANIFICADA', color: '#3b82f6', bg: '#eff6ff' },
-  in_progress: { label: 'EN CURSO', color: '#f59e0b', bg: '#fffbeb' },
-  completed: { label: 'COMPLETADA', color: '#16a34a', bg: '#f0fdf4' },
-  cancelled: { label: 'CANCELADA', color: '#dc2626', bg: '#fef2f2' }
+  draft: { label: 'Borrador', color: '#6b7280', bg: '#f3f4f6' },
+  planned: { label: 'Planificada', color: '#3b82f6', bg: '#eff6ff' },
+  in_progress: { label: 'En Curso', color: '#f59e0b', bg: '#fffbeb' },
+  completed: { label: 'Completada', color: '#16a34a', bg: '#f0fdf4' },
+  cancelled: { label: 'Cancelada', color: '#dc2626', bg: '#fef2f2' }
 };
 
 // Estados de hallazgos
@@ -304,7 +305,11 @@ export default function AuditManager(): React.ReactElement | null {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 pt-28 pb-24">
+    <AnimatedPage>
+      <div
+        className="container pb-[6rem] min-h-[100vh] flex flex-col pt-28 sm:pt-32"
+        style={{ paddingTop: '8.5rem' }}
+      >
             <ShareModal
         isOpen={!!shareItem}
         open={!!shareItem}
@@ -322,7 +327,10 @@ export default function AuditManager(): React.ReactElement | null {
             <PremiumHeader 
                 title="Auditorías EHS" 
                 subtitle="Gestión de auditorías internas, externas e inspecciones de cumplimiento ISO 45001"
+                badge="ISO 45001:2018"
                 icon={<ClipboardCheck size={36} color="#ffffff" />}
+                gradient="linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%)"
+                onBack={() => navigate('/')}
             />
 
             {/* Top Summary Cards (KPIs) igual que Aptitudes Médicas */}
@@ -455,18 +463,16 @@ export default function AuditManager(): React.ReactElement | null {
             {activeTab === 'audits' &&
       <>
                     {/* Search & Filters igual que Aptitudes Médicas */}
-                    <div className="flex flex-row items-center justify-between gap-3 mb-6 flex-wrap sm:flex-nowrap">
-                        <div className="relative flex-1 min-w-[200px] max-w-xs h-[38px]">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6">
+                        <div className="relative w-full sm:flex-1 sm:max-w-xs" style={{ height: '38px', margin: 0 }}>
                             <Search 
                               size={16} 
                               className="text-slate-400 pointer-events-none z-10" 
                               style={{ 
                                 position: 'absolute', 
-                                left: '0.75rem', 
-                                top: 0, 
-                                bottom: 0, 
-                                marginTop: 'auto', 
-                                marginBottom: 'auto', 
+                                left: '0.85rem', 
+                                top: '50%', 
+                                transform: 'translateY(-50%)', 
                                 display: 'block' 
                               }} 
                             />
@@ -475,46 +481,108 @@ export default function AuditManager(): React.ReactElement | null {
                               placeholder="Buscar por título, auditor, ubicación..."
                               value={searchTerm}
                               onChange={(e: any) => setSearchTerm(e.target.value)}
-                              style={{ paddingLeft: '2.25rem', paddingRight: '0.75rem', height: '38px', width: '100%', boxSizing: 'border-box', outline: 'none' }}
+                              style={{ 
+                                paddingLeft: '2.4rem', 
+                                paddingRight: '0.75rem', 
+                                height: '38px', 
+                                minHeight: '38px', 
+                                maxHeight: '38px', 
+                                width: '100%', 
+                                boxSizing: 'border-box', 
+                                outline: 'none', 
+                                margin: 0, 
+                                marginBottom: 0 
+                              }}
                               className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all" 
                             />
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 w-full sm:w-auto" style={{ margin: 0 }}>
                             <select
                                 value={filterStatus}
                                 onChange={(e: any) => setFilterStatus(e.target.value)}
-                                style={{ height: '34px' }}
-                                className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2 text-xs font-semibold text-slate-700 dark:text-slate-200 outline-none cursor-pointer">
+                                style={{ 
+                                  height: '38px', 
+                                  minHeight: '38px', 
+                                  maxHeight: '38px', 
+                                  padding: '0 1.25rem 0 0.85rem', 
+                                  margin: 0, 
+                                  boxSizing: 'border-box', 
+                                  fontSize: '12px', 
+                                  fontWeight: 700
+                                }}
+                                className="flex-1 sm:flex-initial bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 outline-none cursor-pointer shadow-sm focus:border-blue-500 transition-all">
                                 <option value="all">Todos los Estados</option>
                                 {Object.entries(AUDIT_STATUS).map(([key, value]: any) =>
                                   <option key={key} value={key}>{value.label}</option>
                                 )}
                             </select>
 
-                            {/* Botón Nueva Auditoría super compacto al lado del buscador */}
+                            {/* Botón Nueva Auditoría perfectamente alineado */}
                             <button 
                               onClick={() => navigate('/audit/new')} 
                               style={{
                                 backgroundColor: '#059669',
                                 color: '#ffffff',
                                 border: 'none',
-                                padding: '6px 14px',
+                                padding: '0 16px',
                                 fontSize: '12px',
-                                fontWeight: '800',
+                                fontWeight: 800,
                                 borderRadius: '8px',
                                 cursor: 'pointer',
                                 display: 'inline-flex',
                                 alignItems: 'center',
+                                justifyContent: 'center',
                                 gap: '6px',
                                 whiteSpace: 'nowrap',
-                                height: '34px',
+                                height: '38px',
+                                minHeight: '38px',
+                                maxHeight: '38px',
+                                lineHeight: '38px',
+                                margin: 0,
+                                marginBottom: 0,
+                                boxSizing: 'border-box',
                                 boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
-                              }}>
-                              <Plus size={14} />
+                              }}
+                              className="flex-1 sm:flex-initial"
+                            >
+                              <Plus size={15} />
                               <span>Nueva Auditoría</span>
                             </button>
                         </div>
+                    </div>
+
+                    {/* Píldoras de filtro rápido */}
+                    <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-4 scrollbar-none">
+                      {[
+                        { id: 'all', label: 'Todas' },
+                        { id: 'planned', label: 'Planificadas' },
+                        { id: 'in_progress', label: 'En Curso' },
+                        { id: 'completed', label: 'Completadas' },
+                        { id: 'draft', label: 'Borradores' }
+                      ].map((pill) => (
+                        <button
+                          key={pill.id}
+                          onClick={() => setFilterStatus(pill.id)}
+                          style={{
+                            backgroundColor: filterStatus === pill.id ? '#2563eb' : '#ffffff',
+                            color: filterStatus === pill.id ? '#ffffff' : '#475569',
+                            border: filterStatus === pill.id ? '1px solid #2563eb' : '1px solid #cbd5e1',
+                            padding: '5px 12px',
+                            borderRadius: '9999px',
+                            fontWeight: 700,
+                            fontSize: '12px',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            transition: 'all 0.15s ease',
+                            boxShadow: filterStatus === pill.id ? '0 2px 6px rgba(37,99,235,0.25)' : 'none'
+                          }}
+                        >
+                          {pill.label}
+                        </button>
+                      ))}
                     </div>
 
                     {/* Audits List */}
@@ -522,6 +590,8 @@ export default function AuditManager(): React.ReactElement | null {
         <EmptyStateIllustrated
           title="Sin Auditorías Registradas"
           description="Planificá y gestioná auditorías internas y externas según ISO 45001."
+          actionLabel="+ Nueva Auditoría"
+          onAction={() => navigate('/audit/new')}
           icon={<ClipboardCheck />} /> :
 
 
@@ -579,7 +649,9 @@ export default function AuditManager(): React.ReactElement | null {
         message="Esta acción no se puede deshacer."
         iconEmoji="🗑️" />
       
-        </div>);
+        </div>
+    </AnimatedPage>
+  );
 
 }
 
@@ -703,7 +775,7 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
 
 
 
-          transform: isHovered ? 'scale(1.05) rotate(-3deg)' : 'scale(1) rotate(0)'
+          transform: isHovered ? 'scale(1.05)' : 'scale(1)'
 
         }} className="rounded-[var(--radius-xl)] flex items-center justify-center flex-shrink-[0] transition-[all_0.3s_ease]">
                     <ClipboardCheck size={isMobile ? 22 : 28} color={statusConfig.color} strokeWidth={2} />
@@ -778,108 +850,86 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
             </div>
 
             {/* Acciones */}
-            <div style={{ flexWrap: isMobile ? 'wrap' : 'nowrap', borderTop: isMobile ? '1px solid var(--color-border)' : 'none', paddingTop: isMobile ? '0.75rem' : '0' }} className="flex gap-[0.4rem] relative z-[2]">
-                <button
-          onClick={onEdit}
-          style={{
-            padding: isMobile ? '0.5rem 1rem' : '0.65rem',
-
-
-
-
-
-
-
-
-
-            flex: isMobile ? 1 : 'none'
-
-
-          }}
-          onMouseEnter={(e) => {e.currentTarget.style.background = '#6366f112';e.currentTarget.style.borderColor = '#6366f130';}}
-          onMouseLeave={(e) => {e.currentTarget.style.background = 'var(--color-background)';e.currentTarget.style.borderColor = 'var(--color-border)';}}
-          title="Editar Auditoría" className="bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[var(--radius-lg)] cursor-pointer text-[#6366f1] transition-[all_0.2s] flex items-center justify-center gap-[0.5rem] font-[700]">
-          
-                    <Edit3 size={16} />
-                    {isMobile && 'Editar'}
-                </button>
-                {audit.status === 'planned' &&
-        <button
-          onClick={onStart}
-          style={{
-            padding: isMobile ? '0.5rem 1rem' : '0.65rem 0.85rem',
-
-
-
-
-
-
-
-
-
-
-            flex: isMobile ? 1 : 'none'
-
-
-
-          }}
-          onMouseEnter={(e) => {e.currentTarget.style.background = '#2563eb';}}
-          onMouseLeave={(e) => {e.currentTarget.style.background = '#3b82f6';}}
-          title="Iniciar Auditoría" className="bg-[#3b82f6] border-none rounded-[var(--radius-lg)] cursor-pointer text-[#fff] font-[800] text-[0.75rem] flex items-center justify-center gap-[0.35rem] transition-[all_0.2s] box-shadow-[0_4px_10px_rgba(59,_130,_246,_0.25)]">
-          
-                        <Clock size={15} />
-                        <span>Iniciar</span>
-                    </button>
-        }
+            <div className={`relative z-[2] flex items-center gap-1.5 flex-wrap sm:flex-nowrap ${isMobile ? 'w-full justify-between pt-3 border-t border-slate-200 dark:border-slate-800' : 'justify-end'}`}>
+                {audit.status === 'planned' && (
+                  <button
+                    onClick={onStart}
+                    title="Iniciar Auditoría"
+                    style={{
+                      backgroundColor: '#2563eb',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '0 12px',
+                      fontSize: '12px',
+                      fontWeight: 800,
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '5px',
+                      height: '32px',
+                      boxSizing: 'border-box'
+                    }}
+                    className="flex-1 sm:flex-initial"
+                  >
+                    <Clock size={14} /> Iniciar
+                  </button>
+                )}
         {audit.status === 'in_progress' && (
           <button
             onClick={onAddFinding}
-            style={{ backgroundColor: '#f59e0b', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-            title="Agregar Hallazgo">
-            <AlertTriangle size={12} /> Hallazgo
+            style={{ backgroundColor: '#f59e0b', color: '#ffffff', border: 'none', padding: '0 12px', fontSize: '12px', fontWeight: '800', borderRadius: '8px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '5px', height: '32px', boxSizing: 'border-box' }}
+            title="Agregar Hallazgo"
+            className="flex-1 sm:flex-initial"
+          >
+            <AlertTriangle size={14} /> Hallazgo
           </button>
         )}
 
         <button
           onClick={onEdit}
-          title="Ver / Editar Auditoría"
-          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <Edit3 size={12} /> Editar
+          title="Editar Auditoría"
+          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '0 12px', fontSize: '12px', fontWeight: '800', borderRadius: '8px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '5px', height: '32px', boxSizing: 'border-box' }}
+          className="flex-1 sm:flex-initial"
+        >
+          <Edit3 size={14} /> Editar
         </button>
 
         <button
           onClick={onPreview}
           title="Vista Previa A4"
-          style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <Eye size={12} /> Previa
+          style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '0 12px', fontSize: '12px', fontWeight: '800', borderRadius: '8px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '5px', height: '32px', boxSizing: 'border-box' }}
+          className="flex-1 sm:flex-initial"
+        >
+          <Eye size={14} /> Previa
         </button>
 
         <button
           onClick={onPrint}
-          title="Imprimir / Guardar PDF"
-          style={{ backgroundColor: '#8b5cf6', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <Printer size={12} /> PDF
-        </button>
-
-        <button
-          onClick={onView}
-          title="Ver Detalles"
-          style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <Eye size={12} /> Ver
+          title="Imprimir / Exportar PDF"
+          style={{ backgroundColor: '#8b5cf6', color: '#ffffff', border: 'none', padding: '0 12px', fontSize: '12px', fontWeight: '800', borderRadius: '8px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '5px', height: '32px', boxSizing: 'border-box' }}
+          className="flex-1 sm:flex-initial"
+        >
+          <Printer size={14} /> PDF
         </button>
 
         <button
           onClick={onShare}
-          title="Compartir PDF"
-          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <Share2 size={12} /> Compartir
+          title="Compartir Informe"
+          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '0 12px', fontSize: '12px', fontWeight: '800', borderRadius: '8px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '5px', height: '32px', boxSizing: 'border-box' }}
+          className="flex-1 sm:flex-initial"
+        >
+          <Share2 size={14} /> Compartir
         </button>
 
         <button
           onClick={onDelete}
           title="Eliminar Auditoría"
-          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <Trash2 size={12} /> Eliminar
+          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '0 10px', fontSize: '12px', fontWeight: '800', borderRadius: '8px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px', height: '32px', boxSizing: 'border-box' }}
+          className="shrink-0"
+        >
+          <Trash2 size={14} />
         </button>
             </div>
         </div>);
@@ -998,8 +1048,10 @@ function FindingsList({ findings, audits, onUpdateStatus, severityConfig, status
                             </div>
                             <div style={{ width: isMobile ? '100%' : 'auto', borderTop: isMobile ? '1px solid var(--color-border)' : 'none', paddingTop: isMobile ? '0.5rem' : '0' }} className="flex">
                                 <select
-                  value={finding.status}
-                  onChange={(e: any) => onUpdateStatus(finding.id, e.target.value)} className="p-[0.6rem] rounded-[var(--radius-md)] border-[1px_solid_var(--color-border)] text-[0.8rem] font-[600] w-[100%] bg-[var(--color-background)]">
+                                  value={finding.status}
+                                  onChange={(e: any) => onUpdateStatus(finding.id, e.target.value)}
+                                  style={{ margin: 0, marginBottom: 0 }}
+                                  className="p-[0.6rem] rounded-[var(--radius-md)] border-[1px_solid_var(--color-border)] text-[0.8rem] font-[600] w-[100%] bg-[var(--color-background)]">
 
                   
                                     {Object.entries(statusConfig).map(([key, value]: any) =>

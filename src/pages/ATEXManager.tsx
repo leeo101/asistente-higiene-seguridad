@@ -1,20 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Zap, Plus, Search, Calendar, FileText, Download,
-  Trash2, AlertTriangle, CheckCircle2, ShieldAlert, Cpu, Activity,
-  FileSpreadsheet, Eye, X, ShieldCheck, Layers
+  Zap, Plus, Search, FileText, Download,
+  Trash2, AlertTriangle, ShieldAlert, Cpu, Activity,
+  FileSpreadsheet, Eye, X, Layers, Printer
 } from 'lucide-react';
 import { useCompany } from '../contexts/CompanyContext';
 import PremiumHeader from '../components/PremiumHeader';
 import AnimatedPage from '../components/AnimatedPage';
 import ConfirmModal from '../components/ConfirmModal';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
-import { ATEXZoneAssessment, ATEX_ZONES_GUIDE } from '../data/atexData';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import ATEXPdfGenerator from '../components/ATEXPdfGenerator';
+import { ATEXZoneAssessment } from '../data/atexData';
+import { generatePdfBlob, printElementAsDocument } from '../utils/pdfHelper';
 import toast from 'react-hot-toast';
-import { drawJsPdfSignatures, getSavedProfessionalData } from '../utils/jsPdfSignatureHelper';
 
 export default function ATEXManager(): React.ReactElement | null {
   const navigate = useNavigate();
@@ -24,6 +23,7 @@ export default function ATEXManager(): React.ReactElement | null {
   const [filterZone, setFilterZone] = useState<string>('all');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [viewAssessment, setViewAssessment] = useState<ATEXZoneAssessment | null>(null);
+  const [pdfTargetAssessment, setPdfTargetAssessment] = useState<ATEXZoneAssessment | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -37,7 +37,7 @@ export default function ATEXManager(): React.ReactElement | null {
     }
   }, []);
 
-  // Métricas para las 4 KPI cards superiores estilo Aptitudes Médicas
+  // Métricas para las 4 KPI cards superiores
   const metrics = useMemo(() => {
     const total = assessments.length;
     const gasZones = assessments.filter(a => ['0', '1', '2'].includes(String(a.assignedZone))).length;
@@ -130,169 +130,42 @@ export default function ATEXManager(): React.ReactElement | null {
     toast.success('Padrón de clasificaciones ATEX exportado en CSV.');
   };
 
-  const exportPDF = (item: ATEXZoneAssessment, downloadOnly: boolean = false) => {
-    try {
-      const doc = new jsPDF();
-      doc.setFillColor(217, 119, 6);
-      doc.rect(0, 0, 210, 26, 'F');
+  const exportPDF = async (item: ATEXZoneAssessment, downloadOnly: boolean = false) => {
+    setPdfTargetAssessment(item);
+    await new Promise(resolve => setTimeout(resolve, 120));
 
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text('ESTUDIO DE CLASIFICACIÓN DE ÁREAS PELIGROSAS (ATEX)', 14, 12);
-      doc.setFontSize(8.5);
-      doc.setFont('helvetica', 'normal');
-      doc.text('Conforme a Normas IEC 60079-10-1/2, NFPA 70 y Decreto 351/79 Cap. 18', 14, 19);
+    const sanitizedArea = (item.areaName || 'Sector_ATEX').replace(/\s+/g, '_');
+    const fileName = `Estudio_ATEX_${item.assessmentNumber}_${sanitizedArea}.pdf`;
+    const targetId = viewAssessment && !downloadOnly ? 'pdf-content-atex-modal' : 'pdf-content-atex-manager';
 
-      doc.setTextColor(30, 41, 59);
-      doc.setFontSize(8.5);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Informe N°: ${item.assessmentNumber}`, 14, 34);
-      doc.text(`Fecha: ${item.date}`, 145, 34);
-
-      autoTable(doc, {
-        startY: 38,
-        theme: 'grid',
-        head: [['Parámetros de la Clasificación de Área', 'Detalle']],
-        headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
-        body: [
-          ['Establecimiento', activeCompany ? `${activeCompany.name} (CUIT: ${activeCompany.cuit})` : item.facilityName],
-          ['Sector / Instalación Evaluada', item.areaName],
-          ['Sustancia Inflamable / Combustible', `${item.substanceName} (${item.substanceType.toUpperCase()})`],
-          ['Punto de Inflamación / LEL', `Flash point: ${item.flashPointC ?? 'N/D'} °C | LEL: ${item.lelPercent ?? 'N/D'} %`],
-          ['Zona Asignada Reglamentaria', `ZONA ${item.assignedZone} (${(ATEX_ZONES_GUIDE as any)[item.assignedZone]?.label || 'Sin clasificar'})`],
-          ['Tipo y Grado de Ventilación', `${item.ventilationType.toUpperCase()} (Grado: ${item.ventilationDegree.toUpperCase()})`],
-          ['Especialista HyS Auditor', `${item.auditorName} (Mat. ${item.auditorEnrollment})`]
-        ],
-        styles: { fontSize: 7.5, cellPadding: 2 },
-        columnStyles: {
-          0: { fontStyle: 'bold', cellWidth: 70 },
-          1: { cellWidth: 112 }
-        }
-      });
-
-      let currentY = (doc as any).lastAutoTable.finalY + 6;
-
-      // Medidas de Control
-      autoTable(doc, {
-        startY: currentY,
-        theme: 'striped',
-        head: [['Medidas de Control de Ignición y Prevención Electrostática', 'Estado']],
-        headStyles: { fillColor: [217, 119, 6], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
-        body: [
-          ['Puesta a tierra disipativa y vinculación equipotencial', item.safetyControls.groundingBonding ? 'INSTALADO Y CONFORME' : 'NO CUMPLE'],
-          ['Sistema de detección fija de gas / explosímetro', item.safetyControls.gasDetectionSystem ? 'INSTALADO' : 'NO DISPONE'],
-          ['Herramientas antichispa de bronce/berilio obligatorias', item.safetyControls.nonSparkingTools ? 'EXIGIDO' : 'NO'],
-          ['Calzado de seguridad antiestático obligatorio', item.safetyControls.antistaticFootwearRequired ? 'EXIGIDO' : 'NO'],
-          ['Permiso de trabajo en caliente obligatorio para toda tarea', item.safetyControls.hotWorkPermitMandatory ? 'OBLIGATORIO' : 'NO']
-        ],
-        styles: { fontSize: 7.5, cellPadding: 2 }
-      });
-
-      currentY = (doc as any).lastAutoTable.finalY + 6;
-
-      // Equipos Ex
-      if (item.equipmentList && item.equipmentList.length > 0) {
-        autoTable(doc, {
-          startY: currentY,
-          theme: 'grid',
-          head: [['Tag', 'Equipo', 'Marcado Ex', 'Modo Protección', 'Grupo', 'Clase Temp', 'Certificado', 'Apto']],
-          headStyles: { fillColor: [15, 118, 110], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 7.5 },
-          body: item.equipmentList.map(eq => [
-            eq.tag,
-            eq.description,
-            eq.exMarking,
-            eq.protectionMode,
-            eq.gasGroup,
-            eq.tempClass,
-            eq.certificateNumber,
-            eq.complianceStatus === 'compliant' ? 'APTO' : 'NO APTO'
-          ]),
-          styles: { fontSize: 7, cellPadding: 1.8 }
-        });
-        currentY = (doc as any).lastAutoTable.finalY + 14;
-      } else {
-        currentY += 12;
+    if (downloadOnly) {
+      const loadingToast = toast.loading('Generando estudio ATEX en PDF oficial...');
+      try {
+        const blob = await generatePdfBlob('pdf-content-atex-manager', false);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+        toast.success('Estudio ATEX descargado en PDF correctamente', { id: loadingToast });
+      } catch (e) {
+        console.error(e);
+        toast.error('Error al generar PDF', { id: loadingToast });
       }
-
-      // Bloque de Firmas Normalizado y Centrado
-      const proData = getSavedProfessionalData();
-      const proTitle = (proData.profession || 'ESPECIALISTA EN ÁREAS CLASIFICADAS').toUpperCase();
-      const proName = (item.auditorName || proData.name || 'PROFESIONAL HYS ACTUANTE').toUpperCase();
-
-      drawJsPdfSignatures(doc, {
-        startY: currentY,
-        maxY: 245,
-        box1: {
-          title: proTitle,
-          subtitle: proName,
-          license: proData.license || null,
-          signatureUrl: proData.signature,
-          stampUrl: proData.stamp,
-          isProfessional: true
-        },
-        box2: {
-          title: 'RESPONSABLE HIGIENE Y SEGURIDAD',
-          subtitle: (activeCompany?.name || 'SERVICIO DE SEGURIDAD Y MEDIO AMBIENTE').toUpperCase(),
-          secondarySubtitle: 'Conformidad Técnica Normas IEC 60079',
-          isProfessional: false
-        }
-      });
-
-      // Pie de página legal
-      doc.setDrawColor(203, 213, 225);
-      doc.setLineWidth(0.4);
-      doc.line(14, 285, 196, 285);
-      doc.setFontSize(6.5);
-      doc.setTextColor(100, 116, 139);
-      doc.text('Documento oficial según normas IEC 60079 y Dec. 351/79 Cap. 18. Validez legal ante inspecciones de ART y SRT.', 14, 289);
-      doc.text('Pág. 1 de 1', 196, 289, { align: 'right' });
-
-      const fileName = `Clasificacion_ATEX_${item.assessmentNumber}.pdf`;
-
-      if (downloadOnly) {
-        doc.save(fileName);
-        toast.success('Informe ATEX descargado en PDF');
-      } else {
-        doc.autoPrint();
-        const blob = doc.output('blob');
-        const blobUrl = URL.createObjectURL(blob);
-        const iframe = document.createElement('iframe');
-        iframe.style.position = 'fixed';
-        iframe.style.right = '0';
-        iframe.style.bottom = '0';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = '0';
-        iframe.src = blobUrl;
-        document.body.appendChild(iframe);
-        iframe.onload = () => {
-          setTimeout(() => {
-            try {
-              iframe.contentWindow?.focus();
-              iframe.contentWindow?.print();
-            } catch {
-              window.open(blobUrl, '_blank');
-            }
-            setTimeout(() => {
-              try {
-                document.body.removeChild(iframe);
-                URL.revokeObjectURL(blobUrl);
-              } catch {}
-            }, 60000);
-          }, 300);
-        };
-        toast.success('Abriendo diálogo de impresión...');
-      }
-    } catch (e) {
-      console.error(e);
-      toast.error('Error al generar PDF');
+    } else {
+      await printElementAsDocument(targetId, `Estudio ATEX ${item.assessmentNumber}`, false);
     }
   };
 
   return (
     <AnimatedPage>
-      <div className="container pb-[6rem] min-h-[100vh] flex flex-col pt-4">
+      <div
+        className="container pb-[6rem] min-h-[100vh] flex flex-col"
+        style={{ paddingTop: '7.5rem' }}
+      >
         <PremiumHeader
           title="Atmósferas Explosivas (ATEX)"
           subtitle="Zonificación de riesgo por gases, vapores y polvos combustibles bajo IEC 60079 y Dec. 351/79"
@@ -302,7 +175,7 @@ export default function ATEXManager(): React.ReactElement | null {
           onBack={() => navigate('/')}
         />
 
-        {/* 4 Tarjetas KPI interactivas estilo Aptitudes Médicas */}
+        {/* 4 Tarjetas KPI interactivas */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
           <div
             onClick={() => setFilterZone('all')}
@@ -352,9 +225,7 @@ export default function ATEXManager(): React.ReactElement | null {
             <span className="text-[11px] text-slate-500">Zonas 20, 21 y 22 (Polvos)</span>
           </div>
 
-          <div
-            className="p-4 rounded-2xl border bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80"
-          >
+          <div className="p-4 rounded-2xl border bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
             <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-2">
               <span className="text-xs font-bold uppercase tracking-wider">Equipos Ex Auditados</span>
               <Cpu size={20} />
@@ -364,9 +235,9 @@ export default function ATEXManager(): React.ReactElement | null {
           </div>
         </div>
 
-        {/* Toolbar de Búsqueda y Botones estilo Aptitudes Médicas */}
+        {/* Toolbar de Búsqueda y Botones */}
         <div className="mt-8 space-y-4">
-          <div className="flex flex-row items-center justify-between gap-3">
+          <div className="flex flex-row items-center justify-between gap-3 flex-wrap">
             <div className="relative flex-1 max-w-xs h-[38px]">
               <Search
                 size={16}
@@ -386,13 +257,19 @@ export default function ATEXManager(): React.ReactElement | null {
                 placeholder="Buscar por N°, sector, sustancia..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                style={{ paddingLeft: '2.25rem', paddingRight: '0.75rem', height: '38px', width: '100%', boxSizing: 'border-box', outline: 'none' }}
+                style={{
+                  paddingLeft: '2.25rem',
+                  paddingRight: '0.75rem',
+                  height: '38px',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  outline: 'none'
+                }}
                 className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
               />
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Botón Exportar CSV */}
               <button
                 type="button"
                 onClick={exportToCsv}
@@ -419,7 +296,6 @@ export default function ATEXManager(): React.ReactElement | null {
                 <span>Exportar CSV</span>
               </button>
 
-              {/* Botón Nueva Evaluación ATEX */}
               <button
                 type="button"
                 onClick={() => navigate('/atex/new')}
@@ -447,7 +323,7 @@ export default function ATEXManager(): React.ReactElement | null {
             </div>
           </div>
 
-          {/* Filter Pills estilo Aptitudes Médicas */}
+          {/* Filter Pills */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
             <button
               onClick={() => setFilterZone('all')}
@@ -569,7 +445,7 @@ export default function ATEXManager(): React.ReactElement | null {
                             {item.areaName}
                           </h3>
                           <p className="text-xs text-slate-500 dark:text-slate-400 font-mono m-0 mt-0.5">
-                            {item.assessmentNumber}
+                            {item.assessmentNumber} • {item.date}
                           </p>
                         </div>
                       </div>
@@ -581,31 +457,62 @@ export default function ATEXManager(): React.ReactElement | null {
                     <div className="mt-4 space-y-2 text-xs text-slate-600 dark:text-slate-300">
                       <div className="flex items-center gap-2">
                         <ShieldAlert size={14} className="text-slate-400 shrink-0" />
-                        <span>Sustancia: <strong className="text-slate-800 dark:text-slate-100">{item.substanceName}</strong> ({item.substanceType})</span>
+                        <span>
+                          Sustancia: <strong className="text-slate-800 dark:text-slate-100">{item.substanceName}</strong>
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Activity size={14} className="text-slate-400 shrink-0" />
-                        <span>Ventilación: {item.ventilationType} ({item.ventilationDegree})</span>
+                        <span>
+                          Ventilación: {item.ventilationType} ({item.ventilationDegree})
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Cpu size={14} className="text-slate-400 shrink-0" />
-                        <span>Equipos Ex auditados: <strong className="text-slate-800 dark:text-slate-100">{item.equipmentList?.length || 0} dispositivos</strong></span>
+                        <span>
+                          Equipos Ex auditados:{' '}
+                          <strong className="text-slate-800 dark:text-slate-100">
+                            {item.equipmentList?.length || 0} dispositivos
+                          </strong>
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Acciones con Botones Sólidos estilo Aptitudes Médicas */}
+                  {/* Acciones con Botones Sólidos */}
                   <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-end items-center gap-2 flex-wrap">
-                    {/* Botón PDF */}
                     <button
                       type="button"
                       onClick={() => exportPDF(item, false)}
-                      title="Imprimir / Exportar Ficha Oficial a PDF"
+                      title="Imprimir Ficha Oficial A4"
+                      style={{
+                        backgroundColor: '#0284c7',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '5px 11px',
+                        fontSize: '11px',
+                        fontWeight: '800',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        minHeight: 'unset',
+                        boxShadow: '0 2px 4px rgba(2, 132, 199, 0.2)'
+                      }}
+                    >
+                      <Printer size={12} /> Imprimir
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => exportPDF(item, true)}
+                      title="Descargar Estudio en PDF"
                       style={{
                         backgroundColor: '#059669',
                         color: '#ffffff',
                         border: 'none',
-                        padding: '5px 12px',
+                        padding: '5px 11px',
                         fontSize: '11px',
                         fontWeight: '800',
                         borderRadius: '6px',
@@ -620,16 +527,15 @@ export default function ATEXManager(): React.ReactElement | null {
                       <FileText size={12} /> PDF
                     </button>
 
-                    {/* Botón Ver */}
                     <button
                       type="button"
                       onClick={() => setViewAssessment(item)}
-                      title="Ver Detalles de la Clasificación ATEX"
+                      title="Ver Estudio Completo en Formato A4"
                       style={{
                         backgroundColor: '#2563eb',
                         color: '#ffffff',
                         border: 'none',
-                        padding: '5px 12px',
+                        padding: '5px 11px',
                         fontSize: '11px',
                         fontWeight: '800',
                         borderRadius: '6px',
@@ -644,7 +550,6 @@ export default function ATEXManager(): React.ReactElement | null {
                       <Eye size={12} /> Ver
                     </button>
 
-                    {/* Botón Eliminar */}
                     <button
                       type="button"
                       onClick={() => setDeleteId(item.id)}
@@ -653,7 +558,7 @@ export default function ATEXManager(): React.ReactElement | null {
                         backgroundColor: '#dc2626',
                         color: '#ffffff',
                         border: 'none',
-                        padding: '5px 12px',
+                        padding: '5px 11px',
                         fontSize: '11px',
                         fontWeight: '800',
                         borderRadius: '6px',
@@ -674,139 +579,138 @@ export default function ATEXManager(): React.ReactElement | null {
           )}
         </div>
 
-        {/* Modal de Detalle / Ver Estudio ATEX */}
+        {/* CONTENEDOR OFFSCREEN PARA IMPRESIÓN Y DESCARGA PDF */}
+        {pdfTargetAssessment && (
+          <div
+            className="ats-pdf-offscreen"
+            style={{
+              position: 'fixed',
+              left: '-9999px',
+              top: 0,
+              width: '210mm',
+              backgroundColor: '#ffffff',
+              zIndex: -1
+            }}
+          >
+            <ATEXPdfGenerator
+              assessment={pdfTargetAssessment}
+              companyName={activeCompany?.name}
+              pdfElementId="pdf-content-atex-manager"
+            />
+          </div>
+        )}
+
+        {/* MODAL DE VISTA PREVIA A4 OFICIAL */}
         {viewAssessment && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5 max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
-                <div className="flex items-center gap-2.5">
-                  <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600">
-                    <Zap size={22} />
-                  </span>
-                  <div>
-                    <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-100 m-0">
-                      Estudio ATEX: {viewAssessment.areaName}
-                    </h3>
-                    <span className="text-xs text-slate-400 font-mono">
-                      {viewAssessment.assessmentNumber} • Fecha: {viewAssessment.date}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setViewAssessment(null)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Zona Asignada</span>
-                  <span className="text-sm font-black text-amber-600">
-                    ZONA {viewAssessment.assignedZone}
-                  </span>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Sustancia</span>
-                  <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                    {viewAssessment.substanceName}
-                  </span>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Punto Inflamación</span>
-                  <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                    {viewAssessment.flashPointC ?? 'N/D'} °C
-                  </span>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Ventilación</span>
-                  <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                    {viewAssessment.ventilationType} ({viewAssessment.ventilationDegree})
-                  </span>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Especialista HyS</span>
-                  <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                    {viewAssessment.auditorName}
-                  </span>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Equipos Ex</span>
-                  <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                    {viewAssessment.equipmentList?.length || 0} equipos
-                  </span>
-                </div>
-              </div>
-
-              {/* Medidas de Control */}
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2">
-                <span className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                  <ShieldCheck size={16} className="text-emerald-500" />
-                  Medidas de Control de Ignición y Prevención
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              backgroundColor: 'rgba(15, 23, 42, 0.78)',
+              backdropFilter: 'blur(4px)',
+              zIndex: 9999,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '1.25rem',
+              overflowY: 'auto'
+            }}
+          >
+            <div
+              style={{
+                width: '100%',
+                maxWidth: '210mm',
+                background: '#0f172a',
+                color: '#ffffff',
+                padding: '0.85rem 1.25rem',
+                borderRadius: '12px 12px 0 0',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: '0.75rem',
+                flexWrap: 'wrap'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <Zap size={18} color="#fbbf24" />
+                <span style={{ fontWeight: 900, fontSize: '0.9rem' }}>
+                  Estudio ATEX {viewAssessment.assessmentNumber} — {viewAssessment.areaName}
                 </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-300 pt-1">
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${viewAssessment.safetyControls?.groundingBonding ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                    <span>Puesta a tierra disipativa</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${viewAssessment.safetyControls?.gasDetectionSystem ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                    <span>Detección fija de gas / explosímetro</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${viewAssessment.safetyControls?.nonSparkingTools ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                    <span>Herramientas antichispa</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${viewAssessment.safetyControls?.antistaticFootwearRequired ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                    <span>Calzado antiestático</span>
-                  </div>
-                </div>
               </div>
 
-              {/* Botones del Modal */}
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <button
                   type="button"
                   onClick={() => exportPDF(viewAssessment, false)}
                   style={{
-                    backgroundColor: '#059669',
+                    background: '#0284c7',
                     color: '#ffffff',
                     border: 'none',
-                    padding: '8px 16px',
-                    fontSize: '12px',
-                    fontWeight: '800',
                     borderRadius: '8px',
-                    cursor: 'pointer',
+                    padding: '0.45rem 0.9rem',
+                    fontSize: '0.78rem',
+                    fontWeight: 800,
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    minHeight: 'unset',
-                    boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
+                    gap: '0.4rem',
+                    cursor: 'pointer'
                   }}
                 >
-                  <FileText size={14} /> Imprimir PDF
+                  <Printer size={15} /> Imprimir
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportPDF(viewAssessment, true)}
+                  style={{
+                    background: '#059669',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '0.45rem 0.9rem',
+                    fontSize: '0.78rem',
+                    fontWeight: 800,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Download size={15} /> Descargar PDF
                 </button>
                 <button
                   type="button"
                   onClick={() => setViewAssessment(null)}
                   style={{
-                    backgroundColor: '#475569',
+                    background: 'rgba(255,255,255,0.12)',
                     color: '#ffffff',
                     border: 'none',
-                    padding: '8px 16px',
-                    fontSize: '12px',
-                    fontWeight: '800',
                     borderRadius: '8px',
+                    padding: '0.45rem 0.65rem',
                     cursor: 'pointer',
-                    minHeight: 'unset'
+                    display: 'inline-flex',
+                    alignItems: 'center'
                   }}
                 >
-                  Cerrar
+                  <X size={16} />
                 </button>
               </div>
+            </div>
+
+            <div
+              style={{
+                width: '100%',
+                maxWidth: '210mm',
+                background: '#ffffff',
+                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.45)',
+                borderRadius: '0 0 12px 12px',
+                overflow: 'hidden'
+              }}
+            >
+              <ATEXPdfGenerator
+                assessment={viewAssessment}
+                companyName={activeCompany?.name}
+                pdfElementId="pdf-content-atex-modal"
+              />
             </div>
           </div>
         )}

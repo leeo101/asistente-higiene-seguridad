@@ -44,6 +44,18 @@ export interface MedicalRecord extends HighRiskClearance {
   preexistencias?: string;      // Patologías preexistentes asentadas (para deslinde ART)
   restricciones?: string;       // Restricciones operativas específicas indicadas
   estudiosRealizados?: string[]; // Batería de estudios (Rx Tórax, ECG, Espirometría, etc.)
+  operatorSignature?: string;   // Firma digital del trabajador notificado (opcional en campo)
+  supervisorSignature?: string; // Firma digital del médico evaluador laboral (opcional)
+  professionalSignature?: string; // Firma digitalizada del profesional H&S
+  professionalStamp?: string;   // Sello digitalizado del profesional H&S
+  professionalName?: string;    // Nombre del profesional H&S
+  professionalLicense?: string; // Matrícula del profesional H&S
+  professionalTitle?: string;   // Título / Profesión del profesional H&S
+  showSignatures?: {
+    operator: boolean;
+    supervisor: boolean;
+    professional: boolean;
+  };
   createdAt?: string;
   updatedAt?: string;
 }

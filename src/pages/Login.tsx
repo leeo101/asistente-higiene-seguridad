@@ -363,9 +363,9 @@ export default function Login(): React.ReactElement {
             onClick={() => navigate('/')}
           >
             <img
-              src="/logo.png"
+              src="/logo.png?v=3"
               alt="Logo Asistente H&S"
-              className="w-8 h-8 sm:w-9 sm:h-9 object-contain rounded-xl border border-white/10 shadow-md group-hover:scale-105 transition-transform"
+              className="h-9 sm:h-10 w-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform"
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
             <span className="font-black text-lg sm:text-xl tracking-tight text-white flex items-center gap-1.5">

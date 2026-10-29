@@ -1942,13 +1942,13 @@ button[aria-label*="Atrás"],
     /* Forces Textareas to show fully */
   }
 
-  /* Force color for text headers */
-  h1,
-  h2,
-  h3,
-  h4,
-  p,
-  span {
+  /* Force color for text headers outside custom PDF generators */
+  h1:not(.pdf-container *):not(.print-area *),
+  h2:not(.pdf-container *):not(.print-area *),
+  h3:not(.pdf-container *):not(.print-area *),
+  h4:not(.pdf-container *):not(.print-area *),
+  p:not(.pdf-container *):not(.print-area *),
+  span:not(.pdf-container *):not(.print-area *) {
     color: #000 !important;
     background: transparent !important;
     -webkit-text-fill-color: #000 !important;
@@ -2975,7 +2975,9 @@ body.printing-isolated #pdf-content.ats-pdf-root,
   body:not(.printing-isolated) .ats-pdf-offscreen:has(.isolated-print-target),
   body:not(.printing-isolated) .ats-pdf-offscreen:has(#pdf-content),
   body:not(.printing-isolated) .ats-pdf-offscreen:has(#pdf-content-editor),
-  body:not(.printing-isolated) .ats-pdf-offscreen:has([id^="pdf-content"]) {
+  body:not(.printing-isolated) .ats-pdf-offscreen:has([id^="pdf-content"]),
+  body:not(.printing-isolated) .ats-pdf-offscreen:has([id^="pdf-"]),
+  body:not(.printing-isolated) .ats-pdf-offscreen[id^="pdf-"] {
     position: absolute !important;
     left: 0 !important;
     right: 0 !important;
@@ -2992,7 +2994,7 @@ body.printing-isolated #pdf-content.ats-pdf-root,
   }
 
   /* Ocultar los offscreen que NO contienen el target activo ni pdf-content */
-  body:not(.printing-isolated) .ats-pdf-offscreen:not(:has(.isolated-print-target)):not(:has(#pdf-content)):not(:has(#pdf-content-editor)):not(:has([id^="pdf-content"])) {
+  body:not(.printing-isolated) .ats-pdf-offscreen:not(:has(.isolated-print-target)):not(:has(#pdf-content)):not(:has(#pdf-content-editor)):not(:has([id^="pdf-"])):not([id^="pdf-"]) {
     display: none !important;
   }
 

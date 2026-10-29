@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Globe, Check, CaretDown, Shield } from '@phosphor-icons/react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Language } from '../utils/i18n';
+import { Language, getTranslation } from '../utils/i18n';
+import { countryList } from '../data/legislationData';
+import toast from 'react-hot-toast';
 
 export default function LanguageSelector() {
-  const { language, setLanguage, selectedFramework, setSelectedFramework } = useLanguage();
+  const { language, setLanguage, selectedFramework, setSelectedFramework, countryNorms, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -12,15 +14,6 @@ export default function LanguageSelector() {
     { code: 'es', label: 'Español', flag: '🇪🇸' },
     { code: 'en', label: 'English', flag: '🇺🇸' },
     { code: 'pt', label: 'Português', flag: '🇧🇷' },
-  ];
-
-  const frameworks = [
-    { id: 'iso45001', name: 'ISO 45001:2018', sub: 'OH&S Management Standard' },
-    { id: 'osha', name: 'OSHA 1910 / 1926', sub: 'US Federal Safety Standard' },
-    { id: 'iso14001', name: 'ISO 14001:2015', sub: 'Environmental Management' },
-    { id: 'stps', name: 'STPS NOMs (México)', sub: 'Normatividad Mexicana' },
-    { id: 'nr_brasil', name: 'NR 01-38 (Brasil)', sub: 'Normas Regulamentadoras' },
-    { id: 'local', name: 'Normativa Local / Nacional', sub: 'Ley 19.587 / DS 44 / Regional' },
   ];
 
   useEffect(() => {
@@ -34,79 +27,112 @@ export default function LanguageSelector() {
   }, []);
 
   const currentLangObj = languages.find((l) => l.code === language) || languages[0];
+  const currentCountryObj = countryList.find((c) => c.code === selectedFramework) || countryList[0];
 
   return (
-    <div ref={dropdownRef} className="relative inline-block text-left">
+    <div ref={dropdownRef} className="relative inline-block text-left" data-no-translate="true">
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/90 border border-slate-700/80 text-xs text-slate-200 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-        title="Idioma & Norma Marco Global"
+        className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800/85 hover:bg-slate-700/95 border border-slate-700/80 text-xs text-slate-200 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 cursor-pointer"
+        title={`${t('selector.lang_title')} & ${t('selector.framework_title')}`}
       >
-        <Globe size={16} className="text-blue-400" />
-        <span className="font-medium uppercase">{currentLangObj.flag} {currentLangObj.code}</span>
-        <span className="hidden md:inline-block text-slate-400">|</span>
-        <span className="hidden md:inline-block text-slate-300 font-mono text-[11px]">
-          {selectedFramework.toUpperCase()}
+        <Globe size={16} className="text-blue-400 shrink-0" />
+        <span className="font-bold uppercase">
+          {currentLangObj.flag} {currentLangObj.code}
         </span>
-        <CaretDown size={12} className="text-slate-400 ml-0.5" />
+        <span className="text-slate-500">|</span>
+        <span className="text-emerald-300 font-bold text-[11px] flex items-center gap-1">
+          <span>{currentCountryObj.flag}</span>
+          <span className="hidden sm:inline">{currentCountryObj.shortName}</span>
+          <span className="hidden lg:inline text-slate-400 font-mono text-[10px]">
+            ({countryNorms.general})
+          </span>
+        </span>
+        <CaretDown size={12} className="text-slate-400 ml-0.5 shrink-0" />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 rounded-xl bg-slate-900 border border-slate-700/90 shadow-2xl z-50 p-2 backdrop-blur-md">
+        <div className="absolute right-0 mt-2 w-72 sm:w-80 rounded-2xl bg-slate-900/98 border border-slate-700/90 shadow-2xl z-[1200] p-2.5 backdrop-blur-xl">
           {/* Idiomas */}
-          <div className="text-[11px] font-semibold text-slate-400 px-2 py-1 uppercase tracking-wider">
-            Idioma / Language
+          <div className="text-[11px] font-bold text-slate-400 px-2.5 py-1 uppercase tracking-wider flex items-center gap-1.5">
+            <Globe size={13} className="text-blue-400" />
+            <span>{t('selector.lang_title')}</span>
           </div>
-          <div className="space-y-0.5 mb-2">
+          <div className="grid grid-cols-3 gap-1 mb-2 px-1">
             {languages.map((lang) => (
               <button
                 key={lang.code}
+                type="button"
                 onClick={() => {
                   setLanguage(lang.code);
+                  toast.success(getTranslation('selector.lang_changed', lang.code), {
+                    id: 'lang-toast',
+                    duration: 2200
+                  });
                 }}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={`flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   language === lang.code
-                    ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                    : 'text-slate-300 hover:bg-slate-800/70'
+                    ? 'bg-blue-600/25 text-blue-300 border border-blue-500/40 shadow-xs'
+                    : 'text-slate-300 hover:bg-slate-800/80 border border-transparent'
                 }`}
               >
-                <span className="flex items-center gap-2">
-                  <span>{lang.flag}</span>
-                  <span>{lang.label}</span>
-                </span>
-                {language === lang.code && <Check size={14} className="text-blue-400" />}
+                <span>{lang.flag}</span>
+                <span>{lang.label}</span>
               </button>
             ))}
           </div>
 
           <div className="border-t border-slate-800 my-1.5" />
 
-          {/* Marco Normativo */}
-          <div className="text-[11px] font-semibold text-slate-400 px-2 py-1 uppercase tracking-wider flex items-center gap-1">
-            <Shield size={12} className="text-emerald-400" />
-            Marco EHS Preferido
+          {/* Marco Normativo / Países */}
+          <div className="text-[11px] font-bold text-slate-400 px-2.5 py-1 uppercase tracking-wider flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <Shield size={13} className="text-emerald-400" />
+              <span>{t('selector.framework_title')}</span>
+            </span>
+            <span className="text-[10px] text-emerald-400 font-semibold">
+              {countryList.length}
+            </span>
           </div>
-          <div className="space-y-0.5 max-h-48 overflow-y-auto custom-scrollbar">
-            {frameworks.map((fw) => (
-              <button
-                key={fw.id}
-                onClick={() => {
-                  setSelectedFramework(fw.id);
-                  setIsOpen(false);
-                }}
-                className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
-                  selectedFramework === fw.id
-                    ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 font-medium'
-                    : 'text-slate-300 hover:bg-slate-800/70'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span>{fw.name}</span>
-                  {selectedFramework === fw.id && <Check size={14} className="text-emerald-400" />}
-                </div>
-                <div className="text-[10px] text-slate-400 font-normal">{fw.sub}</div>
-              </button>
-            ))}
+
+          <div className="space-y-1 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
+            {countryList.map((fw) => {
+              const isSelected = selectedFramework === fw.code;
+              return (
+                <button
+                  key={fw.code}
+                  type="button"
+                  onClick={() => {
+                    setSelectedFramework(fw.code);
+                    toast.success(
+                      `${t('selector.framework_changed')} ${fw.flag} ${fw.shortName} (${fw.mainLaw})`,
+                      { id: 'framework-toast', duration: 2600 }
+                    );
+                    setIsOpen(false);
+                  }}
+                  className={`w-full text-left px-2.5 py-2 rounded-xl text-xs transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 font-bold shadow-xs'
+                      : 'text-slate-200 hover:bg-slate-800/75 border border-transparent'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-2 truncate">
+                      <span className="text-sm">{fw.flag}</span>
+                      <span className="font-bold truncate">{fw.shortName}</span>
+                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700/80 truncate">
+                        {fw.mainLaw}
+                      </span>
+                    </span>
+                    {isSelected && <Check size={14} weight="bold" className="text-emerald-400 shrink-0" />}
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-normal pl-6 mt-0.5 truncate">
+                    {fw.sub}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}

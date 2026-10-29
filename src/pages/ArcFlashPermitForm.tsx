@@ -1,24 +1,26 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Zap, ArrowLeft, Save, ShieldCheck, AlertTriangle,
   Activity, CheckCircle2, User, Calendar, ShieldAlert, Check,
-  Printer, Award, Download
+  Printer, Award, Download, Eye, X
 } from 'lucide-react';
 import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
+import ArcFlashPdfGenerator from '../components/ArcFlashPdfGenerator';
+import { printElementAsDocument, generatePdfBlob } from '../utils/pdfHelper';
 import { useCompany } from '../contexts/CompanyContext';
 import PremiumHeader from '../components/PremiumHeader';
 import AnimatedPage from '../components/AnimatedPage';
 import {
   ArcFlashPermitData, calculateArcFlash, PPE_CATEGORY_DESCRIPTIONS
 } from '../data/arcFlashData';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import toast from 'react-hot-toast';
 
 export default function ArcFlashPermitForm(): React.ReactElement | null {
   const navigate = useNavigate();
   const { activeCompany } = useCompany();
+  const printRef = useRef<HTMLDivElement>(null);
 
   const [permitNumber] = useState('ELEC-' + Date.now().toString().slice(-6));
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -53,10 +55,46 @@ export default function ArcFlashPermitForm(): React.ReactElement | null {
   const [safetySupervisor, setSafetySupervisor] = useState('');
   const [supervisorLicense, setSupervisorLicense] = useState('');
   const [plantManager, setPlantManager] = useState('');
+  const [plantManagerSector, setPlantManagerSector] = useState('Mantenimiento Eléctrico');
   const [notes, setNotes] = useState('');
   const [electricianSig, setElectricianSig] = useState<string | null>(null);
   const [supervisorSig, setSupervisorSig] = useState<string | null>(null);
   const [plantManagerSig, setPlantManagerSig] = useState<string | null>(null);
+  const [professionalStamp, setProfessionalStamp] = useState<string | null>(null);
+  const [professionalTitle, setProfessionalTitle] = useState('PROFESIONAL HIGIENE Y SEGURIDAD');
+  const [showSignatures, setShowSignatures] = useState({
+    operator: true,
+    supervisor: true,
+    professional: true
+  });
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+
+  // Precargar datos y firma digital del Profesional H&S desde localStorage (igual que ATS)
+  useEffect(() => {
+    try {
+      const savedPersonal = localStorage.getItem('personalData');
+      if (savedPersonal) {
+        const parsed = JSON.parse(savedPersonal);
+        const fullName = parsed.fullName || parsed.name || '';
+        const license = parsed.license || parsed.matricula || '';
+        const title = parsed.profession || parsed.title || parsed.specialty || 'PROFESIONAL HIGIENE Y SEGURIDAD';
+        if (fullName) setSafetySupervisor(prev => prev || fullName);
+        if (license) setSupervisorLicense(prev => prev || license);
+        if (title) setProfessionalTitle(title.toUpperCase());
+      }
+      const savedSigStamp = localStorage.getItem('signatureStampData');
+      if (savedSigStamp) {
+        const parsed = JSON.parse(savedSigStamp);
+        if (parsed.signature) setSupervisorSig(parsed.signature);
+        if (parsed.stamp) setProfessionalStamp(parsed.stamp);
+      } else {
+        const legacySig = localStorage.getItem('capturedSignature');
+        if (legacySig) setSupervisorSig(legacySig);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
 
   // Cálculo en tiempo real
   const calcResult = useMemo(() => {
@@ -84,235 +122,77 @@ export default function ArcFlashPermitForm(): React.ReactElement | null {
 
   const ppeDesc = (PPE_CATEGORY_DESCRIPTIONS as any)[calcResult.category];
 
-  // Función de impresión directa o descarga en PDF oficial
-  const handlePrintPDF = (downloadOnly: boolean = false) => {
-    try {
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
+  // Construcción en tiempo real del objeto de permiso para vista previa e impresión A4
+  const currentPermitObject: ArcFlashPermitData = useMemo(() => ({
+    id: 'af_preview',
+    companyId: activeCompany?.id,
+    permitNumber,
+    date,
+    startTime,
+    endTime,
+    panelOrEquipmentTag: panelOrEquipmentTag.trim() || 'TABLERO GENERAL / CELDA',
+    substationOrLocation: substationOrLocation.trim() || activeCompany?.name || 'SALA ELÉCTRICA PRINCIPAL',
+    nominalVoltageV,
+    isLiveWork,
+    shortCircuitKa,
+    clearingTimeSeconds,
+    workingDistanceCm,
+    calculatedIncidentEnergyCalCm2: calcResult.incidentEnergy,
+    arcFlashBoundaryMeters: calcResult.boundaryMeters,
+    ppeCategory: calcResult.category,
+    checklist,
+    gloveClass,
+    gloveLastTestDate,
+    leadElectrician,
+    safetySupervisor,
+    electricianLicense: electricianLicense.trim() || undefined,
+    supervisorLicense: supervisorLicense.trim() || undefined,
+    plantManager: plantManager.trim() || undefined,
+    plantManagerSector: plantManagerSector.trim() || undefined,
+    electricianSignature: electricianSig,
+    supervisorSignature: supervisorSig,
+    plantManagerSignature: plantManagerSig,
+    professionalStamp,
+    professionalTitle,
+    showSignatures,
+    status: 'active',
+    notes: notes.trim() || undefined,
+    createdAt: new Date().toISOString()
+  }), [
+    activeCompany, permitNumber, date, startTime, endTime, panelOrEquipmentTag,
+    substationOrLocation, nominalVoltageV, isLiveWork, shortCircuitKa,
+    clearingTimeSeconds, workingDistanceCm, calcResult, checklist, gloveClass,
+    gloveLastTestDate, leadElectrician, safetySupervisor, electricianLicense,
+    supervisorLicense, plantManager, plantManagerSector, electricianSig,
+    supervisorSig, plantManagerSig, professionalStamp, professionalTitle,
+    showSignatures, notes
+  ]);
 
-      // Encabezado Superior (Banner Cálido de Seguridad)
-      doc.setFillColor(180, 83, 9); // Amber 700
-      doc.rect(0, 0, pageWidth, 28, 'F');
+  // Función de impresión directa o descarga en PDF oficial de alta definición (estilo ATS)
+  const handlePrintPDF = async (downloadOnly: boolean = false) => {
+    const sanitizedTag = (panelOrEquipmentTag || 'Tablero').replace(/\s+/g, '_');
+    const fileName = `Permiso_Arco_Electrico_${permitNumber}_${sanitizedTag}.pdf`;
+    const targetId = showPreviewModal && !downloadOnly ? 'pdf-content-arc-flash-preview' : 'pdf-content-arc-flash-form';
 
-      // Título y Normativa
-      doc.setTextColor(255, 255, 255);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.text('PERMISO DE TRABAJO CON TENSIÓN Y RIESGO DE ARCO ELÉCTRICO', 14, 11);
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
-      doc.text('Conforme a Normas NFPA 70E, IEEE 1584, Res. S.R.T. N° 3068/14 y Ley N° 19.587 (Dec. 351/79 Cap. 14)', 14, 18);
-      doc.setFontSize(7.5);
-      const companyHeader = activeCompany ? activeCompany.name + ' (CUIT: ' + activeCompany.cuit + ')' : 'Establecimiento Industrial';
-      doc.text('Empresa: ' + companyHeader + ' | Fecha de Emisión: ' + date, 14, 24);
-
-      // Datos de Control del Permiso
-      doc.setTextColor(15, 23, 42);
-      doc.setFontSize(8.5);
-      doc.setFont('helvetica', 'bold');
-      doc.text('N° Permiso: ' + permitNumber, 14, 34);
-      doc.text('Horario Autorizado: ' + startTime + ' a ' + endTime + ' hs', 120, 34);
-
-      // Tabla 1: Parámetros del Tablero y Análisis de Energía Incidente
-      const voltType = nominalVoltageV > 1000 ? 'Media Tensión' : 'Baja Tensión';
-      const energyRisk = calcResult.incidentEnergy <= 1.2 ? 'Bajo Umbral 2° Grado' : 'Riesgo Térmico de Quemadura';
-      const catLabel = calcResult.category === 'prohibited' ? 'TRABAJO PROHIBIDO (>40 cal/cm²)' : 'CATEGORÍA ' + calcResult.category;
-
-      autoTable(doc, {
-        startY: 38,
-        theme: 'grid',
-        head: [['Parámetros Técnicos y del Circuito Eléctrico', 'Especificación y Valores Verificados']],
-        headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
-        body: [
-          ['Tablero / Celda / Equipo a Intervenir', panelOrEquipmentTag || 'No especificado'],
-          ['Ubicación / Subestación / Nave', substationOrLocation || 'No especificado'],
-          ['Tensión Nominal del Circuito', nominalVoltageV + ' V (' + voltType + ')'],
-          ['Corriente de Cortocircuito Presunta (Icc)', shortCircuitKa + ' kA'],
-          ['Tiempo de Despeje de Protecciones', clearingTimeSeconds + ' segundos'],
-          ['Distancia de Trabajo Estimada', workingDistanceCm + ' cm'],
-          ['ENERGÍA INCIDENTE CALCULADA', calcResult.incidentEnergy + ' cal/cm² (' + energyRisk + ')'],
-          ['FRONTERA DE ARCO ELÉCTRICO (AFB)', calcResult.boundaryMeters + ' metros'],
-          ['NIVEL DE EPP REQUERIDO', catLabel],
-          ['Equipamiento de Protección Obligatorio', ppeDesc ? ppeDesc.desc : 'EPP ignífugo'],
-          ['Guantes Dieléctricos Reglamentarios', 'Clase ' + gloveClass + ' | Último Ensayo Rigidez: ' + gloveLastTestDate + ' (< 6 meses)']
-        ],
-        bodyStyles: { fontSize: 7.5, cellPadding: 2 },
-        columnStyles: {
-          0: { fontStyle: 'bold', cellWidth: 70 },
-          1: { cellWidth: 112 }
-        }
-      });
-
-      let currentY = (doc as any).lastAutoTable.finalY + 6;
-
-      // Tabla 2: Verificaciones Preventivas Res. SRT 3068/14
-      autoTable(doc, {
-        startY: currentY,
-        theme: 'striped',
-        head: [['Verificaciones Obligatorias Res. SRT 3068/14 y NFPA 70E', 'Norma Legal', 'Estado']],
-        headStyles: { fillColor: [15, 118, 110], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
-        body: checklistItems.map(item => [
-          item.label,
-          item.law,
-          (checklist as any)[item.k] ? 'CUMPLE' : 'NO CUMPLE'
-        ]),
-        bodyStyles: { fontSize: 7, cellPadding: 1.8 },
-        columnStyles: {
-          0: { cellWidth: 120 },
-          1: { cellWidth: 38, fontStyle: 'italic', textColor: [100, 116, 139] },
-          2: { cellWidth: 24, fontStyle: 'bold', halign: 'center' }
-        },
-        didParseCell: (data) => {
-          if (data.column.index === 2 && data.cell.section === 'body') {
-            if (data.cell.raw === 'CUMPLE') {
-              data.cell.styles.textColor = [5, 150, 105];
-            } else {
-              data.cell.styles.textColor = [220, 38, 38];
-            }
-          }
-        }
-      });
-
-      currentY = (doc as any).lastAutoTable.finalY + 6;
-
-      if (notes.trim()) {
-        doc.setFontSize(7.5);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Instrucciones Particulares y Secuencia de Maniobra:', 14, currentY);
-        doc.setFont('helvetica', 'normal');
-        doc.text(notes.trim(), 14, currentY + 4, { maxWidth: 182 });
-        currentY += 12;
+    if (downloadOnly) {
+      const loadingToast = toast.loading('Generando documento PDF oficial...');
+      try {
+        const blob = await generatePdfBlob('pdf-content-arc-flash-form', false);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+        toast.success('Permiso descargado en PDF correctamente', { id: loadingToast });
+      } catch (err) {
+        console.error(err);
+        toast.error('Error al generar el PDF', { id: loadingToast });
       }
-
-      // ==========================================
-      // BLOQUE DE 3 FIRMAS REGLAMENTARIAS
-      // ==========================================
-      const sigY = Math.min(currentY + 16, pageHeight - 38);
-
-      // Renderizar firmas digitales si están dibujadas
-      if (electricianSig) {
-        try {
-          doc.addImage(electricianSig, 'PNG', 14, sigY - 14, 46, 13);
-        } catch (e) {
-          console.error('Error dibujando firma electricista en PDF:', e);
-        }
-      }
-      if (supervisorSig) {
-        try {
-          doc.addImage(supervisorSig, 'PNG', 80, sigY - 14, 46, 13);
-        } catch (e) {
-          console.error('Error dibujando firma supervisor en PDF:', e);
-        }
-      }
-      if (plantManagerSig) {
-        try {
-          doc.addImage(plantManagerSig, 'PNG', 146, sigY - 14, 46, 13);
-        } catch (e) {
-          console.error('Error dibujando firma emisor planta en PDF:', e);
-        }
-      }
-
-      doc.setFontSize(7.5);
-      doc.setTextColor(30, 41, 59);
-
-      // Firma 1: Electricista Habilitado
-      doc.line(14, sigY, 64, sigY);
-      doc.setFont('helvetica', 'bold');
-      doc.text(leadElectrician || 'Firma Electricista Habilitado', 14, sigY + 4);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(6.5);
-      doc.text('Electricista Habilitado Responsable', 14, sigY + 7.5);
-      doc.text('Mat. / DNI: ' + (electricianLicense || '................................'), 14, sigY + 10.5);
-
-      // Firma 2: Supervisor HyS
-      doc.setFontSize(7.5);
-      doc.line(80, sigY, 130, sigY);
-      doc.setFont('helvetica', 'bold');
-      doc.text(safetySupervisor || 'Firma Responsable HyS', 80, sigY + 4);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(6.5);
-      doc.text('Servicio de Higiene y Seguridad', 80, sigY + 7.5);
-      doc.text('Mat. Prof. HyS: ' + (supervisorLicense || '................................'), 80, sigY + 10.5);
-
-      // Firma 3: Autorizante de Planta
-      doc.setFontSize(7.5);
-      doc.line(146, sigY, 196, sigY);
-      doc.setFont('helvetica', 'bold');
-      doc.text(plantManager || 'Firma Emisor de Planta', 146, sigY + 4);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(6.5);
-      doc.text('Autorizante de Planta / Mantenimiento', 146, sigY + 7.5);
-      doc.text('Operaciones / Producción', 146, sigY + 10.5);
-
-      // ==========================================
-      // PIE DE PÁGINA OFICIAL Y LEGAL
-      // ==========================================
-      const footerY = pageHeight - 8;
-      doc.setDrawColor(203, 213, 225);
-      doc.setLineWidth(0.4);
-      doc.line(14, footerY - 3, pageWidth - 14, footerY - 3);
-
-      doc.setFontSize(6.5);
-      doc.setTextColor(100, 116, 139);
-      doc.text(
-        'Documento operacional oficial según Res. SRT N° 3068/14, NFPA 70E y Dec. 351/79 Cap. 14. Prohibida la maniobra sin las 3 firmas autorizantes.',
-        14,
-        footerY
-      );
-      doc.text(
-        'Pág. 1 de 1 • Emitido: ' + new Date().toLocaleDateString('es-AR') + ' ' + new Date().toLocaleTimeString('es-AR'),
-        pageWidth - 14,
-        footerY,
-        { align: 'right' }
-      );
-
-      const sanitizedTag = (panelOrEquipmentTag || 'Equipo').replace(/\s+/g, '_');
-      const fileName = 'Permiso_Arco_Electrico_' + permitNumber + '_' + sanitizedTag + '.pdf';
-
-      if (downloadOnly) {
-        doc.save(fileName);
-        toast.success('Permiso descargado en PDF correctamente');
-      } else {
-        // Direct print dialog: trigger browser native print preview without downloading
-        doc.autoPrint();
-        const blob = doc.output('blob');
-        const blobUrl = URL.createObjectURL(blob);
-
-        const iframe = document.createElement('iframe');
-        iframe.style.position = 'fixed';
-        iframe.style.right = '0';
-        iframe.style.bottom = '0';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = '0';
-        iframe.src = blobUrl;
-        document.body.appendChild(iframe);
-
-        iframe.onload = () => {
-          setTimeout(() => {
-            try {
-              iframe.contentWindow?.focus();
-              iframe.contentWindow?.print();
-            } catch (err) {
-              console.error('Error al imprimir iframe, abriendo pestaña de impresión:', err);
-              const win = window.open(blobUrl, '_blank');
-              if (win) win.focus();
-            }
-            setTimeout(() => {
-              try {
-                document.body.removeChild(iframe);
-                URL.revokeObjectURL(blobUrl);
-              } catch {}
-            }, 60000);
-          }, 300);
-        };
-
-        toast.success('Abriendo ventana de impresión del permiso...');
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error('Error al generar el documento PDF');
+    } else {
+      await printElementAsDocument(targetId, `Permiso de Trabajo con Tensión ${permitNumber}`, false);
     }
   };
 
@@ -330,35 +210,10 @@ export default function ArcFlashPermitForm(): React.ReactElement | null {
     }
 
     const newPermit: ArcFlashPermitData = {
+      ...currentPermitObject,
       id: 'af_' + Date.now(),
-      companyId: activeCompany?.id,
-      permitNumber,
-      date,
-      startTime,
-      endTime,
-      panelOrEquipmentTag,
-      substationOrLocation,
-      nominalVoltageV,
-      isLiveWork,
-      shortCircuitKa,
-      clearingTimeSeconds,
-      workingDistanceCm,
-      calculatedIncidentEnergyCalCm2: calcResult.incidentEnergy,
-      arcFlashBoundaryMeters: calcResult.boundaryMeters,
-      ppeCategory: calcResult.category,
-      checklist,
-      gloveClass,
-      gloveLastTestDate,
-      leadElectrician,
-      safetySupervisor,
-      electricianLicense: electricianLicense.trim() || undefined,
-      supervisorLicense: supervisorLicense.trim() || undefined,
-      plantManager: plantManager.trim() || undefined,
-      electricianSignature: electricianSig,
-      supervisorSignature: supervisorSig,
-      plantManagerSignature: plantManagerSig,
-      status: 'active',
-      notes: notes.trim() || undefined,
+      panelOrEquipmentTag: panelOrEquipmentTag.trim(),
+      substationOrLocation: substationOrLocation.trim(),
       createdAt: new Date().toISOString()
     };
 
@@ -387,7 +242,7 @@ export default function ArcFlashPermitForm(): React.ReactElement | null {
         />
 
         <div className="max-w-4xl mx-auto w-full px-2 sm:px-4 mt-6">
-          {/* Barra Superior con botón Volver y botón Imprimir PDF Rápido */}
+          {/* Barra Superior con botón Volver */}
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
             <button
               type="button"
@@ -410,57 +265,6 @@ export default function ArcFlashPermitForm(): React.ReactElement | null {
             >
               <ArrowLeft size={16} /> Volver a permisos de arco eléctrico
             </button>
-
-            {/* Botones de Acción Superior: Imprimir y Descargar PDF */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => handlePrintPDF(false)}
-                title="Abrir cuadro de diálogo de impresión directa"
-                style={{
-                  backgroundColor: '#0284c7',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '7px 14px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  cursor: 'pointer',
-                  fontWeight: 800,
-                  fontSize: '12px',
-                  minHeight: 'unset',
-                  boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)'
-                }}
-              >
-                <Printer size={15} />
-                <span>Imprimir Permiso</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handlePrintPDF(true)}
-                title="Descargar archivo PDF directamente al dispositivo"
-                style={{
-                  backgroundColor: '#059669',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '7px 14px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  cursor: 'pointer',
-                  fontWeight: 800,
-                  fontSize: '12px',
-                  minHeight: 'unset',
-                  boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
-                }}
-              >
-                <Download size={15} />
-                <span>Descargar PDF</span>
-              </button>
-            </div>
           </div>
 
           <form onSubmit={handleSave} className="space-y-6">
@@ -917,22 +721,82 @@ export default function ArcFlashPermitForm(): React.ReactElement | null {
                 BLOQUE 4: Personal Habilitado, Autorizaciones y Firmas
                ======================================================== */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-7 border border-slate-200 dark:border-slate-700 shadow-sm space-y-5">
-              <div className="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-slate-700">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center flex-shrink-0">
-                  <Award size={22} />
+              <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-700 flex-wrap">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center flex-shrink-0">
+                    <Award size={22} />
+                  </div>
+                  <div>
+                    <h2 style={{ color: '#0f172a' }} className="text-base font-extrabold m-0 dark:text-white">
+                      4. Personal Habilitado, Autorizaciones y Firmas Digitalizadas
+                    </h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 m-0 font-medium">
+                      Validación formal y firmas digitalizadas estilo ATS para el permiso de trabajo con tensión
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h2 style={{ color: '#0f172a' }} className="text-base font-extrabold m-0 dark:text-white">
-                    4. Personal Habilitado, Autorizaciones y Firmas
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 m-0 font-medium">
-                    Validación formal de los tres responsables obligatorios para el documento PDF
-                  </p>
-                </div>
+                <span
+                  style={{
+                    fontSize: '0.68rem',
+                    fontWeight: 800,
+                    background: '#ecfdf5',
+                    color: '#047857',
+                    padding: '0.25rem 0.65rem',
+                    borderRadius: '999px',
+                    border: '1px solid #a7f3d0'
+                  }}
+                >
+                  Firma Profesional Precargada
+                </span>
+              </div>
+
+              {/* Selector de visibilidad de cajas de firma (igual que ATS y Aptitudes Médicas) */}
+              <div
+                style={{
+                  background: '#f8fafc',
+                  padding: '0.75rem 1rem',
+                  borderRadius: '10px',
+                  border: '1px solid #e2e8f0',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '1.25rem',
+                  alignItems: 'center'
+                }}
+              >
+                <span style={{ fontSize: '0.72rem', fontWeight: 900, color: '#475569', textTransform: 'uppercase' }}>
+                  INCLUIR FIRMAS EN EL DOCUMENTO:
+                </span>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', color: '#1e293b' }}>
+                  <input
+                    type="checkbox"
+                    checked={showSignatures.operator}
+                    onChange={e => setShowSignatures(s => ({ ...s, operator: e.target.checked }))}
+                    style={{ accentColor: '#2563eb', width: '15px', height: '15px' }}
+                  />
+                  Electricista Habilitado
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', color: '#1e293b' }}>
+                  <input
+                    type="checkbox"
+                    checked={showSignatures.supervisor}
+                    onChange={e => setShowSignatures(s => ({ ...s, supervisor: e.target.checked }))}
+                    style={{ accentColor: '#2563eb', width: '15px', height: '15px' }}
+                  />
+                  Emisor / Autorizante de Planta
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', color: '#047857' }}>
+                  <input
+                    type="checkbox"
+                    checked={showSignatures.professional}
+                    onChange={e => setShowSignatures(s => ({ ...s, professional: e.target.checked }))}
+                    style={{ accentColor: '#059669', width: '15px', height: '15px' }}
+                  />
+                  Profesional H&S (Con sello y matrícula)
+                </label>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Electricista */}
+                {/* 1. Electricista Habilitado */}
                 <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 space-y-3">
                   <div className="flex items-center gap-2 text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
                     <User size={16} className="text-blue-600" />
@@ -942,7 +806,7 @@ export default function ArcFlashPermitForm(): React.ReactElement | null {
                     <label style={{ color: '#475569' }} className="block text-[11px] font-bold mb-1">Nombre Completo *</label>
                     <input
                       type="text"
-                      placeholder="Ej. Juan Pérez"
+                      placeholder="Ej. Juan Pérez (O en blanco para obra)"
                       value={leadElectrician}
                       onChange={e => setLeadElectrician(e.target.value)}
                       style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}
@@ -951,7 +815,7 @@ export default function ArcFlashPermitForm(): React.ReactElement | null {
                     />
                   </div>
                   <div>
-                    <label style={{ color: '#475569' }} className="block text-[11px] font-bold mb-1">Matrícula / DNI</label>
+                    <label style={{ color: '#475569' }} className="block text-[11px] font-bold mb-1">Matrícula / Habilitación BT-MT</label>
                     <input
                       type="text"
                       placeholder="Ej. Mat. COPIME 12345"
@@ -963,42 +827,11 @@ export default function ArcFlashPermitForm(): React.ReactElement | null {
                   </div>
                 </div>
 
-                {/* Supervisor HyS */}
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 space-y-3">
-                  <div className="flex items-center gap-2 text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                    <ShieldCheck size={16} className="text-emerald-600" />
-                    2. Responsable HyS
-                  </div>
-                  <div>
-                    <label style={{ color: '#475569' }} className="block text-[11px] font-bold mb-1">Nombre Profesional *</label>
-                    <input
-                      type="text"
-                      placeholder="Ej. Ing. Carlos Gómez"
-                      value={safetySupervisor}
-                      onChange={e => setSafetySupervisor(e.target.value)}
-                      style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}
-                      className="w-full text-xs font-semibold px-3 py-2 border rounded-lg outline-none"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label style={{ color: '#475569' }} className="block text-[11px] font-bold mb-1">Matrícula HyS (Ley 19.587)</label>
-                    <input
-                      type="text"
-                      placeholder="Ej. MP HyS N° 9876"
-                      value={supervisorLicense}
-                      onChange={e => setSupervisorLicense(e.target.value)}
-                      style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}
-                      className="w-full text-xs font-semibold px-3 py-2 border rounded-lg outline-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Autorizante de Planta */}
+                {/* 2. Emisor / Autorizante de Planta */}
                 <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 space-y-3">
                   <div className="flex items-center gap-2 text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
                     <CheckCircle2 size={16} className="text-purple-600" />
-                    3. Emisor de Planta
+                    2. Emisor de Planta
                   </div>
                   <div>
                     <label style={{ color: '#475569' }} className="block text-[11px] font-bold mb-1">Jefe Mant. / Operaciones</label>
@@ -1016,8 +849,40 @@ export default function ArcFlashPermitForm(): React.ReactElement | null {
                     <input
                       type="text"
                       placeholder="Ej. Jefatura de Mantenimiento"
-                      defaultValue="Mantenimiento Eléctrico"
+                      value={plantManagerSector}
+                      onChange={e => setPlantManagerSector(e.target.value)}
                       style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#cbd5e1' }}
+                      className="w-full text-xs font-semibold px-3 py-2 border rounded-lg outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* 3. Profesional H&S (Destacado en esmeralda como en ATS) */}
+                <div className="p-4 rounded-xl border border-emerald-300 bg-emerald-50/40 space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-extrabold text-emerald-900 uppercase tracking-wider">
+                    <ShieldCheck size={16} className="text-emerald-600" />
+                    3. Profesional H&S
+                  </div>
+                  <div>
+                    <label style={{ color: '#065f46' }} className="block text-[11px] font-bold mb-1">Nombre Profesional *</label>
+                    <input
+                      type="text"
+                      placeholder="Ej. Lic. / Téc. en Higiene y Seguridad"
+                      value={safetySupervisor}
+                      onChange={e => setSafetySupervisor(e.target.value)}
+                      style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#6ee7b7' }}
+                      className="w-full text-xs font-semibold px-3 py-2 border rounded-lg outline-none"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label style={{ color: '#065f46' }} className="block text-[11px] font-bold mb-1">Matrícula Profesional (Ley 19.587)</label>
+                    <input
+                      type="text"
+                      placeholder="Ej. Mat. N° MP.4457"
+                      value={supervisorLicense}
+                      onChange={e => setSupervisorLicense(e.target.value)}
+                      style={{ backgroundColor: '#ffffff', color: '#0f172a', borderColor: '#6ee7b7' }}
                       className="w-full text-xs font-semibold px-3 py-2 border rounded-lg outline-none"
                     />
                   </div>
@@ -1038,52 +903,116 @@ export default function ArcFlashPermitForm(): React.ReactElement | null {
                 </div>
               </div>
 
-              {/* Vista Previa del Pie de Página Legal y Firmas */}
+              {/* PIZARRAS INTERACTIVAS DE FIRMA DIGITAL EN EL CONTENIDO (IGUAL QUE ATS) */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                {showSignatures.operator && (
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <SignatureCanvas
+                      label="Firma Electricista Habilitado (Opcional — en blanco si firma en obra)"
+                      initialImage={electricianSig || null}
+                      onSave={sig => setElectricianSig(sig || null)}
+                    />
+                  </div>
+                )}
+
+                {showSignatures.supervisor && (
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <SignatureCanvas
+                      label="Firma Emisor / Autorizante de Planta (Opcional)"
+                      initialImage={plantManagerSig || null}
+                      onSave={sig => setPlantManagerSig(sig || null)}
+                    />
+                  </div>
+                )}
+
+                {showSignatures.professional && (
+                  <div className="bg-emerald-50/40 p-3 rounded-xl border border-emerald-300">
+                    <SignatureCanvas
+                      label="Firma Digital del Profesional H&S"
+                      initialImage={supervisorSig || null}
+                      onSave={sig => setSupervisorSig(sig || null)}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* VISTA PREVIA EN VIVO DEL CUADRO DE FIRMAS OFICIAL (IDÉNTICO A ATS) */}
               <div
-                style={{ backgroundColor: '#f8fafc', border: '1px dashed #cbd5e1' }}
-                className="p-4 rounded-xl space-y-3"
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '0.85rem 1rem'
+                }}
               >
-                <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider block">
-                  Vista Previa del Bloque de Firmas y Pie de Página en el Documento PDF:
-                </span>
-                <div className="grid grid-cols-3 gap-2 text-center text-[10px] text-slate-600">
-                  <div className="border-t border-slate-300 pt-2 flex flex-col items-center">
-                    {electricianSig ? (
-                      <img src={electricianSig} alt="Firma Electricista" className="h-9 object-contain mb-1" />
-                    ) : (
-                      <div className="h-9 flex items-center justify-center text-slate-300 italic text-[9px]">(Pendiente de firma)</div>
-                    )}
-                    <span className="font-bold block">{leadElectrician || 'Firma Electricista Habilitado'}</span>
-                    <span className="text-slate-400">Responsable Ejecutante</span>
-                  </div>
-                  <div className="border-t border-slate-300 pt-2 flex flex-col items-center">
-                    {supervisorSig ? (
-                      <img src={supervisorSig} alt="Firma HyS" className="h-9 object-contain mb-1" />
-                    ) : (
-                      <div className="h-9 flex items-center justify-center text-slate-300 italic text-[9px]">(Pendiente de firma)</div>
-                    )}
-                    <span className="font-bold block">{safetySupervisor || 'Firma Responsable HyS'}</span>
-                    <span className="text-slate-400">Supervisión Técnica Res. 3068/14</span>
-                  </div>
-                  <div className="border-t border-slate-300 pt-2 flex flex-col items-center">
-                    {plantManagerSig ? (
-                      <img src={plantManagerSig} alt="Firma Emisor" className="h-9 object-contain mb-1" />
-                    ) : (
-                      <div className="h-9 flex items-center justify-center text-slate-300 italic text-[9px]">(Pendiente de firma)</div>
-                    )}
-                    <span className="font-bold block">{plantManager || 'Firma Emisor de Planta'}</span>
-                    <span className="text-slate-400">Autorización Operativa</span>
-                  </div>
+                <div
+                  style={{
+                    fontSize: '0.68rem',
+                    fontWeight: 900,
+                    color: '#64748b',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    marginBottom: '0.25rem'
+                  }}
+                >
+                  Vista Previa en Vivo del Cuadro de Firmas en el Permiso Impreso:
                 </div>
-                <div className="text-[9px] text-slate-400 border-t border-slate-200 pt-2 flex justify-between">
-                  <span>Resolución S.R.T. N° 3068/2014 • NFPA 70E • Dec. 351/79 Cap. 14</span>
-                  <span>Pág. 1 de 1 • Validez 24 hs</span>
-                </div>
+                <PdfSignatures
+                  data={{
+                    ...currentPermitObject,
+                    showSignatures,
+                    professionalSignature: supervisorSig,
+                    professionalStamp: professionalStamp,
+                    professionalName: safetySupervisor,
+                    professionalLicense: supervisorLicense,
+                    professionalTitle: professionalTitle
+                  }}
+                  box1={
+                    showSignatures.operator
+                      ? {
+                          title: 'ELECTRICISTA HABILITADO (EJECUTANTE)',
+                          subtitle: (leadElectrician || 'FIRMA EN OBRA / ACLARACIÓN').toUpperCase(),
+                          signatureUrl: electricianSig || null,
+                          license: electricianLicense ? `Hab. ${electricianLicense}` : null,
+                          isProfessional: false
+                        }
+                      : null
+                  }
+                  box2={
+                    showSignatures.supervisor
+                      ? {
+                          title: 'EMISOR / AUTORIZANTE DE PLANTA',
+                          subtitle: (
+                            plantManager
+                              ? `${plantManager}${plantManagerSector ? ` (${plantManagerSector})` : ''}`
+                              : 'JEFE DE MANTENIMIENTO / OPERACIONES'
+                          ).toUpperCase(),
+                          signatureUrl: plantManagerSig || null,
+                          isProfessional: false
+                        }
+                      : null
+                  }
+                  box3={
+                    showSignatures.professional
+                      ? {
+                          title: professionalTitle || 'PROFESIONAL HIGIENE Y SEGURIDAD',
+                          subtitle: (safetySupervisor || 'FIRMA Y SELLO PROFESIONAL').toUpperCase(),
+                          signatureUrl: supervisorSig || null,
+                          stampUrl: professionalStamp || null,
+                          isProfessional: true,
+                          license: supervisorLicense || null,
+                          profession: professionalTitle || null
+                        }
+                      : null
+                  }
+                  compact={true}
+                  hideFooter={true}
+                />
               </div>
             </div>
 
             {/* ========================================================
-                Botones de Envío y Botón de Imprimir PDF
+                Botones de Envío, Vista Previa A4 e Impresión PDF
                ======================================================== */}
             <div className="flex items-center justify-between gap-3 pt-6 border-t border-slate-200 dark:border-slate-700 flex-wrap">
               <button
@@ -1105,7 +1034,30 @@ export default function ArcFlashPermitForm(): React.ReactElement | null {
               </button>
 
               <div className="flex items-center gap-3 flex-wrap">
-                {/* Botón Imprimir (Abre diálogo nativo del navegador) */}
+                {/* Botón Vista Previa A4 */}
+                <button
+                  type="button"
+                  onClick={() => setShowPreviewModal(true)}
+                  style={{
+                    backgroundColor: '#ffffff',
+                    color: '#0f172a',
+                    border: '1px solid #cbd5e1',
+                    padding: '10px 18px',
+                    fontSize: '13px',
+                    fontWeight: 800,
+                    borderRadius: '10px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    minHeight: 'unset'
+                  }}
+                >
+                  <Eye size={16} />
+                  <span>Vista Previa A4</span>
+                </button>
+
+                {/* Botón Imprimir (Abre diálogo nativo con plantilla A4 mejorada) */}
                 <button
                   type="button"
                   onClick={() => handlePrintPDF(false)}
@@ -1179,6 +1131,141 @@ export default function ArcFlashPermitForm(): React.ReactElement | null {
             </div>
           </form>
         </div>
+
+        {/* CONTENEDOR A4 OFFSCREEN PARA IMPRESIÓN Y DESCARGA PDF DIRECTA */}
+        <div
+          className="ats-pdf-offscreen"
+          style={{
+            position: 'fixed',
+            left: '-9999px',
+            top: 0,
+            width: '210mm',
+            backgroundColor: '#ffffff',
+            zIndex: -1
+          }}
+          ref={printRef}
+        >
+          <ArcFlashPdfGenerator
+            permit={currentPermitObject}
+            companyName={activeCompany?.name}
+            pdfElementId="pdf-content-arc-flash-form"
+          />
+        </div>
+
+        {/* MODAL DE VISTA PREVIA A4 OFICIAL */}
+        {showPreviewModal && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              backgroundColor: 'rgba(15, 23, 42, 0.78)',
+              backdropFilter: 'blur(4px)',
+              zIndex: 9999,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '1.25rem',
+              overflowY: 'auto'
+            }}
+          >
+            <div
+              style={{
+                width: '100%',
+                maxWidth: '210mm',
+                background: '#0f172a',
+                color: '#ffffff',
+                padding: '0.85rem 1.25rem',
+                borderRadius: '12px 12px 0 0',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: '0.75rem',
+                flexWrap: 'wrap'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <Zap size={18} color="#fbbf24" />
+                <span style={{ fontWeight: 900, fontSize: '0.9rem' }}>
+                  Vista Previa Oficial A4 — Permiso {permitNumber}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => handlePrintPDF(false)}
+                  style={{
+                    background: '#0284c7',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '0.45rem 0.9rem',
+                    fontSize: '0.78rem',
+                    fontWeight: 800,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Printer size={15} /> Imprimir
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handlePrintPDF(true)}
+                  style={{
+                    background: '#059669',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '0.45rem 0.9rem',
+                    fontSize: '0.78rem',
+                    fontWeight: 800,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Download size={15} /> Descargar PDF
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowPreviewModal(false)}
+                  style={{
+                    background: 'rgba(255,255,255,0.12)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '0.45rem 0.65rem',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center'
+                  }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+
+            <div
+              style={{
+                width: '100%',
+                maxWidth: '210mm',
+                background: '#ffffff',
+                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.45)',
+                borderRadius: '0 0 12px 12px',
+                overflow: 'hidden'
+              }}
+            >
+              <ArcFlashPdfGenerator
+                permit={currentPermitObject}
+                companyName={activeCompany?.name}
+                pdfElementId="pdf-content-arc-flash-preview"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </AnimatedPage>
   );

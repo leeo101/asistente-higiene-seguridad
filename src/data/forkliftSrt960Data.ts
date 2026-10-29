@@ -24,6 +24,9 @@ export interface ForkliftVehicle {
   hasStrobeLight: boolean;
   hasBlueSpotlight: boolean;
   hasLoadChart: boolean;
+  hasMirrors?: boolean;
+  hasHorn?: boolean;
+  hasFrontLights?: boolean;
   notes?: string;
   createdAt: string;
 }

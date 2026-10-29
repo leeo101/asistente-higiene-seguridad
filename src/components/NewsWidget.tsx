@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Newspaper, ChevronRight, ExternalLink, BellRing } from 'lucide-react';
-import { safeJsonParse } from '../utils/storageHelper';
+import { useLanguage } from '../contexts/LanguageContext';
 
-const NEWS_BY_COUNTRY = {
+const NEWS_BY_COUNTRY: Record<string, Array<{ id: number; title: string; description: string; date: string; tag: string; link: string }>> = {
   argentina: [
   {
     id: 1,
@@ -110,6 +110,96 @@ const NEWS_BY_COUNTRY = {
     link: "https://www.gub.uy/ministerio-trabajo-seguridad-social/"
   }],
 
+  brasil: [
+  {
+    id: 1,
+    title: "Actualización de la NR-01 (PGR) y Riesgos Psicosociales",
+    description: "El MTE exige integrar formalmente los factores psicosociales dentro del Programa de Gerenciamento de Riscos (PGR).",
+    date: "Urgente",
+    tag: "MTE / NR-01",
+    link: "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/ctpp-nrs/normas-regulamentadoras-nrs"
+  },
+  {
+    id: 2,
+    title: "Fiscalización electrónica eSocial SST (S-2240)",
+    description: "Mayor cruce de datos entre el inventario de riesgos del PGR y los eventos enviados al eSocial.",
+    date: "Actualidad",
+    tag: "eSocial SST",
+    link: "https://www.gov.br/esocial/pt-br"
+  }],
+
+  mexico: [
+  {
+    id: 1,
+    title: "Cumplimiento de NOM-037-STPS (Teletrabajo) y NOM-035",
+    description: "La STPS refuerza las inspecciones extraordinarias sobre condiciones ergonómicas y factores de riesgo psicosocial.",
+    date: "Urgente",
+    tag: "STPS",
+    link: "https://www.gob.mx/stps"
+  },
+  {
+    id: 2,
+    title: "Programa de Autogestión en Seguridad y Salud (PASST)",
+    description: "Nuevos lineamientos para la evaluación integral de las Normas Oficiales Mexicanas en centros industriales.",
+    date: "Actualidad",
+    tag: "NOM-030-STPS",
+    link: "https://www.gob.mx/stps"
+  }],
+
+  espana: [
+  {
+    id: 1,
+    title: "Estrategia Española de Seguridad y Salud en el Trabajo",
+    description: "El INSST actualiza guías técnicas sobre transición digital, ergonomía y exposición a agentes cancerígenos.",
+    date: "Nuevo",
+    tag: "INSST",
+    link: "https://www.insst.es/"
+  },
+  {
+    id: 2,
+    title: "Campaña de la ITSS sobre Caídas de Altura y Maquinaria",
+    description: "Refuerzo de actuaciones inspectoras conforme a la Ley 31/1995 y RD 1215/1997.",
+    date: "Actualidad",
+    tag: "ITSS",
+    link: "https://www.mites.gob.es/itss/"
+  }],
+
+  usa_osha: [
+  {
+    id: 1,
+    title: "OSHA National Emphasis Program: Heat & Fall Protection",
+    description: "Increased federal inspections focusing on heat illness prevention and 29 CFR 1926 Subpart M fall protection.",
+    date: "Urgent",
+    tag: "OSHA 29 CFR",
+    link: "https://www.osha.gov/"
+  },
+  {
+    id: 2,
+    title: "Electronic Injury and Illness Reporting (ITA)",
+    description: "Establishments in high-hazard industries must submit Form 300A, 300, and 301 data electronically.",
+    date: "Update",
+    tag: "29 CFR 1904",
+    link: "https://www.osha.gov/injuryreporting"
+  }],
+
+  iso_global: [
+  {
+    id: 1,
+    title: "ISO 45001:2018 + Amd 1:2024 (Acción Climática en SST)",
+    description: "La enmienda ISO incorpora la evaluación del cambio climático y estrés térmico dentro del contexto de la organización (Cláusulas 4.1 y 4.2).",
+    date: "Global",
+    tag: "ISO 45001",
+    link: "https://www.iso.org/standard/63787.html"
+  },
+  {
+    id: 2,
+    title: "Directrices ISO 45003 sobre Salud Psicológica en el Trabajo",
+    description: "Estándar global para la gestión de riesgos psicosociales dentro de un sistema de gestión de SST.",
+    date: "Estándar",
+    tag: "ISO 45003",
+    link: "https://www.iso.org/standard/64283.html"
+  }],
+
   generic: [
   {
     id: 1,
@@ -131,20 +221,24 @@ const NEWS_BY_COUNTRY = {
 };
 
 export default function NewsWidget() {
-  const savedData = localStorage.getItem('personalData');
-  const userCountry = (savedData ? safeJsonParse<any>(savedData, {}).country || 'argentina' : 'argentina').toLowerCase().trim();
+  const { selectedFramework } = useLanguage();
+  const userCountry = (selectedFramework || 'argentina').toLowerCase().trim();
   const NEWS_ITEMS = NEWS_BY_COUNTRY[userCountry] || NEWS_BY_COUNTRY.generic;
 
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [userCountry]);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % NEWS_ITEMS.length);
     }, 8000); // Rotates every 8 seconds
     return () => clearInterval(timer);
-  }, []);
+  }, [NEWS_ITEMS.length]);
 
-  const currentNews = NEWS_ITEMS[currentIndex];
+  const currentNews = NEWS_ITEMS[currentIndex] || NEWS_ITEMS[0];
 
   return (
     <div className="mt-[2rem]">

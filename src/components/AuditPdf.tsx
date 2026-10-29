@@ -1,6 +1,7 @@
 import React from 'react';
 import { ClipboardCheck, CheckCircle2, AlertTriangle, User, Calendar, MapPin, ShieldCheck, Flag, CheckSquare, XSquare, AlertOctagon, HelpCircle } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import DualPdfHeader from './DualPdfHeader';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
 import ReportContentRenderer from './reports/ReportContentRenderer';
@@ -11,15 +12,16 @@ export default function AuditPdf({ data, customId }: { data: any; customId?: str
   // Obtención segura de firma desde personalData o del dato en sí
   let actSignature = data.signature || null;
   let actName = data.professionalName || data.auditor || data.leadAuditor || null;
-  let actLic = data.license || null;
+  let actLic = data.license || data.professionalLicense || null;
   let actStamp = data.professionalStamp || null;
+  let actTitle = data.auditorRole || null;
 
   // Si no trae firmas directas, intentar heredar de localStorage (fallback global pro)
-  if (!actSignature || !actStamp) {
+  if (typeof window !== 'undefined') {
     try {
       const lsPersonal = localStorage.getItem('personalData');
-      const lsStamp = localStorage.getItem('signatureStampData');
-      const legacySig = localStorage.getItem('capturedSignature');
+      const lsStamp = localStorage.getItem('signatureStampData') || localStorage.getItem('signature_stamp_data');
+      const legacySig = localStorage.getItem('capturedSignature') || localStorage.getItem('digital_signature');
 
       if (lsStamp) {
         const parsed = JSON.parse(lsStamp);
@@ -31,11 +33,23 @@ export default function AuditPdf({ data, customId }: { data: any; customId?: str
 
       if (lsPersonal) {
         const pd = JSON.parse(lsPersonal);
-        actName = actName || pd.name;
-        actLic = actLic || pd.license;
+        actName = actName || pd.name || pd.fullName;
+        actLic = actLic || pd.license || pd.matricula;
+        if (!actTitle) {
+          const prof = pd.profession || pd.profesion || '';
+          actTitle = (prof.toLowerCase().includes('técnico') || prof.toLowerCase().includes('tecnico'))
+            ? 'Técnico en Higiene y Seguridad'
+            : 'Profesional de Higiene y Seguridad';
+        }
       }
     } catch (e) {}
   }
+
+  // Título oficial: Solo "Profesional de Higiene y Seguridad" o "Técnico en Higiene y Seguridad"
+  const rawRole = (data.auditorRole || actTitle || '').toLowerCase();
+  const finalRoleTitle = (rawRole.includes('técnico') || rawRole.includes('tecnico'))
+    ? 'TÉCNICO EN HIGIENE Y SEGURIDAD'
+    : 'PROFESIONAL DE HIGIENE Y SEGURIDAD';
 
   // Cómputo dinámico de métricas a partir del checklist real
   const checklist = Array.isArray(data.checklist) ? data.checklist : [];
@@ -66,19 +80,23 @@ export default function AuditPdf({ data, customId }: { data: any; customId?: str
     <div className="w-[100%] flex justify-center">
       <div
         id={customId || "pdf-content"}
-        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[10mm_12mm] bg-[#ffffff] text-[#1e293b] box-shadow-none rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[9.5pt] font-family-[system-ui,_-apple-system,_sans-serif] border-top-[12px_solid_#2563eb]"
+        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[6mm_10mm] bg-[#ffffff] text-[#1e293b] box-shadow-none rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[9pt] font-family-[system-ui,_-apple-system,_sans-serif] border-t-4 border-blue-600"
       >
         <style type="text/css" media="print">
           {`
-            @page { size: A4 portrait; margin: 8mm; }
+            @page { size: A4 portrait; margin: 6mm 8mm; }
             body { 
               -webkit-print-color-adjust: exact !important; 
               print-color-adjust: exact !important; 
               font-family: system-ui, -apple-system, sans-serif; 
               background: white !important; 
             }
-            .no-print, .module-form-layout, .module-form-toolbar, .module-action-bar, header, nav, aside, .sidebar { 
+            .no-print, .module-form-layout, .module-form-toolbar, .module-action-bar, nav, aside, .sidebar { 
               display: none !important; 
+            }
+            .dual-pdf-header {
+              display: block !important;
+              visibility: visible !important;
             }
             .print-area {
               box-shadow: none !important; 
@@ -86,7 +104,7 @@ export default function AuditPdf({ data, customId }: { data: any; customId?: str
               padding: 0 !important; 
               width: 100% !important; 
               max-width: none !important; 
-              border-top: 12px solid #2563eb !important; 
+              border-top: 4px solid #2563eb !important; 
               border-radius: 0 !important; 
               min-height: 0 !important; 
               height: auto !important; 
@@ -97,14 +115,14 @@ export default function AuditPdf({ data, customId }: { data: any; customId?: str
             /* Preservación de renglones y párrafos */
             .report-content-renderer p {
               margin-top: 0 !important;
-              margin-bottom: 0.75rem !important;
-              min-height: 1.25em !important;
-              line-height: 1.6 !important;
+              margin-bottom: 0.4rem !important;
+              min-height: 1.2em !important;
+              line-height: 1.4 !important;
             }
             .report-content-renderer p:empty,
             .report-content-renderer p > br:only-child {
               display: inline-block !important;
-              min-height: 1.25em !important;
+              min-height: 1.2em !important;
               content: "" !important;
             }
             
@@ -120,97 +138,98 @@ export default function AuditPdf({ data, customId }: { data: any; customId?: str
           `}
         </style>
 
-        {/* Encabezado Principal */}
-        <div className="flex flex-row justify-between items-center border-bottom-[3px_solid_#0f172a] pb-[1rem] mb-[1.2rem] w-[100%]">
-          <div className="flex-[1] text-left">
-            <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.08em]">Sistema de Gestión ISO 45001 / EHS</p>
-            <p className="m-[0] font-[900] text-[0.85rem] uppercase text-[#2563eb]">{auditTypeLabel}</p>
-          </div>
-
-          <div className="flex-[2] flex flex-col items-center justify-center text-center">
-            <h1 className="m-[0] font-[900] text-[2.2rem] letter-spacing-[-0.02em] uppercase line-height-[1] text-[#0f172a]">AUDITORÍA</h1>
-            <div className="mt-[0.3rem] bg-[#0f172a] text-[white] p-[0.25rem_0.9rem] rounded-full text-[0.65rem] font-[800] letter-spacing-[0.1em]">
-              INFORME OFICIAL DE RESULTADOS EHS
-            </div>
-          </div>
-
-          <div className="flex-[1] text-right flex flex-col items-end gap-[0.5rem]">
-            <CompanyLogo style={{ maxHeight: '42px', maxWidth: '130px', objectFit: 'contain' }} />
-          </div>
-        </div>
+        {/* Encabezado Principal Institucional con Logos Centrados */}
+        <DualPdfHeader
+          title="INFORME OFICIAL DE AUDITORÍA EHS"
+          subtitle="Dictamen de Cumplimiento Legal y Verificación Técnica según ISO 45001 / ISO 19011"
+          normBadge={`ISO 45001:2018 · ${auditTypeLabel.toUpperCase()}`}
+          normBadgeColor="blue"
+          normBadgeIcon={<ClipboardCheck size={12} />}
+          documentId={data.id || (data.assessmentNumber || 'AUD-ISO-45001')}
+          establishmentName={data.facilityName || data.location || 'Establecimiento Operativo'}
+          date={data.date ? new Date(data.date).toLocaleDateString('es-AR') : (data.scheduledDate ? new Date(data.scheduledDate).toLocaleDateString('es-AR') : undefined)}
+          className="mb-4"
+        />
 
         {/* Aspecto Evaluado y Metadatos de la Auditoría */}
-        <div className="border-[1px_solid_#cbd5e1] rounded-[8px] mb-[1.2rem] w-[100%] overflow-[hidden] shadow-sm">
-          <div className="p-[0.8rem_1rem] bg-[#f8fafc] border-bottom-[1px_solid_#cbd5e1]">
-            <span className="text-[0.65rem] font-[800] text-[#2563eb] uppercase letter-spacing-[0.05em] flex items-center gap-[0.4rem]">
-              <Flag size={14} /> IDENTIFICACIÓN DEL PROCESO AUDITADO
+        <div className="border border-slate-300 rounded-lg mb-2.5 w-full overflow-hidden shadow-xs text-slate-900">
+          <div className="px-3 py-1.5 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+            <span className="text-[6.5pt] font-extrabold text-blue-600 uppercase tracking-wider flex items-center gap-1">
+              <Flag size={12} /> PROCESO AUDITADO
             </span>
-            <div className="font-[900] text-[1.25rem] text-[#0f172a] mt-[0.2rem]">
+            <span className="text-[6.5pt] font-mono text-slate-500 font-bold">
+              ID: {data.id || (data.assessmentNumber || 'AUD-ISO-45001')}
+            </span>
+          </div>
+          <div className="px-3 py-1 bg-white">
+            <div className="font-extrabold text-[10.5pt] text-slate-900 leading-tight">
               {data.auditTitle || data.title || 'Auditoría General de Higiene y Seguridad'}
             </div>
           </div>
           
-          <div className="flex flex-wrap bg-[#ffffff]">
-            <div className="flex-[1] min-w-[140px] p-[0.6rem_1rem] border-right-[1px_solid_#cbd5e1]">
-              <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Calendar size={12} className="text-[#2563eb]" /> FECHA</span>
-              <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">
+          <div className="grid grid-cols-3 border-t border-slate-200 bg-slate-50/50 text-[7.2pt]">
+            <div className="p-1 px-3 border-r border-slate-200">
+              <span className="text-[5.8pt] font-bold text-slate-500 uppercase flex items-center gap-1"><Calendar size={9} className="text-blue-600" /> FECHA</span>
+              <div className="font-bold text-slate-900 mt-0.5">
                 {data.date ? new Date(data.date).toLocaleDateString('es-AR') : (data.scheduledDate || '-')}
               </div>
             </div>
-            <div className="flex-[1] min-w-[140px] p-[0.6rem_1rem] border-right-[1px_solid_#cbd5e1]">
-              <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><MapPin size={12} className="text-[#2563eb]" /> LOCACIÓN / PLANTA</span>
-              <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{data.location || 'Sede Principal'}</div>
+            <div className="p-1 px-3 border-r border-slate-200">
+              <span className="text-[5.8pt] font-bold text-slate-500 uppercase flex items-center gap-1"><MapPin size={9} className="text-blue-600" /> PLANTA / SECTOR</span>
+              <div className="font-bold text-slate-900 mt-0.5 truncate">{data.location || 'Sede Principal'}</div>
             </div>
-            <div className="flex-[1] min-w-[140px] p-[0.6rem_1rem]">
-              <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><User size={12} className="text-[#2563eb]" /> AUDITOR LÍDER</span>
-              <div className="font-[800] text-[0.85rem] text-[#0f172a] mt-[0.2rem]">{actName || 'Especialista EHS'}</div>
+            <div className="p-1 px-3">
+              <span className="text-[5.8pt] font-bold text-slate-500 uppercase flex items-center gap-1">
+                <User size={9} className="text-blue-600" /> {finalRoleTitle}
+              </span>
+              <div className="font-bold text-slate-900 mt-0.5 truncate">{actName || 'Especialista EHS'}</div>
             </div>
           </div>
         </div>
 
         {/* Panel de Métricas Cuantitativas de Desempeño */}
-        <div className="grid grid-cols-4 gap-3 mb-[1.2rem]">
-          <div className="p-3 rounded-lg border border-slate-200 bg-slate-50 text-center">
-            <span className="text-[0.65rem] font-bold text-slate-500 uppercase tracking-wider block mb-1">Ítems Evaluados</span>
-            <span className="text-xl font-black text-slate-800">{totalItems || evaluatedItems || 10}</span>
+        <div className="grid grid-cols-4 gap-2 mb-2.5">
+          <div className="p-1.5 rounded-lg border border-slate-200 bg-slate-50 text-center">
+            <span className="text-[5.8pt] font-bold text-slate-500 uppercase tracking-wider block">Ítems Evaluados</span>
+            <span className="text-sm font-black text-slate-800">{totalItems || evaluatedItems || 10}</span>
           </div>
 
-          <div className="p-3 rounded-lg border border-emerald-200 bg-emerald-50 text-center">
-            <span className="text-[0.65rem] font-bold text-emerald-700 uppercase tracking-wider block mb-1">Conformidades</span>
-            <span className="text-xl font-black text-emerald-600">
+          <div className="p-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-center">
+            <span className="text-[5.8pt] font-bold text-emerald-700 uppercase tracking-wider block">Conformidades</span>
+            <span className="text-sm font-black text-emerald-600">
               {totalItems > 0 ? conformitiesCount : (data.conformities || 10)}
             </span>
           </div>
 
-          <div className="p-3 rounded-lg border border-rose-200 bg-rose-50 text-center">
-            <span className="text-[0.65rem] font-bold text-rose-700 uppercase tracking-wider block mb-1">No Conformidades</span>
-            <span className="text-xl font-black text-rose-600">
+          <div className="p-1.5 rounded-lg border border-rose-200 bg-rose-50 text-center">
+            <span className="text-[5.8pt] font-bold text-rose-700 uppercase tracking-wider block">No Conformidades</span>
+            <span className="text-sm font-black text-rose-600">
               {totalItems > 0 ? nonConformitiesCount : (data.nonConformities || 0)}
             </span>
           </div>
 
-          <div className="p-3 rounded-lg border border-blue-200 bg-blue-50 text-center">
-            <span className="text-[0.65rem] font-bold text-blue-700 uppercase tracking-wider block mb-1">Cumplimiento Global</span>
-            <span className="text-xl font-black text-blue-600">{complianceRate}%</span>
+          <div className="p-1.5 rounded-lg border border-blue-200 bg-blue-50 text-center">
+            <span className="text-[5.8pt] font-bold text-blue-700 uppercase tracking-wider block">Cumplimiento Global</span>
+            <span className="text-sm font-black text-blue-600">{complianceRate}%</span>
           </div>
         </div>
 
         {/* Objetivo y Alcance */}
-        <div className="grid grid-cols-2 gap-3 mb-[1.2rem]">
-          <div className="border border-slate-200 p-3 rounded-lg bg-white">
-            <span className="text-[0.65rem] font-extrabold text-slate-500 uppercase block mb-1.5 border-b border-slate-100 pb-1">
+        <div className="grid grid-cols-2 gap-2 mb-2.5">
+          <div className="border border-slate-200 p-2 rounded-lg bg-white">
+            <span className="text-[5.8pt] font-black text-slate-500 uppercase block mb-0.5 border-b border-slate-100 pb-0.5">
               OBJETIVO DE LA AUDITORÍA
             </span>
-            <div className="text-[0.8rem] text-slate-700 leading-relaxed">
+            <div className="text-[7pt] text-slate-700 leading-snug">
               <ReportContentRenderer content={data.objective || 'Verificar el grado de cumplimiento de los procedimientos internos de Higiene, Seguridad y Medio Ambiente, y los requisitos legales obligatorios aplicables a la operación.'} isPrint={true} />
             </div>
           </div>
 
-          <div className="border border-slate-200 p-3 rounded-lg bg-white">
-            <span className="text-[0.65rem] font-extrabold text-slate-500 uppercase block mb-1.5 border-b border-slate-100 pb-1">
+          <div className="border border-slate-200 p-2 rounded-lg bg-white">
+            <span className="text-[5.8pt] font-black text-slate-500 uppercase block mb-0.5 border-b border-slate-100 pb-0.5">
               ALCANCE Y METODOLOGÍA
             </span>
-            <div className="text-[0.8rem] text-slate-700 leading-relaxed">
+            <div className="text-[7pt] text-slate-700 leading-snug">
               <ReportContentRenderer content={data.scope || 'Observación técnica directa en puestos de trabajo, entrevistas a operarios/supervisores y examen de registros documentales del Sistema de Gestión de Seguridad y Salud en el Trabajo (SGSST).'} isPrint={true} />
             </div>
           </div>
@@ -218,22 +237,28 @@ export default function AuditPdf({ data, customId }: { data: any; customId?: str
 
         {/* TABLA OFICIAL DE RESULTADOS DEL CHECKLIST AUDITADO */}
         {checklist.length > 0 ? (
-          <div className="mb-[1.5rem]">
-            <div className="flex items-center gap-2 mb-2 pb-1 border-b-2 border-slate-200 avoid-break">
-              <div className="w-2 h-5 bg-blue-600 rounded"></div>
-              <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider m-0">
+          <div className="mb-2.5">
+            <div className="flex items-center gap-1.5 mb-1.5 pb-0.5 border-b-2 border-slate-800 avoid-break">
+              <div className="w-1.5 h-3.5 bg-blue-600 rounded-xs"></div>
+              <h3 className="text-[7.5pt] font-black text-slate-900 uppercase tracking-wider m-0">
                 RELEVAMIENTO TÉCNICO DETALLADO (CHECKLIST DE CUMPLIMIENTO)
               </h3>
             </div>
 
-            <div className="border border-slate-300 rounded-lg overflow-hidden shadow-sm">
-              <table className="w-full border-collapse text-[8.5pt] audit-table">
+            <div className="border border-slate-300 rounded-lg overflow-hidden shadow-xs w-full">
+              <table style={{ tableLayout: 'fixed', width: '100%', boxSizing: 'border-box' }} className="border-collapse text-[7.5pt] audit-table w-full">
+                <colgroup>
+                  <col style={{ width: '18%' }} />
+                  <col style={{ width: '44%' }} />
+                  <col style={{ width: '16%' }} />
+                  <col style={{ width: '22%' }} />
+                </colgroup>
                 <thead>
-                  <tr className="bg-slate-900 text-white text-left font-bold">
-                    <th className="p-2.5 w-[22%]">Norma / Ref. Legal</th>
-                    <th className="p-2.5 w-[42%]">Aspecto / Requisito Auditado</th>
-                    <th className="p-2.5 w-[14%] text-center">Dictamen</th>
-                    <th className="p-2.5 w-[22%]">Observación / Evidencia</th>
+                  <tr className="bg-slate-900 text-white text-left font-bold text-[7pt]">
+                    <th style={{ padding: '4px 6px', wordBreak: 'break-word', overflowWrap: 'break-word' }}>Norma / Ref. Legal</th>
+                    <th style={{ padding: '4px 6px', wordBreak: 'break-word', overflowWrap: 'break-word' }}>Aspecto / Requisito Auditado</th>
+                    <th style={{ padding: '4px 6px', textAlign: 'center', wordBreak: 'break-word', overflowWrap: 'break-word' }}>Dictamen</th>
+                    <th style={{ padding: '4px 6px', wordBreak: 'break-word', overflowWrap: 'break-word' }}>Observación / Evidencia</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -244,32 +269,32 @@ export default function AuditPdf({ data, customId }: { data: any; customId?: str
 
                     return (
                       <tr key={item.id || idx} className="border-b border-slate-200 striped-row">
-                        <td className="p-2 font-bold text-slate-800 align-top">
-                          <span className="inline-block px-1.5 py-0.5 rounded text-[7.5pt] bg-slate-100 text-slate-700 border border-slate-200 font-mono">
+                        <td style={{ padding: '3.5px 6px', wordBreak: 'break-word', overflowWrap: 'break-word' }} className="font-bold text-slate-800 align-top">
+                          <span className="inline-block px-1 py-0.2 rounded text-[6.5pt] bg-slate-100 text-slate-700 border border-slate-200 font-mono">
                             {item.legal || item.clause || `Item ${idx + 1}`}
                           </span>
                         </td>
-                        <td className="p-2 text-slate-700 font-medium align-top leading-tight">
+                        <td style={{ padding: '3.5px 6px', wordBreak: 'break-word', overflowWrap: 'break-word' }} className="text-slate-700 font-medium align-top leading-tight text-[7.2pt]">
                           {item.question}
                         </td>
-                        <td className="p-2 text-center align-top">
+                        <td style={{ padding: '3.5px 6px', textAlign: 'center', wordBreak: 'break-word' }} className="align-top">
                           {isConforme && (
-                            <span className="inline-block px-2 py-0.5 rounded-full text-[7.5pt] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            <span className="inline-block px-1.5 py-0.5 rounded-full text-[6.2pt] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
                               ✓ CONFORME
                             </span>
                           )}
                           {isNoConforme && (
-                            <span className="inline-block px-2 py-0.5 rounded-full text-[7.5pt] font-black bg-rose-100 text-rose-800 border border-rose-300">
+                            <span className="inline-block px-1.5 py-0.5 rounded-full text-[6.2pt] font-black bg-rose-100 text-rose-800 border border-rose-300">
                               ✗ DESVÍO
                             </span>
                           )}
                           {isNA && (
-                            <span className="inline-block px-2 py-0.5 rounded-full text-[7.5pt] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                            <span className="inline-block px-1.5 py-0.5 rounded-full text-[6.2pt] font-bold bg-slate-100 text-slate-600 border border-slate-200">
                               • N/A
                             </span>
                           )}
                         </td>
-                        <td className="p-2 text-slate-600 text-[8pt] align-top">
+                        <td style={{ padding: '3.5px 6px', wordBreak: 'break-word', overflowWrap: 'break-word' }} className="text-slate-600 text-[7pt] align-top">
                           {item.observation ? (
                             <span className={isNoConforme ? 'text-rose-700 font-semibold' : ''}>
                               {item.observation}
@@ -316,23 +341,25 @@ export default function AuditPdf({ data, customId }: { data: any; customId?: str
         )}
 
         {/* Reunión de Cierre y Conclusiones */}
-        <div className="avoid-break border-l-4 border-blue-600 bg-blue-50/70 p-3.5 rounded-r-lg mb-[1.5rem]">
-          <span className="text-[0.7rem] font-black text-blue-900 block mb-1 uppercase tracking-wider">
+        <div className="avoid-break border-l-4 border-blue-600 bg-blue-50/70 p-2.5 rounded-r-lg mb-2.5">
+          <span className="text-[6.5pt] font-black text-blue-900 block mb-0.5 uppercase tracking-wider">
             MINUTA DE CIERRE Y CONCLUSIÓN TÉCNICA DEL AUDITOR
           </span>
           {data.closingMeeting?.participants && (
-            <p className="text-[8pt] text-blue-950 font-bold mb-1.5">
-              👥 Participantes de la reunión de cierre: <span className="font-normal">{data.closingMeeting.participants}</span>
+            <p className="text-[6.8pt] text-blue-950 font-bold mb-1">
+              👥 Participantes del cierre: <span className="font-normal">{data.closingMeeting.participants}</span>
             </p>
           )}
-          <div className="text-[8.5pt] text-blue-950 leading-relaxed font-medium">
+          <div className="text-[7.2pt] text-blue-950 leading-relaxed font-medium">
             <ReportContentRenderer content={data.closingMeeting?.conclusions || data.conclusion || 'La auditoría concluye que el establecimiento mantiene condiciones operativas con adecuada adhesión al Sistema de Gestión EHS, debiendo implementarse las acciones correctivas señaladas dentro de los plazos establecidos.'} isPrint={true} />
           </div>
         </div>
 
         {/* Firmas de Responsabilidad */}
-        <div className="avoid-break mt-4">
+        <div className="avoid-break mt-2">
           <PdfSignatures
+            compact={true}
+            hideFooter={true}
             data={data}
             box1={!data.showSignatures || data.showSignatures.operator ? {
               title: 'PERSONA AUDITADA / RESPONSABLE',
@@ -341,8 +368,8 @@ export default function AuditPdf({ data, customId }: { data: any; customId?: str
               isProfessional: false
             } : null}
             box2={!data.showSignatures || data.showSignatures.professional ? {
-              title: 'AUDITOR LÍDER / ESPECIALISTA',
-              subtitle: (actName || 'Firma de Especialista').toUpperCase(),
+              title: finalRoleTitle,
+              subtitle: (actName || 'Firma y Sello').toUpperCase(),
               signatureUrl: actSignature,
               stampUrl: actStamp,
               isProfessional: true,

@@ -6,6 +6,7 @@ import {
   Calendar, RefreshCw, ChevronRight, Filter
 } from 'lucide-react';
 import { useCompany } from '../contexts/CompanyContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export interface ExpirationItem {
   id: string;
@@ -24,6 +25,7 @@ export interface ExpirationItem {
 export default function CommandCenterDashboard(): React.ReactElement {
   const navigate = useNavigate();
   const { activeCompany, isAllCompanies } = useCompany();
+  const { t, countryNorms, adaptText } = useLanguage();
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'expired' | 'warning'>('all');
 
   const allExpirations = useMemo(() => {
@@ -261,8 +263,11 @@ export default function CommandCenterDashboard(): React.ReactElement {
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-lg sm:text-xl font-black text-white m-0 tracking-tight">
-                Centro de Mando & Semáforo Legal de Vencimientos
+                {t('cmd.title')}
               </h2>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                {countryNorms.flag} {countryNorms.name} ({countryNorms.general})
+              </span>
               {activeCompany && (
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30 flex items-center gap-1">
                   <Building2 size={12} /> {activeCompany.name}
@@ -270,7 +275,7 @@ export default function CommandCenterDashboard(): React.ReactElement {
               )}
             </div>
             <p className="text-xs text-slate-400 m-0 mt-0.5 font-medium">
-              Vigilancia legal en tiempo real: Matafuegos, Protocolos SRT (Luz, Ruido, PAT), Salud y Planes CAPA.
+              {t('cmd.subtitle')} ({countryNorms.lighting}, {countryNorms.noise}, {countryNorms.grounding})
             </p>
           </div>
         </div>
@@ -289,7 +294,7 @@ export default function CommandCenterDashboard(): React.ReactElement {
             }`}
           >
             <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-            {expiredCount} Vencidos
+            {expiredCount} {t('cmd.expired')}
           </button>
 
           <button
@@ -304,7 +309,7 @@ export default function CommandCenterDashboard(): React.ReactElement {
             }`}
           >
             <span className="w-2 h-2 rounded-full bg-amber-400" />
-            {warningCount} Próximos
+            {warningCount} {t('cmd.upcoming')}
           </button>
 
           <button
@@ -316,7 +321,7 @@ export default function CommandCenterDashboard(): React.ReactElement {
                 : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'
             }`}
           >
-            Todos ({allExpirations.length})
+            {t('cmd.all')} ({allExpirations.length})
           </button>
         </div>
       </div>
@@ -328,9 +333,9 @@ export default function CommandCenterDashboard(): React.ReactElement {
             <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-2">
               <ShieldCheck size={26} />
             </div>
-            <h4 className="text-sm font-black text-white m-0">¡Todo al día y en regla legal!</h4>
+            <h4 className="text-sm font-black text-white m-0">{t('cmd.all_good_title')}</h4>
             <p className="text-xs text-slate-400 mt-1 max-w-md m-0">
-              No se detectaron protocolos legales ni extintores con plazos vencidos en la empresa seleccionada.
+              {t('cmd.all_good_sub')}
             </p>
           </div>
         ) : (
@@ -350,7 +355,7 @@ export default function CommandCenterDashboard(): React.ReactElement {
                     <div className="flex items-center justify-between gap-2 mb-1.5">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                         {getCategoryIcon(item.category)}
-                        {item.categoryLabel}
+                        {adaptText(item.categoryLabel)}
                       </span>
                       <span
                         className={`px-2 py-0.5 text-[10px] font-black rounded-md ${

@@ -10,6 +10,7 @@ import { useNotificationScheduler } from '../hooks/useNotificationScheduler';
 
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { usePaywall } from '../hooks/usePaywall';
 import AdBanner from './AdBanner';
 import SidebarUserProfile from './sidebar/SidebarUserProfile';
@@ -54,6 +55,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
   const { currentUser, logout } = useAuth();
   const { isPro, daysRemaining } = usePaywall();
   const { isOnline, syncing, pendingCount } = useSync();
+  const { t, adaptText } = useLanguage();
 
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
   const toggleTheme = () => {
@@ -162,10 +164,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
           {/* Top row: Logo + close */}
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-[0.6rem]">
-              <div className="w-[36px] h-[36px] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[12px] p-[6px] flex-shrink-[0] box-shadow-[var(--shadow-sm)]">
-                <img src="/logo.png" alt="Logo" className="w-[100%] h-[100%] object-fit-[contain]" />
-              </div>
-              <span className="text-[0.95rem] font-[900] text-[var(--color-text)] letter-spacing-[-0.3px] font-family-[var(--font-heading)]">Asistente HYS</span>
+              <img src="/logo.png?v=3" alt="Logo" className="h-[34px] w-auto object-fit-[contain] flex-shrink-[0] filter-[drop-shadow(0_2px_6px_rgba(0,0,0,0.3))]" />
+              <span className="text-[0.95rem] font-[900] text-[var(--color-text)] letter-spacing-[-0.3px] font-family-[var(--font-heading)]">{t('app.short_name')}</span>
             </div>
             
             <div className="flex items-center gap-[0.5rem]">
@@ -248,7 +248,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
                       <span style={{ color: active ? 'var(--color-primary)' : 'var(--color-text-muted)' }} className="flex-shrink-[0]">
                         {item.icon}
                       </span>
-                      <span>{item.label}</span>
+                      <span>{adaptText(item.label)}</span>
                     </div>
                   </Link>);
 
@@ -271,7 +271,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
               <div className="w-[32px] h-[32px] rounded-[10px] bg-[var(--color-primary)] text-white flex items-center justify-center flex-shrink-[0]">
                 <ChatText size={18} weight="fill" />
               </div>
-              <span>Soporte y Sugerencias</span>
+              <span>{t('nav.support')}</span>
             </div>
           </a>
 
@@ -279,15 +279,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
           {!isPro &&
           <Link to="/subscribe" onClick={onClose} className="text-decoration-[none] mb-[0.5rem] mt-[1rem]">
               <div
-
-
-
-
-
-
-
-
-
               onMouseOver={(e) => {
                 e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15))';
                 e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)';
@@ -300,17 +291,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
               }} className="flex items-center gap-[0.9rem] p-[1rem] rounded-[16px] bg-[linear-gradient(135deg,_rgba(59,_130,_246,_0.1),_rgba(139,_92,_246,_0.1))] border-[1px_solid_rgba(59,_130,_246,_0.2)] cursor-pointer transition-[all_0.3s_ease] relative overflow-[hidden]">
               
                 <div className="w-[32px] h-[32px] rounded-[10px] bg-[linear-gradient(135deg,_#f59e0b,_#fbbf24)] flex items-center justify-center box-shadow-[0_4px_12px_rgba(245,_158,_11,_0.3)] flex-shrink-[0]">
-
-
-
-
-
-                
                   <Crown weight="fill" size={20} color="#ffffff" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-[800] text-[0.85rem] text-[var(--color-primary)] letter-spacing-[-0.3px]">Activar Versión Pro</span>
-                  <span className="text-[0.7rem] text-[var(--color-text-muted)]">Desbloquea todas las funciones</span>
+                  <span className="font-[800] text-[0.85rem] text-[var(--color-primary)] letter-spacing-[-0.3px]">{t('nav.activate_pro')}</span>
+                  <span className="text-[0.7rem] text-[var(--color-text-muted)]">{t('nav.unlock_all')}</span>
                 </div>
               </div>
             </Link>
@@ -324,7 +309,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
             className="w-full mb-3 p-3 rounded-2xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-500 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95"
           >
             <DeviceMobile weight="bold" size={18} />
-            <span>Instalar App (PWA)</span>
+            <span>{t('nav.install_pwa')}</span>
           </button>
 
           <AdBanner placement="sidebar" />
@@ -344,7 +329,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
               className="flex items-center justify-center gap-[0.7rem] p-[0.85rem_1rem] rounded-[12px] text-[#ef4444] bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] cursor-pointer w-[100%] font-[700] text-[0.95rem] transition-[all_0.25s_ease]"
             >
               <SignOut weight="bold" size={20} />
-              <span>Cerrar Sesión</span>
+              <span>{t('nav.logout')}</span>
             </button>
           </div>
           }

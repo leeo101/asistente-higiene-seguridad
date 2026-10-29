@@ -1,6 +1,7 @@
 import React from 'react';
-import { Sparkles, Crown, ArrowLeft, Home } from 'lucide-react';
+import { Sparkles, ArrowLeft, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface PremiumHeaderProps {
   title: string;
@@ -26,6 +27,11 @@ export default function PremiumHeader({
 }: PremiumHeaderProps): React.ReactElement {
   const bg = gradient || color || 'linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)';
   const navigate = useNavigate();
+  const { t, adaptText, countryNorms } = useLanguage();
+
+  const adaptedTitle = adaptText(title);
+  const adaptedSubtitle = adaptText(subtitle);
+  const adaptedBadge = badge ? adaptText(badge) : `${countryNorms.flag} ${countryNorms.name} · ${countryNorms.general}`;
 
   return (
     <div style={{
@@ -71,7 +77,7 @@ export default function PremiumHeader({
             onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
             className="transition-[background_0.2s]">
-                <ArrowLeft size={16} /> VOLVER
+                <ArrowLeft size={16} /> {t('nav.back')}
             </button>
             <button
             type="button"
@@ -95,7 +101,7 @@ export default function PremiumHeader({
             onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
             className="transition-[background_0.2s]">
-                <Home size={16} /> INICIO
+                <Home size={16} /> {t('nav.home').toUpperCase()}
             </button>
         </div>
 
@@ -114,16 +120,16 @@ export default function PremiumHeader({
         <div className="flex-[1] min-width-[200px]">
           <div className="flex items-center justify-center gap-2 flex-wrap">
             <h1 className="m-[0] text-[clamp(1.25rem,_4vw,_2rem)] font-[900] text-[#ffffff] text-shadow-[0_2px_10px_rgba(0,0,0,0.2)] letter-spacing-[-0.5px] line-height-[1.2]">
-              {title}
+              {adaptedTitle}
             </h1>
-            {badge && (
+            {adaptedBadge && (
               <span className="bg-white/20 backdrop-blur-md border border-white/30 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-sm">
-                {badge}
+                {adaptedBadge}
               </span>
             )}
           </div>
           <p className="m-[0.5rem_0_0] text-[clamp(0.85rem,_2.5vw,_1rem)] text-[rgba(255,255,255,0.9)] font-[600]">
-            {subtitle}
+            {adaptedSubtitle}
           </p>
         </div>
         {children}

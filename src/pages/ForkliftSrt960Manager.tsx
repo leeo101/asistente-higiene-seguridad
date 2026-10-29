@@ -6,7 +6,7 @@ import {
   Activity, User, MapPin, Clock, ArrowRight,
   FileSpreadsheet, Eye, X, ShieldCheck, Printer, Check,
   QrCode, Wrench, AlertOctagon, Award, RefreshCw, Key,
-  Sparkles, Info, ChevronRight, Ban
+  Sparkles, Info, ChevronRight, Ban, Shield, Volume2, Sun, Lightbulb
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useCompany } from '../contexts/CompanyContext';
@@ -31,6 +31,18 @@ import {
   generateForkliftInspectionPdf,
   generateForkliftEquipmentTagPdf
 } from '../utils/forkliftPdfGenerator';
+
+const SAFETY_DEVICES = [
+  { key: 'hasSeatbelt', label: 'Cinturón de Seguridad', subtitle: 'Obligatorio inercial o pélvico', icon: <Shield size={16} /> },
+  { key: 'hasBackupAlarm', label: 'Alarma de Marcha Atrás', subtitle: 'Acústica intermitente audible', icon: <AlertTriangle size={16} /> },
+  { key: 'hasStrobeLight', label: 'Baliza Ámbar 360°', subtitle: 'Destellante estroboscópica', icon: <Sun size={16} /> },
+  { key: 'hasBlueSpotlight', label: 'Luz Blue Light Peatonal', subtitle: 'Proyector preventivo a piso', icon: <Lightbulb size={16} /> },
+  { key: 'hasRopsFops', label: 'Cabina ROPS / FOPS', subtitle: 'Antivuelco y caída de carga', icon: <ShieldAlert size={16} /> },
+  { key: 'hasLoadChart', label: 'Placa de Carga Legible', subtitle: 'Capacidad y centro de gravedad', icon: <FileText size={16} /> },
+  { key: 'hasMirrors', label: 'Espejos Retrovisores', subtitle: 'Panorámica lateral y posterior', icon: <Eye size={16} /> },
+  { key: 'hasHorn', label: 'Bocina / Claxon Operativo', subtitle: 'Advertencia acústica obligatoria', icon: <Volume2 size={16} /> },
+  { key: 'hasFrontLights', label: 'Luces de Trabajo / Freno', subtitle: 'Focos delanteros y stop', icon: <Sparkles size={16} /> },
+];
 
 export default function ForkliftSrt960Manager(): React.ReactElement | null {
   const navigate = useNavigate();
@@ -97,15 +109,7 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
     notes: ''
   });
 
-  const [showCheckModal, setShowCheckModal] = useState(false);
-  const [selectedVehicleForCheck, setSelectedVehicleForCheck] = useState<string>('');
-  const [selectedDriverForCheck, setSelectedDriverForCheck] = useState<string>('');
-  const [checkShift, setCheckShift] = useState<'manana' | 'tarde' | 'noche'>('manana');
-  const [checkHours, setCheckHours] = useState<number>(0);
-  const [checkResponses, setCheckResponses] = useState<{ [id: string]: 'conforme' | 'no_conforme' | 'no_aplica' }>({});
-  const [checkObservations, setCheckObservations] = useState('');
-  const [driverSignature, setDriverSignature] = useState<string | null>(null);
-  const [supervisorSignature, setSupervisorSignature] = useState<string | null>(null);
+
 
   const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
   const [maintenanceForm, setMaintenanceForm] = useState<Partial<ForkliftMaintenance>>({
@@ -242,6 +246,9 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
       hasStrobeLight: true,
       hasBlueSpotlight: true,
       hasLoadChart: true,
+      hasMirrors: true,
+      hasHorn: true,
+      hasFrontLights: true,
       notes: ''
     });
     setShowVehicleModal(true);
@@ -323,7 +330,7 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
         ...driverForm,
         id: `forklift-d-${Date.now()}`,
         companyId: activeCompany?.id,
-        status: 'habilitado'
+        status: driverForm.status || 'habilitado'
       } as ForkliftDriver;
       saveDrivers([newD, ...drivers]);
       toast.success('Conductor habilitado según Res. SRT 960/15');
@@ -331,101 +338,12 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
     setShowDriverModal(false);
   };
 
-  // Check Pre-operacional
+  // Check Pre-operacional (Navegación al nuevo apartado dedicado)
   const handleOpenNewCheck = (defaultVehicleId?: string) => {
-    const vId = defaultVehicleId || (vehicles.length > 0 ? vehicles[0].id : '');
-    const v = vehicles.find(x => x.id === vId);
-    setSelectedVehicleForCheck(vId);
-    setCheckHours(v ? v.currentHours : 100);
-    setSelectedDriverForCheck(drivers.length > 0 ? drivers[0].id : '');
-    setCheckShift('manana');
-    setCheckObservations('');
-    setDriverSignature(null);
-    setSupervisorSignature(null);
-
-    // Iniciar con todo 'conforme' por defecto para agilizar
-    const initResp: { [id: string]: 'conforme' | 'no_conforme' | 'no_aplica' } = {};
-    DAILY_INSPECTION_ITEMS.forEach(it => {
-      initResp[it.id] = 'conforme';
-    });
-    setCheckResponses(initResp);
-    setShowCheckModal(true);
+    navigate('/autoelevadores/check', { state: { vehicleId: defaultVehicleId } });
   };
 
-  const handleToggleCheckItem = (itemId: string, value: 'conforme' | 'no_conforme' | 'no_aplica') => {
-    setCheckResponses(prev => ({
-      ...prev,
-      [itemId]: value
-    }));
-  };
-
-  const handleSaveDailyCheck = () => {
-    const veh = vehicles.find(v => v.id === selectedVehicleForCheck);
-    const drv = drivers.find(d => d.id === selectedDriverForCheck);
-
-    if (!veh || !drv) {
-      toast.error('Seleccione autoelevador y conductor habilitado');
-      return;
-    }
-
-    // Detectar fallas críticas
-    let hasCrit = false;
-    DAILY_INSPECTION_ITEMS.forEach(it => {
-      if (it.isCritical && checkResponses[it.id] === 'no_conforme') {
-        hasCrit = true;
-      }
-    });
-
-    const newCheck: ForkliftDailyCheck = {
-      id: `check-${Date.now()}`,
-      companyId: activeCompany?.id,
-      vehicleId: veh.id,
-      vehicleCode: veh.internalCode,
-      driverId: drv.id,
-      driverName: drv.fullName,
-      driverCuil: drv.cuil,
-      date: new Date().toISOString().split('T')[0],
-      shift: checkShift,
-      startHours: checkHours,
-      responses: checkResponses,
-      observations: checkObservations,
-      hasCriticalFailure: hasCrit,
-      result: hasCrit ? 'bloqueado_fuera_de_servicio' : 'aprobado',
-      driverSignatureName: drv.fullName,
-      driverSignature: driverSignature || undefined,
-      supervisorSignatureName: 'Servicio de Higiene y Seguridad',
-      supervisorSignature: supervisorSignature || undefined,
-      resolved: !hasCrit,
-      createdAt: new Date().toISOString()
-    };
-
-    saveChecks([newCheck, ...checks]);
-
-    // Actualizar estado del vehículo y horómetro
-    const updatedVehicles = vehicles.map(v => {
-      if (v.id === veh.id) {
-        return {
-          ...v,
-          currentHours: Math.max(v.currentHours, checkHours),
-          status: hasCrit ? ('fuera_de_servicio' as const) : ('operativo' as const)
-        };
-      }
-      return v;
-    });
-    saveVehicles(updatedVehicles);
-
-    if (hasCrit) {
-      toast.error('EQUIPO BLOQUEADO: Se detectó falla en ítem crítico. Se inmovilizó el autoelevador conforme Res. 960/15 Art. 6.', {
-        duration: 6000
-      });
-    } else {
-      toast.success('Checklist pre-operacional aprobado. Equipo habilitado para operar.', { duration: 4000 });
-    }
-
-    setShowCheckModal(false);
-  };
-
-  // Mantenimiento
+    // Mantenimiento
   const handleOpenMaintenance = (vehId?: string) => {
     const targetVeh = vehicles.find(v => v.id === vehId) || vehicles[0];
     setMaintenanceForm({
@@ -529,7 +447,7 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
 
   return (
     <AnimatedPage>
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-24 text-slate-800 dark:text-slate-100 transition-colors">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-24 text-slate-800 dark:text-slate-100 transition-colors" style={{ paddingTop: '7.5rem' }}>
         {/* Header Premium */}
         <PremiumHeader
           title="Autoelevadores & Maquinaria"
@@ -543,13 +461,6 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
             >
               <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               Exportar CSV
-            </button>
-            <button
-              onClick={() => handleOpenNewCheck()}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-md hover:shadow-lg flex items-center gap-1.5 transition-all cursor-pointer"
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              Nuevo Check Pre-operacional
             </button>
           </div>
         </PremiumHeader>
@@ -691,52 +602,82 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
               </button>
             </div>
 
-            {/* Barra de búsqueda y botón según tab */}
-            <div className="flex items-center gap-2">
+            {/* Barra de búsqueda y botones principales */}
+            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
               <div className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search
+                  className="w-4 h-4 text-slate-400 pointer-events-none z-10"
+                  style={{
+                    position: 'absolute',
+                    left: '0.85rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    display: 'block'
+                  }}
+                />
                 <input
                   type="text"
                   placeholder="Buscar en el registro..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 pr-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 w-44 sm:w-60"
+                  style={{
+                    paddingLeft: '2.5rem',
+                    paddingRight: '0.75rem',
+                    height: '38px',
+                    minHeight: '38px',
+                    boxSizing: 'border-box'
+                  }}
+                  className="text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 w-44 sm:w-56 shadow-xs font-semibold"
                 />
               </div>
 
               {activeTab === 'vehicles' && (
-                <button
-                  onClick={handleOpenNewVehicle}
-                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-1 shadow-sm transition-all cursor-pointer"
-                >
-                  <Plus className="w-4 h-4" />
-                  Alta Autoelevador
-                </button>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    onClick={handleOpenNewVehicle}
+                    className="px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 shadow-md shadow-emerald-600/20 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
+                    style={{ minHeight: '38px' }}
+                  >
+                    <Plus className="w-4 h-4 stroke-[3]" />
+                    Alta Autoelevador
+                  </button>
+                  <button
+                    onClick={() => handleOpenNewCheck()}
+                    className="px-3.5 py-2 rounded-xl text-xs font-black bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-1.5 shadow-md shadow-amber-600/20 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
+                    style={{ minHeight: '38px' }}
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    Nuevo Check Pre-op
+                  </button>
+                </div>
               )}
               {activeTab === 'drivers' && (
                 <button
                   onClick={handleOpenNewDriver}
-                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-1 shadow-sm transition-all cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 shadow-md shadow-emerald-600/20 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
+                  style={{ minHeight: '38px' }}
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-4 h-4 stroke-[3]" />
                   Alta Conductor
                 </button>
               )}
               {activeTab === 'checks' && (
                 <button
                   onClick={() => handleOpenNewCheck()}
-                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-1 shadow-sm transition-all cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-black bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-1.5 shadow-md shadow-amber-600/20 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
+                  style={{ minHeight: '38px' }}
                 >
-                  <Plus className="w-4 h-4" />
-                  Nuevo Check Pre-op
+                  <Plus className="w-4 h-4 stroke-[3]" />
+                  Nuevo Check Pre-operacional
                 </button>
               )}
               {activeTab === 'maintenance' && (
                 <button
                   onClick={() => handleOpenMaintenance()}
-                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-1 shadow-sm transition-all cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-black bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1.5 shadow-md shadow-blue-600/20 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
+                  style={{ minHeight: '38px' }}
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-4 h-4 stroke-[3]" />
                   Registrar Service
                 </button>
               )}
@@ -853,36 +794,38 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
                           </div>
 
                           {/* Acciones */}
-                          <div className="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                          <div className="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex-wrap">
                             <button
                               onClick={() => handleOpenNewCheck(veh.id)}
-                              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center gap-1 transition-all"
+                              className="px-3 py-1.5 rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-600 text-white flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5" />
                               Check Hoy
                             </button>
 
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1.5 flex-wrap">
                               <button
                                 onClick={() => generateForkliftEquipmentTagPdf(veh, activeCompany?.name)}
                                 title="Descargar Rótulo Oficial de Seguridad A4"
-                                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1 shadow-xs transition-all cursor-pointer"
                               >
-                                <Printer className="w-4 h-4" />
+                                <Printer className="w-3.5 h-3.5" />
+                                <span>Rótulo A4</span>
                               </button>
                               <button
                                 onClick={() => handleEditVehicle(veh)}
                                 title="Editar datos"
-                                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-700 hover:bg-slate-800 text-white flex items-center gap-1 shadow-xs transition-all cursor-pointer"
                               >
-                                <Wrench className="w-4 h-4" />
+                                <Wrench className="w-3.5 h-3.5" />
+                                <span>Editar</span>
                               </button>
                               <button
                                 onClick={() => setDeleteTarget({ type: 'vehicle', id: veh.id })}
                                 title="Eliminar equipo"
-                                className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                                className="p-1.5 px-2 rounded-xl text-xs font-bold bg-rose-50 dark:bg-rose-950/40 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200 dark:border-rose-900/50 transition-all cursor-pointer"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           </div>
@@ -994,28 +937,31 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
                             </div>
                           </div>
 
-                          {/* Botón de impresión de Credencial Oficial */}
-                          <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                          {/* Botón de impresión de Credencial Oficial y acciones */}
+                          <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 flex-wrap">
                             <button
                               onClick={() => generateForkliftCredentialPdf(drv, activeCompany?.name, activeCompany?.cuit)}
-                              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-1.5 shadow-sm transition-all"
+                              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
                             >
                               <Printer className="w-3.5 h-3.5" />
-                              Credencial Plastificable PDF
+                              Credencial PDF
                             </button>
 
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1.5">
                               <button
                                 onClick={() => handleEditDriver(drv)}
-                                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-700 hover:bg-slate-800 text-white flex items-center gap-1 shadow-xs transition-all cursor-pointer"
+                                title="Editar datos del conductor"
                               >
-                                <Wrench className="w-4 h-4" />
+                                <Wrench className="w-3.5 h-3.5" />
+                                <span>Editar</span>
                               </button>
                               <button
                                 onClick={() => setDeleteTarget({ type: 'driver', id: drv.id })}
-                                className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                                className="p-1.5 px-2 rounded-xl text-xs font-bold bg-rose-50 dark:bg-rose-950/40 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200 dark:border-rose-900/50 transition-all cursor-pointer"
+                                title="Eliminar conductor"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           </div>
@@ -1102,16 +1048,17 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
                                     <button
                                       onClick={() => generateForkliftInspectionPdf(check, veh, activeCompany?.name, activeCompany?.cuit)}
                                       title="Descargar Planilla Oficial Res. SRT 960/15 PDF"
-                                      className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-amber-500/10 hover:text-amber-600 font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1 transition-all"
+                                      className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 font-bold text-xs text-white flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
                                     >
                                       <Printer className="w-3.5 h-3.5" />
-                                      PDF Oficial
+                                      Planilla PDF
                                     </button>
                                     <button
                                       onClick={() => setDeleteTarget({ type: 'check', id: check.id })}
-                                      className="p-1 rounded-lg text-slate-400 hover:text-red-500 transition-colors"
+                                      className="p-1.5 px-2 rounded-xl text-xs font-bold bg-rose-50 dark:bg-rose-950/40 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200 dark:border-rose-900/50 transition-all cursor-pointer"
+                                      title="Eliminar check"
                                     >
-                                      <Trash2 className="w-4 h-4" />
+                                      <Trash2 className="w-3.5 h-3.5" />
                                     </button>
                                   </div>
                                 </td>
@@ -1189,9 +1136,11 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
                         <div className="flex justify-end pt-2">
                           <button
                             onClick={() => setDeleteTarget({ type: 'maintenance', id: maint.id })}
-                            className="p-1 rounded-lg text-slate-400 hover:text-red-500 transition-colors"
+                            className="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-rose-50 dark:bg-rose-950/40 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200 dark:border-rose-900/50 transition-all cursor-pointer flex items-center gap-1"
+                            title="Eliminar service"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Eliminar</span>
                           </button>
                         </div>
                       </div>
@@ -1204,180 +1153,325 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
 
         {/* MODAL: ALTA / EDICIÓN DE AUTOELEVADOR */}
         {showVehicleModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-2xl w-full p-6 my-8 space-y-4 max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                <h3 className="font-black text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                  <Truck className="w-5 h-5 text-amber-600" />
-                  {editingVehicle ? 'Editar Autoelevador' : 'Alta de Autoelevador (Res. SRT 960/15)'}
-                </h3>
-                <button onClick={() => setShowVehicleModal(false)} className="text-slate-400 hover:text-slate-600">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+            <div className="relative w-full max-w-3xl max-h-[92vh] sm:max-h-[88vh] bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden my-auto animate-scale-up">
+              {/* Header fijo */}
+              <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+                    <Truck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-base sm:text-lg text-slate-900 dark:text-white leading-tight">
+                      {editingVehicle ? 'Editar Ficha de Autoelevador' : 'Alta de Autoelevador (Res. SRT 960/15)'}
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium">
+                      Padrón y especificaciones técnicas oficiales de seguridad operativa
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowVehicleModal(false)}
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  title="Cerrar ventana"
+                >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleSaveVehicle} className="space-y-4 text-xs">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Código Interno (*)</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ej: AE-01"
-                      value={vehicleForm.internalCode}
-                      onChange={(e) => setVehicleForm({ ...vehicleForm, internalCode: e.target.value.toUpperCase() })}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold"
-                    />
+              {/* Form body scrollable */}
+              <form onSubmit={handleSaveVehicle} className="flex flex-col flex-1 overflow-hidden">
+                <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 text-xs">
+                  {/* Bloque 1: Identificación Principal */}
+                  <div className="space-y-3">
+                    <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+                      <Key size={13} className="text-blue-500" /> Identificación del Vehículo
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Código Interno (*)</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Ej: AE-01, CLARK-02"
+                          value={vehicleForm.internalCode || ''}
+                          onChange={(e) => setVehicleForm({ ...vehicleForm, internalCode: e.target.value.toUpperCase() })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-black"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">N° de Serie / Chasis</label>
+                        <input
+                          type="text"
+                          placeholder="Ej: TY8-9482103"
+                          value={vehicleForm.serialNumber || ''}
+                          onChange={(e) => setVehicleForm({ ...vehicleForm, serialNumber: e.target.value })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Estado Operativo</label>
+                        <select
+                          value={vehicleForm.status || 'operativo'}
+                          onChange={(e) => setVehicleForm({ ...vehicleForm, status: e.target.value as any })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold"
+                        >
+                          <option value="operativo">🟢 Operativo / Habilitado</option>
+                          <option value="mantenimiento">🟡 En Service / Taller</option>
+                          <option value="fuera_de_servicio">🔴 Inmovilizado / Bloqueado</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Marca (*)</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Ej: Toyota, Linde, Crown"
+                          value={vehicleForm.brand || ''}
+                          onChange={(e) => setVehicleForm({ ...vehicleForm, brand: e.target.value })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Modelo</label>
+                        <input
+                          type="text"
+                          placeholder="Ej: 8FGU25, H50FT"
+                          value={vehicleForm.model || ''}
+                          onChange={(e) => setVehicleForm({ ...vehicleForm, model: e.target.value })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Año de Fabricación</label>
+                        <input
+                          type="number"
+                          placeholder="Ej: 2024"
+                          value={vehicleForm.year || new Date().getFullYear()}
+                          onChange={(e) => setVehicleForm({ ...vehicleForm, year: Number(e.target.value) })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Marca (*)</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ej: Toyota, Linde, Crown"
-                      value={vehicleForm.brand}
-                      onChange={(e) => setVehicleForm({ ...vehicleForm, brand: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
-                    />
+
+                  {/* Bloque 2: Capacidad y Especificaciones Técnicas */}
+                  <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+                      <Activity size={13} className="text-emerald-500" /> Especificaciones Mecánicas y Operativas
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Tipo de Propulsión</label>
+                        <select
+                          value={vehicleForm.type || 'combustion_glp'}
+                          onChange={(e) => setVehicleForm({ ...vehicleForm, type: e.target.value as any })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+                        >
+                          <option value="combustion_glp">Combustión GLP (Gas)</option>
+                          <option value="combustion_diesel">Combustión Diésel</option>
+                          <option value="combustion_nafta">Combustión Nafta</option>
+                          <option value="electric">Eléctrico a Batería</option>
+                          <option value="reach_truck">Retráctil Reach Truck</option>
+                          <option value="order_picker">Apilador Eléctrico</option>
+                          <option value="stacker">Transpaleta Eléctrica</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Capacidad Máx de Carga (kg)</label>
+                        <input
+                          type="number"
+                          value={vehicleForm.capacityKg || 2500}
+                          onChange={(e) => setVehicleForm({ ...vehicleForm, capacityKg: Number(e.target.value) })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Horómetro Actual (hs)</label>
+                        <input
+                          type="number"
+                          value={vehicleForm.currentHours || 0}
+                          onChange={(e) => setVehicleForm({ ...vehicleForm, currentHours: Number(e.target.value) })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Altura Máx de Elevación (m)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          placeholder="Ej: 4.5"
+                          value={vehicleForm.maxLiftHeightMeters || 4.5}
+                          onChange={(e) => setVehicleForm({ ...vehicleForm, maxLiftHeightMeters: Number(e.target.value) })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Tipo de Mástil</label>
+                        <select
+                          value={vehicleForm.mastType || 'triplex'}
+                          onChange={(e) => setVehicleForm({ ...vehicleForm, mastType: e.target.value as any })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+                        >
+                          <option value="simplex">Simplex (1 etapa)</option>
+                          <option value="duplex">Duplex (2 etapas)</option>
+                          <option value="triplex">Triplex (3 etapas)</option>
+                          <option value="cuadruplex">Cuádruplex (4 etapas)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Tipo de Neumáticos</label>
+                        <select
+                          value={vehicleForm.tireType || 'solidas_macizas'}
+                          onChange={(e) => setVehicleForm({ ...vehicleForm, tireType: e.target.value as any })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+                        >
+                          <option value="solidas_macizas">Sólidas Macizas / Superelásticas</option>
+                          <option value="neumaticas">Neumáticas con Cámara</option>
+                          <option value="poliuretano">Poliuretano (Cushion / Interior)</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Bloque 3: Ubicación y Protección Contra Incendios */}
+                  <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+                      <MapPin size={13} className="text-rose-500" /> Ubicación y Seguridad contra Incendio
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Sector de Operación / Planta</label>
+                        <input
+                          type="text"
+                          placeholder="Ej: Depósito Central - Bahía 3"
+                          value={vehicleForm.sectorLocation || ''}
+                          onChange={(e) => setVehicleForm({ ...vehicleForm, sectorLocation: e.target.value })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Extintor N° Obligatorio</label>
+                        <input
+                          type="text"
+                          placeholder="Ej: EXT-AE-01"
+                          value={vehicleForm.fireExtinguisherNumber || ''}
+                          onChange={(e) => setVehicleForm({ ...vehicleForm, fireExtinguisherNumber: e.target.value })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Vencimiento del Extintor</label>
+                        <input
+                          type="date"
+                          value={vehicleForm.fireExtinguisherExpiry || ''}
+                          onChange={(e) => setVehicleForm({ ...vehicleForm, fireExtinguisherExpiry: e.target.value })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bloque 4: Dispositivos Reglamentarios de Seguridad (Interactive Cards) */}
+                  <div className="bg-slate-50/70 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                          <ShieldCheck size={18} />
+                        </div>
+                        <div>
+                          <h4 className="font-black text-xs text-slate-800 dark:text-slate-100 uppercase tracking-wide">
+                            Dispositivos Reglamentarios de Seguridad (Res. SRT 960/15 Art. 3)
+                          </h4>
+                          <p className="text-[11px] text-slate-500 font-medium">
+                            Marque los elementos obligatorios instalados y verificados en la unidad
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                      {SAFETY_DEVICES.map((dev) => {
+                        const isInstalled = Boolean(vehicleForm[dev.key as keyof typeof vehicleForm]);
+                        return (
+                          <div
+                            key={dev.key}
+                            onClick={() => setVehicleForm({ ...vehicleForm, [dev.key]: !isInstalled })}
+                            className={`p-3 rounded-2xl border transition-all cursor-pointer select-none flex items-start gap-2.5 ${
+                              isInstalled
+                                ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500/80 shadow-xs'
+                                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-400'
+                            }`}
+                          >
+                            <div className={`p-1.5 rounded-xl shrink-0 mt-0.5 ${
+                              isInstalled
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-slate-100 dark:bg-slate-700 text-slate-400'
+                            }`}>
+                              {dev.icon}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-1">
+                                <span className={`font-black text-xs leading-tight ${
+                                  isInstalled
+                                    ? 'text-emerald-900 dark:text-emerald-200'
+                                    : 'text-slate-700 dark:text-slate-300'
+                                }`}>
+                                  {dev.label}
+                                </span>
+                                {isInstalled ? (
+                                  <CheckCircle2 size={15} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                ) : (
+                                  <div className="w-3.5 h-3.5 rounded-full border border-slate-300 dark:border-slate-600 shrink-0" />
+                                )}
+                              </div>
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5 font-medium leading-tight">
+                                {dev.subtitle}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Bloque 5: Observaciones / Notas */}
                   <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Modelo</label>
-                    <input
-                      type="text"
-                      placeholder="Ej: 8FGU25"
-                      value={vehicleForm.model}
-                      onChange={(e) => setVehicleForm({ ...vehicleForm, model: e.target.value })}
+                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                      Observaciones Técnicas / Limitaciones Operativas
+                    </label>
+                    <textarea
+                      rows={2}
+                      placeholder="Indique notas de servicio, ensayos de horquillas, restricciones de rampa o sector..."
+                      value={vehicleForm.notes || ''}
+                      onChange={(e) => setVehicleForm({ ...vehicleForm, notes: e.target.value })}
                       className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Tipo de Propulsión</label>
-                    <select
-                      value={vehicleForm.type}
-                      onChange={(e) => setVehicleForm({ ...vehicleForm, type: e.target.value as any })}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
-                    >
-                      <option value="combustion_glp">Combustión GLP (Gas)</option>
-                      <option value="combustion_diesel">Combustión Diésel</option>
-                      <option value="electric">Eléctrico a Batería</option>
-                      <option value="reach_truck">Retráctil Reach Truck</option>
-                      <option value="order_picker">Apilador Eléctrico</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Capacidad Máx (kg)</label>
-                    <input
-                      type="number"
-                      value={vehicleForm.capacityKg}
-                      onChange={(e) => setVehicleForm({ ...vehicleForm, capacityKg: Number(e.target.value) })}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Horómetro Actual (hs)</label>
-                    <input
-                      type="number"
-                      value={vehicleForm.currentHours}
-                      onChange={(e) => setVehicleForm({ ...vehicleForm, currentHours: Number(e.target.value) })}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Sector de Operación / Planta</label>
-                    <input
-                      type="text"
-                      placeholder="Ej: Depósito Central - Racks"
-                      value={vehicleForm.sectorLocation}
-                      onChange={(e) => setVehicleForm({ ...vehicleForm, sectorLocation: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Extintor N° / Vencimiento</label>
-                    <input
-                      type="text"
-                      placeholder="Ej: EXT-04 (Vence 2026-12)"
-                      value={vehicleForm.fireExtinguisherNumber}
-                      onChange={(e) => setVehicleForm({ ...vehicleForm, fireExtinguisherNumber: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
-                    />
-                  </div>
-                </div>
-
-                {/* Dispositivos de seguridad instalados */}
-                <div className="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl space-y-2 border border-slate-100 dark:border-slate-800">
-                  <span className="font-bold text-slate-700 dark:text-slate-300 block">Dispositivos Reglamentarios de Seguridad:</span>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={vehicleForm.hasSeatbelt}
-                        onChange={(e) => setVehicleForm({ ...vehicleForm, hasSeatbelt: e.target.checked })}
-                      />
-                      <span>Cinturón de Seguridad</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={vehicleForm.hasBackupAlarm}
-                        onChange={(e) => setVehicleForm({ ...vehicleForm, hasBackupAlarm: e.target.checked })}
-                      />
-                      <span>Alarma de Marcha Atrás</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={vehicleForm.hasStrobeLight}
-                        onChange={(e) => setVehicleForm({ ...vehicleForm, hasStrobeLight: e.target.checked })}
-                      />
-                      <span>Baliza Ámbar 360°</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={vehicleForm.hasBlueSpotlight}
-                        onChange={(e) => setVehicleForm({ ...vehicleForm, hasBlueSpotlight: e.target.checked })}
-                      />
-                      <span>Luz Blue Light Peatonal</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={vehicleForm.hasRopsFops}
-                        onChange={(e) => setVehicleForm({ ...vehicleForm, hasRopsFops: e.target.checked })}
-                      />
-                      <span>Cabina ROPS / FOPS</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={vehicleForm.hasLoadChart}
-                        onChange={(e) => setVehicleForm({ ...vehicleForm, hasLoadChart: e.target.checked })}
-                      />
-                      <span>Placa de Carga Legible</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-2 pt-3">
+                {/* Footer fijo con botones */}
+                <div className="flex items-center justify-end gap-2 p-3.5 sm:p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 shrink-0">
                   <button
                     type="button"
                     onClick={() => setShowVehicleModal(false)}
-                    className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-bold"
+                    className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold text-xs text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold"
+                    className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md shadow-emerald-600/20 transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
                   >
-                    Guardar Autoelevador
+                    <Check className="w-4 h-4 stroke-[3]" />
+                    {editingVehicle ? 'Actualizar Autoelevador' : 'Guardar y Habilitar Equipo'}
                   </button>
                 </div>
               </form>
@@ -1385,359 +1479,379 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
           </div>
         )}
 
-        {/* MODAL: ALTA / EDICIÓN DE CONDUCTOR */}
+        {/* MODAL: ALTA / EDICIÓN DE CONDUCTOR (RES. SRT 960/15 ART. 4 Y 5) */}
         {showDriverModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-xl w-full p-6 my-8 space-y-4 max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                <h3 className="font-black text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                  <Award className="w-5 h-5 text-amber-600" />
-                  {editingDriver ? 'Editar Conductor' : 'Habilitar Conductor (Res. SRT 960/15)'}
-                </h3>
-                <button onClick={() => setShowDriverModal(false)} className="text-slate-400 hover:text-slate-600">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+            <div className="relative w-full max-w-3xl max-h-[92vh] sm:max-h-[88vh] bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden my-auto animate-scale-up">
+              {/* Header fijo */}
+              <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-base sm:text-lg text-slate-900 dark:text-white leading-tight">
+                      {editingDriver ? 'Editar Conductor Habilitado' : 'Alta de Conductor (Res. SRT 960/15)'}
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium">
+                      Padrón oficial, acreditación de capacitación teórica/práctica y apto médico anual
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowDriverModal(false)}
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  title="Cerrar ventana"
+                >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleSaveDriver} className="space-y-4 text-xs">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Nombre Completo (*)</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Apellido y Nombre"
-                      value={driverForm.fullName}
-                      onChange={(e) => setDriverForm({ ...driverForm, fullName: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold"
-                    />
+              {/* Form body scrollable */}
+              <form onSubmit={handleSaveDriver} className="flex flex-col flex-1 overflow-hidden">
+                <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 text-xs">
+                  {/* Bloque 1: Identificación del Conductor */}
+                  <div className="space-y-3">
+                    <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+                      <User size={13} className="text-blue-500" /> Identificación del Conductor
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="sm:col-span-2">
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Nombre Completo (*)</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Apellido y Nombre del Operador"
+                          value={driverForm.fullName || ''}
+                          onChange={(e) => setDriverForm({ ...driverForm, fullName: e.target.value })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-black"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">N° Habilitación / Carnet</label>
+                        <input
+                          type="text"
+                          placeholder="Ej: HAB-960-2026-001"
+                          value={driverForm.licenseNumber || ''}
+                          onChange={(e) => setDriverForm({ ...driverForm, licenseNumber: e.target.value.toUpperCase() })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">CUIL (*)</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="20-XXXXXXXX-X"
+                          value={driverForm.cuil || ''}
+                          onChange={(e) => setDriverForm({ ...driverForm, cuil: e.target.value })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">DNI</label>
+                        <input
+                          type="text"
+                          placeholder="Ej: 35.123.456"
+                          value={driverForm.dni || ''}
+                          onChange={(e) => setDriverForm({ ...driverForm, dni: e.target.value })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Estado de Habilitación</label>
+                        <select
+                          value={driverForm.status || 'habilitado'}
+                          onChange={(e) => setDriverForm({ ...driverForm, status: e.target.value as any })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold"
+                        >
+                          <option value="habilitado">🟢 Habilitado Oficial</option>
+                          <option value="vencido">🔴 Carnet Vencido</option>
+                          <option value="suspendido">🟡 Suspendido Temporalmente</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">CUIL (*)</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="20-XXXXXXXX-X"
-                      value={driverForm.cuil}
-                      onChange={(e) => setDriverForm({ ...driverForm, cuil: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
-                    />
+
+                  {/* Bloque 2: Capacitación Teórica-Práctica (Art. 4 Res. SRT 960/15) */}
+                  <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+                      <Award size={13} className="text-amber-500" /> Capacitación Teórico-Práctica (Mínimo 10 hs)
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Carga Horaria (*)</label>
+                        <input
+                          type="number"
+                          min="1"
+                          placeholder="Mínimo 10 hs"
+                          value={driverForm.courseHours ?? 10}
+                          onChange={(e) => setDriverForm({ ...driverForm, courseHours: Number(e.target.value) })}
+                          className={`w-full p-2.5 rounded-xl border bg-white dark:bg-slate-800 font-bold ${
+                            (driverForm.courseHours ?? 0) < 10 
+                              ? 'border-amber-500 text-amber-600 focus:ring-amber-500' 
+                              : 'border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white'
+                          }`}
+                        />
+                        {(driverForm.courseHours ?? 0) < 10 && (
+                          <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold block mt-0.5">
+                            ⚠️ Art. 4 exige mín. 10 horas de curso
+                          </span>
+                        )}
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Entidad Capacitadora</label>
+                        <input
+                          type="text"
+                          placeholder="Ej: Servicio de Higiene y Seguridad / Instituto Homologado"
+                          value={driverForm.courseEntity || ''}
+                          onChange={(e) => setDriverForm({ ...driverForm, courseEntity: e.target.value })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">N° de Certificado / Acta de Aprobación</label>
+                      <input
+                        type="text"
+                        placeholder="Ej: CERT-960-2026-084"
+                        value={driverForm.courseCertificateNumber || ''}
+                        onChange={(e) => setDriverForm({ ...driverForm, courseCertificateNumber: e.target.value })}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Bloque 3: Apto Psicofísico Médico (Art. 4 Res. SRT 960/15) */}
+                  <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+                      <Activity size={13} className="text-emerald-500" /> Apto Psicofísico Médico Obligatorio (Periodicidad Anual)
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Dictamen Médico</label>
+                        <select
+                          value={driverForm.medicalFitStatus || 'apto'}
+                          onChange={(e) => setDriverForm({ ...driverForm, medicalFitStatus: e.target.value as any })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold"
+                        >
+                          <option value="apto">🟢 Apto Completo (Sin Restricciones)</option>
+                          <option value="apto_con_restriccion">🟡 Apto con Restricción (Lentes / Audífonos)</option>
+                          <option value="no_apto">🔴 No Apto para Operar</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Fecha Examen Médico</label>
+                        <input
+                          type="date"
+                          value={driverForm.medicalFitDate || ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const d = new Date(val);
+                            let exp = driverForm.medicalFitExpiry || '';
+                            if (!isNaN(d.getTime())) {
+                              d.setFullYear(d.getFullYear() + 1);
+                              exp = d.toISOString().split('T')[0];
+                            }
+                            setDriverForm({ ...driverForm, medicalFitDate: val, medicalFitExpiry: exp });
+                          }}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Vencimiento Apto (1 Año)</label>
+                        <input
+                          type="date"
+                          value={driverForm.medicalFitExpiry || ''}
+                          onChange={(e) => setDriverForm({ ...driverForm, medicalFitExpiry: e.target.value })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bloque 4: Maquinaria y Equipos Autorizados (Art. 5) */}
+                  <div className="bg-slate-50/70 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                        <Truck size={18} />
+                      </div>
+                      <div>
+                        <h4 className="font-black text-xs text-slate-800 dark:text-slate-100 uppercase tracking-wide">
+                          Equipos Autorizados a Operar (Art. 5 Res. SRT 960/15)
+                        </h4>
+                        <p className="text-[11px] text-slate-500 font-medium">
+                          Seleccione los tipos de autoelevadores evaluados en la práctica
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {[
+                        'Autoelevador Frontal (GLP/Diésel)',
+                        'Autoelevador Frontal Eléctrico',
+                        'Retráctil / Reach Truck',
+                        'Apilador Eléctrico',
+                        'Transpaleta Eléctrica con Plataforma',
+                        'Plataforma Elevadora Móvil de Personal (PEMP)'
+                      ].map((tipo) => {
+                        const currentTypes = driverForm.authorizedVehicleTypes || [];
+                        const isSelected = currentTypes.includes(tipo);
+                        return (
+                          <div
+                            key={tipo}
+                            onClick={() => {
+                              const updatedTypes = isSelected
+                                ? currentTypes.filter(t => t !== tipo)
+                                : [...currentTypes, tipo];
+                              setDriverForm({ ...driverForm, authorizedVehicleTypes: updatedTypes });
+                            }}
+                            className={`p-2.5 rounded-xl border transition-all cursor-pointer select-none flex items-center justify-between gap-2 ${
+                              isSelected
+                                ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-500 text-amber-950 dark:text-amber-200 font-bold shadow-xs'
+                                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-amber-400 font-medium'
+                            }`}
+                          >
+                            <span className="text-xs leading-snug">{tipo}</span>
+                            {isSelected ? (
+                              <CheckCircle2 size={16} className="text-amber-600 shrink-0" />
+                            ) : (
+                              <div className="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-600 shrink-0" />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Bloque 5: Vigencia del Carnet y Contacto de Emergencia */}
+                  <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+                      <Clock size={13} className="text-blue-500" /> Vigencia de Credencial y Datos de Emergencia
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Fecha Emisión Credencial (*)</label>
+                        <input
+                          type="date"
+                          required
+                          value={driverForm.issueDate || ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const d = new Date(val);
+                            let exp = driverForm.expiryDate || '';
+                            if (!isNaN(d.getTime())) {
+                              d.setFullYear(d.getFullYear() + 1);
+                              exp = d.toISOString().split('T')[0];
+                            }
+                            setDriverForm({ ...driverForm, issueDate: val, expiryDate: exp });
+                          }}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Fecha Vencimiento (1 Año)</label>
+                        <input
+                          type="date"
+                          required
+                          value={driverForm.expiryDate || ''}
+                          onChange={(e) => setDriverForm({ ...driverForm, expiryDate: e.target.value })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-amber-600"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Grupo y Factor Sanguíneo</label>
+                        <select
+                          value={driverForm.bloodType || '0 Rh+'}
+                          onChange={(e) => setDriverForm({ ...driverForm, bloodType: e.target.value })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold"
+                        >
+                          <option value="0 Rh+">0 Rh+ (Positivo)</option>
+                          <option value="0 Rh-">0 Rh- (Negativo)</option>
+                          <option value="A Rh+">A Rh+ (Positivo)</option>
+                          <option value="A Rh-">A Rh- (Negativo)</option>
+                          <option value="B Rh+">B Rh+ (Positivo)</option>
+                          <option value="B Rh-">B Rh- (Negativo)</option>
+                          <option value="AB Rh+">AB Rh+ (Positivo)</option>
+                          <option value="AB Rh-">AB Rh- (Negativo)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Contacto de Emergencia / Teléfono</label>
+                        <input
+                          type="text"
+                          placeholder="Ej: Laura Pérez (Esposa) - 11 5544-3322"
+                          value={driverForm.emergencyContact || ''}
+                          onChange={(e) => setDriverForm({ ...driverForm, emergencyContact: e.target.value })}
+                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Observaciones / Restricciones Operativas</label>
+                      <input
+                        type="text"
+                        placeholder="Ej: Uso permanente de lentes correctivos recetados. Prohibición de operar en vía pública."
+                        value={driverForm.notes || ''}
+                        onChange={(e) => setDriverForm({ ...driverForm, notes: e.target.value })}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">DNI</label>
-                    <input
-                      type="text"
-                      value={driverForm.dni}
-                      onChange={(e) => setDriverForm({ ...driverForm, dni: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Horas Curso (min 10)</label>
-                    <input
-                      type="number"
-                      value={driverForm.courseHours}
-                      onChange={(e) => setDriverForm({ ...driverForm, courseHours: Number(e.target.value) })}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Apto Médico</label>
-                    <select
-                      value={driverForm.medicalFitStatus}
-                      onChange={(e) => setDriverForm({ ...driverForm, medicalFitStatus: e.target.value as any })}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
-                    >
-                      <option value="apto">Apto Completo</option>
-                      <option value="apto_con_restriccion">Apto con Restricción (Lentes)</option>
-                      <option value="no_apto">No Apto</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Fecha Emisión</label>
-                    <input
-                      type="date"
-                      value={driverForm.issueDate}
-                      onChange={(e) => setDriverForm({ ...driverForm, issueDate: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Fecha Vencimiento (1 Año)</label>
-                    <input
-                      type="date"
-                      value={driverForm.expiryDate}
-                      onChange={(e) => setDriverForm({ ...driverForm, expiryDate: e.target.value })}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-amber-600"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Entidad Capacitadora / Certificado</label>
-                  <input
-                    type="text"
-                    value={driverForm.courseEntity}
-                    onChange={(e) => setDriverForm({ ...driverForm, courseEntity: e.target.value })}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
-                  />
-                </div>
-
-                <div className="flex justify-end gap-2 pt-3">
+                {/* Footer fijo con botones */}
+                <div className="flex items-center justify-end gap-2 p-3.5 sm:p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 shrink-0">
                   <button
                     type="button"
                     onClick={() => setShowDriverModal(false)}
-                    className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-bold"
+                    className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold text-xs text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold"
+                    className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs shadow-md shadow-amber-600/20 transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
                   >
-                    Guardar Conductor
+                    <Check className="w-4 h-4 stroke-[3]" />
+                    {editingDriver ? 'Actualizar Conductor' : 'Guardar y Habilitar Conductor'}
                   </button>
                 </div>
               </form>
-            </div>
-          </div>
-        )}
-
-        {/* MODAL: CHECKLIST PRE-OPERACIONAL TÁCTIL */}
-        {showCheckModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-3xl w-full p-6 my-8 space-y-4 max-h-[92vh] overflow-y-auto">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                <div>
-                  <h3 className="font-black text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5 text-amber-600" />
-                    Checklist Pre-operacional Diario (Res. SRT 960/15 Anexo III)
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Control obligatorio previo al turno. Marque conforme o detecte desvíos.
-                  </p>
-                </div>
-                <button onClick={() => setShowCheckModal(false)} className="text-slate-400 hover:text-slate-600">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Selector de equipo y conductor */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800">
-                <div>
-                  <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Autoelevador (*)</label>
-                  <select
-                    value={selectedVehicleForCheck}
-                    onChange={(e) => {
-                      setSelectedVehicleForCheck(e.target.value);
-                      const v = vehicles.find(x => x.id === e.target.value);
-                      if (v) setCheckHours(v.currentHours);
-                    }}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold text-slate-800 dark:text-white"
-                  >
-                    {vehicles.map(v => (
-                      <option key={v.id} value={v.id}>
-                        {v.internalCode} - {v.brand} {v.model}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Conductor (*)</label>
-                  <select
-                    value={selectedDriverForCheck}
-                    onChange={(e) => setSelectedDriverForCheck(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold text-slate-800 dark:text-white"
-                  >
-                    {drivers.map(d => (
-                      <option key={d.id} value={d.id}>
-                        {d.fullName} ({d.dni})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Turno</label>
-                    <select
-                      value={checkShift}
-                      onChange={(e) => setCheckShift(e.target.value as any)}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
-                    >
-                      <option value="manana">Mañana</option>
-                      <option value="tarde">Tarde</option>
-                      <option value="noche">Noche</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Horas Motor</label>
-                    <input
-                      type="number"
-                      value={checkHours}
-                      onChange={(e) => setCheckHours(Number(e.target.value))}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold text-slate-800 dark:text-white"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Lista táctil de los 15 ítems */}
-              <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
-                {DAILY_INSPECTION_ITEMS.map((item, idx) => {
-                  const state = checkResponses[item.id] || 'conforme';
-                  const isFail = state === 'no_conforme';
-
-                  return (
-                    <div
-                      key={item.id}
-                      className={`p-3 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
-                        isFail
-                          ? 'border-red-400 bg-red-50/40 dark:bg-red-950/30 dark:border-red-800'
-                          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900'
-                      }`}
-                    >
-                      <div className="space-y-0.5 max-w-md">
-                        <div className="flex items-center gap-2">
-                          <span className="font-black text-slate-400 text-[10px]">#{idx + 1}</span>
-                          <span className="font-bold text-slate-900 dark:text-white">{item.title}</span>
-                          {item.isCritical && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300">
-                              Crítico
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-[11px] text-slate-500">{item.description}</p>
-                      </div>
-
-                      {/* Botones selectores directos */}
-                      <div className="flex items-center gap-1.5 self-end sm:self-center shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleCheckItem(item.id, 'conforme')}
-                          className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
-                            state === 'conforme'
-                              ? 'bg-emerald-600 text-white shadow-sm'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
-                          }`}
-                        >
-                          Conforme
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleToggleCheckItem(item.id, 'no_conforme')}
-                          className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
-                            state === 'no_conforme'
-                              ? 'bg-red-600 text-white shadow-sm'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
-                          }`}
-                        >
-                          No Conforme
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleToggleCheckItem(item.id, 'no_aplica')}
-                          className={`px-2.5 py-1.5 rounded-xl font-bold transition-all ${
-                            state === 'no_aplica'
-                              ? 'bg-slate-700 text-white'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200'
-                          }`}
-                        >
-                          N/A
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Observaciones */}
-              <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                  Observaciones adicionales del turno / hallazgos:
-                </label>
-                <textarea
-                  rows={2}
-                  placeholder="Detalle cualquier desvío, ruido anómalo o situación preventiva..."
-                  value={checkObservations}
-                  onChange={(e) => setCheckObservations(e.target.value)}
-                  className="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
-                />
-              </div>
-
-              {/* Sección de Firmas (Digital o Convencional) */}
-              <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
-                  <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                    Firmas del Registro (Digital o Convencional)
-                  </span>
-                  <span className="text-[11px] text-slate-500">
-                    Opcional: Si no firma en pantalla, se imprimirán los recuadros para firma física
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
-                    <SignatureCanvas
-                      label="Firma Conductor Habilitado"
-                      initialImage={driverSignature}
-                      onSave={(sig) => setDriverSignature(sig)}
-                      height={120}
-                    />
-                  </div>
-                  <div className="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
-                    <SignatureCanvas
-                      label="Firma Responsable HyS / Supervisor"
-                      initialImage={supervisorSignature}
-                      onSave={(sig) => setSupervisorSignature(sig)}
-                      height={120}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setShowCheckModal(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-bold text-xs"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveDailyCheck}
-                  className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md"
-                >
-                  Finalizar y Guardar Checklist
-                </button>
-              </div>
             </div>
           </div>
         )}
 
         {/* MODAL: MANTENIMIENTO PREVENTIVO */}
         {showMaintenanceModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full p-6 my-8 space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                <h3 className="font-black text-lg text-slate-900 dark:text-white flex items-center gap-2">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+            <div className="relative w-full max-w-lg max-h-[92vh] sm:max-h-[88vh] bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden my-auto animate-scale-up">
+              <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
+                <h3 className="font-black text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
                   <Wrench className="w-5 h-5 text-amber-600" />
                   Registrar Servicio Técnico / Mantenimiento
                 </h3>
-                <button onClick={() => setShowMaintenanceModal(false)} className="text-slate-400 hover:text-slate-600">
+                <button
+                  type="button"
+                  onClick={() => setShowMaintenanceModal(false)}
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  title="Cerrar ventana"
+                >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleSaveMaintenance} className="space-y-3 text-xs">
-                <div className="grid grid-cols-2 gap-3">
+              <form onSubmit={handleSaveMaintenance} className="flex flex-col flex-1 overflow-hidden">
+                <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-3 text-xs">
+                  <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Autoelevador</label>
                     <select
@@ -1820,18 +1934,21 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
                   />
                 </div>
 
-                <div className="flex justify-end gap-2 pt-3">
+                </div>
+
+                <div className="flex items-center justify-end gap-2 p-3.5 sm:p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 shrink-0">
                   <button
                     type="button"
                     onClick={() => setShowMaintenanceModal(false)}
-                    className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-bold"
+                    className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold text-xs text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold"
+                    className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs shadow-md shadow-amber-600/20 transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
                   >
+                    <Check className="w-4 h-4 stroke-[3]" />
                     Guardar Service
                   </button>
                 </div>
@@ -1842,11 +1959,11 @@ export default function ForkliftSrt960Manager(): React.ReactElement | null {
 
         {/* MODAL: VER CÓDIGO QR DEL EQUIPO */}
         {qrModalVehicle && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-sm w-full p-6 text-center space-y-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+            <div className="relative bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-sm w-full p-6 text-center space-y-4 my-auto animate-scale-up">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-xs uppercase tracking-wider text-slate-400">Rótulo Digital QR</span>
-                <button onClick={() => setQrModalVehicle(null)} className="text-slate-400 hover:text-slate-600">
+                <button onClick={() => setQrModalVehicle(null)} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
                   <X className="w-5 h-5" />
                 </button>
               </div>

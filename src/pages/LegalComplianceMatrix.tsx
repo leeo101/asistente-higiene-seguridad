@@ -10,6 +10,7 @@ import {
   Award, AlertOctagon, HelpCircle
 } from 'lucide-react';
 import { useCompany } from '../contexts/CompanyContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import PremiumHeader from '../components/PremiumHeader';
 import AnimatedPage from '../components/AnimatedPage';
 import ConfirmModal from '../components/ConfirmModal';
@@ -29,6 +30,7 @@ import SignatureCanvas from '../components/SignatureCanvas';
 export default function LegalComplianceMatrix(): React.ReactElement | null {
   const navigate = useNavigate();
   const { activeCompany } = useCompany();
+  const { countryNorms, adaptText } = useLanguage();
 
   // Estados
   const [requirements, setRequirements] = useState<LegalRequirement[]>([]);
@@ -218,6 +220,13 @@ export default function LegalComplianceMatrix(): React.ReactElement | null {
 
   // Exportar PDF
   const handleDownloadPdf = () => {
+    const adaptedReqs = requirements.map((r) => ({
+      ...r,
+      normative: adaptText(r.normative),
+      obligationDescription: adaptText(r.obligationDescription),
+      requiredEvidence: adaptText(r.requiredEvidence),
+      evidenceNotes: r.evidenceNotes ? adaptText(r.evidenceNotes) : r.evidenceNotes
+    }));
     generateLegalCompliancePdf({
       companyName: activeCompany?.name || 'Establecimiento Industrial',
       companyCuit: activeCompany?.cuit || '30-XXXXXXXX-X',
@@ -228,7 +237,7 @@ export default function LegalComplianceMatrix(): React.ReactElement | null {
       auditorSignature: auditorSignature || undefined,
       representativeSignature: representativeSignature || undefined,
       auditDate: new Date().toISOString().split('T')[0],
-      requirements
+      requirements: adaptedReqs
     });
     toast.success('Informe Oficial de Conformidad Legal generado en PDF');
     setShowPdfModal(false);
@@ -280,8 +289,8 @@ export default function LegalComplianceMatrix(): React.ReactElement | null {
         {/* Header Premium */}
         <PremiumHeader
           title="Matriz de Cumplimiento Legal"
-          subtitle="Evaluación Periódica de Conformidad Legal — ISO 45001:2018 (Cláusula 9.1.2) & Ley N° 19.587"
-          badge="ISO 45001 & Ley 19587"
+          subtitle={`Evaluación Periódica de Conformidad Legal — ISO 45001:2018 (Cláusula 9.1.2) & ${countryNorms.general} (${countryNorms.decree})`}
+          badge={`ISO 45001 & ${countryNorms.general}`}
         >
           <div className="flex items-center gap-2 flex-wrap">
             <button
@@ -342,7 +351,7 @@ export default function LegalComplianceMatrix(): React.ReactElement | null {
                   </div>
 
                   <p className="text-xs text-slate-500 max-w-xl">
-                    Evaluación sistemática de obligaciones legales aplicables al establecimiento según Decreto 351/79, Resoluciones S.R.T. y Cláusula 9.1.2 de la Norma ISO 45001.
+                    Evaluación sistemática de obligaciones legales aplicables al establecimiento según {countryNorms.general}, {countryNorms.decree}, resoluciones de {countryNorms.authority} y Cláusula 9.1.2 de la Norma ISO 45001.
                   </p>
 
                   <div className="flex items-center gap-3 pt-2 text-xs font-semibold">
@@ -468,10 +477,10 @@ export default function LegalComplianceMatrix(): React.ReactElement | null {
                             {req.categoryLabel}
                           </span>
                           <span className="font-black text-xs text-blue-600 dark:text-blue-400">
-                            {req.normative}
+                            {adaptText(req.normative)}
                           </span>
                           <span className="text-xs text-slate-400 font-semibold">
-                            ({req.articles})
+                            ({adaptText(req.articles)})
                           </span>
                           <span className="text-[10px] uppercase font-bold text-slate-400">
                             • Frecuencia: {req.periodicity}
@@ -479,25 +488,25 @@ export default function LegalComplianceMatrix(): React.ReactElement | null {
                         </div>
 
                         <h4 className="text-sm font-black text-slate-900 dark:text-white">
-                          {req.title}
+                          {adaptText(req.title)}
                         </h4>
 
                         <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                          {req.obligationDescription}
+                          {adaptText(req.obligationDescription)}
                         </p>
 
                         {/* Evidencia y Notas cargadas */}
                         <div className="pt-2 text-xs space-y-1">
                           <div className="flex items-start gap-1.5 text-slate-500">
                             <span className="font-bold text-slate-700 dark:text-slate-300 shrink-0">Prueba Exigida:</span>
-                            <span className="text-slate-600 dark:text-slate-400 italic">{req.requiredEvidence}</span>
+                            <span className="text-slate-600 dark:text-slate-400 italic">{adaptText(req.requiredEvidence)}</span>
                           </div>
 
                           {req.evidenceNotes && (
                             <div className="flex items-start gap-1.5 text-emerald-700 dark:text-emerald-400 bg-emerald-50/60 dark:bg-emerald-950/30 p-2 rounded-xl border border-emerald-200 dark:border-emerald-900/40">
                               <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                               <div>
-                                <span className="font-bold">Evidencia Cargada:</span> {req.evidenceNotes}
+                                <span className="font-bold">Evidencia Cargada:</span> {adaptText(req.evidenceNotes)}
                               </div>
                             </div>
                           )}
