@@ -1,9 +1,9 @@
 import React from 'react';
-import { AlertTriangle, CheckCircle2, Zap, Shield, ShieldAlert, Calendar, Building2, User, Gauge } from 'lucide-react';
-import CompanyLogo from './CompanyLogo';
+import { CheckCircle2, Zap, ShieldAlert, Building2, Gauge, Camera, ClipboardCheck } from 'lucide-react';
 import DualPdfHeader from './DualPdfHeader';
 import ReportContentRenderer from './reports/ReportContentRenderer';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import PdfSignatures from './PdfSignatures';
 import type { GroundingProtocol } from '../types/grounding';
 import { evaluateFullGroundingProtocol } from '../utils/srtProtocols';
 
@@ -19,8 +19,8 @@ export default function GroundingProtocolPdf({ data, customId = 'pdf-content' }:
   const isConforme = evaluation.isFullyCompliant;
 
   // Firma profesional
-  let actSignature: string | null = data.firmaProfesionalUrl || null;
-  let actStamp: string | null = null;
+  let actSignature: string | null = data.professionalSignature || data.firmaProfesionalUrl || null;
+  let actStamp: string | null = data.professionalStamp || null;
   let actName: string | null = data.profesionalNombre || null;
   let actLic: string | null = data.profesionalMatricula || null;
 
@@ -31,7 +31,7 @@ export default function GroundingProtocolPdf({ data, customId = 'pdf-content' }:
     if (lsStamp) {
       const parsed = JSON.parse(lsStamp);
       if (!actSignature) actSignature = parsed.signature;
-      actStamp = parsed.stamp;
+      if (!actStamp) actStamp = parsed.stamp;
     } else if (legacySig && !actSignature) {
       actSignature = legacySig;
     }
@@ -41,6 +41,9 @@ export default function GroundingProtocolPdf({ data, customId = 'pdf-content' }:
       actLic = actLic || pd.license;
     }
   } catch (e) {}
+
+  const visualChecks = data.verificacionesVisuales || [];
+  const photosList = data.evidenciaFotos || [];
 
   return (
     <div className="w-full flex justify-center">
@@ -148,7 +151,7 @@ export default function GroundingProtocolPdf({ data, customId = 'pdf-content' }:
           {/* Instrumento y Sistema Eléctrico */}
           <div className="border border-slate-300 rounded p-2.5 bg-slate-50/50">
             <div className="font-black text-slate-800 border-b border-slate-200 pb-1 mb-1.5 flex items-center gap-1.5 text-[8.5pt]">
-              <Gauge size={13} className="text-amber-600" /> 2. INSTRUMENTO Y RED ELÉCTRICA
+              <Gauge size={13} className="text-amber-600" /> 2. INSTRUMENTO, METODOLOGÍA Y RED ELÉCTRICA
             </div>
             <div className="grid grid-cols-3 gap-y-1">
               <span className="font-bold text-slate-600">Telurímetro:</span>
@@ -161,19 +164,49 @@ export default function GroundingProtocolPdf({ data, customId = 'pdf-content' }:
               </span>
               <span className="font-bold text-slate-600">Laboratorio:</span>
               <span className="col-span-2 text-slate-800">{data.instrumentoLaboratorio || 'Oficial Trazable INTI / SAC'}</span>
+              <span className="font-bold text-slate-600">Método Ensayo:</span>
+              <span className="col-span-2 font-semibold text-slate-900">
+                {data.metodoMedicion || 'Telurímetro 3 Polos (Caída de Potencial 62% - IRAM 2281)'}
+              </span>
               <span className="font-bold text-slate-600">Régimen Tierra:</span>
               <span className="col-span-2 font-black text-blue-700">
-                Esquema {data.esquemaConexionTierra || 'TT'} · {data.tensionSuministro || '380V/220V'}
+                Esquema {data.esquemaConexionTierra || 'TT'} · {data.tensionSuministro || '380V/220V'} ({data.tipoAcometida || 'Subterránea'})
               </span>
               <span className="font-bold text-slate-600">Tensión Seguridad:</span>
               <span className="col-span-2 font-semibold text-slate-900">
                 UL = {data.tensionSeguridadContacto || 50} V (AEA 90364-4-41)
               </span>
-              <span className="font-bold text-slate-600">Estado del Suelo:</span>
-              <span className="col-span-2 text-slate-800">{data.estadoSuelo || 'Normal'}</span>
+              <span className="font-bold text-slate-600">Suelo / Clima:</span>
+              <span className="col-span-2 text-slate-800">
+                {data.estadoSuelo || 'Normal'} · {data.condicionesClimaticas || 'Sin precipitaciones (72 hs)'}
+              </span>
+              <span className="font-bold text-slate-600">Anexos SRT:</span>
+              <span className="col-span-2 font-semibold text-emerald-800">
+                {data.certificadoAdjunto !== false ? '✓ Cert. Calibración Adjunto' : 'Sin Cert.'} · {data.planoEsquemaAdjunto !== false ? '✓ Croquis Unifilar' : 'Sin Croquis'}
+              </span>
             </div>
           </div>
         </div>
+
+        {/* Inspección Visual Reglamentaria AEA 90364 Parte 6 */}
+        {visualChecks.length > 0 && (
+          <div className="border border-slate-300 rounded p-2.5 bg-slate-50/70 mb-4 text-[8pt]" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+            <div className="font-black text-slate-800 border-b border-slate-200 pb-1 mb-1.5 flex items-center justify-between uppercase text-[8.5pt]">
+              <span className="flex items-center gap-1.5">
+                <ClipboardCheck size={13} className="text-emerald-600" /> VERIFICACIÓN VISUAL REGLAMENTARIA (AEA 90364 PARTE 6 · ANEXO I RES. 900/15)
+              </span>
+              <span className="text-[7.5pt] font-bold text-emerald-700">{visualChecks.length} ítems verificados</span>
+            </div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+              {visualChecks.map((item, i) => (
+                <div key={i} className="flex items-start gap-1.5 text-slate-800">
+                  <span className="text-emerald-600 font-black">✓</span>
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Tabla A: Medición de Puesta a Tierra (Jabalinas / Mallas) */}
         <div className="mb-4">
@@ -326,12 +359,35 @@ export default function GroundingProtocolPdf({ data, customId = 'pdf-content' }:
           </div>
         )}
 
+        {/* Registro Fotográfico de Cámaras de Inspección, Telurímetro y Tableros */}
+        {photosList.length > 0 && (
+          <div className="border border-slate-300 rounded p-2.5 bg-slate-50/70 mb-4 text-[8.5pt]" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+            <div className="font-black text-slate-800 border-b border-slate-200 pb-1 mb-2 uppercase flex items-center gap-1.5">
+              <Camera size={13} className="text-blue-600" /> REGISTRO FOTOGRÁFICO DE MEDICIÓN, CÁMARAS DE INSPECCIÓN Y CERTIFICADO
+            </div>
+            <div className="grid grid-cols-3 gap-2.5">
+              {photosList.map((src, i) => (
+                <div key={i} className="border border-slate-300 rounded bg-white p-1 flex flex-col items-center">
+                  <img
+                    src={src}
+                    alt={`Evidencia PAT ${i + 1}`}
+                    style={{ width: '100%', height: '95px', objectFit: 'cover', borderRadius: '3px' }}
+                  />
+                  <span className="text-[7pt] font-bold text-slate-600 mt-1">
+                    Evidencia Técnica N° {i + 1}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Conclusiones y Recomendaciones */}
         <div className="border border-slate-300 rounded p-2.5 bg-slate-50/70 mb-4 text-[8.5pt]">
           <div className="font-black text-slate-800 border-b border-slate-200 pb-1 mb-1.5 uppercase">
             3. CONCLUSIONES Y RECOMENDACIONES TÉCNICAS
           </div>
-          <p className="m-0 mb-1.5 text-slate-800 leading-relaxed font-medium">
+          <div className="m-0 mb-1.5 text-slate-800 leading-relaxed font-medium">
             {data.conclusiones ? (
               <ReportContentRenderer content={data.conclusiones} className="text-slate-800 leading-relaxed font-medium" />
             ) : (
@@ -341,7 +397,7 @@ export default function GroundingProtocolPdf({ data, customId = 'pdf-content' }:
                   : 'La instalación presenta deficiencias que vulneran las condiciones de seguridad contra contactos eléctricos indirectos. Se deberán ejecutar las acciones correctivas señaladas a continuación.'}
               </p>
             )}
-          </p>
+          </div>
 
           {evaluation.autoRecommendations.length > 0 && (
             <div className="mt-2 pt-1.5 border-t border-slate-200">
@@ -355,54 +411,36 @@ export default function GroundingProtocolPdf({ data, customId = 'pdf-content' }:
           )}
         </div>
 
-        {/* Firmas y Responsabilidad Profesional */}
-        <div className="grid grid-cols-2 gap-4 mt-6 pt-4 border-t-2 border-slate-300 text-[8.5pt]">
-          {/* Firma Profesional */}
-          <div className="border border-slate-200 rounded p-3 text-center flex flex-col justify-between min-h-[110px] bg-white">
-            <span className="font-black text-slate-800 uppercase text-[8pt] block mb-1">
-              PROFESIONAL ACTUANTE (HYS / ELECTRICISTA MATRICULADO)
-            </span>
-            <div className="flex-1 flex items-center justify-center py-1">
-              {actSignature ? (
-                <img src={actSignature} alt="Firma Profesional" className="max-h-16 object-contain" />
-              ) : (
-                <div className="border-b border-dashed border-slate-400 w-44 my-3 text-slate-400 text-[7.5pt] italic">
-                  Firma y Sello
-                </div>
-              )}
-            </div>
-            <div>
-              <div className="font-bold text-slate-900">{actName || data.profesionalNombre || 'Profesional HYS'}</div>
-              <div className="text-[7.5pt] text-slate-600">
-                Matrícula: <span className="font-mono font-bold">{actLic || data.profesionalMatricula || 'Pendiente'}</span>
-                {data.profesionalTitulo && ` · ${data.profesionalTitulo}`}
-              </div>
-            </div>
-          </div>
-
-          {/* Recibió / Responsable Establecimiento */}
-          <div className="border border-slate-200 rounded p-3 text-center flex flex-col justify-between min-h-[110px] bg-white">
-            <span className="font-black text-slate-800 uppercase text-[8pt] block mb-1">
-              RESPONSABLE DEL ESTABLECIMIENTO / EMPRESA
-            </span>
-            <div className="flex-1 flex items-center justify-center py-1">
-              {data.firmaClienteUrl ? (
-                <img src={data.firmaClienteUrl} alt="Firma Establecimiento" className="max-h-16 object-contain" />
-              ) : (
-                <div className="border-b border-dashed border-slate-400 w-44 my-3 text-slate-400 text-[7.5pt] italic">
-                  Firma y Aclaración
-                </div>
-              )}
-            </div>
-            <div>
-              <div className="font-bold text-slate-900">{data.razonSocial || 'Titular / Apoderado'}</div>
-              <div className="text-[7.5pt] text-slate-600">Constancia de recepción del informe técnico y recomendaciones</div>
-            </div>
-          </div>
-        </div>
+        {/* Firmas Digitales Formato ATS (Profesional H&S en el Centro) */}
+        <PdfSignatures
+          data={data}
+          compact={true}
+          box1={{
+            title: 'RESPONSABLE DEL ESTABLECIMIENTO / EMPLEADOR',
+            subtitle: (data.responsableEstablecimientoNombre || data.razonSocial || 'Titular / Apoderado').toUpperCase(),
+            signatureUrl: data.operatorSignature || data.firmaClienteUrl || null,
+            isProfessional: false,
+            license: data.cuit ? `CUIT ${data.cuit}` : undefined
+          }}
+          box2={{
+            title: (data.profesionalTitulo || 'PROFESIONAL ACTUANTE HYS / MATRICULADO').toUpperCase(),
+            subtitle: (actName || data.profesionalNombre || 'Firma y Sello Profesional').toUpperCase(),
+            signatureUrl: actSignature,
+            stampUrl: actStamp,
+            isProfessional: true,
+            license: actLic || data.profesionalMatricula || 'En trámite'
+          }}
+          box3={{
+            title: 'JEFE DE MANTENIMIENTO / SUPERVISIÓN TÉCNICA',
+            subtitle: (data.jefeMantenimientoNombre || 'Conformidad Técnica de Planta').toUpperCase(),
+            signatureUrl: data.supervisorSignature || null,
+            isProfessional: false,
+            license: data.artNombre ? `ART ${data.artNombre}` : undefined
+          }}
+        />
 
         {/* Footer legal */}
-        <div className="mt-4 pt-2 border-t border-slate-200 text-center text-[7pt] text-slate-500">
+        <div className="mt-3 pt-2 border-t border-slate-200 text-center text-[7pt] text-slate-500">
           Documento emitido conforme Resolución S.R.T. N° 900/15 Anexo I y Anexo II. Validez legal de 12 (doce) meses contados desde la fecha de medición.
         </div>
         <PdfBrandingFooter />

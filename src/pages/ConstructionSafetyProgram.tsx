@@ -11,7 +11,7 @@ import PremiumHeader from '../components/PremiumHeader';
 import AnimatedPage from '../components/AnimatedPage';
 import ConfirmModal from '../components/ConfirmModal';
 import EmptyStateIllustrated from '../components/EmptyStateIllustrated';
-import { ConstructionProgramData } from '../data/constructionSafetyData';
+import { ConstructionProgramData, CAUSALES_CATALOG } from '../data/constructionSafetyData';
 import { printElementAsDocument } from '../utils/pdfHelper';
 import ConstructionSafetyProgramPdf from '../components/ConstructionSafetyProgramPdf';
 import jsPDF from 'jspdf';
@@ -33,8 +33,8 @@ export default function ConstructionSafetyProgram(): React.ReactElement | null {
   const handleDirectPrint = (prog: ConstructionProgramData) => {
     setDirectPrintProgram(prog);
     setTimeout(() => {
-      printElementAsDocument('construction-program-direct-print', `Programa_Seguridad_${prog.contractorName || 'Obra'}`);
-    }, 150);
+      printElementAsDocument('pdf-construction-program-direct', `Programa_Seguridad_${prog.contractorName || 'Obra'}`);
+    }, 200);
   };
 
   useEffect(() => {
@@ -186,13 +186,9 @@ export default function ConstructionSafetyProgram(): React.ReactElement | null {
       let currentY = (doc as any).lastAutoTable.finalY + 8;
 
       // Causales de Aviso de Obra
-      const reasonsList = [];
-      if (prog.reasons.excavationDeep) reasonsList.push('Excavación a profundidad mayor a 1.20 metros');
-      if (prog.reasons.heightWork) reasonsList.push('Trabajos en altura superiores a 4.00 metros');
-      if (prog.reasons.demolition) reasonsList.push('Tareas de demolición previa');
-      if (prog.reasons.largeSurface) reasonsList.push('Superficie de obra mayor a 1.000 m²');
-      if (prog.reasons.highVoltage) reasonsList.push('Proximidad a líneas o instalaciones de media/alta tensión');
-      if (prog.reasons.confinedSpacesOrTunnels) reasonsList.push('Túneles, galerías o espacios confinados');
+      const reasonsList = CAUSALES_CATALOG
+        .filter(c => prog.reasons?.[c.id])
+        .map(c => `${c.label} (${c.norm}) — ${c.requirement}`);
 
       autoTable(doc, {
         startY: currentY,
@@ -322,7 +318,7 @@ export default function ConstructionSafetyProgram(): React.ReactElement | null {
 
   return (
     <AnimatedPage>
-      <div className="container pb-[6rem] min-h-[100vh] flex flex-col pt-4">
+      <div className="container pb-[6rem] min-h-[100vh] flex flex-col" style={{ paddingTop: '6.8rem' }}>
         <PremiumHeader
           title="Programas de Seguridad para Construcción"
           subtitle="Confección y presentación formal ante la ART conforme a Dec. 911/96 y Res. SRT 51/97, 35/98 y 319/99"
@@ -923,7 +919,7 @@ export default function ConstructionSafetyProgram(): React.ReactElement | null {
 
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => printElementAsDocument('construction-program-list-preview', `Programa_Seguridad_${previewProgram.contractorName || 'Obra'}`)}
+                      onClick={() => printElementAsDocument('pdf-construction-program-list-preview', `Programa_Seguridad_${previewProgram.contractorName || 'Obra'}`)}
                       className="flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 rounded-xl shadow-lg shadow-amber-500/20 transition-all cursor-pointer whitespace-nowrap"
                     >
                       <Printer size={15} /> <span className="hidden sm:inline">Imprimir / </span>Guardar PDF
@@ -949,7 +945,7 @@ export default function ConstructionSafetyProgram(): React.ReactElement | null {
                 >
                   <ConstructionSafetyProgramPdf
                     data={previewProgram}
-                    customId="construction-program-list-preview"
+                    customId="pdf-construction-program-list-preview"
                   />
                 </div>
               </div>
@@ -969,10 +965,10 @@ export default function ConstructionSafetyProgram(): React.ReactElement | null {
 
         {/* Contenedor Offscreen para Impresión Directa */}
         {directPrintProgram && (
-          <div className="ats-pdf-offscreen" id="construction-program-direct-print" aria-hidden="true">
+          <div className="ats-pdf-offscreen">
             <ConstructionSafetyProgramPdf
               data={directPrintProgram}
-              customId="construction-program-direct-print"
+              customId="pdf-construction-program-direct"
             />
           </div>
         )}

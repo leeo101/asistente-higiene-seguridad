@@ -7,6 +7,27 @@ import './index.css';
 import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 
+// Silenciar rechazos no controlados causados por timeouts transitorios de red de reCAPTCHA / App Check
+if (typeof window !== 'undefined') {
+  window.addEventListener('unhandledrejection', (event) => {
+    const reason = event.reason;
+    const msg = (
+      typeof reason === 'string'
+        ? reason
+        : reason?.message || reason?.name || ''
+    );
+    if (
+      /recaptcha/i.test(msg) ||
+      /tiempo de espera agotado para recaptcha/i.test(msg) ||
+      /recaptcha timeout/i.test(msg)
+    ) {
+      // Prevenir que se propague como error no manejado a la consola y a herramientas de reporte
+      event.preventDefault();
+      console.warn('[reCAPTCHA] Timeout transitorio de red ignorado:', msg);
+    }
+  });
+}
+
 if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({
     dsn: import.meta.env.VITE_SENTRY_DSN,
@@ -30,6 +51,10 @@ if (import.meta.env.VITE_SENTRY_DSN) {
       'ResizeObserver loop completed with undelivered notifications',
       'Non-Error promise rejection captured',
       /Script error/i,
+      'reCAPTCHA Timeout',
+      /reCAPTCHA Timeout/i,
+      /Tiempo de espera agotado para reCAPTCHA/i,
+      /recaptcha/i,
     ],
     denyUrls: [
       /googlesyndication\.com/i,
@@ -39,6 +64,8 @@ if (import.meta.env.VITE_SENTRY_DSN) {
       /clarity\.ms/i,
       /chrome-extension:\/\//i,
       /moz-extension:\/\//i,
+      /gstatic\.com\/recaptcha/i,
+      /google\.com\/recaptcha/i,
     ],
     beforeSend(event, hint) {
       const error = hint?.originalException;
@@ -53,16 +80,18 @@ if (import.meta.env.VITE_SENTRY_DSN) {
         typeof errorMsg === 'string' &&
         (/int64/i.test(errorMsg) ||
          /quota/i.test(errorMsg) ||
-         /excedió la cuota/i.test(errorMsg))
+         /excedió la cuota/i.test(errorMsg) ||
+         /recaptcha/i.test(errorMsg) ||
+         /tiempo de espera agotado/i.test(errorMsg))
       ) {
         return null;
       }
 
-      // Filtrar errores causados por scripts externos (AdSense, Clarity, extensiones)
+      // Filtrar errores causados por scripts externos (AdSense, Clarity, extensiones, reCAPTCHA)
       const frames = event.exception?.values?.[0]?.stacktrace?.frames || [];
       const isThirdParty = frames.some((f) => {
         const file = f.filename || '';
-        return /googlesyndication|doubleclick|clarity|pagead|rum___|chrome-extension|moz-extension/i.test(file);
+        return /googlesyndication|doubleclick|clarity|pagead|rum___|chrome-extension|moz-extension|recaptcha|gstatic\.com/i.test(file);
       });
 
       if (isThirdParty) {

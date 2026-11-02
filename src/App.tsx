@@ -365,6 +365,7 @@ function CloudStatusIndicator() {
   if (!isOnline) {
     return (
       <div
+        className="header-icon-btn"
         title={`${pendingCount > 0 ? `${pendingCount} cambios pendientes de subir` : 'Sin conexión (guardado local)'}`}
         style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -386,6 +387,7 @@ function CloudStatusIndicator() {
 
   return (
     <div
+      className="header-icon-btn"
       title={syncing ? 'Sincronizando...' : lastSync ? `Sincronizado ${lastSync.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}` : 'Conectado a la nube'}
       style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -487,8 +489,8 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
         >
           <Menu weight="bold" size={22} />
         </button>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none', color: isDashboard ? '#ffffff' : 'var(--color-text)', flex: 1, minWidth: 0, transition: 'opacity var(--transition-fast)' }}>
-          <img src={localStorage.getItem('companyLogo') || "/logo.png?v=3"} alt="Logo" style={{ height: '38px', width: 'auto', maxWidth: '110px', flexShrink: 0, objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35))' }} />
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none', color: isDashboard ? '#ffffff' : 'var(--color-text)', marginRight: 'auto', flexShrink: 0, transition: 'opacity var(--transition-fast)' }}>
+          <img src={localStorage.getItem('companyLogo') || "/logo.png?v=3"} alt="Logo" className="header-logo-img" style={{ height: '38px', width: 'auto', maxWidth: '110px', flexShrink: 0, objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35))' }} />
           <h1 className="header-title" style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: isDashboard ? '#ffffff' : 'var(--color-text)', letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t('app.short_name')}</h1>
         </Link>
 
@@ -540,7 +542,7 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
             boxShadow: isDashboard ? 'none' : 'var(--shadow-sm)',
             transition: 'all var(--transition-base)'
           }}
-          className="hover:scale-[1.02] active:scale-[0.98]"
+          className="header-search-btn hover:scale-[1.02] active:scale-[0.98]"
         >
           <Search weight="bold" size={20} />
           <span className="hide-on-mobile text-[0.82rem] font-[600] opacity-80">{t('header.search')}</span>
@@ -549,7 +551,7 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
           </kbd>
         </button>
         <HeaderNotifications />
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <LanguageSelector />
           <SyncStatusIndicator />
         </div>

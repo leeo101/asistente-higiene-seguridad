@@ -34,22 +34,29 @@ export default function LanguageSelector() {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800/85 hover:bg-slate-700/95 border border-slate-700/80 text-xs text-slate-200 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 cursor-pointer"
+        className="header-lang-btn flex items-center rounded-xl bg-slate-800/85 hover:bg-slate-700/95 border border-slate-700/80 text-slate-200 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 cursor-pointer"
+        style={{
+          height: '38px',
+          padding: '0 0.55rem',
+          gap: '0.3rem',
+          fontSize: '0.72rem',
+          flexShrink: 0,
+        }}
         title={`${t('selector.lang_title')} & ${t('selector.framework_title')}`}
       >
-        <Globe size={16} className="text-blue-400 shrink-0" />
-        <span className="font-bold uppercase">
-          {currentLangObj.flag} {currentLangObj.code}
+        <Globe size={14} className="text-blue-400 shrink-0" />
+        <span className="font-extrabold uppercase tracking-tight">
+          {currentLangObj.code}
         </span>
-        <span className="text-slate-500">|</span>
+        <span className="text-slate-500 text-[10px]">|</span>
         <span className="text-emerald-300 font-bold text-[11px] flex items-center gap-1">
           <span>{currentCountryObj.flag}</span>
-          <span className="hidden sm:inline">{currentCountryObj.shortName}</span>
+          <span className="hidden md:inline">{currentCountryObj.shortName}</span>
           <span className="hidden lg:inline text-slate-400 font-mono text-[10px]">
             ({countryNorms.general})
           </span>
         </span>
-        <CaretDown size={12} className="text-slate-400 ml-0.5 shrink-0" />
+        <CaretDown size={11} className="text-slate-400 shrink-0" />
       </button>
 
       {isOpen && (

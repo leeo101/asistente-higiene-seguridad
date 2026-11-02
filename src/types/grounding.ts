@@ -93,6 +93,13 @@ export interface GroundingProtocol {
   transformadorPropio: boolean;
   estadoSuelo: SoilCondition;
   tensionSeguridadContacto?: 24 | 50; // 24V ambientes húmedos/mojados, 50V locales secos (AEA 90364)
+  metodoMedicion?: string; // Ej: Método de caída de potencial de 3 polos (62% IRAM 2281) / Lazo de falla AEA 90364-6
+  condicionesClimaticas?: string; // Ej: Soleado · Sin lluvias en las últimas 72 hs · 22°C
+  certificadoAdjunto?: boolean; // Art. 2 Res. SRT 900/15
+  planoEsquemaAdjunto?: boolean; // Croquis / Esquema unifilar adjunto
+
+  // Inspección Visual Reglamentaria (AEA 90364 Parte 6)
+  verificacionesVisuales?: string[];
 
   // Tablas del Anexo I Res. SRT 900/15
   jabalinas: JabalinaMeasurement[];
@@ -101,6 +108,7 @@ export interface GroundingProtocol {
 
   // Fotos y Evidencia
   fotos: ProtocolPhoto[];
+  evidenciaFotos?: string[];
   croquisUrl?: string;
 
   // Dictamen Técnico y Conclusiones
@@ -109,9 +117,20 @@ export interface GroundingProtocol {
   recomendaciones: string[];
   plazoAdecuacionDias?: number;
 
-  // Firmas digitales
+  // Firmas digitales (Formato ATS con Firma Profesional al Centro)
   firmaProfesionalUrl?: string;
   firmaClienteUrl?: string;
+  responsableEstablecimientoNombre?: string;
+  jefeMantenimientoNombre?: string;
+  operatorSignature?: string;
+  professionalSignature?: string;
+  professionalStamp?: string;
+  supervisorSignature?: string;
+  showSignatures?: {
+    operator: boolean;
+    professional: boolean;
+    supervisor: boolean;
+  };
 
   // Metadata
   createdAt: string;

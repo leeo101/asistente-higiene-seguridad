@@ -74,6 +74,7 @@ export default function HeaderNotifications() {
       {/* ── Bell button ─────────────────────────────────────────────────── */}
       <button
         onClick={() => setShowAlerts(v => !v)}
+        className="header-icon-btn"
         style={{
           display: 'flex',
           alignItems: 'center',

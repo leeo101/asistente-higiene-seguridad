@@ -103,37 +103,60 @@ export async function printElementAsDocument(
   title: string = 'Documento',
   isLandscape: boolean = false
 ): Promise<void> {
-  const el = document.getElementById(elementId);
+  // Buscar la instancia más específica (preferir el nodo interno .pdf-container / .print-area si existen IDs duplicados)
+  const matchingEls = Array.from(document.querySelectorAll(`[id="${elementId}"]`)) as HTMLElement[];
+  const el =
+    matchingEls.find(node => node.classList.contains('pdf-container') || node.classList.contains('print-area')) ||
+    matchingEls[matchingEls.length - 1] ||
+    document.getElementById(elementId);
+
   if (!el) throw new Error(`Elemento "${elementId}" no encontrado`);
 
-  // Recopilar CSS de la página (sin CORS restrictions para same-origin)
-  let pageCss = '';
+  // Recopilar enlaces <link rel="stylesheet"> del documento principal
+  const headLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+    .map(link => link.outerHTML)
+    .join('\n');
+
+  // Recopilar CSS de la página (con fallback a textContent del <style> para Firefox cuando hay @import externo)
+  let rawCss = '';
   try {
-    pageCss = Array.from(document.styleSheets)
+    rawCss = Array.from(document.styleSheets)
       .map(sheet => {
         try {
           return Array.from(sheet.cssRules)
             .map(r => r.cssText)
             .join('\n');
         } catch {
+          if (sheet.ownerNode && sheet.ownerNode instanceof HTMLStyleElement) {
+            return sheet.ownerNode.textContent || '';
+          }
           return '';
         }
       })
       .join('\n');
   } catch {
-    pageCss = '';
+    rawCss = '';
   }
+
+  // Extraer reglas @import para ubicarlas al inicio absoluto del bloque <style>
+  const importRules: string[] = [];
+  const bodyCss = rawCss.replace(/@import\s+url\([^)]+\)\s*;?/gi, match => {
+    importRules.push(match.endsWith(';') ? match : `${match};`);
+    return '';
+  });
+  const pageCss = `${importRules.join('\n')}\n${bodyCss}`;
 
   const printHtml = el.outerHTML;
 
   // Asegurar que el elemento impreso no herede clases ni posiciones off-screen
-  let cleanHtml = printHtml
+  const cleanHtml = printHtml
     .replace(/\bats-pdf-offscreen\b/g, '')
     .replace(/\bopacity-0\b/g, '')
     .replace(/\bpointer-events-none\b/g, '')
+    .replace(/\baria-hidden="true"/gi, '')
     .replace(
       /style="([^"]*)"/gi,
-      (match, styleContent) => {
+      (_match, styleContent) => {
         const sanitized = styleContent
           .replace(/position\s*:\s*(?:absolute|fixed)/gi, 'position: static')
           .replace(/left\s*:\s*-[0-9]+px/gi, 'left: 0')
@@ -150,6 +173,7 @@ export async function printElementAsDocument(
 <head>
   <meta charset="UTF-8" />
   <title>${title}</title>
+  ${headLinks}
   <style>
     ${pageCss}
 
@@ -157,20 +181,6 @@ export async function printElementAsDocument(
       @page {
         size: A4 ${isLandscape ? 'landscape' : 'portrait'};
         margin: 10mm 10mm 12mm 10mm;
-        @bottom-right {
-          content: "Página " counter(page) " de " counter(pages);
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          font-size: 7.5pt;
-          font-weight: 600;
-          color: #64748b;
-        }
-        @bottom-left {
-          content: "Documento Oficial Foliado · Validez Legal SRT / ART";
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          font-size: 7pt;
-          font-weight: 500;
-          color: #94a3b8;
-        }
       }
     }
     *, *::before, *::after {
@@ -188,6 +198,7 @@ export async function printElementAsDocument(
       min-height: 0 !important;
       display: block !important;
       visibility: visible !important;
+      opacity: 1 !important;
     }
     body > * {
       position: static !important;
@@ -199,7 +210,7 @@ export async function printElementAsDocument(
       display: block !important;
     }
     /* Neutralizar cualquier clase o estilo de posición offscreen - PREVALECE SIEMPRE */
-    .ats-pdf-offscreen, #pdf-portal-container, #pdf-content-print, #pdf-content-forklift, #pdf-sheet-forklift, [id^="pdf-content"], [id^="pdf-sheet"], [id^="pdf-forklift"], [id^="pdf-"], .pdf-container, .print-area {
+    .ats-pdf-offscreen, #pdf-portal-container, #pdf-content-print, #pdf-content-forklift, #pdf-sheet-forklift, [id^="pdf-content"], [id^="pdf-sheet"], [id^="pdf-forklift"], [id^="pdf-"], [id*="construction-program"], .pdf-container, .print-area {
       position: static !important;
       left: 0 !important;
       top: 0 !important;
@@ -238,50 +249,74 @@ export async function printElementAsDocument(
     }
     thead { display: table-header-group !important; }
     tfoot { display: table-footer-group !important; }
-    table { page-break-inside: auto !important; }
+    table {
+      page-break-inside: auto !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      table-layout: fixed !important;
+      border-collapse: collapse !important;
+      box-sizing: border-box !important;
+    }
+    th, td {
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
+      word-break: break-word !important;
+      white-space: normal !important;
+      box-sizing: border-box !important;
+    }
   </style>
 </head>
 <body>
-  ${cleanHtml}
+  <div class="pdf-container print-area" style="display:block !important; visibility:visible !important; opacity:1 !important; background:#ffffff !important; color:#0f172a !important; width:100% !important; max-width:100% !important; padding:0 1px !important; box-sizing:border-box !important;">
+    ${cleanHtml}
+  </div>
 </body>
 </html>`;
 
-  // Usar iframe oculto en el DOM actual: es 100% confiable, inmune a bloqueadores de popups y carga imágenes antes de imprimir
+  // Usar iframe con dimensiones A4 reales fuera de pantalla y Blob URL para evitar que Firefox sobrescriba con about:blank
+  const blob = new Blob([htmlDocument], { type: 'text/html;charset=utf-8' });
+  const blobUrl = URL.createObjectURL(blob);
+
   const iframe = document.createElement('iframe');
   iframe.style.position = 'fixed';
-  iframe.style.right = '0';
-  iframe.style.bottom = '0';
-  iframe.style.width = '0';
-  iframe.style.height = '0';
+  iframe.style.left = '-9999px';
+  iframe.style.top = '0';
+  iframe.style.width = isLandscape ? '297mm' : '210mm';
+  iframe.style.height = isLandscape ? '210mm' : '297mm';
   iframe.style.border = '0';
-  document.body.appendChild(iframe);
+  iframe.style.opacity = '0';
+  iframe.style.pointerEvents = 'none';
+  iframe.style.zIndex = '-9999';
+
+  await new Promise<void>(resolve => {
+    const timeout = setTimeout(resolve, 2000);
+    iframe.onload = () => {
+      clearTimeout(timeout);
+      resolve();
+    };
+    iframe.src = blobUrl;
+    document.body.appendChild(iframe);
+  });
 
   const doc = iframe.contentWindow?.document;
-  if (!doc) {
-    document.body.removeChild(iframe);
-    window.print();
-    return;
+  if (doc) {
+    // Esperar a que todas las imágenes dentro del iframe terminen de cargarse
+    const images = Array.from(doc.querySelectorAll('img'));
+    await Promise.all(
+      images.map(img => {
+        if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+        return new Promise<void>(resolve => {
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+          setTimeout(resolve, 2500);
+        });
+      })
+    );
   }
 
-  doc.open();
-  doc.write(htmlDocument);
-  doc.close();
-
-  // Esperar a que todas las imágenes dentro del iframe terminen de cargarse
-  const images = Array.from(doc.querySelectorAll('img'));
-  await Promise.all(
-    images.map(img => {
-      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-      return new Promise<void>(resolve => {
-        img.onload = () => resolve();
-        img.onerror = () => resolve();
-        setTimeout(resolve, 2500);
-      });
-    })
-  );
-
   // Margen de seguridad para que el motor de renderizado calcule fuentes y layout
-  await new Promise(r => setTimeout(r, 300));
+  await new Promise(r => setTimeout(r, 350));
 
   try {
     iframe.contentWindow?.focus();
@@ -293,6 +328,7 @@ export async function printElementAsDocument(
     setTimeout(() => {
       try {
         if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+        URL.revokeObjectURL(blobUrl);
       } catch {}
     }, 60000);
   }

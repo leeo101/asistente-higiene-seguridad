@@ -4396,7 +4396,10 @@ html.pdf-export-mode, body.pdf-export-mode {
 
 .top-header-panel { gap: 1rem; padding: 0.75rem 1.25rem; }
 @media (max-width: 768px) {
-  .top-header-panel { gap: 0.5rem; padding: 0.5rem; left: 0.5rem !important; right: 0.5rem !important; top: 0.5rem !important; width: auto !important; }
+  .top-header-panel { gap: 0.35rem !important; padding: 0.45rem 0.6rem !important; left: 0.5rem !important; right: 0.5rem !important; top: 0.5rem !important; width: auto !important; }
+  .header-logo-img { height: 32px !important; max-width: 84px !important; }
+  .header-search-btn, .header-icon-btn { width: 36px !important; height: 36px !important; padding: 0 !important; justify-content: center !important; }
+  .header-lang-btn { height: 36px !important; padding: 0 0.45rem !important; font-size: 0.68rem !important; gap: 0.22rem !important; }
   .header-title { display: none !important; }
 }
 
@@ -5095,4 +5098,25 @@ html.pdf-export-mode, body.pdf-export-mode {
 /* Global utility to hide inputs or elements styled with className="none" */
 .none {
   display: none !important;
+}
+
+
+/* Ensure PDF tables never overflow right border on A4 or mobile viewports */
+.pdf-container table,
+.print-area table {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+  box-sizing: border-box !important;
+}
+.pdf-container th,
+.pdf-container td,
+.print-area th,
+.print-area td {
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  box-sizing: border-box !important;
 }

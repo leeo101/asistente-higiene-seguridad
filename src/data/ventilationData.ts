@@ -13,7 +13,13 @@ export type RoomEnvironmentType =
 
 export interface VentilationEquipment {
   id: string;
-  type: 'extractor_axial' | 'extractor_eolico' | 'extractor_centrifugo' | 'inyector_aire_fresco' | 'abertura_natural';
+  type:
+    | 'extractor_axial'
+    | 'extractor_eolico'
+    | 'extractor_centrifugo'
+    | 'inyector_aire_fresco'
+    | 'campana_extraccion'
+    | 'abertura_natural';
   tag: string; // Ej: EXT-01
   flowRateM3H: number; // Caudal unitario en m3/h
   quantity: number;
@@ -27,6 +33,7 @@ export interface AnemometerPoint {
   airVelocityMS: number; // m/s
   co2Ppm?: number; // ppm (400-1000 normal)
   temperatureC?: number;
+  relativeHumidityPercent?: number;
 }
 
 export interface VentilationStudy {
@@ -40,7 +47,25 @@ export interface VentilationStudy {
   evaluatorLicense: string;
   evaluatorTitle?: string;
   evaluatorSignature?: string;
+  evaluatorStamp?: string;
+  representativeName?: string;
   representativeSignature?: string;
+  supervisorName?: string;
+  supervisorSignature?: string;
+  showSignatures?: {
+    operator: boolean;
+    professional: boolean;
+    supervisor: boolean;
+  };
+
+  // Instrumental de Medición (Anemómetro / Calidad de Aire)
+  anemometerBrandModel?: string;
+  anemometerSerial?: string;
+  anemometerCalibrationDate?: string;
+  anemometerCertNumber?: string;
+  contaminantType?: string;
+  filterSystem?: string;
+  verificacionesLegales?: string[];
 
   // Dimensiones del local
   surfaceM2: number;
@@ -173,6 +198,15 @@ export function calcVentilationMetrics(
     isCompliant
   };
 }
+
+export const VENTILATION_LEGAL_CHECKS: string[] = [
+  'Ausencia de recirculación de aire viciado hacia otros sectores limpios (Art. 65 Dec. 351/79).',
+  'Captación localizada instalada lo más cerca posible de la fuente de emisión de humos/vapores (Art. 67 Dec. 351/79).',
+  'Velocidad de aire en puestos operativos dentro de rango de confort sin corrientes molestas (0,15 a 0,50 m/s).',
+  'Concentración de CO2 ambiental inferior a 1.000 ppm (Indicador de renovación efectiva ASHRAE / Res. SRT 295/03).',
+  'Aberturas de reposición de aire exterior limpio ubicadas en sentido opuesto a los extractores (barrido cruzado).',
+  'Mantenimiento preventivo de correas, álabes, conductos y filtros retentivos registrado en planilla.'
+];
 
 export const DEFAULT_VENTILATION_STUDIES: VentilationStudy[] = [
   {

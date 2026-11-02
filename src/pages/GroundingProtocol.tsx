@@ -296,44 +296,79 @@ export default function GroundingProtocol(): React.ReactElement | null {
 
   return (
     <AnimatedPage>
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-16">
-        {/* Encabezado Principal */}
+      <div
+        className="container min-h-screen pb-16 flex flex-col"
+        style={{ paddingTop: '7rem' }}
+      >
+        {/* Encabezado Principal Limpio (sin botones adentro del recuadro dorado) */}
         <PremiumHeader
           title="Puesta a Tierra y Continuidad de Masas"
           subtitle="Protocolo Oficial conforme a la Resolución S.R.T. N° 900/15 y AEA 90364"
           icon={<Zap size={28} className="text-amber-400" />}
           onBack={() => navigate('/')}
-        >
-          <div className="flex items-center gap-2 mt-2 justify-center flex-wrap">
-            <button
-              type="button"
-              onClick={() => setShowTrendChart(prev => !prev)}
-              className={`px-3 py-2 rounded-lg border text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer ${
-                showTrendChart
-                  ? 'bg-amber-500 text-white border-amber-400'
-                  : 'border-white/20 bg-white/10 hover:bg-white/20 text-white'
-              }`}
-            >
-              <TrendingUp size={15} /> {showTrendChart ? 'Ocultar Tendencias' : '📈 Tendencias Históricas'}
-            </button>
-            <button
-              type="button"
-              onClick={handleExportCSV}
-              className="px-3 py-2 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
-            >
-              <Download size={15} /> Exportar CSV
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/grounding/new')}
-              className="px-4 py-2 rounded-lg bg-white hover:bg-slate-100 text-slate-900 text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
-            >
-              <Plus size={16} className="text-amber-600" /> Nueva Medición Res. 900/15
-            </button>
-          </div>
-        </PremiumHeader>
+        />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4 space-y-6">
+        <div className="max-w-7xl w-full mx-auto mt-5 space-y-5">
+          {/* Barra de Botones de Acción Principal (Fuera del recuadro dorado y con colores vivos) */}
+          <div className="bg-white dark:bg-slate-800/90 p-3.5 sm:px-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <Zap size={18} />
+              </div>
+              <div>
+                <h2 className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 m-0 leading-tight">
+                  Gestión de Protocolos Eléctricos (Res. SRT 900/15)
+                </h2>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 m-0">
+                  Administrá mediciones de jabalinas, continuidad de masas y disyuntores diferenciales
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 flex-wrap sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setShowTrendChart(prev => !prev)}
+                style={{
+                  background: showTrendChart
+                    ? 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)'
+                    : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                  color: '#ffffff'
+                }}
+                className="px-4 py-2.5 rounded-xl border-none text-xs font-extrabold flex items-center gap-2 shadow-md shadow-indigo-500/20 hover:opacity-95 transition-all cursor-pointer"
+              >
+                <TrendingUp size={15} />
+                <span>{showTrendChart ? 'Ocultar Tendencias' : 'Tendencias Históricas'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleExportCSV}
+                style={{
+                  background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
+                  color: '#ffffff'
+                }}
+                className="px-4 py-2.5 rounded-xl border-none text-xs font-extrabold flex items-center gap-2 shadow-md shadow-emerald-500/20 hover:opacity-95 transition-all cursor-pointer"
+              >
+                <Download size={15} />
+                <span>Exportar CSV</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate('/grounding/new')}
+                style={{
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
+                  color: '#ffffff'
+                }}
+                className="px-4.5 py-2.5 rounded-xl border-none text-xs font-black flex items-center gap-2 shadow-lg shadow-amber-500/25 hover:opacity-95 transition-all cursor-pointer"
+              >
+                <Plus size={16} />
+                <span>Nueva Medición Res. 900/15</span>
+              </button>
+            </div>
+          </div>
+
           {/* Tarjetas de Métricas */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-3">
@@ -391,25 +426,26 @@ export default function GroundingProtocol(): React.ReactElement | null {
           )}
 
           {/* Barra de Filtros y Búsqueda */}
-          <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="relative w-full sm:w-80">
-              <Search size={16} className="absolute left-3 top-2.5 text-slate-400" />
+          <div className="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="relative w-full sm:w-96 flex items-center">
+              <Search size={16} className="absolute left-3.5 text-slate-400 pointer-events-none" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
                 placeholder="Buscar por Razón Social, CUIT, Dirección..."
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
+                style={{ paddingLeft: '2.4rem' }}
+                className="w-full pr-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500"
               />
             </div>
 
-            <div className="flex items-center gap-1 w-full sm:w-auto overflow-x-auto">
+            <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto">
               <button
                 type="button"
                 onClick={() => setFilterStatus('all')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap ${
+                className={`px-3.5 py-2 text-xs font-extrabold rounded-xl transition-colors whitespace-nowrap cursor-pointer ${
                   filterStatus === 'all'
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-blue-600 text-white shadow-sm'
                     : 'bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
                 }`}
               >
@@ -418,9 +454,9 @@ export default function GroundingProtocol(): React.ReactElement | null {
               <button
                 type="button"
                 onClick={() => setFilterStatus('conforme')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap ${
+                className={`px-3.5 py-2 text-xs font-extrabold rounded-xl transition-colors whitespace-nowrap cursor-pointer ${
                   filterStatus === 'conforme'
-                    ? 'bg-emerald-600 text-white'
+                    ? 'bg-emerald-600 text-white shadow-sm'
                     : 'bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
                 }`}
               >
@@ -429,9 +465,9 @@ export default function GroundingProtocol(): React.ReactElement | null {
               <button
                 type="button"
                 onClick={() => setFilterStatus('no_conforme')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap ${
+                className={`px-3.5 py-2 text-xs font-extrabold rounded-xl transition-colors whitespace-nowrap cursor-pointer ${
                   filterStatus === 'no_conforme'
-                    ? 'bg-amber-600 text-white'
+                    ? 'bg-amber-600 text-white shadow-sm'
                     : 'bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
                 }`}
               >
@@ -534,55 +570,57 @@ export default function GroundingProtocol(): React.ReactElement | null {
                       </div>
                     </div>
 
-                    {/* Botones de acción */}
-                    <div className="flex items-center gap-1.5 self-end lg:self-center">
+                    {/* Botones de acción con colores */}
+                    <div className="flex items-center gap-1.5 self-end lg:self-center flex-wrap">
                       <button
                         type="button"
                         onClick={() => { setSelectedProtocol(p); setPreviewZoom(1); }}
                         title="Vista Previa A4 Protocolo Oficial"
-                        className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                        className="px-2.5 py-2 rounded-xl bg-sky-500/15 hover:bg-sky-500 text-sky-600 dark:text-sky-400 hover:text-white border border-sky-500/30 font-bold text-xs flex items-center gap-1 transition-all cursor-pointer"
                       >
-                        <Eye size={17} />
+                        <Eye size={16} />
+                        <span className="hidden xl:inline">Previa</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDirectPrint(p)}
                         title="Imprimir / Exportar PDF Oficial Directo"
-                        className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
+                        className="px-2.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-600 text-emerald-600 dark:text-emerald-400 hover:text-white border border-emerald-500/30 font-bold text-xs flex items-center gap-1 transition-all cursor-pointer"
                       >
-                        <Printer size={17} />
+                        <Printer size={16} />
+                        <span className="hidden xl:inline">PDF</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => navigate('/grounding/new', { state: { editData: p } })}
                         title="Editar Protocolo"
-                        className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-amber-50 hover:text-amber-600 transition-colors"
+                        className="p-2 rounded-xl bg-amber-500/15 hover:bg-amber-500 text-amber-600 dark:text-amber-400 hover:text-white border border-amber-500/30 transition-all cursor-pointer"
                       >
-                        <Edit3 size={17} />
+                        <Edit3 size={16} />
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDuplicate(p)}
                         title="Duplicar como Borrador"
-                        className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                        className="p-2 rounded-xl bg-indigo-500/15 hover:bg-indigo-600 text-indigo-600 dark:text-indigo-400 hover:text-white border border-indigo-500/30 transition-all cursor-pointer"
                       >
-                        <Copy size={17} />
+                        <Copy size={16} />
                       </button>
                       <button
                         type="button"
                         onClick={() => setShareItem({ title: `Protocolo Res. SRT 900/15 - ${p.razonSocial}`, text: `Medición de PAT: ${evalData.promedioResistenciaOhms} Ω. Estado: ${isConforme ? 'Conforme' : 'Con desvíos'}` })}
                         title="Compartir"
-                        className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
+                        className="p-2 rounded-xl bg-teal-500/15 hover:bg-teal-600 text-teal-600 dark:text-teal-400 hover:text-white border border-teal-500/30 transition-all cursor-pointer"
                       >
-                        <Share2 size={17} />
+                        <Share2 size={16} />
                       </button>
                       <button
                         type="button"
                         onClick={() => setDeleteConfirm({ isOpen: true, id: p.id })}
                         title="Eliminar"
-                        className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-red-50 hover:text-red-600 transition-colors"
+                        className="p-2 rounded-xl bg-rose-500/15 hover:bg-rose-600 text-rose-600 dark:text-rose-400 hover:text-white border border-rose-500/30 transition-all cursor-pointer"
                       >
-                        <Trash2 size={17} />
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </div>
