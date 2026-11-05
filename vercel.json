@@ -159,6 +159,10 @@
             "destination": "/api/ai.js"
         },
         {
+            "source": "/api/admin/users",
+            "destination": "/api/auth.js"
+        },
+        {
             "source": "/api/forgot-password",
             "destination": "/api/auth.js"
         },

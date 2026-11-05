@@ -89,6 +89,7 @@ const ErgonomicsReport = lazyWithRetry(() => import('./pages/ErgonomicsReport'))
 const SafetyCalendar = lazyWithRetry(() => import('./pages/SafetyCalendar'));
 const ResetPassword = lazyWithRetry(() => import('./pages/ResetPassword'));
 const AdminRequests = lazyWithRetry(() => import('./pages/AdminRequests'));
+const AdminUsers = lazyWithRetry(() => import('./pages/AdminUsers'));
 const PrivacyPolicy = lazyWithRetry(() => import('./pages/PrivacyPolicy'));
 const LightingReport = lazyWithRetry(() => import('./pages/LightingReport'));
 const WorkPermit = lazyWithRetry(() => import('./pages/WorkPermit'));
@@ -803,6 +804,8 @@ function App() {
                   <Route path="/work-permit-history" element={<Navigate to="/work-permit" replace />} />
                   <Route path="/risk-assessment-history" element={<ProtectedRoute><RiskAssessmentHistory /></ProtectedRoute>} />
                   <Route path="/admin/requests" element={<ProtectedRoute><AdminRequests /></ProtectedRoute>} />
+                  <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
+                  <Route path="/admin" element={<Navigate to="/admin/users" replace />} />
                   <Route path="/ppe-tracker" element={<ProtectedRoute><PPETracker /></ProtectedRoute>} />
                   <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                   <Route path="/management-report" element={<ProtectedRoute><ManagementReport /></ProtectedRoute>} />

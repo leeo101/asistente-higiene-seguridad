@@ -23,6 +23,7 @@ interface NavItem {
   label: string;
   always?: boolean;
   auth?: boolean;
+  adminOnly?: boolean;
 }
 
 interface UserInfo {
@@ -38,6 +39,7 @@ interface SidebarProps {
 
 const navItems: NavItem[] = [
 { to: '/', icon: <House weight="duotone" size={20} />, label: 'Inicio', always: true },
+{ to: '/admin/users', icon: <Crown weight="duotone" size={20} color="#f59e0b" />, label: 'Panel Usuarios & PRO', adminOnly: true },
 { to: '/security-trust', icon: <ShieldCheck weight="duotone" size={20} color="#10b981" />, label: 'Seguridad & Trust Enterprise', always: true },
 { to: '/asset-scanner', icon: <DeviceMobile weight="duotone" size={20} color="#0ea5e9" />, label: 'Escáner QR Activos', always: true },
 { to: '/calendar', icon: <CalendarBlank weight="duotone" size={20} />, label: 'Calendario', always: true },
@@ -53,7 +55,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
-  const { isPro, daysRemaining } = usePaywall();
+  const { isPro, isAdmin, daysRemaining } = usePaywall();
   const { isOnline, syncing, pendingCount } = useSync();
   const { t, adaptText } = useLanguage();
 
@@ -115,9 +117,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
 
   const isActive = (path: string): boolean => location.pathname === path;
 
-  const visibleItems = navItems.filter((item) =>
-  item.always || item.auth && currentUser
-  );
+  const isUserAdmin = isAdmin || currentUser?.email?.toLowerCase().trim() === 'enzorodriguez31@gmail.com' || currentUser?.email?.toLowerCase().trim() === 'admin@asistentehs.com';
+
+  const visibleItems = navItems.filter((item) => {
+    if (item.adminOnly) return isUserAdmin;
+    return item.always || (item.auth && currentUser);
+  });
 
   return (
     <>

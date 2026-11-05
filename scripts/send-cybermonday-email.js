@@ -186,10 +186,12 @@ async function getNonProUsers(auth, db) {
         const hasCustomClaimPro = Boolean(user.customClaims && user.customClaims.isPro === true);
 
         let hasActiveFirestoreSub = false;
+        let subDetails = null;
         try {
             const subDoc = await db.collection('users').doc(user.uid).collection('data').doc('subscriptionData').get();
             if (subDoc.exists) {
                 const data = subDoc.data();
+                subDetails = data;
                 const expiry = parseInt(data?.expiry || '0', 10);
                 if (data?.status === 'active' && expiry > Date.now()) {
                     hasActiveFirestoreSub = true;
@@ -200,10 +202,19 @@ async function getNonProUsers(auth, db) {
         }
 
         if (hasCustomClaimPro || hasActiveFirestoreSub) {
+            const expiry = parseInt(subDetails?.expiry || '0', 10);
+            const daysLeft = expiry ? Math.ceil((expiry - Date.now()) / (1000 * 60 * 60 * 24)) : null;
             proUsers.push({
                 uid: user.uid,
                 email: user.email,
-                name: user.displayName || user.email.split('@')[0]
+                name: user.displayName || user.email.split('@')[0],
+                hasCustomClaimPro,
+                status: subDetails?.status || 'sin_doc',
+                expiryDate: expiry ? new Date(expiry).toLocaleDateString('es-AR') : 'Sin vencimiento / Vitalicio',
+                daysLeft,
+                provider: subDetails?.provider || 'custom_claim',
+                lastSignIn: user.metadata?.lastSignInTime,
+                createdAt: user.metadata?.creationTime
             });
         } else {
             nonProUsers.push({
@@ -248,7 +259,9 @@ async function main() {
     console.log(`   - Usuarios SIN PRO (destinatarios de la oferta): ${nonProUsers.length}\n`);
 
     if (dryRun) {
-        console.log('📋 Lista de destinatarios (Sin PRO):');
+        console.log('👑 Lista de usuarios PRO:');
+        proUsers.forEach((u, i) => console.log(`   ${i + 1}. ${u.email} (${u.name}) | Vence: ${u.expiryDate} (${u.daysLeft !== null ? u.daysLeft + ' días' : 'Vitalicio'}) | Origen: ${u.provider} | Último ingreso: ${u.lastSignIn}`));
+        console.log('\n📋 Lista de destinatarios (Sin PRO):');
         nonProUsers.forEach((u, i) => console.log(`   ${i + 1}. ${u.email} (${u.name})`));
         process.exit(0);
     }

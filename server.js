@@ -2035,6 +2035,12 @@ app.delete('/api/admin/requests/:id', adminLimiter, isAdmin, async (req, res) =>
     }
 });
 
+// Admin Users Panel API (delegates to _admin-users.js handler)
+import adminUsersHandler from './api/_admin-users.js';
+app.all('/api/admin/users', adminLimiter, async (req, res) => {
+    return adminUsersHandler(req, res);
+});
+
 
 // Password changed notification email
 app.post('/api/send-password-changed-email', emailLimiter, validateEmail, async (req, res) => {
