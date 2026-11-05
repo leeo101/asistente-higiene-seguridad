@@ -1,7 +1,5 @@
-import { Resend } from 'resend';
+import { sendAppMail } from './_mailer.js';
 import { setCorsHeaders } from './_cors.js';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
     // 🔐 Enable secure CORS configuration
@@ -72,10 +70,9 @@ export default async function handler(req, res) {
         const baseUrl = (requestOrigin && ALLOWED.includes(requestOrigin)) ? requestOrigin : PRODUCTION_URL;
         const resetLink = `${baseUrl}/reset-password?oobCode=${oobCode}`;
 
-        const { data, error } = await resend.emails.send({
-            from: 'Asistente H&S <soporte@asistentehs.com>',
+        await sendAppMail({
             to: email,
-            subject: 'Restablecer Contraseña - Asistente HYS',
+            subject: 'Restablecer Contraseña - Asistente H&S',
             html: `
                 <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border-radius: 16px; overflow: hidden; background-color: #f8fafc; border: 1px solid #e2e8f0;">
                     <div style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); padding: 40px 20px; text-align: center;">
@@ -107,8 +104,6 @@ export default async function handler(req, res) {
                 </div>
             `
         });
-
-        if (error) throw error;
 
         return res.status(200).json({
             message: 'Si el correo ingresado se encuentra registrado, recibirás un enlace.'

@@ -1,9 +1,8 @@
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
-import { Resend } from 'resend';
+import { sendAppMail } from './_mailer.js';
 import { getGoogleAccessToken, setFirebaseCustomClaims, getFirebaseUidByEmail } from './_googleAuth.js';
 import { setCorsHeaders, verifyToken } from './_verifyToken.js';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 
 export default async function handler(req, res) {
@@ -175,10 +174,9 @@ export default async function handler(req, res) {
 
             if (email) {
                 try {
-                    await resend.emails.send({
-                        from: 'Asistente HYS <soporte@asistentehs.com>',
+                    await sendAppMail({
                         to: email,
-                        subject: '¡Casi eres PRO! - Asistente HYS',
+                        subject: '¡Casi eres PRO! - Asistente H&S',
                         html: `
                             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border-radius: 16px; overflow: hidden; background-color: #f8fafc; border: 1px solid #e2e8f0;">
                                 <div style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); padding: 40px 20px; text-align: center;">

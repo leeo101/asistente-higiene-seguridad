@@ -1941,27 +1941,28 @@ app.post('/api/forgot-password', authLimiter, validateEmail, async (req, res) =>
             `
         };
 
-        // Send email via Resend
-        console.log(`[PASSWORD RESET] Sending email via Resend to ${email}...`);
+        // Send email via Gmail transporter
+        console.log(`[PASSWORD RESET] Sending email via Gmail SMTP to ${email}...`);
 
         try {
-            const { data: resendData, error: resendError } = await resend.emails.send({
-                from: 'Asistente HYS <soporte@asistentehs.com>',
+            const mailTransporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+            });
+            await mailTransporter.sendMail({
+                from: `"Asistente Higiene y Seguridad" <${process.env.EMAIL_USER}>`,
+                replyTo: process.env.EMAIL_USER,
                 to: email,
-                subject: 'Restablecer Contraseña - Asistente HYS',
+                subject: 'Restablecer Contraseña - Asistente H&S',
                 html: mailOptions.html
             });
 
-            if (resendError) {
-                throw resendError;
-            }
-
-            console.log(`[PASSWORD RESET] Email sent successfully via Resend to ${email}. ID: ${resendData.id}`);
+            console.log(`[PASSWORD RESET] Email sent successfully via Gmail SMTP to ${email}`);
             return res.json({
                 message: 'Email de recuperación enviado con éxito. Por favor, revisa tu bandeja de entrada.'
             });
         } catch (err) {
-            console.error('[PASSWORD RESET] Error sending email via Resend:', err);
+            console.error('[PASSWORD RESET] Error sending email via Gmail SMTP:', err);
             return res.status(500).json({
                 error: 'No se pudo enviar el email de recuperación.'
             });
@@ -2057,10 +2058,15 @@ app.post('/api/send-password-changed-email', emailLimiter, validateEmail, async 
     const greeting = name ? `Hola, ${name}` : 'Hola';
 
     try {
-        const { data: resendData, error: resendError } = await resend.emails.send({
-            from: 'Asistente HYS <soporte@asistentehs.com>',
+        const mailTransporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+        });
+        await mailTransporter.sendMail({
+            from: `"Asistente Higiene y Seguridad" <${process.env.EMAIL_USER}>`,
+            replyTo: process.env.EMAIL_USER,
             to: email,
-            subject: 'Tu contraseña ha sido actualizada - Asistente HYS',
+            subject: 'Tu contraseña ha sido actualizada - Asistente H&S',
             html: `
                 <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border-radius: 16px; overflow: hidden; background-color: #f8fafc; border: 1px solid #e2e8f0;">
                     <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 20px; text-align: center;">
@@ -2160,20 +2166,19 @@ app.post('/api/welcome-email', emailLimiter, validateEmail, validateStringInput(
     };
 
     try {
-        const { data: resendData, error: resendError } = await resend.emails.send({
-            from: 'Asistente HYS <soporte@asistentehs.com>',
+        const mailTransporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+        });
+        await mailTransporter.sendMail({
+            from: `"Asistente Higiene y Seguridad" <${process.env.EMAIL_USER}>`,
+            replyTo: process.env.EMAIL_USER,
             to: email,
-            subject: '¡Bienvenido al Asistente HYS!',
+            subject: '¡Bienvenido al Asistente H&S!',
             html: mailOptions.html
         });
 
-        if (resendError) {
-            console.error('[WELCOME EMAIL] Resend error:', resendError);
-            // Return 200 anyway so registration isn't blocked
-            return res.json({ success: false, error: resendError.message, message: 'No se pudo enviar el correo, pero el registro fue exitoso.' });
-        }
-
-        console.log(`[WELCOME EMAIL] Sent successfully to ${email}. ID: ${resendData.id}`);
+        console.log(`[WELCOME EMAIL] Sent successfully to ${email} via Gmail SMTP.`);
         res.json({ success: true, message: 'Correo de bienvenida enviado' });
     } catch (err) {
         console.error('[WELCOME EMAIL] Error:', err.message);

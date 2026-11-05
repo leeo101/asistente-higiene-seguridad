@@ -1,7 +1,5 @@
-import { Resend } from 'resend';
+import { sendAppMail } from './_mailer.js';
 import { setCorsHeaders } from './_cors.js';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
     // 🔐 Enable secure CORS configuration
@@ -33,10 +31,9 @@ export default async function handler(req, res) {
 
         const greeting = name ? `Hola, ${name}` : 'Hola';
 
-        const { data, error } = await resend.emails.send({
-            from: 'Asistente HYS <soporte@asistentehs.com>',
+        await sendAppMail({
             to: email,
-            subject: 'Tu contraseña ha sido actualizada - Asistente HYS',
+            subject: 'Tu contraseña ha sido actualizada - Asistente H&S',
             html: `
                 <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border-radius: 16px; overflow: hidden; background-color: #f8fafc; border: 1px solid #e2e8f0;">
                     <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 20px; text-align: center;">
@@ -74,8 +71,6 @@ export default async function handler(req, res) {
                 </div>
             `
         });
-
-        if (error) throw error;
 
         return res.status(200).json({ success: true });
     } catch (error) {
