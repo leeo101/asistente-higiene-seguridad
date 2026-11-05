@@ -344,19 +344,20 @@ const validateStringInput = (field, maxLength = 1000) => {
 // Payment endpoint - Mercado Pago
 app.post('/api/create-subscription', adminLimiter, async (req, res) => {
     try {
-        const { userId, email, planId } = req.body || {};
-        let amount = 2.00;
-        let planTitle = 'Asistente H&S – Plan Profesional (Acceso Total)';
+        const { userId, email, planId, promo } = req.body || {};
+        const CYBER_MONDAY_DEADLINE = new Date('2026-11-07T17:00:00-03:00').getTime();
+        const isCyberMonday = promo === 'cybermonday' && Date.now() <= CYBER_MONDAY_DEADLINE;
+        let amount = isCyberMonday ? 0.99 : 2.00;
+        let planTitle = isCyberMonday
+            ? 'Asistente H&S – Plan Profesional (Oferta Cyber Monday)'
+            : 'Asistente H&S – Plan Profesional (Acceso Total)';
 
         if (planId === 'student') {
-            amount = 2.00;
-            planTitle = 'Asistente H&S – Plan Estudiante';
+            amount = isCyberMonday ? 0.99 : 2.00;
+            planTitle = isCyberMonday ? 'Asistente H&S – Plan Estudiante (Oferta Cyber Monday)' : 'Asistente H&S – Plan Estudiante';
         } else if (planId === 'enterprise' || planId === 'consultora') {
-            amount = 2.00;
-            planTitle = 'Asistente H&S – Plan Consultora';
-        } else {
-            amount = 2.00;
-            planTitle = 'Asistente H&S – Plan Profesional (Acceso Total)';
+            amount = isCyberMonday ? 0.99 : 2.00;
+            planTitle = isCyberMonday ? 'Asistente H&S – Plan Consultora (Oferta Cyber Monday)' : 'Asistente H&S – Plan Consultora';
         }
 
         console.log(`API Request received for MP payment: ${planTitle} ($${amount} USD) for user ${userId}`);
@@ -466,17 +467,21 @@ app.all('/api/mercadopago-webhook', async (req, res) => {
 // Payment endpoint - Stripe Internacional
 app.post('/api/create-stripe-subscription', adminLimiter, async (req, res) => {
     try {
-        const { userId, email, planId = 'pro' } = req.body;
+        const { userId, email, planId = 'pro', promo } = req.body;
+        const CYBER_MONDAY_DEADLINE = new Date('2026-11-07T17:00:00-03:00').getTime();
+        const isCyberMonday = promo === 'cybermonday' && Date.now() <= CYBER_MONDAY_DEADLINE;
         
-        let unitAmount = 200; // $2 USD default
-        let planTitle = 'Plan Profesional (Acceso Total) - Asistente HyS';
+        let unitAmount = isCyberMonday ? 99 : 200; // $0.99 USD Cyber Monday promo vs $2 USD default
+        let planTitle = isCyberMonday
+            ? 'Plan Profesional (Oferta Cyber Monday) - Asistente HyS'
+            : 'Plan Profesional (Acceso Total) - Asistente HyS';
 
         if (planId === 'student') {
-            unitAmount = 200; // $2 USD
-            planTitle = 'Plan Estudiante - Asistente HyS';
+            unitAmount = isCyberMonday ? 99 : 200;
+            planTitle = isCyberMonday ? 'Plan Estudiante (Oferta Cyber Monday) - Asistente HyS' : 'Plan Estudiante - Asistente HyS';
         } else if (planId === 'enterprise' || planId === 'consultora') {
-            unitAmount = 200; // $2 USD
-            planTitle = 'Plan Consultora - Asistente HyS';
+            unitAmount = isCyberMonday ? 99 : 200;
+            planTitle = isCyberMonday ? 'Plan Consultora (Oferta Cyber Monday) - Asistente HyS' : 'Plan Consultora - Asistente HyS';
         }
 
         if (stripe) {

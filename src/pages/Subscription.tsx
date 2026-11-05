@@ -19,9 +19,27 @@ export default function Subscription(): React.ReactElement | null {
   const [expiryDate, setExpiryDate] = useState<Date | null>(null);
   const [showPricing, setShowPricing] = useState(false);
 
+  const CYBER_MONDAY_DEADLINE = new Date('2026-11-07T17:00:00-03:00').getTime();
+
   const initialPlan = (location.state as any)?.plan || 'pro';
   const [selectedPlan, setSelectedPlan] = useState<'student' | 'pro' | 'enterprise'>(initialPlan);
   const [paymentGateway, setPaymentGateway] = useState<'stripe' | 'mercadopago'>('stripe');
+  const [isCyberMonday, setIsCyberMonday] = useState<boolean>(() => {
+    try {
+      if (Date.now() > CYBER_MONDAY_DEADLINE) {
+        localStorage.removeItem('active_promo');
+        return false;
+      }
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('promo') === 'cybermonday') {
+        localStorage.setItem('active_promo', 'cybermonday');
+        return true;
+      }
+      return localStorage.getItem('active_promo') === 'cybermonday';
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
     if ((location.state as any)?.plan) {
@@ -31,6 +49,13 @@ export default function Subscription(): React.ReactElement | null {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
+    if (Date.now() > CYBER_MONDAY_DEADLINE) {
+      localStorage.removeItem('active_promo');
+      setIsCyberMonday(false);
+    } else if (urlParams.get('promo') === 'cybermonday') {
+      localStorage.setItem('active_promo', 'cybermonday');
+      setIsCyberMonday(true);
+    }
     const paymentStatus = urlParams.get('status') || urlParams.get('collection_status');
     const payment_id = urlParams.get('payment_id') || urlParams.get('collection_id');
     const session_id = urlParams.get('session_id');
@@ -109,7 +134,8 @@ export default function Subscription(): React.ReactElement | null {
           'Authorization': `Bearer ${idToken}`
         },
         body: JSON.stringify({
-          planId: selectedPlan
+          planId: selectedPlan,
+          promo: isCyberMonday ? 'cybermonday' : undefined
         })
       });
 
@@ -155,7 +181,8 @@ export default function Subscription(): React.ReactElement | null {
           'Authorization': `Bearer ${idToken}`
         },
         body: JSON.stringify({
-          planId: selectedPlan
+          planId: selectedPlan,
+          promo: isCyberMonday ? 'cybermonday' : undefined
         })
       });
 
@@ -293,11 +320,14 @@ export default function Subscription(): React.ReactElement | null {
     {
       id: 'pro',
       name: 'Profesional PRO',
-      price: '$2',
+      price: isCyberMonday ? '$0.99' : '$2',
+      originalPrice: isCyberMonday ? '$2.00' : null,
       period: '/ mes',
       icon: <Crown size={20} className="text-amber-400" />,
-      desc: 'Acceso TOTAL e ilimitado a todas las herramientas e IA',
-      badge: '✦ ACCESO TOTAL ($2 USD)'
+      desc: isCyberMonday
+        ? 'Oferta exclusiva Cyber Monday para usuarios registrados (Acceso TOTAL)'
+        : 'Acceso TOTAL e ilimitado a todas las herramientas e IA',
+      badge: isCyberMonday ? '🔥 CYBER MONDAY (-50%)' : '✦ ACCESO TOTAL ($2 USD)'
     }
   ];
 
@@ -352,6 +382,17 @@ export default function Subscription(): React.ReactElement | null {
         {/* Right Side: Checkout Card */}
         <div className="lg:col-span-5 relative mt-[10px] w-full">
           <div className="pricing-card glass-mockup p-[2rem_1.5rem] rounded-[28px] border border-[var(--color-border)] relative shadow-2xl">
+            {isCyberMonday && (
+              <div className="mb-[1.2rem] p-[0.85rem_1rem] rounded-[16px] bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-red-500/20 border border-amber-500/40 text-center">
+                <div className="text-[0.78rem] font-[900] uppercase tracking-wider text-amber-400">
+                  🔥 Oferta Exclusiva Cyber Monday • Válida por 48 hs
+                </div>
+                <div className="text-[0.85rem] font-[700] text-[var(--color-text)] mt-0.5">
+                  Precio especial por este mes: <span className="line-through opacity-60">$2.00</span>{' '}
+                  <span className="text-emerald-400 font-[900]">$0.99 USD</span>
+                </div>
+              </div>
+            )}
             
             <h2 className="text-[1.2rem] font-[800] text-[var(--color-text)] text-center mb-[1rem]">
               1. Seleccioná tu Plan
@@ -386,6 +427,9 @@ export default function Subscription(): React.ReactElement | null {
                       </div>
                     </div>
                     <div className="text-right">
+                      {p.originalPrice && (
+                        <span className="text-[0.78rem] line-through text-[var(--color-text-muted)] block">{p.originalPrice}</span>
+                      )}
                       <span className="text-[1.3rem] font-[900] text-[var(--color-text)]">{p.price}</span>
                       <span className="text-[0.75rem] text-[var(--color-text-muted)] block">{p.period}</span>
                     </div>

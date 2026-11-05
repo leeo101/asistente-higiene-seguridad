@@ -124,22 +124,23 @@ export default async function handler(req, res) {
         if (!user) return;
 
         try {
-            const { planId } = req.body || {};
+            const { planId, promo } = req.body || {};
             const userId = user.uid;
             const email = user.email || req.body?.email;
+            const CYBER_MONDAY_DEADLINE = new Date('2026-11-07T17:00:00-03:00').getTime();
+            const isCyberMonday = promo === 'cybermonday' && Date.now() <= CYBER_MONDAY_DEADLINE;
 
-            let amount = 2.00;
-            let planTitle = 'Asistente H&S – Plan Profesional (Acceso Total)';
+            let amount = isCyberMonday ? 0.99 : 2.00;
+            let planTitle = isCyberMonday
+                ? 'Asistente H&S – Plan Profesional (Oferta Cyber Monday)'
+                : 'Asistente H&S – Plan Profesional (Acceso Total)';
 
             if (planId === 'student') {
-                amount = 2.00;
-                planTitle = 'Asistente H&S – Plan Estudiante';
+                amount = isCyberMonday ? 0.99 : 2.00;
+                planTitle = isCyberMonday ? 'Asistente H&S – Plan Estudiante (Oferta Cyber Monday)' : 'Asistente H&S – Plan Estudiante';
             } else if (planId === 'enterprise' || planId === 'consultora') {
-                amount = 2.00;
-                planTitle = 'Asistente H&S – Plan Consultora';
-            } else {
-                amount = 2.00;
-                planTitle = 'Asistente H&S – Plan Profesional (Acceso Total)';
+                amount = isCyberMonday ? 0.99 : 2.00;
+                planTitle = isCyberMonday ? 'Asistente H&S – Plan Consultora (Oferta Cyber Monday)' : 'Asistente H&S – Plan Consultora';
             }
 
             const preference = new Preference(client);

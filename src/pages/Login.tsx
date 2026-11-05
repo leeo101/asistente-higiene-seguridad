@@ -153,7 +153,11 @@ export default function Login(): React.ReactElement {
   // Redirect if already logged in
   useEffect(() => {
     if (currentUser) {
-      navigate('/');
+      if (localStorage.getItem('active_promo') === 'cybermonday') {
+        navigate('/subscribe?promo=cybermonday');
+      } else {
+        navigate('/');
+      }
     }
   }, [currentUser, navigate]);
 

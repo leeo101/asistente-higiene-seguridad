@@ -26,22 +26,23 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { planId } = req.body || {};
+        const { planId, promo } = req.body || {};
         const userId = user.uid;
         const email = user.email || req.body?.email;
+        const CYBER_MONDAY_DEADLINE = new Date('2026-11-07T17:00:00-03:00').getTime();
+        const isCyberMonday = promo === 'cybermonday' && Date.now() <= CYBER_MONDAY_DEADLINE;
 
-        let amount = 200; // $2.00 USD default
-        let planName = 'Plan Profesional (Acceso Total)';
+        let amount = isCyberMonday ? 99 : 200; // $0.99 USD Cyber Monday promo vs $2.00 USD default
+        let planName = isCyberMonday
+            ? 'Plan Profesional PRO - Oferta Cyber Monday'
+            : 'Plan Profesional (Acceso Total)';
 
         if (planId === 'student') {
-            amount = 200; // $2.00
-            planName = 'Plan Estudiante';
+            amount = isCyberMonday ? 99 : 200;
+            planName = isCyberMonday ? 'Plan Estudiante - Oferta Cyber Monday' : 'Plan Estudiante';
         } else if (planId === 'enterprise' || planId === 'consultora') {
-            amount = 200; // $2.00
-            planName = 'Plan Consultora';
-        } else {
-            amount = 200; // $2.00
-            planName = 'Plan Profesional (Acceso Total)';
+            amount = isCyberMonday ? 99 : 200;
+            planName = isCyberMonday ? 'Plan Consultora - Oferta Cyber Monday' : 'Plan Consultora';
         }
 
         const protocol = req.headers['x-forwarded-proto'] || 'https';

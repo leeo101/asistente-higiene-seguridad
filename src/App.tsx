@@ -339,6 +339,12 @@ function ThemeApplier() {
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { currentUser } = useAuth();
   if (!currentUser) {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('promo') === 'cybermonday') {
+        localStorage.setItem('active_promo', 'cybermonday');
+      }
+    } catch {}
     return <Navigate to="/login" replace />;
   }
   return children;
