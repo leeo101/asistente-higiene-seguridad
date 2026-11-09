@@ -1,4 +1,4 @@
-﻿export interface PPECertification {
+export interface PPECertification {
   standard: string;       // 'IRAM' | 'ISO' | 'EN' | 'ANSI' | 'NIOSH' | 'NFPA' | 'IEC' | 'Otra'
   certNumber: string;     // N° de certificado / Sello AR
   hasARMark: boolean;     // Marcado "AR" Res. SIyC 18/25
@@ -15,11 +15,17 @@ export interface PPEItem {
   model: string;                 // Modelo / Tipo específico
   quantity: string | number;     // Cantidad entregada
   purchaseDate: string;          // Fecha de compra/entrega (ISO string)
-  lifeMonths: number;            // Vida útil en meses
+  lifeMonths: number | string;   // Vida útil en meses
   certStandard: string;          // Norma de certificación
   certNumber: string;            // N° de certificado
   addedAt: string;               // Fecha de registro (ISO string)
   custom?: string;               // Descripción para tipo "Otro"
+  company?: string;              // Empresa / Obra
+  deliveryReason?: string;       // Motivo: 'Dotación Inicial' | 'Reposición Desgaste' | 'Rotura' | 'Vencimiento'
+  size?: string;                 // Talle / Medida (ej: 42, L, etc.)
+  trained?: boolean;             // Capacitado s/ Res. SRT 299/11 Art. 3
+  signature?: string | null;     // Firma digital del trabajador
+  notes?: string;                // Observaciones
 }
 
 /** EPP de seguridad crítica que EXIGEN certificación obligatoria según Dec. 351/79 y Res. SRT 299/11 */

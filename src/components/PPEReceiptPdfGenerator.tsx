@@ -175,7 +175,10 @@ export default function PPEReceiptPdfGenerator({ items = [], receiptData, custom
               const expiry = item ? calculatePPEExpiryDays(item.purchaseDate || '', Number(item.lifeMonths) || 12) : null;
               return (
               <tr className="avoid-break h-[22px] text-[7.5pt]" key={i}>
-                <td className="px-2 font-medium">{item ? item.type : ''}</td>
+                <td className="px-2 font-medium">
+                  {item ? item.type : ''}
+                  {item?.size ? ` (Talle: ${item.size})` : ''}
+                </td>
                 <td className="px-2 text-center">{item ? (item.model || item.custom || '-') : ''}</td>
                 <td className="px-2 text-center">{item ? (item.brand || '-') : ''}</td>
                 <td className="px-2 text-center font-semibold">
