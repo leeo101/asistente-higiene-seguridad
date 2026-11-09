@@ -1030,8 +1030,10 @@ label {
   }
 }
 
-.hidden {
-  display: none;
+@layer utilities {
+  .hidden {
+    display: none;
+  }
 }
 
 @media (min-width: 641px) {
@@ -1160,6 +1162,8 @@ label {
   /* Forzamos renderizado en background para evitar cull SVG */
 }
 
+/* Utility Classes (Tailwind-like) */
+@layer utilities {
 /* Utility Classes (Tailwind-like) */
 .flex {
   display: flex;
@@ -1342,6 +1346,7 @@ label {
 
 .bg-gradient-to-r {
   background-image: linear-gradient(to right, var(--tw-gradient-stops));
+}
 }
 
 /* Checklist Specific Styles */

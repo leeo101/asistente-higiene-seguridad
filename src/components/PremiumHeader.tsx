@@ -15,6 +15,48 @@ interface PremiumHeaderProps {
   children?: React.ReactNode;
 }
 
+/**
+ * Resolves either a CSS gradient/color string OR a Tailwind `from-...` string
+ * into a guaranteed valid CSS `linear-gradient(...)` background so it never renders transparent.
+ */
+function resolveHeaderBackground(gradient?: string, color?: string): string {
+  const raw = (gradient || color || '').trim();
+  if (!raw) {
+    return 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #0284c7 100%)';
+  }
+  // Already valid CSS gradient or color
+  if (
+    raw.startsWith('linear-gradient') ||
+    raw.startsWith('radial-gradient') ||
+    raw.startsWith('#') ||
+    raw.startsWith('rgb') ||
+    raw.startsWith('hsl') ||
+    raw.startsWith('var(')
+  ) {
+    return raw;
+  }
+
+  // Convert Tailwind gradient shorthand (e.g. "from-sky-600 via-blue-600 to-indigo-700") into CSS linear-gradient
+  const lower = raw.toLowerCase();
+  if (lower.includes('emerald') || lower.includes('teal') || lower.includes('green')) {
+    return 'linear-gradient(135deg, #059669 0%, #0d9488 50%, #0284c7 100%)';
+  }
+  if (lower.includes('amber') || lower.includes('orange') || lower.includes('yellow')) {
+    return 'linear-gradient(135deg, #d97706 0%, #ea580c 50%, #b45309 100%)';
+  }
+  if (lower.includes('rose') || lower.includes('red') || lower.includes('crimson')) {
+    return 'linear-gradient(135deg, #dc2626 0%, #e11d48 50%, #991b1b 100%)';
+  }
+  if (lower.includes('purple') || lower.includes('violet') || lower.includes('fuchsia')) {
+    return 'linear-gradient(135deg, #6d28d9 0%, #7c3aed 50%, #4f46e5 100%)';
+  }
+  if (lower.includes('slate') || lower.includes('zinc') || lower.includes('gray')) {
+    return 'linear-gradient(135deg, #1e293b 0%, #334155 50%, #0f172a 100%)';
+  }
+  // Default blue/sky/indigo corporate gradient
+  return 'linear-gradient(135deg, #0284c7 0%, #2563eb 50%, #4338ca 100%)';
+}
+
 export default function PremiumHeader({
   title,
   subtitle,
@@ -25,26 +67,70 @@ export default function PremiumHeader({
   gradient,
   children
 }: PremiumHeaderProps): React.ReactElement {
-  const bg = gradient || color || 'linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)';
+  const bg = resolveHeaderBackground(gradient, color);
   const navigate = useNavigate();
   const { t, adaptText, countryNorms } = useLanguage();
 
   const adaptedTitle = adaptText(title);
   const adaptedSubtitle = adaptText(subtitle);
-  const adaptedBadge = badge ? adaptText(badge) : `${countryNorms.flag} ${countryNorms.name} · ${countryNorms.general}`;
+  const adaptedBadge = badge
+    ? adaptText(badge)
+    : `${countryNorms.flag} ${countryNorms.name} · ${countryNorms.general}`;
 
   return (
-    <div style={{
-      background: bg
-    }} className="p-[clamp(1rem,_3vw,_2rem)] rounded-[20px] mt-[0.5rem] mb-[0] relative overflow-hidden box-shadow-[0_10px_30px_rgba(0,_0,_0,_0.15)] w-[100%] box-sizing-[border-box]">
-      {/* Animated background pattern */}
-      <div className="absolute top-[-50%] right-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle,_rgba(255,255,255,0.1)_0%,_transparent_70%)] animation-[shimmer_3s_infinite_linear] pointer-events-none" />
+    <div
+      style={{
+        background: bg,
+        padding: 'clamp(1rem, 2.5vw, 1.75rem)',
+        borderRadius: '20px',
+        marginTop: '0.25rem',
+        marginBottom: 0,
+        position: 'relative',
+        overflow: 'hidden',
+        boxShadow: '0 12px 30px rgba(15, 23, 42, 0.18)',
+        width: '100%',
+        boxSizing: 'border-box',
+        border: '1px solid rgba(255, 255, 255, 0.18)'
+      }}
+    >
+      {/* Subtle decorative radial highlight */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '-50%',
+          right: '-30%',
+          width: '160%',
+          height: '200%',
+          background: 'radial-gradient(circle, rgba(255,255,255,0.14) 0%, transparent 65%)',
+          pointerEvents: 'none'
+        }}
+      />
 
       {/* Content */}
-      <div className="relative z-[1] flex items-center gap-[clamp(0.75rem,_2vw,_1.5rem)] flex-wrap justify-center text-center">
-        {/* Botones de navegación para desktop (ocultos en móvil mediante CSS) */}
-        <div className="desktop-nav-buttons no-print mr-[auto] flex flex-col gap-[0.5rem]">
-            <button
+      <div
+        className="premium-header-content"
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'clamp(0.75rem, 2vw, 1.35rem)',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          textAlign: 'center'
+        }}
+      >
+        {/* Navigation buttons for desktop (hidden on mobile via CSS) */}
+        <div
+          className="desktop-nav-buttons no-print"
+          style={{
+            marginRight: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.45rem'
+          }}
+        >
+          <button
             type="button"
             onClick={() => {
               if (onBack) {
@@ -59,101 +145,160 @@ export default function PremiumHeader({
               }
             }}
             style={{
-              backgroundColor: 'rgba(255,255,255,0.2)',
+              marginBottom: 0,
+              width: 'auto',
+              background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
               color: '#ffffff',
-              border: '1px solid rgba(255,255,255,0.3)',
-              borderRadius: '8px',
-              padding: '0.4rem 0.8rem',
+              border: '1px solid rgba(255, 255, 255, 0.45)',
+              borderRadius: '10px',
+              padding: '0.45rem 0.9rem',
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.4rem',
               cursor: 'pointer',
-              fontWeight: 700,
-              fontSize: '0.8rem',
-              backdropFilter: 'blur(10px)',
+              fontWeight: 800,
+              fontSize: '0.78rem',
+              boxShadow: '0 4px 12px rgba(15, 23, 42, 0.28)',
               minHeight: 'unset',
               lineHeight: 1
             }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-            className="transition-[background_0.2s]">
-                <ArrowLeft size={16} /> {t('nav.back')}
-            </button>
-            <button
+          >
+            <ArrowLeft size={15} style={{ flexShrink: 0 }} /> {t('nav.back')}
+          </button>
+          <button
             type="button"
             onClick={() => navigate('/')}
             style={{
-              backgroundColor: 'rgba(255,255,255,0.2)',
+              marginBottom: 0,
+              width: 'auto',
+              background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
               color: '#ffffff',
-              border: '1px solid rgba(255,255,255,0.3)',
-              borderRadius: '8px',
-              padding: '0.4rem 0.8rem',
+              border: '1px solid rgba(255, 255, 255, 0.45)',
+              borderRadius: '10px',
+              padding: '0.45rem 0.9rem',
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.4rem',
               cursor: 'pointer',
-              fontWeight: 700,
-              fontSize: '0.8rem',
-              backdropFilter: 'blur(10px)',
+              fontWeight: 800,
+              fontSize: '0.78rem',
+              boxShadow: '0 4px 12px rgba(15, 23, 42, 0.28)',
               minHeight: 'unset',
               lineHeight: 1
             }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-            className="transition-[background_0.2s]">
-                <Home size={16} /> {t('nav.home').toUpperCase()}
-            </button>
+          >
+            <Home size={15} style={{ flexShrink: 0 }} /> {t('nav.home').toUpperCase()}
+          </button>
         </div>
 
-        {icon &&
-        <div className="w-[clamp(50px,_15vw,_70px)] h-[clamp(50px,_15vw,_70px)] bg-[rgba(255,255,255,0.2)] rounded-[16px] flex items-center justify-center backdrop-filter-[blur(10px)] border-[2px_solid_rgba(255,255,255,0.3)] box-shadow-[0_8px_20px_rgba(0,0,0,0.2)] flex-shrink-[0]">
-            {React.cloneElement(icon as React.ReactElement, {
-            size: undefined,
-            width: '60%',
-            height: '60%',
-            color: '#ffffff',
-            strokeWidth: 2.5
-          } as any)}
+        {icon && (
+          <div
+            style={{
+              width: 'clamp(46px, 11vw, 64px)',
+              height: 'clamp(46px, 11vw, 64px)',
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              borderRadius: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backdropFilter: 'blur(10px)',
+              border: '2px solid rgba(255, 255, 255, 0.35)',
+              boxShadow: '0 8px 20px rgba(0, 0, 0, 0.18)',
+              flexShrink: 0,
+              color: '#ffffff'
+            }}
+          >
+            {React.cloneElement(
+              icon as React.ReactElement,
+              {
+                size: undefined,
+                width: '58%',
+                height: '58%',
+                color: '#ffffff',
+                strokeWidth: 2.4
+              } as any
+            )}
           </div>
-        }
+        )}
 
-        <div className="flex-[1] min-width-[200px]">
-          <div className="flex items-center justify-center gap-2 flex-wrap">
-            <h1 className="m-[0] text-[clamp(1.25rem,_4vw,_2rem)] font-[900] text-[#ffffff] text-shadow-[0_2px_10px_rgba(0,0,0,0.2)] letter-spacing-[-0.5px] line-height-[1.2]">
+        <div style={{ flex: 1, minWidth: '210px' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.6rem',
+              flexWrap: 'wrap'
+            }}
+          >
+            <h1
+              style={{
+                margin: 0,
+                fontSize: 'clamp(1.2rem, 3.6vw, 1.95rem)',
+                fontWeight: 900,
+                color: '#ffffff',
+                textShadow: '0 2px 10px rgba(0, 0, 0, 0.22)',
+                letterSpacing: '-0.4px',
+                lineHeight: 1.2
+              }}
+            >
               {adaptedTitle}
             </h1>
             {adaptedBadge && (
-              <span className="bg-white/20 backdrop-blur-md border border-white/30 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-sm">
+              <span
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.22)',
+                  backdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255, 255, 255, 0.38)',
+                  color: '#ffffff',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  padding: '0.22rem 0.7rem',
+                  borderRadius: '9999px',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
+                  whiteSpace: 'nowrap'
+                }}
+              >
                 {adaptedBadge}
               </span>
             )}
           </div>
-          <p className="m-[0.5rem_0_0] text-[clamp(0.85rem,_2.5vw,_1rem)] text-[rgba(255,255,255,0.9)] font-[600]">
+          <p
+            style={{
+              margin: '0.45rem 0 0 0',
+              fontSize: 'clamp(0.8rem, 2.2vw, 0.96rem)',
+              color: 'rgba(255, 255, 255, 0.94)',
+              fontWeight: 600,
+              lineHeight: 1.4
+            }}
+          >
             {adaptedSubtitle}
           </p>
         </div>
+
         {children}
       </div>
 
       {/* Sparkle effect */}
       <Sparkles
-        size={24}
-        color="#ffffff" className="absolute top-[1rem] left-[1rem] opacity-[0.6] animation-[twinkle_2s_infinite_ease-in-out]" />
+        size={20}
+        color="#ffffff"
+        style={{
+          position: 'absolute',
+          top: '0.85rem',
+          right: '0.95rem',
+          opacity: 0.55,
+          pointerEvents: 'none'
+        }}
+      />
 
       <style>
         {`
-          @keyframes shimmer {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-          @keyframes twinkle {
-            0%, 100% { opacity: 0.4; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
-          }
           @media (max-width: 640px) {
             .premium-header-content {
               flex-direction: column;
               text-align: center;
+              gap: 0.55rem !important;
             }
           }
           @media (max-width: 768px) {
@@ -163,5 +308,6 @@ export default function PremiumHeader({
           }
         `}
       </style>
-    </div>);
+    </div>
+  );
 }

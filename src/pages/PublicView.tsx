@@ -43,7 +43,43 @@ export default function PublicView(): React.ReactElement | null {
         const queryId = searchParams.get('id');
         const targetId = id || queryId;
 
-        if (uid && cat && targetId) {
+        if (uid && cat === 'asset' && targetId) {
+          let foundAsset: any = null;
+          try {
+            const saved = localStorage.getItem('ehs_assets');
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              if (Array.isArray(parsed)) {
+                foundAsset = parsed.find((a: any) => String(a.id) === String(targetId));
+              }
+            }
+          } catch {}
+          if (!foundAsset && searchParams.get('name')) {
+            foundAsset = {
+              id: targetId,
+              name: searchParams.get('name') || 'Activo Registrado',
+              category: searchParams.get('category') || 'Equipamiento',
+              location: searchParams.get('location') || 'Planta Principal',
+              serialNumber: searchParams.get('serial') || 'S/N',
+              status: searchParams.get('status') || 'Operativo',
+              lastInspection: searchParams.get('lastInspection') || new Date().toISOString().slice(0, 10),
+              notes: searchParams.get('notes') || ''
+            };
+          }
+          if (foundAsset) {
+            setDocData(foundAsset);
+          } else {
+            setDocData({
+              id: targetId,
+              name: `Activo Industrial ${targetId}`,
+              category: 'Equipamiento Crítico',
+              location: 'Sector Operativo',
+              serialNumber: targetId,
+              status: 'Operativo',
+              lastInspection: new Date().toISOString().slice(0, 10)
+            });
+          }
+        } else if (uid && cat && targetId) {
           const data = await fetchPublicDoc(uid, cat, targetId);
           if (data) {
             setDocData(data);
@@ -164,6 +200,8 @@ export default function PublicView(): React.ReactElement | null {
       case 'pasaporte':
       case 'legajo':
         return <PublicWorkerPassView data={docData} id={id} />;
+      case 'asset':
+        return <PublicAssetQRView data={docData} id={id} onBack={() => navigate('/asset-scanner')} />;
       default: return <div>Categoría no soportada.</div>;
     }
   };
@@ -497,6 +535,163 @@ function PublicExtinguisherView({ data, id }: { data: any; id?: string }) {
           Verificado
         </span>
       </div>
+    </div>
+  );
+}
+
+function PublicAssetQRView({ data, id, onBack }: { data: any; id?: string; onBack?: () => void }) {
+  if (!data) return null;
+  const status = data.status || 'Operativo';
+  const statusColor =
+    status === 'Operativo'
+      ? '#059669'
+      : status === 'Requiere Mantenimiento'
+      ? '#d97706'
+      : '#dc2626';
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', textAlign: 'left' }}>
+      <div
+        style={{
+          padding: '1.5rem',
+          borderRadius: '18px',
+          border: `2px solid ${statusColor}`,
+          background: 'var(--color-background)',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '1rem'
+        }}
+      >
+        <div>
+          <span
+            style={{
+              display: 'inline-block',
+              padding: '4px 12px',
+              borderRadius: '999px',
+              backgroundColor: statusColor,
+              color: '#ffffff',
+              fontSize: '0.72rem',
+              fontWeight: 900,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}
+          >
+            ESTADO: {status}
+          </span>
+          <h2 style={{ margin: '8px 0 4px', fontSize: '1.35rem', fontWeight: 900, color: 'var(--color-text)' }}>
+            {data.name || `Activo ${id}`}
+          </h2>
+          <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>
+            Ficha Oficial de Inspección QR/NFC • ISO 55001 / Ley 19.587
+          </p>
+        </div>
+
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            style={{
+              backgroundColor: '#2563eb',
+              color: '#ffffff',
+              border: 'none',
+              padding: '10px 16px',
+              borderRadius: '12px',
+              fontSize: '0.8rem',
+              fontWeight: 800,
+              cursor: 'pointer'
+            }}
+          >
+            Ir al Inventario QR
+          </button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div
+          style={{
+            padding: '1.25rem',
+            borderRadius: '16px',
+            background: 'var(--color-background)',
+            border: '1px solid var(--color-border)'
+          }}
+        >
+          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
+            Código ID de Activo
+          </div>
+          <div style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--color-text)', marginTop: '4px', fontFamily: 'monospace' }}>
+            {data.id || id}
+          </div>
+        </div>
+
+        <div
+          style={{
+            padding: '1.25rem',
+            borderRadius: '16px',
+            background: 'var(--color-background)',
+            border: '1px solid var(--color-border)'
+          }}
+        >
+          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
+            Categoría / Tipo de Equipo
+          </div>
+          <div style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--color-text)', marginTop: '4px' }}>
+            {data.category || 'Equipamiento Industrial'}
+          </div>
+        </div>
+
+        <div
+          style={{
+            padding: '1.25rem',
+            borderRadius: '16px',
+            background: 'var(--color-background)',
+            border: '1px solid var(--color-border)'
+          }}
+        >
+          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
+            Ubicación Física / Sector
+          </div>
+          <div style={{ fontSize: '1rem', fontWeight: 800, color: '#059669', marginTop: '4px' }}>
+            📍 {data.location || 'Sector Principal'}
+          </div>
+        </div>
+
+        <div
+          style={{
+            padding: '1.25rem',
+            borderRadius: '16px',
+            background: 'var(--color-background)',
+            border: '1px solid var(--color-border)'
+          }}
+        >
+          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
+            Nº de Serie & Última Inspección
+          </div>
+          <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-text)', marginTop: '4px' }}>
+            Serie: {data.serialNumber || 'S/N'} • 📅 {data.lastInspection || '-'}
+          </div>
+        </div>
+      </div>
+
+      {data.notes && (
+        <div
+          style={{
+            padding: '1.1rem 1.25rem',
+            borderRadius: '16px',
+            background: 'var(--color-background)',
+            border: '1px solid var(--color-border)',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            color: 'var(--color-text)'
+          }}
+        >
+          <strong style={{ display: 'block', marginBottom: '4px', color: 'var(--color-text-muted)', textTransform: 'uppercase', fontSize: '0.72rem' }}>
+            Observaciones Técnicas:
+          </strong>
+          {data.notes}
+        </div>
+      )}
     </div>
   );
 }

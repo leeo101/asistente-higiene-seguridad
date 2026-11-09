@@ -110,6 +110,9 @@ export default function CompanyLogo({ style = {}, className = '' }: CompanyLogoP
       <img
         src={companyLogo}
         alt="Logo de empresa"
+        onError={(e) => {
+          e.currentTarget.style.display = 'none';
+        }}
         className={`shared-company-logo object-contain ${className}`}
         style={{
           maxHeight: '48px',

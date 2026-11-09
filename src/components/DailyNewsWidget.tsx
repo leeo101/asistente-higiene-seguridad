@@ -96,68 +96,100 @@ export default function DailyNewsWidget() {
   }, []);
 
   return (
-    <div className="card p-[1.5rem] border-top-[4px_solid_#8b5cf6] flex flex-col h-[100%]">
-            <div className="flex justify-space-between items-center mb-[1.5rem]">
-                <h3 className="m-[0] text-[1.1rem] font-[800] text-[var(--color-text)] flex items-center gap-[0.6rem]">
-                    <BookOpen size={20} color="#8b5cf6" /> Novedades Normativas
-                </h3>
-                {loading ?
-        <span className="text-[0.7rem] font-[800] p-[0.3rem_0.6rem] rounded-[20px] bg-[rgba(139,_92,_246,_0.1)] text-[#8b5cf6]">
-                        Actualizando...
-                    </span> :
+    <div
+      style={{
+        backgroundColor: 'var(--color-surface)',
+        borderColor: 'var(--color-border)',
+        borderTop: '4px solid #8b5cf6'
+      }}
+      className="rounded-2xl sm:rounded-3xl p-4 sm:p-6 border flex flex-col h-full shadow-sm"
+    >
+      <div className="flex justify-between items-center gap-2 mb-4 flex-wrap">
+        <h3 className="m-0 text-base font-black text-[var(--color-text)] flex items-center gap-2">
+          <BookOpen size={20} color="#8b5cf6" /> Novedades Normativas
+        </h3>
+        {loading ? (
+          <span className="text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-500">
+            Actualizando...
+          </span>
+        ) : (
+          <span
+            style={{
+              background: error ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+              color: error ? '#ef4444' : '#10b981',
+              border: `1px solid ${error ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`
+            }}
+            className="text-[11px] font-extrabold px-2.5 py-1 rounded-full"
+          >
+            {error ? 'Boletín Local' : 'Actualizado Hoy ✓'}
+          </span>
+        )}
+      </div>
 
-        <span style={{ background: error ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', color: error ? '#ef4444' : '#10b981', border: `1px solid ${error ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}` }} className="text-[0.7rem] font-[800] p-[0.3rem_0.6rem] rounded-[20px]">
-                        {error ? 'Modo Offline' : 'Actualizado Hoy ✓'}
-                    </span>
-        }
-            </div>
-            
-            <div className="flex flex-col gap-[0.8rem] flex-[1]">
-                {loading ?
-        // Skeleton loader
-        [...Array(3)].map((_, i) =>
-        <div key={i} style={{ opacity: 0.7 - i * 0.2 }} className="flex items-start gap-[0.8rem] p-[0.8rem] bg-[var(--color-background)] rounded-[10px] border-[1px_solid_var(--color-border)]">
-                            <div className="w-[50px] h-[20px] rounded-[4px] bg-[var(--color-text-muted)] opacity-[0.2] mt-[0.2rem]"></div>
-                            <div className="flex-[1]">
-                                <div className="w-[80%] h-[14px] rounded-[4px] bg-[var(--color-text-muted)] opacity-[0.2] mb-[0.4rem]"></div>
-                                <div className="w-[100%] h-[10px] rounded-[4px] bg-[var(--color-text-muted)] opacity-[0.1]"></div>
-                            </div>
-                        </div>
-        ) :
-
-        news.map((item, index) =>
-        <div key={item.id} style={{ background: index === 0 ? 'rgba(139, 92, 246, 0.05)' : 'var(--color-background)', border: `1px solid ${index === 0 ? 'rgba(139, 92, 246, 0.2)' : 'var(--color-border)'}` }} className="flex items-start gap-[0.8rem] p-[0.8rem] rounded-[10px]">
-                            <div style={{ background: index === 0 ? '#8b5cf6' : 'var(--color-text-muted)' }} className="p-[0.2rem_0.5rem] rounded-[4px] text-[#fff] text-[0.65rem] font-[800] mt-[0.2rem] white-space-[nowrap] text-center min-width-[45px]">
-                                {item.date}
-                            </div>
-                            <div className="flex-[1]">
-                                <div style={{ color: index === 0 ? '#8b5cf6' : 'var(--color-text)' }} className="font-[800] text-[0.85rem]">
-                                    {item.title}
-                                </div>
-                                {item.description &&
-            <div className="text-[0.75rem] text-[var(--color-text-muted)] mt-[0.2rem] line-height-[1.4]">
-                                        {item.description}
-                                    </div>
-            }
-                                <div className="flex justify-space-between items-center mt-[0.4rem]">
-                                    <span className="text-[0.65rem] font-[600] text-[var(--color-text-light)] bg-[rgba(0,0,0,0.05)] p-[2px_6px] rounded-[4px]">
-                                        {item.source}
-                                    </span>
-                                    <a href={item.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-[0.2rem] text-[0.75rem] font-[700] text-[var(--color-primary)] text-decoration-[none]">
-                                        Leer <ExternalLink size={12} />
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-        )
-        }
-            </div>
-            
-            {error &&
-      <div className="mt-[1rem] text-[0.75rem] text-[var(--color-text-muted)] flex items-center gap-[0.4rem] justify-center">
-                    <AlertCircle size={14} /> Error de conexión con el feed de noticias. Mostrando historial guardado.
+      <div className="flex flex-col gap-3 flex-1">
+        {loading
+          ? [...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                style={{ opacity: 0.7 - i * 0.2, backgroundColor: 'var(--color-background)', borderColor: 'var(--color-border)' }}
+                className="flex items-start gap-3 p-3 rounded-xl border"
+              >
+                <div className="w-12 h-5 rounded bg-slate-400/20 mt-0.5" />
+                <div className="flex-1">
+                  <div className="w-4/5 h-3.5 rounded bg-slate-400/20 mb-2" />
+                  <div className="w-full h-2.5 rounded bg-slate-400/10" />
                 </div>
-      }
-        </div>);
+              </div>
+            ))
+          : news.map((item, index) => (
+              <div
+                key={item.id}
+                style={{
+                  background: index === 0 ? 'rgba(139, 92, 246, 0.06)' : 'var(--color-background)',
+                  border: `1px solid ${index === 0 ? 'rgba(139, 92, 246, 0.25)' : 'var(--color-border)'}`
+                }}
+                className="flex items-start gap-3 p-3 rounded-xl"
+              >
+                <div
+                  style={{ background: index === 0 ? '#8b5cf6' : '#64748b', color: '#ffffff' }}
+                  className="px-2 py-1 rounded-md text-[10px] font-black mt-0.5 whitespace-nowrap text-center min-w-[46px]"
+                >
+                  {item.date}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div
+                    style={{ color: index === 0 ? '#8b5cf6' : 'var(--color-text)' }}
+                    className="font-black text-xs sm:text-sm leading-snug"
+                  >
+                    {item.title}
+                  </div>
+                  {item.description && (
+                    <div className="text-xs text-[var(--color-text-muted)] mt-1 leading-relaxed">
+                      {item.description}
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center mt-2 gap-2">
+                    <span
+                      style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-muted)' }}
+                      className="text-[10px] font-bold px-2 py-0.5 rounded truncate"
+                    >
+                      {item.source}
+                    </span>
+                    <a
+                      href={item.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: '#2563eb' }}
+                      className="flex items-center gap-1 text-xs font-extrabold no-underline shrink-0"
+                    >
+                      Ver nota <ExternalLink size={12} />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+      </div>
+    </div>
+  );
 
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Crown, X, Sparkle as Sparkles, Shield } from '@phosphor-icons/react';
+import { Crown, X, Sparkle as Sparkles, Shield, CheckCircle } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 
 interface PaywallModalProps {
@@ -33,13 +33,14 @@ export default function PaywallModal({ isOpen, onClose }: PaywallModalProps): Re
       price: '$0',
       period: '/ siempre',
       badge: 'Base',
-      badgeBg: 'rgba(255,255,255,0.15)',
+      badgeBg: 'rgba(255,255,255,0.12)',
       badgeColor: '#cbd5e1',
-      desc: 'Formularios e inspecciones iniciales sin costo',
+      desc: 'Formularios e inspecciones iniciales en pantalla sin costo.',
+      perks: ['Carga de datos básica', 'Vista previa en pantalla', 'Acceso a calculadoras base'],
       buttonLabel: 'Continuar Gratis',
       buttonBg: '#334155',
       buttonColor: '#ffffff',
-      icon: <Shield size={20} color="#cbd5e1" weight="duotone" />,
+      icon: <Shield size={20} color="#cbd5e1" weight="duotone" />
     },
     {
       id: 'pro',
@@ -47,50 +48,82 @@ export default function PaywallModal({ isOpen, onClose }: PaywallModalProps): Re
       price: '$2',
       period: '/ mes',
       badge: '✦ ACCESO TOTAL ($2)',
-      badgeBg: 'rgba(251,191,36,0.25)',
+      badgeBg: 'rgba(251,191,36,0.22)',
       badgeColor: '#fbbf24',
       popular: true,
-      desc: 'PDFs A4 con tu LOGO y matrícula, Protocolos Oficiales SRT (PAT 900/15, Ruido, Luz, RGRL), Autoelevadores SRT 960, Firmas QR, Planos CAD, Dossier ZIP e IA Ilimitada.',
+      desc: 'PDFs A4 con tu LOGO y matrícula, Protocolos SRT, Firmas QR, Sincronización Cloud e IA Ilimitada.',
+      perks: [
+        'Reportes PDF con tu Logo y Sello',
+        'Protocolos Oficiales SRT (PAT, Ruido, Luz)',
+        'Asesor IA Legal + Escáner QR de Activos'
+      ],
       buttonLabel: 'Activar Profesional ($2 USD)',
       buttonBg: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
       buttonColor: '#ffffff',
-      icon: <Crown size={20} color="#fbbf24" weight="fill" />,
-    },
+      icon: <Crown size={20} color="#fbbf24" weight="fill" />
+    }
   ];
 
   return createPortal(
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 99999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '1rem'
+      }}
+    >
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="absolute inset-0 bg-black/85 backdrop-blur-md"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(2, 6, 23, 0.82)',
+          backdropFilter: 'blur(10px)'
+        }}
       />
 
-      {/* Modal Container */}
+      {/* Modal Container Centrado */}
       <div
         style={{
+          position: 'relative',
+          zIndex: 10,
+          width: '100%',
+          maxWidth: '720px',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          margin: 'auto',
           backgroundColor: '#0f172a',
           color: '#ffffff',
-          border: '2px solid #3b82f6',
-          borderRadius: '24px',
-          padding: '24px',
-          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.8)'
+          border: '2px solid rgba(59, 130, 246, 0.65)',
+          borderRadius: '26px',
+          padding: '1.6rem',
+          boxShadow: '0 25px 60px -12px rgba(0,0,0,0.85)'
         }}
-        className="relative w-full max-w-[700px] max-h-[90vh] overflow-y-auto z-10"
       >
-
-        {/* Botón Cerrar (Cruz bien visible) */}
+        {/* Botón Cerrar */}
         <button
           type="button"
           onClick={onClose}
           title="Cerrar ventana"
           style={{
-            backgroundColor: '#334155',
+            marginBottom: 0,
+            backgroundColor: '#1e293b',
             color: '#ffffff',
-            border: '1px solid #64748b',
+            border: '1px solid #475569',
             borderRadius: '9999px',
-            width: '36px',
-            height: '36px',
+            width: '38px',
+            height: '38px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -104,69 +137,151 @@ export default function PaywallModal({ isOpen, onClose }: PaywallModalProps): Re
           <X size={20} color="#ffffff" weight="bold" />
         </button>
 
-        {/* Encabezado */}
-        <div className="text-center mb-6 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/20 border border-blue-400/40 rounded-full mb-3">
+        {/* Encabezado Centrado */}
+        <div style={{ textAlign: 'center', marginBottom: '1.35rem', position: 'relative', zIndex: 10 }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              padding: '0.3rem 0.85rem',
+              backgroundColor: 'rgba(59, 130, 246, 0.18)',
+              border: '1px solid rgba(96, 165, 250, 0.4)',
+              borderRadius: '9999px',
+              marginBottom: '0.75rem'
+            }}
+          >
             <Sparkles size={14} color="#60a5fa" weight="fill" />
-            <span className="text-[#60a5fa] text-[0.75rem] font-bold uppercase tracking-wider">
-              Desbloqueá el Poder Completo
+            <span
+              style={{
+                color: '#60a5fa',
+                fontSize: '0.72rem',
+                fontWeight: 900,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em'
+              }}
+            >
+              Membresía Profesional H&S
             </span>
           </div>
 
-          <h2 style={{ color: '#ffffff' }} className="text-xl sm:text-2xl font-black tracking-tight mb-2">
-            Elegí el Plan a la medida de tu gestión
+          <h2
+            style={{
+              color: '#ffffff',
+              fontSize: 'clamp(1.25rem, 2.8vw, 1.65rem)',
+              fontWeight: 900,
+              margin: '0 0 0.4rem 0',
+              letterSpacing: '-0.02em'
+            }}
+          >
+            Desbloqueá todas las herramientas PRO
           </h2>
-          <p style={{ color: '#94a3b8' }} className="text-xs sm:text-sm max-w-[550px] mx-auto leading-relaxed">
-            Podés seguir usando la versión gratuita o pasar al plan Profesional PRO para exportar PDFs con tu logo, sincronizar en la nube y usar IA ilimitada.
+          <p
+            style={{
+              color: '#94a3b8',
+              fontSize: '0.84rem',
+              maxWidth: '540px',
+              margin: '0 auto',
+              lineHeight: 1.5
+            }}
+          >
+            Exportá informes PDF oficiales con tu logo y matrícula, sincronizá en la nube y utilizá el Asesor IA sin límites.
           </p>
         </div>
 
-        {/* Tarjetas de Planes */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5 relative z-10 max-w-[620px] mx-auto">
+        {/* Tarjetas de Planes Centradas */}
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"
+          style={{ maxWidth: '650px', margin: '0 auto 1.1rem auto' }}
+        >
           {modalPlans.map((plan) => (
             <div
               key={plan.id}
               style={{
-                backgroundColor: plan.popular ? '#1e1b4b' : '#1e293b',
-                borderColor: plan.popular ? '#6366f1' : '#334155'
+                background: plan.popular
+                  ? 'linear-gradient(160deg, #1e1b4b 0%, #172554 100%)'
+                  : '#1e293b',
+                border: `2px solid ${plan.popular ? '#6366f1' : '#334155'}`,
+                borderRadius: '20px',
+                padding: '1.15rem',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                textAlign: 'left'
               }}
-              className="rounded-2xl p-4 flex flex-col justify-between border-2 transition-all"
             >
               <div>
-                {/* Top Badge */}
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between gap-2 mb-2">
                   <div className="flex items-center gap-1.5">
                     {plan.icon}
-                    <span style={{ color: '#ffffff' }} className="text-xs font-bold uppercase">{plan.name}</span>
+                    <span style={{ color: '#ffffff', fontSize: '0.8rem', fontWeight: 900, textTransform: 'uppercase' }}>
+                      {plan.name}
+                    </span>
                   </div>
                   <span
-                    style={{ background: plan.badgeBg, color: plan.badgeColor }}
-                    className="text-[0.65rem] px-2 py-0.5 rounded-full font-black uppercase tracking-wider"
+                    style={{
+                      background: plan.badgeBg,
+                      color: plan.badgeColor,
+                      fontSize: '0.65rem',
+                      padding: '0.2rem 0.55rem',
+                      borderRadius: '9999px',
+                      fontWeight: 900,
+                      textTransform: 'uppercase'
+                    }}
                   >
                     {plan.badge}
                   </span>
                 </div>
 
-                {/* Price */}
                 <div className="flex items-baseline gap-1 my-2">
-                  <span style={{ color: '#ffffff' }} className="text-2xl font-black">{plan.price}</span>
-                  <span style={{ color: '#94a3b8' }} className="text-xs">{plan.period}</span>
+                  <span style={{ color: '#ffffff', fontSize: '1.75rem', fontWeight: 900 }}>
+                    {plan.price}
+                  </span>
+                  <span style={{ color: '#94a3b8', fontSize: '0.78rem', fontWeight: 600 }}>
+                    {plan.period}
+                  </span>
                 </div>
 
-                {/* Description */}
-                <p style={{ color: '#cbd5e1' }} className="text-xs leading-relaxed mb-4 min-h-[36px]">
+                <p style={{ color: '#cbd5e1', fontSize: '0.76rem', lineHeight: 1.45, margin: '0 0 0.75rem 0' }}>
                   {plan.desc}
                 </p>
+
+                <div className="space-y-1.5 mb-4">
+                  {plan.perks.map((perk, idx) => (
+                    <div key={idx} className="flex items-center gap-1.5 text-xs" style={{ color: '#e2e8f0' }}>
+                      <CheckCircle
+                        size={14}
+                        weight="fill"
+                        color={plan.popular ? '#34d399' : '#94a3b8'}
+                      />
+                      <span style={{ fontSize: '0.74rem', fontWeight: 600 }}>{perk}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {/* Action Button */}
               <button
                 type="button"
                 onClick={() => handleSelectPlan(plan.id)}
-                style={{ background: plan.buttonBg, color: plan.buttonColor, fontWeight: '800' }}
-                className="w-full py-2.5 px-3 rounded-xl text-xs cursor-pointer shadow-md transition-all border-none flex items-center justify-center gap-1.5 hover:opacity-90 active:scale-95"
+                style={{
+                  marginBottom: 0,
+                  width: '100%',
+                  padding: '0.75rem 1rem',
+                  borderRadius: '12px',
+                  background: plan.buttonBg,
+                  color: plan.buttonColor,
+                  fontWeight: 900,
+                  fontSize: '0.8rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  boxShadow: plan.popular ? '0 8px 20px rgba(79, 70, 229, 0.4)' : 'none'
+                }}
               >
-                {plan.popular && <Sparkles size={14} weight="fill" />}
+                {plan.popular && <Sparkles size={15} weight="fill" />}
                 {plan.buttonLabel}
               </button>
             </div>
@@ -174,14 +289,24 @@ export default function PaywallModal({ isOpen, onClose }: PaywallModalProps): Re
         </div>
 
         {/* Pie Seguro */}
-        <div className="text-center border-t border-slate-700/60 pt-4 relative z-10">
-          <p style={{ color: '#94a3b8' }} className="text-[0.75rem] font-semibold flex items-center justify-center gap-2 flex-wrap">
-            <span>🔒 Pagos 100% seguros con Mercado Pago 🇦🇷 y Stripe 🌎</span>
-            <span>•</span>
-            <span>Sin contratos de permanencia</span>
+        <div
+          style={{
+            textAlign: 'center',
+            borderTop: '1px solid rgba(51, 65, 85, 0.7)',
+            paddingTop: '0.85rem'
+          }}
+        >
+          <p
+            style={{
+              color: '#94a3b8',
+              fontSize: '0.74rem',
+              fontWeight: 600,
+              margin: 0
+            }}
+          >
+            🔒 Pagos 100% seguros con Mercado Pago 🇦🇷 y Stripe 🌎 • Sin contratos de permanencia
           </p>
         </div>
-
       </div>
     </div>,
     document.body

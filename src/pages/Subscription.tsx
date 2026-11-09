@@ -1,11 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-
-import { ShieldCheck, CreditCard, Sparkles, CheckCircle2, Lock, ArrowRight, ArrowLeft, Calendar, TriangleAlert, Globe, Crown, GraduationCap, Building } from 'lucide-react';
+import {
+  ShieldCheck,
+  CreditCard,
+  Sparkles,
+  CheckCircle2,
+  Lock,
+  ArrowRight,
+  ArrowLeft,
+  Calendar,
+  TriangleAlert,
+  Globe,
+  Crown,
+  Award,
+  FileCheck2,
+  QrCode,
+  Cloud
+} from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { usePaywall } from '../hooks/usePaywall';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import PremiumHeader from '../components/PremiumHeader';
 import toast from 'react-hot-toast';
 
 export default function Subscription(): React.ReactElement | null {
@@ -14,6 +31,8 @@ export default function Subscription(): React.ReactElement | null {
   const { isPro, daysRemaining } = usePaywall();
   const { currentUser } = useAuth();
   const { syncDocument } = useSync();
+  useDocumentTitle('Suscripción y Membresía PRO');
+
   const [loading, setLoading] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [expiryDate, setExpiryDate] = useState<Date | null>(null);
@@ -23,7 +42,7 @@ export default function Subscription(): React.ReactElement | null {
 
   const initialPlan = (location.state as any)?.plan || 'pro';
   const [selectedPlan, setSelectedPlan] = useState<'student' | 'pro' | 'enterprise'>(initialPlan);
-  const [paymentGateway, setPaymentGateway] = useState<'stripe' | 'mercadopago'>('stripe');
+  const [paymentGateway, setPaymentGateway] = useState<'stripe' | 'mercadopago'>('mercadopago');
   const [isCyberMonday, setIsCyberMonday] = useState<boolean>(() => {
     try {
       if (Date.now() > CYBER_MONDAY_DEADLINE) {
@@ -65,9 +84,10 @@ export default function Subscription(): React.ReactElement | null {
       if (rawSub && !rawSub.startsWith('data:')) {
         subData = JSON.parse(rawSub);
       }
-    } catch {}
+    } catch {
+      // ignore
+    }
 
-    // Check if user is active
     if (isPro) {
       setIsSubscribed(true);
       const expiry = parseInt(subData.expiry || '0', 10);
@@ -81,14 +101,14 @@ export default function Subscription(): React.ReactElement | null {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           },
           body: JSON.stringify({ payment_id, collection_id: payment_id, session_id })
         })
           .then((res) => res.json())
           .then((data) => {
             if (data.success) {
-              const newExpiry = data.expiry || (Date.now() + 30 * 24 * 60 * 60 * 1000);
+              const newExpiry = data.expiry || Date.now() + 30 * 24 * 60 * 60 * 1000;
               const updatedSub = {
                 status: 'active',
                 expiry: String(newExpiry),
@@ -119,7 +139,7 @@ export default function Subscription(): React.ReactElement | null {
 
   const handleStripe = async () => {
     if (!currentUser) {
-      toast.error('Debes crear una cuenta o iniciar sesión para suscribirte.', { duration: 4000 });
+      toast.error('Debés iniciar sesión para suscribirte.', { duration: 4000 });
       navigate('/login', { state: { view: 'register' } });
       return;
     }
@@ -131,7 +151,7 @@ export default function Subscription(): React.ReactElement | null {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`
+          Authorization: `Bearer ${idToken}`
         },
         body: JSON.stringify({
           planId: selectedPlan,
@@ -140,17 +160,16 @@ export default function Subscription(): React.ReactElement | null {
       });
 
       if (!response.ok) {
-        let errData;
+        let errData: any = {};
         try {
           errData = await response.json();
-        } catch (e) {
+        } catch {
           errData = {};
         }
         throw new Error(errData.error || `Error ${response.status}: Servidor no disponible`);
       }
 
       const data = await response.json();
-
       if (data.url) {
         window.location.href = data.url;
       } else {
@@ -159,14 +178,14 @@ export default function Subscription(): React.ReactElement | null {
       }
     } catch (error: any) {
       console.error('Stripe Checkout Error:', error);
-      toast.error(error.message || 'Error de conexión con el servidor backend de Stripe. Verifica tu conexión.');
+      toast.error(error.message || 'Error de conexión con Stripe.');
       setLoading(false);
     }
   };
 
   const handleMercadoPago = async () => {
     if (!currentUser) {
-      toast.error('Debes crear una cuenta o iniciar sesión para suscribirte.', { duration: 4000 });
+      toast.error('Debés iniciar sesión para suscribirte.', { duration: 4000 });
       navigate('/login', { state: { view: 'register' } });
       return;
     }
@@ -178,7 +197,7 @@ export default function Subscription(): React.ReactElement | null {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`
+          Authorization: `Bearer ${idToken}`
         },
         body: JSON.stringify({
           planId: selectedPlan,
@@ -187,17 +206,16 @@ export default function Subscription(): React.ReactElement | null {
       });
 
       if (!response.ok) {
-        let errData;
+        let errData: any = {};
         try {
           errData = await response.json();
-        } catch (e) {
+        } catch {
           errData = {};
         }
         throw new Error(errData.error || `Error ${response.status}: Servidor no disponible`);
       }
 
       const data = await response.json();
-
       if (data.init_point) {
         window.location.href = data.init_point;
       } else {
@@ -211,313 +229,872 @@ export default function Subscription(): React.ReactElement | null {
     }
   };
 
-  if (isSubscribed && !showPricing) {
-    const days = daysRemaining;
-    const isExpiringSoon = days > 0 && days <= 7;
-
-    return (
-      <div className="p-[2rem] max-w-[650px] m-[5rem_auto] bg-[var(--color-surface)] rounded-[28px] border border-[var(--color-border)] text-center shadow-2xl relative overflow-hidden">
-        {/* Glow */}
-        <div className={`absolute top-0 left-0 right-0 h-[6px] ${isExpiringSoon ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-red-500' : 'bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-500'}`} />
-        
-        <div className={`w-[80px] h-[80px] rounded-full flex items-center justify-center m-[0_auto_1.2rem] shadow-lg ${isExpiringSoon ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'}`}>
-          {isExpiringSoon ? <TriangleAlert size={40} className="animate-pulse" /> : <CheckCircle2 size={40} />}
-        </div>
-
-        <h1 className="text-[2rem] font-[900] mb-[0.3rem] text-[var(--color-text)]">
-          {isExpiringSoon ? '⚠️ Tu Plan Vence Pronto' : 'Suscripción PRO Activa ✓'}
-        </h1>
-        
-        <p className="text-[var(--color-text-secondary)] mb-[1.5rem] text-[0.95rem]">
-          {isExpiringSoon
-            ? 'Renová tu membresía por $2 USD para no perder acceso a la IA y tus PDFs con logo.'
-            : 'Tenés acceso ilimitado a todas las funciones profesionales de la plataforma.'}
-        </p>
-
-        {/* Expiration Card Poster */}
-        <div
-          style={{
-            background: isExpiringSoon ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(239, 68, 68, 0.1) 100%)' : 'rgba(16, 185, 129, 0.08)',
-            borderColor: isExpiringSoon ? '#f59e0b' : 'rgba(16, 185, 129, 0.3)'
-          }}
-          className="p-[1.4rem] rounded-[20px] mb-[1.8rem] border text-left flex flex-col gap-2 relative overflow-hidden"
-        >
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              <Calendar size={20} color={isExpiringSoon ? '#f59e0b' : '#10b981'} />
-              <span style={{ color: isExpiringSoon ? '#f59e0b' : '#10b981' }} className="font-[800] text-[0.95rem]">
-                {isExpiringSoon ? '⚠️ Renovación Requerida Pronto' : '✦ Estado de Membresía PRO'}
-              </span>
-            </div>
-            <span className={`text-[0.72rem] px-2.5 py-1 rounded-full font-black uppercase tracking-wider ${isExpiringSoon ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'}`}>
-              {days === Infinity ? 'Acceso Vitalicio / Admin' : days === 0 ? 'Vence Hoy' : `${days} Días Restantes`}
-            </span>
-          </div>
-
-          {expiryDate && (
-            <p className="m-0 text-[0.95rem] text-[var(--color-text)] font-[700] mt-1">
-              Válida hasta: <span className="text-blue-400 font-extrabold">{expiryDate.toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
-            </p>
-          )}
-
-          <div className="mt-2 pt-2 border-t border-white/10 text-xs text-[var(--color-text-muted)] flex flex-wrap gap-x-4 gap-y-1">
-            <span>✓ PDFs con tu Logo</span>
-            <span>✓ Asesor IA Ilimitado</span>
-            <span>✓ Visión EPP Fotos</span>
-            <span>✓ Todos los Módulos Críticos</span>
-          </div>
-        </div>
-
-        {/* Buttons */}
-        <div className="flex flex-col gap-3">
-          <button
-            onClick={() => setShowPricing(true)}
-            className="w-full p-[1.1rem] bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-none rounded-[16px] font-[900] text-[1.05rem] cursor-pointer flex items-center justify-center gap-[0.6rem] shadow-xl shadow-blue-500/25 transition-all hover:scale-[1.01] active:scale-[0.99]"
-          >
-            <Sparkles size={20} /> Renovar / Ver Planes ($2 USD) <ArrowRight size={18} />
-          </button>
-
-          <button
-            onClick={() => window.location.reload()}
-            className="w-full p-[0.9rem] bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] border border-[var(--color-border)] rounded-[14px] font-[800] text-[0.9rem] text-[var(--color-text)] cursor-pointer transition-all">
-            🔄 Verificar mi pago
-          </button>
-
-          <button
-            onClick={() => {
-              const toastId = toast(
-                <div className="flex flex-col gap-[0.5rem]">
-                  <span className="text-[0.9rem] font-[700]">⚠️ ¿Cancelar suscripción?</span>
-                  <span className="text-[0.8rem] text-[#555]">Perderás acceso a las funciones Premium.</span>
-                  <div className="flex gap-[0.5rem] mt-[0.3rem]">
-                    <button
-                      onClick={async () => {
-                        toast.dismiss(toastId);
-                        await syncDocument('subscriptionData', { status: 'inactive', expiry: '0' });
-                        setIsSubscribed(false);
-                        setExpiryDate(null);
-                        toast.success('Suscripción cancelada.');
-                      }} className="bg-[#ef4444] text-[#ffffff] border-none rounded-[8px] p-[0.4rem_1rem] cursor-pointer font-[800] text-[0.85rem]">
-                      Sí, cancelar
-                    </button>
-                    <button
-                      onClick={() => toast.dismiss(toastId)} className="bg-[#f1f5f9] text-[#475569] border-none rounded-[8px] p-[0.4rem_1rem] cursor-pointer font-[800] text-[0.85rem]">
-                      No
-                    </button>
-                  </div>
-                </div>,
-                { duration: 6000 }
-              );
-            }} className="w-full p-[0.8rem] bg-transparent text-[#ef4444] border border-[#ef4444]/40 hover:bg-[#ef4444]/10 rounded-[14px] font-[600] cursor-pointer text-[0.85rem] transition-all">
-            Cancelar Suscripción
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const plans = [
     {
       id: 'pro',
-      name: 'Profesional PRO',
+      name: 'Profesional PRO Ilimitado',
       price: isCyberMonday ? '$0.99' : '$2',
       originalPrice: isCyberMonday ? '$2.00' : null,
       period: '/ mes',
-      icon: <Crown size={20} className="text-amber-400" />,
+      icon: <Crown size={22} color="#f59e0b" />,
       desc: isCyberMonday
-        ? 'Oferta exclusiva Cyber Monday para usuarios registrados (Acceso TOTAL)'
-        : 'Acceso TOTAL e ilimitado a todas las herramientas e IA',
-      badge: isCyberMonday ? '🔥 CYBER MONDAY (-50%)' : '✦ ACCESO TOTAL ($2 USD)'
+        ? 'Oferta especial usuarios registrados (Acceso TOTAL)'
+        : 'Acceso total e ilimitado a todos los módulos normativos, PDFs con logo y Asesor IA',
+      badge: isCyberMonday ? '🔥 PROMO (-50%)' : '✦ ACCESO TOTAL'
     }
   ];
 
+  const days = daysRemaining;
+  const isExpiringSoon = days > 0 && days <= 7;
+
+  const formattedExpiry = expiryDate
+    ? expiryDate.toLocaleDateString('es-AR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      })
+    : days === Infinity
+    ? 'Acceso Vitalicio / Permanente'
+    : 'Suscripción Mensual Activa';
+
   return (
-    <div className="relative overflow-[hidden]">
-      {/* Ambient Background Glows */}
-      <div className="ambient-glow blue top-[20%] left-[-10%] w-[500px] h-[500px]" />
-      <div className="ambient-glow purple bottom-[10%] right-[-5%] w-[600px] h-[600px] animation-delay-[2s]" />
-
-      <div className="subscription-layout stagger-item p-[2rem_1rem] max-w-[1200px] m-[0_auto] grid grid-cols-1 lg:grid-cols-12 gap-[2rem] items-start min-h-[80vh] pt-[5rem]">
-
-        {/* Left Side: Benefits */}
-        <div className="lg:col-span-7">
-          <div className="flex items-center gap-[1rem] text-[#3b82f6] mb-[1.5rem]">
-            <div className="bg-[transparent] rounded-[10px]">
-              <img src="/logo.png" alt="Logo de Asistente H&S" className="h-[48px] w-auto object-contain" />
-            </div>
-            <span className="font-[800] tracking-widest text-[1.3rem] uppercase text-[var(--color-text)]">ASISTENTE H&S</span>
-          </div>
-
-          <h1 className="text-[clamp(2.2rem,_5vw,_3.2rem)] font-[900] mb-[1.2rem] leading-tight text-[var(--color-text)]">
-            Elegí tu Plan e Impulsá tu <br />
-            <span className="gradient-text">Gestión de HyS</span>
-          </h1>
-
-          <p className="text-[1.1rem] text-[var(--color-text-secondary)] mb-[2rem] leading-relaxed max-w-[600px]">
-            Diseñado especialmente para prevencionistas en Argentina y Latinoamérica. Redactá informes, realizá evaluaciones con IA y descargá documentos con tu logo en segundos.
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-[1.2rem]">
-            {[
-              { icon: <ShieldCheck />, title: 'Protocolos Oficiales SRT', desc: 'Puesta a Tierra (900/15), Ruido (85/12), Luz (84/12), RGRL (463/09) y Autoelevadores (960/15).' },
-              { icon: <CheckCircle2 />, title: 'PDFs A4 con tu Logo & Matrícula', desc: 'Presentación formal con membrete y sello digital listo para presentar a la ART o cliente.' },
-              { icon: <CreditCard />, title: 'Firmas por QR y WhatsApp', desc: 'Los operarios y contratistas firman desde su celular en segundos sin crear cuenta.' },
-              { icon: <Sparkles />, title: 'Dossier ZIP & Planos CAD', desc: 'Exportación masiva de legajos y editor de planos de evacuación 2D normalizado.' },
-              { icon: <Lock />, title: '100% Nube & Modo Offline', desc: 'Cargá datos en obra sin señal de internet y sincronizá al volver con respaldo cifrado.' },
-              { icon: <Globe />, title: 'Mercado Pago (ARS) o Stripe (USD)', desc: 'Activación inmediata y automática. Cancelá en cualquier momento con un solo clic.' }
-            ].map((item, i) => (
-              <div key={i} className="glass-card p-[1.2rem] flex flex-col gap-[0.8rem] items-start rounded-[18px]">
-                <div className="text-white bg-[linear-gradient(135deg,_#3b82f6,_#8b5cf6)] p-[0.7rem] rounded-[12px] shadow-md">
-                  {item.icon}
-                </div>
-                <div>
-                  <div className="font-[800] mb-[0.3rem] text-[1rem] text-[var(--color-text)]">{item.title}</div>
-                  <div className="text-[0.85rem] text-[var(--color-text-secondary)] leading-relaxed">{item.desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Right Side: Checkout Card */}
-        <div className="lg:col-span-5 relative mt-[10px] w-full">
-          <div className="pricing-card glass-mockup p-[2rem_1.5rem] rounded-[28px] border border-[var(--color-border)] relative shadow-2xl">
-            {isCyberMonday && (
-              <div className="mb-[1.2rem] p-[0.85rem_1rem] rounded-[16px] bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-red-500/20 border border-amber-500/40 text-center">
-                <div className="text-[0.78rem] font-[900] uppercase tracking-wider text-amber-400">
-                  🔥 Oferta Exclusiva Cyber Monday • Válida por 48 hs
-                </div>
-                <div className="text-[0.85rem] font-[700] text-[var(--color-text)] mt-0.5">
-                  Precio especial por este mes: <span className="line-through opacity-60">$2.00</span>{' '}
-                  <span className="text-emerald-400 font-[900]">$0.99 USD</span>
-                </div>
-              </div>
-            )}
-            
-            <h2 className="text-[1.2rem] font-[800] text-[var(--color-text)] text-center mb-[1rem]">
-              1. Seleccioná tu Plan
-            </h2>
-
-            {/* Plan selector cards */}
-            <div className="flex flex-col gap-[0.8rem] mb-[1.5rem]">
-              {plans.map((p) => {
-                const isSelected = selectedPlan === p.id;
-                return (
-                  <button
-                    key={p.id}
-                    onClick={() => setSelectedPlan(p.id as any)}
-                    className={`w-full p-[1rem] rounded-[16px] text-left transition-all border flex items-center justify-between cursor-pointer ${
-                      isSelected
-                        ? 'border-blue-500 bg-blue-500/10 shadow-lg scale-[1.01]'
-                        : 'border-[var(--color-border)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.05)]'
-                    }`}
-                  >
-                    <div className="flex items-center gap-[0.8rem]">
-                      <div className={`p-2 rounded-xl ${isSelected ? 'bg-blue-500/20' : 'bg-gray-500/10'}`}>
-                        {p.icon}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-[0.5rem]">
-                          <span className="font-[800] text-[0.95rem] text-[var(--color-text)]">{p.name}</span>
-                          <span className="text-[0.68rem] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 font-extrabold uppercase">
-                            {p.badge}
-                          </span>
-                        </div>
-                        <span className="text-[0.78rem] text-[var(--color-text-muted)] block mt-0.5">{p.desc}</span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      {p.originalPrice && (
-                        <span className="text-[0.78rem] line-through text-[var(--color-text-muted)] block">{p.originalPrice}</span>
-                      )}
-                      <span className="text-[1.3rem] font-[900] text-[var(--color-text)]">{p.price}</span>
-                      <span className="text-[0.75rem] text-[var(--color-text-muted)] block">{p.period}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            <h2 className="text-[1.2rem] font-[800] text-[var(--color-text)] text-center mb-[1rem]">
-              2. Método de Pago
-            </h2>
-
-            {/* Gateway Tabs */}
-            <div className="grid grid-cols-2 gap-[0.75rem] mb-[1.5rem]">
-              <button
-                onClick={() => setPaymentGateway('stripe')}
-                style={{
-                  background: paymentGateway === 'stripe' ? 'linear-gradient(135deg, #635bff 0%, #7a73ff 100%)' : 'rgba(99, 91, 255, 0.1)',
-                  color: paymentGateway === 'stripe' ? '#ffffff' : '#c7d2fe',
-                  borderColor: paymentGateway === 'stripe' ? '#a5b4fc' : 'rgba(99, 91, 255, 0.3)',
-                  boxShadow: paymentGateway === 'stripe' ? '0 8px 20px rgba(99, 91, 255, 0.35)' : 'none'
-                }}
-                className="p-[0.9rem_0.6rem] rounded-[16px] text-[0.88rem] font-[800] border transition-all duration-300 flex flex-col items-center gap-[0.4rem] cursor-pointer"
-              >
-                <div className="flex items-center gap-1.5 font-bold">
-                  <Globe size={18} color={paymentGateway === 'stripe' ? '#ffffff' : '#818cf8'} />
-                  <span>Stripe 🌎 (Global)</span>
-                </div>
-                <span className="text-[0.68rem] font-medium opacity-90">Chile, Uruguay, LatAm & World</span>
-              </button>
-
-              <button
-                onClick={() => setPaymentGateway('mercadopago')}
-                style={{
-                  background: paymentGateway === 'mercadopago' ? 'linear-gradient(135deg, #009ee3 0%, #00c6ff 100%)' : 'rgba(0, 158, 227, 0.1)',
-                  color: paymentGateway === 'mercadopago' ? '#ffffff' : '#bae6fd',
-                  borderColor: paymentGateway === 'mercadopago' ? '#38bdf8' : 'rgba(0, 158, 227, 0.3)',
-                  boxShadow: paymentGateway === 'mercadopago' ? '0 8px 20px rgba(0, 158, 227, 0.35)' : 'none'
-                }}
-                className="p-[0.9rem_0.6rem] rounded-[16px] text-[0.88rem] font-[800] border transition-all duration-300 flex flex-col items-center gap-[0.4rem] cursor-pointer"
-              >
-                <div className="flex items-center gap-1.5 font-bold">
-                  <img src="/mercadopago.svg" alt="Mercado Pago" className="w-[16px] h-[16px]" />
-                  <span>Mercado Pago 🇦🇷</span>
-                </div>
-                <span className="text-[0.68rem] font-medium opacity-90">Argentina (Pesos / Tarjetas)</span>
-              </button>
-            </div>
-
-            {/* Action Payment Button */}
-            {paymentGateway === 'stripe' ? (
-              <button
-                onClick={handleStripe}
-                disabled={loading}
-                style={{
-                  background: 'linear-gradient(135deg, #635bff 0%, #4f46e5 50%, #7c3aed 100%)',
-                  color: '#ffffff',
-                  boxShadow: '0 12px 28px -6px rgba(99, 91, 255, 0.55)'
-                }}
-                className="w-full p-[1.1rem] border-none rounded-[16px] text-[1.1rem] font-[900] cursor-pointer transition-all duration-300 flex items-center justify-center gap-[0.7rem] hover:opacity-95 active:scale-[0.99] disabled:opacity-50"
-              >
-                <CreditCard size={22} color="#ffffff" />
-                {loading ? 'Generando checkout Stripe...' : `Pagar ${plans.find(p => p.id === selectedPlan)?.price} USD con Stripe 💳`}
-              </button>
-            ) : (
-              <button
-                onClick={handleMercadoPago}
-                disabled={loading}
-                style={{
-                  background: 'linear-gradient(135deg, #009ee3 0%, #00b1ea 50%, #0284c7 100%)',
-                  color: '#ffffff',
-                  boxShadow: '0 12px 28px -6px rgba(0, 158, 227, 0.55)'
-                }}
-                className="w-full p-[1.1rem] border-none rounded-[16px] text-[1.1rem] font-[900] cursor-pointer transition-all duration-300 flex items-center justify-center gap-[0.7rem] hover:opacity-95 active:scale-[0.99] disabled:opacity-50"
-              >
-                <img src="/mercadopago.svg" alt="Mercado Pago" className="w-[22px] h-[22px] filter drop-shadow" />
-                {loading ? 'Generando link MP...' : `Pagar ${plans.find(p => p.id === selectedPlan)?.price} USD con Mercado Pago 🇦🇷`}
-              </button>
-            )}
-
-            <p className="mt-[1.2rem] text-center text-[0.78rem] text-[var(--color-text-muted)] font-[600]">
-              🔒 Procesamiento 100% seguro y cifrado. Activación e ingreso inmediato.
-            </p>
-
-          </div>
-        </div>
-
+    <div
+      className="container max-w-6xl mx-auto px-3 sm:px-6 animate-fade-in"
+      style={{
+        paddingTop: '7.25rem',
+        paddingBottom: '6.5rem',
+        margin: '0 auto',
+        width: '100%'
+      }}
+    >
+      {/* Premium Header */}
+      <div className="mb-5 sm:mb-6">
+        <PremiumHeader
+          title="Suscripción y Membresía PRO"
+          subtitle="Gestioná el estado de tu licencia profesional, métodos de pago y beneficios desbloqueados."
+          icon={<Crown className="w-7 h-7" />}
+          gradient="linear-gradient(135deg, #1d4ed8 0%, #4f46e5 55%, #7c3aed 100%)"
+          badge={isSubscribed ? 'Membresía PRO Activa' : 'Planes Profesionales'}
+          onBack={() => navigate('/profile')}
+        />
       </div>
+
+      {isSubscribed && !showPricing ? (
+        /* CONTENEDOR FLEX ESTRICTAMENTE CENTRADO */
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            padding: '0.25rem 0'
+          }}
+        >
+          {/* CARTEL CENTRAL DE SUSCRIPCIÓN PRO ACTIVA */}
+          <div
+            className="rounded-3xl shadow-xl relative overflow-hidden"
+            style={{
+              width: '100%',
+              maxWidth: '760px',
+              margin: '0 auto',
+              backgroundColor: 'var(--color-surface)',
+              border: '1px solid var(--color-border)',
+              boxShadow: '0 20px 45px -15px rgba(15, 23, 42, 0.14)'
+            }}
+          >
+            {/* Cabecera Visual del Cartel */}
+            <div
+              style={{
+                background: isExpiringSoon
+                  ? 'linear-gradient(135deg, #b45309 0%, #d97706 50%, #ea580c 100%)'
+                  : 'linear-gradient(135deg, #047857 0%, #059669 45%, #2563eb 100%)',
+                padding: '2rem 1.5rem 1.75rem',
+                textAlign: 'center',
+                color: '#ffffff',
+                position: 'relative',
+                overflow: 'hidden'
+              }}
+            >
+              {/* Brillo decorativo */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '-45px',
+                  right: '-45px',
+                  width: '170px',
+                  height: '170px',
+                  borderRadius: '9999px',
+                  background: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)',
+                  pointerEvents: 'none'
+                }}
+              />
+
+              {/* Pill Superior */}
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  padding: '0.32rem 0.9rem',
+                  borderRadius: '9999px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                  border: '1px solid rgba(255, 255, 255, 0.32)',
+                  fontSize: '0.72rem',
+                  fontWeight: 900,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  color: '#ffffff',
+                  marginBottom: '1rem'
+                }}
+              >
+                <Crown size={14} color="#fde047" />
+                {isExpiringSoon ? 'Renovación Próxima' : 'Licencia Profesional Verificada'}
+              </div>
+
+              {/* Ícono Central */}
+              <div
+                style={{
+                  width: '76px',
+                  height: '76px',
+                  borderRadius: '24px',
+                  margin: '0 auto 1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                  border: '2px solid rgba(255, 255, 255, 0.4)',
+                  boxShadow: '0 12px 28px rgba(0, 0, 0, 0.18)',
+                  color: '#ffffff'
+                }}
+              >
+                {isExpiringSoon ? (
+                  <TriangleAlert size={38} color="#ffffff" />
+                ) : (
+                  <CheckCircle2 size={40} color="#ffffff" />
+                )}
+              </div>
+
+              {/* Título y Subtítulo del Cartel */}
+              <h2
+                style={{
+                  color: '#ffffff',
+                  fontSize: 'clamp(1.35rem, 3vw, 1.85rem)',
+                  fontWeight: 900,
+                  margin: '0 0 0.45rem 0',
+                  letterSpacing: '-0.02em',
+                  lineHeight: 1.2
+                }}
+              >
+                {isExpiringSoon ? '⚠️ Tu Membresía Vence Pronto' : 'Suscripción PRO Activa ✓'}
+              </h2>
+
+              <p
+                style={{
+                  color: 'rgba(255, 255, 255, 0.92)',
+                  fontSize: '0.9rem',
+                  fontWeight: 500,
+                  maxWidth: '540px',
+                  margin: '0 auto',
+                  lineHeight: 1.5
+                }}
+              >
+                {isExpiringSoon
+                  ? 'Renová tu membresía para mantener tus reportes PDF con logo, firma digital y asesor IA.'
+                  : 'Tenés acceso total e ilimitado a todas las herramientas profesionales de Higiene y Seguridad.'}
+              </p>
+            </div>
+
+            {/* Cuerpo del Cartel Centrado */}
+            <div className="p-4 sm:p-7">
+              {/* Resumen de Estado en 3 Tarjetas Simétricas */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                <div
+                  className="rounded-2xl p-3.5 text-center"
+                  style={{
+                    backgroundColor: 'var(--color-background)',
+                    border: '1px solid var(--color-border)'
+                  }}
+                >
+                  <span
+                    className="text-[10px] font-extrabold uppercase tracking-wider block mb-1"
+                    style={{ color: 'var(--color-text-light)' }}
+                  >
+                    Estado Actual
+                  </span>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <span
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '9999px',
+                        backgroundColor: isExpiringSoon ? '#f59e0b' : '#10b981',
+                        display: 'inline-block'
+                      }}
+                    />
+                    <span
+                      className="text-sm font-black"
+                      style={{ color: isExpiringSoon ? '#d97706' : '#059669' }}
+                    >
+                      {isExpiringSoon ? 'Por Renovar' : 'PRO Activa'}
+                    </span>
+                  </div>
+                </div>
+
+                <div
+                  className="rounded-2xl p-3.5 text-center"
+                  style={{
+                    backgroundColor: 'var(--color-background)',
+                    border: '1px solid var(--color-border)'
+                  }}
+                >
+                  <span
+                    className="text-[10px] font-extrabold uppercase tracking-wider block mb-1"
+                    style={{ color: 'var(--color-text-light)' }}
+                  >
+                    Vigencia / Cobertura
+                  </span>
+                  <span className="text-sm font-black block" style={{ color: '#2563eb' }}>
+                    {days === Infinity
+                      ? 'Vitalicio / Admin'
+                      : days === 0
+                      ? 'Vence Hoy'
+                      : `${days} Días Restantes`}
+                  </span>
+                </div>
+
+                <div
+                  className="rounded-2xl p-3.5 text-center"
+                  style={{
+                    backgroundColor: 'var(--color-background)',
+                    border: '1px solid var(--color-border)'
+                  }}
+                >
+                  <span
+                    className="text-[10px] font-extrabold uppercase tracking-wider block mb-1"
+                    style={{ color: 'var(--color-text-light)' }}
+                  >
+                    Cuenta Vinculada
+                  </span>
+                  <span
+                    className="text-xs sm:text-sm font-black block truncate"
+                    style={{ color: 'var(--color-text)' }}
+                    title={currentUser?.email || 'Profesional H&S'}
+                  >
+                    {currentUser?.email || 'Profesional H&S'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Barra de Detalle de Licencia */}
+              <div
+                className="rounded-2xl p-4 sm:p-5 mb-5"
+                style={{
+                  backgroundColor: isExpiringSoon
+                    ? 'rgba(245, 158, 11, 0.08)'
+                    : 'rgba(16, 185, 129, 0.07)',
+                  border: `1px solid ${
+                    isExpiringSoon ? 'rgba(245, 158, 11, 0.3)' : 'rgba(16, 185, 129, 0.28)'
+                  }`
+                }}
+              >
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pb-3.5 mb-3.5 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                  <div className="flex items-center gap-2">
+                    <Calendar size={18} color={isExpiringSoon ? '#d97706' : '#059669'} />
+                    <span
+                      className="font-black text-xs sm:text-sm"
+                      style={{ color: 'var(--color-text)' }}
+                    >
+                      Validez de la Suscripción:{' '}
+                      <span style={{ color: isExpiringSoon ? '#d97706' : '#059669' }}>
+                        {formattedExpiry}
+                      </span>
+                    </span>
+                  </div>
+
+                  <span
+                    className="text-[11px] font-black uppercase px-3 py-1 rounded-full"
+                    style={{
+                      backgroundColor: isExpiringSoon
+                        ? 'rgba(245, 158, 11, 0.2)'
+                        : 'rgba(16, 185, 129, 0.18)',
+                      color: isExpiringSoon ? '#b45309' : '#047857'
+                    }}
+                  >
+                    ✦ Plan Profesional Ilimitado
+                  </span>
+                </div>
+
+                {/* Grilla de Beneficios Desbloqueados */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {[
+                    {
+                      icon: <FileCheck2 size={16} color="#2563eb" />,
+                      label: 'Reportes PDF A4 con tu Logo',
+                      sub: 'Membrete corporativo sin marca de agua'
+                    },
+                    {
+                      icon: <Award size={16} color="#7c3aed" />,
+                      label: 'Firma Olográfica y Sello H&S',
+                      sub: 'Certificación profesional en documentos'
+                    },
+                    {
+                      icon: <Sparkles size={16} color="#059669" />,
+                      label: 'Asesor IA Legal y Técnico',
+                      sub: 'Consultas ilimitadas Ley 19.587 / SRT'
+                    },
+                    {
+                      icon: <QrCode size={16} color="#d97706" />,
+                      label: 'Escáner QR + Nube Híbrida',
+                      sub: 'Todos los protocolos SRT y sincronización'
+                    }
+                  ].map((feat, idx) => (
+                    <div
+                      key={idx}
+                      className="rounded-xl p-3 flex items-center gap-3 text-left"
+                      style={{
+                        backgroundColor: 'var(--color-surface)',
+                        border: '1px solid var(--color-border)'
+                      }}
+                    >
+                      <div
+                        className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                        style={{
+                          backgroundColor: 'var(--color-background)',
+                          border: '1px solid var(--color-border)'
+                        }}
+                      >
+                        {feat.icon}
+                      </div>
+                      <div className="min-w-0">
+                        <div
+                          className="text-xs font-black truncate"
+                          style={{ color: 'var(--color-text)' }}
+                        >
+                          ✓ {feat.label}
+                        </div>
+                        <div
+                          className="text-[11px] truncate"
+                          style={{ color: 'var(--color-text-light)' }}
+                        >
+                          {feat.sub}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Botones de Acción Centrados */}
+              <div className="flex flex-col gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setShowPricing(true)}
+                  style={{
+                    marginBottom: 0,
+                    width: '100%',
+                    padding: '0.95rem 1.25rem',
+                    borderRadius: '0.95rem',
+                    background: 'linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    fontWeight: 900,
+                    fontSize: '0.95rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.55rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 8px 20px rgba(37, 99, 235, 0.28)'
+                  }}
+                >
+                  <Sparkles size={18} /> Ver Planes y Opciones de Renovación <ArrowRight size={17} />
+                </button>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/profile')}
+                    style={{
+                      marginBottom: 0,
+                      width: '100%',
+                      padding: '0.8rem 1rem',
+                      borderRadius: '0.9rem',
+                      backgroundColor: 'var(--color-background)',
+                      color: 'var(--color-text)',
+                      border: '1px solid var(--color-border)',
+                      fontWeight: 800,
+                      fontSize: '0.85rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.45rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <ArrowLeft size={16} /> Volver a Mi Perfil
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const toastId = toast(
+                        <div className="flex flex-col gap-2">
+                          <span className="text-sm font-bold">⚠️ ¿Cancelar suscripción?</span>
+                          <span className="text-xs text-slate-600">
+                            Perderás el acceso a las funciones exclusivas PRO.
+                          </span>
+                          <div className="flex gap-2 mt-1">
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                toast.dismiss(toastId);
+                                await syncDocument('subscriptionData', {
+                                  status: 'inactive',
+                                  expiry: '0'
+                                });
+                                setIsSubscribed(false);
+                                setExpiryDate(null);
+                                toast.success('Suscripción cancelada.');
+                              }}
+                              style={{
+                                marginBottom: 0,
+                                backgroundColor: '#dc2626',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '0.5rem',
+                                padding: '0.35rem 0.85rem',
+                                fontWeight: 800,
+                                fontSize: '0.78rem',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Sí, cancelar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => toast.dismiss(toastId)}
+                              style={{
+                                marginBottom: 0,
+                                backgroundColor: '#e2e8f0',
+                                color: '#1e293b',
+                                border: 'none',
+                                borderRadius: '0.5rem',
+                                padding: '0.35rem 0.85rem',
+                                fontWeight: 800,
+                                fontSize: '0.78rem',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              No
+                            </button>
+                          </div>
+                        </div>,
+                        { duration: 6000 }
+                      );
+                    }}
+                    style={{
+                      marginBottom: 0,
+                      width: '100%',
+                      padding: '0.8rem 1rem',
+                      borderRadius: '0.9rem',
+                      backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                      color: '#dc2626',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      fontWeight: 800,
+                      fontSize: '0.85rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.45rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancelar Suscripción
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div
+          className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start"
+          style={{ maxWidth: '1080px', margin: '0 auto', width: '100%' }}
+        >
+          {/* Left Side (7 cols): Benefits Grid */}
+          <div className="lg:col-span-7 flex flex-col gap-4">
+            <div
+              className="rounded-3xl p-4 sm:p-6 shadow-sm text-left"
+              style={{
+                backgroundColor: 'var(--color-surface)',
+                border: '1px solid var(--color-border)'
+              }}
+            >
+              <h2 className="text-lg sm:text-xl font-black m-0 mb-1.5" style={{ color: 'var(--color-text)' }}>
+                Todo lo que incluye la Membresía PRO
+              </h2>
+              <p className="text-xs sm:text-sm m-0 mb-5" style={{ color: 'var(--color-text-light)' }}>
+                Diseñado para licenciados, ingenieros y técnicos en Higiene y Seguridad de Argentina y Latinoamérica.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                {[
+                  {
+                    icon: <ShieldCheck className="w-5 h-5" />,
+                    title: 'Protocolos Oficiales SRT',
+                    desc: 'Puesta a Tierra (900/15), Ruido (85/12), Iluminación (84/12), RGRL (463/09) y Autoelevadores (960/15).'
+                  },
+                  {
+                    icon: <CheckCircle2 className="w-5 h-5" />,
+                    title: 'PDFs A4 con Logo y Firma',
+                    desc: 'Reportes formales con tu membrete corporativo, matrícula, firma digital y sello oficial.'
+                  },
+                  {
+                    icon: <CreditCard className="w-5 h-5" />,
+                    title: 'Escáner QR de Activos y Firmas',
+                    desc: 'Inspección de equipos en planta mediante etiquetas QR y validación instantánea desde el celular.'
+                  },
+                  {
+                    icon: <Sparkles className="w-5 h-5" />,
+                    title: 'Asesor IA y Dossier ZIP',
+                    desc: 'Consultas técnicas ilimitadas con IA normativa y exportación masiva de legajos.'
+                  },
+                  {
+                    icon: <Cloud className="w-5 h-5" />,
+                    title: 'Sincronización Cloud + Offline',
+                    desc: 'Relevá en planta sin señal y sincronizá automáticamente en todos tus dispositivos.'
+                  },
+                  {
+                    icon: <Globe className="w-5 h-5" />,
+                    title: 'Mercado Pago o Stripe',
+                    desc: 'Activación inmediata en pesos argentinos o dólares. Cancelá cuando quieras con 1 clic.'
+                  }
+                ].map((item, i) => (
+                  <div
+                    key={i}
+                    className="rounded-2xl p-4 flex flex-col gap-2.5 text-left"
+                    style={{
+                      backgroundColor: 'var(--color-background)',
+                      border: '1px solid var(--color-border)'
+                    }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                      style={{
+                        background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                        color: '#ffffff'
+                      }}
+                    >
+                      {item.icon}
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black m-0 mb-1" style={{ color: 'var(--color-text)' }}>
+                        {item.title}
+                      </h3>
+                      <p className="text-xs m-0 leading-relaxed" style={{ color: 'var(--color-text-light)' }}>
+                        {item.desc}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side (5 cols): Checkout Card */}
+          <div className="lg:col-span-5">
+            <div
+              className="rounded-3xl p-4 sm:p-6 shadow-md text-left"
+              style={{
+                backgroundColor: 'var(--color-surface)',
+                border: '1px solid var(--color-border)'
+              }}
+            >
+              {isCyberMonday && (
+                <div
+                  className="mb-4 p-3 rounded-2xl text-center"
+                  style={{
+                    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                    border: '1px solid rgba(245, 158, 11, 0.35)'
+                  }}
+                >
+                  <div className="text-xs font-black uppercase text-amber-600">
+                    🔥 Oferta Especial Activa
+                  </div>
+                  <div className="text-xs font-bold mt-0.5" style={{ color: 'var(--color-text)' }}>
+                    Precio promocional: <span className="line-through opacity-60">$2.00</span>{' '}
+                    <span className="text-emerald-600 font-black">$0.99 USD</span>
+                  </div>
+                </div>
+              )}
+
+              <h3 className="text-sm sm:text-base font-black m-0 mb-3" style={{ color: 'var(--color-text)' }}>
+                1. Plan Seleccionado
+              </h3>
+
+              <div className="space-y-2.5 mb-5">
+                {plans.map((p) => {
+                  const isSelected = selectedPlan === p.id;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setSelectedPlan(p.id as any)}
+                      style={{
+                        marginBottom: 0,
+                        width: '100%',
+                        padding: '1rem',
+                        borderRadius: '1.1rem',
+                        backgroundColor: isSelected
+                          ? 'rgba(37, 99, 235, 0.08)'
+                          : 'var(--color-background)',
+                        border: `2px solid ${isSelected ? '#2563eb' : 'var(--color-border)'}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '0.75rem',
+                        textAlign: 'left',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <div className="flex items-start gap-3 min-w-0">
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                          style={{
+                            backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                            border: '1px solid rgba(245, 158, 11, 0.35)'
+                          }}
+                        >
+                          {p.icon}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="font-black text-sm" style={{ color: 'var(--color-text)' }}>
+                              {p.name}
+                            </span>
+                            <span
+                              className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full"
+                              style={{
+                                backgroundColor: 'rgba(37, 99, 235, 0.15)',
+                                color: '#2563eb'
+                              }}
+                            >
+                              {p.badge}
+                            </span>
+                          </div>
+                          <p className="text-xs m-0 mt-1" style={{ color: 'var(--color-text-light)' }}>
+                            {p.desc}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="text-right shrink-0">
+                        {p.originalPrice && (
+                          <span
+                            className="text-xs line-through block"
+                            style={{ color: 'var(--color-text-light)' }}
+                          >
+                            {p.originalPrice}
+                          </span>
+                        )}
+                        <span className="text-xl font-black block" style={{ color: '#2563eb' }}>
+                          {p.price}
+                        </span>
+                        <span className="text-[11px] font-bold" style={{ color: 'var(--color-text-light)' }}>
+                          {p.period}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <h3 className="text-sm sm:text-base font-black m-0 mb-3" style={{ color: 'var(--color-text)' }}>
+                2. Elegí tu Medio de Pago
+              </h3>
+
+              {/* High-Contrast Gateway Selector */}
+              <div className="grid grid-cols-2 gap-2.5 mb-5">
+                <button
+                  type="button"
+                  onClick={() => setPaymentGateway('mercadopago')}
+                  style={{
+                    marginBottom: 0,
+                    width: '100%',
+                    padding: '0.85rem 0.65rem',
+                    borderRadius: '0.95rem',
+                    backgroundColor:
+                      paymentGateway === 'mercadopago' ? '#009ee3' : 'var(--color-background)',
+                    color: paymentGateway === 'mercadopago' ? '#ffffff' : 'var(--color-text)',
+                    border: `2px solid ${
+                      paymentGateway === 'mercadopago' ? '#009ee3' : 'var(--color-border)'
+                    }`,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    cursor: 'pointer',
+                    boxShadow:
+                      paymentGateway === 'mercadopago'
+                        ? '0 6px 16px rgba(0, 158, 227, 0.3)'
+                        : 'none'
+                  }}
+                >
+                  <span className="font-black text-xs sm:text-sm">🇦🇷 Mercado Pago</span>
+                  <span
+                    className="text-[10px] font-semibold"
+                    style={{
+                      color:
+                        paymentGateway === 'mercadopago'
+                          ? 'rgba(255,255,255,0.9)'
+                          : 'var(--color-text-light)'
+                    }}
+                  >
+                    Argentina (Pesos / Tarjetas)
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentGateway('stripe')}
+                  style={{
+                    marginBottom: 0,
+                    width: '100%',
+                    padding: '0.85rem 0.65rem',
+                    borderRadius: '0.95rem',
+                    backgroundColor:
+                      paymentGateway === 'stripe' ? '#635bff' : 'var(--color-background)',
+                    color: paymentGateway === 'stripe' ? '#ffffff' : 'var(--color-text)',
+                    border: `2px solid ${
+                      paymentGateway === 'stripe' ? '#635bff' : 'var(--color-border)'
+                    }`,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    cursor: 'pointer',
+                    boxShadow:
+                      paymentGateway === 'stripe'
+                        ? '0 6px 16px rgba(99, 91, 255, 0.3)'
+                        : 'none'
+                  }}
+                >
+                  <span className="font-black text-xs sm:text-sm">🌎 Stripe Global</span>
+                  <span
+                    className="text-[10px] font-semibold"
+                    style={{
+                      color:
+                        paymentGateway === 'stripe'
+                          ? 'rgba(255,255,255,0.9)'
+                          : 'var(--color-text-light)'
+                    }}
+                  >
+                    LatAm & Internacional
+                  </span>
+                </button>
+              </div>
+
+              {/* Checkout Submit Button */}
+              {paymentGateway === 'mercadopago' ? (
+                <button
+                  type="button"
+                  onClick={handleMercadoPago}
+                  disabled={loading}
+                  style={{
+                    marginBottom: 0,
+                    width: '100%',
+                    padding: '0.95rem 1.2rem',
+                    borderRadius: '0.95rem',
+                    background: 'linear-gradient(135deg, #009ee3 0%, #0284c7 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    fontWeight: 900,
+                    fontSize: '0.95rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    cursor: loading ? 'wait' : 'pointer',
+                    boxShadow: '0 8px 22px rgba(0, 158, 227, 0.35)'
+                  }}
+                >
+                  <CreditCard size={20} color="#ffffff" />
+                  {loading
+                    ? 'Generando link de Mercado Pago...'
+                    : `Suscribirme con Mercado Pago (${
+                        plans.find((p) => p.id === selectedPlan)?.price
+                      } USD)`}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleStripe}
+                  disabled={loading}
+                  style={{
+                    marginBottom: 0,
+                    width: '100%',
+                    padding: '0.95rem 1.2rem',
+                    borderRadius: '0.95rem',
+                    background: 'linear-gradient(135deg, #635bff 0%, #4f46e5 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    fontWeight: 900,
+                    fontSize: '0.95rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    cursor: loading ? 'wait' : 'pointer',
+                    boxShadow: '0 8px 22px rgba(99, 91, 255, 0.35)'
+                  }}
+                >
+                  <CreditCard size={20} color="#ffffff" />
+                  {loading
+                    ? 'Generando sesión Stripe...'
+                    : `Suscribirme con Stripe (${
+                        plans.find((p) => p.id === selectedPlan)?.price
+                      } USD)`}
+                </button>
+              )}
+
+              {isSubscribed && showPricing && (
+                <button
+                  type="button"
+                  onClick={() => setShowPricing(false)}
+                  style={{
+                    marginBottom: 0,
+                    marginTop: '0.75rem',
+                    width: '100%',
+                    padding: '0.75rem 1rem',
+                    borderRadius: '0.85rem',
+                    backgroundColor: 'var(--color-background)',
+                    color: 'var(--color-text)',
+                    border: '1px solid var(--color-border)',
+                    fontWeight: 800,
+                    fontSize: '0.84rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.45rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <ArrowLeft size={16} /> Volver al cartel de mi suscripción
+                </button>
+              )}
+
+              <p
+                className="text-center text-xs m-0 mt-4 font-semibold flex items-center justify-center gap-1.5"
+                style={{ color: 'var(--color-text-light)' }}
+              >
+                <Lock size={13} /> Pago 100% seguro y cifrado. Activación inmediata.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

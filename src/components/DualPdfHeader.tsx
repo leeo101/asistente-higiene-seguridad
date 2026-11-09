@@ -1,6 +1,5 @@
 import React from 'react';
-import { ShieldCheck, Building2, CheckCircle2 } from 'lucide-react';
-import CompanyLogo from './CompanyLogo';
+import { Building2, CheckCircle2 } from 'lucide-react';
 
 export interface DualPdfHeaderProps {
   title: string;
@@ -28,15 +27,50 @@ const BADGE_COLORS = {
   emerald: 'bg-emerald-100 text-emerald-900 border-emerald-300',
   purple: 'bg-purple-100 text-purple-900 border-purple-300',
   red: 'bg-red-100 text-red-900 border-red-300',
-  slate: 'bg-slate-100 text-slate-800 border-slate-300',
+  slate: 'bg-slate-100 text-slate-800 border-slate-300'
 };
 
+function sanitizeLogoSrc(raw?: string | null): string | null {
+  if (!raw || raw === 'null' || raw === 'undefined') return null;
+  const trimmed = String(raw).trim();
+  if (!trimmed) return null;
+  if (
+    trimmed.startsWith('data:image/') ||
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('blob:') ||
+    trimmed.startsWith('/')
+  ) {
+    return trimmed;
+  }
+  if (trimmed.startsWith('"data:') && trimmed.endsWith('"')) {
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return trimmed.slice(1, -1);
+    }
+  }
+  if (trimmed.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (parsed && typeof parsed === 'object') {
+        const candidate = parsed.value || parsed.logo;
+        if (typeof candidate === 'string' && candidate.startsWith('data:image/')) {
+          return candidate;
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+  return null;
+}
+
 /**
- * DualPdfHeader – Encabezado institucional de alto impacto para PDFs técnicos.
- * Soporta doble membrete:
- * - Izquierda: Consultora / Servicio de Higiene y Seguridad Laboral
- * - Centro: Título oficial, resolución/decreto y normativa aplicable
- * - Derecha: Empresa / Establecimiento auditado (con logo propio o datos fiscales)
+ * DualPdfHeader – Encabezado institucional para PDFs técnicos.
+ * - Izquierda: Logo de la página (/logo.png) o logo personalizado de consultora.
+ * - Centro: Título oficial, resolución/decreto y normativa aplicable.
+ * - Derecha: Empresa / Establecimiento auditado (con logo propio o datos fiscales).
  */
 export default function DualPdfHeader({
   title,
@@ -48,63 +82,59 @@ export default function DualPdfHeader({
   establishmentName,
   establishmentCuit,
   establishmentAddress,
-  consultantName,
-  consultantLicense,
   consultantLogoUrl,
   clientLogoUrl,
   showConsultantLogo = true,
   showClientLogo = true,
   date,
-  className = '',
+  className = ''
 }: DualPdfHeaderProps): React.ReactElement {
-  // Obtener logo del consultor si no se pasa explícito
-  let finalConsultantLogo = consultantLogoUrl;
-  let finalConsultantName = consultantName;
-  let finalConsultantLicense = consultantLicense;
+  const baseUrl =
+    typeof window !== 'undefined' && window.location.origin ? window.location.origin : '';
+
+  let finalConsultantLogo = sanitizeLogoSrc(consultantLogoUrl);
+  let finalClientLogo = sanitizeLogoSrc(clientLogoUrl);
 
   if (typeof window !== 'undefined') {
     if (!finalConsultantLogo) {
       try {
-        finalConsultantLogo = localStorage.getItem('companyLogo');
-      } catch {}
+        finalConsultantLogo = sanitizeLogoSrc(localStorage.getItem('companyLogo'));
+      } catch {
+        /* ignore */
+      }
     }
-    if (!finalConsultantName || !finalConsultantLicense) {
-      try {
-        const personal = localStorage.getItem('personalData');
-        if (personal) {
-          const parsed = JSON.parse(personal);
-          finalConsultantName = finalConsultantName || parsed.name || parsed.fullName;
-          finalConsultantLicense = finalConsultantLicense || parsed.license || parsed.matricula;
-        }
-      } catch {}
-    }
-    // Si no hay logo de cliente explícito, intentar leer del active company en storage
-    if (!clientLogoUrl) {
+    if (!finalClientLogo) {
       try {
         const activeId = localStorage.getItem('hys_active_company_id');
         const companiesRaw = localStorage.getItem('hys_companies_list');
         if (activeId && companiesRaw) {
           const list = JSON.parse(companiesRaw);
           const current = list.find((c: any) => c.id === activeId);
-          if (current?.logo) clientLogoUrl = current.logo;
+          if (current?.logo) finalClientLogo = sanitizeLogoSrc(current.logo);
           if (!establishmentName && current?.name) establishmentName = current.name;
           if (!establishmentCuit && current?.cuit) establishmentCuit = current.cuit;
         }
-      } catch {}
+      } catch {
+        /* ignore */
+      }
     }
   }
 
+  const pageLogoSrc = finalConsultantLogo || `${baseUrl}/logo.png?v=3`;
   const badgeClass = BADGE_COLORS[normBadgeColor] || BADGE_COLORS.blue;
 
   return (
-    <div className={`dual-pdf-header border-b-2 border-slate-800 pb-3 mb-4 avoid-break ${className}`} style={{ breakInside: 'avoid', pageBreakInside: 'avoid', display: 'block' }}>
+    <div
+      className={`dual-pdf-header border-b-2 border-slate-800 pb-3 mb-4 avoid-break ${className}`}
+      style={{ breakInside: 'avoid', pageBreakInside: 'avoid', display: 'block' }}
+    >
       <div className="flex items-center justify-between gap-3">
-        {/* LADO IZQUIERDO: Membrete Consultora / Logo H&S */}
+        {/* LADO IZQUIERDO: Logo de la Página (HYS) o Logo de Consultora */}
         <div className="flex items-center gap-2.5 max-w-[28%] min-w-[120px]">
-          {showConsultantLogo && finalConsultantLogo ? (
+          {showConsultantLogo ? (
             <img
-              src={finalConsultantLogo}
-              alt="Logo Consultora H&S"
+              src={pageLogoSrc}
+              alt="Logo HYS"
               className="object-contain max-h-[46px] max-w-[130px]"
               style={{ maxHeight: '46px', maxWidth: '130px', objectFit: 'contain' }}
             />
@@ -114,7 +144,9 @@ export default function DualPdfHeader({
         {/* CENTRO: Título del Documento, Resolución y Normativa */}
         <div className="flex-1 text-center px-2">
           {normBadge && (
-            <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[7.5pt] font-black tracking-wider uppercase mb-1 shadow-sm ${badgeClass}`}>
+            <div
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[7.5pt] font-black tracking-wider uppercase mb-1 shadow-sm ${badgeClass}`}
+            >
               {normBadgeIcon || <CheckCircle2 size={11} />}
               <span>{normBadge}</span>
             </div>
@@ -123,17 +155,15 @@ export default function DualPdfHeader({
             {title}
           </h1>
           {subtitle && (
-            <p className="m-0 text-[7.5pt] text-slate-600 font-semibold mt-0.5 leading-tight">
-              {subtitle}
-            </p>
+            <p className="m-0 text-[7.5pt] text-slate-600 font-semibold mt-0.5 leading-tight">{subtitle}</p>
           )}
         </div>
 
         {/* LADO DERECHO: Logo de la Empresa Cliente o Membrete Fiscal */}
         <div className="flex flex-col items-end text-right max-w-[28%] min-w-[120px]">
-          {showClientLogo && clientLogoUrl ? (
+          {showClientLogo && finalClientLogo ? (
             <img
-              src={clientLogoUrl}
+              src={finalClientLogo}
               alt="Logo Cliente"
               className="object-contain max-h-[46px] max-w-[130px]"
               style={{ maxHeight: '46px', maxWidth: '130px', objectFit: 'contain' }}
@@ -149,9 +179,7 @@ export default function DualPdfHeader({
                 </span>
               )}
               {establishmentAddress && (
-                <span className="block text-[6pt] text-slate-500 truncate">
-                  {establishmentAddress}
-                </span>
+                <span className="block text-[6pt] text-slate-500 truncate">{establishmentAddress}</span>
               )}
             </div>
           ) : (
@@ -167,11 +195,7 @@ export default function DualPdfHeader({
                 DOC: {documentId.slice(0, 10)}
               </span>
             )}
-            {date && (
-              <span className="text-[6.5pt] font-semibold text-slate-500">
-                {date}
-              </span>
-            )}
+            {date && <span className="text-[6.5pt] font-semibold text-slate-500">{date}</span>}
           </div>
         </div>
       </div>

@@ -158,7 +158,7 @@ export default function PdfSignatures({
   let actStamp = getVal(['professionalStamp', 'stamp', 'sello', 'profesionalSello']);
   let actName = getVal(['professionalName', 'responsable', 'leadAuditor', 'expositor', 'evaluador', 'profesionalNombre', 'name', 'nombre']);
   let actLic = getVal(['professionalLicense', 'license', 'matricula', 'profesionalMatricula']);
-  let actTitle = getVal(['professionalTitle', 'profesion', 'profession', 'titulo', 'title', 'profesionalTitulo']);
+  let actTitle = getVal(['professionalTitle', 'profesion', 'profession', 'profesionalTitulo']);
   let supervisorSignature = getVal(['capatazSignature', 'supervisorSignature', 'responsableFirma']);
   let operatorSignature = getVal(['operatorSignature', 'operadorFirma']);
 
@@ -176,19 +176,18 @@ export default function PdfSignatures({
     } catch (e) {}
   }
 
-  if (!actName || !actLic || !actTitle) {
-    try {
-      const lsPersonal = typeof window !== 'undefined' ? localStorage.getItem('personalData') : null;
-      if (lsPersonal) {
-        const pd = JSON.parse(lsPersonal);
-        actName = actName || pd.name || pd.fullName;
-        actLic = actLic || pd.license || pd.matricula;
-        actTitle = actTitle || pd.profession || pd.profesion || pd.title || pd.titulo;
-      }
-    } catch (e) {}
-  }
+  let profileProfessionTitle: string | null = null;
+  try {
+    const lsPersonal = typeof window !== 'undefined' ? localStorage.getItem('personalData') : null;
+    if (lsPersonal) {
+      const pd = JSON.parse(lsPersonal);
+      actName = actName || pd.name || pd.fullName;
+      actLic = actLic || pd.license || pd.matricula;
+      profileProfessionTitle = pd.profession || pd.profesion || pd.title || pd.titulo || null;
+    }
+  } catch (e) {}
 
-  actTitle = formatProfessionTitle(actTitle);
+  actTitle = formatProfessionTitle(profileProfessionTitle || actTitle);
   const professionalDisplayTitle = (actTitle || 'PROFESIONAL DE HIGIENE Y SEGURIDAD').toUpperCase();
   const professionalDisplayName = (actName || 'FIRMA Y SELLO PROFESIONAL').toUpperCase();
 
@@ -254,16 +253,16 @@ export default function PdfSignatures({
 
   if (showPro) {
     const pBox = customProBox || (box2 && box2.isProfessional ? box2 : defaultBox2);
-    // Garantizar que el título sea el título profesional elegido y el subtítulo el nombre
+    // Garantizar que el título sea SIEMPRE el título profesional elegido en Mi Perfil y el subtítulo el nombre
     boxes.push({
       ...pBox,
-      title: pBox.title ? pBox.title.toUpperCase() : professionalDisplayTitle,
-      subtitle: (pBox.subtitle && pBox.subtitle !== 'Firma / Aclaración' && pBox.subtitle !== 'FIRMA Y SELLO') 
-        ? pBox.subtitle.toUpperCase() 
+      title: professionalDisplayTitle,
+      subtitle: (pBox.subtitle && pBox.subtitle !== 'Firma / Aclaración' && pBox.subtitle !== 'FIRMA Y SELLO')
+        ? pBox.subtitle.toUpperCase()
         : professionalDisplayName,
       isProfessional: true,
       license: pBox.license || actLic,
-      profession: pBox.profession || actTitle
+      profession: actTitle
     });
   }
 

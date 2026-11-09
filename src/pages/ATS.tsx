@@ -1,20 +1,51 @@
-import {
-  useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { evaluateATSSafetyCompliance } from '../utils/srtProtocols';
 import type { ATSAuditResult } from '../types/workPermit';
 import {
-  ArrowLeft, Save, Plus, Trash2, Printer,
-  ShieldCheck, Building2, User, Calendar,
-  CheckCircle2, AlertCircle, HelpCircle, Pencil, Info, Share2, Sparkles, Loader2,
-  MapPin, FileText, Search, QrCode, Download, ClipboardList,
-  HardHat, Ear, Search as SearchIcon, Eye as EyeIcon, Edit3 as EditIcon, Trash2 as TrashIcon, Camera as CameraIcon, CheckCircle2 as CheckIcon, ShieldAlert, Zap, Thermometer, Wind as WindIcon, Activity,
-  Mic, MicOff, XCircle
+  Save,
+  Plus,
+  Trash2,
+  Printer,
+  ShieldCheck,
+  Building2,
+  User,
+  Calendar,
+  CheckCircle2,
+  AlertCircle,
+  HelpCircle,
+  Pencil,
+  Info,
+  Share2,
+  Sparkles,
+  Loader2,
+  MapPin,
+  FileText,
+  Search,
+  QrCode,
+  Download,
+  ClipboardList,
+  HardHat,
+  Ear,
+  Eye as EyeIcon,
+  Trash2 as TrashIcon,
+  Camera as CameraIcon,
+  ShieldAlert,
+  Activity,
+  Mic,
+  XCircle,
+  Copy,
+  ArrowUp,
+  ArrowDown,
+  CloudSun,
+  FileSignature,
+  Users
 } from 'lucide-react';
 import { DataTable } from '../components/DataTable';
 import { downloadCSV } from '../services/exportCsv';
 import QRModal from '../components/QRModal';
 import { useAuth } from '../contexts/AuthContext';
+import { useCompany } from '../contexts/CompanyContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useSync } from '../contexts/SyncContext';
 import { auth } from '../firebase';
@@ -41,7 +72,7 @@ import {
   ModuleFormToolbar,
   ModuleFormDocument,
   ModuleFormSection,
-  ModuleWizardFooter,
+  ModuleWizardFooter
 } from '../components/module';
 import { generateAtsStepsWithAi } from '../services/aiFormAssistant';
 
@@ -53,38 +84,63 @@ const printStyles = `
     .print-area { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
     .checklist-print-box { display: flex !important; gap: 4px !important; }
 }
+@keyframes atsTickerScroll {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-55%); }
+}
+.ats-preset-card {
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.ats-preset-card:hover {
+    border-color: #2563eb !important;
+    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.16) !important;
+    transform: translateY(-2px) !important;
+}
+.ats-preset-ticker-wrap {
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+}
+.ats-preset-ticker-track {
+    display: inline-block;
+    white-space: nowrap;
+    will-change: transform;
+}
+.ats-preset-card:hover .ats-preset-ticker-track {
+    animation: atsTickerScroll 8.5s linear infinite;
+}
 `;
 
 const defaultChecklist = [
-// General
-{ id: 1, categoria: 'General', pregunta: '¿Se cuenta con el Programa de Seguridad aprobado por ART?', estado: 'Cumple', observaciones: '' },
-{ id: 2, categoria: 'General', pregunta: '¿Se realizó charla de seguridad previa a la tarea (5 min)?', estado: 'Cumple', observaciones: '' },
-{ id: 3, categoria: 'General', pregunta: '¿La zona de trabajo está señalizada y delimitada?', estado: 'Cumple', observaciones: '' },
-{ id: 4, categoria: 'General', pregunta: '¿Se verificó el estado de máquinas y herramientas a utilizar?', estado: 'Cumple', observaciones: '' },
-{ id: 5, categoria: 'General', pregunta: '¿El personal fue capacitado para esta tarea específica?', estado: 'Cumple', observaciones: '' },
+  // General
+  { id: 1, categoria: 'General', pregunta: '¿Se cuenta con el Programa de Seguridad aprobado por ART?', estado: 'Cumple', observaciones: '' },
+  { id: 2, categoria: 'General', pregunta: '¿Se realizó charla de seguridad previa a la tarea (5 min)?', estado: 'Cumple', observaciones: '' },
+  { id: 3, categoria: 'General', pregunta: '¿La zona de trabajo está señalizada y delimitada?', estado: 'Cumple', observaciones: '' },
+  { id: 4, categoria: 'General', pregunta: '¿Se verificó el estado de máquinas y herramientas a utilizar?', estado: 'Cumple', observaciones: '' },
+  { id: 5, categoria: 'General', pregunta: '¿El personal fue capacitado para esta tarea específica?', estado: 'Cumple', observaciones: '' },
 
-// EPP y Calzado
-{ id: 6, categoria: 'EPP y Calzado', pregunta: '¿Se dispone de los EPP necesarios (Casco, Anteojos, Guantes)?', estado: 'Cumple', observaciones: '' },
-{ id: 7, categoria: 'EPP y Calzado', pregunta: '¿El calzado de seguridad es el adecuado para el terreno/riesgo?', estado: 'Cumple', observaciones: '' },
-{ id: 8, categoria: 'EPP y Calzado', pregunta: '¿Los EPP se encuentran en buen estado de conservación?', estado: 'Cumple', observaciones: '' },
+  // EPP y Calzado
+  { id: 6, categoria: 'EPP y Calzado', pregunta: '¿Se dispone de los EPP necesarios (Casco, Anteojos, Guantes)?', estado: 'Cumple', observaciones: '' },
+  { id: 7, categoria: 'EPP y Calzado', pregunta: '¿El calzado de seguridad es el adecuado para el terreno/riesgo?', estado: 'Cumple', observaciones: '' },
+  { id: 8, categoria: 'EPP y Calzado', pregunta: '¿Los EPP se encuentran en buen estado de conservación?', estado: 'Cumple', observaciones: '' },
 
-// Instalaciones Eléctricas
-{ id: 9, categoria: 'Instalaciones Eléctricas', pregunta: '¿El tablero eléctrico cuenta con disyuntor y térmicas?', estado: 'Cumple', observaciones: '' },
-{ id: 10, categoria: 'Instalaciones Eléctricas', pregunta: '¿Se verificó la puesta a tierra de los equipos?', estado: 'Cumple', observaciones: '' },
-{ id: 11, categoria: 'Instalaciones Eléctricas', pregunta: '¿Los cables y prolongaciones están sin empalmes precarios?', estado: 'Cumple', observaciones: '' },
+  // Instalaciones Eléctricas y LOTO
+  { id: 9, categoria: 'LOTO y Energías Peligrosas', pregunta: '¿Se aplicó Bloqueo y Etiquetado (LOTO) y se verificó ausencia de tensión/energía residual?', estado: 'Cumple', observaciones: '' },
+  { id: 10, categoria: 'LOTO y Energías Peligrosas', pregunta: '¿El tablero eléctrico cuenta con disyuntor diferencial y puesta a tierra verificada?', estado: 'Cumple', observaciones: '' },
+  { id: 11, categoria: 'LOTO y Energías Peligrosas', pregunta: '¿Los cables y prolongaciones están sin empalmes precarios y protegidos?', estado: 'Cumple', observaciones: '' },
 
-// Trabajo en Altura
-{ id: 12, categoria: 'Trabajo en Altura', pregunta: '¿Se utiliza arnés de seguridad de cuerpo completo (si >2m)?', estado: 'N/A', observaciones: '' },
-{ id: 13, categoria: 'Trabajo en Altura', pregunta: '¿El punto de anclaje es estructural y lo suficientemente fuerte?', estado: 'N/A', observaciones: '' },
-{ id: 14, categoria: 'Trabajo en Altura', pregunta: '¿Las escaleras/andamios están nivelados y asegurados?', estado: 'N/A', observaciones: '' },
-{ id: 15, categoria: 'Trabajo en Altura', pregunta: '¿Se ha delimitado el área inferior para evitar golpes por caída de objetos?', estado: 'N/A', observaciones: '' },
+  // Trabajo en Altura
+  { id: 12, categoria: 'Trabajo en Altura', pregunta: '¿Se utiliza arnés de seguridad de cuerpo completo (si >2m)?', estado: 'N/A', observaciones: '' },
+  { id: 13, categoria: 'Trabajo en Altura', pregunta: '¿El punto de anclaje es estructural y lo suficientemente fuerte?', estado: 'N/A', observaciones: '' },
+  { id: 14, categoria: 'Trabajo en Altura', pregunta: '¿Las escaleras/andamios están nivelados y asegurados?', estado: 'N/A', observaciones: '' },
+  { id: 15, categoria: 'Trabajo en Altura', pregunta: '¿Se ha delimitado el área inferior para evitar golpes por caída de objetos?', estado: 'N/A', observaciones: '' },
 
-// Orden y Limpieza
-{ id: 16, categoria: 'Orden y Limpieza', pregunta: '¿Se mantienen los pasillos y vías de escape despejadas?', estado: 'Cumple', observaciones: '' },
-{ id: 17, categoria: 'Orden y Limpieza', pregunta: '¿Existen recipientes para la disposición de residuos?', estado: 'Cumple', observaciones: '' },
-{ id: 18, categoria: 'Orden y Limpieza', pregunta: '¿Se almacenan los materiales de forma estable y segura?', estado: 'Cumple', observaciones: '' },
-{ id: 19, categoria: 'Orden y Limpieza', pregunta: '¿Se dispone de iluminación adecuada en el área?', estado: 'Cumple', observaciones: '' }];
-
+  // Orden y Limpieza
+  { id: 16, categoria: 'Orden y Limpieza', pregunta: '¿Se mantienen los pasillos y vías de escape despejadas?', estado: 'Cumple', observaciones: '' },
+  { id: 17, categoria: 'Orden y Limpieza', pregunta: '¿Existen recipientes para la disposición de residuos?', estado: 'Cumple', observaciones: '' },
+  { id: 18, categoria: 'Orden y Limpieza', pregunta: '¿Se almacenan los materiales de forma estable y segura?', estado: 'Cumple', observaciones: '' },
+  { id: 19, categoria: 'Orden y Limpieza', pregunta: '¿Se dispone de iluminación adecuada en el área?', estado: 'Cumple', observaciones: '' }
+];
 
 interface PresetDefinition {
   categoria: string;
@@ -103,176 +159,285 @@ const PRESETS: Record<string, PresetDefinition> = {
   'Andamios (Altura)': {
     categoria: 'Construcción / Altura',
     icon: '🪜',
-    epps: ['Casco de seguridad con barbijo', 'Arnés de cuerpo completo', 'Doble cabo de vida con amortiguador', 'Calzado de seguridad dieléctrico/puntera de acero'],
+    epps: ['casco', 'arnes', 'guantes', 'calzado'],
     tasks: [
-      { paso: 'Verificación de nivelación, apoyos y rodapiés de andamio', riesgo: 'Caída de estructura / Desnivel / Vuelco', control: 'Uso de durmientes de madera y nivelación con burbuja reglamentaria', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 51-58 (Trabajo en Altura)' },
-      { paso: 'Montaje de tablones completos y barandas dobles', riesgo: 'Caída de personas u objetos al vacío', control: 'Doble baranda (1m y 0.5m) y rodapié perimetral obligatorio', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 54 / Res. SRT 295/03' },
-      { paso: 'Anclaje de arnés a línea de vida independiente', riesgo: 'Caída a distinto nivel con consecuencias fatales', control: 'Arnés de cuerpo completo clase A y doble cabo de vida con amortiguador', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 51 / IRAM 3622' }
+      { paso: 'Verificación de nivelación, apoyos y rodapiés de andamio', riesgo: 'Caída de estructura / Desnivel / Vuelco', control: 'Uso de durmientes de madera, husillos niveladores y trabas de seguridad', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 221-232 (Andamios)' },
+      { paso: 'Montaje de tablones metálicos antideslizantes y barandas dobles', riesgo: 'Caída de personas u objetos al vacío', control: 'Doble baranda rígida (1m y 0.5m) y rodapié perimetral de 15 cm obligatorio', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 54 / Res. SRT 295/03' },
+      { paso: 'Anclaje de arnés a línea de vida vertical independiente', riesgo: 'Caída a distinto nivel (>2 m) con consecuencias graves', control: 'Arnés de cuerpo completo IRAM 3622-1 y doble cabo de vida con amortiguador', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 51-57 / IRAM 3622' }
     ]
   },
-
-  'Hormigonado / Llenado': {
-    categoria: 'Construcción',
+  'Uso de Hidroelevador / PEMP': {
+    categoria: 'Construcción / Altura',
     icon: '🏗️',
-    epps: ['Botas de goma con puntera de acero', 'Guantes de nitrilo/látex impermeables', 'Protección ocular estanca', 'Casco de seguridad'],
+    epps: ['casco', 'arnes', 'anteojos', 'calzado'],
     tasks: [
-      { paso: 'Inspección de encofrados, puntales y arriostramientos', riesgo: 'Colapso de encofrado por peso dinámico del hormigón', control: 'Revisión y firma de liberación previa por Jefe de Obra / Calculista', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 162-169' },
-      { paso: 'Guiado de manguerote de bomba y vertido de hormigón', riesgo: 'Golpe por latigazo de manguera de bombeo / Salpicadura alcalina', control: 'Sujeción con dos operarios, prohibido doblar manguerote, gafas de seguridad estancas', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 170 / Res. SRT 295/03' },
-      { paso: 'Vibrado mecánico de losa / vigas', riesgo: 'Contacto eléctrico con cable de vibrador / Atrapamiento', control: 'Vibrador conectado a disyuntor diferencial y puesta a tierra efectiva', nivelRiesgo: 'Medio', normativa: 'Dec. 351/79 Anexo VI' }
+      { paso: 'Inspección pre-operacional de plataforma elevadora (PEMP) y estabilizadores', riesgo: 'Falla hidráulica / Vuelco por desnivel o terreno blando', control: 'Prueba de mandos de emergencia en base, nivelación con inclinómetro y vallado inferior', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 51 / ANSI A92' },
+      { paso: 'Ingreso a barquilla y amarre de cabo de retención al punto certificado', riesgo: 'Efecto catapulta / Caída desde cesta elevadora', control: 'Uso de arnés con cabo de retención corto anclado al cáncamo interno de la cesta', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 55 / IRAM 3622' },
+      { paso: 'Elevación y posicionamiento verificando líneas eléctricas aéreas', riesgo: 'Electrocución por arco eléctrico / Atrapamiento contra estructuras', control: 'Respetar distancia mínima de seguridad (3m en MT) y vigía en nivel cero', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 76-82' }
     ]
   },
-
+  'Pintura en Altura / Silleta / Balancín': {
+    categoria: 'Construcción / Altura',
+    icon: '🎨',
+    epps: ['casco', 'arnes', 'anteojos', 'guantes', 'calzado'],
+    tasks: [
+      { paso: 'Verificación de puntos de anclaje estructurales y contrapesos en azotea', riesgo: 'Desprendimiento del sistema de suspensión / Caída libre', control: 'Anclaje independiente para soga de trabajo y soga salvavidas con salvacaídas deslizante', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 233-238 (Silletas y Balancines)' },
+      { paso: 'Preparación de superficie, hidrolavado o lijado de fachada', riesgo: 'Proyección de partículas a ojos / Caída de herramientas a vía pública', control: 'Antiparras herméticas, herramientas atadas con rabiza y pantalla/vallado peatonal', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 21 y 59' },
+      { paso: 'Aplicación de pintura o revestimiento impermeable', riesgo: 'Inhalación de vapores orgánicos / Salpicadura ocular', control: 'Semimáscara con filtros para vapores orgánicos (si base solvente) y guantes nitrilo', nivelRiesgo: 'Medio', normativa: 'Res. SRT 295/03 Anexo III' }
+    ]
+  },
   'Trabajos en Techos / Cubiertas': {
     categoria: 'Construcción / Altura',
     icon: '🏠',
-    epps: ['Arnés de seguridad clase A', 'Línea de vida retráctil / cabo de vida', 'Calzado antideslizante', 'Casco con barbijera'],
+    epps: ['casco', 'arnes', 'anteojos', 'calzado'],
     tasks: [
-      { paso: 'Tendido de líneas de vida perimetrales certificadas', riesgo: 'Caída de altura por rotura de chapas traslúcidas/viejas', control: 'Instalación previa de tablones de reparto y líneas de vida de acero', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 51 / IRAM 3622-1' },
-      { paso: 'Fijación de chapas y canaletas con atornilladora', riesgo: 'Proyección de virutas / Posturas forzadas / Viento', control: 'Parada obligatoria con vientos > 35 km/h y uso de antiparras panorámicas', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 59' },
-      { paso: 'Descenso controlado de recortes de chapa y herramientas', riesgo: 'Caída de objetos punzocortantes sobre personas en planta baja', control: 'Bolsas de izaje con soga y vallado inferior a 5 metros de radio', nivelRiesgo: 'Medio', normativa: 'Dec. 911/96 Art. 21' }
+      { paso: 'Tendido de líneas de vida horizontales de cable de acero certificadas', riesgo: 'Caída de altura por rotura de chapas traslúcidas o fibrocemento', control: 'Instalación previa de pasarelas/tablones de reparto de carga y línea de vida', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 51-58 / IRAM 3622-1' },
+      { paso: 'Fijación de chapas, zinguería y canaletas con atornilladora', riesgo: 'Cortes con bordes filosos / Viento fuerte en cubierta', control: 'Suspensión inmediata con ráfagas > 35 km/h y guantes anticorte nivel 5', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 59' },
+      { paso: 'Descenso controlado de recortes de chapa y herramientas', riesgo: 'Caída de objetos cortantes sobre personal en planta baja', control: 'Uso de soga de servicio con aparejo y exclusión perimetral en nivel inferior', nivelRiesgo: 'Medio', normativa: 'Dec. 911/96 Art. 21' }
     ]
   },
-
-  'Soldadura (Caliente)': {
-    categoria: 'Metalmecánica / Caliente',
-    icon: '🔥',
-    epps: ['Careta fotosensible DIN 9-13', 'Delantal y polainas de descarne', 'Guantes de soldador caña larga', 'Protección respiratoria para humos'],
+  'Montaje de Estructuras Metálicas': {
+    categoria: 'Construcción / Altura',
+    icon: '🔩',
+    epps: ['casco', 'arnes', 'guantes', 'anteojos', 'calzado'],
     tasks: [
-      { paso: 'Inspección de equipo de soldar, pinzas y puesta a tierra', riesgo: 'Contacto eléctrico / Sobrecalentamiento / Incendio', control: 'Verificación de aislación íntegra de cables y puesta a tierra del chasis', nivelRiesgo: 'Medio', normativa: 'Dec. 351/79 Anexo VI / Dec. 911/96 Art. 129' },
-      { paso: 'Colocación de biombos y despeje de material combustible (10m)', riesgo: 'Proyección de partículas incandescentes / Radiación UV/IR', control: 'Careta fotosensible DIN 9-13, delantal, polainas y guantes de descarne', nivelRiesgo: 'Alto', normativa: 'Dec. 351/79 Anexo VII / Dec. 911/96 Art. 130' },
-      { paso: 'Vigilancia de chispas post-tarea (Guardia de cenizas)', riesgo: 'Principio de incendio latente no detectado', control: 'Extintor ABC 5kg presurizado al alcance y guardia activa de 30 minutos', nivelRiesgo: 'Medio', normativa: 'Dec. 351/79 Cap. 18 / IRAM 3517' }
+      { paso: 'Izaje y presentación de columnas y cabreadas metálicas', riesgo: 'Golpe por giro de pieza suspendida / Caída de estructura inestable', control: 'Guiado mediante dos sogas viento desde piso y apuntalamiento provisorio inmediato', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 301-318' },
+      { paso: 'Abulonado y torqueado de uniones estructurales en altura', riesgo: 'Caída del montador / Caída de bulones o llaves de impacto', control: 'Doble cabo de vida 100% amarrado (Y) y portaherramientas con sujeción', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 51-56' },
+      { paso: 'Alineación final y liberación de eslingas de grúa', riesgo: 'Atrapamiento de manos entre bridas o perfiles', control: 'Guantes de vaqueta reforzados y comunicación por señas normalizadas con gruísta', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 315' }
     ]
   },
-
-  'Corte con Amoladora': {
-    categoria: 'Metalmecánica / Caliente',
-    icon: '⚙️',
-    epps: ['Protector facial de policarbonato', 'Anteojos de seguridad Z87', 'Protección auditiva', 'Guantes de descarne'],
+  'Hormigonado / Llenado': {
+    categoria: 'Construcción',
+    icon: '🧱',
+    epps: ['casco', 'guantes', 'anteojos', 'calzado'],
     tasks: [
-      { paso: 'Inspección técnica de disco abrasivo y protección mecánica', riesgo: 'Estallido de disco por fisura o exceso de RPM / Proyección', control: 'Chequeo de vencimiento del disco, RPM máxima del fabricante y guarda a 180°', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 248-254 (Herramientas Mecánicas)' },
-      { paso: 'Fijación de piezas y delimitación de chispas a terceros', riesgo: 'Atrapamiento / Deslizamiento violento de la herramienta', control: 'Sujeción en morsa/mordaza y colocación de pantalla ignífuga', nivelRiesgo: 'Medio', normativa: 'Dec. 351/79 Art. 103' },
-      { paso: 'Operación de corte o amolado continuo', riesgo: 'Inhalación de material particulado / Daño auditivo / Lesión ocular', control: 'Pantalla facial completa de policarbonato + anteojos Z87, tapones auditivos y máscara', nivelRiesgo: 'Medio', normativa: 'IRAM 3630 / Dec. 351/79 Anexo V' }
+      { paso: 'Inspección de encofrados, puntales y arriostramientos', riesgo: 'Colapso de encofrado por peso dinámico del hormigón', control: 'Revisión y firma de liberación previa por Jefe de Obra / Calculista', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 162-169' },
+      { paso: 'Guiado de manguerote de bomba y vertido de hormigón', riesgo: 'Golpe por latigazo de manguera de bombeo / Salpicadura alcalina', control: 'Sujeción con dos operarios, prohibido doblar manguerote, gafas estancas', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 170 / Res. SRT 295/03' },
+      { paso: 'Vibrado mecánico de losa / vigas', riesgo: 'Contacto eléctrico con cable de vibrador / Sobreesfuerzo', control: 'Vibrador conectado a tablero con disyuntor diferencial y puesta a tierra', nivelRiesgo: 'Medio', normativa: 'Dec. 351/79 Anexo VI' }
     ]
   },
-
-  'Excavación (Zanjas)': {
+  'Excavación (Zanjas ySubmuración)': {
     categoria: 'Construcción',
     icon: '⛏️',
-    epps: ['Casco de seguridad', 'Calzado de seguridad con puntera', 'Chaleco reflectivo clase 2', 'Guantes de vaqueta'],
+    epps: ['casco', 'guantes', 'calzado', 'auditiva'],
     tasks: [
-      { paso: 'Cateo manual y detección de interferencias subterráneas', riesgo: 'Rotura de cañerías de gas, agua o cables con tensión', control: 'Chequeo de planos de interferencias y cateo manual con pala aislada', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 142-145 (Excavaciones)' },
-      { paso: 'Señalización perimetral y pasarelas de cruce', riesgo: 'Caída de personas o vehículos al interior de la zanja', control: 'Cerco rígido perimetral a 1.5m, balizamiento reflectivo y pasarelas con baranda', nivelRiesgo: 'Medio', normativa: 'Dec. 911/96 Art. 148' },
-      { paso: 'Perfilado de taludes o instalación de entibado rígido', riesgo: 'Derrumbe de paredes por empuje de tierras o vibraciones', control: 'Entibado metálico/madera si profundidad > 1.20m y acopio a > 1m del borde', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 149-155' }
+      { paso: 'Cateo manual y detección de interferencias subterráneas', riesgo: 'Rotura de cañerías de gas, agua o cables eléctricos subterráneos', control: 'Verificación de planos de interferencias y cateo manual con herramientas aisladas', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 142-145 (Excavaciones)' },
+      { paso: 'Señalización perimetral, acopio retirado y pasarelas', riesgo: 'Caída de personas o máquinas al interior de la excavación', control: 'Vallado rígido a 1.5m del borde y tierra acopiada a más de 1.20m del labio', nivelRiesgo: 'Medio', normativa: 'Dec. 911/96 Art. 148' },
+      { paso: 'Entibado de paredes y colocación de escalera de emergencia', riesgo: 'Derrumbe de taludes y atrapamiento por sepultamiento', control: 'Entibado obligatorio en profundidades > 1.20m y escalera sobresaliendo 1m cada 15m', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 149-155' }
     ]
   },
-
-  'Corte Eléctrico (LOTO)': {
+  'Demolición / Picado': {
+    categoria: 'Construcción',
+    icon: '🔨',
+    epps: ['casco', 'anteojos', 'auditiva', 'guantes', 'calzado'],
+    tasks: [
+      { paso: 'Corte y bloqueo certificado de suministros (luz, gas, agua)', riesgo: 'Electrocución / Explosión por rotura de caño de gas / Inundación', control: 'Constancia escrita de corte de suministros antes de iniciar el picado', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 138-141 (Demoliciones)' },
+      { paso: 'Instalación de pantallas protectoras y cierre de circulación inferior', riesgo: 'Caída de mampostería sobre operarios o terceros', control: 'Bandejas colectoras rígidas y vallado total del radio de caída', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 139' },
+      { paso: 'Demolición progresiva descendente con humectación', riesgo: 'Derrumbe prematuro / Inhalación de polvo de sílice y ruido', control: 'Apuntalamiento de muros linderos, riego para abatir polvo, filtro P100 y protector auditivo', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 140 / Res. SRT 85/12' }
+    ]
+  },
+  'Trabajos en Vía Pública / Bacheo Vial': {
+    categoria: 'Construcción',
+    icon: '🚧',
+    epps: ['casco', 'auditiva', 'guantes', 'anteojos', 'calzado'],
+    tasks: [
+      { paso: 'Canalización vehicular con conos, vallas, balizas luminosas y banderillero', riesgo: 'Atropellamiento por tránsito vehicular externo', control: 'Señalización anticipada a 100m/50m, chaleco reflectivo Clase 2 y banderillero dedicado', nivelRiesgo: 'Crítico', normativa: 'Ley Nac. Tránsito 24.449 / Dec. 911/96 Art. 62' },
+      { paso: 'Aserrado de pavimento y rotura con martillo neumático/hidráulico', riesgo: 'Hipoacusia por ruido >85 dBA / Vibraciones mano-brazo / Proyección', control: 'Protector auditivo de copa SNR 28dB, rotación de operarios y pantalla facial', nivelRiesgo: 'Alto', normativa: 'Res. SRT 85/12 / Res. SRT 295/03 (Vibraciones)' },
+      { paso: 'Compactación y limpieza final de calzada', riesgo: 'Atrapamiento con rodillo compactador / Quemaduras por asfalto caliente', control: 'Alarma de retroceso acústica operativa y calzado de seguridad con suela resistente al calor', nivelRiesgo: 'Medio', normativa: 'Dec. 911/96 Art. 265' }
+    ]
+  },
+  'Soldadura (Trabajo en Caliente)': {
+    categoria: 'Metalmecánica / Caliente',
+    icon: '🔥',
+    epps: ['casco', 'guantes', 'anteojos', 'calzado'],
+    tasks: [
+      { paso: 'Inspección de máquina soldadora, cables, pinza portaelectrodo y masa', riesgo: 'Contacto eléctrico / Recalentamiento de aislaciones', control: 'Cables sin empalmes expuestos, pinza aislada y conexión a tablero con diferencial', nivelRiesgo: 'Medio', normativa: 'Dec. 351/79 Anexo VI / Dec. 911/96 Art. 129' },
+      { paso: 'Despeje de inflamables a 10 metros y colocación de biombos ignífugos', riesgo: 'Incendio o explosión por proyección de escoria incandescente / Radiación UV', control: 'Careta fotosensible DIN 11-13, campera/delantal de descarne y manta ignífuga', nivelRiesgo: 'Alto', normativa: 'Dec. 351/79 Anexo VII / Dec. 911/96 Art. 130' },
+      { paso: 'Guardia de cenizas durante 30 minutos posteriores al cierre', riesgo: 'Reignición oculta por chispas alojadas en intersticios', control: 'Extintor ABC de 10 kg en el puesto de trabajo y verificación térmica al finalizar', nivelRiesgo: 'Medio', normativa: 'Dec. 351/79 Cap. 18 / IRAM 3517' }
+    ]
+  },
+  'Corte y Desbaste con Amoladora': {
+    categoria: 'Metalmecánica / Caliente',
+    icon: '⚙️',
+    epps: ['anteojos', 'auditiva', 'guantes', 'calzado'],
+    tasks: [
+      { paso: 'Verificación de disco abrasivo (fecha de vencimiento y RPM) y carcasa protectora', riesgo: 'Estallido del disco a alta velocidad con proyección de fragmentos', control: 'Prohibido retirar guarda protectora ni empuñadura lateral; RPM disco >= RPM máquina', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 196-203 (Herramientas Portátiles)' },
+      { paso: 'Fijación firme de la pieza en morsa o banco de trabajo', riesgo: 'retroceso violento (kickback) de la amoladora y cortes profundos', control: 'Sujeción mecánica de la pieza; prohibido sostener piezas pequeñas con la mano o el pie', nivelRiesgo: 'Alto', normativa: 'Dec. 351/79 Art. 103-110' },
+      { paso: 'Ejecución del corte con doble protección ocular/facial', riesgo: 'Impacto de esquirlas metálicas en córnea o rostro / Ruido', control: 'Uso simultáneo de anteojos de seguridad IRAM 3630 + protector facial de policarbonato', nivelRiesgo: 'Medio', normativa: 'Res. SRT 299/11 / IRAM 3630' }
+    ]
+  },
+  'Corte Eléctrico y Bloqueo (LOTO)': {
     categoria: 'Eléctrico / Mantenimiento',
     icon: '⚡',
-    epps: ['Guantes dieléctricos ensayados', 'Careta contra arco eléctrico (Arc Flash)', 'Ropa ignífuga algodón 100%', 'Calzado dieléctrico'],
+    epps: ['casco', 'guantes', 'anteojos', 'calzado'],
     tasks: [
-      { paso: 'Identificación precisa de tablero y circuitos a intervenir', riesgo: 'Corte erróneo de circuito / Interrupción de servicios críticos', control: 'Revisión de diagrama unifilar actualizado y confirmación en campo', nivelRiesgo: 'Medio', normativa: 'Dec. 351/79 Anexo VI / Dec. 911/96 Art. 78' },
-      { paso: 'Maniobra de corte visible y bloqueo físico (LOTO)', riesgo: 'Energización accidental o maniobra por terceros', control: 'Colocación de candado de bloqueo personal, tarjeta de advertencia y traba', nivelRiesgo: 'Crítico', normativa: 'Res. SRT 592/04 (5 Reglas de Oro)' },
-      { paso: 'Verificación de ausencia de tensión y puesta a tierra transitoria', riesgo: 'Electrocución por arco eléctrico o tensión de retorno', control: 'Uso de multímetro/detector acústico-luminoso calibrado y banquetas aislantes', nivelRiesgo: 'Crítico', normativa: 'Dec. 351/79 Anexo VI Art. 4' }
+      { paso: '1ª y 2ª Regla de Oro: Corte efectivo y bloqueo mecánico con candado personal (LOTO)', riesgo: 'Reconectado accidental por terceros durante la intervención', control: 'Apertura con corte visible, colocación de pinza multiplicadora, candado y tarjeta personal', nivelRiesgo: 'Crítico', normativa: 'Dec. 351/79 Anexo VI / Res. SRT 592/04' },
+      { paso: '3ª y 4ª Regla de Oro: Comprobación de ausencia de tensión y puesta a tierra en cortocircuito', riesgo: 'Electrocución por tensión residual, backfeed o retorno de grupo electrógeno', control: 'Medición con detector de tensión verificado y colocación de tierras transitorias', nivelRiesgo: 'Crítico', normativa: 'Dec. 351/79 Anexo VI Pto. 3.3 / AEA 90364' },
+      { paso: '5ª Regla de Oro: Delimitación y señalización de la zona protegida', riesgo: 'Invasión accidental de puntos adyacentes con tensión', control: 'Vallado dieléctrico, mantas aislantes y uso de guantes dieléctricos Clase 00/0', nivelRiesgo: 'Alto', normativa: 'IRAM 10005 / Res. SRT 3068/14 (Trabajos BT)' }
     ]
   },
-
   'Intervención en Tableros Eléctricos': {
     categoria: 'Eléctrico / Mantenimiento',
     icon: '🔌',
-    epps: ['Guantes dieléctricos clase 00/0', 'Protección facial antiarco', 'Herramientas aisladas 1000V certificadas', 'Calzado dieléctrico'],
+    epps: ['casco', 'guantes', 'anteojos', 'calzado'],
     tasks: [
-      { paso: 'Delimitación de zona de trabajo y verificación de EPP dieléctrico', riesgo: 'Ingreso de personas no autorizadas / Choque eléctrico', control: 'Vallado a 2m, alfombra aislante de goma dieléctrica en el piso', nivelRiesgo: 'Alto', normativa: 'AEA 90364 / Res. SRT 592/04' },
-      { paso: 'Apertura de tablero y prueba de térmicas / disyuntores', riesgo: 'Contacto directo o indirecto con barras energizadas', control: 'Uso obligatorio de herramientas aisladas IRAM 2444 a 1000V', nivelRiesgo: 'Crítico', normativa: 'Dec. 351/79 Anexo VI' },
-      { paso: 'Cierre y señalización de peligro alta tensión', riesgo: 'Contacto fortuito post-mantenimiento', control: 'Enclavamiento mecánico de puertas de tablero y cartelería de advertencia', nivelRiesgo: 'Bajo', normativa: 'IRAM 10005' }
+      { paso: 'Delimitación de zona de aproximación y tendido de alfombra dieléctrica', riesgo: 'Contacto directo con barras o bornes energizados / Arco eléctrico', control: 'Alfombra aislante certificada, ropa ignífuga (Arc Flash) sin elementos metálicos', nivelRiesgo: 'Crítico', normativa: 'Res. SRT 3068/14 (Trabajos con Tensión <1kV)' },
+      { paso: 'Ajuste de borneras, termografía o reemplazo de protecciones termomagnéticas', riesgo: 'Cortocircuito franco entre fases por zafado de herramienta', control: 'Herramientas manuales 100% aisladas bajo norma IEC 60900 (1000V) y pantalla antiarco', nivelRiesgo: 'Crítico', normativa: 'Dec. 351/79 Anexo VI / Res. SRT 900/15' },
+      { paso: 'Cierre de contratapa protectora (IP2X), peinado de cables y rotulado', riesgo: 'Quedar partes activas expuestas al tacto accidental', control: 'Colocación de contratapa aislante interna, llave de cierre y pictograma de riesgo eléctrico', nivelRiesgo: 'Bajo', normativa: 'AEA 90364-7-771' }
     ]
   },
-
-  'Espacio Confinado': {
+  'Ingreso a Espacio Confinado': {
     categoria: 'Crítico / Industria',
     icon: '🕳️',
-    epps: ['Arnés de rescate con argolla dorsal', 'Detector multigas portátil', 'Línea de vida retráctil a trípode', 'Equipo autónomo de respiración (si aplica)'],
+    epps: ['casco', 'arnes', 'guantes', 'calzado'],
     tasks: [
-      { paso: 'Medición atmosférica previa (Oxígeno, CO, H2S, LEL)', riesgo: 'Asfixia / Intoxicación aguda / Atmósfera inflamable explosiva', control: 'Explosímetro multigas calibrado con bomba de aspiración desde exterior', nivelRiesgo: 'Crítico', normativa: 'Dec. 351/79 Art. 140 / Dec. 911/96 Art. 138' },
-      { paso: 'Ventilación forzada mecánica continua', riesgo: 'Consumo o acumulación paulatina de gases pesados', control: 'Insuflador de aire exterior continuo y monitoreo permanente en línea', nivelRiesgo: 'Alto', normativa: 'Res. SRT 295/03 Anexo IV' },
-      { paso: 'Ingreso supervisado con trípode y vigía permanente', riesgo: 'Atrapamiento / Pérdida de conocimiento sin auxilio', control: 'Vigía exclusivo en boca de acceso, arnés de rescate y línea retráctil a trípode', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 141 (Rescate en Confinados)' }
+      { paso: 'Aislamiento de cañerías (bridas ciegas/LOTO) y medición atmosférica multigas', riesgo: 'Deficiencia de oxígeno (<19.5%), presencia de H2S, CO o mezcla explosiva (>10% LEL)', control: 'Medición previa estratificada desde el exterior con detector 4 gases calibrado', nivelRiesgo: 'Crítico', normativa: 'Res. SRT 953/10 (Espacios Confinados) / Dec. 351/79' },
+      { paso: 'Ventilación mecánica forzada continua del recinto', riesgo: 'Estratificación o desprendimiento de gases tóxicos durante la tarea', control: 'Insuflación continua de aire limpio y monitoreo permanente con alarma sonora/vibratoria', nivelRiesgo: 'Alto', normativa: 'Res. SRT 953/10 Anexo I' },
+      { paso: 'Acceso con trípode de rescate, malacate y vigía permanente en boca de hombre', riesgo: 'Desvanecimiento del operario sin posibilidad de auto-evacuación', control: 'Vigía externo permanente con comunicación constante y arnés vinculado a línea retráctil de rescate', nivelRiesgo: 'Crítico', normativa: 'Res. SRT 953/10 Pto. 6 (Plan de Rescate)' }
     ]
   },
-
-  'Izaje / Grúa': {
+  'Limpieza de Tanques y Cisternas': {
+    categoria: 'Crítico / Industria',
+    icon: '🚰',
+    epps: ['casco', 'arnes', 'guantes', 'anteojos', 'calzado'],
+    tasks: [
+      { paso: 'Vaciado, bloqueo de bombas de llenado y ventilación previa de cisterna', riesgo: 'Arranque automático de electrobombas / Acumulación de vapores de cloro', control: 'Bloqueo LOTO en tablero de bombas, ventilación por 30 min y medición de O2', nivelRiesgo: 'Crítico', normativa: 'Res. SRT 953/10 / Dec. 351/79 Cap. 6' },
+      { paso: 'Ingreso con iluminación portátil de Muy Baja Tensión de Seguridad (24V)', riesgo: 'Electrocución en ambiente húmedo y conductor', control: 'Uso exclusivo de luminarias estancas IP67 en 12V/24V con transformador de seguridad externo', nivelRiesgo: 'Crítico', normativa: 'Dec. 351/79 Anexo VI Pto. 3.1 (MBTS)' },
+      { paso: 'Cepillado y desinfección con hipoclorito diluido', riesgo: 'Irritación respiratoria y dérmica por vapores clorados', control: 'Traje impermeable Tyvek, botas de PVC, antiparras estancas y semimáscara para gases ácidos', nivelRiesgo: 'Alto', normativa: 'Res. SRT 801/15 (SGA)' }
+    ]
+  },
+  'Calderas y Aparatos Sometidos a Presión': {
+    categoria: 'Crítico / Industria',
+    icon: '🌡️',
+    epps: ['casco', 'guantes', 'anteojos', 'auditiva', 'calzado'],
+    tasks: [
+      { paso: 'Despresurización total, enfriamiento y bloqueo de válvulas de vapor/combustible', riesgo: 'Quemaduras graves por chorro de vapor vivo o retorno de condensado', control: 'Verificación de manómetro en cero (0 bar), apertura de venteos y bloqueo LOTO de válvulas', nivelRiesgo: 'Crítico', normativa: 'Dec. 351/79 Cap. 16 (Aparatos a Presión)' },
+      { paso: 'Inspección de válvulas de seguridad, presostatos y nivel óptico', riesgo: 'Sobrepresión por enclavamiento de válvula de alivio', control: 'Control de timbre de calibración vigente y ensayo periódico hidráulico/ultrasonido', nivelRiesgo: 'Alto', normativa: 'Dec. 351/79 Art. 138-144' },
+      { paso: 'Puesta en marcha gradual y purga de fondo', riesgo: 'Golpe de ariete en líneas de vapor / Proyección de agua hirviendo', control: 'Apertura lenta de válvulas principales, guantes térmicos y protección facial', nivelRiesgo: 'Alto', normativa: 'Dec. 351/79 Art. 140' }
+    ]
+  },
+  'Izaje con Grúa Móvil / Hidrogrúa': {
     categoria: 'Logística / Cargas',
     icon: '🏗️',
-    epps: ['Casco de seguridad', 'Calzado con puntera de acero', 'Guantes de descarne', 'Chaleco de alta visibilidad'],
+    epps: ['casco', 'guantes', 'anteojos', 'calzado'],
     tasks: [
-      { paso: 'Inspección de eslingas, grilletes y pestillo de seguridad', riesgo: 'Rotura de eslinga / Desenganche y caída de carga suspendida', control: 'Fajas con etiqueta de capacidad legible, sin cortes, y grilletes roscados al tope', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 301-318 (Aparatos de Izar)' },
-      { paso: 'Estabilización de grúa y acordonamiento de radio de giro', riesgo: 'Vuelco del equipo por suelo blando o atrapamiento de peatones', control: 'Zapatas de apoyo de madera en gatos hidráulicos y delimitación estricta con vallas', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 312' },
-      { paso: 'Izaje y guiado de carga mediante sogas vientos', riesgo: 'Aplastamiento / Balanceo imprevisto de carga en suspensión', control: 'Prohibido posicionarse bajo carga; maniobra dirigida exclusivamente por señalero Rigger', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 315' }
+      { paso: 'Inspección de eslingas, fajas, grilletes y seguro de gancho', riesgo: 'Corte de eslinga y caída libre de la carga izada', control: 'Rechazo de fajas deshilachadas o sin etiqueta WLL; pestillo de seguridad del gancho operativo', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 289-329 (Aparatos de Izar)' },
+      { paso: 'Extensión al 100% de estabilizadores sobre tacos de reparto y vallado de giro', riesgo: 'Vuelco de la grúa por hundimiento de suelo o exceso de radio', control: 'Tacos de madera dura (3x área del plato), nivelación y vallado del radio de contrapeso', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 312' },
+      { paso: 'Maniobra de izaje dirigida por señalero (Rigger) con sogas guía', riesgo: 'Aplastamiento por carga suspendida / Contacto con líneas eléctricas', control: 'Prohibición absoluta de transitar bajo carga suspendida; uso de 2 sogas viento', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 315-322' }
     ]
   },
-
-  'Autoelevador / Logística': {
+  'Operación de Puente Grúa / Aparejos': {
+    categoria: 'Logística / Cargas',
+    icon: '⛓️',
+    epps: ['casco', 'guantes', 'anteojos', 'calzado'],
+    tasks: [
+      { paso: 'Prueba de fin de carrera superior/inferior, freno electromagnético y botonera', riesgo: 'Corte de cable por sobre-elevación o caída de carga por falla de freno', control: 'Verificación previa en vacío de parada de emergencia y límites de carrera', nivelRiesgo: 'Alto', normativa: 'Dec. 351/79 Art. 114-137 (Aparatos de Izar)' },
+      { paso: 'Eslingado balanceado del centro de gravedad de la pieza', riesgo: 'Deslizamiento o giro brusco de la pieza al despegar del piso', control: 'Elevación de prueba a 15 cm del suelo para verificar nivelación antes de trasladar', nivelRiesgo: 'Alto', normativa: 'Dec. 351/79 Art. 122' },
+      { paso: 'Traslado longitudinal a baja velocidad con sirena luminosa/sonora', riesgo: 'Golpe o atrapamiento de operarios en nave industrial', control: 'Traslado por pasillos despejados a altura segura sin pasar sobre puestos de trabajo', nivelRiesgo: 'Alto', normativa: 'Dec. 351/79 Art. 126' }
+    ]
+  },
+  'Autoelevador / Logística (SRT 960/15)': {
     categoria: 'Logística / Depósito',
     icon: '🚜',
-    epps: ['Calzado de seguridad', 'Chaleco reflectivo', 'Protección auditiva (si aplica)', 'Casco de seguridad'],
+    epps: ['casco', 'calzado', 'anteojos'],
     tasks: [
-      { paso: 'Checklist pre-operacional de autoelevador', riesgo: 'Falla en frenos, dirección o pérdida de fluido hidráulico', control: 'Verificación diaria de luces, bocina, alarma de retroceso y estado de uñas', nivelRiesgo: 'Medio', normativa: 'Res. SRT 960/15 (Operación Segura de Autoelevadores)' },
-      { paso: 'Circulación en depósitos y cruces peatonales', riesgo: 'Atropellamiento de personas / Colisión con estructuras', control: 'Velocidad máxima 10 km/h, luces de piso (blue spotlight) y prioridad al peatón', nivelRiesgo: 'Alto', normativa: 'Res. SRT 960/15 Art. 7' },
-      { paso: 'Elevación y estiba de pallets en racks de altura', riesgo: 'Vuelco por sobrecarga o desmoronamiento de bultos', control: 'Carga centrada contra el respaldo, mástil inclinado hacia atrás y uso de cinturón', nivelRiesgo: 'Alto', normativa: 'Dec. 351/79 Cap. 15 / Res. SRT 960/15' }
+      { paso: 'Check-list diario pre-operacional según Res. SRT 960/15', riesgo: 'Falla de frenos, dirección, pérdida hidráulica o fisura en uñas', control: 'Inspección firmada antes del turno: cinturón, alarma retroceso, luces, extintor y horquillas', nivelRiesgo: 'Medio', normativa: 'Res. SRT 960/15 Art. 12 (Control Diario)' },
+      { paso: 'Circulación en pasillos y cruces con prioridad peatonal', riesgo: 'Atropellamiento de peatones en puntos ciegos / Vuelco en giros', control: 'Uso obligatorio de cinturón de seguridad, velocidad máx. 10 km/h y toque de bocina en esquinas', nivelRiesgo: 'Alto', normativa: 'Res. SRT 960/15 Art. 5-9' },
+      { paso: 'Estiba y desestiba de pallets en estanterías metálicas (Racks)', riesgo: 'Caída de mercadería en altura o colapso de largueros de rack', control: 'Respetar carga máxima de viga, pallet sano filmado y horquillas a 15 cm del suelo al circular', nivelRiesgo: 'Alto', normativa: 'Res. SRT 960/15 / Norma IRAM 38500' }
     ]
   },
-
-  'Manipulación de Químicos': {
+  'Carga y Descarga de Camiones': {
+    categoria: 'Logística / Depósito',
+    icon: '🚛',
+    epps: ['casco', 'guantes', 'calzado'],
+    tasks: [
+      { paso: 'Atraque en dársena, freno de mano y colocación de tacos de bloqueo en ruedas', riesgo: 'Desplazamiento imprevisto del camión durante el ingreso de zorra/autoelevador', control: 'Doble taco acuñado en ruedas traseras, motor apagado y rampa niveladora asegurada', nivelRiesgo: 'Crítico', normativa: 'Dec. 351/79 Cap. 15 / Res. SRT 960/15' },
+      { paso: 'Desenlonado y apertura de compuertas laterales de semirremolque', riesgo: 'Caída desde la batea del camión (>2 m) / Golpe por caída de bultos desplazados', control: 'Prohibido trepar sobre la carga sin línea de vida aérea; apertura progresiva desde piso', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 51 / Res. SRT 295/03' },
+      { paso: 'Movimiento manual o con transpaleta de bultos', riesgo: 'Trastornos musculoesqueléticos lumbares / Atrapamiento de pies', control: 'Respetar límite de levantamiento manual (<25 kg) y técnica de piernas flexionadas', nivelRiesgo: 'Medio', normativa: 'Res. SRT 295/03 Anexo I / Res. SRT 886/15 (Ergonomía)' }
+    ]
+  },
+  'Manipulación de Sustancias Químicas': {
     categoria: 'Químico / Medio Ambiente',
     icon: '🧪',
-    epps: ['Antiparras químicas panorámicas', 'Guantes de nitrilo caña larga', 'Delantal impermeable PVC', 'Máscara con cartuchos para vapores químicos'],
+    epps: ['anteojos', 'guantes', 'calzado'],
     tasks: [
-      { paso: 'Revisión de Ficha de Datos de Seguridad (FDS / SGA)', riesgo: 'Incompatibilidad de sustancias / Inhalación de vapores tóxicos', control: 'Disponibilidad de FDS en el puesto y verificación del diamante/pictograma SGA', nivelRiesgo: 'Medio', normativa: 'Res. SRT 801/15 (Sistema Globalmente Armonizado)' },
-      { paso: 'Trasvase y preparación en cubas con contención', riesgo: 'Derrame al suelo / Salpicaduras químicas a ojos o piel', control: 'Uso de batea de contención secundaria, delantal PVC y guantes de nitrilo largo', nivelRiesgo: 'Alto', normativa: 'Dec. 351/79 Art. 61 / Res. SRT 295/03' },
-      { paso: 'Disposición de residuos peligrosos y envases vacíos', riesgo: 'Contaminación ambiental / Reacción residual', control: 'Etiquetado de recipientes, cierre estanco y entrega a operador habilitado', nivelRiesgo: 'Medio', normativa: 'Ley Nacional 24.051 de Residuos Peligrosos' }
+      { paso: 'Lectura de Ficha de Datos de Seguridad (FDS) y etiquetado SGA', riesgo: 'Reacción violenta por mezcla incompatible / Intoxicación por inhalación', control: 'Disponibilidad de FDS de 16 secciones en el sector y envases rotulados según SGA', nivelRiesgo: 'Medio', normativa: 'Res. SRT 801/15 (Sistema Globalmente Armonizado)' },
+      { paso: 'Trasvase mediante bomba manual/eléctrica sobre batea antiderrame', riesgo: 'Salpicadura corrosiva en ojos o piel / Derrame ambiental', control: 'Batea de contención (110% volumen), lavaojos de emergencia a <10 seg y guantes de nitrilo/neopreno', nivelRiesgo: 'Alto', normativa: 'Dec. 351/79 Art. 61 y Cap. 17' },
+      { paso: 'Gestión de trapos contaminados y envases vacíos como residuo peligroso', riesgo: 'Autocombustión de trapos con solvente / Contaminación de efluentes', control: 'Acopio en tambores identificados con kit absorbente (musgo/sepiolita) disponible', nivelRiesgo: 'Medio', normativa: 'Ley Nacional 24.051 (Residuos Peligrosos)' }
     ]
   },
-
-  'Demolición / Picado': {
-    categoria: 'Construcción',
-    icon: '🧱',
-    epps: ['Protección respiratoria P100 para polvo de sílice', 'Protector auditivo de copa', 'Casco de seguridad reforzado', 'Calzado de seguridad con plantilla anticlavo'],
+  'Poda en Altura y Desmalezado': {
+    categoria: 'Mantenimiento / Servicios',
+    icon: '🌳',
+    epps: ['casco', 'anteojos', 'auditiva', 'guantes', 'calzado'],
     tasks: [
-      { paso: 'Desconexión de servicios del sector a intervenir', riesgo: 'Electrocución / Fuga de gas combustible / Inundación', control: 'Corte general verificado de suministros con constancia de las empresas prestatarias', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 120-128 (Demoliciones)' },
-      { paso: 'Colocación de pantallas colectoras y vallado inferior', riesgo: 'Caída de escombros o fragmentos sobre áreas transitadas', control: 'Bandejas colectoras rígidas, marquesinas y prohibición de paso en planta baja', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 122' },
-      { paso: 'Demolición manual progresiva de arriba hacia abajo', riesgo: 'Colapso imprevisto de estructuras portantes / Polvo de sílice', control: 'Apuntalamiento preventivo de losas, regado con agua y protección respiratoria P100', nivelRiesgo: 'Crítico', normativa: 'Dec. 911/96 Art. 124 / Res. SRT 295/03' }
+      { paso: 'Relevamiento de red eléctrica aérea cercana a la copa y vallado de vereda/calzada', riesgo: 'Electrocución por contacto de ramas con línea de media/baja tensión / Golpe a peatones', control: 'Distancia mínima de seguridad a cables, vallado de radio de caída (2x altura) y vigía en piso', nivelRiesgo: 'Crítico', normativa: 'Dec. 351/79 Anexo VI / Dec. 617/97' },
+      { paso: 'Corte controlado de ramas con motosierra y descenso con soga de apeo', riesgo: 'Corte grave por rebote de espada (kickback) / Caída del podador', control: 'Pantalón anticorte para motosierra, casco forestal con visor mallado, auditivos y doble amarre', nivelRiesgo: 'Crítico', normativa: 'IRAM 3622 / Res. SRT 299/11' },
+      { paso: 'Desmalezado de predios con motoguadaña y chipeado', riesgo: 'Proyección violenta de piedras o vidrios a alta velocidad (hasta 15 metros)', control: 'Delimitación a 15m a la redonda, protector facial integral, delantal y canilleras de cuero', nivelRiesgo: 'Alto', normativa: 'Dec. 351/79 Art. 103' }
+    ]
+  },
+  'Mantenimiento HVAC / Aire Acondicionado': {
+    categoria: 'Mantenimiento / Servicios',
+    icon: '❄️',
+    epps: ['casco', 'guantes', 'anteojos', 'arnes', 'calzado'],
+    tasks: [
+      { paso: 'Corte térmico/bloqueo eléctrico del equipo condensador e interior', riesgo: 'Choque eléctrico con capacitores cargados o arranque de ventilador forzado', control: 'Bloqueo LOTO en seccionador local, descarga de capacitores y verificación con tester', nivelRiesgo: 'Alto', normativa: 'Dec. 351/79 Anexo VI / Res. SRT 592/04' },
+      { paso: 'Montaje de unidad exterior en ménsula o azotea', riesgo: 'Caída a distinto nivel / Caída de unidad condensadora al vacío', control: 'Arnés de seguridad amarrado a punto firme y aparejo para izar el equipo condensador', nivelRiesgo: 'Alto', normativa: 'Dec. 911/96 Art. 51' },
+      { paso: 'Carga de gas refrigerante (R410A / R32) y soldadura oxiacetilénica de cañería de cobre', riesgo: 'Quemadura por congelamiento (contacto con refrigerante líquido) / Incendio por soplete', control: 'Válvulas arrestallamas en soplete, guantes criogénicos/cuero, antiparras y extintor ABC', nivelRiesgo: 'Medio', normativa: 'Dec. 351/79 Cap. 16 y 18' }
+    ]
+  },
+  'Instalación de Cañerías de Gas / Termofusión': {
+    categoria: 'Mantenimiento / Servicios',
+    icon: '🔥',
+    epps: ['casco', 'guantes', 'anteojos', 'calzado'],
+    tasks: [
+      { paso: 'Cierre de válvula de corte general, venteo y verificación con detector de gas', riesgo: 'Explosión o deflagración por gas remanente en cañería existente', control: 'Medición de 0% LEL con explosímetro antes de cortar o calentar cañerías', nivelRiesgo: 'Crítico', normativa: 'NAG-200 (ENARGAS) / Dec. 911/96 Art. 129' },
+      { paso: 'Termofusión o roscado y sellado de cañerías y accesorios', riesgo: 'Quemaduras de 2° grado por contacto con plancha termofusora (260 °C)', control: 'Soporte estable para termofusora, guantes térmicos de kevlar/cuero y área despejada', nivelRiesgo: 'Medio', normativa: 'Dec. 911/96 Art. 196' },
+      { paso: 'Prueba de hermeticidad neumática con manómetro calibrado', riesgo: 'Proyección de tapones o rotura por sobrepresión de prueba', control: 'Presurización progresiva con aire/nitrógeno (prohibido oxígeno) y control manométrico', nivelRiesgo: 'Medio', normativa: 'NAG-200 / Dec. 351/79 Cap. 16' }
     ]
   }
 };
 
+const WEATHER_OPTIONS = [
+  { id: 'Soleado / Normal', label: '☀️ Soleado / Despejado', alert: false },
+  { id: 'Nublado / Templado', label: '⛅ Nublado / Templado', alert: false },
+  { id: 'Viento Fuerte (>35 km/h)', label: '💨 Viento Fuerte (>35 km/h)', alert: true },
+  { id: 'Lluvia / Superficie Húmeda', label: '🌧️ Lluvia / Húmedo', alert: true },
+  { id: 'Alta Temperatura (>30°C)', label: '🌡️ Calor Extremo (>30°C)', alert: true },
+  { id: 'Nocturno / Ilum. Artificial', label: '🌙 Turno Nocturno', alert: false }
+];
+
 export default function ATS(): React.ReactElement | null {
   const navigate = useNavigate();
   const location = useLocation();
-  const { requirePro, isPro, daysRemaining } = usePaywall();
+  const { requirePro } = usePaywall();
   const { syncCollection, syncPulse } = useSync();
   const { currentUser } = useAuth();
+  const { activeCompany } = useCompany();
   const editData = location.state?.editData;
   useDocumentTitle(editData ? 'Editar ATS' : 'Análisis de Trabajo Seguro (ATS)');
 
-  // History State
   const [showForm, setShowForm] = useState(location.pathname.includes('/nuevo'));
+  const [presetCategoryFilter, setPresetCategoryFilter] = useState<string>('Todas');
+  const [presetSearch, setPresetSearch] = useState<string>('');
+  const [riskFilter, setRiskFilter] = useState<'all' | 'high' | 'low'>('all');
 
   useEffect(() => {
     const isNew = location.pathname.includes('/nuevo');
     setShowForm(isNew);
     window.scrollTo(0, 0);
   }, [location.pathname]);
-  const [history, setHistory] = useState([]);
+
+  const [history, setHistory] = useState<any[]>([]);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, type: '', payload: null as any });
-  const [qrTarget, setQrTarget] = useState(null);
-  const [shareItem, setShareItem] = useState(null);
+  const [qrTarget, setQrTarget] = useState<any>(null);
+  const [shareItem, setShareItem] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [previewATS, setPreviewATS] = useState<any | null>(null);
   const [printATS, setPrintATS] = useState<any | null>(null);
-  const [isPrinting, setIsPrinting] = useState(false);
 
   const handleDirectPrintATS = async (atsItem: any) => {
     setPrintATS(atsItem);
-    setIsPrinting(true);
     const toastId = toast.loading('Preparando impresión del ATS...');
     try {
       await new Promise((r) => setTimeout(r, 400));
@@ -285,7 +450,6 @@ export default function ATS(): React.ReactElement | null {
       toast.dismiss(toastId);
       window.print();
     } finally {
-      setIsPrinting(false);
       setTimeout(() => setPrintATS(null), 1500);
     }
   };
@@ -293,24 +457,61 @@ export default function ATS(): React.ReactElement | null {
   // Form State
   const [formData, setFormData] = useState({
     id: '',
-    empresa: '',
-    cuit: '',
-    obra: '',
+    empresa: activeCompany?.name || '',
+    cuit: activeCompany?.cuit || '',
+    obra: activeCompany?.establishment || activeCompany?.address || '',
     tarea: '',
+    clima: 'Soleado / Normal',
     fecha: new Date().toISOString().split('T')[0],
     capatazNombre: '',
     operatorSignature: '',
     capatazSignature: '',
     checklist: defaultChecklist,
     tareas: [
-      { id: 1, paso: 'Preparación de área', riesgo: 'Caídas', control: 'Delimitación', nivelRiesgo: 'Medio', normativa: 'Dec. 911/96 Art. 51', realizado: true },
-      { id: 2, paso: 'Ejecución de tarea', riesgo: 'Golpes', control: 'Uso de EPP', nivelRiesgo: 'Bajo', normativa: 'Dec. 351/79 Anexo V', realizado: false }
-    ] as { id: number; paso: string; riesgo: string; control: string; nivelRiesgo: string; normativa?: string; realizado: boolean }[],
-  epps: [],
-  fotos: [],
-  equiposEmergencia: [] as string[],
-  trabajadores: [] as { id: number; nombre: string; dni: string; funcion: string }[]
+      {
+        id: 1,
+        paso: 'Reconocimiento, señalización y delimitación del área de trabajo',
+        riesgo: 'Caídas al mismo nivel / Ingreso de terceros no autorizados',
+        control: 'Colocación de conos, cinta de peligro y charla previa de 5 minutos',
+        nivelRiesgo: 'Medio',
+        normativa: 'Dec. 911/96 Art. 51 / Ley 19.587',
+        realizado: true
+      },
+      {
+        id: 2,
+        paso: 'Verificación de herramientas, tableros y elementos de protección personal',
+        riesgo: 'Golpes, cortes o contacto eléctrico por herramientas defectuosas',
+        control: 'Inspección visual previa y uso obligatorio de EPP certificados (Res. 299/11)',
+        nivelRiesgo: 'Bajo',
+        normativa: 'Dec. 351/79 Anexo V y VI',
+        realizado: false
+      }
+    ] as {
+      id: number;
+      paso: string;
+      riesgo: string;
+      control: string;
+      nivelRiesgo: string;
+      normativa?: string;
+      realizado: boolean;
+    }[],
+    epps: ['casco', 'guantes', 'anteojos', 'calzado'] as string[],
+    fotos: [] as string[],
+    equiposEmergencia: ['Matafuego ABC', 'Botiquín'] as string[],
+    trabajadores: [] as { id: number; nombre: string; dni: string; funcion: string }[]
   });
+
+  // Autocompletar empresa activa cuando se abre un nuevo ATS vacío
+  useEffect(() => {
+    if (showForm && !formData.id && activeCompany) {
+      setFormData((prev) => ({
+        ...prev,
+        empresa: prev.empresa || activeCompany.name || '',
+        cuit: prev.cuit || activeCompany.cuit || '',
+        obra: prev.obra || activeCompany.establishment || activeCompany.address || ''
+      }));
+    }
+  }, [showForm, activeCompany]);
 
   const [showSignatures, setShowSignatures] = useState({
     operator: true,
@@ -328,50 +529,6 @@ export default function ATS(): React.ReactElement | null {
   const [aiTaskInput, setAiTaskInput] = useState('');
   const [isAdModalOpen, setIsAdModalOpen] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const [isListeningVoice, setIsListeningVoice] = useState(false);
-
-  const handleVoiceDictation = () => {
-    requirePro(() => {
-      // @ts-ignore
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        toast.error('Tu navegador no soporta reconocimiento de voz.');
-        return;
-      }
-
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'es-AR';
-      recognition.continuous = false;
-      recognition.interimResults = false;
-
-      recognition.onstart = () => {
-        setIsListeningVoice(true);
-        toast('Escuchando dictado... (Hablá ahora)', { icon: '🎙️' });
-      };
-
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setIsListeningVoice(false);
-        setFormData((prev) => ({
-          ...prev,
-          tarea: prev.tarea ? prev.tarea + ' ' + transcript : transcript
-        }));
-        toast.success('Dictado completado');
-      };
-
-      recognition.onerror = () => {
-        setIsListeningVoice(false);
-        toast.error('Error al escuchar. Intentá de nuevo.');
-      };
-
-      recognition.onend = () => {
-        setIsListeningVoice(false);
-      };
-
-      recognition.start();
-    });
-  };
 
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
@@ -380,11 +537,21 @@ export default function ATS(): React.ReactElement | null {
     return evaluateATSSafetyCompliance(formData);
   }, [formData]);
 
-  const nextStep = () => {if (currentStep < totalSteps) {setCurrentStep((c) => c + 1);window.scrollTo(0, 0);}};
-  const prevStep = () => {if (currentStep > 1) {setCurrentStep((c) => c - 1);window.scrollTo(0, 0);}};
+  const nextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep((c) => c + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep((c) => c - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   const handleGenerateAI = () => {
-    setAiTaskInput('');
+    setAiTaskInput(formData.tarea || '');
     setShowAIModal(true);
   };
 
@@ -394,7 +561,7 @@ export default function ATS(): React.ReactElement | null {
     setShowAIModal(false);
 
     setIsGeneratingATS(true);
-    const loadingToast = toast.loading('Calculando pasos, riesgos y protocolos...');
+    const loadingToast = toast.loading('Calculando pasos, riesgos y protocolos con IA...');
 
     try {
       const { steps, suggestedEpps } = await generateAtsStepsWithAi(taskTitle);
@@ -431,10 +598,9 @@ export default function ATS(): React.ReactElement | null {
 
     requirePro(async () => {
       setIsVisionATS(true);
-      const loadingToast = toast.loading('Analizando foto con IA...');
+      const loadingToast = toast.loading('Analizando foto de obra con IA...');
 
       try {
-        // Convert to Base64
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = async () => {
@@ -444,7 +610,7 @@ export default function ATS(): React.ReactElement | null {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${await auth.currentUser?.getIdToken(true)}`
+              Authorization: `Bearer ${await auth.currentUser?.getIdToken(true)}`
             },
             body: JSON.stringify({ imageBase64 })
           });
@@ -466,6 +632,7 @@ export default function ATS(): React.ReactElement | null {
             riesgo: item.riesgo || '',
             control: item.control || '',
             nivelRiesgo: item.nivelRiesgo || 'Medio',
+            normativa: item.normativa || 'Dec. 911/96',
             realizado: false
           }));
 
@@ -486,8 +653,7 @@ export default function ATS(): React.ReactElement | null {
         setIsVisionATS(false);
       }
     });
-    
-    // reset input
+
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -495,12 +661,11 @@ export default function ATS(): React.ReactElement | null {
     const preset = PRESETS[name];
     if (!preset) return;
     const tasks = preset.tasks;
-    
+
     setFormData((prev) => {
-      // Si la plantilla incluye EPPs sugeridos, los unimos sin duplicados
       const currentEpps = prev.epps || [];
       const newEpps = preset.epps ? [...new Set([...currentEpps, ...preset.epps])] : currentEpps;
-      
+
       return {
         ...prev,
         tarea: prev.tarea ? prev.tarea : name,
@@ -508,11 +673,11 @@ export default function ATS(): React.ReactElement | null {
         epps: newEpps
       };
     });
-    
-    toast.success(`Plantilla de ${name} aplicada con éxito (+${tasks.length} pasos)`);
+
+    toast.success(`Plantilla "${name}" aplicada (+${tasks.length} pasos y EPPs)`);
   };
 
-  const handleApplyPreset = (name) => {
+  const handleApplyPreset = (name: string) => {
     const tasks = PRESETS[name];
     if (!tasks) return;
 
@@ -527,16 +692,20 @@ export default function ATS(): React.ReactElement | null {
   const executeClearForm = () => {
     setFormData({
       id: '',
-      empresa: '', cuit: '', obra: '', tarea: '',
+      empresa: activeCompany?.name || '',
+      cuit: activeCompany?.cuit || '',
+      obra: activeCompany?.establishment || '',
+      tarea: '',
+      clima: 'Soleado / Normal',
       fecha: new Date().toISOString().split('T')[0],
       capatazNombre: '',
       operatorSignature: '',
       capatazSignature: '',
       checklist: defaultChecklist,
       tareas: [],
-      epps: [],
+      epps: ['casco', 'guantes', 'anteojos', 'calzado'],
       fotos: [],
-      equiposEmergencia: [],
+      equiposEmergencia: ['Matafuego ABC', 'Botiquín'],
       trabajadores: []
     });
     toast.success('Formulario reiniciado');
@@ -547,10 +716,15 @@ export default function ATS(): React.ReactElement | null {
   };
 
   const [professional, setProfessional] = useState({
-    name: 'Juan Pérez',
+    name: 'Profesional H&S',
     license: '',
-    signature: null
+    signature: null as string | null
   });
+
+  // Nómina de legajos guardados para selector rápido
+  const savedWorkersList = useMemo(() => {
+    return safeGetLocalStorage<any[]>('ehs_workers_roster', []);
+  }, [showForm]);
 
   // Cargar historial
   useEffect(() => {
@@ -578,11 +752,13 @@ export default function ATS(): React.ReactElement | null {
       try {
         const data = JSON.parse(savedData);
         setProfessional({
-          name: data?.name || 'Juan Pérez',
-          license: data?.license || '',
-          signature: signature
+          name: data?.fullName || data?.name || 'Profesional H&S',
+          license: data?.license || data?.matricula || '',
+          signature: data?.signature || signature
         });
-      } catch {}
+      } catch {
+        // ignore
+      }
     } else {
       setProfessional((prev) => ({ ...prev, signature }));
     }
@@ -601,7 +777,13 @@ export default function ATS(): React.ReactElement | null {
     setFormData((prev: any) => {
       const currentList = prev.checklist || [];
       const newId = Date.now() + Math.floor(Math.random() * 1000);
-      const newQuestion = { id: newId, categoria, pregunta: 'Nueva Pregunta de Seguridad', estado: 'Cumple', observaciones: '' };
+      const newQuestion = {
+        id: newId,
+        categoria,
+        pregunta: 'Nueva pregunta de verificación preventiva',
+        estado: 'Cumple',
+        observaciones: ''
+      };
       return { ...prev, checklist: [...currentList, newQuestion] };
     });
   };
@@ -626,8 +808,42 @@ export default function ATS(): React.ReactElement | null {
     setFormData((prev: any) => {
       const currentTasks = prev.tareas || [];
       const newId = Date.now() + Math.floor(Math.random() * 1000);
-      const newTask = { id: newId, paso: '', riesgo: '', control: '', nivelRiesgo: 'Bajo', realizado: false };
+      const newTask = {
+        id: newId,
+        paso: '',
+        riesgo: '',
+        control: '',
+        nivelRiesgo: 'Medio',
+        normativa: 'Dec. 911/96 / Dec. 351/79',
+        realizado: false
+      };
       return { ...prev, tareas: [...currentTasks, newTask] };
+    });
+    toast.success('Nuevo paso agregado');
+  };
+
+  const duplicateTask = (taskItem: any, index: number) => {
+    setFormData((prev: any) => {
+      const currentTasks = [...(prev.tareas || [])];
+      const copy = {
+        ...taskItem,
+        id: Date.now() + Math.floor(Math.random() * 1000)
+      };
+      currentTasks.splice(index + 1, 0, copy);
+      return { ...prev, tareas: currentTasks };
+    });
+    toast.success(`Paso ${index + 1} duplicado`);
+  };
+
+  const moveTask = (index: number, direction: 'up' | 'down') => {
+    setFormData((prev: any) => {
+      const currentTasks = [...(prev.tareas || [])];
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= currentTasks.length) return prev;
+      const temp = currentTasks[index];
+      currentTasks[index] = currentTasks[targetIndex];
+      currentTasks[targetIndex] = temp;
+      return { ...prev, tareas: currentTasks };
     });
   };
 
@@ -649,7 +865,7 @@ export default function ATS(): React.ReactElement | null {
   };
 
   const handleSave = async () => {
-    const history = safeGetLocalStorage<any[]>('ats_history', []);
+    const savedHistory = safeGetLocalStorage<any[]>('ats_history', []);
     const entryId = formData.id || Date.now().toString();
     const newEntry = {
       ...formData,
@@ -662,17 +878,31 @@ export default function ATS(): React.ReactElement | null {
 
     let updated;
     if (formData.id) {
-      updated = history.map((h) => h.id === entryId ? newEntry : h);
+      updated = savedHistory.map((h) => (h.id === entryId ? newEntry : h));
     } else {
-      updated = [newEntry, ...history];
+      updated = [newEntry, ...savedHistory];
     }
 
     localStorage.setItem('ats_history', JSON.stringify(updated));
     setHistory(updated);
     await syncCollection('ats_history', updated);
-    toast.success('Análisis de Trabajo Seguro guardado con éxito');
+    toast.success('Análisis de Trabajo Seguro guardado con éxito ✅');
     setShowForm(false);
     navigate('/ats');
+  };
+
+  const handleCloneATS = (item: any) => {
+    const cloned = {
+      ...item,
+      id: '',
+      fecha: new Date().toISOString().split('T')[0],
+      operatorSignature: '',
+      capatazSignature: ''
+    };
+    setFormData(cloned);
+    setCurrentStep(1);
+    setShowForm(true);
+    toast.success('ATS clonado con fecha de hoy. Revisá y guardá.');
   };
 
   const handleShare = () => requirePro(() => setShowShare(true));
@@ -685,43 +915,38 @@ export default function ATS(): React.ReactElement | null {
       }
       try {
         await printElementAsDocument('pdf-content', `ATS - ${formData.empresa || 'Reporte'}`, false);
-      } catch (err) {
-        document.body.classList.add('printing-isolated');
-        element.classList.add('isolated-print-target');
-
-        const cleanup = () => {
-          document.body.classList.remove('printing-isolated');
-          element.classList.remove('isolated-print-target');
-          window.removeEventListener('afterprint', cleanup);
-          window.removeEventListener('focus', cleanup);
-        };
-
-        window.addEventListener('afterprint', cleanup);
-        window.addEventListener('focus', cleanup);
-
-        setTimeout(cleanup, 1500);
+      } catch {
         window.print();
       }
     });
   };
 
-
-  // Grouping checklist by category
   const categories = [...new Set(formData.checklist.map((i) => i.categoria))];
 
-  // --- Progress tracking ---
   const progressItems = [
-  { label: 'Empresa', done: !!formData.empresa?.trim() },
-  { label: 'Obra/Ubicación', done: !!formData.obra?.trim() },
-  { label: 'Descripción de tarea', done: !!formData.tarea?.trim() },
-  { label: 'Responsable', done: !!formData.capatazNombre?.trim() },
-  { label: 'Secuencia de tareas', done: formData.tareas.length > 0 && formData.tareas.every((t) => t.paso?.trim() && t.riesgo?.trim()) },
-  { label: 'Checklist preventivo', done: formData.checklist.every((c) => c.estado !== '') }];
+    { label: 'Empresa', done: !!formData.empresa?.trim() },
+    { label: 'Obra/Ubicación', done: !!formData.obra?.trim() },
+    { label: 'Descripción de tarea', done: !!formData.tarea?.trim() },
+    { label: 'Responsable', done: !!formData.capatazNombre?.trim() },
+    {
+      label: 'Secuencia de tareas',
+      done: formData.tareas.length > 0 && formData.tareas.every((t) => t.paso?.trim() && t.riesgo?.trim())
+    },
+    { label: 'Checklist preventivo', done: formData.checklist.every((c) => c.estado !== '') }
+  ];
 
   const completedCount = progressItems.filter((p) => p.done).length;
-  const progressPct = Math.round(completedCount / progressItems.length * 100);
-  const progressLabel = progressPct === 100 ? 'Listo para guardar ✅' : progressPct >= 66 ? 'Casi completo' : progressPct >= 33 ? 'En progreso' : 'Pendiente';
-  const progressColor = progressPct === 100 ? '#10b981' : progressPct >= 66 ? '#f59e0b' : progressPct >= 33 ? '#3b82f6' : '#94a3b8';
+  const progressPct = Math.round((completedCount / progressItems.length) * 100);
+  const progressLabel =
+    progressPct === 100
+      ? 'Listo para guardar ✅'
+      : progressPct >= 66
+      ? 'Casi completo'
+      : progressPct >= 33
+      ? 'En progreso'
+      : 'Pendiente';
+  const progressColor =
+    progressPct === 100 ? '#10b981' : progressPct >= 66 ? '#f59e0b' : progressPct >= 33 ? '#3b82f6' : '#94a3b8';
 
   const executeConfirmAction = () => {
     if (confirmModal.type === 'delete') {
@@ -740,112 +965,307 @@ export default function ATS(): React.ReactElement | null {
 
   const handleExportCSV = () => {
     requirePro(() => {
-      downloadCSV(history.map((i: any) => ({
-        empresa: i.empresa, obra: i.obra, fecha: i.fecha,
-        responsable: i.capatazNombre || '', tarea: i.tarea || ''
-      })), 'ats_historial', {
-        empresa: 'Empresa', obra: 'Obra/Proyecto', fecha: 'Fecha',
-        responsable: 'Responsable', tarea: 'Tarea'
-      });
+      downloadCSV(
+        history.map((i: any) => ({
+          empresa: i.empresa,
+          obra: i.obra,
+          fecha: i.fecha,
+          responsable: i.capatazNombre || '',
+          tarea: i.tarea || '',
+          pasos: (i.tareas || []).length
+        })),
+        'ats_historial',
+        {
+          empresa: 'Empresa',
+          obra: 'Obra/Proyecto',
+          fecha: 'Fecha',
+          responsable: 'Responsable',
+          tarea: 'Tarea',
+          pasos: 'Cant. Pasos'
+        }
+      );
     });
   };
-
   const columns = [
-  {
-    header: 'Fecha',
-    accessor: 'fecha',
-    sortable: true,
-    render: (item: any) =>
-    <span className="flex items-center gap-[0.4rem] text-[var(--color-text-muted)] white-space-[nowrap]">
-                    <Calendar size={14} /> {item.fecha}
-                </span>
+    {
+      header: 'Fecha',
+      accessor: 'fecha',
+      sortable: true,
+      render: (item: any) => (
+        <span
+          className="flex items-center gap-1.5 text-xs font-bold whitespace-nowrap"
+          style={{ color: 'var(--color-text-light)' }}
+        >
+          <Calendar size={14} color="#f59e0b" /> {item.fecha}
+        </span>
+      )
+    },
+    {
+      header: 'Empresa y Tarea',
+      accessor: 'empresa',
+      sortable: true,
+      render: (item: any) => {
+        const hasCrit = item.tareas?.some((t: any) => t.nivelRiesgo === 'Crítico');
+        const hasHigh = item.tareas?.some((t: any) => t.nivelRiesgo === 'Alto');
+        return (
+          <div className="flex items-center gap-3 min-w-0">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+              style={{
+                backgroundColor: hasCrit
+                  ? 'rgba(225, 29, 72, 0.14)'
+                  : hasHigh
+                  ? 'rgba(245, 158, 11, 0.15)'
+                  : 'rgba(16, 185, 129, 0.14)',
+                color: hasCrit ? '#e11d48' : hasHigh ? '#d97706' : '#059669'
+              }}
+            >
+              <ClipboardList size={17} />
+            </div>
+            <div className="min-w-0">
+              <div className="font-black text-xs sm:text-sm truncate" style={{ color: 'var(--color-text)' }}>
+                {item.empresa || 'Sin nombre'}
+              </div>
+              <div className="text-[11px] truncate" style={{ color: 'var(--color-text-light)' }}>
+                {item.tarea || `${(item.tareas || []).length} pasos preventivos`}
+              </div>
+            </div>
+          </div>
+        );
+      }
+    },
+    {
+      header: 'Obra / Proyecto',
+      accessor: 'obra',
+      sortable: true,
+      render: (item: any) => (
+        <span className="flex items-center gap-1.5 text-xs font-bold" style={{ color: 'var(--color-text)' }}>
+          <Building2 size={14} color="#3b82f6" /> {item.obra || '—'}
+        </span>
+      )
+    },
+    {
+      header: 'Responsable',
+      accessor: 'capatazNombre',
+      render: (item: any) => (
+        <span className="text-xs font-semibold" style={{ color: 'var(--color-text-light)' }}>
+          {item.capatazNombre || '—'}
+        </span>
+      )
+    },
+    {
+      header: 'Acciones',
+      accessor: 'id',
+      render: (item: any) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => setPreviewATS(item)}
+            title="Vista previa A4"
+            style={{
+              marginBottom: 0,
+              backgroundColor: '#0284c7',
+              color: '#ffffff',
+              border: 'none',
+              padding: '5px 9px',
+              fontSize: '11px',
+              fontWeight: 800,
+              borderRadius: '7px',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            <EyeIcon size={12} /> Previa
+          </button>
 
-  },
-  {
-    header: 'Empresa',
-    accessor: 'empresa',
-    sortable: true,
-    render: (item: any) =>
-    <div className="flex items-center gap-[0.8rem]">
-                    <div className="bg-[rgba(16,185,129,0.1)] p-[0.5rem] rounded-[8px] text-[var(--color-secondary)]">
-                        <ClipboardList size={16} />
-                    </div>
-                    <div className="font-[700]">{item.empresa || 'Sin nombre'}</div>
-                </div>
+          <button
+            type="button"
+            onClick={() => handleDirectPrintATS(item)}
+            title="Imprimir PDF directo"
+            style={{
+              marginBottom: 0,
+              backgroundColor: '#059669',
+              color: '#ffffff',
+              border: 'none',
+              padding: '5px 9px',
+              fontSize: '11px',
+              fontWeight: 800,
+              borderRadius: '7px',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            <Printer size={12} /> PDF
+          </button>
 
-  },
-  {
-    header: 'Obra / Proyecto',
-    accessor: 'obra',
-    sortable: true,
-    render: (item: any) =>
-    <span className="flex items-center gap-[0.4rem]">
-                    <Building2 size={14} /> {item.obra || '—'}
-                </span>
+          <button
+            type="button"
+            onClick={() => {
+              setFormData(item);
+              setCurrentStep(1);
+              setShowForm(true);
+            }}
+            title="Ver / Editar ATS"
+            style={{
+              marginBottom: 0,
+              backgroundColor: '#d97706',
+              color: '#ffffff',
+              border: 'none',
+              padding: '5px 9px',
+              fontSize: '11px',
+              fontWeight: 800,
+              borderRadius: '7px',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            <FileText size={12} /> Editar
+          </button>
 
-  },
-  {
-    header: 'Responsable',
-    accessor: 'capatazNombre',
-    render: (item: any) => <span className="text-[var(--color-text-muted)]">{item.capatazNombre || '—'}</span>
-  },
-  {
-    header: 'Acciones',
-    accessor: 'id',
-    render: (item: any) => (
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-        <button
-          onClick={() => setPreviewATS(item)}
-          title="Vista previa A4"
-          style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '4px 8px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <EyeIcon size={12} /> Previa
-        </button>
+          <button
+            type="button"
+            onClick={() => handleCloneATS(item)}
+            title="Duplicar ATS con fecha de hoy"
+            style={{
+              marginBottom: 0,
+              backgroundColor: '#7c3aed',
+              color: '#ffffff',
+              border: 'none',
+              padding: '5px 9px',
+              fontSize: '11px',
+              fontWeight: 800,
+              borderRadius: '7px',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            <Copy size={12} /> Clonar
+          </button>
 
-        <button
-          onClick={() => handleDirectPrintATS(item)}
-          title="Imprimir PDF directo"
-          style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '4px 8px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <Printer size={12} /> PDF
-        </button>
+          <button
+            type="button"
+            onClick={() =>
+              requirePro(() => {
+                const url = `${window.location.origin}/v/${currentUser?.uid}/ats/${item.id}?print=true`;
+                setQrTarget({ text: url, title: `ATS — ${item.empresa}` });
+              })
+            }
+            title="Ver Código QR"
+            style={{
+              marginBottom: 0,
+              backgroundColor: '#2563eb',
+              color: '#ffffff',
+              border: 'none',
+              padding: '5px 9px',
+              fontSize: '11px',
+              fontWeight: 800,
+              borderRadius: '7px',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            <QrCode size={12} /> QR
+          </button>
 
-        <button
-          onClick={() => { setFormData(item); setShowForm(true); }}
-          title="Ver / Editar ATS"
-          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 8px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <FileText size={12} /> Editar
-        </button>
+          <button
+            type="button"
+            onClick={() => requirePro(() => setShareItem(safeGetLocalStorage<any>('ats_' + item.id, null) || item))}
+            title="Compartir Informe"
+            style={{
+              marginBottom: 0,
+              backgroundColor: '#10b981',
+              color: '#ffffff',
+              border: 'none',
+              padding: '5px 9px',
+              fontSize: '11px',
+              fontWeight: 800,
+              borderRadius: '7px',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            <Share2 size={12} /> Compartir
+          </button>
 
-        <button
-          onClick={() => requirePro(() => { const url = `${window.location.origin}/v/${currentUser?.uid}/ats/${item.id}?print=true`; setQrTarget({ text: url, title: `ATS — ${item.empresa}` } as any); })}
-          title="Ver Código QR"
-          style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <QrCode size={12} /> QR
-        </button>
+          <button
+            type="button"
+            onClick={() => setConfirmModal({ isOpen: true, type: 'delete', payload: item.id })}
+            title="Eliminar ATS"
+            style={{
+              marginBottom: 0,
+              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+              color: '#ffffff',
+              border: 'none',
+              padding: '5px 10px',
+              fontSize: '11px',
+              fontWeight: 800,
+              borderRadius: '7px',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            <Trash2 size={13} style={{ flexShrink: 0 }} /> Eliminar
+          </button>
+        </div>
+      )
+    }
+  ];
 
-        <button
-          onClick={() => requirePro(() => setShareItem(safeGetLocalStorage<any>('ats_' + item.id, null) || item))}
-          title="Compartir Informe"
-          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <Share2 size={12} /> Compartir
-        </button>
+  const filteredHistory = useMemo(() => {
+    return history.filter((e: any) => {
+      const query = searchTerm.toLowerCase();
+      const matchesText =
+        (e.empresa || '').toLowerCase().includes(query) ||
+        (e.obra || '').toLowerCase().includes(query) ||
+        (e.tarea || '').toLowerCase().includes(query) ||
+        (e.capatazNombre || '').toLowerCase().includes(query);
 
-        <button
-          onClick={() => setConfirmModal({ isOpen: true, type: 'delete', payload: item.id })}
-          title="Eliminar ATS"
-          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <Trash2 size={12} /> Eliminar
-        </button>
-      </div>
-    )
-  }];
+      if (!matchesText) return false;
 
+      if (riskFilter === 'high') {
+        return e.tareas?.some((t: any) => t.nivelRiesgo === 'Alto' || t.nivelRiesgo === 'Crítico');
+      }
+      if (riskFilter === 'low') {
+        return !e.tareas?.some((t: any) => t.nivelRiesgo === 'Alto' || t.nivelRiesgo === 'Crítico');
+      }
+      return true;
+    });
+  }, [history, searchTerm, riskFilter]);
 
-  const filteredHistory = history.filter((e: any) => {
-    const query = searchTerm.toLowerCase();
-    return (e.empresa || '').toLowerCase().includes(query) ||
-    (e.obra || '').toLowerCase().includes(query) ||
-    (e.capatazNombre || '').toLowerCase().includes(query);
-  });
+  const presetCategories = useMemo(() => {
+    const cats = new Set<string>(['Todas']);
+    Object.values(PRESETS).forEach((p) => {
+      const mainCat = p.categoria.split('/')[0].trim();
+      cats.add(mainCat);
+    });
+    return Array.from(cats);
+  }, []);
+
+  const filteredPresets = useMemo(() => {
+    return Object.entries(PRESETS).filter(([name, p]) => {
+      const matchesCat =
+        presetCategoryFilter === 'Todas' || p.categoria.toLowerCase().includes(presetCategoryFilter.toLowerCase());
+      const matchesSearch =
+        !presetSearch.trim() ||
+        name.toLowerCase().includes(presetSearch.toLowerCase()) ||
+        p.categoria.toLowerCase().includes(presetSearch.toLowerCase());
+      return matchesCat && matchesSearch;
+    });
+  }, [presetCategoryFilter, presetSearch]);
 
   const buildATSShareMessage = (item: any) => {
     if (!item) return '';
@@ -853,187 +1273,439 @@ export default function ATS(): React.ReactElement | null {
     const hasCrit = tareas.some((t: any) => t.nivelRiesgo === 'Crítico');
     const hasHigh = tareas.some((t: any) => t.nivelRiesgo === 'Alto');
     const hasMed = tareas.some((t: any) => t.nivelRiesgo === 'Medio');
-    const riskLabel = hasCrit ? '🔴 RIESGO CRÍTICO' : hasHigh ? '🟠 RIESGO ALTO' : hasMed ? '🟡 RIESGO MEDIO' : '🟢 RIESGO BAJO';
-    
-    const keywords = ['altura', 'andamio', 'soldad', 'caliente', 'excava', 'zanja', 'loto', 'bloqueo', 'electri', 'confinado', 'izada', 'grua', 'autoelevador'];
-    const matchesKeyword = keywords.some((kw) => (item.tarea || '').toLowerCase().includes(kw) || tareas.some((t: any) => (t.paso || '').toLowerCase().includes(kw) || (t.riesgo || '').toLowerCase().includes(kw)));
-    const ptText = (hasCrit || hasHigh || matchesKeyword) ? '\n🛑 *PERMISO DE TRABAJO (PT):* OBLIGATORIO ADJUNTO' : '';
+    const riskLabel = hasCrit
+      ? '🔴 RIESGO CRÍTICO'
+      : hasHigh
+      ? '🟠 RIESGO ALTO'
+      : hasMed
+      ? '🟡 RIESGO MEDIO'
+      : '🟢 RIESGO BAJO';
+
+    const keywords = [
+      'altura',
+      'andamio',
+      'soldad',
+      'caliente',
+      'excava',
+      'zanja',
+      'loto',
+      'bloqueo',
+      'electri',
+      'confinado',
+      'izada',
+      'grua',
+      'autoelevador'
+    ];
+    const matchesKeyword = keywords.some(
+      (kw) =>
+        (item.tarea || '').toLowerCase().includes(kw) ||
+        tareas.some(
+          (t: any) => (t.paso || '').toLowerCase().includes(kw) || (t.riesgo || '').toLowerCase().includes(kw)
+        )
+    );
+    const ptText =
+      hasCrit || hasHigh || matchesKeyword ? '\n🛑 *PERMISO DE TRABAJO (PTAR):* OBLIGATORIO ADJUNTO' : '';
 
     const eppsList = (item.epps || []).length > 0 ? `\n🦺 *EPPs Obligatorios:* ${item.epps.join(', ')}` : '';
-    const eqEmergencia = (item.equiposEmergencia || []).length > 0 ? `\n🧯 *Equipos Emergencia:* ${item.equiposEmergencia.join(', ')}` : '';
+    const eqEmergencia =
+      (item.equiposEmergencia || []).length > 0
+        ? `\n🧯 *Equipos Emergencia:* ${item.equiposEmergencia.join(', ')}`
+        : '';
     const trabajadoresCount = (item.trabajadores || []).length;
-    const trabajadoresText = trabajadoresCount > 0 ? `\n👥 *Personal Acreditado:* ${trabajadoresCount} operario(s)` : '';
+    const trabajadoresText =
+      trabajadoresCount > 0 ? `\n👥 *Personal Acreditado:* ${trabajadoresCount} operario(s)` : '';
 
-    return `🔐 *ANÁLISIS DE TRABAJO SEGURO (ATS)*\n🏗️ *Empresa:* ${item.empresa || '-'}\n🚧 *Obra/Ubicación:* ${item.obra || '-'}\n📅 *Fecha:* ${item.fecha || '-'}\n👷 *Capataz/Resp:* ${item.capatazNombre || '-'}\n📋 *Tarea:* ${item.tarea || '-'}\n\n📊 *Nivel de Riesgo:* ${riskLabel}${ptText}${eppsList}${eqEmergencia}${trabajadoresText}\n\n_Generado con Asistente H&S_`;
+    return `🔐 *ANÁLISIS DE TRABAJO SEGURO (ATS)*\n🏗️ *Empresa:* ${item.empresa || '-'}\n🚧 *Obra/Ubicación:* ${
+      item.obra || '-'
+    }\n📅 *Fecha:* ${item.fecha || '-'}\n👷 *Capataz/Resp:* ${item.capatazNombre || '-'}\n📋 *Tarea:* ${
+      item.tarea || '-'
+    }\n\n📊 *Nivel de Riesgo:* ${riskLabel}${ptText}${eppsList}${eqEmergencia}${trabajadoresText}\n\n_Generado con Asistente H&S_`;
   };
 
   return (
     <>
-            <style>{printStyles}</style>
-            <AdModal
-        isOpen={isAdModalOpen}
-        onClose={() => setIsAdModalOpen(false)}
-        adSlot="ats-popup" />
-      
-      <div className="container w-full max-w-[1200px] pt-8 md:pt-12 pb-48 px-4 mx-auto">
-        {/* Breadcrumbs de navegación */}
+      <style>{printStyles}</style>
+      <AdModal isOpen={isAdModalOpen} onClose={() => setIsAdModalOpen(false)} adSlot="ats-popup" />
+
+      <div
+        className="container max-w-6xl mx-auto px-3 sm:px-6 animate-fade-in"
+        style={{
+          paddingTop: '7.25rem',
+          paddingBottom: '6.5rem',
+          margin: '0 auto',
+          width: '100%'
+        }}
+      >
         <Breadcrumbs />
 
-        <PremiumHeader 
-          onBack={showForm ? () => { setShowForm(false); } : undefined}
-          title="Generador de ATS"
-          subtitle="Identificación y control de riesgos para tareas críticas"
-          icon={<ClipboardList size={36} color="#ffffff" />}
-          color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
-        />
+        <div className="mb-5 sm:mb-6">
+          <PremiumHeader
+            onBack={
+              showForm
+                ? () => {
+                    setShowForm(false);
+                  }
+                : undefined
+            }
+            title="Generador de ATS (Análisis de Trabajo Seguro)"
+            subtitle="Identificación paso a paso de peligros, jerarquía de controles Ley 19.587 / Dec. 911/96 y matriz P×S."
+            icon={<ClipboardList size={32} color="#ffffff" />}
+            gradient="linear-gradient(135deg, #d97706 0%, #ea580c 50%, #b45309 100%)"
+            badge={`${Object.keys(PRESETS).length} Plantillas Técnicas`}
+          />
+        </div>
 
         {!showForm ? (
           <>
-            {/* KPIs */}
-            <div className="no-print grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 mt-6">
-              <div 
-                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-                className="p-5 rounded-2xl shadow-sm flex items-center gap-4"
+            {/* 4 KPIs Superiores */}
+            <div className="no-print grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+              <div
+                style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                className="p-4 rounded-2xl shadow-sm flex items-center justify-between gap-3"
               >
-                <div 
-                  style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}
-                  className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                >
-                  <ClipboardList size={26} />
+                <div className="min-w-0">
+                  <span
+                    className="text-[11px] font-bold uppercase tracking-wider block"
+                    style={{ color: 'var(--color-text-light)' }}
+                  >
+                    ATS Emitidos
+                  </span>
+                  <span className="text-xl sm:text-2xl font-black block mt-1" style={{ color: '#d97706' }}>
+                    {history.length}
+                  </span>
+                  <span className="text-[11px] block mt-0.5 truncate" style={{ color: 'var(--color-text-light)' }}>
+                    Historial en dispositivo
+                  </span>
                 </div>
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-wider block" style={{ color: 'var(--color-text-muted)' }}>ATS Registrados</div>
-                  <div className="text-2xl font-black" style={{ color: '#f59e0b' }}>{history.length} <span className="text-xs font-normal" style={{ color: 'var(--color-text-muted)' }}>documentos</span></div>
+                <div
+                  style={{ backgroundColor: 'rgba(245, 158, 11, 0.14)', color: '#d97706' }}
+                  className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
+                >
+                  <ClipboardList size={22} />
                 </div>
               </div>
 
-              <div 
-                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-                className="p-5 rounded-2xl shadow-sm flex items-center gap-4"
+              <div
+                style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                className="p-4 rounded-2xl shadow-sm flex items-center justify-between gap-3"
               >
-                <div 
-                  style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444' }}
-                  className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                >
-                  <ShieldAlert size={26} />
+                <div className="min-w-0">
+                  <span
+                    className="text-[11px] font-bold uppercase tracking-wider block"
+                    style={{ color: 'var(--color-text-light)' }}
+                  >
+                    Riesgo Alto / Crítico
+                  </span>
+                  <span className="text-xl sm:text-2xl font-black block mt-1" style={{ color: '#dc2626' }}>
+                    {
+                      history.filter((h: any) =>
+                        h.tareas?.some((t: any) => t.nivelRiesgo === 'Alto' || t.nivelRiesgo === 'Crítico')
+                      ).length
+                    }
+                  </span>
+                  <span className="text-[11px] block mt-0.5 truncate" style={{ color: 'var(--color-text-light)' }}>
+                    Requieren Permiso PTAR
+                  </span>
                 </div>
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-wider block" style={{ color: 'var(--color-text-muted)' }}>Tareas de Riesgo Alto</div>
-                  <div className="text-2xl font-black" style={{ color: '#ef4444' }}>
-                    {history.filter((h: any) => h.tareas?.some((t: any) => t.nivelRiesgo === 'Alto')).length} <span className="text-xs font-normal" style={{ color: 'var(--color-text-muted)' }}>críticos</span>
-                  </div>
+                <div
+                  style={{ backgroundColor: 'rgba(239, 68, 68, 0.14)', color: '#dc2626' }}
+                  className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
+                >
+                  <ShieldAlert size={22} />
                 </div>
               </div>
 
-              <div 
-                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-                className="p-5 rounded-2xl shadow-sm flex items-center gap-4"
+              <div
+                style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                className="p-4 rounded-2xl shadow-sm flex items-center justify-between gap-3"
               >
-                <div 
-                  style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' }}
-                  className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                >
-                  <Activity size={26} />
+                <div className="min-w-0">
+                  <span
+                    className="text-[11px] font-bold uppercase tracking-wider block"
+                    style={{ color: 'var(--color-text-light)' }}
+                  >
+                    Últimos 7 Días
+                  </span>
+                  <span className="text-xl sm:text-2xl font-black block mt-1" style={{ color: '#2563eb' }}>
+                    {
+                      history.filter(
+                        (h: any) => new Date(h.fecha) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+                      ).length
+                    }
+                  </span>
+                  <span className="text-[11px] block mt-0.5 truncate" style={{ color: 'var(--color-text-light)' }}>
+                    Actividad semanal
+                  </span>
                 </div>
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-wider block" style={{ color: 'var(--color-text-muted)' }}>Última Semana</div>
-                  <div className="text-2xl font-black" style={{ color: '#3b82f6' }}>
-                    {history.filter((h: any) => new Date(h.fecha) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length} <span className="text-xs font-normal" style={{ color: 'var(--color-text-muted)' }}>recientes</span>
-                  </div>
+                <div
+                  style={{ backgroundColor: 'rgba(37, 99, 235, 0.14)', color: '#2563eb' }}
+                  className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
+                >
+                  <Activity size={22} />
+                </div>
+              </div>
+
+              <div
+                style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                className="p-4 rounded-2xl shadow-sm flex items-center justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <span
+                    className="text-[11px] font-bold uppercase tracking-wider block"
+                    style={{ color: 'var(--color-text-light)' }}
+                  >
+                    Plantillas Rápidas
+                  </span>
+                  <span className="text-xl sm:text-2xl font-black block mt-1" style={{ color: '#059669' }}>
+                    {Object.keys(PRESETS).length}
+                  </span>
+                  <span className="text-[11px] block mt-0.5 truncate" style={{ color: 'var(--color-text-light)' }}>
+                    Rubros precargados
+                  </span>
+                </div>
+                <div
+                  style={{ backgroundColor: 'rgba(16, 185, 129, 0.14)', color: '#059669' }}
+                  className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
+                >
+                  <Sparkles size={22} />
                 </div>
               </div>
             </div>
 
             {/* Action Bar & Search Input */}
-            <div 
-              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-              className="mb-6 p-4 md:p-6 rounded-2xl shadow-sm flex gap-4 flex-wrap items-center justify-between"
+            <div
+              style={{
+                backgroundColor: 'var(--color-surface)',
+                border: '1px solid var(--color-border)',
+                borderRadius: '1.35rem',
+                padding: '1rem 1.25rem',
+                marginBottom: '1.5rem',
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '0.85rem',
+                width: '100%',
+                boxSizing: 'border-box',
+                boxShadow: '0 4px 16px rgba(15, 23, 42, 0.04)'
+              }}
             >
-              <div className="flex-1 min-w-[260px] relative h-[50px]">
-                <Search 
-                  size={20} 
-                  style={{ 
-                    position: 'absolute', 
-                    left: '1rem', 
-                    top: 0, 
-                    bottom: 0, 
-                    marginTop: 'auto', 
-                    marginBottom: 'auto', 
-                    color: '#10b981', 
-                    display: 'block' 
-                  }} 
-                  className="pointer-events-none z-10" 
-                />
-                <input
-                  type="text"
-                  placeholder="Buscar por empresa, obra o responsable..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{ 
-                    width: '100%', 
-                    height: '50px',
-                    paddingLeft: '3rem',
-                    paddingRight: '1rem',
-                    fontSize: '0.95rem', 
-                    outline: 'none', 
-                    fontWeight: 600, 
-                    color: 'var(--color-text)',
+              {/* Buscador + Filtros de Riesgo */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  flex: '1 1 460px',
+                  minWidth: '260px'
+                }}
+              >
+                {/* Caja de Búsqueda con Lupa Centrada */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.65rem',
+                    flex: '1 1 260px',
+                    minWidth: '220px',
+                    height: '46px',
+                    padding: '0 1rem',
+                    borderRadius: '0.85rem',
+                    backgroundColor: 'var(--color-background)',
+                    border: '1.5px solid var(--color-border)',
                     boxSizing: 'border-box'
-                  }} 
-                  className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-medium focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors shadow-sm"
-                />
+                  }}
+                >
+                  <Search size={18} style={{ color: '#10b981', flexShrink: 0 }} />
+                  <input
+                    type="text"
+                    placeholder="Buscar por empresa, obra, tarea o responsable..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{
+                      marginBottom: 0,
+                      width: '100%',
+                      height: '100%',
+                      padding: 0,
+                      border: 'none',
+                      background: 'transparent',
+                      color: 'var(--color-text)',
+                      fontSize: '0.86rem',
+                      fontWeight: 600,
+                      outline: 'none',
+                      boxShadow: 'none'
+                    }}
+                  />
+                  {searchTerm && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchTerm('')}
+                      title="Limpiar búsqueda"
+                      style={{
+                        marginBottom: 0,
+                        padding: '0.15rem 0.45rem',
+                        borderRadius: '9999px',
+                        background: 'rgba(100, 116, 139, 0.15)',
+                        color: 'var(--color-text-light)',
+                        border: 'none',
+                        fontSize: '0.7rem',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        flexShrink: 0
+                      }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {/* Filtro por Nivel de Riesgo */}
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    padding: '0.3rem',
+                    borderRadius: '0.85rem',
+                    backgroundColor: 'var(--color-background)',
+                    border: '1.5px solid var(--color-border)',
+                    flexShrink: 0
+                  }}
+                >
+                  {[
+                    { id: 'all', label: 'Todos' },
+                    { id: 'high', label: '🔴 Críticos/Altos' },
+                    { id: 'low', label: '🟢 Medios/Bajos' }
+                  ].map((f) => {
+                    const active = riskFilter === f.id;
+                    return (
+                      <button
+                        key={f.id}
+                        type="button"
+                        onClick={() => setRiskFilter(f.id as any)}
+                        style={{
+                          marginBottom: 0,
+                          padding: '0.45rem 0.8rem',
+                          borderRadius: '0.65rem',
+                          background: active
+                            ? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)'
+                            : 'transparent',
+                          color: active ? '#ffffff' : 'var(--color-text)',
+                          border: 'none',
+                          fontSize: '0.74rem',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          whiteSpace: 'nowrap',
+                          boxShadow: active ? '0 2px 8px rgba(37, 99, 235, 0.25)' : 'none'
+                        }}
+                      >
+                        {f.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-              
-              <div className="flex gap-3 flex-wrap">
+
+              {/* Botones de Acción Derecha */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.65rem',
+                  flexWrap: 'wrap',
+                  flexShrink: 0
+                }}
+              >
                 <button
+                  type="button"
                   onClick={() => {
                     setFormData({
-                      id: '', empresa: '', cuit: '', obra: '', tarea: '', fecha: new Date().toISOString().split('T')[0], capatazNombre: '', operatorSignature: '', capatazSignature: '', checklist: defaultChecklist, tareas: [{ id: 1, paso: 'Preparación de área', riesgo: 'Caídas', control: 'Delimitación', nivelRiesgo: 'Medio', realizado: true }, { id: 2, paso: 'Ejecución de tarea', riesgo: 'Golpes', control: 'Uso de EPP', nivelRiesgo: 'Bajo', realizado: false }], epps: [], fotos: [], equiposEmergencia: [], trabajadores: []
+                      id: '',
+                      empresa: activeCompany?.name || '',
+                      cuit: activeCompany?.cuit || '',
+                      obra: activeCompany?.establishment || '',
+                      tarea: '',
+                      clima: 'Soleado / Normal',
+                      fecha: new Date().toISOString().split('T')[0],
+                      capatazNombre: '',
+                      operatorSignature: '',
+                      capatazSignature: '',
+                      checklist: defaultChecklist,
+                      tareas: [
+                        {
+                          id: 1,
+                          paso: 'Reconocimiento, señalización y delimitación del área de trabajo',
+                          riesgo: 'Caídas al mismo nivel / Ingreso de terceros no autorizados',
+                          control: 'Colocación de conos, cinta de peligro y charla previa de 5 minutos',
+                          nivelRiesgo: 'Medio',
+                          normativa: 'Dec. 911/96 Art. 51 / Ley 19.587',
+                          realizado: true
+                        },
+                        {
+                          id: 2,
+                          paso: 'Verificación de herramientas, tableros y elementos de protección personal',
+                          riesgo: 'Golpes, cortes o contacto eléctrico por herramientas defectuosas',
+                          control: 'Inspección visual previa y uso obligatorio de EPP certificados (Res. 299/11)',
+                          nivelRiesgo: 'Bajo',
+                          normativa: 'Dec. 351/79 Anexo V y VI',
+                          realizado: false
+                        }
+                      ],
+                      epps: ['casco', 'guantes', 'anteojos', 'calzado'],
+                      fotos: [],
+                      equiposEmergencia: ['Matafuego ABC', 'Botiquín'],
+                      trabajadores: []
                     });
+                    setCurrentStep(1);
                     navigate('/ats/nuevo');
                   }}
-                  style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    gap: '0.6rem', 
-                    padding: '0.8rem 1.6rem', 
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
-                    color: '#ffffff', 
-                    fontWeight: 800, 
-                    borderRadius: '1rem', 
-                    border: 'none', 
-                    cursor: 'pointer', 
-                    boxShadow: '0 8px 20px rgba(16,185,129,0.35)', 
-                    whiteSpace: 'nowrap', 
-                    fontSize: '0.9rem'
+                  style={{
+                    marginBottom: 0,
+                    height: '46px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    padding: '0 1.35rem',
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    color: '#ffffff',
+                    fontWeight: 900,
+                    borderRadius: '0.85rem',
+                    border: 'none',
+                    cursor: 'pointer',
+                    boxShadow: '0 6px 18px rgba(16,185,129,0.32)',
+                    fontSize: '0.85rem',
+                    whiteSpace: 'nowrap'
                   }}
-                  className="hover:scale-105 active:scale-95 transition-all"
                 >
-                  <Plus size={20} strokeWidth={2.5} /> Nuevo ATS
+                  <Plus size={18} style={{ flexShrink: 0 }} /> Nuevo ATS
                 </button>
-                
+
                 {history.length > 0 && (
                   <button
+                    type="button"
                     onClick={handleExportCSV}
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center', 
-                      gap: '0.5rem', 
-                      padding: '0.8rem 1.4rem', 
-                      background: 'linear-gradient(135deg, #3b82f6, #2563eb)', 
-                      color: '#ffffff', 
-                      fontWeight: 800, 
-                      borderRadius: '1rem', 
-                      border: 'none', 
-                      cursor: 'pointer', 
-                      boxShadow: '0 8px 20px rgba(59,130,246,0.35)', 
-                      fontSize: '0.9rem'
+                    style={{
+                      marginBottom: 0,
+                      height: '46px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.45rem',
+                      padding: '0 1.2rem',
+                      background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                      color: '#ffffff',
+                      fontWeight: 800,
+                      borderRadius: '0.85rem',
+                      border: 'none',
+                      cursor: 'pointer',
+                      boxShadow: '0 6px 18px rgba(59,130,246,0.3)',
+                      fontSize: '0.84rem',
+                      whiteSpace: 'nowrap'
                     }}
-                    className="hover:scale-105 active:scale-95 transition-all"
                   >
-                    <Download size={18} strokeWidth={2.5} /> Exportar Excel
+                    <Download size={16} style={{ flexShrink: 0 }} /> Exportar CSV
                   </button>
                 )}
               </div>
@@ -1045,1260 +1717,2325 @@ export default function ATS(): React.ReactElement | null {
               searchPlaceholder="Buscar..."
               hideHeader={true}
               emptyMessage="No se encontraron registros de ATS."
-              emptyIcon={<ClipboardList size={48} />} 
+              emptyIcon={<ClipboardList size={48} />}
             />
 
-            {qrTarget && <QRModal text={(qrTarget as any).text} title={(qrTarget as any).title} onClose={() => setQrTarget(null)} />}
-                        
-                        <ConfirmModal
-            isOpen={confirmModal.isOpen}
-            onClose={() => setConfirmModal({ isOpen: false, type: '', payload: null })}
-            onConfirm={executeConfirmAction}
-            title={
-            confirmModal.type === 'delete' ? '¿Eliminar ATS?' :
-            confirmModal.type === 'template' ? '¿Reemplazar tareas?' :
-            '¿Reiniciar formulario?'
-            }
-            message={
-            confirmModal.type === 'delete' ? 'Esta acción no se puede deshacer.' :
-            confirmModal.type === 'template' ? 'Se borrarán las tareas actuales para cargar la plantilla seleccionada.' :
-            'Se perderán todos los datos y tareas que no hayas guardado.'
-            }
-            type={confirmModal.type === 'delete' ? 'danger' : 'warning'}
-            iconEmoji={
-            confirmModal.type === 'delete' ? '🗑️' :
-            confirmModal.type === 'template' ? '🔄' :
-            '⚠️'
-            } />
-          
+            {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
 
-                        <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`ATS - ${(shareItem as any)?.obra || ''}`} rawMessage={buildATSShareMessage(shareItem)} text={buildATSShareMessage(shareItem)} elementIdToPrint="pdf-content" fileName={`ATS_${(shareItem as any)?.empresa?.replace(/\s+/g, '_') || 'Reporte'}.pdf`} />
-                        <div className="ats-pdf-offscreen">
-                            <ATSPdfGenerator atsData={shareItem} />
-                        </div>
+            <ConfirmModal
+              isOpen={confirmModal.isOpen}
+              onClose={() => setConfirmModal({ isOpen: false, type: '', payload: null })}
+              onConfirm={executeConfirmAction}
+              title={
+                confirmModal.type === 'delete'
+                  ? '¿Eliminar ATS?'
+                  : confirmModal.type === 'template'
+                  ? '¿Reemplazar tareas?'
+                  : '¿Reiniciar formulario?'
+              }
+              message={
+                confirmModal.type === 'delete'
+                  ? 'Esta acción no se puede deshacer.'
+                  : confirmModal.type === 'template'
+                  ? 'Se reemplazarán los pasos actuales por los de la plantilla seleccionada.'
+                  : 'Se perderán todos los datos y tareas que no hayas guardado.'
+              }
+              type={confirmModal.type === 'delete' ? 'danger' : 'warning'}
+              iconEmoji={
+                confirmModal.type === 'delete' ? '🗑️' : confirmModal.type === 'template' ? '🔄' : '⚠️'
+              }
+            />
+
+            <ShareModal
+              isOpen={!!shareItem}
+              open={!!shareItem}
+              onClose={() => setShareItem(null)}
+              title={`ATS - ${shareItem?.obra || ''}`}
+              rawMessage={buildATSShareMessage(shareItem)}
+              text={buildATSShareMessage(shareItem)}
+              elementIdToPrint="pdf-content"
+              fileName={`ATS_${shareItem?.empresa?.replace(/\s+/g, '_') || 'Reporte'}.pdf`}
+            />
+            <div className="ats-pdf-offscreen">
+              <ATSPdfGenerator atsData={shareItem} />
+            </div>
           </>
         ) : (
           <>
+            <ShareModal
+              isOpen={showShare}
+              open={showShare}
+              onClose={() => setShowShare(false)}
+              title={`ATS – ${formData.empresa} (${formData.obra})`}
+              text={buildATSShareMessage(formData)}
+              elementIdToPrint="pdf-content"
+              rawMessage={buildATSShareMessage(formData)}
+              fileName={`ATS_${formData.empresa || 'Reporte'}.pdf`}
+            />
 
+            <div className="ats-pdf-offscreen" aria-hidden="true">
+              <ATSPdfGenerator
+                atsData={{
+                  ...formData,
+                  showSignatures,
+                  professionalName: professional.name,
+                  professionalLicense: professional.license,
+                  professionalSignature: professional.signature
+                }}
+              />
+            </div>
 
-                <ShareModal
-            isOpen={showShare}
-            open={showShare}
-            onClose={() => setShowShare(false)}
-            title={`ATS – ${formData.empresa} (${formData.obra})`}
-            text={buildATSShareMessage(formData)}
-            elementIdToPrint="pdf-content"
-            rawMessage={buildATSShareMessage(formData)}
-            fileName={`ATS_${formData.empresa || 'Reporte'}.pdf`} />
-          
+            <ModuleFormLayout>
+              <ModuleFormToolbar
+                title={editData ? 'Editar ATS' : 'Análisis de Trabajo Seguro'}
+                subtitle="Control HYS"
+                icon={<ShieldCheck className="text-blue-600" size={28} />}
+                progress={{ percent: progressPct, label: progressLabel, color: progressColor }}
+                steps={ATS_WIZARD_STEPS}
+                currentStep={currentStep}
+                onBack={() => {
+                  setShowForm(false);
+                  navigate('/ats');
+                }}
+                onStepClick={(step) => {
+                  setCurrentStep(step);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              />
 
-                <div className="ats-pdf-offscreen" aria-hidden="true">
-                    <ATSPdfGenerator
-              atsData={{
-                ...formData,
-                showSignatures,
-                professionalName: professional.name,
-                professionalLicense: professional.license,
-                professionalSignature: professional.signature
-              }} />
-            
+              <ModuleFormDocument id="ats-editor-content" className="ats-editor-panel">
+                {/* Encabezado de Hoja ATS */}
+                <div
+                  className="flex flex-col sm:flex-row justify-between items-center pb-5 mb-6 w-full gap-4"
+                  style={{ borderBottom: '3px solid var(--color-border)' }}
+                >
+                  <div className="text-center sm:text-left">
+                    <p
+                      className="m-0 font-bold text-[11px] uppercase tracking-wider"
+                      style={{ color: 'var(--color-text-light)' }}
+                    >
+                      Sistema de Gestión Preventiva
+                    </p>
+                    <p className="m-0 font-black text-xs uppercase" style={{ color: 'var(--color-text)' }}>
+                      Ley 19.587 • Dec. 911/96 • Dec. 351/79
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <h1
+                      className="m-0 font-black text-3xl sm:text-4xl tracking-tight uppercase leading-none"
+                      style={{ color: 'var(--color-text)' }}
+                    >
+                      A.T.S.
+                    </h1>
+                    <p
+                      className="m-0 font-black text-[10px] uppercase tracking-widest mt-1"
+                      style={{ color: 'var(--color-text-light)' }}
+                    >
+                      Análisis de Trabajo Seguro
+                    </p>
+                  </div>
+
+                  <div className="text-center sm:text-right flex flex-col items-center sm:items-end gap-1.5">
+                    <CompanyLogo className="h-[38px] max-w-[120px]" />
+                    <span
+                      className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full"
+                      style={{
+                        backgroundColor: 'rgba(245, 158, 11, 0.14)',
+                        color: '#d97706'
+                      }}
+                    >
+                      Paso {currentStep} de {totalSteps}
+                    </span>
+                  </div>
                 </div>
 
-
-
-
-                <ModuleFormLayout>
-                <ModuleFormToolbar
-                  title={editData ? 'Editar ATS' : 'Análisis de Trabajo Seguro'}
-                  subtitle="Control HYS"
-                  icon={<ShieldCheck className="text-blue-600" size={28} />}
-                  progress={{ percent: progressPct, label: progressLabel, color: progressColor }}
-                  steps={ATS_WIZARD_STEPS}
-                  currentStep={currentStep}
-                  onStepClick={(step) => {
-                    setCurrentStep(step);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                />
-
-                <ModuleFormDocument id="ats-editor-content" className="ats-editor-panel">
-
-                    <div className="flex flex-row justify-space-between items-center border-bottom-[4px_solid_var(--color-border)] pb-[1.5rem] mb-[2rem] w-[100%] gap-[1.5rem]">
-                        {/* Top Left Text */}
-                        <div className="flex-[1] text-left">
-                            <p className="m-[0] font-[700] text-[0.65rem] uppercase text-[var(--color-text-muted)] letter-spacing-[0.05em]">Sistema de Gestión</p>
-                            <p className="m-[0] font-[900] text-[0.75rem] uppercase text-[var(--color-text)]">Control HYS</p>
-                        </div>
-
-                        {/* Center Main Title */}
-                        <div className="flex-[1] flex flex-col items-center justify-center text-center">
-                            <h1 className="m-[0] font-[900] text-[2.5rem] letter-spacing-[-0.02em] uppercase line-height-[1]">A.T.S.</h1>
-                            <p className="m-[0] text-[var(--color-text-muted)] font-[900] text-[0.6rem] uppercase letter-spacing-[0.4em] mt-[0.25rem]">Análisis de Trabajo Seguro</p>
-                        </div>
-
-                        {/* Right Document Counter + Logo */}
-                        <div className="flex-[1] text-right flex flex-col items-end gap-[0.5rem]">
-                            <CompanyLogo className="h-[40px] max-w-[120px]" />
-                            <div>
-                                <div className="text-[0.6rem] font-[900] text-[var(--color-border)] uppercase letter-spacing-[0.1em] mb-[0.25rem]">PÁGINA</div>
-                                <div className="font-[900] text-[1.5rem] text-[var(--color-text)]">01 / 01</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 🔬 Banner Normativo Jerarquía de Controles Ley 19.587 / Dec. 911/96 */}
-                    <div className={`mb-6 p-4 rounded-2xl border shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
+                {/* Banner Normativo Jerarquía de Controles */}
+                <div
+                  className="mb-6 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                  style={{
+                    backgroundColor:
                       atsCompliance.dictamen === 'CONFORME'
-                        ? 'bg-emerald-50/80 dark:bg-emerald-950/20 border-emerald-500/20'
+                        ? 'rgba(16, 185, 129, 0.08)'
                         : atsCompliance.dictamen === 'OBSERVADO'
-                        ? 'bg-amber-50/80 dark:bg-amber-950/20 border-amber-500/20'
-                        : 'bg-red-50/80 dark:bg-red-950/20 border-red-500/20'
-                    }`}>
-                      <div className="flex items-center gap-3">
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm text-white shrink-0 ${
-                          atsCompliance.dictamen === 'CONFORME' ? 'bg-emerald-600' : atsCompliance.dictamen === 'OBSERVADO' ? 'bg-amber-600' : 'bg-red-600'
-                        }`}>
-                          {atsCompliance.dictamen === 'CONFORME' ? '✓' : atsCompliance.dictamen === 'OBSERVADO' ? '⚠️' : '🛑'}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">
-                              AUDITORÍA DE RIESGOS · LEY 19.587 / DEC. 911/96
-                            </span>
-                            <span className={`px-2 py-0.5 rounded-full text-[0.65rem] font-black uppercase tracking-wider border ${
+                        ? 'rgba(245, 158, 11, 0.08)'
+                        : 'rgba(239, 68, 68, 0.08)',
+                    border: `1px solid ${
+                      atsCompliance.dictamen === 'CONFORME'
+                        ? 'rgba(16, 185, 129, 0.3)'
+                        : atsCompliance.dictamen === 'OBSERVADO'
+                        ? 'rgba(245, 158, 11, 0.3)'
+                        : 'rgba(239, 68, 68, 0.3)'
+                    }`
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm text-white shrink-0"
+                      style={{
+                        backgroundColor:
+                          atsCompliance.dictamen === 'CONFORME'
+                            ? '#059669'
+                            : atsCompliance.dictamen === 'OBSERVADO'
+                            ? '#d97706'
+                            : '#dc2626'
+                      }}
+                    >
+                      {atsCompliance.dictamen === 'CONFORME'
+                        ? '✓'
+                        : atsCompliance.dictamen === 'OBSERVADO'
+                        ? '⚠️'
+                        : '🛑'}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span
+                          className="text-[10px] font-black uppercase tracking-wider"
+                          style={{ color: 'var(--color-text-light)' }}
+                        >
+                          AUDITORÍA DE RIESGOS · LEY 19.587 / DEC. 911/96
+                        </span>
+                        <span
+                          className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase"
+                          style={{
+                            backgroundColor:
                               atsCompliance.dictamen === 'CONFORME'
-                                ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'
+                                ? 'rgba(16, 185, 129, 0.2)'
                                 : atsCompliance.dictamen === 'OBSERVADO'
-                                ? 'bg-amber-50/10 text-amber-600 border-amber-500/30'
-                                : 'bg-red-50/10 text-red-600 border-red-500/30'
-                            }`}>
-                              {atsCompliance.dictamen}
-                            </span>
+                                ? 'rgba(245, 158, 11, 0.2)'
+                                : 'rgba(239, 68, 68, 0.2)',
+                            color:
+                              atsCompliance.dictamen === 'CONFORME'
+                                ? '#047857'
+                                : atsCompliance.dictamen === 'OBSERVADO'
+                                ? '#b45309'
+                                : '#b91c1c'
+                          }}
+                        >
+                          {atsCompliance.dictamen}
+                        </span>
+                      </div>
+                      <p className="m-0 text-xs font-bold mt-0.5" style={{ color: 'var(--color-text)' }}>
+                        {atsCompliance.dictamen === 'CONFORME'
+                          ? 'Matriz de tareas con controles adecuados y jerarquía preventiva'
+                          : atsCompliance.alerts[0] || 'Revisar medidas preventivas'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 self-end sm:self-auto text-xs font-bold flex-wrap">
+                    <span
+                      className="px-2.5 py-1.5 rounded-lg"
+                      style={{
+                        backgroundColor: 'var(--color-surface)',
+                        border: '1px solid var(--color-border)',
+                        color: 'var(--color-text)'
+                      }}
+                    >
+                      🏗️ Ingeniería: <strong style={{ color: '#2563eb' }}>{atsCompliance.engineeringRatio}%</strong>
+                    </span>
+                    <span
+                      className="px-2.5 py-1.5 rounded-lg"
+                      style={{
+                        backgroundColor: 'var(--color-surface)',
+                        border: '1px solid var(--color-border)',
+                        color: 'var(--color-text)'
+                      }}
+                    >
+                      📋 Pasos: <strong>{atsCompliance.stepsWithControls}/{atsCompliance.totalSteps}</strong>
+                    </span>
+                  </div>
+                </div>
+
+                {/* STEP 1: DATOS GENERALES Y CLIMA */}
+                {currentStep === 1 && (
+                  <div className="wizard-step-anim">
+                    {(() => {
+                      const hasCritRisk = formData.tareas?.some((t: any) => t.nivelRiesgo === 'Crítico');
+                      const hasHighRisk = formData.tareas?.some((t: any) => t.nivelRiesgo === 'Alto');
+                      const keywords = [
+                        'altura',
+                        'andamio',
+                        'soldad',
+                        'caliente',
+                        'excava',
+                        'zanja',
+                        'loto',
+                        'bloqueo',
+                        'electri',
+                        'confinado',
+                        'izada',
+                        'grua',
+                        'autoelevador'
+                      ];
+                      const matchesKeyword = keywords.some(
+                        (kw) =>
+                          (formData.tarea || '').toLowerCase().includes(kw) ||
+                          formData.tareas?.some(
+                            (t: any) =>
+                              (t.paso || '').toLowerCase().includes(kw) ||
+                              (t.riesgo || '').toLowerCase().includes(kw)
+                          )
+                      );
+                      const requiresPT = hasCritRisk || hasHighRisk || matchesKeyword;
+
+                      return requiresPT ? (
+                        <div
+                          className="mb-6 p-4 rounded-2xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-3"
+                          style={{
+                            background: 'linear-gradient(135deg, #e11d48 0%, #be123c 100%)',
+                            color: '#ffffff'
+                          }}
+                        >
+                          <div className="text-xs sm:text-sm font-black uppercase tracking-wide text-center sm:text-left">
+                            🛑 TRABAJO DE ALTO RIESGO DETECTADO — REQUIERE PERMISO DE TRABAJO (PTAR) ADJUNTO
                           </div>
-                          <p className="m-0 text-xs font-bold text-slate-800 dark:text-slate-200">
-                            {atsCompliance.dictamen === 'CONFORME'
-                              ? 'Matriz de tareas con controles adecuados y jerarquía preventiva'
-                              : atsCompliance.alerts[0] || 'Revisar medidas preventivas'}
+                          <button
+                            type="button"
+                            onClick={() => navigate('/work-permit')}
+                            style={{
+                              marginBottom: 0,
+                              padding: '0.5rem 0.9rem',
+                              borderRadius: '0.75rem',
+                              backgroundColor: '#ffffff',
+                              color: '#be123c',
+                              border: 'none',
+                              fontWeight: 900,
+                              fontSize: '0.75rem',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                              cursor: 'pointer',
+                              flexShrink: 0
+                            }}
+                          >
+                            <FileSignature size={14} /> Abrir Permiso PTAR
+                          </button>
+                        </div>
+                      ) : null;
+                    })()}
+
+                    <ModuleFormSection title="Datos del Proyecto y Entorno" icon={<Building2 size={20} />}>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <div className="flex flex-col gap-1.5 lg:col-span-2">
+                          <label
+                            className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5"
+                            style={{ color: 'var(--color-text-light)' }}
+                          >
+                            <Building2 size={14} /> Cliente / Empresa
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.empresa}
+                            onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
+                            placeholder="Ej: Constructora del Sur S.A."
+                            className="module-form-input font-bold"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                          <label
+                            className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5"
+                            style={{ color: 'var(--color-text-light)' }}
+                          >
+                            <ShieldCheck size={14} /> CUIT / CUIL
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.cuit}
+                            onChange={(e) => setFormData({ ...formData, cuit: e.target.value })}
+                            placeholder="Ej: 30-71234567-9"
+                            className="module-form-input"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 lg:col-span-2">
+                          <label
+                            className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5"
+                            style={{ color: 'var(--color-text-light)' }}
+                          >
+                            <MapPin size={14} /> Ubicación / Obra / Sector
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.obra}
+                            onChange={(e) => setFormData({ ...formData, obra: e.target.value })}
+                            placeholder="Ej: Nave Industrial N° 2 - Sector Montaje"
+                            className="module-form-input"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                          <label
+                            className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5"
+                            style={{ color: 'var(--color-text-light)' }}
+                          >
+                            <Calendar size={14} /> Fecha de Ejecución
+                          </label>
+                          <input
+                            type="date"
+                            value={formData.fecha}
+                            onChange={(e) => setFormData({ ...formData, fecha: e.target.value })}
+                            className="module-form-input"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 lg:col-span-3">
+                          <label
+                            className="text-[11px] font-black uppercase tracking-wider flex items-center justify-between flex-wrap gap-1"
+                            style={{ color: 'var(--color-text-light)' }}
+                          >
+                            <span className="flex items-center gap-1.5">
+                              <FileText size={14} color="#10b981" /> Descripción de la Tarea a Realizar
+                            </span>
+                            <span className="text-[10px] font-extrabold flex items-center gap-1" style={{ color: '#10b981' }}>
+                              <Mic size={12} /> Dictado por Voz Activo
+                            </span>
+                          </label>
+                          <div className="relative flex items-center w-full">
+                            <input
+                              type="text"
+                              value={formData.tarea}
+                              onChange={(e) => setFormData({ ...formData, tarea: e.target.value })}
+                              className="module-form-input w-full font-bold"
+                              style={{ paddingRight: '4.8rem' }}
+                              placeholder="Ej: Montaje de andamio tubular y pintura de fachada..."
+                            />
+                            <div
+                              style={{
+                                position: 'absolute',
+                                right: '0.5rem',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                zIndex: 20
+                              }}
+                            >
+                              <VoiceDictationButton
+                                size="sm"
+                                enableAI={true}
+                                placeholder="Dictar tarea por voz..."
+                                onTranscript={(text) => {
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    tarea: prev.tarea ? `${prev.tarea} ${text}` : text
+                                  }));
+                                }}
+                                onSmartExtract={(extracted) => {
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    empresa: extracted.empresa || prev.empresa,
+                                    obra: extracted.obra || prev.obra,
+                                    tarea: extracted.tarea || prev.tarea
+                                  }));
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Condición Climática / Entorno Operativo */}
+                        <div className="flex flex-col gap-2 lg:col-span-3">
+                          <label
+                            className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5"
+                            style={{ color: 'var(--color-text-light)' }}
+                          >
+                            <CloudSun size={14} color="#0284c7" /> Condiciones Climáticas y del Entorno en Obra
+                          </label>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                            {WEATHER_OPTIONS.map((w) => {
+                              const selected = (formData as any).clima === w.id;
+                              return (
+                                <button
+                                  key={w.id}
+                                  type="button"
+                                  onClick={() => setFormData({ ...formData, clima: w.id })}
+                                  style={{
+                                    marginBottom: 0,
+                                    padding: '0.55rem 0.65rem',
+                                    borderRadius: '0.85rem',
+                                    backgroundColor: selected
+                                      ? w.alert
+                                        ? 'rgba(245, 158, 11, 0.16)'
+                                        : 'rgba(37, 99, 235, 0.12)'
+                                      : 'var(--color-background)',
+                                    border: `1.5px solid ${
+                                      selected ? (w.alert ? '#f59e0b' : '#2563eb') : 'var(--color-border)'
+                                    }`,
+                                    color: selected
+                                      ? w.alert
+                                        ? '#d97706'
+                                        : '#2563eb'
+                                      : 'var(--color-text)',
+                                    fontWeight: 800,
+                                    fontSize: '0.73rem',
+                                    cursor: 'pointer',
+                                    textAlign: 'center'
+                                  }}
+                                >
+                                  {w.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          {((formData as any).clima?.includes('Viento') ||
+                            (formData as any).clima?.includes('Lluvia')) && (
+                            <div
+                              className="p-3 rounded-xl text-xs font-bold flex items-center gap-2"
+                              style={{
+                                backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                                border: '1px solid rgba(245, 158, 11, 0.35)',
+                                color: '#b45309'
+                              }}
+                            >
+                              ⚠️ Alerta Climática (Dec. 911/96 Art. 59): Con vientos mayores a 35 km/h o lluvia se deben suspender tareas en altura, cubiertas e izajes al exterior.
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 lg:col-span-3">
+                          <label
+                            className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5"
+                            style={{ color: 'var(--color-text-light)' }}
+                          >
+                            <User size={14} /> Capataz / Supervisor Responsable en Campo
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.capatazNombre}
+                            onChange={(e) => setFormData({ ...formData, capatazNombre: e.target.value })}
+                            placeholder="Nombre y Apellido del encargado en campo..."
+                            className="module-form-input"
+                          />
+                        </div>
+                      </div>
+                    </ModuleFormSection>
+                  </div>
+                )}
+
+                {/* STEP 2: SECUENCIA DE TAREAS Y PLANTILLAS RÁPIDAS (CORREGIDO SIN RECORTE HORIZONTAL) */}
+                {currentStep === 2 && (
+                  <div className="wizard-step-anim mt-6 mb-8">
+                    <div className="no-print mb-6">
+                      {/* Barra Superior de Acciones de Tareas */}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                        <div>
+                          <h3
+                            className="m-0 flex items-center gap-2 font-black text-base sm:text-lg uppercase tracking-wide"
+                            style={{ color: 'var(--color-text)' }}
+                          >
+                            <Pencil size={20} color="#2563eb" /> Secuencia Operativa de Tareas ({formData.tareas.length}{' '}
+                            pasos)
+                          </h3>
+                          <p className="text-xs m-0 mt-0.5" style={{ color: 'var(--color-text-light)' }}>
+                            Elegí una plantilla rápida abajo, usá IA Mágica o editá cada paso con su nivel de riesgo
                           </p>
                         </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                          <button
+                            type="button"
+                            onClick={handleGenerateAI}
+                            disabled={isGeneratingATS || isVisionATS}
+                            style={{
+                              marginBottom: 0,
+                              padding: '0.7rem 1.1rem',
+                              borderRadius: '0.9rem',
+                              background: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)',
+                              color: '#ffffff',
+                              border: 'none',
+                              fontWeight: 900,
+                              fontSize: '0.78rem',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '0.45rem',
+                              cursor: isGeneratingATS || isVisionATS ? 'wait' : 'pointer',
+                              boxShadow: '0 6px 16px rgba(139, 92, 246, 0.3)'
+                            }}
+                          >
+                            {isGeneratingATS ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
+                            {isGeneratingATS ? 'PENSANDO...' : 'IA MÁGICA'}
+                          </button>
+
+                          <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            ref={fileInputRef}
+                            onChange={handleVisionUpload}
+                            style={{ display: 'none' }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={isGeneratingATS || isVisionATS}
+                            style={{
+                              marginBottom: 0,
+                              padding: '0.7rem 1.1rem',
+                              borderRadius: '0.9rem',
+                              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                              color: '#ffffff',
+                              border: 'none',
+                              fontWeight: 900,
+                              fontSize: '0.78rem',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '0.45rem',
+                              cursor: isGeneratingATS || isVisionATS ? 'wait' : 'pointer',
+                              boxShadow: '0 6px 16px rgba(37, 99, 235, 0.28)'
+                            }}
+                          >
+                            {isVisionATS ? <Loader2 size={15} className="animate-spin" /> : <CameraIcon size={15} />}
+                            {isVisionATS ? 'ANALIZANDO...' : 'DESDE FOTO'}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={addTask}
+                            style={{
+                              marginBottom: 0,
+                              padding: '0.7rem 1.1rem',
+                              borderRadius: '0.9rem',
+                              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                              color: '#ffffff',
+                              border: 'none',
+                              fontWeight: 900,
+                              fontSize: '0.78rem',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '0.45rem',
+                              cursor: 'pointer',
+                              boxShadow: '0 6px 16px rgba(16, 185, 129, 0.28)'
+                            }}
+                          >
+                            <Plus size={16} /> AGREGAR PASO
+                          </button>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-2 self-end sm:self-auto text-xs font-bold">
-                        <span className="bg-white/80 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
-                          🏗️ Ingeniería: <strong className="text-blue-600">{atsCompliance.engineeringRatio}%</strong>
-                        </span>
-                        <span className="bg-white/80 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
-                          📋 Pasos: <strong>{atsCompliance.stepsWithControls}/{atsCompliance.totalSteps}</strong>
-                        </span>
+                      {/* Buscador y Selector de 24 Plantillas Rápidas por Rubro */}
+                      <div
+                        className="rounded-3xl p-4 sm:p-5 mb-6"
+                        style={{
+                          backgroundColor: 'var(--color-background)',
+                          border: '1px solid var(--color-border)'
+                        }}
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                          <div className="flex items-center gap-2">
+                            <Sparkles size={16} color="#7c3aed" />
+                            <span
+                              className="text-xs sm:text-sm font-black uppercase tracking-wide"
+                              style={{ color: 'var(--color-text)' }}
+                            >
+                              Plantillas Rápidas por Rubro ({filteredPresets.length} disponibles)
+                            </span>
+                          </div>
+
+                          <input
+                            type="text"
+                            value={presetSearch}
+                            onChange={(e) => setPresetSearch(e.target.value)}
+                            placeholder="Filtrar plantilla (ej: altura, grúa, poda, eléctrico)..."
+                            style={{
+                              padding: '0.4rem 0.85rem',
+                              borderRadius: '0.75rem',
+                              backgroundColor: 'var(--color-surface)',
+                              color: 'var(--color-text)',
+                              border: '1px solid var(--color-border)',
+                              fontSize: '0.76rem',
+                              fontWeight: 600,
+                              minWidth: '240px',
+                              outline: 'none'
+                            }}
+                          />
+                        </div>
+
+                        {/* Pestañas de Categoría */}
+                        <div className="flex items-center gap-1.5 flex-wrap mb-3 pb-2 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                          {presetCategories.map((cat) => {
+                            const active = presetCategoryFilter === cat;
+                            return (
+                              <button
+                                key={cat}
+                                type="button"
+                                onClick={() => setPresetCategoryFilter(cat)}
+                                style={{
+                                  marginBottom: 0,
+                                  padding: '0.35rem 0.75rem',
+                                  borderRadius: '9999px',
+                                  backgroundColor: active ? '#2563eb' : 'var(--color-surface)',
+                                  color: active ? '#ffffff' : 'var(--color-text)',
+                                  border: `1px solid ${active ? '#2563eb' : 'var(--color-border)'}`,
+                                  fontWeight: 800,
+                                  fontSize: '0.72rem',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                {cat}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Botones de Plantillas con Nombre Completo + Carrusel al Pasar el Mouse */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                          {filteredPresets.map(([name, p]) => {
+                            const catShort = p.categoria.split('/')[0].trim();
+                            const stepsPreview = p.tasks
+                              .map((tItem, i) => `Paso ${i + 1}: ${tItem.paso} (${tItem.normativa})`)
+                              .join('   •   ');
+                            return (
+                              <button
+                                key={name}
+                                type="button"
+                                onClick={() => handleApplyPreset(name)}
+                                title={`${name} — ${p.categoria} (${p.tasks.length} pasos)`}
+                                className="ats-preset-card"
+                                style={{
+                                  marginBottom: 0,
+                                  padding: '0.75rem 0.9rem',
+                                  borderRadius: '0.95rem',
+                                  background: 'var(--color-surface)',
+                                  color: 'var(--color-text)',
+                                  border: '1.5px solid var(--color-border)',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  alignItems: 'stretch',
+                                  justifyContent: 'space-between',
+                                  gap: '0.45rem',
+                                  cursor: 'pointer',
+                                  textAlign: 'left',
+                                  width: '100%',
+                                  overflow: 'hidden'
+                                }}
+                              >
+                                {/* Fila 1: Ícono + Nombre Completo Visible (sin cortar con ...) */}
+                                <div className="flex items-start justify-between gap-2.5 w-full">
+                                  <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                                    <span
+                                      style={{
+                                        width: '32px',
+                                        height: '32px',
+                                        borderRadius: '9px',
+                                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '1.05rem',
+                                        flexShrink: 0
+                                      }}
+                                    >
+                                      {p.icon}
+                                    </span>
+                                    <div className="min-w-0 flex-1">
+                                      <span
+                                        style={{
+                                          color: 'var(--color-text)',
+                                          fontSize: '0.8rem',
+                                          fontWeight: 900,
+                                          lineHeight: 1.3,
+                                          display: 'block',
+                                          whiteSpace: 'normal',
+                                          wordBreak: 'break-word'
+                                        }}
+                                      >
+                                        {name}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <span
+                                    className="text-[9px] font-black uppercase px-2 py-0.5 rounded-md shrink-0"
+                                    style={{
+                                      backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                                      color: '#2563eb',
+                                      border: '1px solid rgba(37, 99, 235, 0.22)'
+                                    }}
+                                  >
+                                    {catShort}
+                                  </span>
+                                </div>
+
+                                {/* Fila 2: Carrusel / Marquesina de Pasos y Normativa al pasar el mouse */}
+                                <div
+                                  className="ats-preset-ticker-wrap rounded-lg px-2 py-1"
+                                  style={{
+                                    backgroundColor: 'var(--color-background)',
+                                    border: '1px solid var(--color-border)'
+                                  }}
+                                >
+                                  <div
+                                    className="ats-preset-ticker-track text-[10px] font-bold"
+                                    style={{ color: 'var(--color-text-light)' }}
+                                  >
+                                    <span style={{ color: '#2563eb', fontWeight: 900 }}>
+                                      ⚡ {name} ({p.tasks.length} pasos):{' '}
+                                    </span>
+                                    {stepsPreview}
+                                    {'     •     '}
+                                    <span style={{ color: '#2563eb', fontWeight: 900 }}>
+                                      ⚡ {name}:{' '}
+                                    </span>
+                                    {stepsPreview}
+                                  </div>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
 
-                    {/* STEP 1 */}
-                    {currentStep === 1 && (
-                        <div className="wizard-step-anim">
-                            {(() => {
-                              const hasCritRisk = formData.tareas?.some((t: any) => t.nivelRiesgo === 'Crítico');
-                              const hasHighRisk = formData.tareas?.some((t: any) => t.nivelRiesgo === 'Alto');
-                              const keywords = ['altura', 'andamio', 'soldad', 'caliente', 'excava', 'zanja', 'loto', 'bloqueo', 'electri', 'confinado', 'izada', 'grua', 'autoelevador'];
-                              const matchesKeyword = keywords.some((kw) => (formData.tarea || '').toLowerCase().includes(kw) || formData.tareas?.some((t: any) => (t.paso || '').toLowerCase().includes(kw) || (t.riesgo || '').toLowerCase().includes(kw)));
-                              const requiresPT = hasCritRisk || hasHighRisk || matchesKeyword;
-
-                              return requiresPT ? (
-                                <div className="mb-6 p-4 bg-rose-600 text-white font-black text-xs sm:text-sm rounded-xl text-center shadow-lg uppercase tracking-wider flex items-center justify-center gap-2">
-                                  <span>🛑 ATENCIÓN: TRABAJO DE ALTO RIESGO — REQUIERE PERMISO DE TRABAJO (PT) ADJUNTO OBLIGATORIO</span>
-                                </div>
-                              ) : null;
-                            })()}
-                            <ModuleFormSection title="Datos del Proyecto" icon={<Building2 size={20} />}>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    <div className="flex flex-col gap-2 lg:col-span-2">
-                                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2">
-                                            <Building2 size={14} /> CLIENTE / EMPRESA
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.empresa}
-                                            onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
-                                            className="module-form-input text-lg font-bold"
-                                        />
-                                    </div>
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2">
-                                            <ShieldCheck size={14} /> CUIT / CUIL
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.cuit}
-                                            onChange={(e) => setFormData({ ...formData, cuit: e.target.value })}
-                                            className="module-form-input"
-                                        />
-                                    </div>
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2">
-                                            <MapPin size={14} /> UBICACIÓN / OBRA
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.obra}
-                                            onChange={(e) => setFormData({ ...formData, obra: e.target.value })}
-                                            className="module-form-input"
-                                        />
-                                    </div>
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2">
-                                            <Calendar size={14} /> FECHA
-                                        </label>
-                                        <input
-                                            type="date"
-                                            value={formData.fecha}
-                                            onChange={(e) => setFormData({ ...formData, fecha: e.target.value })}
-                                            className="module-form-input"
-                                        />
-                                    </div>
-                                    <div className="flex flex-col gap-2 lg:col-span-3">
-                                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center justify-between flex-wrap gap-1">
-                                            <span className="flex items-center gap-2">
-                                                <FileText size={14} style={{ color: '#10b981' }} /> DESCRIPCIÓN DE LA TAREA
-                                            </span>
-                                            <span className="text-[0.65rem] font-extrabold flex items-center gap-1" style={{ color: '#10b981' }}>
-                                                <Mic size={12} className="animate-pulse" /> Dictado por Voz Activo
-                                            </span>
-                                        </label>
-                                        <div className="relative flex items-center w-full">
-                                            <input
-                                                type="text"
-                                                value={formData.tarea}
-                                                onChange={(e) => setFormData({ ...formData, tarea: e.target.value })}
-                                                className="module-form-input w-full font-bold"
-                                                style={{ paddingRight: '4.8rem' }}
-                                                placeholder="Ej: Pintado de fachada exterior..."
-                                            />
-                                            <div 
-                                              style={{ 
-                                                position: 'absolute', 
-                                                right: '0.5rem', 
-                                                top: '50%', 
-                                                transform: 'translateY(-50%)', 
-                                                zIndex: 20 
-                                              }}
-                                              className="flex items-center gap-1"
-                                            >
-                                                 <VoiceDictationButton
-                                                     size="sm"
-                                                     enableAI={true}
-                                                     placeholder="Dictar tarea por voz..."
-                                                     onTranscript={(text) => {
-                                                         setFormData(prev => ({
-                                                             ...prev,
-                                                             tarea: prev.tarea ? `${prev.tarea} ${text}` : text
-                                                         }));
-                                                     }}
-                                                     onSmartExtract={(extracted) => {
-                                                         setFormData(prev => ({
-                                                             ...prev,
-                                                             empresa: extracted.empresa || prev.empresa,
-                                                             obra: extracted.obra || prev.obra,
-                                                             tarea: extracted.tarea || prev.tarea,
-                                                         }));
-                                                     }}
-                                                 />
-                                             </div>
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-col gap-2 lg:col-span-2">
-                                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2">
-                                            <User size={14} /> RESPONSABLE
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.capatazNombre}
-                                            onChange={(e) => setFormData({ ...formData, capatazNombre: e.target.value })}
-                                            className="module-form-input"
-                                        />
-                                    </div>
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-[0.7rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-2">
-                                            <ShieldCheck size={14} /> PROFESIONAL HYS
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={professional.name}
-                                            readOnly
-                                            className="module-form-input bg-slate-50 cursor-not-allowed"
-                                        />
-                                    </div>
-                                </div>
-                            </ModuleFormSection>
-                        </div>
-                    )}
-
-                    {/* STEP 2: Sección de Secuencia de Tareas */}
-                    {currentStep === 2 &&
-            <div className="wizard-step-anim mt-[3rem] mb-[3rem]">
-                        <div className="no-print mb-6">
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-[1.25rem]">
-                                <h3 className="m-[0] flex items-center gap-[0.8rem] text-[var(--color-primary)] font-[900] text-[1.2rem] uppercase letter-spacing-[1px]">
-                                    <Pencil size={22} className="text-blue-600" /> Secuencia de Tareas
-                                </h3>
-                                <div className="flex gap-[0.6rem] flex-wrap">
-                                    <button
-                      onClick={handleGenerateAI}
-                      disabled={isGeneratingATS || isVisionATS}
-                      style={{
-                        cursor: (isGeneratingATS || isVisionATS) ? 'wait' : 'pointer',
-                        opacity: (isGeneratingATS || isVisionATS) ? 0.7 : 1
-                      }}
-                      className="hover:scale-[1.03] active:scale-[0.97] hover:shadow-[0_6px_22px_rgba(139,92,246,0.5)] flex-[1] min-width-[120px] p-[0.7rem_1.4rem] bg-[linear-gradient(135deg,_#8b5cf6,_#ec4899)] text-[#ffffff] border-none rounded-[14px] font-[900] text-[0.8rem] flex items-center justify-center gap-[0.5rem] box-shadow-[0_4px_18px_rgba(139,92,246,0.35)] transition-[all_0.3s_cubic-bezier(0.34,_1.56,_0.64,_1)]">
-                      
-                                        {isGeneratingATS ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                                        {isGeneratingATS ? 'PENSANDO...' : 'IA MÁGICA'}
-                                    </button>
-
-                                    <input 
-                                      type="file" 
-                                      accept="image/*" 
-                                      capture="environment" 
-                                      ref={fileInputRef} 
-                                      onChange={handleVisionUpload} 
-                                      style={{ display: 'none' }} 
-                                    />
-                                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={isGeneratingATS || isVisionATS}
-                      style={{
-                        cursor: (isGeneratingATS || isVisionATS) ? 'wait' : 'pointer',
-                        opacity: (isGeneratingATS || isVisionATS) ? 0.7 : 1
-                      }}
-                      className="hover:scale-[1.03] active:scale-[0.97] hover:shadow-[0_6px_22px_rgba(59,130,246,0.5)] flex-[1] min-width-[120px] p-[0.7rem_1.4rem] bg-[linear-gradient(135deg,_#3b82f6,_#2563eb)] text-[#ffffff] border-none rounded-[14px] font-[900] text-[0.8rem] flex items-center justify-center gap-[0.5rem] box-shadow-[0_4px_18px_rgba(59,130,246,0.35)] transition-[all_0.3s_cubic-bezier(0.34,_1.56,_0.64,_1)]">
-                      
-                                        {isVisionATS ? <Loader2 size={16} className="animate-spin" /> : <CameraIcon size={16} />}
-                                        {isVisionATS ? 'ANALIZANDO...' : 'AUTOCOMPLETAR FOTO'}
-                                    </button>
-
-                                    <button
-                      onClick={addTask}
-                      className="hover:scale-[1.03] active:scale-[0.97] hover:shadow-[0_6px_18px_rgba(16,185,129,0.35)] flex-[1] min-width-[120px] p-[0.7rem_1.4rem] border-none rounded-[14px] font-[900] text-[0.8rem] cursor-pointer flex items-center justify-center gap-[0.5rem] box-shadow-[0_4px_14px_rgba(16,185,129,0.25)] transition-[all_0.3s_cubic-bezier(0.34,_1.56,_0.64,_1)]"
-                      style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff' }}>
-                      
-                                        <Plus size={16} /> AGREGAR PASO
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Presets List por rubro */}
-                            <div className="flex flex-col gap-2.5 bg-[var(--glass-bg)] backdrop-filter-[blur(12px)] p-[1.25rem] rounded-[18px] border-[1px_solid_var(--glass-border-subtle)] box-shadow-[var(--shadow-sm)]">
-                                <div className="flex items-center justify-between flex-wrap gap-2">
-                                    <span className="text-[0.75rem] font-[900] text-[var(--color-primary)] uppercase letter-spacing-[1px] flex items-center gap-[0.4rem]">
-                                        <Sparkles size={14} className="text-purple-500" /> Plantillas Rápidas por Rubro (Tareas Críticas):
-                                    </span>
-                                    <span className="text-[0.65rem] text-slate-500 font-bold">
-                                        Carga automática de riesgos, controles, normativa y EPPs
-                                    </span>
-                                </div>
-                                <div className="flex gap-2 flex-wrap">
-                                    {Object.entries(PRESETS).map(([name, p]) => (
-                                        <button
-                                            key={name}
-                                            onClick={() => handleApplyPreset(name)}
-                                            className="hover:-translate-y-0.5 hover:shadow-md px-3 py-2 rounded-xl text-xs font-bold cursor-pointer flex items-center gap-2 transition-all border border-blue-200 bg-blue-50/80 text-blue-900 hover:bg-blue-100/90 active:scale-95"
-                                            title={`Rubro: ${p.categoria} - ${p.tasks.length} pasos recomendados`}
-                                        >
-                                            <span className="text-sm">{p.icon}</span>
-                                            <span>{name}</span>
-                                            <span className="text-[9px] font-black uppercase bg-blue-200/70 text-blue-800 px-1.5 py-0.5 rounded-md ml-1">
-                                                {p.categoria.split('/')[0].trim()}
-                                            </span>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                        <h3 className="print-only m-[0_0_1.5rem_0] flex items-center gap-[0.8rem] text-[var(--color-primary)] font-[900] text-[1.1rem] uppercase letter-spacing-[1px]">
-                            <Pencil size={22} /> Secuencia de Tareas (Análisis)
-                        </h3>
-
-                        <div className="ats-sequence-container">
-                            <div className="ats-seq-header no-print">
-                                <div className="ats-seq-head-num">#</div>
-                                <div>1. Paso a seguir</div>
-                                <div>2. Riesgos asociados</div>
-                                <div>3. Medidas de control</div>
-                                <div>4. Nivel Riesgo</div>
-                                <div className="ats-seq-head-action" aria-hidden="true" />
-                            </div>
-
-                            <div className="ats-seq-body">
-                                {formData.tareas.map((t, index) =>
-                  <div key={t.id} className="ats-seq-row ats-table-row">
-                                        <div className="ats-seq-cell ats-seq-cell-num">
-                                            <span className="ats-seq-num-desktop">{index + 1}</span>
-                                            <span className="ats-seq-num-mobile">PASO {index + 1}</span>
-                                        </div>
-
-                                        <div className="ats-seq-cell ats-seq-cell-paso">
-                                            <span className="ats-seq-mobile-label">Paso a seguir</span>
-                                            <textarea
-                        rows={1}
-                        value={t.paso}
-                        onChange={(e) => updateTask(t.id, 'paso', e.target.value)}
-                        onInput={(e) => {
-                          const target = e.target as HTMLTextAreaElement;
-                          target.style.height = 'auto';
-                          target.style.height = target.scrollHeight + 'px';
-                        }}
-                        className="no-print ats-textarea ats-seq-textarea"
-                        placeholder="Ej: Preparación de área..." />
-                      
-                                            <div className="print-only font-bold text-slate-800 text-[0.85rem] whitespace-pre-wrap break-words">
-                                                {t.paso}
-                                            </div>
-                                        </div>
-
-                                        <div className="ats-seq-cell ats-seq-cell-riesgo">
-                                            <span className="ats-seq-mobile-label">Riesgos asociados</span>
-                                            <textarea
-                        rows={1}
-                        value={t.riesgo}
-                        onChange={(e) => updateTask(t.id, 'riesgo', e.target.value)}
-                        onInput={(e) => {
-                          const target = e.target as HTMLTextAreaElement;
-                          target.style.height = 'auto';
-                          target.style.height = target.scrollHeight + 'px';
-                        }}
-                        className="no-print ats-textarea ats-seq-textarea"
-                        placeholder="Ej: Caídas, Golpes..." />
-                      
-                                            <div className="print-only text-slate-700 text-[0.8rem] whitespace-pre-wrap break-words">
-                                                {t.riesgo}
-                                            </div>
-                                        </div>
-
-                                        <div className="ats-seq-cell ats-seq-cell-control">
-                                            <span className="ats-seq-mobile-label">Medidas de control</span>
-                                            <textarea
-                        rows={1}
-                        value={t.control}
-                        onChange={(e) => updateTask(t.id, 'control', e.target.value)}
-                        onInput={(e) => {
-                          const target = e.target as HTMLTextAreaElement;
-                          target.style.height = 'auto';
-                          target.style.height = target.scrollHeight + 'px';
-                        }}
-                        className="no-print ats-textarea ats-seq-textarea"
-                        placeholder="Ej: Delimitación, Uso EPP..." />
-                                            <div className="print-only text-slate-700 text-[0.8rem] whitespace-pre-wrap break-words">
-                                                {t.control}
-                                            </div>
-
-                                            {/* Cita Normativa */}
-                                            <div className="no-print mt-1.5 flex items-center gap-1.5">
-                                                <span className="text-[10px] font-black uppercase text-blue-600 dark:text-blue-400">⚖️ Norma:</span>
-                                                <input
-                                                    type="text"
-                                                    value={t.normativa || ''}
-                                                    onChange={(e) => updateTask(t.id, 'normativa', e.target.value)}
-                                                    placeholder="Ej: Dec. 911/96 Art. 51 / Dec. 351/79"
-                                                    className="w-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-blue-500"
-                                                />
-                                            </div>
-                                            {t.normativa && (
-                                                <div className="print-only text-[10px] font-bold text-blue-900 mt-1 italic">
-                                                    ⚖️ {t.normativa}
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="ats-seq-cell ats-seq-cell-riesgo-nivel" style={{flex: 0.5}}>
-                                            <span className="ats-seq-mobile-label">Nivel de Riesgo</span>
-                                            <select
-                                                value={t.nivelRiesgo || 'Bajo'}
-                                                onChange={(e) => updateTask(t.id, 'nivelRiesgo', e.target.value)}
-                                                className="no-print ats-input mt-[0.5rem] p-[0.4rem] rounded-[8px] font-[800] text-[0.8rem] w-full cursor-pointer"
-                                                style={{
-                                                    backgroundColor: t.nivelRiesgo === 'Crítico' ? '#881337' : t.nivelRiesgo === 'Alto' ? '#fee2e2' : t.nivelRiesgo === 'Medio' ? '#fef3c7' : '#dcfce7',
-                                                    color: t.nivelRiesgo === 'Crítico' ? '#ffffff' : t.nivelRiesgo === 'Alto' ? '#dc2626' : t.nivelRiesgo === 'Medio' ? '#d97706' : '#16a34a',
-                                                    border: 'none',
-                                                    outline: 'none'
-                                                }}
-                                            >
-                                                <option value="Bajo">🟢 Bajo</option>
-                                                <option value="Medio">🟡 Medio</option>
-                                                <option value="Alto">🟠 Alto</option>
-                                                <option value="Crítico">🔴 Crítico</option>
-                                            </select>
-                                            <button
-                                                type="button"
-                                                onClick={() => setMatrixTask(t.id)}
-                                                className="no-print mt-1 text-[11px] font-black text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-none p-0"
-                                                title="Calcular riesgo con Matriz PxS"
-                                            >
-                                                <Activity size={12} /> Matriz PxS
-                                            </button>
-                                            <div className="print-only text-[0.8rem] font-[800]" style={{ color: t.nivelRiesgo === 'Crítico' ? '#881337' : t.nivelRiesgo === 'Alto' ? '#dc2626' : t.nivelRiesgo === 'Medio' ? '#d97706' : '#16a34a' }}>
-                                                {t.nivelRiesgo || 'Bajo'}
-                                            </div>
-                                        </div>
-
-                                        <div className="ats-seq-cell ats-seq-cell-action no-print">
-                                            <button
-                                                type="button"
-                                                onClick={() => removeTask(t.id)}
-                                                className="ats-seq-delete-btn"
-                                                title="Eliminar paso">
-                                                <Trash2 size={18} />
-                                            </button>
-                                        </div>
-                                    </div>
-                  )}
-                            </div>
-                        </div>
-                        </div>
-            }
-
-                    {/* STEP 3 */}
-                    {/* STEP 3: EPPs y Evidencia Fotográfica */}
-                    {currentStep === 3 && (
-                        <div className="wizard-step-anim mt-[3rem]">
-                            <ModuleFormSection title="EPPs Obligatorios y Evidencia" icon={<HardHat size={20} />}>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-[2rem]">
-                            {/* EPPs Selector */}
-                            <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)]">
-                                <h4 className="m-[0_0_1rem_0] text-[0.9rem] font-[800] uppercase text-[var(--color-text)]">Selección de EPPs</h4>
-                                <div className="flex flex-wrap gap-[0.8rem]">
-                                    {[
-                                        { id: 'casco', label: 'Casco', icon: HardHat },
-                                        { id: 'guantes', label: 'Guantes', icon: ShieldCheck },
-                                        { id: 'anteojos', label: 'Anteojos', icon: EyeIcon },
-                                        { id: 'auditiva', label: 'Prot. Auditiva', icon: Ear },
-                                        { id: 'arnes', label: 'Arnés', icon: Activity },
-                                        { id: 'calzado', label: 'Calzado Seg.', icon: ShieldCheck }
-                                    ].map(epp => {
-                                        const isSelected = formData.epps?.includes(epp.id);
-                                        const Icon = epp.icon;
-                                        return (
-                                            <button
-                                                key={epp.id}
-                                                onClick={() => {
-                                                    const current = formData.epps || [];
-                                                    const updated = isSelected ? current.filter(e => e !== epp.id) : [...current, epp.id];
-                                                    setFormData({ ...formData, epps: updated });
-                                                }}
-                                                className={`flex items-center gap-[0.5rem] p-[0.6rem_1rem] rounded-[12px] transition-[all_0.2s] cursor-pointer`}
-                                                style={isSelected ? { background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#fff', border: 'none', boxShadow: '0 4px 10px rgba(59,130,246,0.3)' } : { backgroundColor: '#f1f5f9', color: '#64748b', border: '1px solid #cbd5e1' }}
-                                            >
-                                                <Icon size={18} />
-                                                <span className="font-[800] text-[0.8rem]">{epp.label}</span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            {/* Photo Upload */}
-                            <div className="bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)]">
-                                <h4 className="m-[0_0_1rem_0] text-[0.9rem] font-[800] uppercase text-[var(--color-text)]">Evidencia Fotográfica</h4>
-                                <p className="text-[0.8rem] text-[var(--color-text-muted)] mb-[1rem]">Adjunte hasta 2 fotografías del área de trabajo o equipos involucrados.</p>
-                                
-                                <div className="flex gap-[1rem]">
-                                    {[0, 1].map(index => {
-                                        const photoUrl = formData.fotos?.[index];
-                                        return (
-                                            <div key={index} className="flex-[1] aspect-square rounded-[12px] border-[2px_dashed_var(--color-border)] flex items-center justify-center relative overflow-hidden bg-[var(--color-background)] hover:border-blue-400 transition-colors">
-                                                {photoUrl ? (
-                                                    <>
-                                                        <img src={photoUrl} alt={`Evidencia ${index + 1}`} className="w-full h-full object-cover" />
-                                                        <button
-                                                            onClick={() => {
-                                                                const newFotos = [...(formData.fotos || [])];
-                                                                newFotos.splice(index, 1);
-                                                                setFormData({ ...formData, fotos: newFotos });
-                                                            }}
-                                                            className="absolute top-[0.5rem] right-[0.5rem] bg-red-500 text-white p-[0.4rem] rounded-full shadow-md hover:bg-red-600"
-                                                        >
-                                                            <TrashIcon size={14} />
-                                                        </button>
-                                                    </>
-                                                ) : (
-                                                    <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center text-[var(--color-text-muted)]">
-                                                        <CameraIcon size={24} className="mb-[0.5rem]" />
-                                                        <span className="text-[0.7rem] font-[700] uppercase text-center">Subir /<br/>Tomar Foto</span>
-                                                        <input
-                                                            type="file"
-                                                            accept="image/*"
-                                                            className="hidden"
-                                                            onChange={(e) => {
-                                                                const file = e.target.files?.[0];
-                                                                if (file) {
-                                                                    const reader = new FileReader();
-                                                                    reader.onloadend = () => {
-                                                                        const newFotos = [...(formData.fotos || [])];
-                                                                        newFotos[index] = reader.result as string;
-                                                                        setFormData({ ...formData, fotos: newFotos });
-                                                                    };
-                                                                    reader.readAsDataURL(file);
-                                                                }
-                                                            }}
-                                                        />
-                                                    </label>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            {/* Emergency Equipment Selector */}
-                            <div className="md:col-span-2 bg-[var(--color-surface)] p-[1.5rem] rounded-[16px] border-[1px_solid_var(--color-border)] box-shadow-[var(--shadow-sm)] mt-4">
-                                <h4 className="m-[0_0_1rem_0] text-[0.9rem] font-[800] uppercase text-[var(--color-text)] flex items-center gap-2">
-                                    <ShieldAlert size={18} className="text-rose-600" /> Equipos de Emergencia y Respuesta en Zona
-                                </h4>
-                                <div className="flex flex-wrap gap-[0.8rem]">
-                                    {[
-                                        { id: 'Matafuego ABC', label: 'Matafuego PQS / ABC' },
-                                        { id: 'Botiquín', label: 'Botiquín Primeros Auxilios' },
-                                        { id: 'Lavaojos', label: 'Lavaojos de Emergencia' },
-                                        { id: 'Ventilación', label: 'Extractor / Ventilación' },
-                                        { id: 'Delimitación', label: 'Conos / Vallas de Cerco' },
-                                        { id: 'Trípode Rescate', label: 'Trípode / Kit de Rescate' }
-                                    ].map(eq => {
-                                        const isSelected = (formData.equiposEmergencia || []).includes(eq.id);
-                                        return (
-                                            <button
-                                                key={eq.id}
-                                                type="button"
-                                                onClick={() => {
-                                                    const current = formData.equiposEmergencia || [];
-                                                    const updated = isSelected ? current.filter(e => e !== eq.id) : [...current, eq.id];
-                                                    setFormData({ ...formData, equiposEmergencia: updated });
-                                                }}
-                                                className="flex items-center gap-[0.5rem] p-[0.6rem_1rem] rounded-[12px] transition-all cursor-pointer font-extrabold text-[0.8rem]"
-                                                style={isSelected ? { background: 'linear-gradient(135deg, #dc2626, #b91c1c)', color: '#fff', border: 'none', boxShadow: '0 4px 10px rgba(220,38,38,0.3)' } : { backgroundColor: '#f1f5f9', color: '#64748b', border: '1px solid #cbd5e1' }}
-                                            >
-                                                <ShieldAlert size={16} />
-                                                <span>{eq.label}</span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                                </div>
-                            </ModuleFormSection>
-                        </div>
-                    )}
-
-                    {currentStep === 4 && (
-                        <div className="wizard-step-anim mt-[3rem]">
-                            <ModuleFormSection title="Verificación de Seguridad" icon={<ShieldCheck size={20} />}>
-                                {categories.map((cat) =>
-              <div key={cat} className="ats-checklist-card">
-                                <div className="flex justify-space-between items-center mb-[1.2rem] border-bottom-[1px_solid_var(--color-border)] pb-[0.8rem]">
-                                    <h4 className="m-[0] text-[var(--color-primary)] font-[900] text-[0.85rem] uppercase letter-spacing-[1px] flex items-center gap-[0.6rem]">
-                                        <div className="no-print p-[0.4rem] bg-[rgba(var(--color-primary-rgb),_0.1)] rounded-[8px] text-[var(--color-primary)] flex items-center">
-                                            <Info size={16} />
-                                        </div>
-
-                                        <span
-                                          contentEditable
-                                          suppressContentEditableWarning
-                                          onBlur={(e) => updateCategoryName(cat, e.target.innerText)}
-                                          className="hover:bg-emerald-500/10 focus:bg-emerald-500/10 px-2 py-0.5 rounded cursor-edit outline-none transition-colors"
-                                          style={{ color: 'var(--color-text)' }}
-                                        >
-                                            {cat}
-                                        </span>
-                                    </h4>
-                                    <button
-                                      className="no-print p-[0.5rem_1rem] text-[#ffffff] border-none rounded-[10px] font-[800] text-[0.7rem] cursor-pointer box-shadow-[0_4px_10px_rgba(16,185,129,_0.2)] transition-[all_0.2s]"
-                                      onClick={() => addQuestion(cat)}
-                                      style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
-                                      onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
-                                      onMouseOut={(e) => e.currentTarget.style.transform = 'none'}
-                                    >
-                                        + AGREGAR
-                                    </button>
-                                </div>
-
-                                <div className="flex flex-col gap-3">
-                                    {formData.checklist.filter((i) => i.categoria === cat).map((item) => (
-                                      <div key={item.id} className="group p-4 bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] hover:border-emerald-500/50 transition-all hover:shadow-sm">
-                                            {/* Question text */}
-                                            <div
-                                              contentEditable
-                                              suppressContentEditableWarning
-                                              onBlur={(e) => updateChecklist(item.id, 'pregunta', e.target.innerText)}
-                                              className="font-bold text-[0.95rem] outline-none border-b border-dashed border-transparent focus:border-emerald-500 leading-tight mb-2 cursor-edit hover:bg-emerald-500/10 focus:bg-emerald-500/10 px-2 py-1 rounded transition-colors"
-                                              style={{ color: 'var(--color-text)' }}
-                                            >
-                                                {item.pregunta}
-                                            </div>
-
-                                            {/* Observaciones */}
-                                            <textarea
-                      rows={1}
-                      placeholder="Observaciones o medidas preventivas..."
-                      value={item.observaciones}
-                      className="no-print ats-textarea mt-[0.5rem]"
-                      onInput={(e) => {
-                        const target = e.target as HTMLTextAreaElement;
-                        target.style.height = 'auto';
-                        target.style.height = target.scrollHeight + 'px';
-                      }}
-                      onChange={(e) => updateChecklist(item.id, 'observaciones', e.target.value)} />
-
-                    
-                                            <div className="print-only text-[0.7rem] text-slate-500 whitespace-pre-wrap break-words mb-1">
-                                                {item.observaciones || ''}
-                                            </div>
-
-                                            {/* Bottom row: status buttons + delete */}
-                                            {(() => {
-                                              const isSI = item.estado === 'Cumple' || item.estado === 'SI';
-                                              const isNO = item.estado === 'No Cumple' || item.estado === 'NO';
-                                              const isNA = item.estado === 'N/A' || item.estado === 'NA';
-
-                                              return (
-                                                <div className="no-print flex items-center justify-between gap-2 mt-2 flex-wrap">
-                                                  <div className="flex items-center gap-1.5">
-                                                    <button
-                                                      type="button"
-                                                      onClick={() => updateChecklist(item.id, 'estado', 'Cumple')}
-                                                      style={{
-                                                        background: isSI ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'rgba(16, 185, 129, 0.12)',
-                                                        color: isSI ? '#ffffff' : '#059669',
-                                                        border: isSI ? 'none' : '1px solid rgba(16, 185, 129, 0.3)',
-                                                        boxShadow: isSI ? '0 2px 6px rgba(16,185,129,0.3)' : 'none',
-                                                        height: '26px',
-                                                        padding: '0 10px',
-                                                        fontSize: '0.72rem',
-                                                        fontWeight: 800,
-                                                        borderRadius: '6px',
-                                                        display: 'inline-flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        gap: '4px',
-                                                        cursor: 'pointer',
-                                                        minWidth: '50px',
-                                                      }}
-                                                      className="hover:scale-105 active:scale-95 transition-transform"
-                                                    >
-                                                      {isSI && <CheckCircle2 size={11} />} SI
-                                                    </button>
-                                                    
-                                                    <button
-                                                      type="button"
-                                                      onClick={() => updateChecklist(item.id, 'estado', 'No Cumple')}
-                                                      style={{
-                                                        background: isNO ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'rgba(239, 68, 68, 0.12)',
-                                                        color: isNO ? '#ffffff' : '#dc2626',
-                                                        border: isNO ? 'none' : '1px solid rgba(239, 68, 68, 0.3)',
-                                                        boxShadow: isNO ? '0 2px 6px rgba(239,68,68,0.3)' : 'none',
-                                                        height: '26px',
-                                                        padding: '0 10px',
-                                                        fontSize: '0.72rem',
-                                                        fontWeight: 800,
-                                                        borderRadius: '6px',
-                                                        display: 'inline-flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        gap: '4px',
-                                                        cursor: 'pointer',
-                                                        minWidth: '50px',
-                                                      }}
-                                                      className="hover:scale-105 active:scale-95 transition-transform"
-                                                    >
-                                                      {isNO && <AlertCircle size={11} />} NO
-                                                    </button>
-
-                                                    <button
-                                                      type="button"
-                                                      onClick={() => updateChecklist(item.id, 'estado', 'N/A')}
-                                                      style={{
-                                                        background: isNA ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)' : 'rgba(100, 116, 139, 0.12)',
-                                                        color: isNA ? '#ffffff' : '#475569',
-                                                        border: isNA ? 'none' : '1px solid rgba(100, 116, 139, 0.3)',
-                                                        boxShadow: isNA ? '0 2px 6px rgba(100,116,139,0.3)' : 'none',
-                                                        height: '26px',
-                                                        padding: '0 10px',
-                                                        fontSize: '0.72rem',
-                                                        fontWeight: 800,
-                                                        borderRadius: '6px',
-                                                        display: 'inline-flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        gap: '4px',
-                                                        cursor: 'pointer',
-                                                        minWidth: '50px',
-                                                      }}
-                                                      className="hover:scale-105 active:scale-95 transition-transform"
-                                                    >
-                                                      {isNA && <HelpCircle size={11} />} N/A
-                                                    </button>
-                                                  </div>
-
-                                                  <button
-                                                    type="button"
-                                                    onClick={() => removeQuestion(item.id)}
-                                                    title="Eliminar pregunta"
-                                                    style={{ 
-                                                      backgroundColor: '#ef4444', 
-                                                      color: '#ffffff', 
-                                                      height: '26px', 
-                                                      width: '26px', 
-                                                      minWidth: '26px',
-                                                      minHeight: '26px',
-                                                      borderRadius: '6px',
-                                                      display: 'inline-flex',
-                                                      alignItems: 'center',
-                                                      justifyContent: 'center',
-                                                      border: 'none',
-                                                      boxShadow: '0 2px 6px rgba(239, 68, 68, 0.4)',
-                                                      cursor: 'pointer',
-                                                    }}
-                                                    className="hover:scale-105 active:scale-95 transition-transform shrink-0"
-                                                  >
-                                                    <svg 
-                                                      width="14" 
-                                                      height="14" 
-                                                      viewBox="0 0 24 24" 
-                                                      fill="none" 
-                                                      stroke="#ffffff" 
-                                                      strokeWidth="2.5" 
-                                                      strokeLinecap="round" 
-                                                      strokeLinejoin="round" 
-                                                      style={{ 
-                                                        width: '14px', 
-                                                        height: '14px', 
-                                                        minWidth: '14px', 
-                                                        minHeight: '14px', 
-                                                        stroke: '#ffffff', 
-                                                        color: '#ffffff', 
-                                                        display: 'block' 
-                                                      }}
-                                                    >
-                                                      <path d="M3 6h18" />
-                                                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                                      <line x1="10" y1="11" x2="10" y2="17" />
-                                                      <line x1="14" y1="11" x2="14" y2="17" />
-                                                    </svg>
-                                                  </button>
-                                                </div>
-                                              );
-                                            })()}
-                                            {/* Vista de Impresión Reforzada */}
-                                            <div className="checklist-print-box hidden print:flex gap-1 flex-shrink-[0]">
-                                                {['SI', 'NO', 'NA'].map((label) => {
-                        const isSelected = label === 'SI' && (item.estado === 'Cumple' || item.estado === 'SI') ||
-                        label === 'NO' && (item.estado === 'No Cumple' || item.estado === 'NO') ||
-                        label === 'NA' && (item.estado === 'N/A' || item.estado === 'NA');
+                    {/* LISTA DE PASOS EN TARJETAS RESPONSIVAS (SIN DESBORDE NI RECORTE) */}
+                    <div className="space-y-4">
+                      {formData.tareas.map((t, index) => {
+                        const riskBg =
+                          t.nivelRiesgo === 'Crítico'
+                            ? '#881337'
+                            : t.nivelRiesgo === 'Alto'
+                            ? '#dc2626'
+                            : t.nivelRiesgo === 'Medio'
+                            ? '#d97706'
+                            : '#059669';
 
                         return (
-                          <div key={label} style={{
+                          <div
+                            key={t.id}
+                            className="rounded-2xl p-4 sm:p-5 shadow-sm transition-all"
+                            style={{
+                              backgroundColor: 'var(--color-surface)',
+                              border: '1.5px solid var(--color-border)',
+                              borderLeft: `5px solid ${riskBg}`
+                            }}
+                          >
+                            {/* Barra Superior del Paso: Número + Orden + Nivel de Riesgo + Matriz PxS + Eliminar */}
+                            <div
+                              className="flex flex-wrap items-center justify-between gap-2.5 pb-3.5 mb-3.5 border-b"
+                              style={{ borderColor: 'var(--color-border)' }}
+                            >
+                              {/* Izquierda: Badge de Paso + Subir/Bajar + Duplicar */}
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span
+                                  style={{
+                                    padding: '0.35rem 0.8rem',
+                                    borderRadius: '0.65rem',
+                                    backgroundColor: riskBg,
+                                    color: '#ffffff',
+                                    fontWeight: 900,
+                                    fontSize: '0.76rem',
+                                    letterSpacing: '0.04em'
+                                  }}
+                                >
+                                  PASO #{index + 1}
+                                </span>
 
-
-                            border: isSelected ? '2.5px solid #000' : '1px solid #94a3b8',
-
-
-
-
-
-                            fontWeight: isSelected ? 900 : 400,
-                            color: isSelected ? '#000' : '#94a3b8'
-
-                          }} className="w-[35px] h-[24px] rounded-[4px] flex items-center justify-center text-[0.65rem] bg-[transparent]">
-                                                            {isSelected ? 'X' : ''}
-                                                            <span style={{ opacity: isSelected ? 1 : 0.6 }} className="text-[0.5rem] ml-[2px]">{label}</span>
-                                                        </div>);
-
-                      })}
-                                            </div>
-                                        </div>
-                                    ))}
+                                <div className="no-print flex items-center gap-1.5 flex-wrap">
+                                  <button
+                                    type="button"
+                                    onClick={() => moveTask(index, 'up')}
+                                    disabled={index === 0}
+                                    title="Subir paso"
+                                    style={{
+                                      marginBottom: 0,
+                                      padding: '0.36rem 0.65rem',
+                                      width: 'auto',
+                                      height: 'auto',
+                                      borderRadius: '8px',
+                                      backgroundColor: 'var(--color-background)',
+                                      color: 'var(--color-text)',
+                                      border: '1px solid var(--color-border)',
+                                      fontSize: '0.72rem',
+                                      fontWeight: 800,
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      gap: '0.28rem',
+                                      cursor: index === 0 ? 'not-allowed' : 'pointer',
+                                      opacity: index === 0 ? 0.45 : 1
+                                    }}
+                                  >
+                                    <ArrowUp size={13} style={{ flexShrink: 0 }} /> Subir
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => moveTask(index, 'down')}
+                                    disabled={index === formData.tareas.length - 1}
+                                    title="Bajar paso"
+                                    style={{
+                                      marginBottom: 0,
+                                      padding: '0.36rem 0.65rem',
+                                      width: 'auto',
+                                      height: 'auto',
+                                      borderRadius: '8px',
+                                      backgroundColor: 'var(--color-background)',
+                                      color: 'var(--color-text)',
+                                      border: '1px solid var(--color-border)',
+                                      fontSize: '0.72rem',
+                                      fontWeight: 800,
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      gap: '0.28rem',
+                                      cursor: index === formData.tareas.length - 1 ? 'not-allowed' : 'pointer',
+                                      opacity: index === formData.tareas.length - 1 ? 0.45 : 1
+                                    }}
+                                  >
+                                    <ArrowDown size={13} style={{ flexShrink: 0 }} /> Bajar
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => duplicateTask(t, index)}
+                                    title="Duplicar este paso"
+                                    style={{
+                                      marginBottom: 0,
+                                      padding: '0.36rem 0.7rem',
+                                      width: 'auto',
+                                      height: 'auto',
+                                      borderRadius: '8px',
+                                      backgroundColor: 'var(--color-background)',
+                                      color: 'var(--color-text)',
+                                      border: '1px solid var(--color-border)',
+                                      fontSize: '0.72rem',
+                                      fontWeight: 800,
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '0.32rem',
+                                      cursor: 'pointer'
+                                    }}
+                                  >
+                                    <Copy size={13} style={{ flexShrink: 0 }} /> Duplicar
+                                  </button>
                                 </div>
-                            </div>
-              )}
-                            </ModuleFormSection>
-                        </div>
-            )}
+                              </div>
 
-                    {/* STEP 5 */}
-                    {currentStep === 5 && (
-                        <div className="wizard-step-anim mt-[2.5rem]">
-                            <ModuleFormSection title="Firmas y Autorizaciones" icon={<Pencil size={20} />}>
-                                {/* Authorized Workers Roster Form */}
-                                <div className="no-print mb-8 p-6 bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-2xl">
-                            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                                <div>
-                                    <h4 className="m-0 font-extrabold text-sm uppercase text-[var(--color-text)] flex items-center gap-2">
-                                        <User size={18} className="text-blue-600" /> Nómina de Trabajadores Autorizados (Personal Acreditado)
-                                    </h4>
-                                    <p className="m-0 text-xs text-[var(--color-text-muted)] mt-1">Registre a los operarios que participarán en la tarea para control de ART.</p>
+                              {/* Derecha: Selector Nivel de Riesgo Bien Visible + Matriz PxS + Eliminar */}
+                              <div className="no-print flex items-center gap-2 flex-wrap">
+                                <div className="flex items-center gap-1.5">
+                                  <span
+                                    className="text-[11px] font-black uppercase"
+                                    style={{ color: 'var(--color-text-light)' }}
+                                  >
+                                    4. Riesgo:
+                                  </span>
+                                  <select
+                                    value={t.nivelRiesgo || 'Bajo'}
+                                    onChange={(e) => updateTask(t.id, 'nivelRiesgo', e.target.value)}
+                                    style={{
+                                      marginBottom: 0,
+                                      minWidth: '140px',
+                                      padding: '0.45rem 0.75rem',
+                                      borderRadius: '0.65rem',
+                                      fontWeight: 900,
+                                      fontSize: '0.78rem',
+                                      cursor: 'pointer',
+                                      backgroundColor:
+                                        t.nivelRiesgo === 'Crítico'
+                                          ? '#881337'
+                                          : t.nivelRiesgo === 'Alto'
+                                          ? '#fee2e2'
+                                          : t.nivelRiesgo === 'Medio'
+                                          ? '#fef3c7'
+                                          : '#dcfce7',
+                                      color:
+                                        t.nivelRiesgo === 'Crítico'
+                                          ? '#ffffff'
+                                          : t.nivelRiesgo === 'Alto'
+                                          ? '#dc2626'
+                                          : t.nivelRiesgo === 'Medio'
+                                          ? '#b45309'
+                                          : '#15803d',
+                                      border: `1.5px solid ${riskBg}`,
+                                      outline: 'none'
+                                    }}
+                                  >
+                                    <option value="Bajo">🟢 Riesgo Bajo</option>
+                                    <option value="Medio">🟡 Riesgo Medio</option>
+                                    <option value="Alto">🟠 Riesgo Alto</option>
+                                    <option value="Crítico">🔴 Riesgo Crítico</option>
+                                  </select>
                                 </div>
+
                                 <button
+                                  type="button"
+                                  onClick={() => setMatrixTask(t.id)}
+                                  title="Calcular riesgo con Matriz 5x5 (Probabilidad x Severidad)"
+                                  style={{
+                                    marginBottom: 0,
+                                    padding: '0.45rem 0.75rem',
+                                    width: 'auto',
+                                    height: 'auto',
+                                    borderRadius: '0.65rem',
+                                    backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                                    color: '#2563eb',
+                                    border: '1px solid rgba(37, 99, 235, 0.3)',
+                                    fontWeight: 900,
+                                    fontSize: '0.74rem',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.35rem',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  <Activity size={13} style={{ flexShrink: 0 }} /> Matriz P×S
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => removeTask(t.id)}
+                                  title="Eliminar paso"
+                                  style={{
+                                    marginBottom: 0,
+                                    padding: '0.45rem 0.8rem',
+                                    width: 'auto',
+                                    height: 'auto',
+                                    borderRadius: '0.65rem',
+                                    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    fontWeight: 800,
+                                    fontSize: '0.74rem',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '0.35rem',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 3px 10px rgba(239, 68, 68, 0.25)'
+                                  }}
+                                >
+                                  <Trash2 size={14} style={{ flexShrink: 0 }} /> Eliminar
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Grilla de 3 Columnas: 1. Paso a seguir | 2. Riesgos | 3. Controles + Norma */}
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
+                              {/* Columna 1: Paso a seguir */}
+                              <div className="flex flex-col gap-1.5">
+                                <label
+                                  className="text-[11px] font-black uppercase tracking-wider"
+                                  style={{ color: '#2563eb' }}
+                                >
+                                  1. Paso a Seguir (Secuencia)
+                                </label>
+                                <textarea
+                                  rows={2}
+                                  value={t.paso}
+                                  onChange={(e) => updateTask(t.id, 'paso', e.target.value)}
+                                  placeholder="Describí la etapa de la tarea..."
+                                  style={{
+                                    width: '100%',
+                                    padding: '0.65rem 0.8rem',
+                                    borderRadius: '0.75rem',
+                                    backgroundColor: 'var(--color-background)',
+                                    color: 'var(--color-text)',
+                                    border: '1px solid var(--color-border)',
+                                    fontSize: '0.82rem',
+                                    fontWeight: 700,
+                                    lineHeight: 1.45,
+                                    outline: 'none',
+                                    resize: 'vertical'
+                                  }}
+                                />
+                              </div>
+
+                              {/* Columna 2: Riesgos asociados */}
+                              <div className="flex flex-col gap-1.5">
+                                <label
+                                  className="text-[11px] font-black uppercase tracking-wider"
+                                  style={{ color: '#d97706' }}
+                                >
+                                  2. Peligros y Riesgos Asociados
+                                </label>
+                                <textarea
+                                  rows={2}
+                                  value={t.riesgo}
+                                  onChange={(e) => updateTask(t.id, 'riesgo', e.target.value)}
+                                  placeholder="Ej: Caída a distinto nivel, contacto eléctrico, proyección..."
+                                  style={{
+                                    width: '100%',
+                                    padding: '0.65rem 0.8rem',
+                                    borderRadius: '0.75rem',
+                                    backgroundColor: 'var(--color-background)',
+                                    color: 'var(--color-text)',
+                                    border: '1px solid var(--color-border)',
+                                    fontSize: '0.82rem',
+                                    fontWeight: 600,
+                                    lineHeight: 1.45,
+                                    outline: 'none',
+                                    resize: 'vertical'
+                                  }}
+                                />
+                              </div>
+
+                              {/* Columna 3: Medidas de control + Cita Normativa */}
+                              <div className="flex flex-col gap-1.5">
+                                <label
+                                  className="text-[11px] font-black uppercase tracking-wider"
+                                  style={{ color: '#059669' }}
+                                >
+                                  3. Medidas de Control Preventivas
+                                </label>
+                                <textarea
+                                  rows={2}
+                                  value={t.control}
+                                  onChange={(e) => updateTask(t.id, 'control', e.target.value)}
+                                  placeholder="Ej: Bloqueo LOTO, doble cabo de vida, vallado perimetral..."
+                                  style={{
+                                    width: '100%',
+                                    padding: '0.65rem 0.8rem',
+                                    borderRadius: '0.75rem',
+                                    backgroundColor: 'var(--color-background)',
+                                    color: 'var(--color-text)',
+                                    border: '1px solid var(--color-border)',
+                                    fontSize: '0.82rem',
+                                    fontWeight: 600,
+                                    lineHeight: 1.45,
+                                    outline: 'none',
+                                    resize: 'vertical'
+                                  }}
+                                />
+
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span
+                                    className="text-[10px] font-black uppercase shrink-0"
+                                    style={{ color: '#2563eb' }}
+                                  >
+                                    ⚖️ Norma:
+                                  </span>
+                                  <input
+                                    type="text"
+                                    value={t.normativa || ''}
+                                    onChange={(e) => updateTask(t.id, 'normativa', e.target.value)}
+                                    placeholder="Ej: Dec. 911/96 Art. 51 / Dec. 351/79"
+                                    style={{
+                                      width: '100%',
+                                      padding: '0.35rem 0.65rem',
+                                      borderRadius: '0.55rem',
+                                      backgroundColor: 'var(--color-background)',
+                                      color: 'var(--color-text)',
+                                      border: '1px solid var(--color-border)',
+                                      fontSize: '0.74rem',
+                                      fontWeight: 700,
+                                      outline: 'none'
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Botón Inferior Rápido para Agregar Otro Paso */}
+                    <div className="no-print mt-4 flex justify-center">
+                      <button
+                        type="button"
+                        onClick={addTask}
+                        style={{
+                          marginBottom: 0,
+                          padding: '0.75rem 1.4rem',
+                          borderRadius: '0.9rem',
+                          backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                          color: '#059669',
+                          border: '1.5px dashed rgba(16, 185, 129, 0.45)',
+                          fontWeight: 900,
+                          fontSize: '0.82rem',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.45rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <Plus size={16} /> Agregar otro paso a la secuencia
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 3: EPPs Y EVIDENCIA FOTOGRÁFICA */}
+                {currentStep === 3 && (
+                  <div className="wizard-step-anim mt-6">
+                    <ModuleFormSection title="EPPs Obligatorios y Evidencia" icon={<HardHat size={20} />}>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        {/* EPPs Selector */}
+                        <div
+                          className="p-5 rounded-2xl"
+                          style={{
+                            backgroundColor: 'var(--color-surface)',
+                            border: '1px solid var(--color-border)'
+                          }}
+                        >
+                          <h4 className="m-0 mb-3 text-xs sm:text-sm font-black uppercase" style={{ color: 'var(--color-text)' }}>
+                            Selección de EPPs Obligatorios (Res. SRT 299/11)
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {[
+                              { id: 'casco', label: 'Casco Seguridad', icon: HardHat },
+                              { id: 'guantes', label: 'Guantes Prot.', icon: ShieldCheck },
+                              { id: 'anteojos', label: 'Protección Ocular', icon: EyeIcon },
+                              { id: 'auditiva', label: 'Prot. Auditiva', icon: Ear },
+                              { id: 'arnes', label: 'Arnés / Cabo Vida', icon: Activity },
+                              { id: 'calzado', label: 'Calzado Seg.', icon: ShieldCheck },
+                              { id: 'respiratoria', label: 'Máscara / Filtro', icon: ShieldAlert },
+                              { id: 'chaleco', label: 'Chaleco Reflectivo', icon: User }
+                            ].map((epp) => {
+                              const isSelected = formData.epps?.includes(epp.id);
+                              const Icon = epp.icon;
+                              return (
+                                <button
+                                  key={epp.id}
+                                  type="button"
+                                  onClick={() => {
+                                    const current = formData.epps || [];
+                                    const updated = isSelected
+                                      ? current.filter((e) => e !== epp.id)
+                                      : [...current, epp.id];
+                                    setFormData({ ...formData, epps: updated });
+                                  }}
+                                  style={{
+                                    marginBottom: 0,
+                                    padding: '0.6rem 0.9rem',
+                                    borderRadius: '0.8rem',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.45rem',
+                                    cursor: 'pointer',
+                                    fontWeight: 800,
+                                    fontSize: '0.78rem',
+                                    background: isSelected
+                                      ? 'linear-gradient(135deg, #2563eb, #1d4ed8)'
+                                      : 'var(--color-background)',
+                                    color: isSelected ? '#ffffff' : 'var(--color-text)',
+                                    border: `1.5px solid ${isSelected ? '#2563eb' : 'var(--color-border)'}`
+                                  }}
+                                >
+                                  <Icon size={16} />
+                                  <span>{epp.label}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Photo Upload */}
+                        <div
+                          className="p-5 rounded-2xl"
+                          style={{
+                            backgroundColor: 'var(--color-surface)',
+                            border: '1px solid var(--color-border)'
+                          }}
+                        >
+                          <h4 className="m-0 mb-1 text-xs sm:text-sm font-black uppercase" style={{ color: 'var(--color-text)' }}>
+                            Evidencia Fotográfica del Entorno
+                          </h4>
+                          <p className="text-xs m-0 mb-3" style={{ color: 'var(--color-text-light)' }}>
+                            Adjuntá hasta 2 fotografías del área de trabajo o equipos verificados.
+                          </p>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                            {[0, 1].map((index) => {
+                              const photoUrl = formData.fotos?.[index];
+                              return (
+                                <div
+                                  key={index}
+                                  className="rounded-2xl relative overflow-hidden"
+                                  style={{
+                                    minHeight: '190px',
+                                    backgroundColor: 'var(--color-background)',
+                                    border: '2px dashed var(--color-border)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                  }}
+                                >
+                                  {photoUrl ? (
+                                    <>
+                                      <img
+                                        src={photoUrl}
+                                        alt={`Evidencia ${index + 1}`}
+                                        className="w-full h-full object-cover"
+                                        style={{ minHeight: '190px', maxHeight: '220px' }}
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const newFotos = [...(formData.fotos || [])];
+                                          newFotos.splice(index, 1);
+                                          setFormData({ ...formData, fotos: newFotos });
+                                        }}
+                                        style={{
+                                          marginBottom: 0,
+                                          position: 'absolute',
+                                          top: '10px',
+                                          right: '10px',
+                                          padding: '0.38rem 0.7rem',
+                                          width: 'auto',
+                                          height: 'auto',
+                                          background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                                          color: '#ffffff',
+                                          border: 'none',
+                                          borderRadius: '9999px',
+                                          fontSize: '0.72rem',
+                                          fontWeight: 800,
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          gap: '0.3rem',
+                                          cursor: 'pointer',
+                                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.35)'
+                                        }}
+                                      >
+                                        <TrashIcon size={13} style={{ flexShrink: 0 }} /> Eliminar
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <label
+                                      style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        textAlign: 'center',
+                                        width: '100%',
+                                        height: '100%',
+                                        minHeight: '190px',
+                                        margin: 0,
+                                        padding: '1.25rem',
+                                        cursor: 'pointer',
+                                        gap: '0.6rem',
+                                        color: 'var(--color-text)'
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          width: '54px',
+                                          height: '54px',
+                                          borderRadius: '9999px',
+                                          backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                                          border: '1.5px solid rgba(37, 99, 235, 0.28)',
+                                          color: '#2563eb',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          margin: '0 auto',
+                                          flexShrink: 0
+                                        }}
+                                      >
+                                        <CameraIcon size={25} style={{ flexShrink: 0 }} />
+                                      </div>
+                                      <span
+                                        style={{
+                                          fontSize: '0.76rem',
+                                          fontWeight: 900,
+                                          textTransform: 'uppercase',
+                                          letterSpacing: '0.03em',
+                                          color: 'var(--color-text)',
+                                          display: 'block',
+                                          textAlign: 'center',
+                                          lineHeight: 1.3
+                                        }}
+                                      >
+                                        Subir / Tomar Foto #{index + 1}
+                                      </span>
+                                      <span
+                                        style={{
+                                          fontSize: '0.68rem',
+                                          fontWeight: 700,
+                                          color: 'var(--color-text-light)',
+                                          display: 'block',
+                                          textAlign: 'center'
+                                        }}
+                                      >
+                                        Tocá para abrir cámara o galería
+                                      </span>
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        style={{ display: 'none' }}
+                                        onChange={(e) => {
+                                          const file = e.target.files?.[0];
+                                          if (file) {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => {
+                                              const newFotos = [...(formData.fotos || [])];
+                                              newFotos[index] = reader.result as string;
+                                              setFormData({ ...formData, fotos: newFotos });
+                                            };
+                                            reader.readAsDataURL(file);
+                                          }
+                                        }}
+                                      />
+                                    </label>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Emergency Equipment Selector */}
+                        <div
+                          className="md:col-span-2 p-5 rounded-2xl"
+                          style={{
+                            backgroundColor: 'var(--color-surface)',
+                            border: '1px solid var(--color-border)'
+                          }}
+                        >
+                          <h4
+                            className="m-0 mb-3 text-xs sm:text-sm font-black uppercase flex items-center gap-2"
+                            style={{ color: 'var(--color-text)' }}
+                          >
+                            <ShieldAlert size={18} color="#dc2626" /> Equipos de Emergencia y Respuesta en Zona
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {[
+                              { id: 'Matafuego ABC', label: '🧯 Matafuego PQS / ABC' },
+                              { id: 'Botiquín', label: '🧰 Botiquín Primeros Auxilios' },
+                              { id: 'Lavaojos', label: '🚿 Lavaojos de Emergencia' },
+                              { id: 'Ventilación', label: '🌀 Extractor / Ventilación' },
+                              { id: 'Delimitación', label: '🚧 Conos / Vallas de Cerco' },
+                              { id: 'Trípode Rescate', label: '🪢 Trípode / Kit de Rescate' },
+                              { id: 'Detector Multigas', label: '📟 Detector Multigas' },
+                              { id: 'Kit Antiderrame', label: '🛢️ Kit Absorbente Derrames' }
+                            ].map((eq) => {
+                              const isSelected = (formData.equiposEmergencia || []).includes(eq.id);
+                              return (
+                                <button
+                                  key={eq.id}
+                                  type="button"
+                                  onClick={() => {
+                                    const current = formData.equiposEmergencia || [];
+                                    const updated = isSelected
+                                      ? current.filter((e) => e !== eq.id)
+                                      : [...current, eq.id];
+                                    setFormData({ ...formData, equiposEmergencia: updated });
+                                  }}
+                                  style={{
+                                    marginBottom: 0,
+                                    padding: '0.6rem 0.9rem',
+                                    borderRadius: '0.8rem',
+                                    cursor: 'pointer',
+                                    fontWeight: 800,
+                                    fontSize: '0.78rem',
+                                    background: isSelected
+                                      ? 'linear-gradient(135deg, #dc2626, #b91c1c)'
+                                      : 'var(--color-background)',
+                                    color: isSelected ? '#ffffff' : 'var(--color-text)',
+                                    border: `1.5px solid ${isSelected ? '#dc2626' : 'var(--color-border)'}`
+                                  }}
+                                >
+                                  {eq.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </ModuleFormSection>
+                  </div>
+                )}
+
+                {/* STEP 4: CHECKLIST PREVENTIVO */}
+                {currentStep === 4 && (
+                  <div className="wizard-step-anim mt-6">
+                    <ModuleFormSection title="Verificación Preventiva en Campo" icon={<ShieldCheck size={20} />}>
+                      <div className="space-y-5">
+                        {categories.map((cat) => (
+                          <div
+                            key={cat}
+                            className="p-4 sm:p-5 rounded-2xl"
+                            style={{
+                              backgroundColor: 'var(--color-surface)',
+                              border: '1px solid var(--color-border)'
+                            }}
+                          >
+                            <div
+                              className="flex items-center justify-between gap-2 mb-3 pb-2.5 border-b flex-wrap"
+                              style={{ borderColor: 'var(--color-border)' }}
+                            >
+                              <h4
+                                className="m-0 font-black text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2"
+                                style={{ color: '#2563eb' }}
+                              >
+                                <Info size={16} style={{ flexShrink: 0 }} />
+                                <span
+                                  contentEditable
+                                  suppressContentEditableWarning
+                                  onBlur={(e) => updateCategoryName(cat, e.target.innerText)}
+                                  style={{ color: 'var(--color-text)' }}
+                                >
+                                  {cat}
+                                </span>
+                              </h4>
+                              <div className="no-print flex items-center gap-2 flex-wrap">
+                                <button
+                                  type="button"
+                                  onClick={() => addQuestion(cat)}
+                                  style={{
+                                    marginBottom: 0,
+                                    padding: '0.4rem 0.85rem',
+                                    width: 'auto',
+                                    height: 'auto',
+                                    borderRadius: '0.65rem',
+                                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    fontWeight: 800,
+                                    fontSize: '0.72rem',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.3rem',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  <Plus size={13} style={{ flexShrink: 0 }} /> AGREGAR ÍTEM
+                                </button>
+                                {categories.length > 1 && (
+                                  <button
                                     type="button"
                                     onClick={() => {
-                                        const current = formData.trabajadores || [];
-                                        const newWorker = { id: Date.now(), nombre: '', dni: '', funcion: 'Operario' };
-                                        setFormData({ ...formData, trabajadores: [...current, newWorker] });
+                                      setFormData((prev) => ({
+                                        ...prev,
+                                        checklist: prev.checklist.filter((item) => item.categoria !== cat)
+                                      }));
                                     }}
-                                    className="px-3 py-2 bg-blue-600 text-white rounded-xl font-extrabold text-xs flex items-center gap-1 cursor-pointer border-none shadow-md hover:bg-blue-700"
-                                >
-                                    <Plus size={14} /> Agregar Trabajador
-                                </button>
+                                    title={`Eliminar sección ${cat}`}
+                                    style={{
+                                      marginBottom: 0,
+                                      padding: '0.4rem 0.8rem',
+                                      width: 'auto',
+                                      height: 'auto',
+                                      borderRadius: '0.65rem',
+                                      background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                                      color: '#ffffff',
+                                      border: 'none',
+                                      fontWeight: 800,
+                                      fontSize: '0.72rem',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '0.3rem',
+                                      cursor: 'pointer'
+                                    }}
+                                  >
+                                    <Trash2 size={13} style={{ flexShrink: 0 }} /> Eliminar Sección
+                                  </button>
+                                )}
+                              </div>
                             </div>
 
-                            {(formData.trabajadores || []).length === 0 ? (
-                                <div className="p-4 rounded-xl border border-dashed border-slate-300 text-center text-xs font-bold text-[var(--color-text-muted)]">
-                                    No se registraron trabajadores adicionales. Haz clic en "Agregar Trabajador" para incluir la nómina.
-                                </div>
-                            ) : (
-                                <div className="flex flex-col gap-3">
-                                    {(formData.trabajadores || []).map((w, idx) => {
-                                        const query = w.dni || w.nombre;
-                                        const medVal = query.trim().length > 1 ? validateWorkerMedicalStatus(query) : null;
-                                        const isApto = medVal?.isValid && medVal?.status === 'apto';
-                                        const isVencido = medVal?.status === 'vencido';
-                                        const isNoApto = medVal?.status === 'no_apto';
+                            <div className="flex flex-col gap-3">
+                              {formData.checklist
+                                .filter((i) => i.categoria === cat)
+                                .map((item) => {
+                                  const isSI = item.estado === 'Cumple' || item.estado === 'SI';
+                                  const isNO = item.estado === 'No Cumple' || item.estado === 'NO';
+                                  const isNA = item.estado === 'N/A' || item.estado === 'NA';
 
-                                        return (
-                                            <div key={w.id || idx} className="flex flex-col gap-2 p-3 rounded-xl bg-[var(--color-background)] border border-[var(--color-border)]">
-                                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Nombre y Apellido..."
-                                                        value={w.nombre}
-                                                        onChange={(e) => {
-                                                            const updated = [...(formData.trabajadores || [])];
-                                                            updated[idx].nombre = e.target.value;
-                                                            setFormData({ ...formData, trabajadores: updated });
-                                                        }}
-                                                        className="p-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-bold text-[var(--color-text)] outline-none"
-                                                    />
-                                                    <input
-                                                        type="text"
-                                                        placeholder="DNI / Legajo..."
-                                                        value={w.dni}
-                                                        onChange={(e) => {
-                                                            const updated = [...(formData.trabajadores || [])];
-                                                            updated[idx].dni = e.target.value;
-                                                            setFormData({ ...formData, trabajadores: updated });
-                                                        }}
-                                                        className="p-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-bold text-[var(--color-text)] outline-none"
-                                                    />
-                                                    <div className="flex items-center gap-2">
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Función / Rol (ej: Operario, Vigía)..."
-                                                            value={w.funcion}
-                                                            onChange={(e) => {
-                                                                const updated = [...(formData.trabajadores || [])];
-                                                                updated[idx].funcion = e.target.value;
-                                                                setFormData({ ...formData, trabajadores: updated });
-                                                            }}
-                                                            className="p-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-bold text-[var(--color-text)] outline-none w-full"
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                const updated = [...(formData.trabajadores || [])];
-                                                                updated.splice(idx, 1);
-                                                                setFormData({ ...formData, trabajadores: updated });
-                                                            }}
-                                                            className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer border-none bg-transparent"
-                                                        >
-                                                            <Trash2 size={16} />
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                  return (
+                                    <div
+                                      key={item.id}
+                                      className="p-3.5 rounded-xl"
+                                      style={{
+                                        backgroundColor: 'var(--color-background)',
+                                        border: '1px solid var(--color-border)'
+                                      }}
+                                    >
+                                      <div
+                                        contentEditable
+                                        suppressContentEditableWarning
+                                        onBlur={(e) => updateChecklist(item.id, 'pregunta', e.target.innerText)}
+                                        className="font-bold text-xs sm:text-sm outline-none mb-2"
+                                        style={{ color: 'var(--color-text)' }}
+                                      >
+                                        {item.pregunta}
+                                      </div>
 
-                                                {/* Badge de Validación de Aptitud Médica en tiempo real */}
-                                                {medVal && query.trim().length > 2 && (
-                                                    <div className={`text-[11px] px-2.5 py-1 rounded-lg flex items-center justify-between gap-2 border ${
-                                                        isApto 
-                                                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300' 
-                                                            : isVencido 
-                                                            ? 'bg-amber-50 text-amber-800 border-amber-300' 
-                                                            : isNoApto 
-                                                            ? 'bg-rose-50 text-rose-800 border-rose-300 font-black' 
-                                                            : 'bg-slate-50 text-slate-600 border-slate-200'
-                                                    }`}>
-                                                        <div className="flex items-center gap-1.5 font-bold">
-                                                            <span>{isApto ? '✅' : isVencido ? '⚠️' : isNoApto ? '🛑' : 'ℹ️'}</span>
-                                                            <span>{medVal.message}</span>
-                                                        </div>
-                                                        {medVal.expirationDate && (
-                                                            <span className="text-[10px] font-black uppercase opacity-80">
-                                                                Venc: {medVal.expirationDate}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </div>
+                                      <textarea
+                                        rows={1}
+                                        placeholder="Observaciones o desvíos detectados..."
+                                        value={item.observaciones}
+                                        onChange={(e) => updateChecklist(item.id, 'observaciones', e.target.value)}
+                                        style={{
+                                          width: '100%',
+                                          padding: '0.45rem 0.7rem',
+                                          borderRadius: '0.6rem',
+                                          backgroundColor: 'var(--color-surface)',
+                                          color: 'var(--color-text)',
+                                          border: '1px solid var(--color-border)',
+                                          fontSize: '0.78rem',
+                                          outline: 'none'
+                                        }}
+                                      />
 
-                        {/* Custom visual switches */}
-                        <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
-                            <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                            <div className="flex gap-[1rem] flex-wrap justify-center">
-                                {[
-                  { id: 'operator', label: 'Operador / Capataz' },
-                  { id: 'supervisor', label: 'Supervisor' },
-                  { id: 'professional', label: 'Profesional' }].
-                  map((sig) => {
-                    const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
-                    return (
-                      <label
-                        key={sig.id}
-                        className="flex items-center gap-2 cursor-pointer select-none p-[0.55rem_1.1rem] rounded-[var(--radius-full)] font-[750] text-[0.8rem] transition-[all_0.2s_ease] whitespace-nowrap"
+                                      <div className="no-print flex items-center justify-between gap-2 mt-2.5 flex-wrap">
+                                        <div className="flex items-center gap-1.5">
+                                          <button
+                                            type="button"
+                                            onClick={() => updateChecklist(item.id, 'estado', 'Cumple')}
+                                            style={{
+                                              marginBottom: 0,
+                                              background: isSI
+                                                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                                                : 'rgba(16, 185, 129, 0.12)',
+                                              color: isSI ? '#ffffff' : '#059669',
+                                              border: isSI ? 'none' : '1px solid rgba(16, 185, 129, 0.3)',
+                                              height: '28px',
+                                              padding: '0 12px',
+                                              fontSize: '0.73rem',
+                                              fontWeight: 800,
+                                              borderRadius: '7px',
+                                              display: 'inline-flex',
+                                              alignItems: 'center',
+                                              gap: '4px',
+                                              cursor: 'pointer'
+                                            }}
+                                          >
+                                            {isSI && <CheckCircle2 size={12} />} CUMPLE
+                                          </button>
+
+                                          <button
+                                            type="button"
+                                            onClick={() => updateChecklist(item.id, 'estado', 'No Cumple')}
+                                            style={{
+                                              marginBottom: 0,
+                                              background: isNO
+                                                ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+                                                : 'rgba(239, 68, 68, 0.12)',
+                                              color: isNO ? '#ffffff' : '#dc2626',
+                                              border: isNO ? 'none' : '1px solid rgba(239, 68, 68, 0.3)',
+                                              height: '28px',
+                                              padding: '0 12px',
+                                              fontSize: '0.73rem',
+                                              fontWeight: 800,
+                                              borderRadius: '7px',
+                                              display: 'inline-flex',
+                                              alignItems: 'center',
+                                              gap: '4px',
+                                              cursor: 'pointer'
+                                            }}
+                                          >
+                                            {isNO && <AlertCircle size={12} />} NO CUMPLE
+                                          </button>
+
+                                          <button
+                                            type="button"
+                                            onClick={() => updateChecklist(item.id, 'estado', 'N/A')}
+                                            style={{
+                                              marginBottom: 0,
+                                              background: isNA
+                                                ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)'
+                                                : 'rgba(100, 116, 139, 0.12)',
+                                              color: isNA ? '#ffffff' : '#475569',
+                                              border: isNA ? 'none' : '1px solid rgba(100, 116, 139, 0.3)',
+                                              height: '28px',
+                                              padding: '0 12px',
+                                              fontSize: '0.73rem',
+                                              fontWeight: 800,
+                                              borderRadius: '7px',
+                                              display: 'inline-flex',
+                                              alignItems: 'center',
+                                              gap: '4px',
+                                              cursor: 'pointer'
+                                            }}
+                                          >
+                                            {isNA && <HelpCircle size={12} />} N/A
+                                          </button>
+                                        </div>
+
+                                        <button
+                                          type="button"
+                                          onClick={() => removeQuestion(item.id)}
+                                          title="Eliminar pregunta"
+                                          style={{
+                                            marginBottom: 0,
+                                            padding: '0.35rem 0.75rem',
+                                            width: 'auto',
+                                            height: 'auto',
+                                            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                                            color: '#ffffff',
+                                            borderRadius: '7px',
+                                            fontSize: '0.72rem',
+                                            fontWeight: 800,
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '0.3rem',
+                                            border: 'none',
+                                            cursor: 'pointer'
+                                          }}
+                                        >
+                                          <Trash2 size={13} style={{ flexShrink: 0 }} /> Eliminar
+                                        </button>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </ModuleFormSection>
+                  </div>
+                )}
+
+                {/* STEP 5: CUADRILLA AUTORIZADA Y FIRMAS */}
+                {currentStep === 5 && (
+                  <div className="wizard-step-anim mt-6">
+                    <ModuleFormSection title="Nómina de Cuadrilla y Firmas" icon={<Pencil size={20} />}>
+                      {/* Authorized Workers Roster Form */}
+                      <div
+                        className="no-print mb-6 p-4 sm:p-5 rounded-2xl"
                         style={{
-
-
-                          border: isChecked ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
-                          background: isChecked ? 'rgba(var(--color-primary-rgb), 0.15)' : 'transparent',
-                          color: isChecked ? 'var(--color-primary)' : 'var(--color-text-light)',
-
-
-
-                          boxShadow: isChecked ? '0 0 10px rgba(var(--color-primary-rgb), 0.15)' : 'none'
-                        }}>
-                        
-                                            <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))} className="hidden" />
-
-                        
-                                            <div style={{
-
-
-
-                          border: isChecked ? '2px solid var(--color-primary)' : '2px solid var(--color-text-light)',
-                          background: isChecked ? 'var(--color-primary)' : 'transparent'
-
-
-
-
-                        }} className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-[all_0.2s_ease]">
-                                                {isChecked && <CheckCircle2 size={12} color="white" />}
-                                            </div>
-                                            {sig.label}
-                                        </label>);
-
-                  })}
-                            </div>
-                        </div>
-
-                        {/* On-Sheet Visual Preview of PDF signature blocks */}
-                        <PdfSignatures
-                data={{
-                  ...formData,
-                  professionalSignature: professional.signature,
-                  professionalName: professional.name,
-                  professionalLicense: professional.license
-                }}
-                box1={showSignatures.operator ? {
-                  title: 'OPERADOR / CAPATAZ',
-                  subtitle: (formData.capatazNombre || 'Firma / Aclaración').toUpperCase(),
-                  signatureUrl: formData.operatorSignature || null,
-                  isProfessional: false
-                } : null}
-                box2={showSignatures.supervisor ? {
-                  title: 'SUPERVISOR / JEFE OBRA',
-                  subtitle: 'FIRMA DEL SUPERVISOR',
-                  signatureUrl: formData.capatazSignature || null,
-                  isProfessional: false
-                } : null}
-                box3={showSignatures.professional ? {
-                  title: 'PROFESIONAL ACTUANTE',
-                  subtitle: (professional.name || 'Firma y Sello').toUpperCase(),
-                  signatureUrl: professional.signature || null,
-                  isProfessional: true,
-                  license: professional.license
-                } : null} />
-              
-
-                        {/* Interactive Signature Drawing Pads */}
-                        <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {showSignatures.operator &&
-                <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                    <SignatureCanvas
-                    onSave={(sig) => setFormData((prev) => ({ ...prev, operatorSignature: sig || '' }))}
-                    initialImage={formData.operatorSignature}
-                    label="Firma del Operador / Responsable" />
-                  
-                                </div>
-                }
-                            
-                            {showSignatures.supervisor &&
-                                <div className="p-6 bg-slate-50/5 dark:bg-slate-900/10 border border-[var(--color-border)] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-                                    <SignatureCanvas
-                                        onSave={(sig) => setFormData((prev) => ({ ...prev, capatazSignature: sig || '' }))}
-                                        initialImage={formData.capatazSignature}
-                                        label="Firma del Supervisor" />
-                                </div>
-                            }
-                        </div>
-                            </ModuleFormSection>
-                        </div>
-                    )}
-
-                    <ModuleWizardFooter
-                      currentStep={currentStep}
-                      totalSteps={totalSteps}
-                      onPrev={prevStep}
-                      onNext={nextStep}
-                      finalActions={[
-                        { id: 'clear', label: 'Limpiar', icon: <Trash2 size={18} />, variant: 'danger', onClick: handleClearForm },
-                        {
-                          id: 'preview',
-                          label: 'Previa',
-                          icon: <EyeIcon size={18} />,
-                          variant: 'info',
-                          onClick: () => setPreviewATS({
-                            ...formData,
-                            showSignatures,
-                            professionalSignature: professional.signature,
-                            professionalName: professional.name,
-                            professionalLicense: professional.license
-                          })
-                        },
-                        { id: 'print', label: 'Imprimir', icon: <Printer size={18} />, variant: 'warning', onClick: handlePrint },
-                        { id: 'share', label: 'Compartir', icon: <Share2 size={18} />, variant: 'info', onClick: handleShare },
-                        {
-                          id: 'save',
-                          label: 'Guardar ATS',
-                          icon: <Save size={18} />,
-                          variant: 'primary',
-                          onClick: (e) => { e.preventDefault(); requirePro(handleSave); },
-                        },
-                      ]}
-                    />
-
-                    <PdfBrandingFooter />
-                </ModuleFormDocument>
-                </ModuleFormLayout>
-                </>
-              )}
-            </div>
-            {/* ─── Modal IA Mágica ─── */}
-            {
-      showAIModal &&
-      <div
-        onClick={() => setShowAIModal(false)}
-        className="modal-overlay-glass fixed inset-[0] z-[9000] flex items-center justify-center p-[1.5rem]">
-
-        
-                        <div
-          onClick={(e) => e.stopPropagation()}
-          className="modal-glass w-[100%] max-w-[460px] p-[2.5rem] border-[1px_solid_rgba(168,85,247,0.3)] box-shadow-[0_25px_60px_rgba(168,85,247,0.2)]">
-
-          
-                            <div className="flex items-center gap-[1rem] mb-[1.5rem]">
-                                <div className="ai-glow bg-[linear-gradient(135deg,#a855f7,#ec4899)] rounded-[14px] p-[0.8rem] flex items-center justify-center box-shadow-[0_8px_20px_rgba(168,85,247,0.4)]">
-                                    <Sparkles size={24} color="white" />
-                                </div>
-                                <div>
-                                    <h2 className="m-[0] text-[1.5rem] font-[900] bg-[linear-gradient(135deg,#a855f7,#ec4899)] webkit-background-clip-[text] webkit-text-fill-color-[transparent]">IA Mágica</h2>
-                                    <p className="m-[0] text-[0.8rem] text-[var(--color-text-muted)] font-[600]">Generador Inteligente de ATS</p>
-                                </div>
-                            </div>
-                            
-                            <p className="text-[var(--color-text-muted)] text-[0.9rem] mb-[2rem] line-height-[1.6]">
-                                Describí la tarea que vas a realizar. La IA analizará los riesgos potenciales y propondrá las mejores medidas de control.
+                          backgroundColor: 'var(--color-surface)',
+                          border: '1px solid var(--color-border)'
+                        }}
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2.5">
+                          <div>
+                            <h4
+                              className="m-0 font-black text-xs sm:text-sm uppercase flex items-center gap-2"
+                              style={{ color: 'var(--color-text)' }}
+                            >
+                              <Users size={18} color="#2563eb" /> Nómina de Trabajadores Autorizados (Cuadrilla)
+                            </h4>
+                            <p className="m-0 text-xs mt-0.5" style={{ color: 'var(--color-text-light)' }}>
+                              Registrá a los operarios intervinientes y verificá su aptitud médica en tiempo real.
                             </p>
+                          </div>
 
-                            <div className="mb-8">
-                                <label className="text-[0.8rem] font-[800] text-[var(--color-text)] mb-[0.6rem] block uppercase letter-spacing-[1px]">
-                                    Tarea a Analizar
-                                </label>
-                                <input
-              autoFocus
-              type="text"
-              value={aiTaskInput}
-              onChange={(e) => setAiTaskInput(e.target.value)}
-              onKeyDown={(e) => {if (e.key === 'Enter' && aiTaskInput.trim()) runAIGeneration();}}
-              placeholder="Ej: Pintura en altura con balancín..."
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {savedWorkersList.length > 0 && (
+                              <select
+                                defaultValue=""
+                                onChange={(e) => {
+                                  const workerId = e.target.value;
+                                  if (!workerId) return;
+                                  const found = savedWorkersList.find(
+                                    (w: any) => String(w.id || w.dni) === String(workerId)
+                                  );
+                                  if (found) {
+                                    const current = formData.trabajadores || [];
+                                    setFormData({
+                                      ...formData,
+                                      trabajadores: [
+                                        ...current,
+                                        {
+                                          id: Date.now(),
+                                          nombre: found.nombre || found.fullName || found.name || '',
+                                          dni: found.dni || found.document || '',
+                                          funcion: found.puesto || found.role || 'Operario'
+                                        }
+                                      ]
+                                    });
+                                    toast.success('Operario importado desde Legajos');
+                                  }
+                                  e.target.value = '';
+                                }}
+                                style={{
+                                  marginBottom: 0,
+                                  padding: '0.5rem 0.75rem',
+                                  borderRadius: '0.75rem',
+                                  backgroundColor: 'var(--color-background)',
+                                  color: 'var(--color-text)',
+                                  border: '1px solid var(--color-border)',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 800,
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                <option value="">+ Importar de Legajos...</option>
+                                {savedWorkersList.map((w: any, idx: number) => (
+                                  <option key={w.id || idx} value={w.id || w.dni}>
+                                    {w.nombre || w.fullName || w.name} ({w.dni || 'S/DNI'})
+                                  </option>
+                                ))}
+                              </select>
+                            )}
 
-              className="focus:border-purple-500 focus:shadow-[0_0_0_4px_rgba(168,85,247,0.1)] w-[100%] p-[1rem_1.2rem] rounded-[14px] border-[2px_solid_var(--color-border)] bg-[var(--color-background)] text-[var(--color-text)] text-[1rem] font-[600] outline-[none] box-sizing-[border-box] transition-[all_0.3s_ease]" />
-            
-                            </div>
-
-                            <div className="flex gap-[1rem]">
-                                <button
-              onClick={() => setShowAIModal(false)}
-
-              className="hover:bg-slate-50 flex-[1] p-[1rem] rounded-[14px] border-[1.5px_solid_var(--color-border)] bg-[transparent] text-[var(--color-text-muted)] font-[700] cursor-pointer text-[0.9rem] transition-[all_0.2s]">
-              
-                                    Cancelar
-                                                        </button>
-                                <button
-              onClick={runAIGeneration}
-              disabled={!aiTaskInput.trim()}
-              style={{ background: aiTaskInput.trim() ? 'linear-gradient(135deg,#a855f7,#ec4899)' : 'var(--color-border)', cursor: aiTaskInput.trim() ? 'pointer' : 'not-allowed', boxShadow: aiTaskInput.trim() ? '0 10px 25px rgba(168,85,247,0.3)' : 'none' }}
-              className={`flex-[2] p-[1rem] rounded-[14px] border-none text-[#ffffff] font-[800] text-[0.95rem] flex items-center justify-center gap-[0.6rem] transition-[all_0.3s_cubic-bezier(0.34,_1.56,_0.64,_1)] ${aiTaskInput.trim() ? "hover:scale-[1.03] active:scale-[0.97]" : ""}`}>
-              
-                                    <Sparkles size={18} /> GENERAR AHORA
-                                </button>
-                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const current = formData.trabajadores || [];
+                                const newWorker = { id: Date.now(), nombre: '', dni: '', funcion: 'Operario' };
+                                setFormData({ ...formData, trabajadores: [...current, newWorker] });
+                              }}
+                              style={{
+                                marginBottom: 0,
+                                padding: '0.55rem 0.95rem',
+                                borderRadius: '0.75rem',
+                                backgroundColor: '#2563eb',
+                                color: '#ffffff',
+                                border: 'none',
+                                fontWeight: 800,
+                                fontSize: '0.76rem',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.35rem',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              <Plus size={14} /> Agregar Trabajador
+                            </button>
+                          </div>
                         </div>
-                    </div>
-      }
+
+                        {(formData.trabajadores || []).length === 0 ? (
+                          <div
+                            className="p-4 rounded-xl text-center text-xs font-bold"
+                            style={{
+                              backgroundColor: 'var(--color-background)',
+                              border: '1px dashed var(--color-border)',
+                              color: 'var(--color-text-light)'
+                            }}
+                          >
+                            No se registraron operarios adicionales. Tocá "Agregar Trabajador" para incluir la cuadrilla.
+                          </div>
+                        ) : (
+                          <div className="flex flex-col gap-3">
+                            {(formData.trabajadores || []).map((w, idx) => {
+                              const query = w.dni || w.nombre;
+                              const medVal = query.trim().length > 1 ? validateWorkerMedicalStatus(query) : null;
+                              const isApto = medVal?.isValid && medVal?.status === 'apto';
+                              const isVencido = medVal?.status === 'vencido';
+                              const isNoApto = medVal?.status === 'no_apto';
+
+                              return (
+                                <div
+                                  key={w.id || idx}
+                                  className="flex flex-col gap-2 p-3 rounded-xl"
+                                  style={{
+                                    backgroundColor: 'var(--color-background)',
+                                    border: '1px solid var(--color-border)'
+                                  }}
+                                >
+                                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-center">
+                                    <input
+                                      type="text"
+                                      placeholder="Nombre y Apellido..."
+                                      value={w.nombre}
+                                      onChange={(e) => {
+                                        const updated = [...(formData.trabajadores || [])];
+                                        updated[idx].nombre = e.target.value;
+                                        setFormData({ ...formData, trabajadores: updated });
+                                      }}
+                                      style={{
+                                        padding: '0.55rem 0.75rem',
+                                        borderRadius: '0.6rem',
+                                        border: '1px solid var(--color-border)',
+                                        backgroundColor: 'var(--color-surface)',
+                                        color: 'var(--color-text)',
+                                        fontSize: '0.8rem',
+                                        fontWeight: 700,
+                                        outline: 'none'
+                                      }}
+                                    />
+                                    <input
+                                      type="text"
+                                      placeholder="DNI / Legajo..."
+                                      value={w.dni}
+                                      onChange={(e) => {
+                                        const updated = [...(formData.trabajadores || [])];
+                                        updated[idx].dni = e.target.value;
+                                        setFormData({ ...formData, trabajadores: updated });
+                                      }}
+                                      style={{
+                                        padding: '0.55rem 0.75rem',
+                                        borderRadius: '0.6rem',
+                                        border: '1px solid var(--color-border)',
+                                        backgroundColor: 'var(--color-surface)',
+                                        color: 'var(--color-text)',
+                                        fontSize: '0.8rem',
+                                        fontWeight: 700,
+                                        outline: 'none'
+                                      }}
+                                    />
+                                    <div className="flex items-center gap-2">
+                                      <input
+                                        type="text"
+                                        placeholder="Función / Rol (ej: Soldador, Vigía)..."
+                                        value={w.funcion}
+                                        onChange={(e) => {
+                                          const updated = [...(formData.trabajadores || [])];
+                                          updated[idx].funcion = e.target.value;
+                                          setFormData({ ...formData, trabajadores: updated });
+                                        }}
+                                        style={{
+                                          width: '100%',
+                                          padding: '0.55rem 0.75rem',
+                                          borderRadius: '0.6rem',
+                                          border: '1px solid var(--color-border)',
+                                          backgroundColor: 'var(--color-surface)',
+                                          color: 'var(--color-text)',
+                                          fontSize: '0.8rem',
+                                          fontWeight: 700,
+                                          outline: 'none'
+                                        }}
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const updated = [...(formData.trabajadores || [])];
+                                          updated.splice(idx, 1);
+                                          setFormData({ ...formData, trabajadores: updated });
+                                        }}
+                                        style={{
+                                          marginBottom: 0,
+                                          padding: '0.52rem 0.78rem',
+                                          width: 'auto',
+                                          height: 'auto',
+                                          borderRadius: '0.6rem',
+                                          background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                                          color: '#ffffff',
+                                          border: 'none',
+                                          fontSize: '0.73rem',
+                                          fontWeight: 800,
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          gap: '0.3rem',
+                                          cursor: 'pointer',
+                                          flexShrink: 0
+                                        }}
+                                      >
+                                        <Trash2 size={14} style={{ flexShrink: 0 }} /> Eliminar
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  {medVal && query.trim().length > 2 && (
+                                    <div
+                                      className="text-[11px] px-2.5 py-1 rounded-lg flex items-center justify-between gap-2"
+                                      style={{
+                                        backgroundColor: isApto
+                                          ? 'rgba(16, 185, 129, 0.12)'
+                                          : isVencido
+                                          ? 'rgba(245, 158, 11, 0.14)'
+                                          : isNoApto
+                                          ? 'rgba(239, 68, 68, 0.14)'
+                                          : 'var(--color-surface)',
+                                        color: isApto
+                                          ? '#047857'
+                                          : isVencido
+                                          ? '#b45309'
+                                          : isNoApto
+                                          ? '#b91c1c'
+                                          : 'var(--color-text-light)'
+                                      }}
+                                    >
+                                      <div className="flex items-center gap-1.5 font-bold">
+                                        <span>{isApto ? '✅' : isVencido ? '⚠️' : isNoApto ? '🛑' : 'ℹ️'}</span>
+                                        <span>{medVal.message}</span>
+                                      </div>
+                                      {medVal.expirationDate && (
+                                        <span className="text-[10px] font-black uppercase">
+                                          Venc: {medVal.expirationDate}
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Selector de Firmas a Incluir */}
+                      <div
+                        className="no-print mb-6 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3"
+                        style={{
+                          backgroundColor: 'var(--color-background)',
+                          border: '1px solid var(--color-border)'
+                        }}
+                      >
+                        <span className="font-black text-xs uppercase" style={{ color: 'var(--color-text)' }}>
+                          Incluir Firmas en el PDF:
+                        </span>
+                        <div className="flex gap-2 flex-wrap justify-center">
+                          {[
+                            { id: 'operator', label: 'Operador / Capataz' },
+                            { id: 'supervisor', label: 'Supervisor' },
+                            { id: 'professional', label: 'Profesional H&S' }
+                          ].map((sig) => {
+                            const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                            return (
+                              <button
+                                key={sig.id}
+                                type="button"
+                                onClick={() =>
+                                  setShowSignatures((s) => ({
+                                    ...s,
+                                    [sig.id]: !s[sig.id as keyof typeof showSignatures]
+                                  }))
+                                }
+                                style={{
+                                  marginBottom: 0,
+                                  padding: '0.45rem 0.9rem',
+                                  borderRadius: '9999px',
+                                  backgroundColor: isChecked ? 'rgba(37, 99, 235, 0.12)' : 'var(--color-surface)',
+                                  color: isChecked ? '#2563eb' : 'var(--color-text-light)',
+                                  border: `1.5px solid ${isChecked ? '#2563eb' : 'var(--color-border)'}`,
+                                  fontWeight: 800,
+                                  fontSize: '0.76rem',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '0.4rem',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                {isChecked && <CheckCircle2 size={14} />}
+                                {sig.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <PdfSignatures
+                        data={{
+                          ...formData,
+                          professionalSignature: professional.signature,
+                          professionalName: professional.name,
+                          professionalLicense: professional.license
+                        }}
+                        box1={
+                          showSignatures.operator
+                            ? {
+                                title: 'OPERADOR / CAPATAZ',
+                                subtitle: (formData.capatazNombre || 'Firma / Aclaración').toUpperCase(),
+                                signatureUrl: formData.operatorSignature || null,
+                                isProfessional: false
+                              }
+                            : null
+                        }
+                        box2={
+                          showSignatures.supervisor
+                            ? {
+                                title: 'SUPERVISOR / JEFE OBRA',
+                                subtitle: 'FIRMA DEL SUPERVISOR',
+                                signatureUrl: formData.capatazSignature || null,
+                                isProfessional: false
+                              }
+                            : null
+                        }
+                        box3={
+                          showSignatures.professional
+                            ? {
+                                title: 'PROFESIONAL ACTUANTE',
+                                subtitle: (professional.name || 'Firma y Sello').toUpperCase(),
+                                signatureUrl: professional.signature || null,
+                                isProfessional: true,
+                                license: professional.license
+                              }
+                            : null
+                        }
+                      />
+
+                      <div className="no-print mt-6 pt-6 border-t grid grid-cols-1 md:grid-cols-2 gap-5" style={{ borderColor: 'var(--color-border)' }}>
+                        {showSignatures.operator && (
+                          <div
+                            className="p-4 rounded-2xl"
+                            style={{
+                              backgroundColor: 'var(--color-surface)',
+                              border: '1px solid var(--color-border)'
+                            }}
+                          >
+                            <SignatureCanvas
+                              onSave={(sig) => setFormData((prev) => ({ ...prev, operatorSignature: sig || '' }))}
+                              initialImage={formData.operatorSignature}
+                              label="Firma del Operador / Responsable"
+                            />
+                          </div>
+                        )}
+
+                        {showSignatures.supervisor && (
+                          <div
+                            className="p-4 rounded-2xl"
+                            style={{
+                              backgroundColor: 'var(--color-surface)',
+                              border: '1px solid var(--color-border)'
+                            }}
+                          >
+                            <SignatureCanvas
+                              onSave={(sig) => setFormData((prev) => ({ ...prev, capatazSignature: sig || '' }))}
+                              initialImage={formData.capatazSignature}
+                              label="Firma del Supervisor"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </ModuleFormSection>
+                  </div>
+                )}
+
+                <ModuleWizardFooter
+                  currentStep={currentStep}
+                  totalSteps={totalSteps}
+                  onPrev={prevStep}
+                  onNext={nextStep}
+                  finalActions={[
+                    {
+                      id: 'clear',
+                      label: 'Limpiar',
+                      icon: <Trash2 size={18} />,
+                      variant: 'danger',
+                      onClick: handleClearForm
+                    },
+                    {
+                      id: 'preview',
+                      label: 'Previa',
+                      icon: <EyeIcon size={18} />,
+                      variant: 'info',
+                      onClick: () =>
+                        setPreviewATS({
+                          ...formData,
+                          showSignatures,
+                          professionalSignature: professional.signature,
+                          professionalName: professional.name,
+                          professionalLicense: professional.license
+                        })
+                    },
+                    {
+                      id: 'print',
+                      label: 'Imprimir',
+                      icon: <Printer size={18} />,
+                      variant: 'warning',
+                      onClick: handlePrint
+                    },
+                    {
+                      id: 'share',
+                      label: 'Compartir',
+                      icon: <Share2 size={18} />,
+                      variant: 'info',
+                      onClick: handleShare
+                    },
+                    {
+                      id: 'save',
+                      label: 'Guardar ATS',
+                      icon: <Save size={18} />,
+                      variant: 'primary',
+                      onClick: (e) => {
+                        e.preventDefault();
+                        requirePro(handleSave);
+                      }
+                    }
+                  ]}
+                />
+
+                <PdfBrandingFooter />
+              </ModuleFormDocument>
+            </ModuleFormLayout>
+          </>
+        )}
+      </div>
+
+      {/* Modal IA Mágica */}
+      {showAIModal && (
+        <div
+          onClick={() => setShowAIModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            backgroundColor: 'rgba(2, 6, 23, 0.78)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem'
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: '460px',
+              backgroundColor: 'var(--color-surface)',
+              border: '2px solid rgba(168, 85, 247, 0.45)',
+              borderRadius: '24px',
+              padding: '1.75rem',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.45)'
+            }}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+                  borderRadius: '14px',
+                  width: '44px',
+                  height: '44px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <Sparkles size={22} color="#ffffff" />
+              </div>
+              <div>
+                <h2 className="m-0 text-lg font-black" style={{ color: 'var(--color-text)' }}>
+                  IA Mágica — Generador ATS
+                </h2>
+                <p className="m-0 text-xs font-semibold" style={{ color: 'var(--color-text-light)' }}>
+                  Autocompletado inteligente de pasos, riesgos y EPPs
+                </p>
+              </div>
+            </div>
+
+            <div className="mb-5">
+              <label
+                className="text-xs font-black uppercase block mb-2"
+                style={{ color: 'var(--color-text)' }}
+              >
+                Tarea a Analizar
+              </label>
+              <input
+                autoFocus
+                type="text"
+                value={aiTaskInput}
+                onChange={(e) => setAiTaskInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && aiTaskInput.trim()) runAIGeneration();
+                }}
+                placeholder="Ej: Limpieza de fachada en altura con balancín..."
+                style={{
+                  width: '100%',
+                  padding: '0.85rem 1rem',
+                  borderRadius: '12px',
+                  border: '1.5px solid var(--color-border)',
+                  backgroundColor: 'var(--color-background)',
+                  color: 'var(--color-text)',
+                  fontSize: '0.9rem',
+                  fontWeight: 700,
+                  outline: 'none'
+                }}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => setShowAIModal(false)}
+                style={{
+                  marginBottom: 0,
+                  padding: '0.8rem',
+                  borderRadius: '12px',
+                  backgroundColor: 'var(--color-background)',
+                  color: 'var(--color-text)',
+                  border: '1px solid var(--color-border)',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={runAIGeneration}
+                disabled={!aiTaskInput.trim()}
+                style={{
+                  marginBottom: 0,
+                  padding: '0.8rem',
+                  borderRadius: '12px',
+                  background: aiTaskInput.trim()
+                    ? 'linear-gradient(135deg, #a855f7, #ec4899)'
+                    : 'var(--color-border)',
+                  color: '#ffffff',
+                  border: 'none',
+                  fontWeight: 900,
+                  fontSize: '0.85rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  cursor: aiTaskInput.trim() ? 'pointer' : 'not-allowed'
+                }}
+              >
+                <Sparkles size={16} /> Generar ATS
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Vista Previa A4 */}
       {previewATS && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in no-print">
+        <div
+          className="no-print"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            backgroundColor: 'rgba(2, 6, 23, 0.82)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '0.75rem'
+          }}
+        >
           <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-slate-700/80 bg-slate-800/90">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-amber-500/20 text-amber-400 rounded-xl">
                   <FileText size={20} />
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+                  <h2 className="text-sm sm:text-base font-bold text-white m-0">
                     Vista Previa de Impresión A4
                   </h2>
-                  <p className="text-xs text-slate-400">
-                    Análisis de Trabajo Seguro (ATS) • {previewATS.empresa || 'Sin empresa'} • {previewATS.obra || 'Obra'}
+                  <p className="text-xs text-slate-400 m-0">
+                    ATS • {previewATS.empresa || 'Sin empresa'} • {previewATS.obra || 'Obra'}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
                 <button
+                  type="button"
                   onClick={() => handleDirectPrintATS(previewATS)}
-                  className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 rounded-xl shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+                  style={{
+                    marginBottom: 0,
+                    padding: '0.5rem 0.95rem',
+                    borderRadius: '0.75rem',
+                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    color: '#0f172a',
+                    border: 'none',
+                    fontWeight: 900,
+                    fontSize: '0.78rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    cursor: 'pointer'
+                  }}
                 >
-                  <Printer size={16} /> Imprimir / PDF
+                  <Printer size={15} /> Imprimir / PDF
                 </button>
                 <button
+                  type="button"
                   onClick={() => setPreviewATS(null)}
-                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
-                  title="Cerrar vista previa"
+                  style={{
+                    marginBottom: 0,
+                    backgroundColor: 'transparent',
+                    color: '#cbd5e1',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '0.35rem'
+                  }}
                 >
-                  <XCircle size={20} />
+                  <XCircle size={22} />
                 </button>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/70 flex justify-center">
+            <div className="flex-1 overflow-y-auto p-3 sm:p-8 bg-slate-950/70 flex justify-center">
               <div className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
-                <ATSPdfGenerator
-                  atsData={previewATS}
-                  pdfElementId="pdf-modal-preview-ats"
-                />
+                <ATSPdfGenerator atsData={previewATS} pdfElementId="pdf-modal-preview-ats" />
               </div>
-            </div>
-
-            <div className="px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
-              <span>Formato A4 vertical • Ley 19.587 / Dec. 911/96 • Evaluación preventiva de riesgos</span>
-              <button
-                onClick={() => setPreviewATS(null)}
-                className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
-              >
-                Cerrar
-              </button>
             </div>
           </div>
         </div>
@@ -2306,67 +4043,114 @@ export default function ATS(): React.ReactElement | null {
 
       {printATS && (
         <div className="ats-pdf-offscreen" id="pdf-direct-ats-print">
-          <ATSPdfGenerator
-            atsData={printATS}
-            pdfElementId="pdf-direct-ats-print"
-          />
+          <ATSPdfGenerator atsData={printATS} pdfElementId="pdf-direct-ats-print" />
         </div>
       )}
 
+      {/* Modal Matriz PxS 5x5 */}
       {matrixTask !== null && (
-        <div className="fixed inset-0 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-[9999] animate-fadeIn">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 max-w-xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
-            <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-200 dark:border-slate-800">
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            backgroundColor: 'rgba(15, 23, 42, 0.78)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem'
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: 'var(--color-surface)',
+              border: '1px solid var(--color-border)',
+              borderRadius: '24px',
+              padding: '1.5rem',
+              width: '100%',
+              maxWidth: '540px',
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)'
+            }}
+          >
+            <div className="flex justify-between items-center mb-4 pb-3 border-b" style={{ borderColor: 'var(--color-border)' }}>
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
-                  <Activity size={22} />
+                <div
+                  className="p-2 rounded-xl"
+                  style={{ backgroundColor: 'rgba(37, 99, 235, 0.12)', color: '#2563eb' }}
+                >
+                  <Activity size={20} />
                 </div>
                 <div>
-                  <h3 className="font-black text-base uppercase text-slate-900 dark:text-white m-0 tracking-tight">Matriz de Riesgo 5×5 (P × S)</h3>
-                  <p className="text-[11px] font-bold text-slate-500 m-0">Seleccioná o tocá directamente la celda de evaluación</p>
+                  <h3 className="font-black text-sm sm:text-base uppercase m-0" style={{ color: 'var(--color-text)' }}>
+                    Matriz de Riesgo 5×5 (P × S)
+                  </h3>
+                  <p className="text-[11px] font-bold m-0" style={{ color: 'var(--color-text-light)' }}>
+                    Tocá cualquier celda para evaluar Probabilidad × Severidad
+                  </p>
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setMatrixTask(null)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border-none bg-transparent cursor-pointer font-black text-xl p-1"
+                style={{
+                  marginBottom: 0,
+                  backgroundColor: 'transparent',
+                  color: 'var(--color-text-light)',
+                  border: 'none',
+                  fontWeight: 900,
+                  fontSize: '1.1rem',
+                  cursor: 'pointer'
+                }}
               >
                 ✕
               </button>
             </div>
 
-            {/* Cuadrícula Táctil 5x5 */}
-            <div className="mb-5">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">
-                  Severidad / Consecuencia (Columnas 1→5)
-                </span>
-                <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400">
-                  Tocá cualquier celda para seleccionar
-                </span>
-              </div>
-
+            <div className="mb-4">
               <div className="grid grid-cols-6 gap-1 text-center text-[10px] font-bold">
-                <div className="p-1 font-black text-slate-400 flex items-center justify-center">P \ S</div>
-                <div className="p-1 font-extrabold text-slate-700 dark:text-slate-300">1. Insig.</div>
-                <div className="p-1 font-extrabold text-slate-700 dark:text-slate-300">2. Menor</div>
-                <div className="p-1 font-extrabold text-slate-700 dark:text-slate-300">3. Moder.</div>
-                <div className="p-1 font-extrabold text-slate-700 dark:text-slate-300">4. Grave</div>
-                <div className="p-1 font-extrabold text-slate-700 dark:text-slate-300">5. Catast.</div>
+                <div className="p-1 font-black" style={{ color: 'var(--color-text-light)' }}>
+                  P \ S
+                </div>
+                <div className="p-1 font-extrabold" style={{ color: 'var(--color-text)' }}>
+                  1. Insig.
+                </div>
+                <div className="p-1 font-extrabold" style={{ color: 'var(--color-text)' }}>
+                  2. Menor
+                </div>
+                <div className="p-1 font-extrabold" style={{ color: 'var(--color-text)' }}>
+                  3. Moder.
+                </div>
+                <div className="p-1 font-extrabold" style={{ color: 'var(--color-text)' }}>
+                  4. Grave
+                </div>
+                <div className="p-1 font-extrabold" style={{ color: 'var(--color-text)' }}>
+                  5. Catast.
+                </div>
 
                 {[5, 4, 3, 2, 1].map((pVal) => {
-                  const pLabels: Record<number, string> = { 5: '5. Frec.', 4: '4. Prob.', 3: '3. Posib.', 2: '2. Improb.', 1: '1. Raro' };
+                  const pLabels: Record<number, string> = {
+                    5: '5. Frec.',
+                    4: '4. Prob.',
+                    3: '3. Posib.',
+                    2: '2. Improb.',
+                    1: '1. Raro'
+                  };
                   return (
                     <React.Fragment key={pVal}>
-                      <div className="p-1 font-black text-slate-600 dark:text-slate-400 flex items-center justify-start text-[9px] truncate">
+                      <div
+                        className="p-1 font-black flex items-center justify-start text-[9px] truncate"
+                        style={{ color: 'var(--color-text-light)' }}
+                      >
                         {pLabels[pVal]}
                       </div>
                       {[1, 2, 3, 4, 5].map((sVal) => {
                         const cellScore = pVal * sVal;
                         const isSelected = matrixP === pVal && matrixS === sVal;
-                        let cellBg = 'bg-emerald-500 text-white';
-                        if (cellScore >= 17) cellBg = 'bg-rose-950 text-white';
-                        else if (cellScore >= 10) cellBg = 'bg-rose-600 text-white';
-                        else if (cellScore >= 5) cellBg = 'bg-amber-500 text-white';
+                        let cellBg = '#10b981';
+                        if (cellScore >= 17) cellBg = '#881337';
+                        else if (cellScore >= 10) cellBg = '#e11d48';
+                        else if (cellScore >= 5) cellBg = '#f59e0b';
 
                         return (
                           <button
@@ -2376,11 +4160,18 @@ export default function ATS(): React.ReactElement | null {
                               setMatrixP(pVal);
                               setMatrixS(sVal);
                             }}
-                            className={`h-8 sm:h-9 rounded-lg font-black text-xs flex items-center justify-center transition-all cursor-pointer border-2 ${
-                              isSelected
-                                ? 'ring-4 ring-blue-500 scale-105 z-10 border-white shadow-lg'
-                                : 'border-transparent hover:opacity-90 hover:scale-102'
-                            } ${cellBg}`}
+                            style={{
+                              marginBottom: 0,
+                              height: '34px',
+                              borderRadius: '8px',
+                              backgroundColor: cellBg,
+                              color: '#ffffff',
+                              fontWeight: 900,
+                              fontSize: '0.78rem',
+                              border: isSelected ? '2.5px solid #2563eb' : 'none',
+                              transform: isSelected ? 'scale(1.06)' : 'none',
+                              cursor: 'pointer'
+                            }}
                           >
                             {cellScore}
                           </button>
@@ -2392,47 +4183,61 @@ export default function ATS(): React.ReactElement | null {
               </div>
             </div>
 
-            {/* Resultado Dinámico */}
             {(() => {
               const score = matrixP * matrixS;
               let level = 'Bajo';
-              let bg = 'bg-emerald-600 text-white';
+              let bg = '#059669';
               let badgeText = 'Riesgo Aceptable con controles rutinarios';
 
               if (score >= 17) {
                 level = 'Crítico';
-                bg = 'bg-rose-950 text-white';
-                badgeText = '🛑 Requiere Detención y Permiso de Trabajo (PT) Exclusivo';
+                bg = '#881337';
+                badgeText = '🛑 Requiere Detención y Permiso de Trabajo (PTAR) Exclusivo';
               } else if (score >= 10) {
                 level = 'Alto';
-                bg = 'bg-rose-600 text-white';
-                badgeText = '⚠️ Requiere Permiso de Trabajo (PT) y Supervisión Permanente';
+                bg = '#dc2626';
+                badgeText = '⚠️ Requiere Permiso de Trabajo (PTAR) y Supervisión Permanente';
               } else if (score >= 5) {
                 level = 'Medio';
-                bg = 'bg-amber-500 text-white';
+                bg = '#d97706';
                 badgeText = 'Requiere Procedimiento Escrito y EPPs Específicos';
               }
 
               return (
-                <div className={`p-4 rounded-2xl text-center ${bg} shadow-md mb-5 transition-all`}>
-                  <div className="text-[11px] font-black uppercase tracking-widest opacity-90 mb-0.5">
-                    Índice de Riesgo (NPR): P ({matrixP}) × S ({matrixS}) = Score {score}
+                <div
+                  style={{
+                    backgroundColor: bg,
+                    color: '#ffffff',
+                    padding: '0.9rem',
+                    borderRadius: '16px',
+                    textAlign: 'center',
+                    marginBottom: '1rem'
+                  }}
+                >
+                  <div className="text-[11px] font-black uppercase opacity-90">
+                    Índice P ({matrixP}) × S ({matrixS}) = Score {score}
                   </div>
-                  <div className="text-xl sm:text-2xl font-black uppercase tracking-tight mb-1">
-                    Nivel Calculado: {level}
-                  </div>
-                  <div className="text-xs font-bold opacity-95">
-                    {badgeText}
-                  </div>
+                  <div className="text-lg font-black uppercase my-0.5">Nivel Calculado: {level}</div>
+                  <div className="text-xs font-bold opacity-95">{badgeText}</div>
                 </div>
               );
             })()}
 
-            <div className="flex gap-2 sm:gap-3 justify-end">
+            <div className="flex gap-2.5 justify-end">
               <button
                 type="button"
                 onClick={() => setMatrixTask(null)}
-                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 font-bold rounded-xl cursor-pointer border-none text-xs uppercase transition-colors"
+                style={{
+                  marginBottom: 0,
+                  padding: '0.6rem 1rem',
+                  borderRadius: '10px',
+                  backgroundColor: 'var(--color-background)',
+                  color: 'var(--color-text)',
+                  border: '1px solid var(--color-border)',
+                  fontWeight: 800,
+                  fontSize: '0.78rem',
+                  cursor: 'pointer'
+                }}
               >
                 Cancelar
               </button>
@@ -2447,17 +4252,26 @@ export default function ATS(): React.ReactElement | null {
 
                   updateTask(matrixTask, 'nivelRiesgo', level);
                   setMatrixTask(null);
-                  toast.success(`Riesgo ${level} (Score ${score}) aplicado exitosamente.`);
+                  toast.success(`Riesgo ${level} (Score ${score}) aplicado al paso.`);
                 }}
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl cursor-pointer border-none text-xs uppercase shadow-md transition-all active:scale-95"
+                style={{
+                  marginBottom: 0,
+                  padding: '0.6rem 1.2rem',
+                  borderRadius: '10px',
+                  backgroundColor: '#2563eb',
+                  color: '#ffffff',
+                  border: 'none',
+                  fontWeight: 900,
+                  fontSize: '0.78rem',
+                  cursor: 'pointer'
+                }}
               >
-                Aplicar a la Tarea
+                Aplicar Nivel al Paso
               </button>
             </div>
           </div>
         </div>
       )}
-        </>);
-
-
+    </>
+  );
 }

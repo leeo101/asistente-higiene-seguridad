@@ -148,12 +148,15 @@ export async function printElementAsDocument(
 
   const printHtml = el.outerHTML;
 
-  // Asegurar que el elemento impreso no herede clases ni posiciones off-screen
+  const originUrl = typeof window !== 'undefined' && window.location.origin ? window.location.origin : '';
+
+  // Asegurar que el elemento impreso no herede clases ni posiciones off-screen y resolver rutas relativas de imágenes (/logo.png)
   const cleanHtml = printHtml
     .replace(/\bats-pdf-offscreen\b/g, '')
     .replace(/\bopacity-0\b/g, '')
     .replace(/\bpointer-events-none\b/g, '')
     .replace(/\baria-hidden="true"/gi, '')
+    .replace(/src="\/([^"]*)"/gi, (_m, relPath) => `src="${originUrl}/${relPath}"`)
     .replace(
       /style="([^"]*)"/gi,
       (_match, styleContent) => {
@@ -172,6 +175,7 @@ export async function printElementAsDocument(
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <base href="${originUrl}/" />
   <title>${title}</title>
   ${headLinks}
   <style>

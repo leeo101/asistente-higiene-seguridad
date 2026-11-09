@@ -32,8 +32,29 @@ export function ModuleFormToolbar({
       <div className="module-form-toolbar__header">
         <div className="module-form-toolbar__title-row">
           {onBack && (
-            <button onClick={onBack} className="p-2 mr-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full cursor-pointer transition-colors" title="Volver">
-              <ArrowLeft size={24} />
+            <button
+              type="button"
+              onClick={onBack}
+              title="Volver"
+              style={{
+                marginBottom: 0,
+                marginRight: '0.5rem',
+                padding: '0.45rem 0.85rem',
+                borderRadius: '0.75rem',
+                background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                color: '#ffffff',
+                border: 'none',
+                fontWeight: 800,
+                fontSize: '0.76rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.28)',
+                flexShrink: 0
+              }}
+            >
+              <ArrowLeft size={16} style={{ flexShrink: 0 }} /> Atrás
             </button>
           )}
           {icon && <span className="module-form-toolbar__icon">{icon}</span>}
@@ -86,8 +107,36 @@ export function ModuleFormToolbar({
                         ? 'module-form-toolbar__step-btn--completed'
                         : 'module-form-toolbar__step-btn--pending'
                     } ${isClickable ? 'cursor-pointer' : 'cursor-default'}`}
+                    style={{
+                      marginBottom: 0,
+                      background: isCurrent
+                        ? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)'
+                        : isPast
+                        ? 'rgba(16, 185, 129, 0.14)'
+                        : 'var(--color-background)',
+                      color: isCurrent
+                        ? '#ffffff'
+                        : isPast
+                        ? '#059669'
+                        : 'var(--color-text)',
+                      borderColor: isCurrent
+                        ? '#2563eb'
+                        : isPast
+                        ? 'rgba(16, 185, 129, 0.4)'
+                        : 'var(--color-border)'
+                    }}
                   >
-                    <span className="module-form-toolbar__step-badge">
+                    <span
+                      className="module-form-toolbar__step-badge"
+                      style={{
+                        backgroundColor: isCurrent
+                          ? 'rgba(255, 255, 255, 0.22)'
+                          : isPast
+                          ? '#10b981'
+                          : 'var(--color-surface)',
+                        color: isCurrent || isPast ? '#ffffff' : 'var(--color-text)'
+                      }}
+                    >
                       {isPast ? '✓' : stepNum}
                     </span>
                     <span className="module-form-toolbar__step-text">{label}</span>

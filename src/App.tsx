@@ -448,7 +448,7 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
   const { t } = useLanguage();
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const location = useLocation();
-  const showMenuButton = !!currentUser && location.pathname !== '/login' && location.pathname !== '/subscribe' && location.pathname !== '/ai-camera';
+  const showMenuButton = !!currentUser && location.pathname !== '/login' && location.pathname !== '/ai-camera';
   
   const isDashboard = location.pathname === '/';
 
