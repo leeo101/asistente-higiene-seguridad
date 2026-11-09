@@ -5125,3 +5125,14 @@ html.pdf-export-mode, body.pdf-export-mode {
   word-break: break-word !important;
   box-sizing: border-box !important;
 }
+
+/* Fix crítico para html2canvas + Tailwind CSS Preflight:
+   Tailwind define `img { display: block }`, lo que provoca que el <img width="1" height="1">
+   que html2canvas inyecta en document.body para calcular FontMetrics salte a la línea inferior,
+   desplazando todos los textos hacia abajo en los PDFs generados al compartir. */
+img[width="1"][height="1"],
+body > div[style*="visibility: hidden"] > img,
+body > div[style*="nowrap"] > img {
+  display: inline !important;
+  vertical-align: baseline !important;
+}

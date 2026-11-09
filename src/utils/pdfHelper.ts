@@ -537,8 +537,45 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
         page-break-before: always !important;
         break-before: page !important;
       }
+      img[width="1"][height="1"],
+      body > div[style*="visibility: hidden"] > img,
+      body > div[style*="nowrap"] > img {
+        display: inline !important;
+        vertical-align: baseline !important;
+      }
     `;
     clone.insertBefore(injectStyle, clone.firstChild);
+
+    // Inyectar también en document.head principal porque FontMetrics(document) mide en document.body
+    const globalMetricsFix = document.createElement('style');
+    globalMetricsFix.setAttribute('data-h2c-metrics-fix', 'true');
+    globalMetricsFix.textContent = `
+      img[width="1"][height="1"],
+      body > div[style*="visibility: hidden"] > img,
+      body > div[style*="nowrap"] > img {
+        display: inline !important;
+        vertical-align: baseline !important;
+      }
+    `;
+    document.head.appendChild(globalMetricsFix);
+
+    // Compensar el +2px hardcoded de html2canvas en FontMetrics (img.offsetTop - span.offsetTop + 2)
+    const origFillText = CanvasRenderingContext2D.prototype.fillText;
+    const origStrokeText = CanvasRenderingContext2D.prototype.strokeText;
+    CanvasRenderingContext2D.prototype.fillText = function (text: string, x: number, y: number, maxWidth?: number) {
+      const adjustedY = this.textBaseline === 'alphabetic' ? y - 1.5 : y;
+      if (maxWidth !== undefined) {
+        return origFillText.call(this, text, x, adjustedY, maxWidth);
+      }
+      return origFillText.call(this, text, x, adjustedY);
+    };
+    CanvasRenderingContext2D.prototype.strokeText = function (text: string, x: number, y: number, maxWidth?: number) {
+      const adjustedY = this.textBaseline === 'alphabetic' ? y - 1.5 : y;
+      if (maxWidth !== undefined) {
+        return origStrokeText.call(this, text, x, adjustedY, maxWidth);
+      }
+      return origStrokeText.call(this, text, x, adjustedY);
+    };
 
     // ── Detectar y ajustar saltos de página calibrados con html2pdf ──────────
     // Dimensiones de corte exactas de html2pdf:
@@ -686,6 +723,11 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
       return pdfBlob;
     } finally {
       window.getComputedStyle = originalGetComputedStyle;
+      CanvasRenderingContext2D.prototype.fillText = origFillText;
+      CanvasRenderingContext2D.prototype.strokeText = origStrokeText;
+      if (globalMetricsFix.parentNode) {
+        globalMetricsFix.parentNode.removeChild(globalMetricsFix);
+      }
     }
   })();
 
