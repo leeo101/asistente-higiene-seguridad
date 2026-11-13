@@ -22,7 +22,6 @@ import {
   DownloadSimple as Download,
   Funnel as Filter,
   QrCode,
-  Heart2 as HeartbeatIcon,
   Printer,
   Robot,
   ArrowRight,
