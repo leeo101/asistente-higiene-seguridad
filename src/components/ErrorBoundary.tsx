@@ -59,7 +59,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
 
           
-          <div className="max-w-[600px] text-center bg-[rgba(255,_255,_255,_0.1)] backdrop-filter-[blur(10px)] rounded-[20px] p-[3rem] box-shadow-[0_20px_60px_rgba(0,_0,_0,_0.3)]">
+          <div className="max-w-[600px] text-center bg-[rgba(255,_255,_255,_0.1)] backdrop-filter-[blur(10px)] rounded-[20px] p-[3rem] shadow-[]">
 
 
 
@@ -90,7 +90,7 @@ export class ErrorBoundary extends Component<Props, State> {
               Oops! Algo salió mal
             </h1>
 
-            <p className="text-[1rem] line-height-[1.6] mb-[2rem] opacity-[0.9]">
+            <p className="text-[1rem] leading-[] mb-[2rem] opacity-[0.9]">
 
 
 
@@ -100,7 +100,7 @@ export class ErrorBoundary extends Component<Props, State> {
             </p>
 
             {import.meta.env.DEV && this.state.error &&
-            <div className="bg-[rgba(0,_0,_0,_0.2)] rounded-[12px] p-[1.5rem] mb-[2rem] text-left text-[0.85rem] font-family-[monospace] max-height-[200px] overflow-[auto]">
+            <div className="bg-[rgba(0,_0,_0,_0.2)] rounded-[12px] p-[1.5rem] mb-[2rem] text-left text-[0.85rem] font-[] max-h-[] overflow-[auto]">
 
 
 
@@ -112,7 +112,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
               
                 <div className="text-[#fca5a5] mb-[0.5rem]">
-                  <Bug size={16} className="display-[inline] mr-[0.5rem]" />
+                  <Bug size={16} className="inline mr-[0.5rem]" />
                   {this.state.error.toString()}
                 </div>
                 {this.state.errorInfo &&

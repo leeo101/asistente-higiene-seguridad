@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { safeJsonParse } from '../utils/storageHelper';
 import { 
   Search, UserCircle, Activity, ShieldCheck, FileText, AlertCircle, Award, 
   CheckCircle2, XCircle, Printer, Share2, HardHat, RefreshCw, FileCheck, Building2, Briefcase, QrCode
@@ -57,7 +58,7 @@ export default function WorkerPortal() {
 
       // 3. Get PPE Deliveries from localStorage
       const ppeDataStr = localStorage.getItem('ppe_deliveries_db');
-      const ppeData = ppeDataStr ? JSON.parse(ppeDataStr) : [];
+      const ppeData = safeJsonParse<any[]>(ppeDataStr, []);
       const workerPpe = ppeData.filter((p: any) => p.dni && p.dni.replace(/\./g, '') === cleanDni);
 
       // 4. Get Legajo Info from localStorage & Firestore

@@ -709,7 +709,7 @@ function StatCard({ icon, label, value, color, gradient }) {
                     {React.cloneElement(icon, { color: '#ffffff', size: 24 })}
                 </div>
             </div>
-            <div className="text-[2rem] font-[900] text-[var(--color-text)] line-height-[1]">
+            <div className="text-[2rem] font-[900] text-[var(--color-text)] leading-[]">
                 {value}
             </div>
             <div className="text-[0.85rem] font-[600] text-[var(--color-text-muted)]">
@@ -746,17 +746,17 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
 
 
         border: `2px solid ${riskColor}`
-      }} className="w-[64px] h-[64px] rounded-[var(--radius-xl)] flex flex-col items-center justify-center flex-shrink-[0]">
+      }} className="w-[64px] h-[64px] rounded-[var(--radius-xl)] flex flex-col items-center justify-center shrink-0">
                 <ArrowDown size={20} color={riskColor} strokeWidth={2.5} />
-                <span className="text-[1.1rem] font-[900] text-[var(--color-text)] line-height-[1]">
+                <span className="text-[1.1rem] font-[900] text-[var(--color-text)] leading-[]">
                     {permit.height}m
                 </span>
             </div>
 
             {/* Información */}
-            <div className="flex-[1] min-width-[0]">
+            <div className="flex-[1] min-w-0">
                 <div className="flex items-center gap-[0.75rem] mb-[0.5rem]">
-                    <h3 className="m-[0] text-[1.1rem] font-[800] text-[var(--color-text)] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">
+                    <h3 className="m-[0] text-[1.1rem] font-[800] text-[var(--color-text)] whitespace- overflow-[hidden] text-overflow-[ellipsis]">
 
 
 
@@ -925,9 +925,9 @@ function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onSha
 
 
 
-              }} className="w-[72px] h-[72px] rounded-[var(--radius-xl)] flex flex-col items-center justify-center text-[#fff] flex-shrink-[0]">
+              }} className="w-[72px] h-[72px] rounded-[var(--radius-xl)] flex flex-col items-center justify-center text-[#fff] shrink-0">
                                 <ArrowDown size={28} strokeWidth={2.5} />
-                                <span className="text-[1.25rem] font-[900] line-height-[1]">
+                                <span className="text-[1.25rem] font-[900] leading-[]">
                                     {permit.height}m
                                 </span>
                             </div>
@@ -962,7 +962,7 @@ function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onSha
 
 
                     
-                                        <HardHat size={12} className="display-[inline] mr-[4px]" />
+                                        <HardHat size={12} className="inline mr-[4px]" />
                                         {permit.workType ? WORK_TYPES.find((t) => t.id === permit.workType)?.name : 'Sin tipo'}
                                     </span>
                                     {!isExpired &&
@@ -974,7 +974,7 @@ function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onSha
 
 
                     
-                                            <Clock size={12} className="display-[inline] mr-[4px]" />
+                                            <Clock size={12} className="inline mr-[4px]" />
                                             Vence en {timeRemaining}h
                                         </span>
                   }
@@ -987,7 +987,7 @@ function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onSha
 
 
                   }} className="p-[0.35rem_0.65rem] text-[#fff] rounded-[var(--radius-full)] text-[0.75rem] font-[700]">
-                                            <Anchor size={12} className="display-[inline] mr-[4px]" />
+                                            <Anchor size={12} className="inline mr-[4px]" />
                                             Clearance: {permit.fallClearance.safe ? 'SEGURO' : 'INSUFICIENTE'}
                                         </span>
                   }
@@ -1041,7 +1041,7 @@ function HeightLimitsPanel({ limits, fallProtection }) {
     <div className="flex flex-col gap-[1.5rem]">
             <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6">
                 <h3 className="m-[0_0_1.5rem_0] text-[1rem] font-[800]">
-                    <Activity size={20} className="display-[inline] mr-[0.5rem]" />
+                    <Activity size={20} className="inline mr-[0.5rem]" />
                     Límites de Altura (OSHA 1926.501)
                 </h3>
                 <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(250px,_1fr))] gap-[1rem]">
@@ -1061,7 +1061,7 @@ function HeightLimitsPanel({ limits, fallProtection }) {
                                 </span>
                             </div>
                             <div className="mt-[0.75rem] text-[0.8rem] text-[var(--color-text-muted)]">
-                                <AlertCircle size={14} className="display-[inline] mr-[4px]" />
+                                <AlertCircle size={14} className="inline mr-[4px]" />
                                 Protección contra caídas requerida
                             </div>
                         </div>
@@ -1072,7 +1072,7 @@ function HeightLimitsPanel({ limits, fallProtection }) {
             {/* Equipamiento requerido */}
             <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6">
                 <h3 className="m-[0_0_1rem_0] text-[1rem] font-[800]">
-                    <Shield size={20} className="display-[inline] mr-[0.5rem]" />
+                    <Shield size={20} className="inline mr-[0.5rem]" />
                     Equipamiento de Protección Contra Caídas
                 </h3>
                 <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(200px,_1fr))] gap-[0.75rem]">
@@ -1103,7 +1103,7 @@ function HeightLimitsPanel({ limits, fallProtection }) {
             {/* Factores de riesgo */}
             <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6">
                 <h3 className="m-[0_0_1rem_0] text-[1rem] font-[800]">
-                    <AlertTriangle size={20} className="display-[inline] mr-[0.5rem]" />
+                    <AlertTriangle size={20} className="inline mr-[0.5rem]" />
                     Factores de Riesgo
                 </h3>
                 <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(180px,_1fr))] gap-[0.75rem]">
@@ -1131,7 +1131,7 @@ function HeightLimitsPanel({ limits, fallProtection }) {
             {/* Cálculo de fall clearance */}
             <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6">
                 <h3 className="m-[0_0_1rem_0] text-[1rem] font-[800]">
-                    <Ruler size={20} className="display-[inline] mr-[0.5rem]" />
+                    <Ruler size={20} className="inline mr-[0.5rem]" />
                     Cálculo de Distancia de Detención
                 </h3>
                 <div className="p-[1rem] bg-[#f8fafc] border-[1px_solid_#e2e8f0] rounded-[var(--radius-lg)]">
@@ -1157,7 +1157,7 @@ function HeightLimitsPanel({ limits, fallProtection }) {
                             <span>Altura del Trabajador:</span>
                             <strong>1.8 m</strong>
                         </div>
-                        <div className="border-top-[2px_solid_#3b82f6] pt-[0.5rem] mt-[0.5rem] flex justify-space-between text-[1.1rem]">
+                        <div className="border-t-2 border-[] pt-[0.5rem] mt-[0.5rem] flex justify-space-between text-[1.1rem]">
 
 
 
@@ -1199,7 +1199,7 @@ function CreatePermitModal({ permit, setPermit, onSave, onClose, WORK_TYPES, FAL
         className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto m-auto"
         onClick={(e) => e.stopPropagation()}>
         
-                <div className="flex justify-space-between items-center mb-[1.5rem] pb-[1rem] border-bottom-[1px_solid_var(--color-border)]">
+                <div className="flex justify-space-between items-center mb-[1.5rem] pb-[1rem] border-b border-[]">
 
 
 
@@ -1459,7 +1459,7 @@ function CreatePermitModal({ permit, setPermit, onSave, onClose, WORK_TYPES, FAL
                     </div>
                 </div>
 
-                <div className="flex gap-[1rem] mt-[2rem] pt-[1.5rem] border-top-[1px_solid_var(--color-border)]">
+                <div className="flex gap-[1rem] mt-[2rem] pt-[1.5rem] border-t border-[]">
 
 
 
@@ -1522,7 +1522,7 @@ function PermitDetailModal({ permit, statusConfig, onClose, WORK_TYPES, FALL_PRO
 
             }} className="w-[64px] h-[64px] rounded-[var(--radius-xl)] flex flex-col items-center justify-center text-[#fff]">
                             <ArrowDown size={24} strokeWidth={2.5} />
-                            <span className="text-[1.25rem] font-[900] line-height-[1]">
+                            <span className="text-[1.25rem] font-[900] leading-[]">
                                 {permit.height}m
                             </span>
                         </div>
@@ -1692,7 +1692,7 @@ function PermitDetailModal({ permit, statusConfig, onClose, WORK_TYPES, FALL_PRO
                         <h4 className="m-[0_0_0.5rem_0] text-[0.85rem] font-[700]">
                             Observaciones
                         </h4>
-                        <p className="m-[0] text-[0.9rem] text-[var(--color-text)] line-height-[1.6]">
+                        <p className="m-[0] text-[0.9rem] text-[var(--color-text)] leading-[]">
                             {permit.observations}
                         </p>
                     </div>
@@ -1708,12 +1708,12 @@ function PermitDetailModal({ permit, statusConfig, onClose, WORK_TYPES, FALL_PRO
 
 
           
-                    <AlertTriangle size={20} color="#d97706" className="flex-shrink-[0]" />
+                    <AlertTriangle size={20} color="#d97706" className="shrink-0" />
                     <div>
                         <h4 className="m-[0_0_0.25rem_0] text-[0.85rem] font-[700] text-[#d97706]">
                             OSHA 1926.501
                         </h4>
-                        <p className="m-[0] text-[0.8rem] text-[#92400e] line-height-[1.5]">
+                        <p className="m-[0] text-[0.8rem] text-[#92400e] leading-[]">
                             Protección contra caídas requerida para trabajos ≥ 1.8m (6 pies). Verificar anclajes y equipo antes de comenzar.
                         </p>
                     </div>

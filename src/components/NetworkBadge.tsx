@@ -45,7 +45,7 @@ export default function NetworkBadge() {
 
 
 
-    }} className="fixed bottom-[80px] left-[50%] transform-[translateX(-50%)] text-[#fff] p-[0.6rem_1.2rem] rounded-[50px] flex items-center gap-[0.6rem] text-[0.85rem] font-[700] box-shadow-[0_4px_12px_rgba(0,0,0,0.2)] z-[9999] pointer-events-[none] backdrop-filter-[blur(4px)] animation-[slideUp_0.3s_ease-out]">
+    }} className="fixed bottom-[80px] left-[50%] transform-[translateX(-50%)] text-[#fff] p-[0.6rem_1.2rem] rounded-[50px] flex items-center gap-[0.6rem] text-[0.85rem] font-[700] shadow-[] z-[9999] pointer-events- backdrop-filter-[blur(4px)] animation-[slideUp_0.3s_ease-out]">
             {isOnline ? <Wifi size={16} /> : <WifiOff size={16} />}
             {statusText}
         </div>);

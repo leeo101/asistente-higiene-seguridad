@@ -69,7 +69,7 @@ export default function LegajoPdf({ data, customId }: { data: any; customId?: st
         }} className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center">
             <Icon size={18} />
         </div>
-        <h3 style={{ color: color }} className="m-[0] text-[1.1rem] font-[800] uppercase letter-spacing-[0.03em]">
+        <h3 style={{ color: color }} className="m-[0] text-[1.1rem] font-[800] uppercase tracking-[]">
             {title}
         </h3>
       </div>
@@ -80,7 +80,7 @@ export default function LegajoPdf({ data, customId }: { data: any; customId?: st
     <div style={{
       gridColumn: fullWidth ? '1 / -1' : 'auto'
     }} className="bg-[#f8fafc] border-[1px_solid_#e2e8f0] rounded-[12px] p-[1rem]">
-      <span className="text-[0.7rem] font-[800] text-[#64748b] block mb-[0.4rem] uppercase letter-spacing-[0.05em]">
+      <span className="text-[0.7rem] font-[800] text-[#64748b] block mb-[0.4rem] uppercase tracking-[]">
           {label}
       </span>
       <div className="text-[0.95rem] font-[600] text-[#0f172a]">
@@ -101,13 +101,13 @@ export default function LegajoPdf({ data, customId }: { data: any; customId?: st
 
   const AmbienteRow = ({ label, apto, fecha, valor, limite, empresa, protocolo, unit }: any) => (
     <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid]">
-      <td className="p-[0.6rem_0.5rem] border-bottom-[1px_solid_#e2e8f0] text-[0.75rem] font-[600] text-[#1e293b]">{label}</td>
-      <td className="p-[0.6rem_0.5rem] border-bottom-[1px_solid_#e2e8f0] text-[0.75rem] text-center">{fecha ? new Date(fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : '—'}</td>
-      <td className="p-[0.6rem_0.5rem] border-bottom-[1px_solid_#e2e8f0] text-[0.75rem] text-center font-[700]">{valor ? `${valor} ${unit}` : '—'}</td>
-      <td className="p-[0.6rem_0.5rem] border-bottom-[1px_solid_#e2e8f0] text-[0.75rem] text-center text-[#64748b]">{limite ? `${limite} ${unit}` : '—'}</td>
-      <td className="p-[0.6rem_0.5rem] border-bottom-[1px_solid_#e2e8f0] text-[0.65rem] text-center text-[#64748b]">{protocolo || '—'}</td>
-      <td className="p-[0.6rem_0.5rem] border-bottom-[1px_solid_#e2e8f0] text-[0.65rem] text-center text-[#64748b]">{empresa || '—'}</td>
-      <td style={{ color: apto ? '#166534' : '#dc2626' }} className="p-[0.6rem_0.5rem] border-bottom-[1px_solid_#e2e8f0] font-[800] text-center">
+      <td className="p-[0.6rem_0.5rem] border-b border-[] text-[0.75rem] font-[600] text-[#1e293b]">{label}</td>
+      <td className="p-[0.6rem_0.5rem] border-b border-[] text-[0.75rem] text-center">{fecha ? new Date(fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : '—'}</td>
+      <td className="p-[0.6rem_0.5rem] border-b border-[] text-[0.75rem] text-center font-[700]">{valor ? `${valor} ${unit}` : '—'}</td>
+      <td className="p-[0.6rem_0.5rem] border-b border-[] text-[0.75rem] text-center text-[#64748b]">{limite ? `${limite} ${unit}` : '—'}</td>
+      <td className="p-[0.6rem_0.5rem] border-b border-[] text-[0.65rem] text-center text-[#64748b]">{protocolo || '—'}</td>
+      <td className="p-[0.6rem_0.5rem] border-b border-[] text-[0.65rem] text-center text-[#64748b]">{empresa || '—'}</td>
+      <td style={{ color: apto ? '#166534' : '#dc2626' }} className="p-[0.6rem_0.5rem] border-b border-[] font-[800] text-center">
         <span style={{
           background: apto ? '#dcfce7' : '#fee2e2',
           border: `1px solid ${apto ? '#bbf7d0' : '#fecaca'}`
@@ -122,7 +122,7 @@ export default function LegajoPdf({ data, customId }: { data: any; customId?: st
     if (!adjuntos || adjuntos.length === 0) return null;
     return (
       <div className="mt-[1.5rem] page-break-inside-[avoid]">
-        <span className="text-[0.8rem] font-[800] text-[#64748b] uppercase letter-spacing-[0.05em] block mb-[0.75rem]">Registro Fotográfico / Adjuntos</span>
+        <span className="text-[0.8rem] font-[800] text-[#64748b] uppercase tracking-[] block mb-[0.75rem]">Registro Fotográfico / Adjuntos</span>
         <div className="grid grid-template-columns-[repeat(auto-fill,_minmax(140px,_1fr))] gap-[10px]">
           {adjuntos.map((img: string, i: number) => (
             <div key={i} className="aspect-ratio-[1] rounded-[12px] overflow-[hidden] border-[1px_solid_#e2e8f0] bg-[#f8fafc]">
@@ -135,7 +135,7 @@ export default function LegajoPdf({ data, customId }: { data: any; customId?: st
   };
 
   return (
-    <div id={customId || "pdf-content"} className="pdf-document premium-legajo bg-[#ffffff] w-[100%] max-w-[100%] text-[#0f172a] font-family-[Inter,_system-ui,_sans-serif]" style={{ padding: '0px' }}>
+    <div id={customId || "pdf-content"} className="pdf-document premium-legajo bg-[#ffffff] w-[100%] max-w-[100%] text-[#0f172a] font-[]" style={{ padding: '0px' }}>
       <style type="text/css" media="print">{`
         @page { size: A4 portrait; margin: 15mm; }
         body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -254,7 +254,7 @@ export default function LegajoPdf({ data, customId }: { data: any; customId?: st
             background: data.riesgos.nivelRiesgo === 'Crítico' ? '#fef2f2' : data.riesgos.nivelRiesgo === 'Alto' ? '#fff7ed' : data.riesgos.nivelRiesgo === 'Medio' ? '#fefce8' : '#f0fdf4',
             border: `2px solid ${data.riesgos.nivelRiesgo === 'Crítico' ? '#fca5a5' : data.riesgos.nivelRiesgo === 'Alto' ? '#fdba74' : data.riesgos.nivelRiesgo === 'Medio' ? '#fde047' : '#86efac'}`
           }} className="rounded-[16px] p-[1.5rem] text-center mb-[2rem]">
-            <span className="text-[0.85rem] font-[800] text-[#64748b] uppercase letter-spacing-[0.1em] block mb-[0.5rem]">Nivel de Riesgo General de Planta</span>
+            <span className="text-[0.85rem] font-[800] text-[#64748b] uppercase tracking-[] block mb-[0.5rem]">Nivel de Riesgo General de Planta</span>
             <span style={{
               color: data.riesgos.nivelRiesgo === 'Crítico' ? '#991b1b' : data.riesgos.nivelRiesgo === 'Alto' ? '#9a3412' : data.riesgos.nivelRiesgo === 'Medio' ? '#854d0e' : '#166534'
             }} className="text-[1.8rem] font-[900]">
@@ -270,33 +270,33 @@ export default function LegajoPdf({ data, customId }: { data: any; customId?: st
             <table className="table-layout-[fixed] word-break-[break-word] overflow-wrap-[break-word] w-[100%] border-collapse-[collapse]">
               <thead>
                 <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] bg-[#f1f5f9]">
-                  <th className="text-left p-[0.7rem] border-bottom-[2px_solid_#cbd5e1] text-[0.65rem] font-[800] text-[#475569] uppercase">Tipo / Puesto</th>
-                  <th className="text-left p-[0.7rem] border-bottom-[2px_solid_#cbd5e1] text-[0.65rem] font-[800] text-[#475569] uppercase">Peligro</th>
-                  <th className="text-center p-[0.7rem] border-bottom-[2px_solid_#cbd5e1] text-[0.65rem] font-[800] text-[#475569] uppercase w-[50px]">Exp.</th>
-                  <th className="text-center p-[0.7rem] border-bottom-[2px_solid_#cbd5e1] text-[0.65rem] font-[800] text-[#475569] uppercase">PxC</th>
-                  <th className="text-center p-[0.7rem] border-bottom-[2px_solid_#cbd5e1] text-[0.65rem] font-[800] text-[#475569] uppercase">Nivel</th>
-                  <th className="text-left p-[0.7rem] border-bottom-[2px_solid_#cbd5e1] text-[0.65rem] font-[800] text-[#475569] uppercase">Medida Control</th>
+                  <th className="text-left p-[0.7rem] border-b-2 border-[] text-[0.65rem] font-[800] text-[#475569] uppercase">Tipo / Puesto</th>
+                  <th className="text-left p-[0.7rem] border-b-2 border-[] text-[0.65rem] font-[800] text-[#475569] uppercase">Peligro</th>
+                  <th className="text-center p-[0.7rem] border-b-2 border-[] text-[0.65rem] font-[800] text-[#475569] uppercase w-[50px]">Exp.</th>
+                  <th className="text-center p-[0.7rem] border-b-2 border-[] text-[0.65rem] font-[800] text-[#475569] uppercase">PxC</th>
+                  <th className="text-center p-[0.7rem] border-b-2 border-[] text-[0.65rem] font-[800] text-[#475569] uppercase">Nivel</th>
+                  <th className="text-left p-[0.7rem] border-b-2 border-[] text-[0.65rem] font-[800] text-[#475569] uppercase">Medida Control</th>
                 </tr>
               </thead>
               <tbody>
                 {data.riesgos.matriz.map((r: any, idx: number) => (
                   <tr key={idx} className="avoid-break page-break-inside-[avoid] break-inside-[avoid]">
-                    <td className="p-[0.7rem] border-bottom-[1px_solid_#e2e8f0]">
+                    <td className="p-[0.7rem] border-b border-[]">
                       <div className="text-[0.7rem] font-[800] text-[#0f172a]">{r.tipo || '-'}</div>
                       <div className="text-[0.65rem] text-[#64748b] mt-1">{r.puesto || '-'}</div>
                     </td>
-                    <td className="p-[0.7rem] border-bottom-[1px_solid_#e2e8f0] text-[0.7rem] text-[#1e293b]">{r.descripcion || '-'}</td>
-                    <td className="p-[0.7rem] border-bottom-[1px_solid_#e2e8f0] text-[0.7rem] text-center font-bold text-[#475569]">{r.expuestos || '-'}</td>
-                    <td className="p-[0.7rem] border-bottom-[1px_solid_#e2e8f0] text-[0.6rem] text-center text-[#64748b]">
+                    <td className="p-[0.7rem] border-b border-[] text-[0.7rem] text-[#1e293b]">{r.descripcion || '-'}</td>
+                    <td className="p-[0.7rem] border-b border-[] text-[0.7rem] text-center font-bold text-[#475569]">{r.expuestos || '-'}</td>
+                    <td className="p-[0.7rem] border-b border-[] text-[0.6rem] text-center text-[#64748b]">
                       P: {r.probabilidad ? r.probabilidad[0] : '-'}<br/>C: {r.consecuencia ? r.consecuencia[0] : '-'}
                     </td>
-                    <td className="p-[0.7rem] border-bottom-[1px_solid_#e2e8f0] text-center">
+                    <td className="p-[0.7rem] border-b border-[] text-center">
                       <span style={{
                         background: r.nivel === 'Crítico' ? '#fca5a5' : r.nivel === 'Alto' ? '#fdba74' : r.nivel === 'Medio' ? '#fde047' : r.nivel === 'Bajo' ? '#86efac' : '#f1f5f9',
                         color: r.nivel === 'Crítico' ? '#7f1d1d' : r.nivel === 'Alto' ? '#7c2d12' : r.nivel === 'Medio' ? '#713f12' : r.nivel === 'Bajo' ? '#14532d' : '#475569'
                       }} className="p-[3px_6px] rounded-[4px] text-[0.65rem] font-bold uppercase">{r.nivel || '-'}</span>
                     </td>
-                    <td className="p-[0.7rem] border-bottom-[1px_solid_#e2e8f0]">
+                    <td className="p-[0.7rem] border-b border-[]">
                       <div className="text-[0.7rem] font-bold text-[#1e293b]">{r.medida || '-'}</div>
                       <div className="flex flex-col gap-0.5 mt-1 text-[0.6rem] text-[#64748b]">
                         {r.responsable && <div><strong>Resp:</strong> {r.responsable}</div>}
@@ -408,13 +408,13 @@ export default function LegajoPdf({ data, customId }: { data: any; customId?: st
           <table className="table-layout-[fixed] word-break-[break-word] overflow-wrap-[break-word] w-[100%] border-collapse-[collapse]">
             <thead>
               <tr className="avoid-break page-break-inside-[avoid] break-inside-[avoid] bg-[#f1f5f9]">
-                <th style={{ width: '25%' }} className="text-left p-[0.6rem_0.5rem] border-bottom-[2px_solid_#cbd5e1] text-[0.65rem] font-[800] text-[#475569] uppercase">Estudio</th>
-                <th style={{ width: '11%' }} className="text-center p-[0.6rem_0.5rem] border-bottom-[2px_solid_#cbd5e1] text-[0.65rem] font-[800] text-[#475569] uppercase">Fecha</th>
-                <th style={{ width: '13%' }} className="text-center p-[0.6rem_0.5rem] border-bottom-[2px_solid_#cbd5e1] text-[0.65rem] font-[800] text-[#475569] uppercase">Valor Medido</th>
-                <th style={{ width: '11%' }} className="text-center p-[0.6rem_0.5rem] border-bottom-[2px_solid_#cbd5e1] text-[0.65rem] font-[800] text-[#475569] uppercase">Límite</th>
-                <th style={{ width: '13%' }} className="text-center p-[0.6rem_0.5rem] border-bottom-[2px_solid_#cbd5e1] text-[0.65rem] font-[800] text-[#475569] uppercase">Nº Protocolo</th>
-                <th style={{ width: '15%' }} className="text-center p-[0.6rem_0.5rem] border-bottom-[2px_solid_#cbd5e1] text-[0.65rem] font-[800] text-[#475569] uppercase">Ejecutor</th>
-                <th style={{ width: '12%' }} className="text-center p-[0.6rem_0.5rem] border-bottom-[2px_solid_#cbd5e1] text-[0.65rem] font-[800] text-[#475569] uppercase">Estado</th>
+                <th style={{ width: '25%' }} className="text-left p-[0.6rem_0.5rem] border-b-2 border-[] text-[0.65rem] font-[800] text-[#475569] uppercase">Estudio</th>
+                <th style={{ width: '11%' }} className="text-center p-[0.6rem_0.5rem] border-b-2 border-[] text-[0.65rem] font-[800] text-[#475569] uppercase">Fecha</th>
+                <th style={{ width: '13%' }} className="text-center p-[0.6rem_0.5rem] border-b-2 border-[] text-[0.65rem] font-[800] text-[#475569] uppercase">Valor Medido</th>
+                <th style={{ width: '11%' }} className="text-center p-[0.6rem_0.5rem] border-b-2 border-[] text-[0.65rem] font-[800] text-[#475569] uppercase">Límite</th>
+                <th style={{ width: '13%' }} className="text-center p-[0.6rem_0.5rem] border-b-2 border-[] text-[0.65rem] font-[800] text-[#475569] uppercase">Nº Protocolo</th>
+                <th style={{ width: '15%' }} className="text-center p-[0.6rem_0.5rem] border-b-2 border-[] text-[0.65rem] font-[800] text-[#475569] uppercase">Ejecutor</th>
+                <th style={{ width: '12%' }} className="text-center p-[0.6rem_0.5rem] border-b-2 border-[] text-[0.65rem] font-[800] text-[#475569] uppercase">Estado</th>
               </tr>
             </thead>
             <tbody>
@@ -526,7 +526,7 @@ export default function LegajoPdf({ data, customId }: { data: any; customId?: st
       <div className="chapter-content-page-last p-2">
         <SectionHeader title="Declaración Jurada de Cierre" icon={PenTool} colorKey="firmas" />
         <div className="bg-[#f8fafc] p-[2rem] rounded-[16px] border-[1px_solid_#e2e8f0] mb-[3rem]">
-          <p className="m-0 text-[0.95rem] text-[#475569] line-height-[1.6]">
+          <p className="m-0 text-[0.95rem] text-[#475569] leading-[]">
             El presente <strong>Legajo Técnico</strong> ha sido elaborado conforme a las disposiciones de la Ley 19.587 de Higiene y Seguridad en el Trabajo y su Decreto Reglamentario 351/79 (y sus modificatorias). Toda la información contenida en este documento tiene carácter de declaración jurada respecto a las condiciones relevadas en la fecha de emisión.
           </p>
         </div>

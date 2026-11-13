@@ -182,7 +182,7 @@ const CounterItem: React.FC<CounterItemProps> = ({ value, label, suffix = '' }) 
   const count = useCounter(value);
   return (
     <div className="text-center">
-      <div className="text-[1.8rem] font-[900] text-[var(--color-hero-text)] line-height-[1]">
+      <div className="text-[1.8rem] font-[900] text-[var(--color-hero-text)] leading-[]">
         {count.toLocaleString('es-AR')}{suffix}
       </div>
       <div className="text-[0.72rem] text-[var(--color-hero-subtext)] font-[600] mt-[0.2rem]">{label}</div>
@@ -589,7 +589,7 @@ export default function Home(): React.ReactElement {
     <AnimatedPage>
     <div className="page-transition pb-[4rem]">
 
-        <div className="p-[clamp(8rem,_10vw,_9rem)_1.2rem_2rem] bg-[var(--color-hero-bg)] border-bottom-[1px_solid_var(--color-border)] relative overflow-[hidden]">
+        <div className="p-[clamp(8rem,_10vw,_9rem)_1.2rem_2rem] bg-[var(--color-hero-bg)] border-b border-[] relative overflow-[hidden]">
           <StarryBackground />
           <div className="relative z-[1] max-w-[1200px] m-[0_auto]">
             <style>{`
@@ -603,32 +603,32 @@ export default function Home(): React.ReactElement {
             `}</style>
             <div className="stagger-item animation-delay-[0.1s]">
               <div className="flex items-center gap-[0.6rem] flex-wrap mb-[2rem]">
-                <div style={{ backdropFilter: isMobile ? 'none' : 'blur(8px)' }} className="display-[inline-flex] items-center gap-[0.5rem] p-[0.4rem_0.8rem] bg-[rgba(59,130,246,0.15)] border-[1px_solid_rgba(59,130,246,0.3)] rounded-[100px]">
+                <div style={{ backdropFilter: isMobile ? 'none' : 'blur(8px)' }} className="inline-flex items-center gap-[0.5rem] p-[0.4rem_0.8rem] bg-[rgba(59,130,246,0.15)] border-[1px_solid_rgba(59,130,246,0.3)] rounded-[100px]">
                   <Shield size={14} color="#60a5fa" weight="bold" />
-                  <span className="text-[0.75rem] font-[800] text-[#60a5fa] uppercase letter-spacing-[1px]">{t('home.private_dashboard')}</span>
+                  <span className="text-[0.75rem] font-[800] text-[#60a5fa] uppercase tracking-[]">{t('home.private_dashboard')}</span>
                 </div>
                 <div
                   onClick={() => navigate('/legislation')}
                   style={{ backdropFilter: isMobile ? 'none' : 'blur(8px)' }}
-                  className="display-[inline-flex] items-center gap-[0.5rem] p-[0.4rem_0.85rem] bg-[rgba(16,185,129,0.15)] border-[1px_solid_rgba(16,185,129,0.35)] rounded-[100px] cursor-pointer hover:bg-[rgba(16,185,129,0.25)] transition-colors"
+                  className="inline-flex items-center gap-[0.5rem] p-[0.4rem_0.85rem] bg-[rgba(16,185,129,0.15)] border-[1px_solid_rgba(16,185,129,0.35)] rounded-[100px] cursor-pointer hover:bg-[rgba(16,185,129,0.25)] transition-colors"
                   title="Ver biblioteca legal del país activo"
                 >
                   <Gavel size={14} color="#34d399" weight="bold" />
-                  <span className="text-[0.75rem] font-[800] text-[#34d399] uppercase letter-spacing-[0.5px]">
+                  <span className="text-[0.75rem] font-[800] text-[#34d399] uppercase tracking-[]">
                     {countryNorms.flag} {countryNorms.name} · {countryNorms.general} / {countryNorms.decree}
                   </span>
                 </div>
               </div>
               
-              <div style={{ backdropFilter: isMobile ? 'none' : 'blur(12px)' }} className="flex items-center gap-[1.5rem] bg-[rgba(255,255,255,0.03)] border-[1px_solid_rgba(255,255,255,0.08)] p-[1.5rem] rounded-[24px] box-shadow-[0_20px_40px_rgba(0,0,0,0.2)] relative overflow-[hidden]">
-                <div className="absolute top-[-50%] left-[-10%] w-[150px] h-[150px] bg-[radial-gradient(circle,_rgba(59,130,246,0.15)_0%,_transparent_70%)] pointer-events-[none]" />
+              <div style={{ backdropFilter: isMobile ? 'none' : 'blur(12px)' }} className="flex items-center gap-[1.5rem] bg-[rgba(255,255,255,0.03)] border-[1px_solid_rgba(255,255,255,0.08)] p-[1.5rem] rounded-[24px] shadow-[] relative overflow-[hidden]">
+                <div className="absolute top-[-50%] left-[-10%] w-[150px] h-[150px] bg-[radial-gradient(circle,_rgba(59,130,246,0.15)_0%,_transparent_70%)] pointer-events-" />
                 
-                <div className="w-[115px] h-[64px] bg-transparent flex items-center justify-center flex-shrink-[0]">
-                  <img src="/logo.png?v=3" alt="Logo" className="w-[100%] h-[100%] object-fit-[contain] filter-[drop-shadow(0_4px_10px_rgba(0,0,0,0.45))]" />
+                <div className="w-[115px] h-[64px] bg-transparent flex items-center justify-center shrink-0">
+                  <img src="/logo.png?v=3" alt="Logo" className="w-[100%] h-[100%] object- filter-[drop-shadow(0_4px_10px_rgba(0,0,0,0.45))]" />
                 </div>
                 <div className="relative z-[1]">
-                  <h1 className="text-[clamp(1.8rem,_4vw,_2.4rem)] font-[900] text-[white] m-[0] line-height-[1.1] font-family-[var(--font-heading)]">
-                    {t('home.hello')}, {userName} {isSubscribed && <Crown size={24} color="#f59e0b" weight="fill" className="display-[inline] vertical-align-[middle] ml-[0.5rem] filter-[drop-shadow(0_2px_8px_rgba(245,158,11,0.4))]" />}
+                  <h1 className="text-[clamp(1.8rem,_4vw,_2.4rem)] font-[900] text-[white] m-[0] leading-[] font-[]">
+                    {t('home.hello')}, {userName} {isSubscribed && <Crown size={24} color="#f59e0b" weight="fill" className="inline vertical-align-[middle] ml-[0.5rem] filter-[drop-shadow(0_2px_8px_rgba(245,158,11,0.4))]" />}
                   </h1>
                   <p className="text-[rgba(255,255,255,0.6)] text-[1.05rem] m-[0.4rem_0_0] font-[500]">
                     {t('home.subtitle')}
@@ -639,22 +639,22 @@ export default function Home(): React.ReactElement {
 
             <div className="bento-container stagger-item animation-delay-[0.2s]">
               <div className="bento-item bento-main">
-                <div style={{ filter: isMobile ? 'none' : 'blur(20px)' }} className="absolute top-[-30%] right-[-10%] w-[220px] h-[220px] bg-[radial-gradient(circle,_rgba(168,85,247,0.2)_0%,_transparent_70%)] pointer-events-[none]" />
+                <div style={{ filter: isMobile ? 'none' : 'blur(20px)' }} className="absolute top-[-30%] right-[-10%] w-[220px] h-[220px] bg-[radial-gradient(circle,_rgba(168,85,247,0.2)_0%,_transparent_70%)] pointer-events-" />
 
                 <div className="flex justify-space-between items-start mb-[1.2rem] relative z-[1]">
                   <div>
-                    <div className="display-[inline-flex] items-center gap-[0.4rem] bg-[rgba(168,85,247,0.15)] border-[1px_solid_rgba(168,85,247,0.3)] rounded-[100px] p-[0.25rem_0.7rem] mb-[0.7rem]">
+                    <div className="inline-flex items-center gap-[0.4rem] bg-[rgba(168,85,247,0.15)] border-[1px_solid_rgba(168,85,247,0.3)] rounded-[100px] p-[0.25rem_0.7rem] mb-[0.7rem]">
                       <Sparkle size={12} color="#c084fc" weight="fill" />
-                      <span className="text-[0.65rem] font-[800] text-[#c084fc] uppercase letter-spacing-[1px]">{t('home.ai_today')}</span>
+                      <span className="text-[0.65rem] font-[800] text-[#c084fc] uppercase tracking-[]">{t('home.ai_today')}</span>
                     </div>
-                    <h2 className="text-[clamp(1.3rem,_2.5vw,_1.7rem)] font-[900] text-[white] m-[0] line-height-[1.1] font-family-[var(--font-heading)]">
+                    <h2 className="text-[clamp(1.3rem,_2.5vw,_1.7rem)] font-[900] text-[white] m-[0] leading-[] font-[]">
                       {t('home.daily_summary')}
                     </h2>
                     <p className="text-[rgba(255,255,255,0.55)] text-[0.85rem] m-[0.3rem_0_0] font-[500]">
                       {t('home.daily_subtitle')}
                     </p>
                   </div>
-                  <div className="w-[42px] h-[42px] rounded-[14px] bg-[linear-gradient(135deg,_rgba(139,92,246,0.3),_rgba(59,130,246,0.2))] border-[1px_solid_rgba(139,92,246,0.3)] flex items-center justify-center flex-shrink-[0]">
+                  <div className="w-[42px] h-[42px] rounded-[14px] bg-[linear-gradient(135deg,_rgba(139,92,246,0.3),_rgba(59,130,246,0.2))] border-[1px_solid_rgba(139,92,246,0.3)] flex items-center justify-center shrink-0">
                     <Robot size={22} weight="duotone" color="#c084fc" />
                   </div>
                 </div>
@@ -663,13 +663,13 @@ export default function Home(): React.ReactElement {
                   {currentUser && dailyInsight ?
                   <div className="bg-[rgba(0,0,0,0.25)] p-[1.2rem] rounded-[18px] border-[1px_solid_rgba(255,255,255,0.08)] h-[100%] flex flex-col justify-center gap-[0.5rem]">
                       <div className="flex items-center gap-[0.5rem]">
-                        <span className="text-[0.65rem] text-[#c084fc] font-[800] uppercase letter-spacing-[1px]">
+                        <span className="text-[0.65rem] text-[#c084fc] font-[800] uppercase tracking-[]">
                           {dailyInsight.category}
                         </span>
                         <div className="flex-[1] h-[1px] bg-[rgba(255,255,255,0.08)]" />
                       </div>
-                      <h4 className="m-[0] text-[1rem] font-[800] text-[#fff] line-height-[1.3]">{dailyInsight.title}</h4>
-                      <p className="m-[0] text-[0.85rem] text-[rgba(255,255,255,0.65)] line-height-[1.6]">{dailyInsight.content}</p>
+                      <h4 className="m-[0] text-[1rem] font-[800] text-[#fff] leading-[]">{dailyInsight.title}</h4>
+                      <p className="m-[0] text-[0.85rem] text-[rgba(255,255,255,0.65)] leading-[]">{dailyInsight.content}</p>
                     </div> :
 
                   <div className="bg-[rgba(0,0,0,0.2)] rounded-[18px] border-[1px_solid_rgba(255,255,255,0.06)] flex-[1] h-[100%] flex items-center justify-center min-h-[100px]">
@@ -687,7 +687,7 @@ export default function Home(): React.ReactElement {
                     { label: 'Documentos', value: stats.reduce((a, s) => a + s.value, 0), color: '#a855f7' },
                     { label: 'Esta semana', value: recentWorks.filter((w) => new Date(w.date).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000).length, color: '#60a5fa' }].
                     map((pill) =>
-                    <div key={pill.label} style={{ border: `1px solid ${pill.color}30` }} className="display-[inline-flex] items-center gap-[0.3rem] bg-[rgba(0,0,0,0.3)] rounded-[100px] p-[0.2rem_0.65rem]">
+                    <div key={pill.label} style={{ border: `1px solid ${pill.color}30` }} className="inline-flex items-center gap-[0.3rem] bg-[rgba(0,0,0,0.3)] rounded-[100px] p-[0.2rem_0.65rem]">
                         <span style={{ color: pill.color }} className="font-[900] text-[0.9rem]">{pill.value}</span>
                         <span className="text-[rgba(255,255,255,0.45)] text-[0.7rem] font-[600]">{pill.label}</span>
                       </div>
@@ -697,7 +697,7 @@ export default function Home(): React.ReactElement {
               </div>
 
               <div className="bento-item bento-score">
-                <div style={{ filter: isMobile ? 'none' : 'blur(25px)' }} className="absolute bottom-[-20%] left-[50%] transform-[translateX(-50%)] w-[180px] h-[180px] bg-[radial-gradient(circle,_rgba(16,185,129,0.2)_0%,_transparent_70%)] pointer-events-[none]" />
+                <div style={{ filter: isMobile ? 'none' : 'blur(25px)' }} className="absolute bottom-[-20%] left-[50%] transform-[translateX(-50%)] w-[180px] h-[180px] bg-[radial-gradient(circle,_rgba(16,185,129,0.2)_0%,_transparent_70%)] pointer-events-" />
 
                 <div className="flex justify-between items-center mb-[0.5rem] relative z-[1]">
                   <h3 className="m-[0] text-[0.95rem] font-[800] text-[white] flex items-center gap-[0.4rem]">
@@ -733,8 +733,8 @@ export default function Home(): React.ReactElement {
                           
                         </svg>
                         <div className="absolute text-center flex flex-col items-center justify-center">
-                          <div style={{ color: scoreColor }} className="text-[1.4rem] font-[900] line-height-[1]">{score}</div>
-                          <div className="text-[0.55rem] text-[rgba(255,255,255,0.5)] font-[700] uppercase letter-spacing-[0.5px]">/ 100</div>
+                          <div style={{ color: scoreColor }} className="text-[1.4rem] font-[900] leading-[]">{score}</div>
+                          <div className="text-[0.55rem] text-[rgba(255,255,255,0.5)] font-[700] uppercase tracking-[]">/ 100</div>
                         </div>
                       </div>
                       <div className="text-left flex flex-col justify-center">
@@ -784,10 +784,10 @@ export default function Home(): React.ReactElement {
 
                     return (
                       <div key={stat.key} className="flex items-center gap-[0.6rem] bg-[rgba(0,0,0,0.2)] rounded-[10px] border-[1px_solid_rgba(255,255,255,0.06)] p-[0.4rem_0.7rem]">
-                        <div style={{ background: `${stat.color}20` }} className="w-[26px] h-[26px] rounded-[8px] flex items-center justify-center flex-shrink-[0]">
+                        <div style={{ background: `${stat.color}20` }} className="w-[26px] h-[26px] rounded-[8px] flex items-center justify-center shrink-0">
                           {React.cloneElement(stat.icon as React.ReactElement<any>, { size: 14, color: stat.color })}
                         </div>
-                        <div className="flex-[1] min-width-[0]">
+                        <div className="flex-[1] min-w-0">
                           <div className="text-[0.7rem] text-[rgba(255,255,255,0.6)] font-[600]">{stat.label}</div>
                         </div>
                         <svg width={W} height={H} className="sparkline-svg" style={{ color: stat.color, '--sparkline-len': '300', '--spark-delay': `${0.3 + i * 0.1}s` } as React.CSSProperties}>
@@ -836,11 +836,11 @@ export default function Home(): React.ReactElement {
                         onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
                         onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'} className="flex items-start gap-[0.75rem] p-[0.5rem_0.5rem_0.5rem_0] cursor-pointer rounded-[10px] transition-[background_0.2s]">
                         
-                        <div className="pl-[0px] pt-[3px] flex-shrink-[0]">
+                        <div className="pl-[0px] pt-[3px] shrink-0">
                           <div className="timeline-dot ml-[0]" style={{ color: tc.text }} />
                         </div>
                         <div className="overflow-[hidden] flex-[1]">
-                          <div className="text-[white] text-[0.8rem] font-[700] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">
+                          <div className="text-[white] text-[0.8rem] font-[700] whitespace- overflow-[hidden] text-overflow-[ellipsis]">
                             {work.title || 'Sin título'}
                           </div>
                           <div className="flex items-center gap-[0.4rem] mt-[1px]">
@@ -893,7 +893,7 @@ export default function Home(): React.ReactElement {
                         <div style={{ color: link.color }}>
                           {React.cloneElement(link.icon as React.ReactElement<any>, { size: 22 })}
                         </div>
-                        <div className="text-[white] font-[700] text-[0.68rem] line-height-[1.15]">{link.label}</div>
+                        <div className="text-[white] font-[700] text-[0.68rem] leading-[]">{link.label}</div>
                         {link.norm &&
                         <span style={{ color: `${link.color}aa`, background: `${link.color}15` }} className="text-[0.58rem] font-[700] rounded-[4px] p-[1px_5px]">
                             {link.norm}
@@ -918,7 +918,7 @@ export default function Home(): React.ReactElement {
             <div className="flex flex-col gap-[1.5rem] mb-[2rem]" style={{ minWidth: 0 }}>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-[1rem]">
                 <div>
-                  <h2 className="text-[clamp(1.5rem,_4vw,_2rem)] font-[900] m-[0] text-[var(--color-text)] flex items-center gap-[0.6rem] letter-spacing-[-1px] flex-wrap">
+                  <h2 className="text-[clamp(1.5rem,_4vw,_2rem)] font-[900] m-[0] text-[var(--color-text)] flex items-center gap-[0.6rem] tracking-[] flex-wrap">
                     <Star size={28} weight="fill" color="#f59e0b" />
                     <span>{t('home.pro_vault')}</span>
                     <span className="text-xs font-extrabold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
@@ -1119,14 +1119,14 @@ export default function Home(): React.ReactElement {
                         background: `linear-gradient(135deg, ${link.color}, ${link.color}cc)`,
                         fontSize: isMobile ? '0.52rem' : '0.62rem',
                         boxShadow: `0 2px 8px rgba(${accentRgb} / 0.35)`
-                      }} className="text-[#fff] p-[2px_6px] rounded-[100px] font-[800] letter-spacing-[0.3px] line-height-[1.4]">
+                      }} className="text-[#fff] p-[2px_6px] rounded-[100px] font-[800] tracking-[] leading-[]">
                           {link.badge}
                         </span>
                       }
                     </div>
 
                     {/* Icon */}
-                    <div className={`premium-icon-box  flex-shrink-[0] ${link.category === 'ia' ? 'ai-magic-box' : ''}`} style={{
+                    <div className={`premium-icon-box  shrink-0 ${link.category === 'ia' ? 'ai-magic-box' : ''}`} style={{
                       width: isMobile ? '40px' : '54px',
                       height: isMobile ? '40px' : '54px',
                       color: link.color
@@ -1207,7 +1207,7 @@ export default function Home(): React.ReactElement {
             {recentWorks.map((work, i) =>
               <div
                 key={i}
-                className="card p-[1.2rem] flex items-center gap-[1.2rem] transition-[all_0.2s_ease] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[16px] cursor-pointer box-shadow-[var(--shadow-sm)]"
+                className="card p-[1.2rem] flex items-center gap-[1.2rem] transition-[all_0.2s_ease] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[16px] cursor-pointer shadow-[]"
 
 
 
@@ -1245,11 +1245,11 @@ export default function Home(): React.ReactElement {
                   color: typeColors[work.type]?.text || '#3b82f6',
 
                   boxShadow: `0 4px 12px ${typeColors[work.type]?.bg || 'rgba(59,130,246,0.1)'}`
-                }} className="w-[48px] h-[48px] rounded-[12px] flex items-center justify-center flex-shrink-[0]">
+                }} className="w-[48px] h-[48px] rounded-[12px] flex items-center justify-center shrink-0">
                   {typeColors[work.type]?.icon || <FileText size={22} weight="duotone" />}
                 </div>
-                <div className="flex-[1] min-width-[0]">
-                  <h3 className="m-[0] text-[1rem] font-[700] text-[var(--color-text)] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">
+                <div className="flex-[1] min-w-0">
+                  <h3 className="m-[0] text-[1rem] font-[700] text-[var(--color-text)] whitespace- overflow-[hidden] text-overflow-[ellipsis]">
                     {work.title}
                   </h3>
                   <div className="flex items-center flex-wrap gap-[0.5rem] text-[0.8rem] text-[var(--color-text-muted)] mt-[0.3rem]">

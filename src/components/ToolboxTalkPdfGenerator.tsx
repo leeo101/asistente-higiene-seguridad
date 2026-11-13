@@ -87,7 +87,7 @@ export default function ToolboxTalkPdfGenerator({ data, professional, customId }
     <div className="w-[100%] flex justify-center">
       <div
         id={customId || "pdf-content"}
-        className="pdf-container print-area p-[10mm_12mm] font-family-[system-ui,_-apple-system,_sans-serif] bg-[#ffffff] text-[#1e293b] w-[100%] max-w-[210mm] min-h-[297mm] box-sizing-[border-box] relative border-top-[12px_solid_#0284c7] text-[9pt]"
+        className="pdf-container print-area p-[10mm_12mm] font-[] bg-[#ffffff] text-[#1e293b] w-[100%] max-w-[210mm] min-h-[297mm] box-sizing-[border-box] relative border-top-[12px_solid_#0284c7] text-[9pt]"
       >
         <style type="text/css" media="print">
           {`
@@ -140,15 +140,15 @@ export default function ToolboxTalkPdfGenerator({ data, professional, customId }
         {/* Encabezado Oficial */}
         <div className="flex flex-row justify-between items-center border-bottom-[3px_solid_#0f172a] pb-[0.8rem] mb-[1rem] w-[100%]">
           <div className="flex-[1] text-left">
-            <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.08em]">Sistema de Gestión HSE</p>
+            <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] tracking-[]">Sistema de Gestión HSE</p>
             <p className="m-[0] font-[900] text-[0.85rem] uppercase text-[#0284c7]">Capacitación Operativa / Inducción</p>
           </div>
 
           <div className="flex-[2] flex flex-col items-center justify-center text-center">
-            <h1 className="m-[0] font-[900] text-[2rem] letter-spacing-[-0.02em] uppercase line-height-[1] text-[#0f172a]">
+            <h1 className="m-[0] font-[900] text-[2rem] tracking-[] uppercase leading-[] text-[#0f172a]">
               CHARLA DE 5'
             </h1>
-            <div className="mt-[0.25rem] bg-[#0f172a] text-[white] p-[0.2rem_0.8rem] rounded-full text-[0.62rem] font-[800] letter-spacing-[0.1em]">
+            <div className="mt-[0.25rem] bg-[#0f172a] text-[white] p-[0.2rem_0.8rem] rounded-full text-[0.62rem] font-[800] tracking-[]">
               CONSTANCIA DE CAPACITACIÓN DIARIA
             </div>
           </div>

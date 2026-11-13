@@ -128,10 +128,10 @@ export default function StarryBackground() {
             </div>
 
             {/* Glowing orbs */}
-            <div style={{ position: 'absolute' as const }} className="inset-[0] bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.05)_0%,_transparent_60%)] pointer-events-[none] z-[1]" />
+            <div style={{ position: 'absolute' as const }} className="inset-[0] bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.05)_0%,_transparent_60%)] pointer-events- z-[1]" />
             <div className="hero-orb-right z-[1] opacity-[0.6]" />
-            <div style={{ position: 'absolute' as const }} className="top-[-40px] right-[-40px] w-[180px] h-[180px] rounded-[50%] bg-[rgba(37,99,235,0.1)] pointer-events-[none] z-[1]" />
-            <div style={{ position: 'absolute' as const }} className="bottom-[-60px] left-[60px] w-[220px] h-[220px] rounded-[50%] bg-[rgba(37,99,235,0.15)] pointer-events-[none] z-[1]" />
+            <div style={{ position: 'absolute' as const }} className="top-[-40px] right-[-40px] w-[180px] h-[180px] rounded-[50%] bg-[rgba(37,99,235,0.1)] pointer-events- z-[1]" />
+            <div style={{ position: 'absolute' as const }} className="bottom-[-60px] left-[60px] w-[220px] h-[220px] rounded-[50%] bg-[rgba(37,99,235,0.15)] pointer-events- z-[1]" />
 
             {/* Shooting star */}
             <div className="shooting-star" />

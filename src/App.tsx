@@ -1,7 +1,11 @@
-import { Routes, Route, useLocation, Navigate, Link } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate, Link, useNavigationType } from 'react-router-dom';
 import React, { useEffect, useState, Suspense, lazy, ReactNode } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { List as Menu, MagnifyingGlass as Search, Cloud, CloudSlash as CloudOff } from '@phosphor-icons/react';
+import { List as Menu, MagnifyingGlass as Search } from '@phosphor-icons/react';
+import { requestAndSaveToken } from './services/notificationService';
+import { Capacitor } from '@capacitor/core';
+import { useNotificationScheduler } from './hooks/useNotificationScheduler';
+import { useHardwareBackButton } from './hooks/useHardwareBackButton';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 import LoadingScreen from './components/LoadingScreen';
@@ -93,7 +97,6 @@ const AdminUsers = lazyWithRetry(() => import('./pages/AdminUsers'));
 const PrivacyPolicy = lazyWithRetry(() => import('./pages/PrivacyPolicy'));
 const LightingReport = lazyWithRetry(() => import('./pages/LightingReport'));
 const WorkPermit = lazyWithRetry(() => import('./pages/WorkPermit'));
-const WorkPermitHistory = lazyWithRetry(() => import('./pages/WorkPermitHistory'));
 const RiskAssessmentHistory = lazyWithRetry(() => import('./pages/RiskAssessmentHistory'));
 const NotFound = lazyWithRetry(() => import('./pages/NotFound'));
 const PPETracker = lazyWithRetry(() => import('./pages/PPETracker'));
@@ -109,7 +112,6 @@ const MedicalAptitudes = lazyWithRetry(() => import('./pages/MedicalAptitudes'))
 const EmergencyPlan = lazyWithRetry(() => import('./pages/EmergencyPlan'));
 const WorkerPortal = lazyWithRetry(() => import('./pages/WorkerPortal'));
 
-const ExtinguisherPdfGenerator = lazyWithRetry(() => import('./components/ExtinguisherPdfGenerator'));
 const ExtintoresManager = lazyWithRetry(() => import('./pages/ExtintoresManager'));
 const ExtinguisherInspection = lazyWithRetry(() => import('./pages/ExtinguisherInspection'));
 const ThermalStress = lazyWithRetry(() => import('./pages/ThermalStress'));
@@ -135,11 +137,9 @@ const EnvironmentalMonitor = lazyWithRetry(() => import('./pages/EnvironmentalMo
 const EnvironmentalIncidents = lazyWithRetry(() => import('./pages/EnvironmentalIncidents'));
 const SafetyKPIs = lazyWithRetry(() => import('./pages/SafetyKPIs'));
 const ToolboxTalk = lazyWithRetry(() => import('./pages/ToolboxTalk'));
-const ContractorManagement = lazyWithRetry(() => import('./pages/ContractorManagement'));
 const ContractorMatrix = lazyWithRetry(() => import('./pages/ContractorMatrix'));
 const Legajos = lazyWithRetry(() => import('./pages/Legajos'));
 const LegajoForm = lazyWithRetry(() => import('./pages/LegajoForm'));
-const FleetManager = lazyWithRetry(() => import('./pages/FleetManager'));
 const IncidentHeatmap = lazyWithRetry(() => import('./pages/IncidentHeatmap'));
 const AccidentHistory = lazyWithRetry(() => import('./pages/AccidentHistory'));
 const TrustCenter = lazyWithRetry(() => import('./pages/TrustCenter'));
@@ -191,17 +191,6 @@ const RGRLForm = lazyWithRetry(() => import('./pages/RGRLForm'));
 const RARManager = lazyWithRetry(() => import('./pages/RARManager'));
 const RARForm = lazyWithRetry(() => import('./pages/RARForm'));
 
-
-function SubscriptionGuard({ children }: { children: ReactNode }) {
-  const status = typeof window !== 'undefined' ? localStorage.getItem('subscriptionStatus') : null;
-  const location = useLocation();
-
-  if (status !== 'active' && location.pathname !== '/subscribe' && location.pathname !== '/login') {
-    return <Subscription />;
-  }
-  return children;
-}
-
 function GlobalPrintGuard() {
   const { isPro } = usePaywall();
 
@@ -250,10 +239,6 @@ function GlobalPrintGuard() {
 
   return null;
 }
-
-import { requestAndSaveToken } from './services/notificationService';
-import { Capacitor } from '@capacitor/core';
-import { useNotificationScheduler } from './hooks/useNotificationScheduler';
 
 function PushNotificationEnabler() {
   const { currentUser } = useAuth();
@@ -351,75 +336,6 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   return children;
 }
 
-function CloudStatusIndicator() {
-  const { currentUser } = useAuth();
-  const { syncing, lastSync, pendingCount } = useSync();
-  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
-
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
-  if (!currentUser) return null;
-
-  if (!isOnline) {
-    return (
-      <div
-        className="header-icon-btn"
-        title={`${pendingCount > 0 ? `${pendingCount} cambios pendientes de subir` : 'Sin conexión (guardado local)'}`}
-        style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: '#fbbf24',
-          flexShrink: 0,
-          background: 'rgba(251,191,36,0.1)',
-          width: '42px',
-          height: '42px',
-          padding: '0',
-          borderRadius: '12px',
-          border: '1px solid rgba(251,191,36,0.2)',
-          transition: 'all 0.3s'
-        }}
-      >
-        <CloudOff weight="bold" size={22} />
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className="header-icon-btn"
-      title={syncing ? 'Sincronizando...' : lastSync ? `Sincronizado ${lastSync.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}` : 'Conectado a la nube'}
-      style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: syncing ? '#93c5fd' : '#86efac',
-        flexShrink: 0,
-        background: syncing ? 'rgba(59,130,246,0.1)' : 'rgba(134,239,172,0.1)',
-        width: '42px',
-        height: '42px',
-        padding: '0',
-        borderRadius: '12px',
-        border: syncing ? '1px solid rgba(59,130,246,0.2)' : '1px solid rgba(134,239,172,0.2)',
-        transition: 'all 0.3s'
-      }}
-    >
-      {syncing ? (
-        <Cloud weight="duotone" size={22} className="loading-spin" />
-      ) : (
-        <Cloud weight="bold" size={22} />
-      )}
-    </div>
-  );
-}
-
-import { useNavigationType } from 'react-router-dom';
-
 function ScrollToTop() {
   const { pathname } = useLocation();
   const navType = useNavigationType();
@@ -465,7 +381,7 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
           right: '1rem',
           display: 'flex',
           alignItems: 'center',
-          zIndex: 10,
+          zIndex: 40,
           background: isDashboard ? 'rgba(2, 6, 23, 0.5)' : 'var(--glass-bg-header)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
@@ -552,8 +468,8 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
           className="header-search-btn hover:scale-[1.02] active:scale-[0.98]"
         >
           <Search weight="bold" size={20} />
-          <span className="hide-on-mobile text-[0.82rem] font-[600] opacity-80">{t('header.search')}</span>
-          <kbd className="hide-on-mobile ml-1 px-1.5 py-0.5 text-[0.65rem] font-[800] rounded-md bg-[rgba(255,255,255,0.12)] text-[var(--color-text-muted)] border border-[rgba(255,255,255,0.15)] shadow-xs">
+          <span className="hide-on-mobile text-[0.82rem] font-semibold opacity-80">{t('header.search')}</span>
+          <kbd className={`hide-on-mobile ml-1 px-1.5 py-0.5 text-[0.65rem] font-extrabold rounded-md border shadow-xs ${isDashboard ? 'bg-white/15 text-white/80 border-white/20' : 'bg-slate-200/70 dark:bg-white/10 text-slate-600 dark:text-slate-300 border-slate-300/80 dark:border-white/15'}`}>
             Ctrl K
           </kbd>
         </button>
@@ -571,8 +487,6 @@ function TopHeader({ setIsSidebarOpen, setIsSearchOpen }: { setIsSidebarOpen: (v
     </>
   );
 }
-
-import { useHardwareBackButton } from './hooks/useHardwareBackButton';
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -780,7 +694,7 @@ function App() {
                   <Route path="/incident-heatmap" element={<ProtectedRoute><IncidentHeatmap /></ProtectedRoute>} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/reports-report" element={<ReportsReport />} />
-                  <Route path="/entrenamientos" element={<TrainingManagement />} />
+                  <Route path="/entrenamientos" element={<ProtectedRoute><TrainingManagement /></ProtectedRoute>} />
                   <Route path="/medical" element={<MedicalAptitudes />} />
                   <Route path="/emergency-plan" element={<EmergencyPlan />} />
                   <Route path="/worker-portal" element={<WorkerPortal />} />

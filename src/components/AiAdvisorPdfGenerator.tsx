@@ -22,7 +22,7 @@ export default function AiAdvisorPdfGenerator({ data }: {data: any;}): React.Rea
     <div className="w-[100%] flex justify-center">
             <div
         id="pdf-content"
-        className="pdf-container report-print print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[20mm] bg-[#ffffff] text-[#1e293b] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[10pt]">
+        className="pdf-container report-print print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[20mm] bg-[#ffffff] text-[#1e293b] shadow-[] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[10pt]">
 
 
 
@@ -63,7 +63,7 @@ export default function AiAdvisorPdfGenerator({ data }: {data: any;}): React.Rea
                 {/* Info Block */}
                 <div className="bg-[#f8fafc] p-[1.5rem] rounded-[8px] border-[1px_solid_#e2e8f0] mb-[2rem]">
                     <p className="m-[0_0_0.5rem] text-[9pt] text-[#64748b] font-[700] uppercase">Tarea Analizada</p>
-                    <p className="m-0 font-[800] text-[14pt] text-[#0f172a] line-height-[1.4]">{data.task}</p>
+                    <p className="m-0 font-[800] text-[14pt] text-[#0f172a] leading-[]">{data.task}</p>
                     <p className="m-[0.8rem_0_0] text-[9pt] text-[#64748b]">Fecha de consulta: {new Date(data.date).toLocaleString()}</p>
                 </div>
 
@@ -71,10 +71,10 @@ export default function AiAdvisorPdfGenerator({ data }: {data: any;}): React.Rea
                 <div className="grid grid-template-columns-[1fr] gap-[1.5rem] mb-[2rem]">
                     {data.planDeAccion?.length > 0 && (
                         <div>
-                            <div className="flex items-center gap-[0.5rem] text-[#0284c7] mb-[0.8rem] border-bottom-[2px_solid_#bae6fd] pb-[0.5rem]">
+                            <div className="flex items-center gap-[0.5rem] text-[#0284c7] mb-[0.8rem] border-b-2 border-[] pb-[0.5rem]">
                                 <CheckSquare size={20} /> <h3 className="m-[0] text-[12pt] font-[800]">Plan de Acción y Procedimientos</h3>
                             </div>
-                            <ol className="m-[0] pl-[1.5rem] text-[#334155] text-[10pt] line-height-[1.5]">
+                            <ol className="m-[0] pl-[1.5rem] text-[#334155] text-[10pt] leading-[]">
                                 {data.planDeAccion.map((item: string, i: number) => <li key={i} className="mb-[0.3rem]">{item}</li>)}
                             </ol>
                         </div>
@@ -82,10 +82,10 @@ export default function AiAdvisorPdfGenerator({ data }: {data: any;}): React.Rea
 
                     {data.riesgos?.length > 0 && (
                         <div style={{}}>
-                            <div className="flex items-center gap-[0.5rem] text-[#ef4444] mb-[0.8rem] border-bottom-[2px_solid_#fecaca] pb-[0.5rem]">
+                            <div className="flex items-center gap-[0.5rem] text-[#ef4444] mb-[0.8rem] border-b-2 border-[] pb-[0.5rem]">
                                 <ShieldAlert size={20} /> <h3 className="m-[0] text-[12pt] font-[800]">Riesgos Detectados</h3>
                             </div>
-                            <ul className="m-[0] pl-[1.5rem] text-[#334155] text-[10pt] line-height-[1.5]">
+                            <ul className="m-[0] pl-[1.5rem] text-[#334155] text-[10pt] leading-[]">
                                 {data.riesgos.map((item: string, i: number) => <li key={i} className="mb-[0.3rem]">{item}</li>)}
                             </ul>
                         </div>
@@ -93,10 +93,10 @@ export default function AiAdvisorPdfGenerator({ data }: {data: any;}): React.Rea
 
                     {data.epp?.length > 0 && (
                         <div style={{}}>
-                            <div className="flex items-center gap-[0.5rem] text-[#3b82f6] mb-[0.8rem] border-bottom-[2px_solid_#bfdbfe] pb-[0.5rem]">
+                            <div className="flex items-center gap-[0.5rem] text-[#3b82f6] mb-[0.8rem] border-b-2 border-[] pb-[0.5rem]">
                                 <HardHat size={20} /> <h3 className="m-[0] text-[12pt] font-[800]">EPP Recomendado</h3>
                             </div>
-                            <ul className="m-[0] pl-[1.5rem] text-[#334155] text-[10pt] line-height-[1.5]">
+                            <ul className="m-[0] pl-[1.5rem] text-[#334155] text-[10pt] leading-[]">
                                 {data.epp.map((item: string, i: number) => <li key={i} className="mb-[0.3rem]">{item}</li>)}
                             </ul>
                         </div>
@@ -104,10 +104,10 @@ export default function AiAdvisorPdfGenerator({ data }: {data: any;}): React.Rea
 
                     {data.recomendaciones?.length > 0 && (
                         <div style={{}}>
-                            <div className="flex items-center gap-[0.5rem] text-[#10b981] mb-[0.8rem] border-bottom-[2px_solid_#a7f3d0] pb-[0.5rem]">
+                            <div className="flex items-center gap-[0.5rem] text-[#10b981] mb-[0.8rem] border-b-2 border-[] pb-[0.5rem]">
                                 <Lightbulb size={20} /> <h3 className="m-[0] text-[12pt] font-[800]">Medidas Preventivas</h3>
                             </div>
-                            <ul className="m-[0] pl-[1.5rem] text-[#334155] text-[10pt] line-height-[1.5]">
+                            <ul className="m-[0] pl-[1.5rem] text-[#334155] text-[10pt] leading-[]">
                                 {data.recomendaciones.map((item: string, i: number) => <li key={i} className="mb-[0.3rem]">{item}</li>)}
                             </ul>
                         </div>
@@ -115,10 +115,10 @@ export default function AiAdvisorPdfGenerator({ data }: {data: any;}): React.Rea
 
                     {data.normativa?.length > 0 && (
                         <div style={{}}>
-                            <div className="flex items-center gap-[0.5rem] text-[#8b5cf6] mb-[0.8rem] border-bottom-[2px_solid_#ddd6fe] pb-[0.5rem]">
+                            <div className="flex items-center gap-[0.5rem] text-[#8b5cf6] mb-[0.8rem] border-b-2 border-[] pb-[0.5rem]">
                                 <Gavel size={20} /> <h3 className="m-[0] text-[12pt] font-[800]">Marco Legal ({personalData.country === 'chile' ? 'Chile' : personalData.country === 'argentina' ? 'Argentina' : personalData.country === 'bolivia' ? 'Bolivia' : personalData.country === 'paraguay' ? 'Paraguay' : personalData.country === 'uruguay' ? 'Uruguay' : 'Local'})</h3>
                             </div>
-                            <ul className="m-[0] pl-[1.5rem] text-[#334155] text-[10pt] line-height-[1.5]">
+                            <ul className="m-[0] pl-[1.5rem] text-[#334155] text-[10pt] leading-[]">
                                 {data.normativa.map((item: string, i: number) => <li key={i} className="mb-[0.3rem]">{item}</li>)}
                             </ul>
                         </div>
@@ -126,10 +126,10 @@ export default function AiAdvisorPdfGenerator({ data }: {data: any;}): React.Rea
 
                     {data.modulosRecomendados?.length > 0 && (
                         <div>
-                            <div className="flex items-center gap-[0.5rem] text-[#0d9488] mb-[0.8rem] border-bottom-[2px_solid_#99f6e4] pb-[0.5rem]">
+                            <div className="flex items-center gap-[0.5rem] text-[#0d9488] mb-[0.8rem] border-b-2 border-[] pb-[0.5rem]">
                                 <Layers size={20} /> <h3 className="m-[0] text-[12pt] font-[800]">Módulos Recomendados de la Plataforma</h3>
                             </div>
-                            <ul className="m-[0] pl-[1.5rem] text-[#334155] text-[10pt] line-height-[1.5]">
+                            <ul className="m-[0] pl-[1.5rem] text-[#334155] text-[10pt] leading-[]">
                                 {data.modulosRecomendados.map((mod: any, i: number) => (
                                     <li key={i} className="mb-[0.3rem]">
                                         <strong>{mod.nombre} ({mod.ruta}):</strong> {mod.motivo}

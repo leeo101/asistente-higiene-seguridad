@@ -423,11 +423,11 @@ export default function FloatingAssistant() {
             right: '2rem',
             width: '360px'
           })
-        }} className="fixed z-[10000] pointer-events-[none] flex flex-col">
+        }} className="fixed z-[10000] pointer-events- flex flex-col">
         
                     <div
           ref={menuRef}
-          className="assistant-panel-anim w-[100%] pointer-events-[all] flex flex-col p-[1.2rem] overflow-y-auto bg-[var(--color-surface)] box-shadow-[var(--shadow-lg),_0_0_40px_rgba(59,130,246,0.08)] border-[1px_solid_var(--color-border)] rounded-[24px]"
+          className="assistant-panel-anim w-[100%] pointer-events-[all] flex flex-col p-[1.2rem] overflow-y-auto bg-[var(--color-surface)] shadow-[] border-[1px_solid_var(--color-border)] rounded-[24px]"
           style={{
             maxHeight: isMobile ? '88vh' : 'calc(100vh - 120px)',
             height: isMobile ? '88vh' : '540px',
@@ -440,11 +440,11 @@ export default function FloatingAssistant() {
                     <div className="flex items-center justify-between mb-[1.2rem] px-1">
                         <div className="flex items-center gap-[0.9rem]">
                                 <div className="w-[56px] h-[52px] bg-transparent flex flex-col items-center justify-center p-[2px]">
-                                    <img src="/logo-short.png?v=3" alt="HYS" className="w-[48px] h-[28px] object-fit-[contain]" />
+                                    <img src="/logo-short.png?v=3" alt="HYS" className="w-[48px] h-[28px] object-" />
                                     <span className="text-[7.5px] font-[900] tracking-[0.6px] text-[var(--color-text)] uppercase leading-none mt-[2px]">ASISTENTE</span>
                                 </div>
                             <div>
-                                <h4 className="m-[0] text-[1.05rem] font-[900] letter-spacing-[-0.5px] text-[var(--color-text)]">Asistente IA</h4>
+                                <h4 className="m-[0] text-[1.05rem] font-[900] tracking-[] text-[var(--color-text)]">Asistente IA</h4>
                                 <div className="flex items-center gap-[0.4rem]">
                                     <span style={{ background: isPro ? '#10b981' : '#f59e0b', boxShadow: isPro ? '0 0 10px #10b98188' : '0 0 10px #f59e0b88' }} className="w-[8px] h-[8px] rounded-[50%]"></span>
                                     <span className="text-[0.75rem] text-[var(--color-text-muted)] font-[700]">
@@ -456,7 +456,7 @@ export default function FloatingAssistant() {
                         <div className="flex gap-[0.6rem] items-center">
                             {!isPro &&
               <button
-                onClick={() => navigate('/subscribe')} className="p-[0.35rem_0.7rem] bg-[var(--gradient-premium)] text-[white] text-[0.7rem] font-[900] rounded-[10px] border-none box-shadow-[0_4px_12px_rgba(59,_130,_246,_0.4)] cursor-pointer">
+                onClick={() => navigate('/subscribe')} className="p-[0.35rem_0.7rem] bg-[var(--gradient-premium)] text-[white] text-[0.7rem] font-[900] rounded-[10px] border-none shadow-[] cursor-pointer">
 
 
 
@@ -511,7 +511,7 @@ export default function FloatingAssistant() {
                         {activeTab === 'id' ?
             <div className="page-transition p-[0.5rem_0]">
                                 {/* Digital ID Card */}
-                                <div className="bg-[linear-gradient(135deg,_#1e293b_0%,_#0f172a_100%)] rounded-[24px] p-[1.5rem] relative overflow-[hidden] box-shadow-[0_20px_40px_rgba(0,0,0,0.3)] border-[1px_solid_rgba(255,255,255,0.1)] text-[white]">
+                                <div className="bg-[linear-gradient(135deg,_#1e293b_0%,_#0f172a_100%)] rounded-[24px] p-[1.5rem] relative overflow-[hidden] shadow-[] border-[1px_solid_rgba(255,255,255,0.1)] text-[white]">
 
 
 
@@ -532,25 +532,25 @@ export default function FloatingAssistant() {
 
                                     {/* User Info */}
                                     <div className="flex gap-[1rem] items-center mb-[1.2rem]">
-                                        <div className="w-[60px] h-[60px] rounded-[16px] overflow-[hidden] border-[2px_solid_var(--color-primary)] bg-[#1e293b] flex items-center justify-center box-shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                                        <div className="w-[60px] h-[60px] rounded-[16px] overflow-[hidden] border-[2px_solid_var(--color-primary)] bg-[#1e293b] flex items-center justify-center shadow-[]">
 
 
 
 
                     
                                             {currentUser?.photoURL ?
-                    <img src={currentUser.photoURL} alt="Profile" className="w-[100%] h-[100%] object-fit-[cover]" /> :
+                    <img src={currentUser.photoURL} alt="Profile" className="w-[100%] h-[100%] object-" /> :
 
                     <div className="text-[white] font-[800] text-[1.4rem]">
                                                     {currentUser?.displayName?.charAt(0) || 'P'}
                                                 </div>
                     }
                                         </div>
-                                        <div className="flex-[1] min-width-[0]">
-                                            <div className="text-[1rem] font-[900] line-height-[1.1] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">
+                                        <div className="flex-[1] min-w-0">
+                                            <div className="text-[1rem] font-[900] leading-[] whitespace- overflow-[hidden] text-overflow-[ellipsis]">
                                                 {currentUser?.displayName || 'Profesional H&S'}
                                             </div>
-                                            <div className="text-[0.65rem] text-[var(--color-primary)] font-[800] mt-[3px] letter-spacing-[0.5px]">
+                                            <div className="text-[0.65rem] text-[var(--color-primary)] font-[800] mt-[3px] tracking-[]">
                                                 ESPECIALISTA CERTIFICADO
                                             </div>
                                             <div style={{
@@ -566,13 +566,13 @@ export default function FloatingAssistant() {
 
                                     {/* QR & Number */}
                                     <div className="flex justify-between items-end pt-[1rem]" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                                        <div className="min-width-[0]">
+                                        <div className="min-w-0">
                                             <div className="text-[0.5rem] opacity-[0.5] mb-[2px]">NÚMERO DE LICENCIA</div>
-                                            <div className="text-[0.6rem] opacity-[0.8] font-family-[monospace] letter-spacing-[1px]">
+                                            <div className="text-[0.6rem] opacity-[0.8] font-[] tracking-[]">
                                                 {currentUser?.uid?.substring(0, 14).toUpperCase()}
                                             </div>
                                         </div>
-                                        <div className="bg-[white] p-[4px] rounded-[8px] flex items-center justify-center box-shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                                        <div className="bg-[white] p-[4px] rounded-[8px] flex items-center justify-center shadow-[]">
 
 
 
@@ -612,7 +612,7 @@ export default function FloatingAssistant() {
 
 
 
-                className="hover-lift flex items-center justify-space-between p-[0.9rem_1.1rem] bg-[var(--color-background)] rounded-[16px] border-[1px_solid_var(--color-border)] text-left cursor-pointer w-[100%] transition-[all_0.2s_ease] box-shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+                className="hover-lift flex items-center justify-space-between p-[0.9rem_1.1rem] bg-[var(--color-background)] rounded-[16px] border-[1px_solid_var(--color-border)] text-left cursor-pointer w-[100%] transition-[all_0.2s_ease] shadow-[]">
                 
                                         <div className="flex items-center gap-[0.9rem]">
                                             <div style={{
@@ -792,7 +792,7 @@ export default function FloatingAssistant() {
 
       }
 
-            <div style={{ bottom: isMobile ? '5.5rem' : '2rem', right: isMobile ? '1rem' : '2rem' }} className="fixed z-[9999] pointer-events-[none] transition-[bottom_0.3s_ease]">
+            <div style={{ bottom: isMobile ? '5.5rem' : '2rem', right: isMobile ? '1rem' : '2rem' }} className="fixed z-[9999] pointer-events- transition-[bottom_0.3s_ease]">
                 {/* Main Trigger Button - Sin fondo blanco, solo las letras HYS + ASISTENTE abajo */}
                 <button
           onClick={toggleAssistant}
@@ -809,7 +809,7 @@ export default function FloatingAssistant() {
           </div> :
 
           <div className="flex flex-col items-center justify-center w-full h-full">
-                        <img src="/logo-short.png?v=3" alt="HYS" className="w-[62px] h-[34px] object-fit-[contain] filter-[drop-shadow(0_3px_8px_rgba(0,0,0,0.65))]" />
+                        <img src="/logo-short.png?v=3" alt="HYS" className="w-[62px] h-[34px] object- filter-[drop-shadow(0_3px_8px_rgba(0,0,0,0.65))]" />
                         <span className="text-[9px] font-[900] tracking-[0.8px] text-[var(--color-text)] dark:text-white uppercase leading-none mt-[3px] filter-[drop-shadow(0_2px_4px_rgba(0,0,0,0.85))]">
                           ASISTENTE
                         </span>
@@ -819,7 +819,7 @@ export default function FloatingAssistant() {
                 {!isOpen &&
           <div style={{
             top: -2, right: 0
-          }} className="absolute w-[20px] h-[20px] bg-[var(--color-primary)] rounded-[50%] border-[2px_solid_var(--color-background)] flex items-center justify-center z-[10] box-shadow-[0_2px_6px_rgba(59,130,246,0.5)]">
+          }} className="absolute w-[20px] h-[20px] bg-[var(--color-primary)] rounded-[50%] border-[2px_solid_var(--color-background)] flex items-center justify-center z-[10] shadow-[]">
                         <Sparkles size={9} color="white" fill="white" />
                     </div>
           }

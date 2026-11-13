@@ -36,7 +36,7 @@ export default function ReportPdfGenerator({ initialData }: ReportPdfGeneratorPr
     <div className="w-[100%] flex justify-center">
             <div
         id="pdf-content"
-        className="pdf-container print-area border-none shadow-none w-[100%] max-w-[210mm] min-h-[297mm] p-[15mm] bg-[#ffffff] text-[#000000] box-sizing-[border-box] m-[0_auto] text-[10pt] font-family-[system-ui,_-apple-system,_sans-serif]">
+        className="pdf-container print-area border-none shadow-none w-[100%] max-w-[210mm] min-h-[297mm] p-[15mm] bg-[#ffffff] text-[#000000] box-sizing-[border-box] m-[0_auto] text-[10pt] font-[]">
 
 
 
@@ -96,7 +96,7 @@ export default function ReportPdfGenerator({ initialData }: ReportPdfGeneratorPr
                 <div className="flex gap-[1rem] mb-[2rem]">
                     <div className="flex-[1] p-[1rem] text-center bg-[#f1f5f9] border-[1.5px_solid_#e2e8f0] rounded-[12px]">
                         <div className="text-[1.4rem] font-[900] text-[#1e293b]">{findingCount}</div>
-                        <div className="text-[0.65rem] font-[800] text-[#64748b] uppercase letter-spacing-[0.5px]">Hallazgos</div>
+                        <div className="text-[0.65rem] font-[800] text-[#64748b] uppercase tracking-[]">Hallazgos</div>
                     </div>
                     <div className="flex-[1] p-[1rem] text-center bg-[#f1f5f9] border-[1.5px_solid_#e2e8f0] rounded-[12px]">
                         <div className="text-[1.4rem] font-[900] text-[#1e293b]">
@@ -114,7 +114,7 @@ export default function ReportPdfGenerator({ initialData }: ReportPdfGeneratorPr
                 return Math.round(okCount / total * 100) || 0;
               })()}%
                         </div>
-                        <div className="text-[0.65rem] font-[800] text-[#64748b] uppercase letter-spacing-[0.5px]">Cumplimiento</div>
+                        <div className="text-[0.65rem] font-[800] text-[#64748b] uppercase tracking-[]">Cumplimiento</div>
                     </div>
                     <div className="flex-[2] p-[1rem] bg-[#f1f5f9] border-[1.5px_solid_#e2e8f0] rounded-[12px] flex flex-col justify-center">
                         <div className="text-[0.65rem] font-[800] text-[#64748b] mb-[0.2rem]">ESTADO GENERAL</div>
@@ -186,7 +186,7 @@ export default function ReportPdfGenerator({ initialData }: ReportPdfGeneratorPr
                                         <td className="border-[1px_solid_#e2e8f0] p-[0.8rem]">
                                             <div className="font-[800] text-[#0f172a]">{obs.category}</div>
                                         </td>
-                                        <td className="border-[1px_solid_#e2e8f0] p-[0.8rem] word-break-[break-word] overflow-wrap-[anywhere] white-space-[pre-wrap]">
+                                        <td className="border-[1px_solid_#e2e8f0] p-[0.8rem] word-break-[break-word] overflow-wrap-[anywhere] whitespace-">
                                             {obs.description}
                                         </td>
                                         <td className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-center">

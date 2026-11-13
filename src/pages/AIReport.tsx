@@ -105,24 +105,24 @@ export default function AIReport(): React.ReactElement | null {
         </button>
       </div>
 
-            <div id="pdf-content" className="card report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0 p-[1.5rem] sm:p-[2.5rem] min-h-0 h-auto bg-[#ffffff] text-[#1e293b] box-shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] relative">
+            <div id="pdf-content" className="card report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0 p-[1.5rem] sm:p-[2.5rem] min-h-0 h-auto bg-[#ffffff] text-[#1e293b] shadow-[] relative">
 
                 {/* Header */}
                 <div className="grid grid-template-columns-[1fr_2fr_1fr] items-center border-bottom-[4px_solid_var(--color-primary)] pb-[1.5rem] mb-[2rem] w-[100%] gap-[1.5rem]">
                     <div className="text-left">
-                        <p className="m-[0] font-[700] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.05em]">Sistema de Gestión</p>
+                        <p className="m-[0] font-[700] text-[0.65rem] uppercase text-[#64748b] tracking-[]">Sistema de Gestión</p>
                         <p className="m-[0] font-[900] text-[0.75rem] uppercase text-[#1e293b]">Control H&S</p>
                     </div>
 
                     <div className="text-center">
-                        <h2 className="m-[0] text-[1.2rem] font-[900] text-[var(--color-primary)] uppercase letter-spacing-[1px] line-height-[1.2]">
+                        <h2 className="m-[0] text-[1.2rem] font-[900] text-[var(--color-primary)] uppercase tracking-[] leading-[]">
                             Informe de Inspección IA
                         </h2>
                         <p className="m-[4px_0_0_0] text-[0.65rem] text-[#64748b] font-[600]">Detección de Riesgos y EPP</p>
                     </div>
 
                     <div className="flex justify-end">
-                        <CompanyLogo className="h-[45px] w-[auto] max-w-[140px] object-fit-[contain]" />
+                        <CompanyLogo className="h-[45px] w-[auto] max-w-[140px] object-" />
                     </div>
                 </div>
 
@@ -146,7 +146,7 @@ export default function AIReport(): React.ReactElement | null {
                             type="text"
                             value={company}
                             onChange={(e) => setCompany(e.target.value)}
-                            className="no-print m-[0] p-[0.2rem_0] font-[600] text-[0.9rem] border-none border-bottom-[1px_solid_#e2e8f0] bg-[transparent] w-[100%]" 
+                            className="no-print m-[0] p-[0.2rem_0] font-[600] text-[0.9rem] border-none border-b border-[] bg-[transparent] w-[100%]" 
                         />
                         <p className="print-only m-[0] font-[600] text-[0.9rem]">{company}</p>
                     </div>
@@ -193,7 +193,7 @@ export default function AIReport(): React.ReactElement | null {
 
                 {/* Analysis Results */}
                 <div className="no-break mb-[2.5rem] page-break-inside-[avoid] break-inside-[avoid]">
-                    <h3 className="border-bottom-[1px_solid_#e2e8f0] pb-[0.5rem] mb-[1rem] text-[#1e293b]">
+                    <h3 className="border-b border-[] pb-[0.5rem] mb-[1rem] text-[#1e293b]">
                         {data.type === 'general_risks' ? 'Resumen de Riesgos Detectados' : 'Evaluación de EPP Detectada'}
                     </h3>
 
@@ -244,7 +244,7 @@ export default function AIReport(): React.ReactElement | null {
                                             <TriangleAlert size={18} />
                                             <span className="font-[800] text-[0.9rem]">ACCIÓN INMEDIATA REQUERIDA (24HS)</span>
                                         </div>
-                                        <p className="m-[0] text-[0.9rem] line-height-[1.5]">{data.analysis.immediateAction}</p>
+                                        <p className="m-[0] text-[0.9rem] leading-[]">{data.analysis.immediateAction}</p>
                                     </div>
               }
 
@@ -254,7 +254,7 @@ export default function AIReport(): React.ReactElement | null {
                                             <ShieldCheck size={18} />
                                             <span className="font-[800] text-[0.9rem]">NORMATIVA APLICABLE (ARG)</span>
                                         </div>
-                                        <ul className="m-[0] pl-[1.2rem] text-[0.85rem] line-height-[1.5]">
+                                        <ul className="m-[0] pl-[1.2rem] text-[0.85rem] leading-[]">
                                             {data.analysis.applicableLegislation.map((leg, i) =>
                   <li key={i}>{leg}</li>
                   )}
@@ -289,7 +289,7 @@ export default function AIReport(): React.ReactElement | null {
                                         </div>
                 }
                                 </div>
-                                <p className="m-[0] text-[0.95rem] line-height-[1.6]">{data.analysis?.generalAssessment || 'Análisis ambiental completado.'}</p>
+                                <p className="m-[0] text-[0.95rem] leading-[]">{data.analysis?.generalAssessment || 'Análisis ambiental completado.'}</p>
                             </div>
 
                             {data.analysis?.immediateAction &&
@@ -298,7 +298,7 @@ export default function AIReport(): React.ReactElement | null {
                                         <TriangleAlert size={18} />
                                         <span className="font-[800] text-[0.9rem]">ACCIÓN INMEDIATA REQUERIDA (24HS)</span>
                                     </div>
-                                    <p className="m-[0] text-[0.9rem] line-height-[1.5]">{data.analysis.immediateAction}</p>
+                                    <p className="m-[0] text-[0.9rem] leading-[]">{data.analysis.immediateAction}</p>
                                 </div>
             }
 
@@ -308,7 +308,7 @@ export default function AIReport(): React.ReactElement | null {
                                         <ShieldCheck size={18} />
                                         <span className="font-[800] text-[0.9rem]">NORMATIVA APLICABLE (ARG)</span>
                                     </div>
-                                    <ul className="m-[0] pl-[1.2rem] text-[0.85rem] line-height-[1.5]">
+                                    <ul className="m-[0] pl-[1.2rem] text-[0.85rem] leading-[]">
                                         {data.analysis.applicableLegislation.map((leg, i) =>
                 <li key={i}>{leg}</li>
                 )}
@@ -322,7 +322,7 @@ export default function AIReport(): React.ReactElement | null {
                 {/* Findings Legend (Numbered) */}
                 {data.analysis?.detections && data.analysis.detections.length > 0 &&
         <div className="no-break mb-[2.5rem] page-break-inside-[avoid] break-inside-[avoid]">
-                        <h4 className="border-bottom-[1px_solid_#e2e8f0] pb-[0.5rem] mb-[1rem] text-[#1e293b]">Leyenda de Hallazgos en Imagen</h4>
+                        <h4 className="border-b border-[] pb-[0.5rem] mb-[1rem] text-[#1e293b]">Leyenda de Hallazgos en Imagen</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-3">
                             {data.analysis.detections.map((det, i) => {
               const severity = (det.severity || '').toLowerCase();
@@ -338,7 +338,7 @@ export default function AIReport(): React.ReactElement | null {
                     background: badgeBg
 
 
-                  }} className="w-[24px] h-[24px] rounded-[50%] text-[#fff] flex items-center justify-center font-[900] text-[0.75rem] flex-shrink-[0]">
+                  }} className="w-[24px] h-[24px] rounded-[50%] text-[#fff] flex items-center justify-center font-[900] text-[0.75rem] shrink-0">
                                             {i + 1}
                                         </div>
                                         <div className="flex flex-col">
@@ -355,12 +355,12 @@ export default function AIReport(): React.ReactElement | null {
                 {/* Additional Findings */}
                 {(data.analysis?.foundRisks?.length > 0 || data.analysis?.detections?.some((d) => d.recommendation)) &&
         <div className="no-break mb-[3rem] page-break-inside-[avoid] break-inside-[avoid]">
-                        <h4 className="text-[#b91c1c] border-bottom-[1px_solid_#fca5a5] pb-[0.5rem] mb-[1rem]">Riesgos y Observaciones Detalladas:</h4>
+                        <h4 className="text-[#b91c1c] border-b border-[] pb-[0.5rem] mb-[1rem]">Riesgos y Observaciones Detalladas:</h4>
                         
                         {data.analysis?.foundRisks?.length > 0 &&
           <div className="mb-6">
                                 <h5 className="m-[0_0_0.5rem_0] text-[#334155] text-[0.9rem] font-[700]">Riesgos Generales:</h5>
-                                <ul className="m-[0] pl-[1.5rem] text-[#1e293b] text-[0.9rem] line-height-[1.6]">
+                                <ul className="m-[0] pl-[1.5rem] text-[#1e293b] text-[0.9rem] leading-[]">
                                     {data.analysis.foundRisks.map((risk, i) =>
               <li key={`risk-${i}`} className="mb-[0.4rem]">{risk}</li>
               )}
@@ -371,7 +371,7 @@ export default function AIReport(): React.ReactElement | null {
                         {data.analysis?.detections?.filter((d) => d.recommendation).length > 0 &&
           <div>
                                 <h5 className="m-[0_0_0.5rem_0] text-[#334155] text-[0.9rem] font-[700]">Recomendaciones por Hallazgo:</h5>
-                                <ul className="m-[0] pl-[1.5rem] text-[#1e293b] text-[0.9rem] line-height-[1.6]">
+                                <ul className="m-[0] pl-[1.5rem] text-[#1e293b] text-[0.9rem] leading-[]">
                                     {data.analysis.detections.filter((d) => d.recommendation).map((det, i) =>
               <li key={`rec-${i}`} className="mb-[0.4rem]">
                                             <strong>{det.label}:</strong> {det.recommendation}
@@ -380,7 +380,7 @@ export default function AIReport(): React.ReactElement | null {
                                 </ul>
                             </div>
           }
-                        <div className="no-print mt-[3rem] p-[1.5rem] bg-[#f8fafc] border-[1px_solid_#e2e8f0] rounded-[16px] w-[100%] flex flex-col items-center gap-[1rem] box-shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+                        <div className="no-print mt-[3rem] p-[1.5rem] bg-[#f8fafc] border-[1px_solid_#e2e8f0] rounded-[16px] w-[100%] flex flex-col items-center gap-[1rem] shadow-[]">
                     <div className="text-center font-[800] text-[#334155] text-[0.85rem] tracking-[1px] uppercase">
                         Configuración de Firmas para Exportación
                     </div>

@@ -9,7 +9,7 @@ import { auth } from '../firebase';
 import toast from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { uploadImageToStorage } from '../services/storageService';
-import { safeSetLocalStorage } from '../utils/storageHelper';
+import { safeSetLocalStorage, safeJsonParse } from '../utils/storageHelper';
 import { getErrorMessage } from '../utils/errorUtils';
 import { captureFromNativeCamera, isMobileDevice } from '../utils/nativeCamera';
 
@@ -328,19 +328,19 @@ export default function AICamera(): React.ReactElement | null {
       const path = `camera_inspections/${userId}/epp_${report.id}.jpg`;
       uploadImageToStorage(capturedImage, path).then((uploadedUrl) => {
         // Actualizar reporte local silenciosamente cuando termine
-        const savedReport = JSON.parse(localStorage.getItem(`ai_report_full_${report.id}`) || '{}');
+        const savedReport = safeJsonParse<any>(localStorage.getItem(`ai_report_full_${report.id}`), {});
         if (savedReport.id) {
           savedReport.image = uploadedUrl;
           localStorage.setItem(`ai_report_full_${report.id}`, JSON.stringify(savedReport));
         }
-        const currentSession = JSON.parse(localStorage.getItem('current_ai_inspection') || '{}');
+        const currentSession = safeJsonParse<any>(localStorage.getItem('current_ai_inspection'), {});
         if (currentSession.id === report.id) {
           currentSession.image = uploadedUrl;
           localStorage.setItem('current_ai_inspection', JSON.stringify(currentSession));
         }
 
         // Novedad: Actualizamos permanentemente el historial con la URL de la imagen en la nube para que no se borre nunca.
-        const history = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
+        const history = safeJsonParse<any[]>(localStorage.getItem('ai_camera_history'), []);
         const updatedHistory = history.map((h: any) => {
           if (h.id === report.id) {
             return { ...h, image: uploadedUrl };
@@ -354,7 +354,7 @@ export default function AICamera(): React.ReactElement | null {
         console.warn("Subida en background falló, se conserva la imagen local", err);
       });
 
-      const history = JSON.parse(localStorage.getItem('ai_camera_history') || '[]');
+      const history = safeJsonParse<any[]>(localStorage.getItem('ai_camera_history'), []);
       // Only add if not a duplicate (same id)
       if (!history.find((h: any) => h.id === report.id)) {
         history.unshift({
@@ -546,7 +546,7 @@ export default function AICamera(): React.ReactElement | null {
         ) : (
 
         <div className="relative w-[100%] h-[100%]">
-                        <img src={capturedImage} alt="Captured" className="w-[100%] h-[100%] object-fit-[cover]" />
+                        <img src={capturedImage} alt="Captured" className="w-[100%] h-[100%] object-" />
 
                         {isAnalyzing &&
                           <div className="absolute top-[0] left-[0] w-[100%] h-[100%] bg-[rgba(0,0,0,0.75)] flex flex-col items-center justify-center text-[var(--color-surface)] z-[50]">

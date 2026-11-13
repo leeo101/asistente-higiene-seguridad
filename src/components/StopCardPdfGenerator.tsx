@@ -76,7 +76,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
     <div className="w-[100%] flex justify-center">
             <div
         id="stop-card-pdf-content"
-        className="pdf-container card print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[15mm_20mm] bg-[#ffffff] text-[#000000] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[12px] box-sizing-[border-box] m-[0_auto] font-family-[system-ui,_-apple-system,_sans-serif]"
+        className="pdf-container card print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[15mm_20mm] bg-[#ffffff] text-[#000000] shadow-[] rounded-[12px] box-sizing-[border-box] m-[0_auto] font-[]"
         ref={componentRef}>
 
 
@@ -151,7 +151,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
                                 <AlertCircle size={28} color="#fbbf24" strokeWidth={2.5} />
                             </div>
                             <div>
-                                <h1 className="m-[0] text-[20pt] font-[900] uppercase letter-spacing-[-0.5px] line-height-[1]">
+                                <h1 className="m-[0] text-[20pt] font-[900] uppercase tracking-[] leading-[]">
 
 
 
@@ -161,7 +161,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
                   
                                     TARJETA STOP
                                 </h1>
-                                <p className="m-[4px_0_0_0] text-[9pt] text-[#cbd5e1] font-[600] uppercase letter-spacing-[1px]">
+                                <p className="m-[4px_0_0_0] text-[9pt] text-[#cbd5e1] font-[600] uppercase tracking-[]">
 
 
 
@@ -175,8 +175,8 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
                         </div>
                     </div>
                     
-                    <div className="ml-[20px] flex-shrink-[0] text-right flex flex-col items-end gap-[0.4rem]">
-                        <CompanyLogo style={{ maxHeight: '45px', maxWidth: '140px', objectFit: 'contain' }} className="bg-[#ffffff] p-[8px] rounded-[8px] box-shadow-[0_4px_6px_rgba(0,0,0,0.1)]" />
+                    <div className="ml-[20px] shrink-0 text-right flex flex-col items-end gap-[0.4rem]">
+                        <CompanyLogo style={{ maxHeight: '45px', maxWidth: '140px', objectFit: 'contain' }} className="bg-[#ffffff] p-[8px] rounded-[8px] shadow-[]" />
 
 
 
@@ -188,7 +188,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
 
 
             
-                        <div className="text-[0.55rem] font-[900] text-[#94a3b8] letter-spacing-[0.05em] uppercase">Doc. Controlado</div>
+                        <div className="text-[0.55rem] font-[900] text-[#94a3b8] tracking-[] uppercase">Doc. Controlado</div>
                     </div>
                 </div>
 
@@ -203,8 +203,8 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
           border: `2px solid ${typeConfig.border}`
 
 
-        }} className="flex items-stretch gap-[1.5rem] p-[1.5rem] rounded-[12px] mb-[2rem] box-shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
-                    <div className="flex items-center justify-center bg-[#ffffff] rounded-[12px] p-[1rem] min-width-[80px] box-shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
+        }} className="flex items-stretch gap-[1.5rem] p-[1.5rem] rounded-[12px] mb-[2rem] shadow-[]">
+                    <div className="flex items-center justify-center bg-[#ffffff] rounded-[12px] p-[1rem] min-w-[] shadow-[]">
 
 
 
@@ -219,7 +219,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
                         </div>
                     </div>
                     <div className="flex-[1] flex flex-col justify-center">
-                        <div className="text-[9pt] text-[#64748b] font-[700] uppercase letter-spacing-[1px] mb-[6px]">
+                        <div className="text-[9pt] text-[#64748b] font-[700] uppercase tracking-[] mb-[6px]">
 
 
 
@@ -236,7 +236,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
 
 
 
-            }} className="text-[22pt] font-[900] m-[0] line-height-[1.2] uppercase">
+            }} className="text-[22pt] font-[900] m-[0] leading-[] uppercase">
                             {card.type}
                         </div>
                     </div>
@@ -270,7 +270,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
                             <MapPin size={20} strokeWidth={2.5} />
                         </div>
                         <div className="flex-[1]">
-                            <div className="text-[8.5pt] text-[#64748b] font-[700] uppercase letter-spacing-[0.5px] mb-[4px]">
+                            <div className="text-[8.5pt] text-[#64748b] font-[700] uppercase tracking-[] mb-[4px]">
 
 
 
@@ -280,7 +280,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
                 
                                 📍 Ubicación / Área
                             </div>
-                            <div className="text-[11pt] text-[#0f172a] font-[700] line-height-[1.3]">
+                            <div className="text-[11pt] text-[#0f172a] font-[700] leading-[]">
 
 
 
@@ -312,7 +312,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
                             <Calendar size={20} strokeWidth={2.5} />
                         </div>
                         <div className="flex-[1]">
-                            <div className="text-[8.5pt] text-[#64748b] font-[700] uppercase letter-spacing-[0.5px] mb-[4px]">
+                            <div className="text-[8.5pt] text-[#64748b] font-[700] uppercase tracking-[] mb-[4px]">
 
 
 
@@ -322,7 +322,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
                 
                                 📅 Fecha y Hora
                             </div>
-                            <div className="text-[11pt] text-[#0f172a] font-[700] line-height-[1.3]">
+                            <div className="text-[11pt] text-[#0f172a] font-[700] leading-[]">
 
 
 
@@ -358,7 +358,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
 
             
                         <FileText size={18} strokeWidth={2.5} />
-                        <h3 className="m-[0] text-[10.5pt] font-[800] uppercase letter-spacing-[0.5px]">
+                        <h3 className="m-[0] text-[10.5pt] font-[800] uppercase tracking-[]">
 
 
 
@@ -368,7 +368,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
                             Descripción de la Observación
                         </h3>
                     </div>
-                    <div className="p-[1.2rem] bg-[#ffffff] text-[#334155] text-[10.5pt] line-height-[1.7] border-[1px_solid_#e2e8f0] border-top-[none] rounded-[0_0_10px_10px]">
+                    <div className="p-[1.2rem] bg-[#ffffff] text-[#334155] text-[10.5pt] leading-[] border-[1px_solid_#e2e8f0] border-top-[none] rounded-[0_0_10px_10px]">
 
 
 
@@ -399,7 +399,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
 
             
                             <CheckCircle2 size={18} strokeWidth={2.5} />
-                            <h3 className="m-[0] text-[10.5pt] font-[800] uppercase letter-spacing-[0.5px]">
+                            <h3 className="m-[0] text-[10.5pt] font-[800] uppercase tracking-[]">
 
 
 
@@ -409,7 +409,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
                                 ✅ Acción Inmediata Tomada
                             </h3>
                         </div>
-                        <div className="p-[1.2rem] bg-[#f0fdf4] text-[#166534] text-[10.5pt] line-height-[1.7] border-[1px_solid_#86efac] border-top-[none] rounded-[0_0_10px_10px]">
+                        <div className="p-[1.2rem] bg-[#f0fdf4] text-[#166534] text-[10.5pt] leading-[] border-[1px_solid_#86efac] border-top-[none] rounded-[0_0_10px_10px]">
 
 
 
@@ -442,7 +442,7 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
 
             
                             <Camera size={18} strokeWidth={2.5} />
-                            <h3 className="m-[0] text-[10.5pt] font-[800] uppercase letter-spacing-[0.5px]">
+                            <h3 className="m-[0] text-[10.5pt] font-[800] uppercase tracking-[]">
 
 
 
@@ -452,13 +452,13 @@ export default function StopCardPdfGenerator({ card }: {card: any;}): React.Reac
                                 📸 Evidencia Fotográfica
                             </h3>
                         </div>
-                        <div className="p-[1rem] bg-[#f8fafc] border-bottom-[1px_solid_#e2e8f0] rounded-[0_0_10px_10px]">
+                        <div className="p-[1rem] bg-[#f8fafc] border-b border-[] rounded-[0_0_10px_10px]">
 
 
 
 
             
-                            <div className="w-[100%] max-w-[450px] h-[320px] rounded-[8px] border-[2px_solid_#cbd5e1] m-[0_auto] bg-[#f1f5f9] box-shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+                            <div className="w-[100%] max-w-[450px] h-[320px] rounded-[8px] border-[2px_solid_#cbd5e1] m-[0_auto] bg-[#f1f5f9] shadow-[]">
 
 
 

@@ -28,7 +28,7 @@ export default function NotFound(): React.ReactElement {
 
       
       {/* Big animated 404 */}
-      <div className="text-[clamp(5rem,_20vw,_9rem)] font-[900] line-height-[1] bg-[linear-gradient(135deg,_#1e3a8a,_#2563eb,_#0ea5e9)] webkit-background-clip-[text] webkit-text-fill-color-[transparent] background-clip-[text] mb-[1rem] letter-spacing-[-4px] animation-[pulse_2.5s_ease-in-out_infinite]">
+      <div className="text-[clamp(5rem,_20vw,_9rem)] font-[900] leading-[] bg-[linear-gradient(135deg,_#1e3a8a,_#2563eb,_#0ea5e9)] webkit-background-clip-[text] webkit-text-fill-color-[transparent] background-clip-[text] mb-[1rem] tracking-[] animation-[pulse_2.5s_ease-in-out_infinite]">
 
 
 
@@ -56,7 +56,7 @@ export default function NotFound(): React.ReactElement {
       <h1 className="text-[1.6rem] font-[900] m-[0_0_0.6rem] text-[var(--color-text)]">
         Página no encontrada
       </h1>
-      <p className="text-[0.95rem] text-[var(--color-text-muted)] max-w-[380px] line-height-[1.6] m-[0_0_2rem]">
+      <p className="text-[0.95rem] text-[var(--color-text-muted)] max-w-[380px] leading-[] m-[0_0_2rem]">
         La página que buscás no existe o fue movida. Usá el botón de abajo para volver al inicio.
       </p>
 

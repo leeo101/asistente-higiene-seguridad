@@ -128,7 +128,7 @@ export function DataTable<T extends Record<string, any>>({
   }
 
   return (
-    <div className="bg-[var(--color-surface)] rounded-[var(--radius-xl)] border-[1px_solid_var(--glass-border-subtle)] box-shadow-[var(--shadow-sm)] overflow-[hidden] flex flex-col">
+    <div className="bg-[var(--color-surface)] rounded-[var(--radius-xl)] border-[1px_solid_var(--glass-border-subtle)] shadow-[] overflow-[hidden] flex flex-col">
 
 
 
@@ -143,7 +143,7 @@ export function DataTable<T extends Record<string, any>>({
           padding: isMobile ? '1rem' : '1.25rem',
           flexDirection: isMobile ? 'column' : 'row',
           alignItems: isMobile ? 'stretch' : 'center'
-        }} className="flex justify-space-between border-bottom-[1px_solid_var(--color-border)] gap-[1rem] bg-[rgba(255,_255,_255,_0.02)]">
+        }} className="flex justify-space-between border-b border-[] gap-[1rem] bg-[rgba(255,_255,_255,_0.02)]">
           <div style={{ maxWidth: isMobile ? 'none' : '400px' }} className="relative flex-[1_1_auto] h-[42px]">
             <Search 
               size={18} 
@@ -253,7 +253,7 @@ export function DataTable<T extends Record<string, any>>({
 
 
 
-      }} className="p-[1rem_1.25rem] border-top-[1px_solid_var(--color-border)] flex items-center bg-[rgba(255,_255,_255,_0.02)] gap-[1rem] flex-wrap">
+      }} className="p-[1rem_1.25rem] border-t border-[] flex items-center bg-[rgba(255,_255,_255,_0.02)] gap-[1rem] flex-wrap">
           {!isMobile &&
         <div className="text-[0.85rem] text-[var(--color-text-muted)]">
               Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, processedData.length)} de {processedData.length}

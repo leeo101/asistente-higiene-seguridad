@@ -67,7 +67,7 @@ export default function OnboardingModal({ onClose }: OnboardingModalProps) {
 
 
       
-            <div className="bg-[var(--color-surface,_#fff)] rounded-[24px] max-w-[440px] w-[100%] box-shadow-[0_24px_80px_rgba(0,0,0,0.25)] overflow-[hidden] animation-[fadeInUp_0.35s_ease]">
+            <div className="bg-[var(--color-surface,_#fff)] rounded-[24px] max-w-[440px] w-[100%] shadow-[] overflow-[hidden] animation-[fadeInUp_0.35s_ease]">
 
 
 
@@ -106,10 +106,10 @@ export default function OnboardingModal({ onClose }: OnboardingModalProps) {
           >
             ✕
           </button>
-                    <p className="text-[rgba(255,255,255,0.7)] text-[0.8rem] font-[600] m-[0_0_0.4rem] letter-spacing-[1px] uppercase">
+                    <p className="text-[rgba(255,255,255,0.7)] text-[0.8rem] font-[600] m-[0_0_0.4rem] tracking-[] uppercase">
                         ¡Bienvenido!
                     </p>
-                    <h2 className="text-[var(--color-surface)] m-[0] text-[1.4rem] font-[900] line-height-[1.2]">
+                    <h2 className="text-[var(--color-surface)] m-[0] text-[1.4rem] font-[900] leading-[]">
                         Empezá con Asistente HYS
                     </h2>
                     <p className="text-[rgba(255,255,255,0.75)] m-[0.6rem_0_0] text-[0.88rem]">
@@ -127,7 +127,7 @@ export default function OnboardingModal({ onClose }: OnboardingModalProps) {
 
 
 
-          }} className="h-[8px] rounded-[4px] transition-[all_0.3s] cursor-pointer box-shadow-[0_2px_6px_rgba(0,0,0,0.2)]" />
+          }} className="h-[8px] rounded-[4px] transition-[all_0.3s] cursor-pointer shadow-[]" />
           )}
                 </div>
 
@@ -141,12 +141,12 @@ export default function OnboardingModal({ onClose }: OnboardingModalProps) {
                     <div className="flex items-center gap-[1rem] mb-[1rem]">
 
             
-                        <div style={{ background: STEPS[step].bg }} className="w-[56px] h-[56px] rounded-[16px] flex items-center justify-center flex-shrink-[0]">
+                        <div style={{ background: STEPS[step].bg }} className="w-[56px] h-[56px] rounded-[16px] flex items-center justify-center shrink-0">
                             {STEPS[step].icon}
                         </div>
                         <div>
                             <h3 className="m-[0] font-[800] text-[1.05rem]">{STEPS[step].title}</h3>
-                            <p className="m-[0.3rem_0_0] text-[0.85rem] text-[var(--color-text-muted,_#64748b)] line-height-[1.5]">
+                            <p className="m-[0.3rem_0_0] text-[0.85rem] text-[var(--color-text-muted,_#64748b)] leading-[]">
                                 {STEPS[step].desc}
                             </p>
                         </div>

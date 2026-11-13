@@ -50,7 +50,7 @@ export default function MarketingLanding({ onStart }: MarketingLandingProps) {
             <Sparkles size={14} color="#60a5fa" />
             <span className="text-[#60a5fa] text-[0.78rem] font-[800] uppercase tracking-wider">Potenciá tu trabajo diario</span>
           </div>
-          <h2 className="text-[clamp(1.8rem,_4vw,_2.5rem)] font-[900] mb-[0.6rem] font-family-[var(--font-heading)]">
+          <h2 className="text-[clamp(1.8rem,_4vw,_2.5rem)] font-[900] mb-[0.6rem] font-[]">
             Todo lo que necesitás para tu gestión de HyS
           </h2>
           <p className="text-[var(--color-text-muted)] text-[1rem] max-w-[580px] m-[0_auto] leading-relaxed">
@@ -79,7 +79,7 @@ export default function MarketingLanding({ onStart }: MarketingLandingProps) {
             <Sparkles size={14} color="#34d399" />
             <span className="text-[#34d399] text-[0.78rem] font-[800] uppercase tracking-wider">Planes a tu medida · Sin cargos ocultos</span>
           </div>
-          <h2 className="text-[clamp(1.9rem,_5vw,_2.5rem)] font-[900] mb-[0.8rem] font-family-[var(--font-heading)]">
+          <h2 className="text-[clamp(1.9rem,_5vw,_2.5rem)] font-[900] mb-[0.8rem] font-[]">
             Elegí tu plan y empezá hoy
             <p className="text-[var(--color-text-muted)] text-[1rem] max-w-[600px] m-[0_auto] leading-relaxed">
             Plan Gratuito para probar y Plan Profesional PRO para gestión completa e ilimitada.

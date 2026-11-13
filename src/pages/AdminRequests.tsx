@@ -130,7 +130,7 @@ export default function AdminRequests(): React.ReactElement | null {
                             <div className="flex flex-col gap-[0.8rem]">
                                 <div className="flex items-center gap-[0.5rem] text-[var(--color-text-muted)]">
                                     <Mail size={16} />
-                                    <a href={`mailto:${req.email}`} className="text-[var(--color-primary)] text-decoration-[none]">{req.email}</a>
+                                    <a href={`mailto:${req.email}`} className="text-[var(--color-primary)] no-underline">{req.email}</a>
                                 </div>
                                 {req.profession &&
             <div className="flex items-center gap-[0.5rem] text-[var(--color-text-muted)]">

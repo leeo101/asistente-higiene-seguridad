@@ -75,7 +75,7 @@ export default function LazyImage({
           ...props.style
         }}
         loading="lazy"
-        {...props} className="block w-[100%] h-[100%] object-fit-[cover] transition-[opacity_0.4s_ease]" />
+        {...props} className="block w-[100%] h-[100%] object- transition-[opacity_0.4s_ease]" />
       
       
       {/* Fallback para error */}

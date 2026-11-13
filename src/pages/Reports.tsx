@@ -494,7 +494,7 @@ export default function Reports(): React.ReactElement | null {
     return (
       <div className="container min-h-[100vh] bg-[var(--color-background)] pb-[7rem] pt-[5.5rem]">
         {/* Contenedor offscreen para impresión vectorizada */}
-        <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+        <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-">
           {printData && <ProfessionalReportPdfGenerator currentReport={printData} customId="pdf-direct-print" />}
         </div>
 
@@ -531,7 +531,7 @@ export default function Reports(): React.ReactElement | null {
           fileName={`Informe_${shareItem?.data?.title || 'Profesional'}.pdf`}
         />
 
-        <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+        <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-">
           {shareItem?.type === 'report' && <ProfessionalReportPdfGenerator currentReport={shareItem.data} />}
         </div>
 
@@ -835,7 +835,7 @@ export default function Reports(): React.ReactElement | null {
     <ReportErrorBoundary>
       <div className="min-h-[100vh] bg-[var(--color-background)] pb-[6rem] pt-[5.5rem]">
         {/* Contenedor offscreen para impresión */}
-        <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+        <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-">
           {shareItem?.type === 'report' && <ProfessionalReportPdfGenerator currentReport={shareItem.data} />}
           {printData && <ProfessionalReportPdfGenerator currentReport={printData} customId="pdf-direct-print" />}
         </div>

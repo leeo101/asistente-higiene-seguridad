@@ -80,7 +80,7 @@ export default function AuditPdf({ data, customId }: { data: any; customId?: str
     <div className="w-[100%] flex justify-center">
       <div
         id={customId || "pdf-content"}
-        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[6mm_10mm] bg-[#ffffff] text-[#1e293b] box-shadow-none rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[9pt] font-family-[system-ui,_-apple-system,_sans-serif] border-t-4 border-blue-600"
+        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[6mm_10mm] bg-[#ffffff] text-[#1e293b] box-shadow-none rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[9pt] font-[] border-t-4 border-blue-600"
       >
         <style type="text/css" media="print">
           {`

@@ -399,7 +399,7 @@ export default function ShareModal({
                   (e.target as HTMLImageElement).style.display = 'none';
                   const parent = (e.target as HTMLImageElement).parentElement;
                   if (parent) parent.innerHTML = '<div style="color:var(--color-primary)"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div>';
-                }} className="w-[100%] h-[100%] object-fit-[contain]" />
+                }} className="w-[100%] h-[100%] object-" />
               
                         </div>
                         <h2 className="share-title">
@@ -458,7 +458,7 @@ export default function ShareModal({
                       pointerEvents: isGenerating && isHijacked ? 'none' : 'auto'
                     }}>
                     
-                                        <span className="flex flex-shrink-[0]">
+                                        <span className="flex shrink-0">
                                             {isGenerating && isHijacked ? <div className="spinner-mini" /> : opt.icon}
                                         </span>
                                         {isGenerating && isHijacked ? 'Generando...' : opt.label}

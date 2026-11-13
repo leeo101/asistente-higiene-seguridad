@@ -70,7 +70,7 @@ export default function OfflineIndicator() {
         border: isOffline ?
         '2px solid #f59e0b' :
         '2px solid #10b981'
-      }} className="fixed top-[16px] left-[50%] transform-[translateX(-50%)] z-[9999] w-[90%] max-w-[500px] p-[1rem_1.2rem] rounded-[12px] flex items-center gap-[0.8rem] box-shadow-[0_8px_32px_rgba(0,0,0,0.15)] animation-[slideDown_0.3s_ease-out]">
+      }} className="fixed top-[16px] left-[50%] transform-[translateX(-50%)] z-[9999] w-[90%] max-w-[500px] p-[1rem_1.2rem] rounded-[12px] flex items-center gap-[0.8rem] shadow-[] animation-[slideDown_0.3s_ease-out]">
       
             <style>
                 {`
@@ -99,7 +99,7 @@ export default function OfflineIndicator() {
 
             {isOffline ?
       <>
-                    <div className="w-[36px] h-[36px] rounded-[50%] bg-[#f59e0b] flex items-center justify-center flex-shrink-[0]">
+                    <div className="w-[36px] h-[36px] rounded-[50%] bg-[#f59e0b] flex items-center justify-center shrink-0">
 
 
 
@@ -112,10 +112,10 @@ export default function OfflineIndicator() {
                         <WifiOff size={20} color="#ffffff" strokeWidth={2.5} />
                     </div>
                     <div className="flex-[1]">
-                        <p className="m-[0] font-[800] text-[0.9rem] text-[#92400e] line-height-[1.3]">
+                        <p className="m-[0] font-[800] text-[0.9rem] text-[#92400e] leading-[]">
                             📴 Sin conexión
                         </p>
-                        <p className="m-[0.2rem_0_0_0] text-[0.8rem] text-[#78350f] line-height-[1.4]">
+                        <p className="m-[0.2rem_0_0_0] text-[0.8rem] text-[#78350f] leading-[]">
                           {queueCount > 0
                             ? `${queueCount} elemento${queueCount !== 1 ? 's' : ''} en cola — se sincronizan al reconectar`
                             : 'Tus cambios se guardarán localmente'
@@ -125,7 +125,7 @@ export default function OfflineIndicator() {
                 </> :
 
       <>
-                    <div className="w-[36px] h-[36px] rounded-[50%] bg-[#10b981] flex items-center justify-center flex-shrink-[0]">
+                    <div className="w-[36px] h-[36px] rounded-[50%] bg-[#10b981] flex items-center justify-center shrink-0">
 
 
 
@@ -138,7 +138,7 @@ export default function OfflineIndicator() {
                         <CheckCircle size={20} color="#ffffff" strokeWidth={2.5} />
                     </div>
                     <div className="flex-[1]">
-                        <p className="m-[0] font-[800] text-[0.9rem] text-[#065f46] line-height-[1.3]">
+                        <p className="m-[0] font-[800] text-[0.9rem] text-[#065f46] leading-[]">
 
 
 
@@ -147,7 +147,7 @@ export default function OfflineIndicator() {
             
                             ✅ Conexión restaurada
                         </p>
-                        <p className="m-[0.2rem_0_0_0] text-[0.8rem] text-[#047857] line-height-[1.4]">
+                        <p className="m-[0.2rem_0_0_0] text-[0.8rem] text-[#047857] leading-[]">
 
 
 

@@ -356,7 +356,7 @@ export default function CAPAManager(): React.ReactElement | null {
                 <div className="flex gap-[1rem] flex-wrap">
                     <></>
                     <button
-            onClick={() => navigate('/capa/new')} className="flex items-center gap-[0.8rem] p-[0.8rem_1.5rem] bg-[linear-gradient(135deg,_#36B37E_0%,_#2A9365_100%)] text-[white] border-none rounded-[12px] font-[800] text-[0.95rem] cursor-pointer box-shadow-[0_4px_15px_rgba(54,_179,_126,_0.4)]">
+            onClick={() => navigate('/capa/new')} className="flex items-center gap-[0.8rem] p-[0.8rem_1.5rem] bg-[linear-gradient(135deg,_#36B37E_0%,_#2A9365_100%)] text-[white] border-none rounded-[12px] font-[800] text-[0.95rem] cursor-pointer shadow-[]">
                         <Plus size={20} strokeWidth={2.5} /> NUEVA CAPA
                     </button>
                 </div>
@@ -463,7 +463,7 @@ export default function CAPAManager(): React.ReactElement | null {
         flexWrap: isMobile ? 'wrap' : 'nowrap'
 
 
-      }} className="flex mb-[2rem] bg-[var(--color-surface)] border-[1px_solid_var(--glass-border)] p-[0.35rem] box-shadow-[var(--glass-shadow)] backdrop-filter-[blur(20px)]">
+      }} className="flex mb-[2rem] bg-[var(--color-surface)] border-[1px_solid_var(--glass-border)] p-[0.35rem] shadow-[] backdrop-filter-[blur(20px)]">
                 <TabButton
           active={activeTab === 'all'}
           onClick={() => setActiveTab('all')}
@@ -662,7 +662,7 @@ export default function CAPAManager(): React.ReactElement | null {
 // Componentes Auxiliares
 function StatCard({ icon, label, value, color, gradient, isMobile }: any) {
   return (
-    <div className="capa-stat-card bg-[var(--glass-bg)] backdrop-filter-[blur(20px)] border-[1px_solid_var(--glass-border)] box-shadow-[var(--glass-shadow)] rounded-[var(--radius-2xl)] relative overflow-[hidden] cursor-pointer" style={{
+    <div className="capa-stat-card bg-[var(--glass-bg)] backdrop-filter-[blur(20px)] border-[1px_solid_var(--glass-border)] shadow-[] rounded-[var(--radius-2xl)] relative overflow-[hidden] cursor-pointer" style={{
       padding: isMobile ? '0.75rem' : '1.5rem',
 
 
@@ -685,8 +685,8 @@ function StatCard({ icon, label, value, color, gradient, isMobile }: any) {
         background: `radial-gradient(circle, ${color}33 0%, transparent 70%)`
 
 
-      }} className="absolute top-[-30px] right-[-30px] w-[120px] h-[120px] rounded-[50%] pointer-events-[none]" />
-            <div style={{ marginBottom: isMobile ? '0' : '1rem' }} className="flex items-center gap-[0.75rem] flex-shrink-[0]">
+      }} className="absolute top-[-30px] right-[-30px] w-[120px] h-[120px] rounded-[50%] pointer-events-" />
+            <div style={{ marginBottom: isMobile ? '0' : '1rem' }} className="flex items-center gap-[0.75rem] shrink-0">
                 <div style={{
           width: isMobile ? '40px' : '48px',
           height: isMobile ? '40px' : '48px',
@@ -700,7 +700,7 @@ function StatCard({ icon, label, value, color, gradient, isMobile }: any) {
                     {React.cloneElement(icon as any, { color: '#ffffff', size: isMobile ? 20 : 22 })}
                 </div>
             </div>
-            <div className="min-width-[0] flex-[1]">
+            <div className="min-w-0 flex-[1]">
                 <div style={{
           fontSize: isMobile ? '0.75rem' : '0.8rem'
 
@@ -710,7 +710,7 @@ function StatCard({ icon, label, value, color, gradient, isMobile }: any) {
 
 
 
-        }} className="font-[700] text-[var(--color-text-muted)] uppercase letter-spacing-[0.5px] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">
+        }} className="font-[700] text-[var(--color-text-muted)] uppercase tracking-[] whitespace- overflow-[hidden] text-overflow-[ellipsis]">
                     {label}
                 </div>
                 <div style={{
@@ -720,7 +720,7 @@ function StatCard({ icon, label, value, color, gradient, isMobile }: any) {
 
 
           marginTop: isMobile ? '0.2rem' : '0'
-        }} className="font-[900] text-[var(--color-text)] line-height-[1] letter-spacing-[-1px]">
+        }} className="font-[900] text-[var(--color-text)] leading-[] tracking-[]">
                     {value}
                 </div>
             </div>
@@ -750,7 +750,7 @@ function TabButton({ active, onClick, icon, label, count }) {
 
 
 
-      }} className="flex items-center gap-[0.5rem] p-[0.6rem_1.25rem] rounded-[var(--radius-full)] cursor-pointer font-[800] text-[0.85rem] transition-[all_0.2s] flex-[1] justify-center min-width-[fit-content]">
+      }} className="flex items-center gap-[0.5rem] p-[0.6rem_1.25rem] rounded-[var(--radius-full)] cursor-pointer font-[800] text-[0.85rem] transition-[all_0.2s] flex-[1] justify-center min-w-[]">
       
             {icon}
             <span>{label}</span>
@@ -785,7 +785,7 @@ function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus
 
       borderLeft: `5px solid ${isOverdue ? '#dc2626' : statusConfig.color}`
     }}>
-            <div style={{ gap: isMobile ? '0.75rem' : '1.25rem' }} className="flex flex-[1] min-width-[0] items-center">
+            <div style={{ gap: isMobile ? '0.75rem' : '1.25rem' }} className="flex flex-[1] min-w-0 items-center">
                 {/* Priority & Type Icon */}
                 <div style={{
           width: isMobile ? '44px' : '56px',
@@ -799,17 +799,17 @@ function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus
 
           border: `1.5px solid ${priorityConfig.color}40`,
           boxShadow: `0 4px 12px ${priorityConfig.color}15`
-        }} className="rounded-[var(--radius-xl)] flex flex-col items-center justify-center flex-shrink-[0]">
-                    <span style={{ fontSize: isMobile ? '1.25rem' : '1.5rem' }} className="line-height-[1]">{priorityConfig.icon}</span>
+        }} className="rounded-[var(--radius-xl)] flex flex-col items-center justify-center shrink-0">
+                    <span style={{ fontSize: isMobile ? '1.25rem' : '1.5rem' }} className="leading-[]">{priorityConfig.icon}</span>
                 </div>
 
             {/* Information */}
-            <div className="flex-[1] min-width-[0]">
+            <div className="flex-[1] min-w-0">
                 <div className="flex items-center gap-[0.75rem] mb-[0.5rem] flex-wrap">
                     <span className="text-[0.7rem] font-[900] text-[var(--color-primary)] bg-[rgba(var(--color-primary-rgb),_0.08)] p-[0.25rem_0.5rem] rounded-[var(--radius-md)] border-[1px_solid_rgba(var(--color-primary-rgb),_0.12)]">
                         {capa.id}
                     </span>
-                    <h3 className="m-[0] text-[1.1rem] font-[900] text-[var(--color-text)] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis] letter-spacing-[-0.3px]">
+                    <h3 className="m-[0] text-[1.1rem] font-[900] text-[var(--color-text)] whitespace- overflow-[hidden] text-overflow-[ellipsis] tracking-[]">
 
 
 
@@ -831,7 +831,7 @@ function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus
 
 
               border: `1px solid ${statusConfig.color}25`
-            }} className="p-[0.3rem_0.75rem] rounded-[var(--radius-full)] text-[0.65rem] font-[900] uppercase letter-spacing-[0.5px]">
+            }} className="p-[0.3rem_0.75rem] rounded-[var(--radius-full)] text-[0.65rem] font-[900] uppercase tracking-[]">
                         {statusConfig.label}
                     </span>
                     {isOverdue &&
@@ -924,7 +924,7 @@ function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus
 
 
 
-          title="Iniciar" className="p-[0.6rem_0.85rem] bg-[linear-gradient(135deg,_#3b82f6,_#1d4ed8)] border-none rounded-[var(--radius-lg)] cursor-pointer text-[#fff] font-[800] text-[0.75rem] box-shadow-[0_4px_12px_rgba(59,_130,_246,_0.3)] flex items-center gap-[0.25rem]">
+          title="Iniciar" className="p-[0.6rem_0.85rem] bg-[linear-gradient(135deg,_#3b82f6,_#1d4ed8)] border-none rounded-[var(--radius-lg)] cursor-pointer text-[#fff] font-[800] text-[0.75rem] shadow-[] flex items-center gap-[0.25rem]">
           
                         <Clock size={14} />
                         <span>Iniciar</span>
@@ -948,7 +948,7 @@ function CapaCard({ capa, statusConfig, priorityConfig, capaType, onUpdateStatus
             flex: isMobile ? 1 : 'none'
 
 
-          }} className="bg-[#3b82f6] border-none rounded-[var(--radius-lg)] cursor-pointer text-[#fff] font-[800] text-[0.75rem] flex items-center justify-center gap-[0.35rem] box-shadow-[0_4px_10px_rgba(59,_130,_246,_0.25)]">
+          }} className="bg-[#3b82f6] border-none rounded-[var(--radius-lg)] cursor-pointer text-[#fff] font-[800] text-[0.75rem] flex items-center justify-center gap-[0.35rem] shadow-[]">
           
                         <Plus size={15} />
                         <span>Acción</span>
@@ -1039,7 +1039,7 @@ function CreateCapaModal({ capa, setCapa, onSave, onClose, CAPA_TYPES, CAPA_SOUR
   return (
     <div className="modal-fullscreen-overlay modal-overlay-glass" onClick={onClose}>
             <div className="modal-fullscreen-content modal-glass max-w-[680px] p-[2rem] border-[1px_solid_var(--glass-border)]" onClick={(e) => e.stopPropagation()}>
-                <div className="flex justify-between items-center mb-[1.5rem] pb-[1rem] border-bottom-[1px_solid_var(--glass-border-subtle)]">
+                <div className="flex justify-between items-center mb-[1.5rem] pb-[1rem] border-b border-[]">
                     <h2 className="m-[0] text-[1.4rem] font-[900] text-[var(--color-text)] flex items-center gap-[0.5rem]">
                         <RefreshCw size={20} className="animate-spin-slow" color="var(--color-primary)" />
                         Nueva Acción CAPA
@@ -1090,7 +1090,7 @@ function CreateCapaModal({ capa, setCapa, onSave, onClose, CAPA_TYPES, CAPA_SOUR
                     <label className="block mb-2 text-sm font-semibold text-slate-400">Descripción Adicional</label>
                     <textarea value={capa.description} onChange={(e) => setCapa({ ...capa, description: e.target.value })} className="capa-focus-glow min-h-[60px] bg-[var(--color-background)] border-[1px_solid_var(--glass-border-subtle)] pt-[0.75rem]" style={{ ...inputStyle }} placeholder="Información complementaria..." />
                 </div>
-                <div className="flex gap-[1rem] mt-[1.75rem] pt-[1.25rem] border-top-[1px_solid_var(--glass-border-subtle)]">
+                <div className="flex gap-[1rem] mt-[1.75rem] pt-[1.25rem] border-t border-[]">
                     <button onClick={onClose} className="flex-[1] p-[0.85rem] bg-[transparent] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-lg)] text-[var(--color-text-muted)] font-[800] cursor-pointer transition-[all_0.2s]">Cancelar</button>
                     <button onClick={onSave} className="btn-primary flex-[1] m-[0] p-[0.85rem] font-[800]">Crear CAPA</button>
                 </div>
@@ -1111,12 +1111,12 @@ function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose
                 <div style={{ background: `linear-gradient(135deg, ${statusConfig.bg}, rgba(var(--color-surface-rgb), 0.95))`, borderBottom: `2.5px solid ${statusConfig.color}` }} className="p-[1.5rem_2rem] flex justify-between items-center">
                     <div className="flex items-center gap-4">
                         <div style={{ background: `linear-gradient(135deg, ${priorityConfig.color}, ${priorityConfig.color}cc)`, boxShadow: `0 8px 20px ${priorityConfig.color}25` }} className="w-[56px] h-[56px] rounded-[var(--radius-xl)] flex flex-col items-center justify-center text-[#fff]">
-                            <span className="text-[1.75rem] line-height-[1]">{priorityConfig.icon}</span>
+                            <span className="text-[1.75rem] leading-[]">{priorityConfig.icon}</span>
                         </div>
                         <div>
                             <div className="flex items-center gap-[0.5rem] mb-[0.25rem] flex-wrap">
                                 <span className="text-[0.65rem] font-[900] text-[var(--color-primary)] bg-[rgba(var(--color-primary-rgb),_0.08)] p-[0.25rem_0.5rem] rounded-[var(--radius-md)] border-[1px_solid_rgba(var(--color-primary-rgb),_0.15)]">{capa.id}</span>
-                                <h2 className="m-[0] text-[1.3rem] font-[900] text-[var(--color-text)] letter-spacing-[-0.3px]">{capaType?.icon} {capa.title}</h2>
+                                <h2 className="m-[0] text-[1.3rem] font-[900] text-[var(--color-text)] tracking-[]">{capaType?.icon} {capa.title}</h2>
                             </div>
                             <p className="m-[0] text-[var(--color-text-muted)] text-[0.8rem] font-[700]">{capaType?.name} • {statusConfig.label}</p>
                         </div>
@@ -1124,7 +1124,7 @@ function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose
                     <button onClick={onClose} className="p-[0.4rem] bg-[rgba(239,_68,_68,_0.08)] border-none rounded-[var(--radius-md)] cursor-pointer text-[#ef4444] flex items-center justify-center"><XCircle size={22} /></button>
                 </div>
 
-                <div className="p-[2rem] max-height-[calc(80vh_-_120px)] overflow-y-[auto]">
+                <div className="p-[2rem] max-h-[] overflow-y-">
                     {/* Info Grid */}
                     <div className="grid grid-template-columns-[1fr_1fr] gap-[1.25rem] mb-[1.75rem] p-[1rem_1.25rem] bg-[var(--color-background)] border-[1px_solid_var(--glass-border-subtle)] rounded-[var(--radius-xl)]">
                         <InfoDetail label="Origen" value={capa.source ? CAPA_SOURCES.find((s) => s.id === capa.source)?.name : '-'} />
@@ -1136,16 +1136,16 @@ function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose
 
                     {/* Problem Statement */}
                     <div className="mb-[1.75rem]">
-                        <h3 className="text-[0.8rem] font-[800] mb-[0.5rem] uppercase text-[var(--color-text-muted)] letter-spacing-[0.5px]">Declaración del Problema</h3>
+                        <h3 className="text-[0.8rem] font-[800] mb-[0.5rem] uppercase text-[var(--color-text-muted)] tracking-[]">Declaración del Problema</h3>
                         <div className="p-[1.25rem] bg-[rgba(239,_68,_68,_0.03)] border-[1px_solid_rgba(239,_68,_68,_0.12)] rounded-[var(--radius-xl)]">
-                            <p className="m-[0] text-[0.9rem] text-[var(--color-text)] line-height-[1.6] font-[600]">{capa.problemStatement || 'No especificado'}</p>
+                            <p className="m-[0] text-[0.9rem] text-[var(--color-text)] leading-[] font-[600]">{capa.problemStatement || 'No especificado'}</p>
                         </div>
                     </div>
 
                     {/* Root Cause Analysis (5 Whys Preview) */}
                     {capa.rootCause && (capa.rootCause.why1 || capa.rootCause.finalCause) &&
           <div className="mb-[1.75rem]">
-                            <h3 className="text-[0.8rem] font-[800] mb-[0.75rem] uppercase text-[var(--color-text-muted)] letter-spacing-[0.5px]">Análisis de Causa Raíz (5 Porqués)</h3>
+                            <h3 className="text-[0.8rem] font-[800] mb-[0.75rem] uppercase text-[var(--color-text-muted)] tracking-[]">Análisis de Causa Raíz (5 Porqués)</h3>
                             <div className="capa-why-container">
                                 <div className="capa-why-timeline" />
                                 {[1, 2, 3, 4, 5].map((num) => capa.rootCause[`why${num}`] &&
@@ -1158,7 +1158,7 @@ function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose
                                 {capa.rootCause.finalCause &&
               <div className="capa-why-node capa-why-final-container mt-[0.5rem]">
                                         <div className="capa-why-badge bg-[#10b981] border-color-[#10b981] text-[#fff]">✓</div>
-                                        <div className="text-[0.7rem] font-[900] text-[#10b981] uppercase mb-[0.15rem] letter-spacing-[0.5px]">Causa Raíz Final</div>
+                                        <div className="text-[0.7rem] font-[900] text-[#10b981] uppercase mb-[0.15rem] tracking-[]">Causa Raíz Final</div>
                                         <div className="text-[0.95rem] font-[800] text-[var(--color-text)]">{capa.rootCause.finalCause}</div>
                                     </div>
               }
@@ -1169,14 +1169,14 @@ function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose
                     {/* Actions */}
                     {capa.actions && capa.actions.length > 0 &&
           <div className="mb-[1.75rem]">
-                            <h3 className="text-[0.8rem] font-[800] mb-[0.75rem] uppercase text-[var(--color-text-muted)] letter-spacing-[0.5px]">Acciones del Plan ({capa.actions.length})</h3>
+                            <h3 className="text-[0.8rem] font-[800] mb-[0.75rem] uppercase text-[var(--color-text-muted)] tracking-[]">Acciones del Plan ({capa.actions.length})</h3>
                             <div className="flex flex-col gap-[0.6rem]">
                                 {capa.actions.map((action, idx) =>
-              <div key={action.id} style={{ background: action.status === 'completed' ? 'rgba(16, 185, 129, 0.04)' : 'var(--color-background)', border: `1px solid ${action.status === 'completed' ? '#10b981' : 'var(--glass-border-subtle)'}` }} className="p-[0.85rem_1.25rem] rounded-[var(--radius-xl)] box-shadow-[var(--shadow-sm)]">
+              <div key={action.id} style={{ background: action.status === 'completed' ? 'rgba(16, 185, 129, 0.04)' : 'var(--color-background)', border: `1px solid ${action.status === 'completed' ? '#10b981' : 'var(--glass-border-subtle)'}` }} className="p-[0.85rem_1.25rem] rounded-[var(--radius-xl)] shadow-[]">
                                         <div className="flex items-center gap-[0.75rem]">
-                                            <div style={{ background: action.status === 'completed' ? '#10b981' : 'rgba(var(--color-primary-rgb), 0.1)', color: action.status === 'completed' ? '#fff' : 'var(--color-primary)' }} className="w-[28px] h-[28px] rounded-[50%] flex items-center text-[0.8rem] font-[900] flex-shrink-[0] justify-center">{idx + 1}</div>
-                                            <div className="flex-[1] min-width-[0]">
-                                                <div className="text-[0.9rem] font-[800] text-[var(--color-text)] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">{action.description}</div>
+                                            <div style={{ background: action.status === 'completed' ? '#10b981' : 'rgba(var(--color-primary-rgb), 0.1)', color: action.status === 'completed' ? '#fff' : 'var(--color-primary)' }} className="w-[28px] h-[28px] rounded-[50%] flex items-center text-[0.8rem] font-[900] shrink-0 justify-center">{idx + 1}</div>
+                                            <div className="flex-[1] min-w-0">
+                                                <div className="text-[0.9rem] font-[800] text-[var(--color-text)] whitespace- overflow-[hidden] text-overflow-[ellipsis]">{action.description}</div>
                                                 <div className="text-[0.75rem] text-[var(--color-text-muted)] font-[600]">Responsable: {action.responsible || 'N/A'} • Vence: {action.dueDate ? new Date(action.dueDate).toLocaleDateString('es-AR') : 'N/A'}</div>
                                             </div>
                                             <span style={{ background: action.status === 'completed' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)', color: action.status === 'completed' ? '#10b981' : '#f59e0b', border: `1px solid ${action.status === 'completed' ? '#10b98130' : '#f59e0b30'}` }} className="p-[0.25rem_0.6rem] rounded-[var(--radius-full)] text-[0.65rem] font-[900]">{action.status === 'completed' ? 'COMPLETADA' : 'PENDIENTE'}</span>
@@ -1198,7 +1198,7 @@ function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose
             <div className="mt-[0.75rem] p-[1.25rem] bg-[var(--color-background)] border-[1px_solid_var(--glass-border-subtle)] rounded-[var(--radius-xl)]">
                                     {capa.timeline.map((event, idx) =>
               <div key={idx} style={{ borderBottom: idx < capa.timeline.length - 1 ? '1px solid var(--glass-border-subtle)' : 'none' }} className="flex gap-[0.75rem] mb-[0.75rem] pb-[0.75rem]">
-                                            <div className="w-[10px] h-[10px] bg-[var(--color-primary)] rounded-[50%] mt-[5px] flex-shrink-[0] box-shadow-[0_0_8px_var(--color-primary)]" />
+                                            <div className="w-[10px] h-[10px] bg-[var(--color-primary)] rounded-[50%] mt-[5px] shrink-0 shadow-[]" />
                                             <div>
                                                 <div className="text-[0.85rem] font-[700] text-[var(--color-text)]">{event.event}</div>
                                                 <div className="text-[0.75rem] text-[var(--color-text-muted)] font-[600]">{new Date(event.date).toLocaleString()} • {event.user}</div>
@@ -1234,7 +1234,7 @@ function CapaDetailModal({ capa, statusConfig, priorityConfig, capaType, onClose
           }
 
                     {/* Status Change Buttons */}
-                    <div className="flex gap-[0.5rem] flex-wrap mb-[1.5rem] border-top-[1px_solid_var(--glass-border-subtle)] pt-[1.5rem]">
+                    <div className="flex gap-[0.5rem] flex-wrap mb-[1.5rem] border-t border-[] pt-[1.5rem]">
                         {capa.status === 'draft' && <button onClick={() => onUpdateStatus(capa.id, 'open')} className="btn-primary flex-[auto] m-[0] p-[0.75rem_1.25rem] font-[800]">Abrir CAPA</button>}
                         {capa.status === 'open' && <button onClick={() => onUpdateStatus(capa.id, 'in_progress')} className="btn-primary flex-[auto] m-[0] p-[0.75rem_1.25rem] bg-[linear-gradient(135deg,_#3b82f6,_#2563eb)] font-[800]">Iniciar</button>}
                         {capa.status === 'in_progress' && <button onClick={() => onUpdateStatus(capa.id, 'review')} className="btn-primary flex-[auto] m-[0] p-[0.75rem_1.25rem] bg-[linear-gradient(135deg,_#8b5cf6,_#7c3aed)] font-[800]">Enviar a Revisión</button>}
@@ -1273,7 +1273,7 @@ function CreateActionModal({ capa, onSave, onClose, CONTROL_HIERARCHY }) {
   return (
     <div className="modal-fullscreen-overlay modal-overlay-glass" onClick={onClose}>
             <div className="modal-fullscreen-content modal-glass max-w-[580px] p-[2rem] border-[1px_solid_var(--glass-border)]" onClick={(e) => e.stopPropagation()}>
-                <div className="flex justify-between items-center mb-[1.5rem] pb-[1rem] border-bottom-[1px_solid_var(--glass-border-subtle)]">
+                <div className="flex justify-between items-center mb-[1.5rem] pb-[1rem] border-b border-[]">
                     <h2 className="m-[0] text-[1.25rem] font-[900] text-[var(--color-text)] flex items-center gap-[0.5rem]">
                         <Plus size={20} color="var(--color-primary)" />
                         Nueva Acción en Plan
@@ -1324,7 +1324,7 @@ function CreateActionModal({ capa, onSave, onClose, CONTROL_HIERARCHY }) {
             })}
                     </div>
                 </div>
-                <div className="flex gap-[1rem] border-top-[1px_solid_var(--glass-border-subtle)] pt-[1.25rem]">
+                <div className="flex gap-[1rem] border-t border-[] pt-[1.25rem]">
                     <button onClick={onClose} className="flex-[1] p-[0.85rem] bg-[transparent] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-lg)] text-[var(--color-text-muted)] font-[800] cursor-pointer transition-[all_0.2s]">Cancelar</button>
                     <button onClick={() => onSave(action)} className="btn-primary flex-[1] m-[0] p-[0.85rem] font-[800]">Agregar Acción</button>
                 </div>

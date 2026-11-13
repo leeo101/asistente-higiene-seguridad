@@ -119,7 +119,7 @@ function AdjuntosSection({
 
 
 
-      }} className="display-[inline-flex] items-center gap-[0.5rem] p-[0.5rem_1rem] rounded-[0.75rem] cursor-pointer font-[600] text-[0.85rem]">
+      }} className="inline-flex items-center gap-[0.5rem] p-[0.5rem_1rem] rounded-[0.75rem] cursor-pointer font-[600] text-[0.85rem]">
         
         <Camera size={16} /> Adjuntar Foto
       </button>
@@ -129,7 +129,7 @@ function AdjuntosSection({
         <div key={idx} className="relative w-[96] h-[96]">
               <img
             src={src}
-            alt={`adjunto-${idx}`} className="w-[96] h-[96] object-fit-[cover] rounded-[0.75rem] border-[1px_solid_#e2e8f0]" />
+            alt={`adjunto-${idx}`} className="w-[96] h-[96] object- rounded-[0.75rem] border-[1px_solid_#e2e8f0]" />
 
 
 
@@ -1085,7 +1085,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
           {qrTarget && <QRModal text={qrTarget.text} title={qrTarget.title} onClose={() => setQrTarget(null)} />}
           <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Investigación de Accidente - ${shareItem?.victimaNombre || ''}`} text={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⚠️ Gravedad: ${shareItem.gravedad}` : ''} rawMessage={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}` : ''} elementIdToPrint="pdf-content" fileName={`Accidente_${shareItem?.victimaNombre || 'Reporte'}.pdf`} />
           
-          <div id="pdf-content" className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+          <div id="pdf-content" className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-">
             {(shareItem || printItem) && <AccidentPdfGenerator report={{ ...(shareItem || printItem), id: (shareItem || printItem).id || Date.now() }} isHeadless={true} />}
           </div>
 
@@ -1126,7 +1126,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
     <ModuleFormLayout>
         <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Investigación de Accidente - ${shareItem?.victimaNombre || ''}`} text={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⚠️ Gravedad: ${shareItem.gravedad}` : ''} rawMessage={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}` : ''} elementIdToPrint="pdf-content" fileName={`Accidente_${shareItem?.victimaNombre || 'Reporte'}.pdf`} />
         
-        <div id="pdf-content" className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+        <div id="pdf-content" className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-">
             {(shareItem || printItem) && <AccidentPdfGenerator report={{ ...(shareItem || printItem), id: (shareItem || printItem).id || Date.now() }} isHeadless={true} />}
         </div>
         <div className="pt-24 sm:pt-28">
@@ -1845,7 +1845,7 @@ export default function AccidentInvestigation(): React.ReactElement | null {
                 {currentStep === 5 && (
                 <ModuleFormSection title="Firmas y Autorizaciones" icon={<Pencil />}>
                     <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
-                        <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                        <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase tracking-[]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                         <div className="flex gap-[1rem] flex-wrap justify-center">
                             {[
               { id: 'operator', label: 'Accidentado / Testigo' },

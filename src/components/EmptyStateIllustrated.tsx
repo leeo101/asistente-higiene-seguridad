@@ -45,7 +45,7 @@ export default function EmptyStateIllustrated({
 
         background: `radial-gradient(circle, ${color}12 0%, transparent 70%)`
 
-      }} className="absolute top-[50%] left-[50%] transform-[translate(-50%,_-50%)] w-[280px] h-[280px] rounded-[50%] pointer-events-[none]" />
+      }} className="absolute top-[50%] left-[50%] transform-[translate(-50%,_-50%)] w-[280px] h-[280px] rounded-[50%] pointer-events-" />
             <div style={{
 
 
@@ -56,7 +56,7 @@ export default function EmptyStateIllustrated({
 
         background: `radial-gradient(circle, ${color}18 0%, transparent 70%)`
 
-      }} className="absolute top-[50%] left-[50%] transform-[translate(-50%,_-50%)] w-[180px] h-[180px] rounded-[50%] pointer-events-[none]" />
+      }} className="absolute top-[50%] left-[50%] transform-[translate(-50%,_-50%)] w-[180px] h-[180px] rounded-[50%] pointer-events-" />
 
             {/* SVG Illustration */}
             <div className="relative mb-[1.75rem] z-[1]">
@@ -125,7 +125,7 @@ export default function EmptyStateIllustrated({
             </div>
 
             {/* Text */}
-            <h3 className="m-[0_0_0.6rem_0] text-[1.15rem] font-[800] text-[var(--color-text)] letter-spacing-[-0.3px] z-[1] relative">
+            <h3 className="m-[0_0_0.6rem_0] text-[1.15rem] font-[800] text-[var(--color-text)] tracking-[] z-[1] relative">
 
 
 
@@ -136,7 +136,7 @@ export default function EmptyStateIllustrated({
         
                 {title}
             </h3>
-            <p className="m-[0_0_2rem_0] text-[0.9rem] text-[var(--color-text-muted)] max-w-[320px] line-height-[1.6] z-[1] relative">
+            <p className="m-[0_0_2rem_0] text-[0.9rem] text-[var(--color-text-muted)] max-w-[320px] leading-[] z-[1] relative">
 
 
 

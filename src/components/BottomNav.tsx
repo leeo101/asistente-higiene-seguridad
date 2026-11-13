@@ -152,12 +152,12 @@ export default function BottomNav({ onMenuClick }: BottomNavProps): React.ReactE
         
         <div className="flex items-center justify-between mb-4">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400 block">{t('nav.field_actions')}</span>
-            <h3 className="text-lg font-bold text-white m-0">{t('nav.quick_access')}</h3>
+            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 block">{t('nav.field_actions')}</span>
+            <h3 className="text-lg font-bold text-[var(--color-text)] m-0">{t('nav.quick_access')}</h3>
           </div>
           <button 
             onClick={() => setIsActionSheetOpen(false)}
-            className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-gray-300 hover:text-white border-0 cursor-pointer"
+            className="w-8 h-8 rounded-full bg-[var(--color-surface-hover)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-[var(--color-text)] border-0 cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -168,7 +168,7 @@ export default function BottomNav({ onMenuClick }: BottomNavProps): React.ReactE
             <button
               key={action.to}
               onClick={() => handleActionClick(action.to)}
-              className="flex items-start gap-3 p-3 rounded-2xl bg-[var(--color-surface-hover,rgba(255,255,255,0.05))] border border-[var(--color-border,rgba(255,255,255,0.08))] text-left cursor-pointer hover:border-emerald-500/40 active:scale-95 transition-all"
+              className="flex items-start gap-3 p-3 rounded-2xl bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-left cursor-pointer hover:border-emerald-500/40 active:scale-95 transition-all"
             >
               <div 
                 className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
@@ -177,8 +177,8 @@ export default function BottomNav({ onMenuClick }: BottomNavProps): React.ReactE
                 {action.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <span className="font-semibold text-sm block text-white truncate leading-snug">{adaptText(action.label)}</span>
-                <span className="text-[11px] text-gray-400 block truncate mt-0.5">{adaptText(action.desc)}</span>
+                <span className="font-semibold text-sm block text-[var(--color-text)] truncate leading-snug">{adaptText(action.label)}</span>
+                <span className="text-[11px] text-[var(--color-text-muted)] block truncate mt-0.5">{adaptText(action.desc)}</span>
               </div>
             </button>
           ))}

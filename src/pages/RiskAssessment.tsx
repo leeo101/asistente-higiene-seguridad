@@ -65,7 +65,7 @@ const Gauge = ({ score, color }: any) => {
           color: color
 
 
-        }} className="text-[3.5rem] line-height-[1] font-[900] transition-[color_0.5s_ease] text-shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
+        }} className="text-[3.5rem] leading-[] font-[900] transition-[color_0.5s_ease] text-shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
                     {score}
                 </div>
             </div>
@@ -203,7 +203,7 @@ export default function RiskAssessment(): React.ReactElement | null {
         elementIdToPrint="pdf-content" />
       
 
-            <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+            <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-">
                 <RiskAssessmentPdfGenerator assessmentData={{
           ...projectData,
           probability,
@@ -257,11 +257,11 @@ export default function RiskAssessment(): React.ReactElement | null {
         { label: 'TAREA / ACTIVIDAD', key: 'name', placeholder: 'Ej: Trabajo en altura' },
         { label: 'UBICACIÓN / ÁREA', key: 'location', placeholder: 'Ej: Sector principal' }].
         map((f) =>
-        <div key={f.key} className="bg-[var(--color-surface)] rounded-[14px] p-[1.2rem] border-[1px_solid_var(--color-border)] box-shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+        <div key={f.key} className="bg-[var(--color-surface)] rounded-[14px] p-[1.2rem] border-[1px_solid_var(--color-border)] shadow-[]">
 
 
           
-                        <label className="text-[0.65rem] font-[900] text-[#ef4444] uppercase letter-spacing-[0.1em] block mb-[0.5rem]">
+                        <label className="text-[0.65rem] font-[900] text-[#ef4444] uppercase tracking-[] block mb-[0.5rem]">
                             {f.label}
                         </label>
                         <input
@@ -275,7 +275,7 @@ export default function RiskAssessment(): React.ReactElement | null {
             </div>
 
             {/* Main Score Card */}
-            <div className="card text-center mb-[2rem] bg-[linear-gradient(145deg,_var(--color-surface),_var(--color-surface-hover))] border-[1px_solid_var(--color-border)] box-shadow-[0_8px_30px_-5px_rgba(0,0,0,0.05)] rounded-[20px] p-[2.5rem_1.5rem_2rem_1.5rem]">
+            <div className="card text-center mb-[2rem] bg-[linear-gradient(145deg,_var(--color-surface),_var(--color-surface-hover))] border-[1px_solid_var(--color-border)] shadow-[] rounded-[20px] p-[2.5rem_1.5rem_2rem_1.5rem]">
 
 
 
@@ -298,7 +298,7 @@ export default function RiskAssessment(): React.ReactElement | null {
 
 
             border: `1px solid ${riskLevel.color}40`
-          }} className="inline-block p-[0.5rem_1.5rem] rounded-[999px] font-[800] text-[1.3rem] letter-spacing-[0.5px] uppercase transition-[all_0.4s_ease]">
+          }} className="inline-block p-[0.5rem_1.5rem] rounded-[999px] font-[800] text-[1.3rem] tracking-[] uppercase transition-[all_0.4s_ease]">
                         Nivel {riskLevel.label}
                     </div>
                 </div>
@@ -412,7 +412,7 @@ export default function RiskAssessment(): React.ReactElement | null {
             </div>
 
             {/* Action Box */}
-            <div className="card border-[1px_solid_var(--color-border)] rounded-[16px] p-[1.5rem] transition-[all_0.4s_cubic-bezier(0.4,_0,_0.2,_1)] mb-[2.5rem] box-shadow-[0_4px_15px_rgba(0,0,0,0.03)]" style={{
+            <div className="card border-[1px_solid_var(--color-border)] rounded-[16px] p-[1.5rem] transition-[all_0.4s_cubic-bezier(0.4,_0,_0.2,_1)] mb-[2.5rem] shadow-[]" style={{
 
         borderLeft: `8px solid ${riskLevel.color}`,
         background: riskLevel.bg
@@ -423,12 +423,12 @@ export default function RiskAssessment(): React.ReactElement | null {
 
       }}>
                 <div className="flex gap-[1.25rem] items-start">
-                    <div className="bg-[var(--color-surface)] rounded-[50%] p-[0.5rem] box-shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+                    <div className="bg-[var(--color-surface)] rounded-[50%] p-[0.5rem] shadow-[]">
                         <AlertCircle size={28} color={riskLevel.color} />
                     </div>
                     <div className="pt-[0.2rem]">
                         <h4 style={{ color: riskLevel.color }} className="m-[0_0_0.5rem_0] text-[1.15rem] font-[800]">Acción Recomendada</h4>
-                        <p className="m-[0] text-[0.95rem] line-height-[1.6] text-[var(--color-text)] font-[500]">{riskLevel.action}</p>
+                        <p className="m-[0] text-[0.95rem] leading-[] text-[var(--color-text)] font-[500]">{riskLevel.action}</p>
                     </div>
                 </div>
             </div>
@@ -436,7 +436,7 @@ export default function RiskAssessment(): React.ReactElement | null {
             {/* Footer Button */}
             <button
         onClick={(e) => {e.preventDefault();requirePro(() => handleSave());}}
-        className="btn-primary flex items-center justify-center gap-[0.75rem] p-[1.2rem] text-[1.1rem] rounded-[16px] box-shadow-[0_8px_25px_rgba(239,_68,_68,_0.3)] bg-[linear-gradient(135deg,_#ef4444,_#dc2626)] border-none font-[700] w-[100%]">
+        className="btn-primary flex items-center justify-center gap-[0.75rem] p-[1.2rem] text-[1.1rem] rounded-[16px] shadow-[] bg-[linear-gradient(135deg,_#ef4444,_#dc2626)] border-none font-[700] w-[100%]">
 
 
 

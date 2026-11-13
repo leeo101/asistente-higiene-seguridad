@@ -120,7 +120,7 @@ export default function DailyAIInsight({ healthScore, alertsCount, criticalRisks
           
           Asistente IA <Sparkle size={14} color="#a855f7" weight="fill" />
         </h4>
-        <p className="m-[0] text-[0.85rem] text-[var(--color-text-muted)] line-height-[1.5] font-[500]">
+        <p className="m-[0] text-[0.85rem] text-[var(--color-text-muted)] leading-[] font-[500]">
 
 
 

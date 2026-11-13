@@ -86,7 +86,7 @@ export default function AdBanner({ placement = 'general' }: AdBannerProps) {
 
 
 
-      }} className="rounded-[8px] bg-[var(--color-background)] flex items-center justify-center flex-shrink-[0]">
+      }} className="rounded-[8px] bg-[var(--color-background)] flex items-center justify-center shrink-0">
                 {currentAd.icon}
             </div>
 
@@ -104,7 +104,7 @@ export default function AdBanner({ placement = 'general' }: AdBannerProps) {
                         {currentAd.tag}
                     </span>
                 </div>
-                <p style={{ fontSize: isSidebar ? '0.75rem' : '0.85rem' }} className="m-[0] text-[var(--color-text-muted)] line-height-[1.3]">
+                <p style={{ fontSize: isSidebar ? '0.75rem' : '0.85rem' }} className="m-[0] text-[var(--color-text-muted)] leading-[]">
                     {currentAd.desc}
                 </p>
             </div>

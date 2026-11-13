@@ -20,7 +20,7 @@ export default function AiReportPdfGenerator({ item }: {item: any;}): React.Reac
     <div className="ai-report-wrapper w-[100%] block">
             <div
         id="pdf-content"
-        className="pdf-container report-print print-area w-[100%] max-w-[210mm] min-h-[auto] p-[20mm] bg-[#ffffff] text-[#1e293b] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[10pt] block">
+        className="pdf-container report-print print-area w-[100%] max-w-[210mm] min-h-[auto] p-[20mm] bg-[#ffffff] text-[#1e293b] shadow-[] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[10pt] block">
 
 
 
@@ -54,13 +54,13 @@ export default function AiReportPdfGenerator({ item }: {item: any;}): React.Reac
                 {/* Header Rediseñado Premium */}
                 <div className="flex justify-between items-start border-bottom-[3px_solid_#3b82f6] pb-[1.5rem] mb-[2rem]">
                     <div className="flex-[1]">
-                        <div className="inline-block bg-[linear-gradient(135deg,_#3b82f6,_#2563eb)] text-[#ffffff] font-[800] text-[0.7rem] uppercase letter-spacing-[2px] p-[0.4rem_1rem] rounded-full mb-[1rem]">
+                        <div className="inline-block bg-[linear-gradient(135deg,_#3b82f6,_#2563eb)] text-[#ffffff] font-[800] text-[0.7rem] uppercase tracking-[] p-[0.4rem_1rem] rounded-full mb-[1rem]">
                             Análisis por Inteligencia Artificial
                         </div>
-                        <h1 className="m-[0_0_0.3rem_0] text-[#0f172a] text-[2.4rem] font-[900] letter-spacing-[-0.5px] leading-tight">
+                        <h1 className="m-[0_0_0.3rem_0] text-[#0f172a] text-[2.4rem] font-[900] tracking-[] leading-tight">
                             INFORME AI
                         </h1>
-                        <p className="m-[0] text-[1.1rem] text-[#3b82f6] font-[700] uppercase letter-spacing-[1px]">
+                        <p className="m-[0] text-[1.1rem] text-[#3b82f6] font-[700] uppercase tracking-[]">
                             Inspección Visual Avanzada
                         </p>
                     </div>
@@ -76,23 +76,23 @@ export default function AiReportPdfGenerator({ item }: {item: any;}): React.Reac
 
                 {/* Info Block Rediseñado */}
                 <div className="flex flex-wrap gap-[1rem] mb-[2.5rem] bg-[#f8fafc] p-[1.5rem] rounded-[12px] border-[1px_solid_#cbd5e1]">
-                    <div className="flex-[1] min-w-[150px] border-right-[1px_solid_#e2e8f0] pr-[1rem]">
+                    <div className="flex-[1] min-w-[150px] border-r border-[] pr-[1rem]">
                         <div className="flex items-center gap-[0.5rem] mb-[0.3rem]">
-                            <span className="text-[0.75rem] text-[#64748b] font-[700] uppercase letter-spacing-[1px]">Tipo de Análisis</span>
+                            <span className="text-[0.75rem] text-[#64748b] font-[700] uppercase tracking-[]">Tipo de Análisis</span>
                         </div>
                         <p className="m-[0] font-[800] text-[1rem] text-[#3b82f6]">
                             {data.type === 'general_risks' ? 'RIESGOS GENERALES' : 'VERIFICAR EPP'}
                         </p>
                     </div>
-                    <div className="flex-[1] min-w-[150px] border-right-[1px_solid_#e2e8f0] pr-[1rem]">
+                    <div className="flex-[1] min-w-[150px] border-r border-[] pr-[1rem]">
                         <div className="flex items-center gap-[0.5rem] mb-[0.3rem]">
-                            <span className="text-[0.75rem] text-[#64748b] font-[700] uppercase letter-spacing-[1px]">Empresa / Planta</span>
+                            <span className="text-[0.75rem] text-[#64748b] font-[700] uppercase tracking-[]">Empresa / Planta</span>
                         </div>
                         <p className="m-[0] font-[800] text-[1rem] text-[#0f172a]">{company}</p>
                     </div>
                     <div className="flex-[1] min-w-[150px]">
                         <div className="flex items-center gap-[0.5rem] mb-[0.3rem]">
-                            <span className="text-[0.75rem] text-[#64748b] font-[700] uppercase letter-spacing-[1px]">Fecha y Hora</span>
+                            <span className="text-[0.75rem] text-[#64748b] font-[700] uppercase tracking-[]">Fecha y Hora</span>
                         </div>
                         <p className="m-[0] font-[800] text-[1rem] text-[#0f172a]">{new Date(data.date).toLocaleString('es-AR')}</p>
                     </div>
@@ -121,7 +121,7 @@ export default function AiReportPdfGenerator({ item }: {item: any;}): React.Reac
                 <div className="mb-[2.5rem] avoid-break">
                     <div className="flex items-center gap-[0.8rem] mb-[1.2rem]">
                         <div className="w-[8px] h-[24px] bg-[#3b82f6] rounded-[4px]"></div>
-                        <h3 className="m-[0] text-[#0f172a] font-[800] text-[1.1rem] uppercase letter-spacing-[1px]">
+                        <h3 className="m-[0] text-[#0f172a] font-[800] text-[1.1rem] uppercase tracking-[]">
                             {data.type === 'general_risks' ? 'Resumen de Riesgos Detectados' : 'Evaluación de EPP Detectada'}
                         </h3>
                     </div>
@@ -152,7 +152,7 @@ export default function AiReportPdfGenerator({ item }: {item: any;}): React.Reac
                                 <Info size={18} />
                                 <span className="font-[800] text-[10pt]">EVALUACIÓN GENERAL</span>
                             </div>
-                            <p className="m-[0] text-[9pt] line-height-[1.5]">{data.analysis?.generalAssessment || 'Análisis ambiental completado.'}</p>
+                            <p className="m-[0] text-[9pt] leading-[]">{data.analysis?.generalAssessment || 'Análisis ambiental completado.'}</p>
                         </div>
           }
                 </div>
@@ -160,7 +160,7 @@ export default function AiReportPdfGenerator({ item }: {item: any;}): React.Reac
                 {/* Findings Legend for General Risks */}
                 {data.analysis?.detections && data.analysis.detections.length > 0 && (
                     <div className="mb-[2rem] avoid-break break-inside-avoid">
-                        <div className="flex items-center gap-[0.6rem] mb-[1rem] border-bottom-[1px_solid_#e2e8f0] pb-[0.4rem]">
+                        <div className="flex items-center gap-[0.6rem] mb-[1rem] border-b border-[] pb-[0.4rem]">
                             <div className="w-[6px] h-[18px] bg-[#3b82f6] rounded-[3px]"></div>
                             <h4 className="m-[0] text-[#0f172a] font-[800] text-[10pt] uppercase tracking-wider">
                                 Hallazgos Detectados en Imagen ({data.analysis.detections.length})

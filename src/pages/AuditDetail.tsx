@@ -155,7 +155,7 @@ export default function AuditDetail(): React.ReactElement | null {
                 <div className="flex justify-space-between items-center mb-[1rem]">
                     <h3 className="text-[0.9rem] font-[800] uppercase m-[0]">Hallazgos ({findings.length})</h3>
                     <button onClick={() => setShowFindingForm(!showFindingForm)} className="btn-primary p-[0.5rem_1rem] text-[0.85rem]">
-                        <AlertTriangle size={16} className="display-[inline] mr-[0.25rem]" />
+                        <AlertTriangle size={16} className="inline mr-[0.25rem]" />
                         Agregar
                     </button>
                 </div>

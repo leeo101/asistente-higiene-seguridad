@@ -73,7 +73,7 @@ export default function ExtinguisherAIPdfGenerator({ item }: { item: any }): Rea
     <div className="w-[100%] flex justify-center bg-transparent">
       <div
         id="pdf-content-ext-ai"
-        className="pdf-container report-print print-area w-[100%] max-w-[210mm] min-h-[auto] p-[16mm_18mm] bg-[#ffffff] text-[#1e293b] box-shadow-[0_20px_40px_rgba(0,0,0,0.08)] rounded-[12px] box-sizing-[border-box] m-[0_auto] text-[9.5pt] block"
+        className="pdf-container report-print print-area w-[100%] max-w-[210mm] min-h-[auto] p-[16mm_18mm] bg-[#ffffff] text-[#1e293b] shadow-[] rounded-[12px] box-sizing-[border-box] m-[0_auto] text-[9.5pt] block"
         style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
       >
         <style type="text/css" media="print">

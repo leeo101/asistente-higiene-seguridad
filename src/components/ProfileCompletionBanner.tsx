@@ -41,7 +41,7 @@ export default function ProfileCompletionBanner() {
   if (!visible) return null;
 
   return (
-    <div className="fixed top-[20px] left-[50%] transform-[translateX(-50%)] z-[9999] w-[90%] max-w-[600px] bg-[linear-gradient(135deg,_#eff6ff_0%,_#dbeafe_100%)] border-[2px_solid_#3b82f6] rounded-[16px] p-[1rem_1.2rem] flex items-center gap-[1rem] box-shadow-[0_10px_40px_rgba(59,_130,_246,_0.3)] animation-[slideDown_0.4s_ease-out]">
+    <div className="fixed top-[20px] left-[50%] transform-[translateX(-50%)] z-[9999] w-[90%] max-w-[600px] bg-[linear-gradient(135deg,_#eff6ff_0%,_#dbeafe_100%)] border-[2px_solid_#3b82f6] rounded-[16px] p-[1rem_1.2rem] flex items-center gap-[1rem] shadow-[] animation-[slideDown_0.4s_ease-out]">
 
 
 
@@ -80,7 +80,7 @@ export default function ProfileCompletionBanner() {
                 `}
             </style>
 
-            <div className="w-[40px] h-[40px] rounded-[50%] bg-[#3b82f6] flex items-center justify-center flex-shrink-[0]">
+            <div className="w-[40px] h-[40px] rounded-[50%] bg-[#3b82f6] flex items-center justify-center shrink-0">
 
 
 
@@ -102,7 +102,7 @@ export default function ProfileCompletionBanner() {
           
                     ¡Bienvenido! 🎉
                 </p>
-                <p className="m-[0] text-[0.85rem] text-[#1e3a8a] line-height-[1.4]">
+                <p className="m-[0] text-[0.85rem] text-[#1e3a8a] leading-[]">
 
 
 
@@ -112,7 +112,7 @@ export default function ProfileCompletionBanner() {
                 </p>
             </div>
 
-            <div className="flex gap-[0.5rem] flex-shrink-[0]">
+            <div className="flex gap-[0.5rem] shrink-0">
                 <button
           onClick={handleComplete}
 
@@ -128,7 +128,7 @@ export default function ProfileCompletionBanner() {
 
 
           onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.background = '#2563eb'}
-          onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.background = '#3b82f6'} className="p-[0.6rem_1.2rem] bg-[#3b82f6] text-[#ffffff] border-none rounded-[8px] font-[700] text-[0.85rem] cursor-pointer white-space-[nowrap] transition-[background_0.2s]">
+          onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.background = '#3b82f6'} className="p-[0.6rem_1.2rem] bg-[#3b82f6] text-[#ffffff] border-none rounded-[8px] font-[700] text-[0.85rem] cursor-pointer whitespace- transition-[background_0.2s]">
           
                     Completar
                 </button>

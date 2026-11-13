@@ -86,7 +86,7 @@ export default function ConfirmModal({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.88, y: 24 }}
         transition={{ type: 'spring', damping: 22, stiffness: 320 }}
-        onClick={(e) => e.stopPropagation()} className="bg-[var(--color-surface,_#ffffff)] rounded-[28px] p-[2.5rem_2rem] max-w-[400px] w-[100%] box-shadow-[0_32px_64px_-12px_rgba(0,0,0,0.35),_0_0_0_1px_rgba(255,255,255,0.08)] text-center relative">
+        onClick={(e) => e.stopPropagation()} className="bg-[var(--color-surface,_#ffffff)] rounded-[28px] p-[2.5rem_2rem] max-w-[400px] w-[100%] shadow-[] text-center relative">
 
         {/* Botón X cerrar — siempre visible */}
         <button
@@ -143,13 +143,13 @@ export default function ConfirmModal({
           border: `2px solid ${themeColor}22`
         }} className="w-[80px] h-[80px] rounded-[50%] flex items-center justify-center m-[0_auto_1.5rem_auto]">
                             {iconEmoji ?
-          <span className="text-[2.8rem] line-height-[1]">{iconEmoji}</span> :
+          <span className="text-[2.8rem] leading-[]">{iconEmoji}</span> :
 
           <IconComponent size={38} strokeWidth={1.5} />
           }
                         </div>
 
-                        <h3 className="m-[0_0_0.75rem] font-[900] text-[var(--color-text,_#1e293b)] text-[1.4rem] line-height-[1.2]">
+                        <h3 className="m-[0_0_0.75rem] font-[900] text-[var(--color-text,_#1e293b)] text-[1.4rem] leading-[]">
 
 
 
@@ -158,7 +158,7 @@ export default function ConfirmModal({
           
                             {title}
                         </h3>
-                        <p className="m-[0_0_2rem] text-[var(--color-text-muted,_#64748b)] text-[0.95rem] line-height-[1.55]">
+                        <p className="m-[0_0_2rem] text-[var(--color-text-muted,_#64748b)] text-[0.95rem] leading-[]">
 
 
 

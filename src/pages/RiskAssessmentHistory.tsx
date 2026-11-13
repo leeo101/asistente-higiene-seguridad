@@ -99,21 +99,21 @@ export default function RiskAssessmentHistory(): React.ReactElement | null {
         elementIdToPrint="pdf-content" />
       
 
-            <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+            <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-">
                 <RiskAssessmentPdfGenerator assessmentData={shareItem} />
             </div>
 
             <div className="flex items-center justify-space-between gap-[1rem] mb-[2rem] flex-wrap">
-                <div className="flex items-center gap-[0.8rem] min-width-[200px]">
+                <div className="flex items-center gap-[0.8rem] min-w-[]">
                     <></>
                     <div>
-                        <h1 className="m-[0] text-[clamp(1.1rem,_4vw,_1.4rem)] font-[800] line-height-[1.2]">Evaluación de Riesgos</h1>
+                        <h1 className="m-[0] text-[clamp(1.1rem,_4vw,_1.4rem)] font-[800] leading-[]">Evaluación de Riesgos</h1>
                         <p className="m-[0] text-[0.75rem] text-[var(--color-text-muted)] font-[600]">Historial IPER</p>
                     </div>
                 </div>
                 <button
           onClick={() => navigate('/risk')}
-          className="btn-primary p-[0.6rem_1rem] flex items-center gap-[0.5rem] text-[0.85rem] w-[auto] m-[0] bg-[linear-gradient(135deg,_#ef4444,_#dc2626)] box-shadow-[0_4px_15px_rgba(239,_68,_68,_0.3)]">
+          className="btn-primary p-[0.6rem_1rem] flex items-center gap-[0.5rem] text-[0.85rem] w-[auto] m-[0] bg-[linear-gradient(135deg,_#ef4444,_#dc2626)] shadow-[]">
 
           
                     <Plus size={18} /> <span className="hidden sm:inline">NUEV0</span>

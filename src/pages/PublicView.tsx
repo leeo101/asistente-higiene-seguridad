@@ -229,7 +229,7 @@ export default function PublicView(): React.ReactElement | null {
   return (
     <div style={{ background: isPrintMode ? '#fff' : 'var(--color-background)' }} className="min-h-[100vh] pb-[4rem]">
             {!isPrintMode &&
-      <div className="no-print p-[0.75rem_1.5rem] bg-[var(--glass-bg)] backdrop-filter-[blur(12px)] webkit-backdrop-filter-[blur(12px)] border-bottom-[1px_solid_var(--glass-border)] flex items-center justify-space-between sticky top-[0] z-[1000] box-shadow-[var(--glass-shadow)]">
+      <div className="no-print p-[0.75rem_1.5rem] bg-[var(--glass-bg)] backdrop-filter-[blur(12px)] webkit-backdrop-filter-[blur(12px)] border-b border-[] flex items-center justify-space-between sticky top-[0] z-[1000] shadow-[]">
 
 
 
@@ -244,7 +244,7 @@ export default function PublicView(): React.ReactElement | null {
 
         
                     <div className="flex items-center gap-[0.8rem]">
-                        <div className="w-[36px] h-[36px] bg-[#ffffff] rounded-[10px] flex items-center justify-center box-shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-[5px]">
+                        <div className="w-[36px] h-[36px] bg-[#ffffff] rounded-[10px] flex items-center justify-center shadow-[] p-[5px]">
 
 
 
@@ -255,10 +255,10 @@ export default function PublicView(): React.ReactElement | null {
 
 
             
-                            <img src="/logo.png" alt="Logo" className="w-[100%] h-[100%] object-fit-[contain]" />
+                            <img src="/logo.png" alt="Logo" className="w-[100%] h-[100%] object-" />
                         </div>
                         <div className="flex flex-col">
-                            <span className="font-[900] text-[0.95rem] text-[var(--color-text)] letter-spacing-[-0.3px]">Asistente HYS</span>
+                            <span className="font-[900] text-[0.95rem] text-[var(--color-text)] tracking-[]">Asistente HYS</span>
                             <div className="flex items-center gap-[0.3rem]">
                                 <div className="w-[6px] h-[6px] bg-[#10b981] rounded-[50%]"></div>
                                 <span className="text-[0.65rem] font-[800] text-[#10b981] uppercase">Documento Verificado</span>
@@ -285,7 +285,7 @@ export default function PublicView(): React.ReactElement | null {
                             <Download size={18} />
                         </button>
                         <button
-            onClick={() => window.print()} className="bg-[var(--color-primary)] text-[white] border-none p-[0.5rem_1.2rem] rounded-[10px] font-[800] text-[0.85rem] flex items-center gap-[0.5rem] cursor-pointer box-shadow-[0_4px_15px_rgba(37,_99,_235,_0.3)]">
+            onClick={() => window.print()} className="bg-[var(--color-primary)] text-[white] border-none p-[0.5rem_1.2rem] rounded-[10px] font-[800] text-[0.85rem] flex items-center gap-[0.5rem] cursor-pointer shadow-[]">
 
 
 
@@ -308,7 +308,7 @@ export default function PublicView(): React.ReactElement | null {
       }
 
             <div className="max-w-[900px] m-[2rem_auto] p-[0_1rem]">
-                <div className="bg-[var(--color-surface)] rounded-[24px] p-[2rem] box-shadow-[0_20px_50px_rgba(0,0,0,0.05)] border-[1px_solid_var(--color-border)] relative">
+                <div className="bg-[var(--color-surface)] rounded-[24px] p-[2rem] shadow-[] border-[1px_solid_var(--color-border)] relative">
 
 
 
@@ -317,7 +317,7 @@ export default function PublicView(): React.ReactElement | null {
 
           
                     {/* Decorative verify badge */}
-                    <div className="no-print absolute top-[1.5rem] right-[1.5rem] opacity-[0.1] pointer-events-[none]">
+                    <div className="no-print absolute top-[1.5rem] right-[1.5rem] opacity-[0.1] pointer-events-">
 
 
 
@@ -334,7 +334,7 @@ export default function PublicView(): React.ReactElement | null {
             </div>
 
             <div className="no-print text-center mt-[3rem] p-[0_2rem]">
-                <p className="text-[0.78rem] text-[var(--color-text-muted)] line-height-[1.6] font-[500] max-w-[400px] m-[0_auto]">
+                <p className="text-[0.78rem] text-[var(--color-text-muted)] leading-[] font-[500] max-w-[400px] m-[0_auto]">
 
 
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { safeJsonParse } from '../utils/storageHelper';
 import { useNavigate } from 'react-router-dom';
 import {
   ChevronLeft,
@@ -203,7 +204,7 @@ function loadAutoSyncEvents(): CalendarEvent[] {
     });
 
     // 2. Capacitaciones
-    const trainings = JSON.parse(localStorage.getItem('training_sessions_db') || '[]');
+    const trainings = safeJsonParse<any[]>(localStorage.getItem('training_sessions_db'), []);
     trainings.forEach((tr: any) => {
       if (tr.date) {
         auto.push({
@@ -220,7 +221,7 @@ function loadAutoSyncEvents(): CalendarEvent[] {
     });
 
     // 3. Simulacros
-    const drills = JSON.parse(localStorage.getItem('drills_history') || '[]');
+    const drills = safeJsonParse<any[]>(localStorage.getItem('drills_history'), []);
     drills.forEach((dr: any) => {
       const dDate = dr.date || dr.fecha;
       if (dDate) {
@@ -238,7 +239,7 @@ function loadAutoSyncEvents(): CalendarEvent[] {
     });
 
     // 4. Auditorías
-    const audits = JSON.parse(localStorage.getItem('ehs_audits_db') || '[]');
+    const audits = safeJsonParse<any[]>(localStorage.getItem('ehs_audits_db'), []);
     audits.forEach((au: any) => {
       const aDate = au.date || au.scheduledDate || au.fecha;
       if (aDate) {
@@ -256,7 +257,7 @@ function loadAutoSyncEvents(): CalendarEvent[] {
     });
 
     // 5. Aptitudes Médicas (Res. SRT 37/10)
-    const medical = JSON.parse(localStorage.getItem('ehs_medical_db') || '[]');
+    const medical = safeJsonParse<any[]>(localStorage.getItem('ehs_medical_db'), []);
     medical.forEach((med: any) => {
       if (med.expirationDate) {
         auto.push({
@@ -273,7 +274,7 @@ function loadAutoSyncEvents(): CalendarEvent[] {
     });
 
     // 6. Acciones Correctivas CAPA
-    const capas = JSON.parse(localStorage.getItem('ehs_capa_db') || '[]');
+    const capas = safeJsonParse<any[]>(localStorage.getItem('ehs_capa_db'), []);
     capas.forEach((cp: any) => {
       const target = cp.targetDate || cp.vencimiento || cp.fechaLimite;
       if (target && cp.status !== 'Cerrada') {

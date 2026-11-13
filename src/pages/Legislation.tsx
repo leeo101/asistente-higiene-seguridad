@@ -193,7 +193,7 @@ export default function Legislation(): React.ReactElement | null {
 
             {/* Selectores de Nivel y Región */}
             <div className="card p-[1.2rem] mb-[1.5rem]">
-                <div className="flex gap-[0.5rem] mb-[1rem] overflow-x-[auto] pb-[0.5rem]">
+                <div className="flex gap-[0.5rem] mb-[1rem] overflow-x- pb-[0.5rem]">
                     {[
           { id: 'all', label: 'Todo' },
           { id: 'national', label: 'Nacional' },
@@ -218,7 +218,7 @@ export default function Legislation(): React.ReactElement | null {
 
 
               boxShadow: selectedLevel === level.id ? '0 4px 10px rgba(59, 130, 246, 0.3)' : 'none'
-            }} className="p-[0.5rem_1rem] rounded-[50px] border-none text-[0.8rem] font-[700] cursor-pointer white-space-[nowrap] transition-[all_0.2s]">
+            }} className="p-[0.5rem_1rem] rounded-[50px] border-none text-[0.8rem] font-[700] cursor-pointer whitespace- transition-[all_0.2s]">
             
                             {level.label}
                         </button>
@@ -335,7 +335,7 @@ export default function Legislation(): React.ReactElement | null {
                             </div>
                         </div>
 
-                        <p className="m-[0_0_1.2rem_0] text-[0.85rem] text-[var(--color-text-muted)] line-height-[1.4]">
+                        <p className="m-[0_0_1.2rem_0] text-[0.85rem] text-[var(--color-text-muted)] leading-[]">
                             {doc.description}
                         </p>
 
@@ -379,7 +379,7 @@ export default function Legislation(): React.ReactElement | null {
                             <a
               href={doc.url}
               target="_blank"
-              rel="noopener noreferrer" className="flex-[1] min-width-[120px] text-decoration-[none] flex items-center justify-center gap-[0.5rem] p-[0.7rem] bg-[var(--color-primary)] text-[#ffffff] rounded-[8px] text-[0.85rem] font-[700]">
+              rel="noopener noreferrer" className="flex-[1] min-w-[] no-underline flex items-center justify-center gap-[0.5rem] p-[0.7rem] bg-[var(--color-primary)] text-[#ffffff] rounded-[8px] text-[0.85rem] font-[700]">
 
 
 
@@ -416,7 +416,7 @@ export default function Legislation(): React.ReactElement | null {
 
 
                 cursor: loadingDocs.has(doc.id) ? 'wait' : 'pointer'
-              }} className="flex-[1] min-width-[120px] flex items-center justify-center gap-[0.5rem] p-[0.7rem] bg-[linear-gradient(135deg,_#a855f7,_#ec4899)] text-[#ffffff] border-none rounded-[8px] text-[0.85rem] font-[700]">
+              }} className="flex-[1] min-w-[] flex items-center justify-center gap-[0.5rem] p-[0.7rem] bg-[linear-gradient(135deg,_#a855f7,_#ec4899)] text-[#ffffff] border-none rounded-[8px] text-[0.85rem] font-[700]">
               
                                 {loadingDocs.has(doc.id) ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                                 {loadingDocs.has(doc.id) ? 'RESUMIENDO...' : 'SIMPLIFICAR CON IA'}
@@ -436,7 +436,7 @@ export default function Legislation(): React.ReactElement | null {
                                     <Info size={16} />
                                     <span className="text-[0.75rem] font-[800] uppercase">Resumen Simplificado</span>
                                 </div>
-                                <p className="m-[0] text-[0.85rem] text-[var(--color-text)] line-height-[1.5]">
+                                <p className="m-[0] text-[0.85rem] text-[var(--color-text)] leading-[]">
                                     {summaries[doc.id]}
                                 </p>
                             </div>

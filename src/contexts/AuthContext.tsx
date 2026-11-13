@@ -264,22 +264,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const unsubscribe = onAuthStateChanged(auth, user => {
       clearTimeout(emergencyTimer);
-      if (isMounted) {
-        setCurrentUser(user);
-        if (user && user.email) {
-          const evalResult = evaluateProAccess(user.email);
-          if (evalResult.isPro) {
-            const expiryToSave = evalResult.expiry || (Date.now() + 365 * 24 * 60 * 60 * 1000);
-            try {
-              localStorage.setItem('subscriptionData', JSON.stringify({
-                status: 'active',
-                expiry: expiryToSave.toString(),
-                provider: evalResult.isAdmin ? 'admin' : 'authorized_pro'
-              }));
-            } catch (e) {}
+      try {
+        if (isMounted) {
+          setCurrentUser(user);
+          if (user && user.email) {
+            const evalResult = evaluateProAccess(user.email);
+            if (evalResult.isPro) {
+              const expiryToSave = evalResult.expiry || (Date.now() + 365 * 24 * 60 * 60 * 1000);
+              try {
+                localStorage.setItem('subscriptionData', JSON.stringify({
+                  status: 'active',
+                  expiry: expiryToSave.toString(),
+                  provider: evalResult.isAdmin ? 'admin' : 'authorized_pro'
+                }));
+              } catch {}
+            }
           }
+          setLoading(false);
         }
-        setLoading(false);
+      } catch (err) {
+        console.error('[AUTH] Error procesando sesión en onAuthStateChanged:', err);
+        if (isMounted) setLoading(false);
       }
     }, (error) => {
       clearTimeout(emergencyTimer);

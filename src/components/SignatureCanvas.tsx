@@ -268,7 +268,7 @@ export default function SignatureCanvas({
       }} className="relative border-[2px_dashed_var(--color-border)] rounded-[12px] bg-[var(--color-surface)] touch-action-[none] overflow-[hidden]">
                 {image ?
         <div className="relative w-[100%] h-[100%]">
-                        <img src={image} alt="Firma" className="w-[100%] h-[100%] object-fit-[contain]" />
+                        <img src={image} alt="Firma" className="w-[100%] h-[100%] object-" />
                         <div onClick={clearCanvas} className="absolute top-[0.5rem] right-[0.5rem] bg-[rgba(255,255,255,0.8)] p-[0.25rem] rounded-[50%] cursor-pointer">
                             <Trash2 size={16} color="#ef4444" />
                         </div>
@@ -276,7 +276,7 @@ export default function SignatureCanvas({
 
         <>
                         {!hasContent &&
-          <div className="absolute inset-[0] flex items-center justify-center pointer-events-[none] gap-[0.5rem] text-[#94a3b8] z-[0]">
+          <div className="absolute inset-[0] flex items-center justify-center pointer-events- gap-[0.5rem] text-[#94a3b8] z-[0]">
 
 
             

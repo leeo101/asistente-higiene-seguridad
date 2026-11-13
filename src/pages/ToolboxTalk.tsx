@@ -147,13 +147,13 @@ function ToolboxStatCard({ icon, label, value, color, gradient }: {icon: React.R
 function SectionHeader({ icon, title, rightContent }: {icon: React.ReactNode;title: string;rightContent?: React.ReactNode;}) {
   return (
     <div className="flex justify-between items-center mb-6 flex-wrap gap-3">
-            <h3 className="m-[0] font-[900] text-[1.1rem] text-[var(--color-text)] flex items-center gap-[0.6rem] uppercase letter-spacing-[0.5px]">
+            <h3 className="m-[0] font-[900] text-[1.1rem] text-[var(--color-text)] flex items-center gap-[0.6rem] uppercase tracking-[]">
 
 
 
 
         
-                <div className="w-[36] h-[36] bg-[linear-gradient(135deg,_#0052CC,_#0077ff)] rounded-[10] flex items-center justify-center box-shadow-[0_4px_12px_rgba(0,_82,_204,_0.25)]">
+                <div className="w-[36] h-[36] bg-[linear-gradient(135deg,_#0052CC,_#0077ff)] rounded-[10] flex items-center justify-center shadow-[]">
 
 
 
@@ -786,12 +786,12 @@ Ninguna tarea es tan urgente como para realizarla sin las condiciones de segurid
                                 <textarea value={form.desarrollo}
               onChange={(e) => setForm((f) => ({ ...f, desarrollo: e.target.value }))}
               placeholder="Describí los puntos principales de la charla, o presioná 'Redactar con IA' para autogenerarla..."
-              className="toolbox-input-plain toolbox-focus-glow min-h-[140px] resize-[vertical] line-height-[1.5]" />
+              className="toolbox-input-plain toolbox-focus-glow min-h-[140px] resize-[vertical] leading-[]" />
                             </div>
 
                             {/* ── Observaciones ── */}
                             <div className="mt-[1rem]">
-                                <label className="block text-[0.7rem] font-[800] uppercase letter-spacing-[0.06em] text-[var(--color-text-muted)] mb-[0.4rem]">
+                                <label className="block text-[0.7rem] font-[800] uppercase tracking-[] text-[var(--color-text-muted)] mb-[0.4rem]">
 
 
 
@@ -801,7 +801,7 @@ Ninguna tarea es tan urgente como para realizarla sin las condiciones de segurid
                                 <textarea value={form.observaciones}
               onChange={(e) => setForm((f) => ({ ...f, observaciones: e.target.value }))}
               placeholder="Dudas, compromisos, acciones a tomar..."
-              className="toolbox-input-plain toolbox-focus-glow min-h-[70] resize-[vertical] font-family-[inherit]" />
+              className="toolbox-input-plain toolbox-focus-glow min-h-[70] resize-[vertical] font-[]" />
 
               
                             </div>
@@ -813,7 +813,7 @@ Ninguna tarea es tan urgente como para realizarla sin las condiciones de segurid
               icon={<Users size={18} color="#fff" />}
               title={`Lista de Asistentes (${form.asistentes.filter((a) => a.nombre).length})`}
               rightContent={
-              <button onClick={addAttendee} className="p-[0.5rem_1.1rem] bg-[linear-gradient(135deg,_#0052CC,_#0077ff)] text-[#fff] border-none rounded-[12] font-[700] cursor-pointer flex items-center gap-[0.4rem] text-[0.82rem] box-shadow-[0_4px_12px_rgba(0,82,204,0.25)] transition-[all_0.2s]">
+              <button onClick={addAttendee} className="p-[0.5rem_1.1rem] bg-[linear-gradient(135deg,_#0052CC,_#0077ff)] text-[#fff] border-none rounded-[12] font-[700] cursor-pointer flex items-center gap-[0.4rem] text-[0.82rem] shadow-[] transition-[all_0.2s]">
 
 
 
@@ -907,7 +907,7 @@ Ninguna tarea es tan urgente como para realizarla sin las condiciones de segurid
 
 
             }}>
-                                <span className="text-[0.7rem] font-[800] uppercase letter-spacing-[0.06em] text-[var(--color-text-muted)] white-space-[nowrap]">
+                                <span className="text-[0.7rem] font-[800] uppercase tracking-[] text-[var(--color-text-muted)] whitespace-">
 
 
 
@@ -967,7 +967,7 @@ Ninguna tarea es tan urgente como para realizarla sin las condiciones de segurid
                             </div>
 
                             {/* Interactive Signature Drawing Pads */}
-                            <div className="no-print grid gap-[2rem] pt-[2rem] border-top-[1px_solid_var(--color-border)]" style={{
+                            <div className="no-print grid gap-[2rem] pt-[2rem] border-t border-[]" style={{
 
               gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr'
 

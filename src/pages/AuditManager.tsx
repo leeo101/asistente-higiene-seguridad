@@ -320,7 +320,7 @@ export default function AuditManager(): React.ReactElement | null {
         elementIdToPrint="pdf-content-audit"
         fileName={`Auditoria_${(shareItem?.auditTitle || shareItem?.title || 'Reporte').replace(/\s+/g, '_')}.pdf`} />
 
-            <div id="pdf-content-audit" className="fixed left-[0] opacity-[0] top-[0] pointer-events-[none]">
+            <div id="pdf-content-audit" className="fixed left-[0] opacity-[0] top-[0] pointer-events-">
                 {shareItem && <AuditPdf data={shareItem} />}
             </div>
 
@@ -431,7 +431,7 @@ export default function AuditManager(): React.ReactElement | null {
             </div>
 
             {/* Tabs */}
-            <div className="hide-scrollbar flex gap-[0.5rem] mb-[1.5rem] border-bottom-[2px_solid_var(--color-border)] pb-[0.5rem] overflow-x-[auto] webkit-overflow-scrolling-[touch]">
+            <div className="hide-scrollbar flex gap-[0.5rem] mb-[1.5rem] border-b-2 border-[] pb-[0.5rem] overflow-x- webkit-overflow-scrolling-[touch]">
         
                 <TabButton
           active={activeTab === 'audits'}
@@ -663,12 +663,12 @@ function StatCard({ icon, label, value, color, gradient, isMobile }: any) {
       className={`group relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 backdrop-blur-xl ${isMobile ? 'flex items-center gap-3 p-3' : 'block p-5'}`}>
       
             <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-xl opacity-10 group-hover:opacity-25 transition-opacity duration-500" style={{ background: gradient }} />
-            <div style={{ marginBottom: isMobile ? '0' : '0.75rem' }} className="flex items-center gap-[0.75rem] flex-shrink-[0]">
+            <div style={{ marginBottom: isMobile ? '0' : '0.75rem' }} className="flex items-center gap-[0.75rem] shrink-0">
                 <div className={`flex items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 ${isMobile ? 'w-10 h-10' : 'w-12 h-12'}`} style={{ background: gradient, boxShadow: `0 4px 15px ${color}40` }}>
                     {React.cloneElement(icon, { color: '#ffffff', size: isMobile ? 20 : 24 })}
                 </div>
             </div>
-            <div className="min-width-[0] flex-[1]">
+            <div className="min-w-0 flex-[1]">
                 <div className={`font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide truncate ${isMobile ? 'text-xs' : 'text-[0.82rem]'}`}>
                     {label}
                 </div>
@@ -697,7 +697,7 @@ function TabButton({ active, onClick, icon, label, count, badge, isMobile }: any
                 </span>
       }
             {badge > 0 &&
-      <span className="absolute top-[4px] right-[6px] w-[18px] h-[18px] bg-[#ef4444] text-[#fff] rounded-[50%] flex items-center justify-center text-[0.65rem] font-[900] box-shadow-[0_0_6px_rgba(239,_68,_68,_0.4)]">
+      <span className="absolute top-[4px] right-[6px] w-[18px] h-[18px] bg-[#ef4444] text-[#fff] rounded-[50%] flex items-center justify-center text-[0.65rem] font-[900] shadow-[]">
 
 
 
@@ -760,10 +760,10 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
         opacity: isHovered ? 1 : 0
 
 
-      }} className="absolute top-[0] left-[0] w-[100%] h-[100%] transition-[opacity_0.4s_ease] pointer-events-[none]" />
+      }} className="absolute top-[0] left-[0] w-[100%] h-[100%] transition-[opacity_0.4s_ease] pointer-events-" />
 
             {/* Top row: Icon + Info */}
-            <div style={{ gap: isMobile ? '0.75rem' : '1rem' }} className="flex flex-[1] min-width-[0] items-center">
+            <div style={{ gap: isMobile ? '0.75rem' : '1rem' }} className="flex flex-[1] min-w-0 items-center">
                 {/* Icono */}
                 <div style={{
           width: isMobile ? '44px' : '56px',
@@ -777,14 +777,14 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
 
           transform: isHovered ? 'scale(1.05)' : 'scale(1)'
 
-        }} className="rounded-[var(--radius-xl)] flex items-center justify-center flex-shrink-[0] transition-[all_0.3s_ease]">
+        }} className="rounded-[var(--radius-xl)] flex items-center justify-center shrink-0 transition-[all_0.3s_ease]">
                     <ClipboardCheck size={isMobile ? 22 : 28} color={statusConfig.color} strokeWidth={2} />
                 </div>
 
                 {/* Información */}
-                <div className="flex-[1] min-width-[0]">
+                <div className="flex-[1] min-w-0">
                 <div className="flex items-center gap-[0.85rem] mb-[0.5rem] flex-wrap">
-                    <h3 className="m-[0] text-[1.15rem] font-[950] text-[var(--color-text)] font-family-[var(--font-heading)] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">
+                    <h3 className="m-[0] text-[1.15rem] font-[950] text-[var(--color-text)] font-[] whitespace- overflow-[hidden] text-overflow-[ellipsis]">
 
 
 
@@ -829,7 +829,7 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
                         {audit.standard}
                     </span>
                     {openFindings > 0 &&
-            <span className="p-[0.2rem_0.5rem] bg-[#fef2f2] border-[1px_solid_#fecaca] text-[#dc2626] rounded-[var(--radius-full)] text-[0.7rem] font-[800] display-[inline-flex] items-center gap-[0.25rem]">
+            <span className="p-[0.2rem_0.5rem] bg-[#fef2f2] border-[1px_solid_#fecaca] text-[#dc2626] rounded-[var(--radius-full)] text-[0.7rem] font-[800] inline-flex items-center gap-[0.25rem]">
 
 
 
@@ -1031,9 +1031,9 @@ function FindingsList({ findings, audits, onUpdateStatus, severityConfig, status
         return (
           <div key={finding.id} className="card" style={{ padding: isMobile ? '1rem' : '1.25rem', borderLeft: `4px solid ${severity.color}` }}>
                         <div style={{ flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isMobile ? '0.75rem' : '1rem' }} className="flex">
-                            <div style={{ gap: isMobile ? '0.75rem' : '1rem', width: isMobile ? '100%' : 'auto' }} className="flex items-center flex-[1] min-width-[0]">
+                            <div style={{ gap: isMobile ? '0.75rem' : '1rem', width: isMobile ? '100%' : 'auto' }} className="flex items-center flex-[1] min-w-0">
                                 <span style={{ fontSize: isMobile ? '1.5rem' : '2rem' }}>{severity.icon}</span>
-                                <div className="flex-[1] min-width-[0]">
+                                <div className="flex-[1] min-w-0">
                                     <div className="flex items-center gap-[0.5rem] mb-[0.5rem] flex-wrap">
                                         <h4 style={{ fontSize: isMobile ? '0.95rem' : '1rem' }} className="m-[0] font-[800]">{finding.title}</h4>
                                         <span style={{ background: severity.bg, color: severity.color }} className="p-[0.2rem_0.5rem] rounded-[var(--radius-full)] text-[0.65rem] font-[800]">{severity.label}</span>
@@ -1076,7 +1076,7 @@ function ISOChecklistPanel({ checklist, areas }: any) {
                     <div className="flex flex-col gap-[0.5rem]">
                         {checklist[area.id]?.map((item: any) =>
           <div key={item.id} style={{ background: item.required ? '#f8fafc' : 'var(--color-background)', border: `1px solid ${item.required ? '#e2e8f0' : 'var(--color-border)'}` }} className="p-[0.75rem] rounded-[var(--radius-lg)] flex items-center gap-[0.75rem]">
-                                <span className="text-[0.75rem] font-[800] text-[var(--color-text-muted)] min-width-[30px]">{item.id}</span>
+                                <span className="text-[0.75rem] font-[800] text-[var(--color-text-muted)] min-w-[]">{item.id}</span>
                                 <span className="flex-[1] text-[0.9rem] font-[500]">{item.question}</span>
                                 {item.required && <span className="text-[0.7rem] font-[700] text-[#dc2626] p-[0.2rem_0.5rem] bg-[#fef2f2] rounded-[var(--radius-full)]">REQUERIDO</span>}
                             </div>

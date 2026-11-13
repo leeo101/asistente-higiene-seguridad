@@ -7,7 +7,7 @@ export default function TrainingExamPdfGenerator({ data }: {data: any;}): React.
   const preguntas = data.preguntas || [];
 
   return (
-    <div id="pdf-content" className="pdf-container print-area w-[210mm] min-h-[297mm] p-[15mm] bg-[#ffffff] text-[#1e293b] box-sizing-[border-box] m-[0_auto] text-[10pt] font-family-[Helvetica,_Arial,_sans-serif]" ref={componentRef}>
+    <div id="pdf-content" className="pdf-container print-area w-[210mm] min-h-[297mm] p-[15mm] bg-[#ffffff] text-[#1e293b] box-sizing-[border-box] m-[0_auto] text-[10pt] font-[]" ref={componentRef}>
             <style type="text/css" media="print">
                 {`
                     @page { size: A4 portrait; margin: 10mm; }
@@ -17,12 +17,12 @@ export default function TrainingExamPdfGenerator({ data }: {data: any;}): React.
             </style>
 
             {/* Header */}
-            <div className="flex justify-space-between items-start border-bottom-[2px_solid_#e2e8f0] pb-[1rem] mb-[1.5rem]">
+            <div className="flex justify-space-between items-start border-b-2 border-[] pb-[1rem] mb-[1.5rem]">
                 <div>
                     <h2 className="m-[0_0_0.2rem_0] text-[#0f172a] text-[1.4rem] font-[900] uppercase">Evaluación de Capacitación</h2>
                     <p className="m-[0] text-[#64748b] text-[0.8rem] font-[600]">Cuestionario de Comprensión</p>
                 </div>
-                <CompanyLogo className="h-[35px] object-fit-[contain]" />
+                <CompanyLogo className="h-[35px] object-" />
             </div>
 
             {/* Info Box */}
@@ -52,24 +52,24 @@ export default function TrainingExamPdfGenerator({ data }: {data: any;}): React.
             {/* Alumno Box */}
             <div className="border-[1px_solid_#0f172a] p-[1rem] mb-[2rem]">
                 <div className="flex gap-[1rem] items-end">
-                    <span className="font-[800] line-height-[1]">APELLIDO Y NOMBRES:</span>
-                    <div className="flex-[1] border-bottom-[1px_solid_#64748b]"></div>
+                    <span className="font-[800] leading-[]">APELLIDO Y NOMBRES:</span>
+                    <div className="flex-[1] border-b border-[]"></div>
                 </div>
                 <div className="flex gap-[1rem] mt-[1rem]">
                     <div className="flex gap-[0.5rem] flex-[1] items-end">
-                        <span className="font-[800] line-height-[1]">DNI:</span>
-                        <div className="flex-[1] border-bottom-[1px_solid_#64748b]"></div>
+                        <span className="font-[800] leading-[]">DNI:</span>
+                        <div className="flex-[1] border-b border-[]"></div>
                     </div>
                     <div className="flex gap-[0.5rem] flex-[1] items-end">
-                        <span className="font-[800] line-height-[1]">PUESTO:</span>
-                        <div className="flex-[1] border-bottom-[1px_solid_#64748b]"></div>
+                        <span className="font-[800] leading-[]">PUESTO:</span>
+                        <div className="flex-[1] border-b border-[]"></div>
                     </div>
                 </div>
             </div>
 
             {/* Preguntas */}
             <div className="mb-[3rem]">
-                <h3 className="text-[1rem] text-[#0f172a] mb-[1.5rem] border-bottom-[1px_solid_#cbd5e1] pb-[0.5rem]">Desarrollo del Examen</h3>
+                <h3 className="text-[1rem] text-[#0f172a] mb-[1.5rem] border-b border-[] pb-[0.5rem]">Desarrollo del Examen</h3>
                 {data.questions?.length > 0 ? (
                     data.questions.map((q: any, i: number) => (
                         <div key={i} className="mb-[1rem] p-[0.8rem] border-[1px_solid_#e2e8f0] rounded-[6px] page-break-inside-[avoid]">
@@ -89,8 +89,8 @@ export default function TrainingExamPdfGenerator({ data }: {data: any;}): React.
                 ) : (
                     <div className="mb-[2rem]">
                         <p className="font-[700] m-[0_0_1rem_0] text-[0.95rem]">1. </p>
-                        <div className="border-bottom-[1px_solid_#cbd5e1] mb-[1.5rem]"></div>
-                        <div className="border-bottom-[1px_solid_#cbd5e1] mb-[1.5rem]"></div>
+                        <div className="border-b border-[] mb-[1.5rem]"></div>
+                        <div className="border-b border-[] mb-[1.5rem]"></div>
                     </div>
                 )}
             </div>
@@ -98,12 +98,12 @@ export default function TrainingExamPdfGenerator({ data }: {data: any;}): React.
             {/* Firmas y Resultado */}
             <div className="flex justify-space-between items-end mt-[3rem] pt-[1rem] relative">
                 <div className="w-[40%] text-center">
-                    <div className="border-top-[1px_solid_#0f172a] pt-[0.5rem]">
+                    <div className="border-t border-[] pt-[0.5rem]">
                         <p className="m-[0] font-[700] text-[0.8rem]">Firma del Alumno</p>
                     </div>
                 </div>
                 <div className="w-[40%] text-center">
-                    <div className="border-top-[1px_solid_#0f172a] pt-[0.5rem]">
+                    <div className="border-t border-[] pt-[0.5rem]">
                         <p className="m-[0] font-[700] text-[0.8rem]">Firma del Instructor</p>
                     </div>
                     <div className="absolute transform-[translateY(-120%)_translateX(20%)] opacity-[0.8]">
@@ -115,8 +115,8 @@ export default function TrainingExamPdfGenerator({ data }: {data: any;}): React.
             
             <div className="mt-[3rem]">
                 <div className="border-[2px_solid_#0f172a] inline-flex items-end p-[0.5rem_1rem]">
-                    <span className="font-[800] text-[1.1rem] line-height-[1]">NOTA / RESULTADO: </span>
-                    <span className="inline-block w-[100px] border-bottom-[1px_solid_#0f172a] ml-[0.5rem]"></span>
+                    <span className="font-[800] text-[1.1rem] leading-[]">NOTA / RESULTADO: </span>
+                    <span className="inline-block w-[100px] border-b border-[] ml-[0.5rem]"></span>
                 </div>
             </div>
 

@@ -97,7 +97,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
 
 
         
-                <div className="w-[40px] h-[40px] rounded-[10px] bg-[linear-gradient(135deg,_#3b82f6,_#2563eb)] flex items-center justify-center flex-shrink-[0]">
+                <div className="w-[40px] h-[40px] rounded-[10px] bg-[linear-gradient(135deg,_#3b82f6,_#2563eb)] flex items-center justify-center shrink-0">
 
 
 
@@ -170,7 +170,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
 
         
                     <div className="flex items-start gap-[0.6rem]">
-                        <div className="w-[32px] h-[32px] rounded-[50%] bg-[#16a34a] flex items-center justify-center flex-shrink-[0]">
+                        <div className="w-[32px] h-[32px] rounded-[50%] bg-[#16a34a] flex items-center justify-center shrink-0">
 
 
 
@@ -191,7 +191,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
               
                                 📍 Ubicación registrada
                             </p>
-                            <div className="mt-[0.5rem] text-[0.8rem] text-[#166534] line-height-[1.6]">
+                            <div className="mt-[0.5rem] text-[0.8rem] text-[#166534] leading-[]">
 
 
 
@@ -232,12 +232,12 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
       }
 
             {/* Entrada manual de coordenadas */}
-            <div className="border-top-[1px_solid_var(--color-border,_#e2e8f0)] pt-[1rem] mt-[1rem]">
+            <div className="border-t border-[] pt-[1rem] mt-[1rem]">
 
 
 
         
-                <p className="m-[0_0_0.8rem_0] text-[0.8rem] font-[700] text-[var(--color-text-muted,_#64748b)] uppercase letter-spacing-[0.5px]">
+                <p className="m-[0_0_0.8rem_0] text-[0.8rem] font-[700] text-[var(--color-text-muted,_#64748b)] uppercase tracking-[]">
 
 
 
@@ -317,7 +317,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
       }
 
             {/* Información de privacidad */}
-            <p className="mt-[1rem] text-[0.7rem] text-[var(--color-text-muted,_#94a3b8)] text-center line-height-[1.5]">
+            <p className="mt-[1rem] text-[0.7rem] text-[var(--color-text-muted,_#94a3b8)] text-center leading-[]">
 
 
 

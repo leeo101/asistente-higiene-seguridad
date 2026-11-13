@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { safeJsonParse } from '../utils/storageHelper';
 import { useNavigate } from 'react-router-dom';
 import { 
   Building2, Users, ShieldCheck, ShieldAlert, AlertTriangle, CheckCircle2, XCircle, 
@@ -155,11 +156,11 @@ export default function ContractorMatrix() {
       let workerList: WorkerItem[] = [];
       const savedW = localStorage.getItem('contractors_matrix_workers');
       if (savedW) {
-        workerList = JSON.parse(savedW);
+        workerList = safeJsonParse<WorkerItem[]>(savedW, []);
       } else {
         const legacyW = localStorage.getItem('workers_data');
         if (legacyW) {
-          const parsedLegacyW = JSON.parse(legacyW);
+          const parsedLegacyW = safeJsonParse<any[]>(legacyW, []);
           if (Array.isArray(parsedLegacyW) && parsedLegacyW.length > 0) {
             workerList = parsedLegacyW.map((w: any) => {
               const comp = companyList.find(c => c.id === w.contractorId);

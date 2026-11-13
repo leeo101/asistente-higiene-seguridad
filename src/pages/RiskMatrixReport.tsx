@@ -31,12 +31,12 @@ const IMPACT_LABELS = ['Menor', 'Crítica', 'Mayor', 'Catastrófico'];
 function RiskMatrixGrid() {
   return (
     <div className="mb-[2rem] page-break-inside-[avoid]">
-            <h3 className="text-[0.8rem] font-[900] text-[#475569] uppercase letter-spacing-[0.08em] m-[0_0_1rem_0]">
+            <h3 className="text-[0.8rem] font-[900] text-[#475569] uppercase tracking-[] m-[0_0_1rem_0]">
                 Tabla de Valoración de Riesgos (Probabilidad × Impacto)
             </h3>
             <div className="flex items-stretch gap-[0]">
                 {/* Y-axis label */}
-                <div className="writing-mode-[vertical-rl] transform-[rotate(180deg)] text-[0.7rem] font-[800] text-[#64748b] text-center pr-[0.5rem] letter-spacing-[0.1em] uppercase">
+                <div className="writing-mode-[vertical-rl] transform-[rotate(180deg)] text-[0.7rem] font-[800] text-[#64748b] text-center pr-[0.5rem] tracking-[] uppercase">
 
 
 
@@ -60,7 +60,7 @@ function RiskMatrixGrid() {
                     {/* Matrix rows */}
                     {MATRIX_GRID.map((row, ri) =>
           <div key={ri} className="grid grid-template-columns-[100px_repeat(4,_1fr)] gap-[2px] mb-[2px]">
-                            <div className="bg-[#f1f5f9] rounded-[6px_0_0_6px] flex items-center justify-center p-[0.4rem] text-[0.6rem] font-[800] text-[#475569] text-center white-space-[pre-line] line-height-[1.2]">
+                            <div className="bg-[#f1f5f9] rounded-[6px_0_0_6px] flex items-center justify-center p-[0.4rem] text-[0.6rem] font-[800] text-[#475569] text-center whitespace- leading-[]">
 
 
 
@@ -78,7 +78,7 @@ function RiskMatrixGrid() {
           )}
 
                     {/* X-axis label */}
-                    <div className="text-center text-[0.7rem] font-[800] text-[#64748b] uppercase letter-spacing-[0.1em] mt-[0.5rem]">
+                    <div className="text-center text-[0.7rem] font-[800] text-[#64748b] uppercase tracking-[] mt-[0.5rem]">
                         Impacto →
                     </div>
                 </div>
@@ -181,17 +181,17 @@ export default function RiskMatrixReport(): React.ReactElement | null {
             </div>
 
             {/* ─── Printable Report ─── */}
-            <div id="pdf-content" className="print-area print:mb-0 print:border-none print:shadow-none bg-[#fff] rounded-[20px] p-[2.5rem] border-[1px_solid_#e2e8f0] box-shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+            <div id="pdf-content" className="print-area print:mb-0 print:border-none print:shadow-none bg-[#fff] rounded-[20px] p-[2.5rem] border-[1px_solid_#e2e8f0] shadow-[]">
 
                 {/* Report Header */}
                 <div className="grid grid-template-columns-[1fr_2fr_1fr] items-center border-bottom-[4px_solid_#6366f1] pb-[1.5rem] mb-[2rem] w-[100%] gap-[1.5rem]">
                     <div className="text-left">
-                        <p className="m-[0] font-[700] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.05em]">Sistema de Gestión</p>
+                        <p className="m-[0] font-[700] text-[0.65rem] uppercase text-[#64748b] tracking-[]">Sistema de Gestión</p>
                         <p className="m-[0] font-[900] text-[0.75rem] uppercase text-[#1e293b]">Control H&S</p>
                     </div>
 
                     <div className="text-center">
-                        <h2 className="m-[0] text-[1.2rem] font-[900] text-[var(--color-primary)] uppercase letter-spacing-[1px] line-height-[1.2]">
+                        <h2 className="m-[0] text-[1.2rem] font-[900] text-[var(--color-primary)] uppercase tracking-[] leading-[]">
                             Matriz de Valoración de Riesgos
                         </h2>
                         <p className="m-[4px_0_0_0] text-[0.65rem] text-[#64748b] font-[600]">ISO 31000 / Estándar HyS</p>
@@ -202,7 +202,7 @@ export default function RiskMatrixReport(): React.ReactElement | null {
                              <div className="font-[800] text-[#1e293b]">ID #{matrix.id?.toString().slice(-6)}</div>
                              <div>{new Date(matrix.date).toLocaleDateString('es-AR')}</div>
                          </div>
-                        <CompanyLogo className="h-[40px] w-[auto] max-w-[120px] object-fit-[contain]" />
+                        <CompanyLogo className="h-[40px] w-[auto] max-w-[120px] object-" />
                     </div>
                 </div>
 
@@ -221,12 +221,12 @@ export default function RiskMatrixReport(): React.ReactElement | null {
                 <RiskMatrixGrid />
 
                 {/* ─── Data Table ─── */}
-                <div className="overflow-x-[auto] mb-[2.5rem]">
+                <div className="overflow-x- mb-[2.5rem]">
                     <table className="w-[100%] border-collapse-[collapse] text-[0.75rem]">
                         <thead>
                             <tr className="bg-[#f8fafc]">
                                 {['#', 'Tarea / Proceso', 'Tipo', 'Peligro / Riesgo', 'Efecto Probable', 'Exp.', 'P', 'S', 'P×S', 'Nivel', 'Medidas de Control'].map((h) =>
-                <th key={h} style={{ textAlign: h === '#' || h === 'P' || h === 'S' || h === 'P×S' || h === 'Exp.' ? 'center' : 'left' }} className="border-[1px_solid_#e2e8f0] p-[0.6rem_0.8rem] font-[800] text-[#475569] uppercase text-[0.65rem] letter-spacing-[0.05em]">
+                <th key={h} style={{ textAlign: h === '#' || h === 'P' || h === 'S' || h === 'P×S' || h === 'Exp.' ? 'center' : 'left' }} className="border-[1px_solid_#e2e8f0] p-[0.6rem_0.8rem] font-[800] text-[#475569] uppercase text-[0.65rem] tracking-[]">
                                         {h}
                                     </th>
                 )}
@@ -255,7 +255,7 @@ export default function RiskMatrixReport(): React.ReactElement | null {
                                         <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] text-center font-[800]">{row.severity}</td>
                                         <td style={{ color: lv.color, background: lv.bg }} className="border-[1px_solid_#e2e8f0] p-[0.6rem] text-center font-[900]">{row.probability * row.severity}</td>
                                         <td className="border-[1px_solid_#e2e8f0] p-[0.4rem] text-center">
-                                            <span style={{ background: lv.bg, color: lv.color, border: `1px solid ${lv.color}40` }} className="rounded-[12px] p-[0.25rem_0.6rem] font-[900] text-[0.65rem] white-space-[nowrap]">{lv.label}</span>
+                                            <span style={{ background: lv.bg, color: lv.color, border: `1px solid ${lv.color}40` }} className="rounded-[12px] p-[0.25rem_0.6rem] font-[900] text-[0.65rem] whitespace-">{lv.label}</span>
                                         </td>
                                         <td className="border-[1px_solid_#e2e8f0] p-[0.6rem] word-break-[break-word] overflow-wrap-[anywhere]">
                                             <ReportContentRenderer content={row.controls} />

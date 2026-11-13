@@ -184,8 +184,8 @@ export default function GlobalSearch({ onClose }: GlobalSearchProps): React.Reac
 
         
         {/* ── Input ─────────────────────────────────────────────────────── */}
-        <div className="flex items-center gap-[0.85rem] p-[1.1rem_1.4rem] border-bottom-[1px_solid_var(--glass-border)]">
-          <Search size={22} strokeWidth={2.5} color="var(--color-primary)" className="flex-shrink-[0]" />
+        <div className="flex items-center gap-[0.85rem] p-[1.1rem_1.4rem] border-b border-[]">
+          <Search size={22} strokeWidth={2.5} color="var(--color-primary)" className="shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -193,7 +193,7 @@ export default function GlobalSearch({ onClose }: GlobalSearchProps): React.Reac
             aria-label="Buscar módulo, registro o acción"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown} className="flex-[1] border-none outline-[none] bg-[transparent] text-[1.05rem] text-[var(--color-text)] font-[600] font-family-[inherit] min-width-[0]" />
+            onKeyDown={handleKeyDown} className="flex-[1] border-none outline-[none] bg-[transparent] text-[1.05rem] text-[var(--color-text)] font-[600] font-[] min-w-0" />
 
           
           {query && (
@@ -216,9 +216,9 @@ export default function GlobalSearch({ onClose }: GlobalSearchProps): React.Reac
               ref={(el) => {itemRefs.current[i] = el;}}
               onClick={() => go(qa.nav)}
               onMouseEnter={() => setActiveIdx(i)}
-              style={{ background: activeIdx === i ? 'var(--color-surface-hover)' : 'transparent' }} className="flex items-center gap-[0.9rem] p-[0.78rem_1.4rem] cursor-pointer transition-[background_0.1s] border-bottom-[1px_solid_var(--glass-border-subtle)]">
+              style={{ background: activeIdx === i ? 'var(--color-surface-hover)' : 'transparent' }} className="flex items-center gap-[0.9rem] p-[0.78rem_1.4rem] cursor-pointer transition-[background_0.1s] border-b border-[]">
               
-                  <div style={{ background: qa.bg, color: qa.color }} className="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center flex-shrink-[0]">
+                  <div style={{ background: qa.bg, color: qa.color }} className="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center shrink-0">
                     {qa.icon}
                   </div>
                   <span className="font-[700] text-[0.9rem] text-[var(--color-text)] flex-[1]">{qa.label}</span>
@@ -236,8 +236,8 @@ export default function GlobalSearch({ onClose }: GlobalSearchProps): React.Reac
                 onMouseOver={(e) => {(e.currentTarget as HTMLButtonElement).style.borderColor = mod.color;(e.currentTarget as HTMLButtonElement).style.background = mod.bg;}}
                 onMouseOut={(e) => {(e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--glass-border-subtle)';(e.currentTarget as HTMLButtonElement).style.background = 'var(--color-background)';}} className="flex items-center gap-[0.6rem] p-[0.6rem_0.85rem] bg-[var(--color-background)] border-[1px_solid_var(--glass-border-subtle)] rounded-[12px] cursor-pointer transition-[all_0.15s] text-left text-[var(--color-text)]">
                 
-                    <span style={{ color: mod.color }} className="flex-shrink-[0]">{mod.icon}</span>
-                    <span className="text-[0.77rem] font-[700] line-height-[1.3]">{mod.label}</span>
+                    <span style={{ color: mod.color }} className="shrink-0">{mod.icon}</span>
+                    <span className="text-[0.77rem] font-[700] leading-[]">{mod.label}</span>
                   </button>
               )}
               </div>
@@ -268,13 +268,13 @@ export default function GlobalSearch({ onClose }: GlobalSearchProps): React.Reac
 
         {/* ── Footer ────────────────────────────────────────────────────── */}
         {!isMobile &&
-        <div className="flex items-center justify-space-between p-[0.65rem_1.4rem] border-top-[1px_solid_var(--glass-border)] bg-[var(--color-background)]">
+        <div className="flex items-center justify-space-between p-[0.65rem_1.4rem] border-t border-[] bg-[var(--color-background)]">
             <div className="flex gap-[1.25rem] text-[0.7rem] text-[var(--color-text-muted)] font-[600]">
               <span><kbd style={kbdStyle}>↑↓</kbd> navegar</span>
               <span><kbd style={kbdStyle}>↵</kbd> abrir</span>
               <span><kbd style={kbdStyle}>ESC</kbd> cerrar</span>
             </div>
-            <span className="text-[0.65rem] font-[800] text-[var(--color-text-muted)] opacity-[0.45] letter-spacing-[0.05em]">Ctrl + K</span>
+            <span className="text-[0.65rem] font-[800] text-[var(--color-text-muted)] opacity-[0.45] tracking-[]">Ctrl + K</span>
           </div>
         }
       </div>
@@ -292,7 +292,7 @@ export default function GlobalSearch({ onClose }: GlobalSearchProps): React.Reac
 // ─── Sub-components ────────────────────────────────────────────────────────────
 function SectionLabel({ text }: {text: string;}) {
   return (
-    <div className="p-[0.5rem_1.4rem_0.2rem] text-[0.68rem] font-[800] text-[var(--color-text-muted)] uppercase letter-spacing-[0.07em] border-top-[1px_solid_var(--glass-border-subtle)]">
+    <div className="p-[0.5rem_1.4rem_0.2rem] text-[0.68rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-[] border-t border-[]">
       {text}
     </div>);
 
@@ -309,19 +309,19 @@ function ResultRow({ item, idx, activeIdx, onHover, onSelect, itemRefs
       ref={(el) => {itemRefs.current[idx] = el;}}
       onClick={onSelect}
       onMouseEnter={() => onHover(idx)}
-      style={{ background: active ? 'var(--color-surface-hover)' : 'transparent' }} className="flex items-center gap-[0.9rem] p-[0.75rem_1.4rem] cursor-pointer transition-[background_0.1s] border-bottom-[1px_solid_var(--glass-border-subtle)]">
+      style={{ background: active ? 'var(--color-surface-hover)' : 'transparent' }} className="flex items-center gap-[0.9rem] p-[0.75rem_1.4rem] cursor-pointer transition-[background_0.1s] border-b border-[]">
       
-      <div style={{ background: item.bg, color: item.color }} className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center flex-shrink-[0]">
+      <div style={{ background: item.bg, color: item.color }} className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center shrink-0">
         {item.icon}
       </div>
-      <div className="flex-[1] min-width-[0]">
-        <div className="font-[700] text-[0.9rem] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis] text-[var(--color-text)]">{item.title}</div>
+      <div className="flex-[1] min-w-0">
+        <div className="font-[700] text-[0.9rem] whitespace- overflow-[hidden] text-overflow-[ellipsis] text-[var(--color-text)]">{item.title}</div>
         <div className="flex items-center gap-[0.45rem] mt-[0.12rem]">
-          <span style={{ background: item.bg, color: item.color }} className="p-[0.05rem_0.42rem] rounded-[20px] text-[0.62rem] font-[800] flex-shrink-[0]">{item.label}</span>
-          {item.subtitle && <span className="text-[0.73rem] text-[var(--color-text-muted)] overflow-[hidden] text-overflow-[ellipsis] white-space-[nowrap]">{item.subtitle}</span>}
+          <span style={{ background: item.bg, color: item.color }} className="p-[0.05rem_0.42rem] rounded-[20px] text-[0.62rem] font-[800] shrink-0">{item.label}</span>
+          {item.subtitle && <span className="text-[0.73rem] text-[var(--color-text-muted)] overflow-[hidden] text-overflow-[ellipsis] whitespace-">{item.subtitle}</span>}
         </div>
       </div>
-      <div className="flex items-center gap-[0.4rem] flex-shrink-[0]">
+      <div className="flex items-center gap-[0.4rem] shrink-0">
         {item.date && <span className="text-[0.68rem] text-[var(--color-text-muted)]">{new Date(item.date).toLocaleDateString('es-AR')}</span>}
         {active && <ArrowRight size={16} color="var(--color-text-muted)" />}
       </div>

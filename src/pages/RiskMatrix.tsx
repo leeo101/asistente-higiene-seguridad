@@ -224,18 +224,18 @@ export default function RiskMatrix(): React.ReactElement | null {
             background: s.bg, border: `2px solid ${s.border}`
 
 
-          }} className="rounded-[16px] p-[1.5rem_1rem] text-center box-shadow-[0_4px_12px_rgba(0,0,0,0.03)]">
-                            <div style={{ color: s.color }} className="text-[2.5rem] font-[900] line-height-[1]">{s.count}</div>
-                            <div style={{ color: s.color }} className="text-[0.75rem] font-[800] uppercase letter-spacing-[0.5px] mt-[0.5rem]">{s.label}</div>
+          }} className="rounded-[16px] p-[1.5rem_1rem] text-center shadow-[]">
+                            <div style={{ color: s.color }} className="text-[2.5rem] font-[900] leading-[]">{s.count}</div>
+                            <div style={{ color: s.color }} className="text-[0.75rem] font-[800] uppercase tracking-[] mt-[0.5rem]">{s.label}</div>
                         </div>
           )}
                 </div>
 
                 <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 flex flex-col">
-                    <h3 className="m-[0_0_1rem_0] text-[0.9rem] font-[900] text-[var(--color-text-muted)] uppercase letter-spacing-[0.05em]">Mapa de Calor (Probabilidad vs Severidad)</h3>
+                    <h3 className="m-[0_0_1rem_0] text-[0.9rem] font-[900] text-[var(--color-text-muted)] uppercase tracking-[]">Mapa de Calor (Probabilidad vs Severidad)</h3>
                     <div className="flex flex-[1] gap-[0.5rem]">
-                        <div className="flex flex-col justify-space-between pb-[2rem] pr-[0.5rem] border-right-[1px_solid_var(--color-border)]">
-                            <span className="text-[0.65rem] font-[800] text-[var(--color-text-muted)] transform-[rotate(-90deg)] transform-origin-[left_center] white-space-[nowrap] mt-[auto] mb-[auto]">PROBABILIDAD</span>
+                        <div className="flex flex-col justify-space-between pb-[2rem] pr-[0.5rem] border-r border-[]">
+                            <span className="text-[0.65rem] font-[800] text-[var(--color-text-muted)] transform-[rotate(-90deg)] transform-origin-[left_center] whitespace- mt-[auto] mb-[auto]">PROBABILIDAD</span>
                         </div>
                         <div className="flex-[1] flex flex-col">
                             <div className="grid grid-template-columns-[repeat(4,_1fr)] grid-template-rows-[repeat(4,_1fr)] gap-[4px] flex-[1]">
@@ -282,7 +282,7 @@ export default function RiskMatrix(): React.ReactElement | null {
               border: `2px solid ${level.border}`
 
 
-            }} className="bg-[var(--color-surface)] rounded-[18px] p-[1.5rem] box-shadow-[0_4px_16px_rgba(0,0,0,0.04)] relative">
+            }} className="bg-[var(--color-surface)] rounded-[18px] p-[1.5rem] shadow-[] relative">
                             {/* Row Header */}
                             <div className="flex justify-space-between items-center mb-[1.2rem]">
                                 <div className="flex items-center gap-[0.8rem]">
@@ -294,7 +294,7 @@ export default function RiskMatrix(): React.ReactElement | null {
                     background: level.bg, color: level.color, border: `1.5px solid ${level.border}`
 
 
-                  }} className="rounded-[20px] p-[0.3rem_1rem] font-[900] text-[0.75rem] uppercase letter-spacing-[0.05em]">
+                  }} className="rounded-[20px] p-[0.3rem_1rem] font-[900] text-[0.75rem] uppercase tracking-[]">
                                         {level.label} · {level.score}
                                     </span>
                                     {row.hazardType &&
@@ -366,7 +366,7 @@ export default function RiskMatrix(): React.ReactElement | null {
                       boxShadow: row.probability === v ? '0 4px 12px rgba(79, 70, 229, 0.3)' : 'none'
                     }} className="flex-[1] p-[0.6rem_0.2rem] rounded-[10px] font-[900] text-[0.7rem] cursor-pointer flex flex-col items-center gap-[2px] transition-[all_0.2s]">
                                                 <span className="text-[1.1rem]">{v}</span>
-                                                <span style={{ opacity: row.probability === v ? 1 : 0.7 }} className="text-[0.55rem] text-center line-height-[1]">{PROB_LABELS[v]}</span>
+                                                <span style={{ opacity: row.probability === v ? 1 : 0.7 }} className="text-[0.55rem] text-center leading-[]">{PROB_LABELS[v]}</span>
                                             </button>
                     )}
                                     </div>
@@ -385,7 +385,7 @@ export default function RiskMatrix(): React.ReactElement | null {
                       boxShadow: row.severity === v ? '0 4px 12px rgba(234, 88, 12, 0.3)' : 'none'
                     }} className="flex-[1] p-[0.6rem_0.2rem] rounded-[10px] font-[900] text-[0.7rem] cursor-pointer flex flex-col items-center gap-[2px] transition-[all_0.2s]">
                                                 <span className="text-[1.1rem]">{v}</span>
-                                                <span style={{ opacity: row.severity === v ? 1 : 0.7 }} className="text-[0.55rem] text-center line-height-[1]">{SEV_LABELS[v]}</span>
+                                                <span style={{ opacity: row.severity === v ? 1 : 0.7 }} className="text-[0.55rem] text-center leading-[]">{SEV_LABELS[v]}</span>
                                             </button>
                     )}
                                     </div>
@@ -419,7 +419,7 @@ export default function RiskMatrix(): React.ReactElement | null {
 
             <ModuleFormSection title="Leyenda" icon={<Leaf size={20} />}>
             <div className="bg-[var(--color-background)] rounded-[14px] p-[1.2rem] border-[1px_solid_var(--color-border)]">
-                <p className="m-[0_0_0.8rem_0] text-[0.75rem] font-[800] text-[var(--color-text-muted)] uppercase letter-spacing-[0.05em]">
+                <p className="m-[0_0_0.8rem_0] text-[0.75rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-[]">
                     Guía de Valoración (P × S)
                 </p>
                 <div className="flex gap-[1.5rem] flex-wrap">

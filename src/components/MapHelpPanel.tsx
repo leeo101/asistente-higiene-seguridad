@@ -43,7 +43,7 @@ const WORKFLOW = [
 
 export default function MapHelpPanel() {
   return (
-    <div className="p-[0.75rem] text-[0.75rem] flex flex-col gap-[1.5rem] overflow-y-[auto]">
+    <div className="p-[0.75rem] text-[0.75rem] flex flex-col gap-[1.5rem] overflow-y-">
 
             <div>
                 <h4 className="text-[0.7rem] font-[800] uppercase text-[var(--color-primary)] mb-[0.75rem]">Herramientas de Dibujo</h4>
@@ -53,7 +53,7 @@ export default function MapHelpPanel() {
                             <span className="text-[1rem] w-[20] text-center">{t.icon}</span>
                             <strong className="text-[0.75rem]">{t.label}</strong>
                         </div>
-                        <p className="m-[0] text-[var(--color-text-muted)] line-height-[1.4]">{t.desc}</p>
+                        <p className="m-[0] text-[var(--color-text-muted)] leading-[]">{t.desc}</p>
                     </div>
         )}
             </div>
@@ -64,7 +64,7 @@ export default function MapHelpPanel() {
                     <tbody>
                         {SHORTCUTS.map((s) =>
             <tr key={s.key}>
-                                <td className="p-[4px_6px] font-family-[monospace] bg-[var(--color-background)] rounded-[4] text-[0.7rem] font-[700] border-[1px_solid_var(--color-border)] white-space-[nowrap]">{s.key}</td>
+                                <td className="p-[4px_6px] font-[] bg-[var(--color-background)] rounded-[4] text-[0.7rem] font-[700] border-[1px_solid_var(--color-border)] whitespace-">{s.key}</td>
                                 <td className="p-[4px_8px] text-[var(--color-text-muted)]">{s.desc}</td>
                             </tr>
             )}
@@ -77,10 +77,10 @@ export default function MapHelpPanel() {
                 {ICONS_GUIDE.map((g) =>
         <div key={g.label} className="mb-[0.75rem]">
                         <div className="flex items-center gap-[0.4rem] mb-[0.3rem]">
-                            <div style={{ background: g.color }} className="w-[12] h-[12] rounded-[2] flex-shrink-[0]" />
+                            <div style={{ background: g.color }} className="w-[12] h-[12] rounded-[2] shrink-0" />
                             <strong style={{ color: g.color }}>{g.label}</strong>
                         </div>
-                        <ul className="m-[0] pl-[1.2rem] text-[var(--color-text-muted)] line-height-[1.6]">
+                        <ul className="m-[0] pl-[1.2rem] text-[var(--color-text-muted)] leading-[]">
                             {g.items.map((it) => <li key={it}>{it}</li>)}
                         </ul>
                     </div>
@@ -91,14 +91,14 @@ export default function MapHelpPanel() {
                 <h4 className="text-[0.7rem] font-[800] uppercase text-[var(--color-primary)] mb-[0.75rem]">Flujo de Trabajo Recomendado</h4>
                 <div className="flex flex-col gap-[0.4rem]">
                     {WORKFLOW.map((step, i) =>
-          <div key={i} className="p-[0.5rem_0.6rem] bg-[var(--color-background)] rounded-[6] border-[1px_solid_var(--color-border)] text-[var(--color-text-muted)] line-height-[1.4]">
+          <div key={i} className="p-[0.5rem_0.6rem] bg-[var(--color-background)] rounded-[6] border-[1px_solid_var(--color-border)] text-[var(--color-text-muted)] leading-[]">
                             {step}
                         </div>
           )}
                 </div>
             </div>
 
-            <div className="p-[0.75rem] bg-[rgba(59,130,246,0.08)] rounded-[8] border-[1px_solid_rgba(59,130,246,0.2)] text-[var(--color-text-muted)] line-height-[1.5]">
+            <div className="p-[0.75rem] bg-[rgba(59,130,246,0.08)] rounded-[8] border-[1px_solid_rgba(59,130,246,0.2)] text-[var(--color-text-muted)] leading-[]">
                 💡 <strong>Tip:</strong> Usá el <strong>Modo Blueprint</strong> para una presentación oscura al estilo de planos técnicos. Activalo en "Ajustes PRO" en el panel de íconos.
             </div>
         </div>);

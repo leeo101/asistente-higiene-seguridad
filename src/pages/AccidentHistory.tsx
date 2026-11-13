@@ -65,7 +65,7 @@ export default function AccidentHistory(): React.ReactElement | null {
     accessor: 'date',
     sortable: true,
     render: (item: any) =>
-    <span className="flex items-center gap-[0.4rem] text-[var(--color-text-muted)] white-space-[nowrap]">
+    <span className="flex items-center gap-[0.4rem] text-[var(--color-text-muted)] whitespace-">
                     <Calendar size={14} /> {new Date(item.date).toLocaleDateString('es-AR')}
                 </span>
 
@@ -160,7 +160,7 @@ export default function AccidentHistory(): React.ReactElement | null {
                     </div>
         }
                 <ShareModal isOpen={!!shareItem} open={!!shareItem} onClose={() => setShareItem(null)} title={`Investigación de Accidente - ${shareItem?.victimaNombre || ''}`} text={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}\n📅 Fecha: ${shareItem.fecha}\n⚠️ Gravedad: ${shareItem.gravedad}` : ''} rawMessage={shareItem ? `⚠️ Informe de Investigación\n👤 Accidentado: ${shareItem.victimaNombre}\n🏢 Empresa: ${shareItem.empresa}` : ''} elementIdToPrint="pdf-content" fileName={`Accidente_${shareItem?.victimaNombre || 'Reporte'}.pdf`} />
-                <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+                <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-">
                     {shareItem && <AccidentPdfGenerator report={shareItem} isHeadless={true} />}
                 </div>
 

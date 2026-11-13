@@ -424,7 +424,7 @@ export default function CAPAForm(): React.ReactElement | null {
               padding: isMobile ? '1rem' : '1.5rem',
               flexDirection: isMobile ? 'column' : 'row'
             }}>
-                            <div className="text-[0.85rem] font-[800] text-[var(--color-text-muted)] uppercase letter-spacing-[0.5px]">
+                            <div className="text-[0.85rem] font-[800] text-[var(--color-text-muted)] uppercase tracking-[]">
                                 INCLUIR FIRMAS EN EL DOCUMENTO:
                             </div>
                             <div className="flex gap-[0.75rem] flex-wrap justify-center">
@@ -488,7 +488,7 @@ export default function CAPAForm(): React.ReactElement | null {
             <PdfBrandingFooter />
                         </div>
 
-                        <div className="no-print mt-[2rem] pt-[2rem] border-top-[1px_solid_var(--glass-border-subtle)] grid gap-[1.5rem]" style={{
+                        <div className="no-print mt-[2rem] pt-[2rem] border-t border-[] grid gap-[1.5rem]" style={{
               gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))'
             }}>
                             {showSignatures.operator &&

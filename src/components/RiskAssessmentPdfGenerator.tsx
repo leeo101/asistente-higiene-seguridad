@@ -30,7 +30,7 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }: {assessme
     <div className="w-[100%] flex justify-center">
             <div
         id="pdf-content"
-        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[20mm] bg-[#ffffff] text-[#000000] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[10pt] font-family-[system-ui,_-apple-system,_sans-serif]">
+        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[20mm] bg-[#ffffff] text-[#000000] shadow-[] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[10pt] font-[]">
 
 
 
@@ -65,7 +65,7 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }: {assessme
                 <div className="flex justify-space-between items-center border-bottom-[3px_solid_#1e293b] pb-[1.5rem] mb-[2rem]">
                     <div className="flex items-center gap-[1rem]">
                         <div>
-                            <p className="m-[0] font-[900] text-[0.75rem] text-[#64748b] uppercase letter-spacing-[0.05em]">Sistema de Gestión HYS</p>
+                            <p className="m-[0] font-[900] text-[0.75rem] text-[#64748b] uppercase tracking-[]">Sistema de Gestión HYS</p>
                             <h1 className="m-[0] font-[900] text-[1.5rem] text-[#1e293b] uppercase">Evaluación de Riesgo</h1>
                         </div>
                     </div>
@@ -140,8 +140,8 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }: {assessme
 
 
         }} className="p-[2.5rem] rounded-[24px] text-center mb-[2.5rem]">
-                    <div style={{ color: riskInfo.color }} className="text-[0.8rem] font-[900] uppercase letter-spacing-[0.2em] mb-[1rem]">Resultado del Nivel de Riesgo</div>
-                    <div style={{ color: riskInfo.color }} className="text-[3.5rem] font-[900] line-height-[1] mb-[0.5rem]">{score}</div>
+                    <div style={{ color: riskInfo.color }} className="text-[0.8rem] font-[900] uppercase tracking-[] mb-[1rem]">Resultado del Nivel de Riesgo</div>
+                    <div style={{ color: riskInfo.color }} className="text-[3.5rem] font-[900] leading-[] mb-[0.5rem]">{score}</div>
                     <div style={{ color: riskInfo.color }} className="text-[1.5rem] font-[900] uppercase">{riskInfo.label}</div>
                 </div>
 
@@ -151,7 +151,7 @@ export default function RiskAssessmentPdfGenerator({ assessmentData }: {assessme
                         <AlertCircle size={24} color={riskInfo.color} />
                         <div>
                             <h4 style={{ color: riskInfo.color }} className="m-[0_0_0.5rem_0] text-[1rem] font-[900] uppercase">Acción Recomendada</h4>
-                            <p className="m-[0] text-[0.95rem] line-height-[1.6] text-[#334155] font-[500]">{riskInfo.action}</p>
+                            <p className="m-[0] text-[0.95rem] leading-[] text-[#334155] font-[500]">{riskInfo.action}</p>
                         </div>
                     </div>
                 </div>

@@ -355,7 +355,7 @@ export default function FleetForm(): React.ReactElement | null {
                                             </div>
                                         </div>
 
-                                        <div className="flex justify-end gap-[0.5rem] pt-[1rem] border-top-[1px_solid_var(--color-border)]">
+                                        <div className="flex justify-end gap-[0.5rem] pt-[1rem] border-t border-[]">
                                             <button
                                                 onClick={(e) => {
                                                   e.stopPropagation();
@@ -467,7 +467,7 @@ export default function FleetForm(): React.ReactElement | null {
                       background: form.checklist?.[item.id] === 'ok' ? '#10b981' : 'var(--color-surface)',
                       color: form.checklist?.[item.id] === 'ok' ? 'white' : 'var(--color-text)'
 
-                    }} className="p-[0.6rem_1rem] rounded-[8px] cursor-pointer font-[800] text-[0.8rem] flex-[1_1_auto] text-center min-width-[70px] transition-[all_0.2s]">
+                    }} className="p-[0.6rem_1rem] rounded-[8px] cursor-pointer font-[800] text-[0.8rem] flex-[1_1_auto] text-center min-w-[] transition-[all_0.2s]">
                     
                                             OK
                                         </button>
@@ -479,7 +479,7 @@ export default function FleetForm(): React.ReactElement | null {
                       background: form.checklist?.[item.id] === 'fail' ? '#ef4444' : 'var(--color-surface)',
                       color: form.checklist?.[item.id] === 'fail' ? 'white' : 'var(--color-text)'
 
-                    }} className="p-[0.6rem_1rem] rounded-[8px] cursor-pointer font-[800] text-[0.8rem] flex-[1_1_auto] text-center min-width-[70px] transition-[all_0.2s]">
+                    }} className="p-[0.6rem_1rem] rounded-[8px] cursor-pointer font-[800] text-[0.8rem] flex-[1_1_auto] text-center min-w-[] transition-[all_0.2s]">
                     
                                             FALLA
                                         </button>
@@ -491,7 +491,7 @@ export default function FleetForm(): React.ReactElement | null {
                       background: form.checklist?.[item.id] === 'na' ? '#6b7280' : 'var(--color-surface)',
                       color: form.checklist?.[item.id] === 'na' ? 'white' : 'var(--color-text)'
 
-                    }} className="p-[0.6rem_1rem] rounded-[8px] cursor-pointer font-[800] text-[0.8rem] flex-[1_1_auto] text-center min-width-[70px] transition-[all_0.2s]">
+                    }} className="p-[0.6rem_1rem] rounded-[8px] cursor-pointer font-[800] text-[0.8rem] flex-[1_1_auto] text-center min-w-[] transition-[all_0.2s]">
                     
                                             N/A
                                         </button>
@@ -524,8 +524,8 @@ export default function FleetForm(): React.ReactElement | null {
                         </div>
 
                         {/* Signature Visibility Toggles */}
-                        <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.02)] border-[1px_solid_var(--color-border)] rounded-[24px] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center box-shadow-[0_4px_6px_rgba(0,0,0,0.02)]">
-                            <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                        <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.02)] border-[1px_solid_var(--color-border)] rounded-[24px] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center shadow-[]">
+                            <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase tracking-[]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                             <div className="flex gap-[1rem] flex-wrap justify-center">
                                 {[
                   { id: 'operator', label: 'Conductor' },
@@ -608,7 +608,7 @@ export default function FleetForm(): React.ReactElement | null {
 
 
                 
-                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase letter-spacing-[0.5px]">
+                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase tracking-[]">
                                         Firma del Conductor
                                     </div>
                                     <SignatureCanvas
@@ -627,7 +627,7 @@ export default function FleetForm(): React.ReactElement | null {
 
 
                 
-                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase letter-spacing-[0.5px]">
+                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase tracking-[]">
                                         Firma de Especialista H&S
                                     </div>
                                     <SignatureCanvas
@@ -646,7 +646,7 @@ export default function FleetForm(): React.ReactElement | null {
 
 
                 
-                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase letter-spacing-[0.5px]">
+                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase tracking-[]">
                                         Firma del Inspector
                                     </div>
                                     <SignatureCanvas

@@ -143,7 +143,7 @@ export default function ChecklistPdfGenerator({
   return (
     <div
       id={targetId}
-      className="pdf-container print-area w-[100%] max-w-[210mm] min-h-0 h-auto p-[8mm_12mm] bg-white text-slate-800 box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[8pt] font-family-[Helvetica,_Arial,_sans-serif]"
+      className="pdf-container print-area w-[100%] max-w-[210mm] min-h-0 h-auto p-[8mm_12mm] bg-white text-slate-800 shadow-[] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[8pt] font-[]"
       style={{ borderTop: `8px solid ${globalRiskColor}`, color: '#0f172a' }}
     >
       <style type="text/css" media="print">
@@ -185,7 +185,7 @@ export default function ChecklistPdfGenerator({
       {/* Header Tripartito */}
       <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '3px solid #e2e8f0', paddingBottom: '0.8rem', marginBottom: '1rem', width: '100%' }}>
         <div style={{ flex: 1, textAlign: 'left' }}>
-          <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.08em]">Sistema de Gestión HSE</p>
+          <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] tracking-[]">Sistema de Gestión HSE</p>
           <p style={{ color: globalRiskColor }} className="m-[0] font-[900] text-[0.8rem] uppercase">Doc. Inspección de Seguridad</p>
         </div>
 
@@ -462,7 +462,7 @@ export default function ChecklistPdfGenerator({
       {/* Observaciones Generales */}
       {obs && (
         <div className="border border-slate-300 rounded-[6px] mb-[1rem] overflow-hidden bg-white">
-          <div className="bg-[#334155] text-[#fff] p-[0.4rem_0.8rem] text-[0.6rem] font-[900] uppercase letter-spacing-[0.05em]">
+          <div className="bg-[#334155] text-[#fff] p-[0.4rem_0.8rem] text-[0.6rem] font-[900] uppercase tracking-[]">
             OBSERVACIONES Y COMENTARIOS DEL INSPECTOR
           </div>
           <div className="p-[0.8rem] text-[0.75rem] text-[#0f172a] bg-slate-50">
@@ -474,14 +474,14 @@ export default function ChecklistPdfGenerator({
       {/* Plan de Acción */}
       {actionPlan.length > 0 && (
         <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="border border-amber-300 rounded-[6px] mb-[1rem] avoid-break avoid-break-strictly break-inside-avoid overflow-hidden">
-          <div className="bg-amber-500 p-[0.4rem_0.8rem] text-[#ffffff] font-[900] text-[0.65rem] uppercase letter-spacing-[0.05em]">
+          <div className="bg-amber-500 p-[0.4rem_0.8rem] text-[#ffffff] font-[900] text-[0.65rem] uppercase tracking-[]">
             🎯 PLAN DE ACCIÓN CORRECTIVA — {actionPlan.length} ACCIÓN{actionPlan.length > 1 ? 'ES' : ''}
           </div>
           <div className="p-[0.8rem] flex flex-wrap gap-[0.6rem] bg-[#fffbeb]">
             {actionPlan.map((action: any, idx: number) => (
-              <div key={action.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break avoid-break-strictly break-inside-avoid flex-[1_1_260px] min-width-[260px] bg-white border border-amber-300 rounded-[6px] p-[0.6rem]">
+              <div key={action.id} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="avoid-break avoid-break-strictly break-inside-avoid flex-[1_1_260px] min-w-[] bg-white border border-amber-300 rounded-[6px] p-[0.6rem]">
                 <div className="flex gap-[0.4rem] items-start">
-                  <span className="bg-amber-500 text-[#fff] min-width-[16px] h-[16px] rounded-[50%] flex items-center justify-center text-[0.55rem] font-[900]">{idx + 1}</span>
+                  <span className="bg-amber-500 text-[#fff] min-w-[] h-[16px] rounded-[50%] flex items-center justify-center text-[0.55rem] font-[900]">{idx + 1}</span>
                   <div className="flex-[1]">
                     <p className="m-[0_0_0.2rem_0] font-[800] text-[0.7rem] text-[#0f172a]">{action.action}</p>
                     <div className="flex flex-wrap gap-[0.3rem] text-[0.6rem] text-[#64748b] font-[700]">
@@ -502,12 +502,12 @@ export default function ChecklistPdfGenerator({
       {/* Evidencia Fotográfica (Global) */}
       {fotos.length > 0 && (
         <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1rem] avoid-break avoid-break-strictly break-inside-avoid overflow-hidden bg-white">
-          <div className="bg-blue-600 text-[#fff] p-[0.4rem_0.8rem] text-[0.6rem] font-[900] uppercase letter-spacing-[0.05em]">
+          <div className="bg-blue-600 text-[#fff] p-[0.4rem_0.8rem] text-[0.6rem] font-[900] uppercase tracking-[]">
             EVIDENCIA FOTOGRÁFICA
           </div>
           <div className="p-[0.8rem] flex gap-[1rem] justify-center bg-slate-50">
             {fotos.map((foto: string, index: number) => (
-              <div key={index} className="flex-[1] max-w-[200px] aspect-square rounded-[8px] overflow-hidden border-[1px_solid_#cbd5e1] box-shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
+              <div key={index} className="flex-[1] max-w-[200px] aspect-square rounded-[8px] overflow-hidden border-[1px_solid_#cbd5e1] shadow-[]">
                 <img src={foto} alt={`Evidencia ${index + 1}`} className="w-full h-full object-cover" />
               </div>
             ))}
@@ -529,7 +529,7 @@ export default function ChecklistPdfGenerator({
       {/* Normativa aplicable con texto visible y evita salto de página */}
       {selectedNorms.length > 0 && (
         <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="border-[1px_solid_#d8b4fe] rounded-[6px] mb-[1rem] avoid-break avoid-break-strictly break-inside-avoid overflow-hidden bg-white">
-          <div style={{ background: 'linear-gradient(90deg, #6b21a8 0%, #9333ea 100%)', color: '#ffffff' }} className="p-[0.6rem_1rem] font-[900] text-[0.75rem] uppercase letter-spacing-[0.05em]">
+          <div style={{ background: 'linear-gradient(90deg, #6b21a8 0%, #9333ea 100%)', color: '#ffffff' }} className="p-[0.6rem_1rem] font-[900] text-[0.75rem] uppercase tracking-[]">
             📚 NORMATIVA LEGAL APLICABLE
           </div>
           <div style={{ backgroundColor: '#faf5ff', padding: '0.8rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>

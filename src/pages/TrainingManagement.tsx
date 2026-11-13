@@ -45,10 +45,10 @@ function StatCard({ icon, label, value, color, gradient }: { icon: React.ReactNo
           {React.cloneElement(icon as React.ReactElement<any>, { color: '#ffffff', size: 20 })}
         </div>
       </div>
-      <div className="relative z-[1] text-[2rem] font-[900] text-[var(--color-text)] line-height-[1] letter-spacing-[-1px] mb-[0.25rem]">
+      <div className="relative z-[1] text-[2rem] font-[900] text-[var(--color-text)] leading-[] tracking-[] mb-[0.25rem]">
         {value}
       </div>
-      <div className="relative z-[1] text-[0.75rem] font-[700] text-[var(--color-text-muted)] uppercase letter-spacing-[0.5px]">
+      <div className="relative z-[1] text-[0.75rem] font-[700] text-[var(--color-text-muted)] uppercase tracking-[]">
         {label}
       </div>
     </div>

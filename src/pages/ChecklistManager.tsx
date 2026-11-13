@@ -1166,7 +1166,7 @@ export default function ChecklistManager(): React.ReactElement | null {
     accessor: 'fecha',
     sortable: true,
     render: (item: any) =>
-    <span className="flex items-center gap-[0.4rem] text-[var(--color-text-muted)] white-space-[nowrap]">
+    <span className="flex items-center gap-[0.4rem] text-[var(--color-text-muted)] whitespace-">
                     <Calendar size={14} /> {new Date(item.fecha).toLocaleDateString('es-AR')}
                 </span>
 
@@ -1399,7 +1399,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                                 value={filterEmpresa}
                                 onChange={(e) => setFilterEmpresa(e.target.value)}
                                 style={{ color: filterEmpresa ? 'var(--color-text)' : 'var(--color-text-muted)' }}
-                                className="w-[100%] h-[54px] px-[1rem] rounded-[16px] border-[2px_solid_var(--color-border)] text-[1rem] outline-[none] bg-[var(--color-surface)] box-shadow-[0_4px_20px_rgba(0,0,0,0.05)]"
+                                className="w-[100%] h-[54px] px-[1rem] rounded-[16px] border-[2px_solid_var(--color-border)] text-[1rem] outline-[none] bg-[var(--color-surface)] shadow-[]"
                             >
                                 <option value="">Todas las Empresas</option>
                                 {uniqueEmpresas.map((emp: any) => (
@@ -1425,14 +1425,14 @@ export default function ChecklistManager(): React.ReactElement | null {
       <>
             <div className="animate-fade-in ats-editor-panel">
             {showTutorialBanner &&
-        <div className="no-print bg-[linear-gradient(135deg,_#3b82f6_0%,_#2563eb_100%)] text-[#fff] p-[1rem_1.5rem] rounded-[16px] mb-[1.5rem] mt-[1.5rem] flex justify-space-between items-center box-shadow-[0_8px_30px_rgba(37,99,235,0.2)] relative flex-wrap gap-[1rem]">
+        <div className="no-print bg-[linear-gradient(135deg,_#3b82f6_0%,_#2563eb_100%)] text-[#fff] p-[1rem_1.5rem] rounded-[16px] mb-[1.5rem] mt-[1.5rem] flex justify-space-between items-center shadow-[] relative flex-wrap gap-[1rem]">
                     <div className="flex items-start gap-[1rem] flex-[1]">
                         <div className="bg-[rgba(255,255,255,0.2)] p-[0.6rem] rounded-[12px]">
                             <Info size={24} />
                         </div>
                         <div>
                             <h4 className="m-[0] text-[1.1rem] font-[900]">¡Todo es editable!</h4>
-                            <p className="m-[0.3rem_0_0_0] text-[0.85rem] font-[600] text-[rgba(255,255,255,0.9)] line-height-[1.4]">
+                            <p className="m-[0.3rem_0_0_0] text-[0.85rem] font-[600] text-[rgba(255,255,255,0.9)] leading-[]">
                                 Recuerda que puedes hacer clic en el <strong>Título Principal</strong>, en los <strong>Títulos de las Secciones</strong> o en las <strong>Preguntas</strong> para modificarlas y adaptarlas a la inspección que necesites.
                             </p>
                         </div>
@@ -1441,7 +1441,7 @@ export default function ChecklistManager(): React.ReactElement | null {
             onClick={() => {
               setShowTutorialBanner(false);
               localStorage.setItem('checklist_tutorial_seen', 'true');
-            }} className="bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-none p-[0.6rem_1.2rem] rounded-[10px] font-[900] cursor-pointer flex-shrink-[0] box-shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+            }} className="bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-none p-[0.6rem_1.2rem] rounded-[10px] font-[900] cursor-pointer shrink-0 shadow-[]">
 
             
                         Entendido
@@ -1488,18 +1488,18 @@ export default function ChecklistManager(): React.ReactElement | null {
 
             <ModuleFormLayout>
             {/* Progress Section */}
-            <div className="no-print mb-[2rem] mt-[1.5rem] p-[2.5rem_2rem] bg-[var(--color-surface)] rounded-[24px] border-[1px_solid_var(--color-border)] flex flex-col gap-[1.2rem] box-shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+            <div className="no-print mb-[2rem] mt-[1.5rem] p-[2.5rem_2rem] bg-[var(--color-surface)] rounded-[24px] border-[1px_solid_var(--color-border)] flex flex-col gap-[1.2rem] shadow-[]">
                 <div className="flex items-center justify-space-between gap-[1.5rem] flex-wrap">
                     <div className="flex items-center gap-4">
                         <div>
-                            <h2 className="m-[0] text-[clamp(1.1rem,_4vw,_1.4rem)] font-[900] text-[var(--color-text)] letter-spacing-[-0.5px] flex items-center gap-[0.6rem]">
+                            <h2 className="m-[0] text-[clamp(1.1rem,_4vw,_1.4rem)] font-[900] text-[var(--color-text)] tracking-[] flex items-center gap-[0.6rem]">
                                 <ShieldCheck className="text-blue-600" size={24} />
                                 Relevamiento de Condiciones
                             </h2>
-                            <p className="m-[0] text-[var(--color-text-muted)] font-[600] text-[0.75rem] uppercase letter-spacing-[1px]">Progreso del Checklist</p>
+                            <p className="m-[0] text-[var(--color-text-muted)] font-[600] text-[0.75rem] uppercase tracking-[]">Progreso del Checklist</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-[0.6rem] flex-shrink-[0]">
+                    <div className="flex items-center gap-[0.6rem] shrink-0">
                         <span style={{ color: progressColor }} className="text-[1.4rem] font-[900]">{progressPct}%</span>
                         <span className="text-[0.75rem] font-[700] text-[var(--color-text-muted)]">{progressLabel}</span>
                     </div>
@@ -1521,7 +1521,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                 <div className="flex flex-col sm:flex-row justify-between items-center w-full gap-4 sm:gap-6 border-b-4 pb-6 mb-8 border-color-[var(--color-border)]">
                     {/* Top Left Text */}
                     <div className="w-full sm:w-auto sm:flex-1 text-center sm:text-left">
-                        <p className="m-[0] font-[700] text-[0.65rem] uppercase text-[var(--color-text-muted)] letter-spacing-[0.05em]">Sistema de Gestión</p>
+                        <p className="m-[0] font-[700] text-[0.65rem] uppercase text-[var(--color-text-muted)] tracking-[]">Sistema de Gestión</p>
                         <p className="m-[0] font-[900] text-[0.75rem] uppercase text-[var(--color-text)]">Control HYS</p>
                     </div>
 
@@ -1531,16 +1531,16 @@ export default function ChecklistManager(): React.ReactElement | null {
                   value={checklistTitle}
                   onChange={(e) => setChecklistTitle(e.target.value)}
 
-                  title="Haz clic para editar el título" className="m-[0] font-[900] text-[clamp(1.5rem,_4vw,_2.5rem)] letter-spacing-[-0.02em] uppercase line-height-[1] text-center bg-[transparent] border-none border-bottom-[1px_dashed_var(--color-border)] outline-[none] text-[var(--color-text)] w-[100%] max-w-[500px]" />
+                  title="Haz clic para editar el título" className="m-[0] font-[900] text-[clamp(1.5rem,_4vw,_2.5rem)] tracking-[] uppercase leading-[] text-center bg-[transparent] border-none border-bottom-[1px_dashed_var(--color-border)] outline-[none] text-[var(--color-text)] w-[100%] max-w-[500px]" />
                 
-                        <p className="m-[0] text-[var(--color-text-muted)] font-[900] text-[0.6rem] uppercase letter-spacing-[0.4em] mt-[0.25rem]">Inspección de Seguridad</p>
+                        <p className="m-[0] text-[var(--color-text-muted)] font-[900] text-[0.6rem] uppercase tracking-[] mt-[0.25rem]">Inspección de Seguridad</p>
                     </div>
 
                     {/* Right Document Counter + Logo */}
                     <div className="w-full sm:w-auto sm:flex-1 flex flex-col items-center sm:items-end gap-2 text-center sm:text-right">
                         <CompanyLogo className="h-[40px] max-w-[120px]" />
                         <div>
-                            <div className="text-[0.6rem] font-[900] text-[var(--color-border)] uppercase letter-spacing-[0.1em] mb-[0.25rem]">PÁGINA</div>
+                            <div className="text-[0.6rem] font-[900] text-[var(--color-border)] uppercase tracking-[] mb-[0.25rem]">PÁGINA</div>
                             <div className="font-[900] text-[1.5rem] text-[var(--color-text)]">01 / 01</div>
                         </div>
                     </div>
@@ -1562,12 +1562,12 @@ export default function ChecklistManager(): React.ReactElement | null {
                       <span>🛑 EQUIPO FUERA DE SERVICIO — BLOQUEO PREVENTIVO ({failCount} {failCount === 1 ? 'DESVÍO CRÍTICO' : 'DESVÍOS CRÍTICOS'})</span>
                     </div>
                   )}
-                  <div className="hover:border-blue-400/50 hover:shadow-md border-[2px_solid_var(--color-border)] rounded-[16px] mb-[2.5rem] w-[100%] overflow-[hidden] bg-[var(--color-surface)] box-shadow-[var(--shadow-sm)] transition-[all_0.3s] grid-column-[1_/_-1]">
-                            <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 border-bottom-[2px_solid_var(--color-border)] w-[100%]">
+                  <div className="hover:border-blue-400/50 hover:shadow-md border-[2px_solid_var(--color-border)] rounded-[16px] mb-[2.5rem] w-[100%] overflow-[hidden] bg-[var(--color-surface)] shadow-[] transition-[all_0.3s] grid-column-[1_/_-1]">
+                            <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 border-b-2 border-[] w-[100%]">
                                 <div className="sm:col-span-2 print:col-span-2"><DocBox label="CLIENTE / EMPRESA" value={companyInfo.name} onChange={(v) => setCompanyInfo({ ...companyInfo, name: v })} large /></div>
                                 <div className="sm:col-span-2 print:col-span-2"><DocBox label="UBICACIÓN / DIRECCIÓN" value={companyInfo.address} onChange={(v) => setCompanyInfo({ ...companyInfo, address: v })} /></div>
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 w-[100%] border-bottom-[2px_solid_var(--color-border)]">
+                            <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 w-[100%] border-b-2 border-[]">
                                 <div className="sm:col-span-1 print:col-span-1"><DocBox label="FECHA" value={inspectionInfo.date} onChange={(v) => setInspectionInfo({ ...inspectionInfo, date: v })} type="date" /></div>
                                 
                                 {!(hasVehicles && !hasTools && !hasPermits && !hasHeavy && !hasExtinguishers) &&
@@ -1588,20 +1588,20 @@ export default function ChecklistManager(): React.ReactElement | null {
                             </div>
                             
                             {(hasTools || hasHeavy) && !hasVehicles &&
-                  <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 w-[100%] border-bottom-[2px_solid_var(--color-border)]">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 w-[100%] border-b-2 border-[]">
                                     <div className="sm:col-span-2 print:col-span-2"><DocBox label="MARCA / MODELO" value={inspectionInfo.marca || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, marca: v })} /></div>
                                 </div>
                   }
 
                             {hasPermits &&
-                  <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 w-[100%] border-bottom-[2px_solid_var(--color-border)]">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 w-[100%] border-b-2 border-[]">
                                     <div className="sm:col-span-2 print:col-span-2"><DocBox label="Nº PERMISO DE TRABAJO (PT)" value={inspectionInfo.pt || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, pt: v })} /></div>
                                     <div className="sm:col-span-2 print:col-span-2"><DocBox label="RESPONSABLE DEL ÁREA / SUPERVISOR" value={inspectionInfo.responsableArea || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, responsableArea: v })} /></div>
                                 </div>
                   }
 
                             {hasExtinguishers &&
-                  <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 w-[100%] border-bottom-[2px_solid_var(--color-border)]">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 w-[100%] border-b-2 border-[]">
                                     <div className="sm:col-span-1 print:col-span-1 bg-[rgba(239,_68,_68,_0.05)]">
                                         <DocBox label="VENCIMIENTO CARGA" value={inspectionInfo.expirationDate || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, expirationDate: v })} type="date" />
                                     </div>
@@ -1697,7 +1697,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                       <div style={{ color: active ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>
                         {React.cloneElement(value.icon as React.ReactElement<any>, { size: 20 })}
                       </div>
-                      <span className="text-[0.65rem] font-[800] line-height-[1.1]">{value.title}</span>
+                      <span className="text-[0.65rem] font-[800] leading-[]">{value.title}</span>
                     </button>
                   );
                 })}
@@ -1731,7 +1731,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                 {activeSections.map((section) => {
             return (
               <div key={section.id} className="card p-[0] mb-[1.5rem]">
-                            <div className="bg-[var(--color-background)] p-[1rem] border-bottom-[2px_solid_var(--color-border)] flex flex-col gap-[0.8rem] items-center">
+                            <div className="bg-[var(--color-background)] p-[1rem] border-b-2 border-[] flex flex-col gap-[0.8rem] items-center">
                                 <input
                     className="font-black text-xl uppercase tracking-tighter bg-transparent outline-none w-full rounded-lg p-2 focus:ring-0 text-center placeholder:text-slate-400 m-[0] text-[var(--color-text)]"
                     style={{ border: '2px solid #1e293b' }}
@@ -1742,19 +1742,19 @@ export default function ChecklistManager(): React.ReactElement | null {
                                     <button
                       onClick={() => removeSection(section.id)} 
                       style={{ backgroundColor: '#ef4444', color: '#ffffff' }}
-                      className="p-[0.4rem_0.8rem] text-[0.65rem] font-[900] border-none rounded-[4px] cursor-pointer flex items-center gap-[0.4rem] white-space-[nowrap]">
+                      className="p-[0.4rem_0.8rem] text-[0.65rem] font-[900] border-none rounded-[4px] cursor-pointer flex items-center gap-[0.4rem] whitespace-">
                                         <X size={12} strokeWidth={4} /> QUITAR
                                     </button>
                                     <button
                       onClick={() => checkAllOk(section.id)} 
                       style={{ backgroundColor: '#10b981', color: '#ffffff' }}
-                      className="p-[0.4rem_0.8rem] text-[0.65rem] font-[900] border-none rounded-[4px] cursor-pointer white-space-[nowrap]">
+                      className="p-[0.4rem_0.8rem] text-[0.65rem] font-[900] border-none rounded-[4px] cursor-pointer whitespace-">
                                         TODO OK
                                     </button>
                                     <button
                       onClick={() => addItem(section.id)} 
                       style={{ backgroundColor: '#3b82f6', color: '#ffffff' }}
-                      className="p-[0.4rem_0.8rem] text-[0.65rem] font-[900] border-none rounded-[4px] cursor-pointer white-space-[nowrap]">
+                      className="p-[0.4rem_0.8rem] text-[0.65rem] font-[900] border-none rounded-[4px] cursor-pointer whitespace-">
                                         + ITEM
                                     </button>
                                 </div>
@@ -1766,7 +1766,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                                         <div className="flex items-center p-[1rem] gap-[0.8rem] flex-wrap">
                                             <div 
                                                 style={{ backgroundColor: '#1e293b', color: '#ffffff', minWidth: '32px', height: '32px', fontSize: '0.9rem' }}
-                                                className="rounded-[6px] flex items-center justify-center font-[900] flex-shrink-[0]">
+                                                className="rounded-[6px] flex items-center justify-center font-[900] shrink-0">
                                                 {idx + 1}
                                             </div>
                                             <textarea
@@ -1798,19 +1798,19 @@ export default function ChecklistManager(): React.ReactElement | null {
 
                         title="Eliminar" 
                         style={{ backgroundColor: '#fee2e2', color: '#ef4444', border: '1px solid #fca5a5' }}
-                        className="rounded-[8px] cursor-pointer p-[0.3rem_0.45rem] flex items-center flex-shrink-[0]">
+                        className="rounded-[8px] cursor-pointer p-[0.3rem_0.45rem] flex items-center shrink-0">
                                                 <Trash2 size={16} />
                                             </button>
                                         </div>
                                         <div className="flex flex-col gap-[0.5rem] p-[0.5rem_1rem] bg-[var(--color-background)] border-top-[1px_dashed_var(--color-border)]">
                                             <div className="flex items-center justify-space-between gap-[1rem] flex-wrap">
-                                                <div className="ats-status-group flex-shrink-[0]" style={{ border: '2px solid #cbd5e1', borderRadius: '10px', padding: '4px', display: 'flex', gap: '4px' }}>
+                                                <div className="ats-status-group shrink-0" style={{ border: '2px solid #cbd5e1', borderRadius: '10px', padding: '4px', display: 'flex', gap: '4px' }}>
                                                     <StatusBtn active={item.status === 'OK'} type="OK" onClick={() => updateItem(section.id, idx, 'status', 'OK')} label="C" />
                                                     <StatusBtn active={item.status === 'FAIL'} type="FAIL" onClick={() => updateItem(section.id, idx, 'status', 'FAIL')} label="NC" />
                                                     <StatusBtn active={item.status === 'NA'} type="NA" onClick={() => updateItem(section.id, idx, 'status', 'NA')} label="N/A" />
                                                 </div>
 
-                                                <div className="flex-[1] flex gap-[0.5rem] items-center min-width-[280px]">
+                                                <div className="flex-[1] flex gap-[0.5rem] items-center min-w-[]">
                                                     <input
                             type="text"
                             placeholder="Observación / Anomalía..."
@@ -1862,7 +1862,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                       <div className="flex gap-[0.4rem] flex-wrap mt-[0.2rem]">
                                                     {item.photos.map((photo, pIdx) =>
                         <div key={pIdx} className="relative w-[40px] h-[40px] rounded-[6px] overflow-[hidden] border-[1px_solid_var(--color-border)]">
-                                                            <img src={photo} alt="" className="w-[100%] h-[100%] object-fit-[cover]" />
+                                                            <img src={photo} alt="" className="w-[100%] h-[100%] object-" />
                                                             <button
                             onClick={() => {
                               const updatedPhotos = item.photos.filter((_, i) => i !== pIdx);
@@ -1890,7 +1890,7 @@ export default function ChecklistManager(): React.ReactElement | null {
             
           {currentStep === 3 && (
             <div className="wizard-step-anim">
-              <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.8rem] text-[var(--color-primary)] font-[900] text-[1.2rem] uppercase letter-spacing-[1px]">
+              <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.8rem] text-[var(--color-primary)] font-[900] text-[1.2rem] uppercase tracking-[]">
                   <HardHat size={24} className="text-blue-600" /> EPPs Obligatorios y Evidencia
               </h3>
 
@@ -2006,7 +2006,7 @@ export default function ChecklistManager(): React.ReactElement | null {
         <div className="no-print mb-8">
                 {/* OBSERVACIONES GENERALES */}
                 <div className="border-[2px_solid_#3b82f6] rounded-[12px] p-[1.5rem] bg-blue-50/50 dark:bg-slate-800/80 mb-[1.5rem] relative">
-                    <div className="absolute top-[-12px] left-[20px] bg-blue-600 text-white p-[4px_12px] text-[0.65rem] font-[900] uppercase letter-spacing-[0.1em] rounded-[4px]">
+                    <div className="absolute top-[-12px] left-[20px] bg-blue-600 text-white p-[4px_12px] text-[0.65rem] font-[900] uppercase tracking-[] rounded-[4px]">
                         📝 Observaciones Generales
                     </div>
                     <div className="flex justify-between items-center mb-2 mt-2">
@@ -2024,7 +2024,7 @@ export default function ChecklistManager(): React.ReactElement | null {
 
                 {/* PLAN DE ACCIÓN - FORMULARIO */}
                 <div className="border-[2px_solid_#f59e0b] rounded-[12px] p-[1.5rem] bg-[linear-gradient(135deg,_#fffbeb_0%,_#fef3c7_100%)] relative">
-                    <div className="absolute top-[-12px] left-[20px] bg-amber-500 hover:bg-amber-600 text-[#fff] p-[4px_12px] text-[0.65rem] font-[900] uppercase letter-spacing-[0.1em] rounded-[4px]">
+                    <div className="absolute top-[-12px] left-[20px] bg-amber-500 hover:bg-amber-600 text-[#fff] p-[4px_12px] text-[0.65rem] font-[900] uppercase tracking-[] rounded-[4px]">
                         🎯 Plan de Acción
                     </div>
                     <div className="flex justify-between items-center mb-2 mt-2">
@@ -2052,7 +2052,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                             {actionPlan.map((action, idx) =>
               <div key={action.id} className="bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 rounded-[8px] p-[0.8rem] flex flex-col gap-[0.5rem]">
                                     <div className="flex items-start gap-[0.5rem]">
-                                        <div className="min-width-[24px] h-[24px] bg-amber-500 hover:bg-amber-600 text-[#fff] rounded-[50%] flex items-center justify-center text-[0.75rem] font-[900] flex-shrink-[0]">{idx + 1}</div>
+                                        <div className="min-w-[] h-[24px] bg-amber-500 hover:bg-amber-600 text-[#fff] rounded-[50%] flex items-center justify-center text-[0.75rem] font-[900] shrink-0">{idx + 1}</div>
                                         <div className="flex-[1]">
                                             <p className="m-[0] font-[700] text-[0.85rem] text-slate-800 dark:text-slate-200">{action.action}</p>
                                             <div className="flex flex-wrap gap-[0.5rem] mt-[0.3rem] text-[0.75rem]">
@@ -2063,7 +2063,7 @@ export default function ChecklistManager(): React.ReactElement | null {
                                                 </span>
                                             </div>
                                         </div>
-                                        <button onClick={() => {setActionPlan(actionPlan.filter((a) => a.id !== action.id));toast.success('Acción eliminada');}} className="bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[6px] cursor-pointer text-[#ef4444] p-[0.3rem] flex items-center flex-shrink-[0]">
+                                        <button onClick={() => {setActionPlan(actionPlan.filter((a) => a.id !== action.id));toast.success('Acción eliminada');}} className="bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[6px] cursor-pointer text-[#ef4444] p-[0.3rem] flex items-center shrink-0">
                                             <X size={14} />
                                         </button>
                                     </div>
@@ -2087,7 +2087,7 @@ export default function ChecklistManager(): React.ReactElement | null {
 
                 {/* NORMATIVA APLICABLE */}
                 <div className="mt-[1rem] border-[2px_solid_#c084fc] rounded-[12px] p-[1.5rem] bg-[linear-gradient(135deg,_#faf5ff_0%,_#f3e8ff_100%)] relative">
-                    <div className="absolute top-[-12px] left-[20px] bg-[#9333ea] text-[#fff] p-[4px_12px] text-[0.65rem] font-[900] uppercase letter-spacing-[0.1em] rounded-[4px]">
+                    <div className="absolute top-[-12px] left-[20px] bg-[#9333ea] text-[#fff] p-[4px_12px] text-[0.65rem] font-[900] uppercase tracking-[] rounded-[4px]">
                         📚 Normativa Aplicable
                     </div>
                     <p className="text-[0.8rem] text-slate-600 dark:text-slate-400 mb-[1rem] mt-[0.5rem]">Seleccioná las normativas que aplican a esta inspección:</p>
@@ -2113,14 +2113,14 @@ export default function ChecklistManager(): React.ReactElement | null {
             {/* Firmas y Autorizaciones */}
             {currentStep === 5 &&
         <div className="no-print card mt-[1.5rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[var(--radius-xl)] p-[2rem]">
-                <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.7rem] text-[var(--color-primary)] font-[900] text-[1.2rem] uppercase letter-spacing-[1px]">
+                <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.7rem] text-[var(--color-primary)] font-[900] text-[1.2rem] uppercase tracking-[]">
                     <Pencil size={24} /> Firmas y Autorizaciones
                 </h3>
 
                 {/* Custom visual switches */}
                 {/* Custom visual switches */}
                 <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
-                    <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                    <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase tracking-[]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                     <div className="flex gap-[1rem] flex-wrap justify-center">
                         {[
               { id: 'operator', label: 'Responsable / Operador' },
@@ -2157,7 +2157,7 @@ export default function ChecklistManager(): React.ReactElement | null {
               })}
                     </div>
 
-                    <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px] mt-2">PIE DE PÁGINA INSTITUCIONAL / QR:</div>
+                    <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase tracking-[] mt-2">PIE DE PÁGINA INSTITUCIONAL / QR:</div>
                     <div className="flex gap-[1rem] flex-wrap justify-center">
                         <label
                           className="flex items-center gap-2 cursor-pointer select-none p-[0.6rem_1.2rem] rounded-full font-[800] text-[0.8rem] transition-all"

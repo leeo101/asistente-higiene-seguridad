@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { safeJsonParse } from '../utils/storageHelper';
 import ConfirmModal from '../components/ConfirmModal';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -96,8 +97,8 @@ function HistoryPanel({ onLoad }) {
           onMouseOver={(e) => e.currentTarget.style.background = 'var(--color-surface-hover)'}
           onMouseOut={(e) => e.currentTarget.style.background = 'var(--color-surface)'} className="p-[0.9rem_1.2rem] flex items-center gap-[1rem] bg-[var(--color-surface)] transition-[background_0.15s]">
           
-                            <div className="flex-[1] min-width-[0]">
-                                <div className="font-[600] text-[0.88rem] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">
+                            <div className="flex-[1] min-w-0">
+                                <div className="font-[600] text-[0.88rem] whitespace- overflow-[hidden] text-overflow-[ellipsis]">
                                     {item.task}
                                 </div>
                                 <div className="text-[0.72rem] text-[var(--color-text-muted)] flex items-center gap-[0.3rem] mt-[0.2rem]">
@@ -107,7 +108,7 @@ function HistoryPanel({ onLoad }) {
                             </div>
                             <button
             onClick={() => onLoad(item)}
-            title="Cargar esta consulta" className="bg-[rgba(59,130,246,0.1)] border-[1px_solid_rgba(59,130,246,0.2)] rounded-[8px] p-[0.4rem_0.7rem] text-[var(--color-primary)] cursor-pointer text-[0.75rem] font-[700] flex items-center gap-[0.3rem] white-space-[nowrap] flex-shrink-[0]">
+            title="Cargar esta consulta" className="bg-[rgba(59,130,246,0.1)] border-[1px_solid_rgba(59,130,246,0.2)] rounded-[8px] p-[0.4rem_0.7rem] text-[var(--color-primary)] cursor-pointer text-[0.75rem] font-[700] flex items-center gap-[0.3rem] whitespace- shrink-0">
 
 
 
@@ -440,7 +441,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
       }
 
       // Professional Signature Section
-      const personalData = JSON.parse(localStorage.getItem('personalData') || '{}');
+      const personalData = safeJsonParse<any>(localStorage.getItem('personalData'), {});
       const profName = personalData.fullName || 'Profesional de HyS';
       const profMat = personalData.matricula || '---';
       const profTitle = personalData.profesion || 'Higiene y Seguridad';
@@ -671,7 +672,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
     accessor: 'date',
     sortable: true,
     render: (item: any) =>
-    <span className="flex items-center gap-[0.4rem] text-[var(--color-text-muted)] white-space-[nowrap]">
+    <span className="flex items-center gap-[0.4rem] text-[var(--color-text-muted)] whitespace-">
                     <Calendar size={14} /> {new Date(item.date).toLocaleDateString()}
                 </span>
 
@@ -685,7 +686,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                     <div className="bg-[rgba(59,130,246,0.1)] p-[0.5rem] rounded-[8px] text-[var(--color-primary)]">
                         <Sparkles size={16} />
                     </div>
-                    <div className="font-[700] max-w-[300px] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis]">{item.task || 'Sin nombre'}</div>
+                    <div className="font-[700] max-w-[300px] whitespace- overflow-[hidden] text-overflow-[ellipsis]">{item.task || 'Sin nombre'}</div>
                 </div>
 
   },
@@ -765,7 +766,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                             />
                         </div>
                         {history.length > 0 &&
-          <button onClick={handleExportCSV} className="flex-[0_1_auto] flex items-center gap-[0.4rem] bg-[var(--color-primary)] border-none rounded-[16px] p-[1rem_1.5rem] text-[1rem] font-[800] cursor-pointer text-[#ffffff] box-shadow-[0_4px_15px_rgba(0,0,0,0.1)]">
+          <button onClick={handleExportCSV} className="flex-[0_1_auto] flex items-center gap-[0.4rem] bg-[var(--color-primary)] border-none rounded-[16px] p-[1rem_1.5rem] text-[1rem] font-[800] cursor-pointer text-[#ffffff] shadow-[]">
                                 <Download size={20} /> Excel
                             </button>
           }
@@ -792,7 +793,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
           elementIdToPrint="pdf-content-ai"
           fileName={`Analisis_IA_${(shareItem as any)?.task?.replace(/\s+/g, '_') || 'Sin_Nombre'}.pdf`} />
         
-                    <div className="absolute left-[0] opacity-[0.01] top-[-12000px] pointer-events-[none]">
+                    <div className="absolute left-[0] opacity-[0.01] top-[-12000px] pointer-events-">
                         {shareItem && <AiAdvisorPdfGenerator data={shareItem} />}
                     </div>
                 </> :
@@ -806,7 +807,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
             <HistoryPanel onLoad={handleLoadHistory} />
 
             {/* Input Section */}
-            <div className="p-[2rem] mb-[2rem] rounded-[16px] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] box-shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+            <div className="p-[2rem] mb-[2rem] rounded-[16px] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] shadow-[]">
                 <div className="flex items-center gap-[0.75rem] mb-[0.5rem]">
                     <div className="w-[40px] h-[40px] rounded-[12px] bg-[rgba(16,185,129,0.15)] flex items-center justify-center text-[#10b981]">
                         <Sparkles size={20} />
@@ -874,7 +875,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                         {loading ?
               <>
                                 <Loader2 size={22} className="animate-spin" />
-                                <span className="min-width-[220px] text-left">{LOADING_MESSAGES[loadingTextIndex]}</span>
+                                <span className="min-w-[] text-left">{LOADING_MESSAGES[loadingTextIndex]}</span>
                             </> :
 
               <>
@@ -894,7 +895,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                         <div className="flex gap-[0.8rem]">
                             <button
                 onClick={handleDownloadPDF}
-                className="btn-secondary flex items-center gap-[0.5rem] p-[0.6rem_1.2rem] rounded-[10px] mt-[0] w-[auto] bg-[linear-gradient(135deg,_#8b5cf6,_#7c3aed)] text-[#ffffff] border-none text-[0.9rem] font-[600] box-shadow-[0_4px_15px_rgba(139,_92,_246,_0.4)]">
+                className="btn-secondary flex items-center gap-[0.5rem] p-[0.6rem_1.2rem] rounded-[10px] mt-[0] w-[auto] bg-[linear-gradient(135deg,_#8b5cf6,_#7c3aed)] text-[#ffffff] border-none text-[0.9rem] font-[600] shadow-[]">
 
 
 
@@ -1062,7 +1063,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                                 <ShieldAlert size={22} />
                                 <h4 className="m-[0] font-[700] text-[1.1rem]">Riesgos Detectados</h4>
                             </div>
-                            <ul className="m-[0] pl-[1.2rem] text-[0.95rem] line-height-[1.6] text-[var(--color-text)]">
+                            <ul className="m-[0] pl-[1.2rem] text-[0.95rem] leading-[] text-[var(--color-text)]">
                                 {(result.riesgos || []).map((item, i) => <li key={i} className="mb-[0.5rem]">{item}</li>)}
                                 {(!result.riesgos || result.riesgos.length === 0) && <li>No hay riesgos detectados</li>}
                             </ul>
@@ -1074,7 +1075,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                                 <HardHat size={22} />
                                 <h4 className="m-[0] font-[700] text-[1.1rem]">EPP Recomendado</h4>
                             </div>
-                            <ul className="m-[0] pl-[1.2rem] text-[0.95rem] line-height-[1.6] text-[var(--color-text)]">
+                            <ul className="m-[0] pl-[1.2rem] text-[0.95rem] leading-[] text-[var(--color-text)]">
                                 {(result.epp || []).map((item, i) => <li key={i} className="mb-[0.5rem]">{item}</li>)}
                                 {(!result.epp || result.epp.length === 0) && <li>No hay EPP recomendados</li>}
                             </ul>
@@ -1086,7 +1087,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                                 <Lightbulb size={22} />
                                 <h4 className="m-[0] font-[700] text-[1.1rem]">Medidas Preventivas</h4>
                             </div>
-                            <ul className="m-[0] pl-[1.2rem] text-[0.95rem] line-height-[1.6] text-[var(--color-text)]">
+                            <ul className="m-[0] pl-[1.2rem] text-[0.95rem] leading-[] text-[var(--color-text)]">
                                 {(result.recomendaciones || []).map((item, i) => <li key={i} className="mb-[0.5rem]">{item}</li>)}
                                 {(!result.recomendaciones || result.recomendaciones.length === 0) && <li>No hay medidas preventivas</li>}
                             </ul>
@@ -1098,7 +1099,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
                                 <Gavel size={22} />
                                 <h4 className="m-[0] font-[700] text-[1.1rem]">Marco Legal ({userCountry.charAt(0).toUpperCase() + userCountry.slice(1)})</h4>
                             </div>
-                            <ul className="m-[0] pl-[1.2rem] text-[0.95rem] line-height-[1.6] list-style-type-[disc] text-[var(--color-text)]">
+                            <ul className="m-[0] pl-[1.2rem] text-[0.95rem] leading-[] list-style-type-[disc] text-[var(--color-text)]">
                                 {(result.normativa || []).map((item, i) => <li key={i} className="mb-[0.5rem] pl-[0.2rem]">{item}</li>)}
                                 {(!result.normativa || result.normativa.length === 0) && <li>No hay normativa registrada</li>}
                             </ul>
@@ -1122,7 +1123,7 @@ export default function AIChatAdvisor(): React.ReactElement | null {
 
 
               onMouseOver={(e) => {e.currentTarget.style.background = 'var(--color-primary-light)';}}
-              onMouseOut={(e) => {e.currentTarget.style.background = 'var(--color-surface)';}} className="display-[inline-flex] items-center gap-[0.8rem] p-[1rem_2.5rem] bg-[var(--color-surface)] text-[var(--color-primary)] border-[2px_solid_var(--color-primary)] rounded-[16px] font-[800] text-[1.05rem] cursor-pointer transition-[all_0.2s]">
+              onMouseOut={(e) => {e.currentTarget.style.background = 'var(--color-surface)';}} className="inline-flex items-center gap-[0.8rem] p-[1rem_2.5rem] bg-[var(--color-surface)] text-[var(--color-primary)] border-[2px_solid_var(--color-primary)] rounded-[16px] font-[800] text-[1.05rem] cursor-pointer transition-[all_0.2s]">
               
                             <RotateCcw size={20} /> Realizar Nueva Consulta
                         </button>

@@ -157,10 +157,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
           boxShadow: isOpen ? '20px 0 60px rgba(0,0,0,0.15)' : 'none'
 
 
-        }} className="fixed top-[0] left-[0] w-[285px] h-[100%] z-[1000] transition-[transform_0.3s_cubic-bezier(0.4,0,0.2,1),_visibility_0.3s] flex flex-col bg-[var(--color-surface)] border-right-[1px_solid_var(--color-border)] max-height-[100vh] overflow-[hidden] backdrop-filter-[blur(20px)] webkit-backdrop-filter-[blur(20px)]">
+        }} className="fixed top-[0] left-[0] w-[285px] h-[100%] z-[1000] transition-[transform_0.3s_cubic-bezier(0.4,0,0.2,1),_visibility_0.3s] flex flex-col bg-[var(--color-surface)] border-r border-[] max-h-[] overflow-[hidden] backdrop-filter-[blur(20px)] webkit-backdrop-filter-[blur(20px)]">
         
         {/* ── HEADER ── */}
-        <div className="p-[1.5rem_1.2rem] relative overflow-[hidden] flex-shrink-[0] border-bottom-[1px_solid_var(--color-border)]">
+        <div className="p-[1.5rem_1.2rem] relative overflow-[hidden] shrink-0 border-b border-[]">
 
 
 
@@ -169,8 +169,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
           {/* Top row: Logo + close */}
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-[0.6rem]">
-              <img src="/logo.png?v=3" alt="Logo" className="h-[34px] w-auto object-fit-[contain] flex-shrink-[0] filter-[drop-shadow(0_2px_6px_rgba(0,0,0,0.3))]" />
-              <span className="text-[0.95rem] font-[900] text-[var(--color-text)] letter-spacing-[-0.3px] font-family-[var(--font-heading)]">{t('app.short_name')}</span>
+              <img src="/logo.png?v=3" alt="Logo" className="h-[34px] w-auto object- shrink-0 filter-[drop-shadow(0_2px_6px_rgba(0,0,0,0.3))]" />
+              <span className="text-[0.95rem] font-[900] text-[var(--color-text)] tracking-[] font-[]">{t('app.short_name')}</span>
             </div>
             
             <div className="flex items-center gap-[0.5rem]">
@@ -199,7 +199,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
 
           color: !isOnline ? '#ef4444' : syncing ? '#3b82f6' : '#10b981'
 
-        }} className="border-bottom-[1px_solid_var(--color-border)] p-[0.6rem_1rem] flex items-center gap-[0.7rem] text-[0.75rem] font-[700] transition-[all_0.3s_ease]">
+        }} className="border-b border-[] p-[0.6rem_1rem] flex items-center gap-[0.7rem] text-[0.75rem] font-[700] transition-[all_0.3s_ease]">
             {!isOnline ?
           <>
                 <CloudSlash size={16} weight="bold" />
@@ -232,7 +232,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
               {visibleItems.map((item, i) => {
             const active = isActive(item.to);
             return (
-              <Link key={i} className="stagger-item text-decoration-[none]" to={item.to} onClick={onClose} style={{ animationDelay: `${0.05 + i * 0.03}s` }}>
+              <Link key={i} className="stagger-item no-underline" to={item.to} onClick={onClose} style={{ animationDelay: `${0.05 + i * 0.03}s` }}>
                     <div style={{
 
 
@@ -248,9 +248,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
                 onMouseOut={(e) => {if (!active) {e.currentTarget.style.background = 'transparent';}}} className="flex items-center gap-[0.9rem] p-[0.75rem_1rem] rounded-[12px] text-[0.9rem] transition-[all_0.2s_ease] border-[1px_solid_transparent] relative">
                   
                       {active &&
-                  <div className="absolute left-[-0.8rem] top-[15%] h-[70%] w-[4px] bg-[var(--color-primary)] rounded-[0_4px_4px_0] box-shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                  <div className="absolute left-[-0.8rem] top-[15%] h-[70%] w-[4px] bg-[var(--color-primary)] rounded-[0_4px_4px_0] shadow-[]" />
                   }
-                      <span style={{ color: active ? 'var(--color-primary)' : 'var(--color-text-muted)' }} className="flex-shrink-[0]">
+                      <span style={{ color: active ? 'var(--color-primary)' : 'var(--color-text-muted)' }} className="shrink-0">
                         {item.icon}
                       </span>
                       <span>{adaptText(item.label)}</span>
@@ -261,7 +261,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
 
           <div className="h-[1px] bg-[var(--color-border)] m-[1rem_0.5rem]" />
 
-          <a href="mailto:asistente.hs.soporte@gmail.com?subject=Sugerencia - Asistente HYS" onClick={onClose} className="text-decoration-[none] p-[0_0.5rem]">
+          <a href="mailto:asistente.hs.soporte@gmail.com?subject=Sugerencia - Asistente HYS" onClick={onClose} className="no-underline p-[0_0.5rem]">
             <div
               onMouseOver={(e) => {
                 e.currentTarget.style.transform = 'translateY(-2px)';
@@ -273,7 +273,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
               }} 
               className="flex items-center gap-[0.9rem] p-[0.9rem_1rem] rounded-[12px] text-[var(--color-primary)] text-[0.88rem] font-[700] bg-[rgba(59,130,246,0.08)] border-[1px_solid_rgba(59,130,246,0.2)] transition-[all_0.2s_ease]"
             >
-              <div className="w-[32px] h-[32px] rounded-[10px] bg-[var(--color-primary)] text-white flex items-center justify-center flex-shrink-[0]">
+              <div className="w-[32px] h-[32px] rounded-[10px] bg-[var(--color-primary)] text-white flex items-center justify-center shrink-0">
                 <ChatText size={18} weight="fill" />
               </div>
               <span>{t('nav.support')}</span>
@@ -282,7 +282,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
 
           {/* PRO banner */}
           {!isPro &&
-          <Link to="/subscribe" onClick={onClose} className="text-decoration-[none] mb-[0.5rem] mt-[1rem]">
+          <Link to="/subscribe" onClick={onClose} className="no-underline mb-[0.5rem] mt-[1rem]">
               <div
               onMouseOver={(e) => {
                 e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15))';
@@ -295,11 +295,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps): React.ReactE
                 e.currentTarget.style.transform = 'translateY(0)';
               }} className="flex items-center gap-[0.9rem] p-[1rem] rounded-[16px] bg-[linear-gradient(135deg,_rgba(59,_130,_246,_0.1),_rgba(139,_92,_246,_0.1))] border-[1px_solid_rgba(59,_130,_246,_0.2)] cursor-pointer transition-[all_0.3s_ease] relative overflow-[hidden]">
               
-                <div className="w-[32px] h-[32px] rounded-[10px] bg-[linear-gradient(135deg,_#f59e0b,_#fbbf24)] flex items-center justify-center box-shadow-[0_4px_12px_rgba(245,_158,_11,_0.3)] flex-shrink-[0]">
+                <div className="w-[32px] h-[32px] rounded-[10px] bg-[linear-gradient(135deg,_#f59e0b,_#fbbf24)] flex items-center justify-center shadow-[] shrink-0">
                   <Crown weight="fill" size={20} color="#ffffff" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-[800] text-[0.85rem] text-[var(--color-primary)] letter-spacing-[-0.3px]">{t('nav.activate_pro')}</span>
+                  <span className="font-[800] text-[0.85rem] text-[var(--color-primary)] tracking-[]">{t('nav.activate_pro')}</span>
                   <span className="text-[0.7rem] text-[var(--color-text-muted)]">{t('nav.unlock_all')}</span>
                 </div>
               </div>

@@ -195,7 +195,7 @@ export default function History(): React.ReactElement | null {
 
 
     onMouseEnter={(e) => e.currentTarget.style.background = '#fecaca'}
-    onMouseLeave={(e) => e.currentTarget.style.background = '#fee2e2'} className="bg-[#fee2e2] border-none rounded-[10px] text-[#dc2626] cursor-pointer p-[0.5rem_0.6rem] flex items-center flex-shrink-[0]">
+    onMouseLeave={(e) => e.currentTarget.style.background = '#fee2e2'} className="bg-[#fee2e2] border-none rounded-[10px] text-[#dc2626] cursor-pointer p-[0.5rem_0.6rem] flex items-center shrink-0">
     
             <Trash2 size={16} />
         </button>;
@@ -289,7 +289,7 @@ export default function History(): React.ReactElement | null {
                 </div>
 
                 <div className="flex items-center justify-space-between gap-[1rem] mb-[2rem] flex-wrap">
-                    <div className="flex items-center gap-[0.8rem] min-width-[200px]">
+                    <div className="flex items-center gap-[0.8rem] min-w-[]">
                         <></>
                         <h1 className="m-[0] text-[clamp(1.1rem,_4vw,_1.4rem)] font-[800]">Historial de Matrices</h1>
                     </div>
@@ -424,7 +424,7 @@ export default function History(): React.ReactElement | null {
         fileName={`Inspeccion_${shareItem?.data?.name || 'Seguridad'}.pdf`} />
       
 
-            <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-[none]">
+            <div className="absolute left-[0] opacity-[0.01] top-[-9999px] pointer-events-">
                 {shareItem?.type === 'inspection' && <ReportPdfGenerator initialData={shareItem.data} />}
             </div>
 

@@ -102,7 +102,7 @@ export default function ResetPassword(): React.ReactElement | null {
                     <div className="m-[0_auto_1rem_auto] inline-flex items-center justify-center">
                         <img
               src="/logo.png"
-              alt="Asistente H&S Logo" className="h-[64px] w-auto object-fit-[contain]" />
+              alt="Asistente H&S Logo" className="h-[64px] w-auto object-" />
                     </div>
                     <h1 className="text-[1.6rem] mb-[0.5rem]">Nueva Contraseña</h1>
                     <p className="text-[var(--color-text-muted)] text-[0.9rem]">Introduce tu nueva clave de acceso</p>
@@ -187,7 +187,7 @@ export default function ResetPassword(): React.ReactElement | null {
         }
 
                 <p className="text-center mt-[1.5rem] text-[0.85rem]">
-                    <a href="/login" onClick={(e) => {e.preventDefault();navigate('/login');}} className="text-[var(--color-text-muted)] text-decoration-[none] flex items-center justify-center gap-[0.5rem]">
+                    <a href="/login" onClick={(e) => {e.preventDefault();navigate('/login');}} className="text-[var(--color-text-muted)] no-underline flex items-center justify-center gap-[0.5rem]">
                         <ArrowLeft size={14} /> Volver al inicio de sesión
                     </a>
                 </p>

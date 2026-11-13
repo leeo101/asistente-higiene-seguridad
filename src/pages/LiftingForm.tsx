@@ -258,7 +258,7 @@ export default function LiftingForm(): React.ReactElement | null {
     accessor: 'date',
     sortable: true,
     render: (item: any) =>
-    <span className="flex items-center gap-[0.4rem] text-[var(--color-text-muted)] white-space-[nowrap]">
+    <span className="flex items-center gap-[0.4rem] text-[var(--color-text-muted)] whitespace-">
                     <Calendar size={14} /> {new Date(item.date).toLocaleDateString()}
                 </span>
   },
@@ -613,7 +613,7 @@ export default function LiftingForm(): React.ReactElement | null {
                     border: `2px solid ${(plan.checklist as any)[item.key] ? '#16a34a' : 'var(--color-border)'}`
                   }} className="p-[0.75rem] rounded-[var(--radius-lg)] cursor-pointer flex items-center gap-[0.75rem] text-left">
                   
-                                        <div style={{ background: (plan.checklist as any)[item.key] ? '#16a34a' : 'transparent' }} className="w-[20px] h-[20px] rounded-[6px] border-[2px_solid_#16a34a] flex items-center justify-center flex-shrink-[0]">
+                                        <div style={{ background: (plan.checklist as any)[item.key] ? '#16a34a' : 'transparent' }} className="w-[20px] h-[20px] rounded-[6px] border-[2px_solid_#16a34a] flex items-center justify-center shrink-0">
                                             {(plan.checklist as any)[item.key] && <ShieldCheck size={14} color="#fff" />}
                                         </div>
                                         <span className="text-[0.9rem] font-[600]">{item.label}</span>
@@ -636,8 +636,8 @@ export default function LiftingForm(): React.ReactElement | null {
 
             <ModuleFormSection title="Firmas y Autorizaciones" icon={<Pencil />}>
                         {/* Signature Visibility Toggles (Pill style) */}
-                        <div className="no-print mb-[2rem] p-[1.2rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[16px] flex flex-col gap-[1rem] box-shadow-[0_4px_6px_rgba(0,0,0,0.02)]">
-                            <div className="text-[var(--color-text)] text-[0.85rem] font-[800] uppercase letter-spacing-[0.5px]">
+                        <div className="no-print mb-[2rem] p-[1.2rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[16px] flex flex-col gap-[1rem] shadow-[]">
+                            <div className="text-[var(--color-text)] text-[0.85rem] font-[800] uppercase tracking-[]">
                                 INCLUIR FIRMAS EN EL DOCUMENTO:
                             </div>
                             <div className="flex gap-[1rem] flex-wrap">
@@ -708,7 +708,7 @@ export default function LiftingForm(): React.ReactElement | null {
                         <div className="no-print grid grid-template-columns-[repeat(auto-fit,_minmax(300px,_1fr))] gap-[2rem] mt-[2rem]">
                             {showSignatures.operator &&
               <div className="animate-fade-in bg-[rgba(var(--color-surface-rgb),_0.3)] backdrop-filter-[blur(10px)] rounded-[16px] p-[1.5rem] border-[1px_solid_var(--glass-border)]">
-                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase letter-spacing-[0.5px]">
+                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase tracking-[]">
                                         Firma del Operador
                                     </div>
                                     <SignatureCanvas
@@ -721,7 +721,7 @@ export default function LiftingForm(): React.ReactElement | null {
                             
                             {showSignatures.professional &&
               <div className="animate-fade-in bg-[rgba(var(--color-surface-rgb),_0.3)] backdrop-filter-[blur(10px)] rounded-[16px] p-[1.5rem] border-[1px_solid_var(--glass-border)]">
-                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase letter-spacing-[0.5px]">
+                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase tracking-[]">
                                         Firma de Especialista H&S
                                     </div>
                                     <SignatureCanvas
@@ -734,7 +734,7 @@ export default function LiftingForm(): React.ReactElement | null {
 
                             {showSignatures.supervisor &&
               <div className="animate-fade-in bg-[rgba(var(--color-surface-rgb),_0.3)] backdrop-filter-[blur(10px)] rounded-[16px] p-[1.5rem] border-[1px_solid_var(--glass-border)]">
-                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase letter-spacing-[0.5px]">
+                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase tracking-[]">
                                         Firma del Supervisor
                                     </div>
                                     <SignatureCanvas

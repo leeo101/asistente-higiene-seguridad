@@ -317,7 +317,7 @@ export default function EmergencyBot(): React.ReactElement | null {
 
         
                 {/* Messages Area */}
-                <div className="flex-[1] overflow-y-[auto] p-[1rem] flex flex-col gap-[1rem]">
+                <div className="flex-[1] overflow-y- p-[1rem] flex flex-col gap-[1rem]">
 
 
 
@@ -347,7 +347,7 @@ export default function EmergencyBot(): React.ReactElement | null {
 
 
 
-              }} className="p-[0.8rem_1rem] text-[0.9rem] line-height-[1.5] white-space-[pre-wrap]">
+              }} className="p-[0.8rem_1rem] text-[0.9rem] leading-[] whitespace-">
               
                                 {msg.content}
                                 <div className="text-[0.7rem] opacity-[0.7] mt-[4px] text-right">
@@ -373,7 +373,7 @@ export default function EmergencyBot(): React.ReactElement | null {
                 </div>
 
                 {/* Input Area */}
-                <div className="p-[1rem] border-top-[1px_solid_var(--color-border)] flex gap-[0.5rem] items-end">
+                <div className="p-[1rem] border-t border-[] flex gap-[0.5rem] items-end">
 
 
 
@@ -385,7 +385,7 @@ export default function EmergencyBot(): React.ReactElement | null {
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Escribí tu consulta de emergencia..."
-            rows={1} className="flex-[1] p-[0.8rem] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[8px] resize-[none] text-[0.9rem] outline-[none] font-family-[inherit]" />
+            rows={1} className="flex-[1] p-[0.8rem] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[8px] resize-[none] text-[0.9rem] outline-[none] font-[]" />
 
 
 
@@ -435,7 +435,7 @@ export default function EmergencyBot(): React.ReactElement | null {
 
 
         
-                <AlertTriangle size={20} color="#ef4444" className="flex-shrink-[0]" />
+                <AlertTriangle size={20} color="#ef4444" className="shrink-0" />
                 <div>
                     <p className="m-[0] text-[0.85rem] font-[700] text-[#ef4444]">
                         ⚠️ IMPORTANTE

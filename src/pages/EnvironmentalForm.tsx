@@ -316,11 +316,11 @@ export default function EnvironmentalForm(): React.ReactElement | null {
             </ModuleFormSection>
 
             <ModuleFormSection title="Firmas y Aprobaciones del Monitoreo" icon={<Pencil />}>
-                    <div className="card animate-fade-in bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2.5rem] box-shadow-[0_8px_32px_0_rgba(0,_0,_0,_0.08)]">
+                    <div className="card animate-fade-in bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2.5rem] shadow-[]">
 
                         {/* Custom visual switches */}
                         <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
-                            <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                            <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase tracking-[]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                             <div className="flex gap-[1rem] flex-wrap justify-center">
                                 {[
                 { id: 'operator', label: 'Técnico de Campo' },

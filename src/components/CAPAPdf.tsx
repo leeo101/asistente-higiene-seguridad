@@ -76,7 +76,7 @@ export default function CAPAPdf({ data, customId }: CAPAPdfProps): React.ReactEl
     <div className="w-[100%] flex justify-center">
       <div
         id={elementId}
-        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-0 h-auto p-[10mm_12mm] bg-[#ffffff] text-[#1e293b] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[9pt] font-family-[Helvetica,_Arial,_sans-serif]"
+        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-0 h-auto p-[10mm_12mm] bg-[#ffffff] text-[#1e293b] shadow-[] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[9pt] font-[]"
         style={{
           borderTop: isCritical ? '12px solid #dc2626' : '12px solid #2563eb'
         }}
@@ -98,7 +98,7 @@ export default function CAPAPdf({ data, customId }: CAPAPdfProps): React.ReactEl
         {/* Encabezado Principal Oficial */}
         <div className="flex flex-row justify-between items-start border-bottom-[3px_solid_#e2e8f0] pb-[1rem] mb-[1.2rem] w-[100%]">
           <div className="flex-[1] text-left">
-            <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.08em]">
+            <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] tracking-[]">
               Sistema Integrado de Gestión EHS
             </p>
             <p style={{ color: isCritical ? '#dc2626' : '#2563eb' }} className="m-[0] font-[900] text-[0.8rem] uppercase">
@@ -107,12 +107,12 @@ export default function CAPAPdf({ data, customId }: CAPAPdfProps): React.ReactEl
           </div>
 
           <div className="flex-[2] flex flex-col items-center justify-center text-center">
-            <h1 className="m-[0] font-[900] text-[2.2rem] letter-spacing-[-0.02em] uppercase line-height-[1] text-[#0f172a]">
+            <h1 className="m-[0] font-[900] text-[2.2rem] tracking-[] uppercase leading-[] text-[#0f172a]">
               CAPA
             </h1>
             <div
               style={{ background: isCritical ? '#dc2626' : '#3b82f6' }}
-              className="mt-[0.3rem] text-[white] p-[0.2rem_0.8rem] rounded-[12px] text-[0.65rem] font-[800] letter-spacing-[0.1em]"
+              className="mt-[0.3rem] text-[white] p-[0.2rem_0.8rem] rounded-[12px] text-[0.65rem] font-[800] tracking-[]"
             >
               PLAN DE ACCIÓN CORRECTIVA Y PREVENTIVA
             </div>
@@ -138,7 +138,7 @@ export default function CAPAPdf({ data, customId }: CAPAPdfProps): React.ReactEl
             <div>
               <span
                 style={{ color: isCritical ? '#dc2626' : '#3b82f6' }}
-                className="text-[0.65rem] font-[800] uppercase letter-spacing-[0.05em] flex items-center gap-[0.4rem]"
+                className="text-[0.65rem] font-[800] uppercase tracking-[] flex items-center gap-[0.4rem]"
               >
                 <RefreshCw size={14} /> IDENTIFICADOR ÚNICO: #{data.id || 'CAPA-REG'}
               </span>

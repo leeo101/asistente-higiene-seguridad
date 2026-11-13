@@ -116,7 +116,7 @@ export default function Checklist(): React.ReactElement | null {
             <Breadcrumbs />
 
             {/* ═══ Premium Header ═══ */}
-            <div className="mb-[1.5rem] p-[1.5rem_2rem] bg-[linear-gradient(135deg,_#0052CC_0%,_#003d99_50%,_#001a66_100%)] rounded-[24] flex justify-space-between items-center flex-wrap gap-[1rem] box-shadow-[0_10px_40px_rgba(0,82,204,0.35),_0_0_80px_rgba(0,82,204,0.1)] relative overflow-[hidden]">
+            <div className="mb-[1.5rem] p-[1.5rem_2rem] bg-[linear-gradient(135deg,_#0052CC_0%,_#003d99_50%,_#001a66_100%)] rounded-[24] flex justify-space-between items-center flex-wrap gap-[1rem] shadow-[] relative overflow-[hidden]">
 
 
 
@@ -125,12 +125,12 @@ export default function Checklist(): React.ReactElement | null {
 
         
                 {/* Background glows */}
-                <div style={{ top: -40, right: -40 }} className="absolute w-[180] h-[180] bg-[radial-gradient(circle,_rgba(0,197,255,0.2)_0%,_transparent_70%)] pointer-events-[none]" />
-                <div style={{ bottom: -30, left: -30 }} className="absolute w-[120] h-[120] bg-[radial-gradient(circle,_rgba(255,255,255,0.06)_0%,_transparent_70%)] pointer-events-[none]" />
+                <div style={{ top: -40, right: -40 }} className="absolute w-[180] h-[180] bg-[radial-gradient(circle,_rgba(0,197,255,0.2)_0%,_transparent_70%)] pointer-events-" />
+                <div style={{ bottom: -30, left: -30 }} className="absolute w-[120] h-[120] bg-[radial-gradient(circle,_rgba(255,255,255,0.06)_0%,_transparent_70%)] pointer-events-" />
 
                 <div className="flex items-center gap-[1rem] relative z-[1]">
                     <></>
-                    <div className="w-[56] h-[56] bg-[rgba(255,255,255,0.15)] backdrop-filter-[blur(12px)] rounded-[16] flex items-center justify-center border-[1px_solid_rgba(255,255,255,0.2)] box-shadow-[0_8px_32px_rgba(0,0,0,0.15)]">
+                    <div className="w-[56] h-[56] bg-[rgba(255,255,255,0.15)] backdrop-filter-[blur(12px)] rounded-[16] flex items-center justify-center border-[1px_solid_rgba(255,255,255,0.2)] shadow-[]">
 
 
 
@@ -140,7 +140,7 @@ export default function Checklist(): React.ReactElement | null {
             
                         <ClipboardCheck size={30} color="#fff" strokeWidth={2.5} />
                     </div>
-                    <div className="flex-[1] min-width-[200px]">
+                    <div className="flex-[1] min-w-[]">
                         {isEditingTitle ?
             <input
               value={title}
@@ -155,7 +155,7 @@ export default function Checklist(): React.ReactElement | null {
                   updateTitleInStorage(title);
                 }
               }}
-              autoFocus className="m-[0] text-[1.5rem] font-[900] text-[#fff] bg-[rgba(255,255,255,0.2)] border-[1px_solid_rgba(255,255,255,0.4)] rounded-[8px] p-[0_0.5rem] outline-[none] letter-spacing-[-0.5px] w-[100%] box-sizing-[border-box]" /> :
+              autoFocus className="m-[0] text-[1.5rem] font-[900] text-[#fff] bg-[rgba(255,255,255,0.2)] border-[1px_solid_rgba(255,255,255,0.4)] rounded-[8px] p-[0_0.5rem] outline-[none] tracking-[] w-[100%] box-sizing-[border-box]" /> :
 
 
 
@@ -172,12 +172,12 @@ export default function Checklist(): React.ReactElement | null {
 
 
 
-              title="Click para editar el título" className="m-[0] text-[1.5rem] font-[900] text-[#fff] letter-spacing-[-0.5px] cursor-text border-bottom-[1px_dashed_rgba(255,255,255,0.4)] inline-block">
+              title="Click para editar el título" className="m-[0] text-[1.5rem] font-[900] text-[#fff] tracking-[] cursor-text border-bottom-[1px_dashed_rgba(255,255,255,0.4)] inline-block">
               
                                 {title}
                             </h1>
             }
-                        <p className="m-[0] text-[rgba(255,255,255,0.7)] text-[0.8rem] font-[600] letter-spacing-[0.3px] mt-[0.2rem]">
+                        <p className="m-[0] text-[rgba(255,255,255,0.7)] text-[0.8rem] font-[600] tracking-[] mt-[0.2rem]">
                             Relevamiento de condiciones de seguridad
                         </p>
                     </div>
@@ -199,7 +199,7 @@ export default function Checklist(): React.ReactElement | null {
             
                         <AlertCircle size={14} /> IPER
                     </button>
-                    <CompanyLogo className="h-[36px] w-[auto] max-w-[110px] object-fit-[contain] filter-[brightness(0)_invert(1)] opacity-[0.85]" />
+                    <CompanyLogo className="h-[36px] w-[auto] max-w-[110px] object- filter-[brightness(0)_invert(1)] opacity-[0.85]" />
                 </div>
             </div>
 
@@ -211,8 +211,8 @@ export default function Checklist(): React.ReactElement | null {
         { label: 'Hallazgos ⚠', value: failCount, color: '#ef4444', bg: 'rgba(239,68,68,0.08)' }].
         map((stat) =>
         <div key={stat.label} className="toolbox-stat-card p-[1rem] text-center">
-                        <div style={{ color: stat.color }} className="text-[1.6rem] font-[900] line-height-[1]">{stat.value}</div>
-                        <div className="text-[0.7rem] font-[700] text-[var(--color-text-muted)] mt-[0.3rem] uppercase letter-spacing-[0.5px]">{stat.label}</div>
+                        <div style={{ color: stat.color }} className="text-[1.6rem] font-[900] leading-[]">{stat.value}</div>
+                        <div className="text-[0.7rem] font-[700] text-[var(--color-text-muted)] mt-[0.3rem] uppercase tracking-[]">{stat.label}</div>
                     </div>
         )}
             </div>
@@ -220,7 +220,7 @@ export default function Checklist(): React.ReactElement | null {
             {/* ═══ Progress Bar ═══ */}
             <div className="toolbox-glass-section p-[1.5rem] mb-[1.5rem]">
                 <div className="flex justify-space-between items-center mb-[0.75rem]">
-                    <span className="font-[800] text-[0.85rem] text-[var(--color-text)] uppercase letter-spacing-[0.5px]">
+                    <span className="font-[800] text-[0.85rem] text-[var(--color-text)] uppercase tracking-[]">
                         Progreso del Relevamiento
                     </span>
                     <span className="text-[1.1rem] font-[900] bg-[linear-gradient(135deg,_#0052CC,_#0077ff)] webkit-background-clip-[text] webkit-text-fill-color-[transparent]">
@@ -265,7 +265,7 @@ export default function Checklist(): React.ReactElement | null {
                             <span style={{
                 color: cat.color
 
-              }} className="text-[0.78rem] font-[900] uppercase letter-spacing-[1px] flex-[1]">{cat.name}</span>
+              }} className="text-[0.78rem] font-[900] uppercase tracking-[] flex-[1]">{cat.name}</span>
                             {catDone &&
               <span className="text-[0.65rem] font-[800] text-[#10b981] bg-[rgba(16,185,129,0.1)] border-[1px_solid_rgba(16,185,129,0.3)] p-[2px_8px] rounded-[20]">
 
@@ -305,7 +305,7 @@ export default function Checklist(): React.ReactElement | null {
 
                       color: isFail ? '#ef4444' : isOk ? '#10b981' : 'var(--color-text-muted)'
 
-                    }} className="w-[28] h-[28] rounded-[8] flex-shrink-[0] flex items-center justify-center text-[0.65rem] font-[900] transition-[all_0.25s]">
+                    }} className="w-[28] h-[28] rounded-[8] shrink-0 flex items-center justify-center text-[0.65rem] font-[900] transition-[all_0.25s]">
                                             {idx + 1}
                                         </div>
 
@@ -315,12 +315,12 @@ export default function Checklist(): React.ReactElement | null {
                       fontWeight: isFail ? 700 : 500,
                       color: isFail ? '#ef4444' : isOk ? 'var(--color-text-muted)' : 'var(--color-text)'
 
-                    }} className="flex-[1] text-[0.9rem] line-height-[1.5] transition-[color_0.2s]">
+                    }} className="flex-[1] text-[0.9rem] leading-[] transition-[color_0.2s]">
                                             {item.text}
                                         </div>
 
                                         {/* Action Buttons */}
-                                        <div className="flex gap-[0.5rem] flex-shrink-[0]">
+                                        <div className="flex gap-[0.5rem] shrink-0">
                                             {/* OK button */}
                                             <button
                         onClick={() => handleToggle(item.id, 'ok')}
@@ -388,7 +388,7 @@ export default function Checklist(): React.ReactElement | null {
             '0 8px 30px rgba(0,82,204,0.4)'
 
 
-          }} className="w-[100%] p-[1.1rem_2rem] text-[#fff] border-none rounded-[16] font-[900] text-[1rem] cursor-pointer flex items-center justify-center gap-[0.75rem] transition-[all_0.3s_cubic-bezier(0.4,_0,_0.2,_1)] letter-spacing-[0.5px]">
+          }} className="w-[100%] p-[1.1rem_2rem] text-[#fff] border-none rounded-[16] font-[900] text-[1rem] cursor-pointer flex items-center justify-center gap-[0.75rem] transition-[all_0.3s_cubic-bezier(0.4,_0,_0.2,_1)] tracking-[]">
           
                     <Shield size={22} />
                     {progress === 100 ? 'Generar Reporte Final' : `Continuar al Reporte (${progress}% completado)`}

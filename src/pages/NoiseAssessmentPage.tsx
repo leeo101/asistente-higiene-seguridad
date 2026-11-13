@@ -87,11 +87,11 @@ export default function NoiseAssessmentPage(): React.ReactElement | null {
 
 
 
-      }} className="bg-[var(--color-surface)] border-bottom-[1px_solid_var(--color-border)] sticky top-[0] z-[100] backdrop-filter-[blur(20px)]">
+      }} className="bg-[var(--color-surface)] border-b border-[] sticky top-[0] z-[100] backdrop-filter-[blur(20px)]">
                 <div className="flex items-center gap-[1rem] max-w-[1400px] m-[0_auto]">
                     <div className="flex-[1]">
                         <h1 style={{ fontSize: isMobile ? '1.25rem' : '1.5rem' }} className="m-[0] font-[900]">
-                            <Volume2 size={isMobile ? 20 : 24} className="display-[inline] mr-[0.5rem] vertical-align-[middle]" />
+                            <Volume2 size={isMobile ? 20 : 24} className="inline mr-[0.5rem] vertical-align-[middle]" />
                             Evaluación de Ruido
                         </h1>
                         <p className="m-[0.25rem_0_0_0] text-[0.85rem] text-[var(--color-text-muted)]">
@@ -232,7 +232,7 @@ function StatCard({ label, value, color, icon }: any) {
             </div>
             <div>
                 <div className="text-[0.85rem] font-[600] text-[var(--color-text-muted)]">{label}</div>
-                <div className="text-[2rem] font-[900] text-[var(--color-text)] line-height-[1]">{value}</div>
+                <div className="text-[2rem] font-[900] text-[var(--color-text)] leading-[]">{value}</div>
             </div>
         </div>);
 
@@ -243,8 +243,8 @@ function DetailModal({ measurement, onClose, isMobile, onPrint, calculateRiskLev
 
   return (
     <div style={{ alignItems: isMobile ? 'flex-end' : 'center', padding: isMobile ? '1rem' : '1.5rem' }} onClick={onClose} className="fixed inset-[0] bg-[rgba(0,0,0,0.7)] backdrop-filter-[blur(8px)] z-[9999] flex justify-center box-sizing-[border-box]">
-            <div className="card w-[100%] max-w-[600px] max-height-[85vh] overflow-[auto] m-[0] box-sizing-[border-box] flex flex-col" style={{ borderRadius: isMobile ? '28px' : 'var(--radius-2xl)' }} onClick={(e) => e.stopPropagation()}>
-                <div className="flex justify-space-between items-center mb-[1.5rem] pb-[1rem] border-bottom-[1px_solid_var(--color-border)] p-[1.5rem_1.5rem_0]">
+            <div className="card w-[100%] max-w-[600px] max-h-[] overflow-[auto] m-[0] box-sizing-[border-box] flex flex-col" style={{ borderRadius: isMobile ? '28px' : 'var(--radius-2xl)' }} onClick={(e) => e.stopPropagation()}>
+                <div className="flex justify-space-between items-center mb-[1.5rem] pb-[1rem] border-b border-[] p-[1.5rem_1.5rem_0]">
                     <h2 className="m-[0] text-[1.25rem] font-[900]">Detalle de Evaluación</h2>
                     <button onClick={onClose} className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition-colors">
                         <XCircle size={24} />
@@ -254,7 +254,7 @@ function DetailModal({ measurement, onClose, isMobile, onPrint, calculateRiskLev
                 <div className="p-[0_1.5rem_1.5rem]">
                     <div style={{ background: `${riskLevel.color}10`, border: `1px solid ${riskLevel.color}30` }} className="text-center p-[1.5rem] rounded-[var(--radius-xl)] mb-[1.5rem]">
                         <Volume2 size={40} color={riskLevel.color} className="mb-[0.5rem]" />
-                        <div className="text-[3rem] font-[900] text-[var(--color-text)] line-height-[1]">{measurement.levels.lavg}<span className="text-[1.5rem]">dB</span></div>
+                        <div className="text-[3rem] font-[900] text-[var(--color-text)] leading-[]">{measurement.levels.lavg}<span className="text-[1.5rem]">dB</span></div>
                         <div className="text-[0.9rem] text-[var(--color-text-muted)] mt-[0.5rem]">{measurement.workerName}</div>
                         <div className="mt-[0.75rem]">
                             <span style={{ background: riskLevel.color }} className="p-[0.35rem_0.85rem] text-[#fff] rounded-[var(--radius-full)] text-[0.75rem] font-[800]">{riskLevel.label}</span>
@@ -326,14 +326,14 @@ function MeasurementCard({ measurement, riskLevel, onView, onDelete, isMobile }:
 
         border: `2px solid ${riskLevel.color}`
 
-      }} className="rounded-[var(--radius-xl)] flex flex-col items-center justify-center flex-shrink-[0]">
+      }} className="rounded-[var(--radius-xl)] flex flex-col items-center justify-center shrink-0">
                 <Volume2 size={isMobile ? 20 : 24} color={riskLevel.color} />
-                <span style={{ fontSize: isMobile ? '1rem' : '1.1rem' }} className="font-[900] text-[var(--color-text)] line-height-[1]">
+                <span style={{ fontSize: isMobile ? '1rem' : '1.1rem' }} className="font-[900] text-[var(--color-text)] leading-[]">
                     {parseFloat(measurement.levels.lavg) || 0}
                 </span>
             </div>
 
-            <div className="flex-[1] min-width-[0]">
+            <div className="flex-[1] min-w-0">
                 <div className="flex items-center gap-[0.5rem] mb-[0.5rem] flex-wrap">
                     <h3 style={{ fontSize: isMobile ? '1rem' : '1.1rem' }} className="m-[0] font-[800] text-[var(--color-text)]">
                         {measurement.workerName}

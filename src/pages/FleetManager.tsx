@@ -208,7 +208,7 @@ export default function FleetForm(): React.ReactElement | null {
                 </button>
                 <div className="flex-[1]">
                     <h1 style={{ fontSize: isMobile ? '1.1rem' : '1.3rem' }} className="m-[0] font-[900]">
-                        <CarFront size={20} className="display-[inline] mr-[0.5rem] vertical-align-[middle]" />
+                        <CarFront size={20} className="inline mr-[0.5rem] vertical-align-[middle]" />
                         {isEdit ? 'Editar InspecciÃ³n Pre-Operacional' : 'InspecciÃ³n Pre-Operacional Vehicular'}
                     </h1>
                 </div>
@@ -271,7 +271,7 @@ export default function FleetForm(): React.ReactElement | null {
                                     <div className="flex-[1_1_200px]">
                                         <span className="text-[0.9rem] font-[600]">{item.label}</span>
                                     </div>
-                                    <div className="checklist-status-buttons min-width-[180px]">
+                                    <div className="checklist-status-buttons min-w-[]">
                                         <button
                     type="button"
                     onClick={() => updateChecklist(item.id, 'ok')}
@@ -321,7 +321,7 @@ export default function FleetForm(): React.ReactElement | null {
                         </div>
 
                         {/* Signature Visibility Toggles (Pill style) */}
-                        <div className="no-print mb-[2rem] p-[1.2rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[16px] flex flex-col gap-[1rem] box-shadow-[0_4px_6px_rgba(0,0,0,0.02)]">
+                        <div className="no-print mb-[2rem] p-[1.2rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[16px] flex flex-col gap-[1rem] shadow-[]">
 
 
 
@@ -332,7 +332,7 @@ export default function FleetForm(): React.ReactElement | null {
 
 
               
-                            <div className="text-[var(--color-text)] text-[0.85rem] font-[800] uppercase letter-spacing-[0.5px]">
+                            <div className="text-[var(--color-text)] text-[0.85rem] font-[800] uppercase tracking-[]">
                                 INCLUIR FIRMAS EN EL DOCUMENTO:
                             </div>
                             <div className="flex gap-[1rem] flex-wrap">
@@ -423,7 +423,7 @@ export default function FleetForm(): React.ReactElement | null {
 
 
                 
-                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase letter-spacing-[0.5px]">
+                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase tracking-[]">
                                         Firma del Conductor
                                     </div>
                                     <SignatureCanvas
@@ -442,7 +442,7 @@ export default function FleetForm(): React.ReactElement | null {
 
 
                 
-                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase letter-spacing-[0.5px]">
+                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase tracking-[]">
                                         Firma de Especialista H&S
                                     </div>
                                     <SignatureCanvas
@@ -461,7 +461,7 @@ export default function FleetForm(): React.ReactElement | null {
 
 
                 
-                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase letter-spacing-[0.5px]">
+                                    <div className="text-[0.85rem] font-[800] text-[var(--color-text-secondary)] mb-[1rem] uppercase tracking-[]">
                                         Firma del Inspector
                                     </div>
                                     <SignatureCanvas

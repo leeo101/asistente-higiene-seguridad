@@ -73,7 +73,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
 
   return (
     <div id="extinguisher-pdf-wrap" className="pb-[0] w-full" data-orientation={isLandscape ? 'landscape' : 'portrait'}>
-            <div className="overflow-x-[visible] w-full">
+            <div className="overflow-x- w-full">
                 <div
           id="pdf-content"
           className="pdf-container card print-area bg-white text-slate-900 rounded-[8px] w-full box-border"

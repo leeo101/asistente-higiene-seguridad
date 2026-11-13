@@ -91,7 +91,7 @@ export default function PPEReceiptPdfGenerator({ items = [], receiptData, custom
     <div className="w-full print:m-0 print:p-0">
       <div
         id={customId || "ppe-receipt-pdf"}
-        className="pdf-container print-area w-full p-[10mm_15mm] bg-[#ffffff] text-[#000000] box-sizing-[border-box] m-[0_auto] text-[9pt] font-family-[Arial,_Helvetica,_sans-serif]"
+        className="pdf-container print-area w-full p-[10mm_15mm] bg-[#ffffff] text-[#000000] box-sizing-[border-box] m-[0_auto] text-[9pt] font-[]"
       >
         <style type="text/css" media="print">
           {`

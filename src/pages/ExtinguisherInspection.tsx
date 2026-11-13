@@ -1,22 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { usePaywall } from '../hooks/usePaywall';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShieldCheck, ArrowLeft, Camera, CheckCircle2, Save, X, Flame, Plus, Image as ImageIcon } from 'lucide-react';
+import { ShieldCheck, Camera, CheckCircle2, Save, X, Plus, Image as ImageIcon, ArrowLeft, Flame, ClipboardCheck, FileText, MapPin, Calendar, Pencil } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { useSync } from '../contexts/SyncContext';
-import PremiumHeader from '../components/PremiumHeader';
 import { compressImage } from '../utils/imageCompressor';
+import { safeJsonParse } from '../utils/storageHelper';
+import { ModuleFormLayout } from '../components/module/ModuleFormLayout';
+import { ModuleFormDocument } from '../components/module/ModuleFormDocument';
+import { ModuleFormToolbar } from '../components/module/ModuleFormToolbar';
+import { ModuleFormSection } from '../components/module/ModuleFormSection';
+import { ModuleActionBar } from '../components/module/ModuleActionBar';
+import SignatureCanvas from '../components/SignatureCanvas';
+import PdfSignatures from '../components/PdfSignatures';
+import CompanyLogo from '../components/CompanyLogo';
 
 const NFPA10_CHECKLIST = [
-{ id: 'c1', text: 'Ubicación correcta y asignada' },
-{ id: 'c2', text: 'Visibilidad y acceso sin obstrucciones' },
-{ id: 'c3', text: 'Manómetro en zona verde (presión operable)' },
-{ id: 'c4', text: 'Manguera y boquilla libres de obstrucciones / cortes' },
-{ id: 'c5', text: 'Precinto de seguridad y pasador intactos' },
-{ id: 'c6', text: 'Cartelería y señalización reglamentaria en buen estado' },
-{ id: 'c7', text: 'Estado físico general (sin abolladuras ni corrosión)' }];
-
+  { id: 'c1', text: 'Ubicación correcta y asignada según plano' },
+  { id: 'c2', text: 'Visibilidad y acceso libre sin obstrucciones' },
+  { id: 'c3', text: 'Manómetro en zona verde (presión operable)' },
+  { id: 'c4', text: 'Manguera y boquilla libres de obstrucciones, grietas o cortes' },
+  { id: 'c5', text: 'Precinto de seguridad y pasador intactos' },
+  { id: 'c6', text: 'Marbete / tarjeta de control legible y vigente' },
+  { id: 'c7', text: 'Altura de montaje y soporte reglamentario firme' },
+  { id: 'c8', text: 'Válvula, palanca de accionamiento y seguro sin daños ni corrosión' },
+  { id: 'c9', text: 'Cartelería y señalización reglamentaria (baliza/chapa) en buen estado' },
+  { id: 'c10', text: 'Estado físico general del cilindro (sin abolladuras, óxido ni fugas)' },
+  { id: 'c11', text: 'Verificación de peso / tara conforme (aplica a equipos de CO₂)' }
+];
 
 export default function ExtinguisherInspection() {
   const { requirePro } = usePaywall();
@@ -25,13 +37,26 @@ export default function ExtinguisherInspection() {
   const { syncCollection } = useSync();
   const [extintor, setExtintor] = useState<any>(null);
   const [checklist, setChecklist] = useState(
-    NFPA10_CHECKLIST.map((item) => ({ ...item, status: null, notes: '', photos: [] }))
+    NFPA10_CHECKLIST.map((item) => ({ ...item, status: null as string | null, notes: '', photos: [] as string[] }))
   );
   const [inspectorName, setInspectorName] = useState('');
-  const [generalPhotos, setGeneralPhotos] = useState([]);
+  const [inspectorSignature, setInspectorSignature] = useState('');
+  const [supervisorSignature, setSupervisorSignature] = useState('');
+  const [showSignatures, setShowSignatures] = useState({
+    operator: true,
+    supervisor: false,
+    professional: true
+  });
+  const [professional, setProfessional] = useState({
+    name: '',
+    license: '',
+    signature: null as string | null
+  });
+  const [generalPhotos, setGeneralPhotos] = useState<string[]>([]);
   const [generalObservations, setGeneralObservations] = useState('');
   const [inspectionDate, setInspectionDate] = useState(new Date().toISOString().split('T')[0]);
   const [isSaving, setIsSaving] = useState(false);
+  const [activeStep, setActiveStep] = useState(0);
 
   const { currentUser } = useAuth();
   const [isVisitorView, setIsVisitorView] = useState<boolean>(false);
@@ -93,10 +118,33 @@ export default function ExtinguisherInspection() {
       setIsVisitorView(true);
     }
 
-    // Cargar nombre del inspector si está logueado
+    // Cargar nombre y firma del profesional si está logueado
     const pData = localStorage.getItem('personalData');
+    const savedSigData = localStorage.getItem('signatureStampData');
+    const legacySignature = localStorage.getItem('capturedSignature');
+    let sig = legacySignature || null;
+    if (savedSigData) {
+      try {
+        const parsedSig = JSON.parse(savedSigData);
+        sig = parsedSig?.signature || sig;
+      } catch {
+        if (savedSigData.startsWith('data:')) sig = savedSigData;
+      }
+    }
     if (pData) {
-      try { setInspectorName(JSON.parse(pData).name || ''); } catch {}
+      try {
+        const parsedP = JSON.parse(pData);
+        setInspectorName(parsedP.name || '');
+        setProfessional({
+          name: parsedP.name || '',
+          license: parsedP.license || '',
+          signature: parsedP.signature || sig
+        });
+      } catch {
+        setProfessional({ name: '', license: '', signature: sig });
+      }
+    } else if (sig) {
+      setProfessional({ name: '', license: '', signature: sig });
     }
   }, [id, currentUser]);
 
@@ -185,6 +233,10 @@ export default function ExtinguisherInspection() {
         extintorNum: extNumero,
         fecha: `${inspectionDate}T12:00:00.000Z`,
         inspector: (inspectorName || '').trim() || 'Inspector HSE',
+        inspectorSignature: inspectorSignature || undefined,
+        supervisorSignature: supervisorSignature || undefined,
+        professionalSignature: professional.signature || undefined,
+        showSignatures,
         items: checklist,
         fotos: generalPhotos,
         observaciones: generalObservations,
@@ -194,8 +246,7 @@ export default function ExtinguisherInspection() {
       // 1. Guardar en extintores_history
       let newHistory: any[] = [];
       try {
-        const historyRaw = localStorage.getItem('extintores_history');
-        const history = historyRaw ? JSON.parse(historyRaw) : [];
+        const history = safeJsonParse<any[]>(localStorage.getItem('extintores_history'), []);
         newHistory = [report, ...history];
         localStorage.setItem('extintores_history', JSON.stringify(newHistory));
       } catch (quotaErr) {
@@ -206,8 +257,7 @@ export default function ExtinguisherInspection() {
           fotos: [],
           items: checklist.map(i => ({ ...i, photos: [] }))
         };
-        const historyRaw = localStorage.getItem('extintores_history');
-        const history = historyRaw ? JSON.parse(historyRaw) : [];
+        const history = safeJsonParse<any[]>(localStorage.getItem('extintores_history'), []);
         newHistory = [sanitizedReport, ...history.slice(0, 30)];
         localStorage.setItem('extintores_history', JSON.stringify(newHistory));
       }
@@ -226,15 +276,14 @@ export default function ExtinguisherInspection() {
           acceso: checklist[1]?.status || 'C',
           manometro: checklist[2]?.status || 'C',
           manguera: checklist[3]?.status || 'C',
-          cilindro: checklist[6]?.status || 'C',
-          senalizacion: checklist[5]?.status || 'C'
+          cilindro: checklist[9]?.status || checklist[6]?.status || 'C',
+          senalizacion: checklist[8]?.status || checklist[5]?.status || 'C'
         },
         observacion: report.observaciones,
         fotos: report.fotos
       };
 
-      const inventoryRaw = localStorage.getItem('extinguishers_inventory');
-      const inventory = inventoryRaw ? JSON.parse(inventoryRaw) : [];
+      const inventory = safeJsonParse<any[]>(localStorage.getItem('extinguishers_inventory'), []);
 
       // Buscar por ID, o por número/chapa
       let matchFound = false;
@@ -378,160 +427,530 @@ export default function ExtinguisherInspection() {
     );
   }
 
+  const answeredCount = checklist.filter((c) => c.status !== null && c.status !== undefined).length;
+  const progressPercent = checklist.length > 0 ? Math.round((answeredCount / checklist.length) * 100) : 0;
+  const hasNC = checklist.some((c) => c.status === 'NC');
+  const allAnswered = checklist.length > 0 && answeredCount === checklist.length;
+  const isRecargaVencida = Boolean(extintor.vencimientoRecarga && new Date(extintor.vencimientoRecarga) < new Date());
+  const isPHVencida = Boolean(extintor.vencimientoPH && new Date(extintor.vencimientoPH) < new Date());
+
+  const sectionIds = ['insp-sec-equipo', 'insp-sec-checklist', 'insp-sec-evidencia'];
+  const handleStepClick = (stepIdx: number) => {
+    setActiveStep(stepIdx);
+    const el = document.getElementById(sectionIds[stepIdx]);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
-    <div className="container max-w-[600px] pb-[6rem]">
-            <PremiumHeader
-        title={`Inspección: ${extintor.numero}`}
-        subtitle={`${extintor.tipo} - ${extintor.ubicacion} ${extintor.marca ? `(${extintor.marca})` : ''}`}
-        icon={<ShieldCheck size={32} color="#ffffff" />}
-        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
-      
+    <ModuleFormLayout maxWidth={850}>
+      <ModuleFormToolbar
+        title={`Inspección: ${extintor.numero || extintor.chapa || extintor.id}`}
+        subtitle={`${extintor.tipo || 'Matafuego'} · ${extintor.ubicacion || 'Sin ubicación'}${extintor.marca ? ` (${extintor.marca})` : ''}`}
+        icon={<ShieldCheck size={20} className="text-amber-500" />}
+        onBack={() => navigate('/extintores')}
+        progress={{
+          percent: progressPercent,
+          label: `${answeredCount}/${checklist.length} puntos`,
+          color: hasNC ? '#ef4444' : progressPercent === 100 ? '#10b981' : '#f59e0b'
+        }}
+        steps={['Datos del Equipo', 'Checklist NFPA 10', 'Evidencia y Firma']}
+        currentStep={activeStep}
+        onStepClick={handleStepClick}
+      />
+      <ModuleFormDocument id="extinguisher-inspection-form">
+        {/* Encabezado de Hoja estilo ATS */}
+        <div
+          className="flex flex-col sm:flex-row justify-between items-center pb-5 mb-6 w-full gap-4"
+          style={{ borderBottom: '3px solid var(--color-border)' }}
+        >
+          <div className="text-center sm:text-left">
+            <p className="m-0 font-bold text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Sistema de Gestión Preventiva
+            </p>
+            <p className="m-0 font-black text-xs uppercase text-slate-800 dark:text-slate-100">
+              Ley 19.587 • Dec. 351/79 • NFPA 10
+            </p>
+          </div>
 
-            <div className="flex gap-[1rem] mb-[1.5rem] mt-[1.5rem] flex-wrap">
-                <></>
+          <div className="flex flex-col items-center justify-center text-center">
+            <h1 className="m-0 font-black text-2xl sm:text-3xl tracking-tight uppercase leading-none text-slate-900 dark:text-white">
+              INSPECCIÓN
+            </h1>
+            <p className="m-0 font-black text-[10px] uppercase tracking-widest mt-1 text-slate-500 dark:text-slate-400">
+              Control Periódico de Matafuego
+            </p>
+          </div>
+
+          <div className="text-center sm:text-right flex flex-col items-center sm:items-end gap-1.5">
+            <CompanyLogo className="h-[38px] max-w-[120px]" />
+            <span
+              className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full"
+              style={{
+                backgroundColor: hasNC ? 'rgba(239, 68, 68, 0.14)' : allAnswered ? 'rgba(16, 185, 129, 0.14)' : 'rgba(245, 158, 11, 0.14)',
+                color: hasNC ? '#dc2626' : allAnswered ? '#059669' : '#d97706'
+              }}
+            >
+              {hasNC ? 'RECHAZADO' : allAnswered ? 'APROBADO' : `CHAPA #${extintor.numero || extintor.chapa || extintor.id}`}
+            </span>
+          </div>
+        </div>
+
+      <div className="space-y-6 pb-8">
+        {/* Sección 1: Datos del Equipo y Estado en Vivo */}
+        <div id="insp-sec-equipo">
+          <ModuleFormSection
+            title="Datos del Equipo"
+            icon={<Flame size={18} className="text-amber-500" />}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                <MapPin size={14} className="text-slate-400" />
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{extintor.ubicacion || 'Ubicación no especificada'}</span>
+              </div>
+              <span
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wide ${
+                  hasNC
+                    ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                    : allAnswered
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                    : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+                }`}
+              >
+                {hasNC ? 'Rechazado / Con NC' : allAnswered ? 'Aprobado (Listo para guardar)' : `En progreso (${answeredCount}/${checklist.length})`}
+              </span>
             </div>
 
-            <div className="card p-[1.2rem] mb-[1.5rem] bg-[var(--color-surface)] border-[2px_solid_var(--color-border)]">
-                <div className="flex justify-space-between items-center mb-[1rem]">
-                    <h3 className="m-[0] text-[0.9rem] font-[900] uppercase text-[var(--color-primary)]">Inspección NFPA 10</h3>
-                    <button onClick={setAllOk} style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }} className="p-[0.5rem_0.8rem] text-[0.75rem] font-[800] rounded-[8px] cursor-pointer shadow-sm transition-transform hover:-translate-y-0.5 flex items-center gap-1">
-                        <CheckCircle2 size={16} /> MARCAR TODO OK
-                    </button>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/60">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Nº Chapa / ID</span>
+                <strong className="text-slate-900 dark:text-white font-extrabold">{extintor.numero || extintor.chapa || extintor.id}</strong>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/60">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Agente / Tipo</span>
+                <strong className="text-slate-900 dark:text-white font-bold">{extintor.tipo || 'PQS ABC'}</strong>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/60">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Capacidad</span>
+                <strong className="text-slate-900 dark:text-white font-bold">{extintor.capacidad || '5 kg'}</strong>
+              </div>
+              {extintor.marca && (
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/60">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Marca</span>
+                  <strong className="text-slate-900 dark:text-white font-bold">{extintor.marca}</strong>
                 </div>
-
-                <div className="flex flex-col gap-4">
-                    {checklist.map((item, idx) =>
-                        <div key={item.id} className="p-[1rem] bg-[var(--color-background)] border-[1px_solid_var(--color-border)] rounded-[12px]">
-                            <div className="flex items-start gap-[0.5rem] mb-[0.8rem]">
-                                <span className="font-[800] text-[var(--color-primary)] mt-[0.4rem]">{idx + 1}.</span>
-                                <textarea
-                value={item.text}
-                onChange={(e) => handleItemTextChange(idx, e.target.value)}
-                placeholder="Detalle a inspeccionar..."
-
-                className="hover:border-slate-300 focus:border-blue-500 focus:bg-white flex-[1] p-[0.4rem] text-[0.85rem] font-[600] border-[1px_solid_transparent] rounded-[8px] bg-[transparent] outline-[none] resize-[none] min-h-[40px] line-height-[1.4]" />
-              
-                                <button onClick={() => handleRemoveItem(idx)} style={{ backgroundColor: '#fee2e2', color: '#ef4444', border: 'none' }} className="p-[0.4rem] cursor-pointer rounded-[8px] transition-colors">
-                                    <X size={16} />
-                                </button>
-                            </div>
-                            
-                            <div className="ats-status-group mb-[0.8rem]">
-                                <button className={`ats-status-btn ${item.status === 'C' ? 'active-ok' : ''}`} onClick={() => handleStatus(idx, 'C')}>C</button>
-                                <button className={`ats-status-btn ${item.status === 'NC' ? 'active-fail' : ''}`} onClick={() => handleStatus(idx, 'NC')}>NC</button>
-                                <button className={`ats-status-btn ${item.status === 'NA' ? 'active-na' : ''}`} onClick={() => handleStatus(idx, 'NA')}>N/A</button>
-                                
-                                <div className="flex gap-2 ml-auto">
-                                    <label title="Tomar Foto" style={{ backgroundColor: '#e0e7ff', color: '#4f46e5', border: 'none', borderRadius: '0.5rem', height: '36px' }} className="px-3 cursor-pointer flex items-center justify-center transition-transform hover:-translate-y-0.5">
-                                        <Camera size={18} />
-                                        <input type="file" accept="image/*" capture="environment" onChange={(e) => handlePhoto(idx, e.target.files)} style={{ display: 'none' }} />
-                                    </label>
-                                    <label title="Subir de Galería" style={{ backgroundColor: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '0.5rem', height: '36px' }} className="px-3 cursor-pointer flex items-center justify-center transition-transform hover:-translate-y-0.5">
-                                        <ImageIcon size={18} />
-                                        <input type="file" accept="image/*" onChange={(e) => handlePhoto(idx, e.target.files)} style={{ display: 'none' }} />
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div className="animate-fade-in flex flex-col gap-[0.5rem] mt-[0.5rem] pt-[0.5rem] border-top-[1px_dashed_var(--color-border)]">
-                                <div className="flex gap-[0.5rem]">
-                                    <input
-                  type="text"
-                  placeholder="Observaciones / Detalles..."
-                  value={item.notes}
-                  onChange={(e) => handleNotes(idx, e.target.value)} className="flex-[1] p-[0.6rem] text-[0.8rem] border-[1px_solid_var(--color-border)] rounded-[8px] bg-[var(--color-surface)] outline-[none]" />
-
-                
-                                </div>
-                            </div>
-                            
-                            {item.photos.length > 0 &&
-            <div className="animate-fade-in flex gap-[0.4rem] flex-wrap mt-[0.5rem]">
-                                    {item.photos.map((p, pIdx) =>
-              <div key={pIdx} className="relative w-[45px] h-[45px] rounded-[6px] overflow-[hidden]">
-                                            <img src={p} alt="Evidencia" className="w-[100%] h-[100%] object-fit-[cover]" />
-                                            <button onClick={() => removePhoto(idx, pIdx)} className="absolute top-[0] right-[0] bg-[#ef4444] text-[#fff] border-none w-[16px] h-[16px] text-[10px] flex items-center justify-center cursor-pointer">✕</button>
-                                        </div>
               )}
-                                </div>
-            }
-                        </div>
-          )}
-                    
-                    <button onClick={handleAddItem} style={{ backgroundColor: '#eff6ff', color: '#2563eb', border: '2px dashed #bfdbfe' }} className="p-[0.5rem_1rem] mt-2 rounded-[10px] font-[800] text-[0.8rem] cursor-pointer flex justify-center items-center gap-[0.5rem] transition-colors hover:bg-blue-100 mx-auto">
-                        <Plus size={16} /> AGREGAR PREGUNTA AL CHECKLIST
+              {extintor.vencimientoRecarga && (
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/60">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Venc. Recarga</span>
+                  <strong className={`font-extrabold ${isRecargaVencida ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                    {extintor.vencimientoRecarga}
+                  </strong>
+                </div>
+              )}
+              {extintor.vencimientoPH && (
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/60">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Venc. Prueba Hidráulica</span>
+                  <strong className={`font-extrabold ${isPHVencida ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                    {extintor.vencimientoPH}
+                  </strong>
+                </div>
+              )}
+            </div>
+          </ModuleFormSection>
+        </div>
+
+        {/* Sección 2: Checklist NFPA 10 / IRAM 3517-2 */}
+        <div id="insp-sec-checklist">
+          <ModuleFormSection
+            title="Checklist NFPA 10 / IRAM 3517-2"
+            icon={<ClipboardCheck size={18} className="text-blue-500" />}
+          >
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                {answeredCount} de {checklist.length} puntos evaluados
+              </span>
+              <button
+                type="button"
+                onClick={setAllOk}
+                className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl cursor-pointer shadow-sm transition-all flex items-center gap-1.5"
+              >
+                <CheckCircle2 size={15} /> MARCAR TODO OK
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-3.5">
+              {checklist.map((item, idx) => (
+                <div
+                  key={item.id}
+                  className={`p-4 rounded-xl border transition-colors ${
+                    item.status === 'NC'
+                      ? 'bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900/50'
+                      : item.status === 'C'
+                      ? 'bg-emerald-50/30 dark:bg-emerald-950/10 border-emerald-200/80 dark:border-emerald-900/40'
+                      : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-start gap-2 mb-3">
+                    <span className="font-extrabold text-amber-600 dark:text-amber-400 mt-1 text-sm">{idx + 1}.</span>
+                    <textarea
+                      value={item.text}
+                      onChange={(e) => handleItemTextChange(idx, e.target.value)}
+                      placeholder="Detalle a inspeccionar..."
+                      rows={2}
+                      className="flex-1 p-1.5 text-sm font-semibold text-slate-800 dark:text-slate-100 border border-transparent hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 rounded-lg bg-transparent outline-none resize-none leading-snug"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveItem(idx)}
+                      title="Eliminar punto"
+                      className="p-1.5 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-lg cursor-pointer transition-colors"
+                    >
+                      <X size={15} />
                     </button>
-                </div>
-            </div>
+                  </div>
 
-            <div className="card p-[1.2rem] mb-[1.5rem] bg-[var(--color-surface)] border-[2px_solid_var(--color-border)]">
-                <div className="flex justify-space-between items-center">
-                    <label className="block text-[0.85rem] font-[800] text-[var(--color-text)] uppercase">Evidencia General</label>
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div className="inline-flex rounded-xl p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleStatus(idx, 'C')}
+                        className={`px-3.5 py-1.5 rounded-lg text-xs font-extrabold cursor-pointer transition-all ${
+                          item.status === 'C'
+                            ? 'bg-emerald-600 text-white shadow-sm'
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        C
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleStatus(idx, 'NC')}
+                        className={`px-3.5 py-1.5 rounded-lg text-xs font-extrabold cursor-pointer transition-all ${
+                          item.status === 'NC'
+                            ? 'bg-red-600 text-white shadow-sm'
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        NC
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleStatus(idx, 'NA')}
+                        className={`px-3.5 py-1.5 rounded-lg text-xs font-extrabold cursor-pointer transition-all ${
+                          item.status === 'NA'
+                            ? 'bg-slate-700 text-white shadow-sm'
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        N/A
+                      </button>
+                    </div>
+
                     <div className="flex gap-2">
-                        <label style={{ backgroundColor: '#e0e7ff', color: '#4f46e5', border: 'none', borderRadius: '0.5rem', fontWeight: 700 }} className="p-[0.5rem_1rem] cursor-pointer flex items-center gap-[0.5rem] text-[0.8rem] transition-transform hover:-translate-y-0.5">
-                            <Camera size={16} /> Cámara
-                            <input type="file" accept="image/*" capture="environment" onChange={(e) => handleGeneralPhoto(e.target.files)} style={{ display: 'none' }} />
-                        </label>
-                        <label style={{ backgroundColor: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '0.5rem', fontWeight: 700 }} className="p-[0.5rem_1rem] cursor-pointer flex items-center gap-[0.5rem] text-[0.8rem] transition-transform hover:-translate-y-0.5">
-                            <ImageIcon size={16} /> Galería
-                            <input type="file" accept="image/*" onChange={(e) => handleGeneralPhoto(e.target.files)} style={{ display: 'none' }} />
-                        </label>
+                      <label
+                        title="Tomar Foto"
+                        className="px-3 h-9 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300 cursor-pointer flex items-center justify-center transition-colors"
+                      >
+                        <Camera size={17} />
+                        <input type="file" accept="image/*" capture="environment" onChange={(e) => handlePhoto(idx, e.target.files)} className="hidden" />
+                      </label>
+                      <label
+                        title="Subir de Galería"
+                        className="px-3 h-9 rounded-lg bg-slate-200/70 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 cursor-pointer flex items-center justify-center transition-colors"
+                      >
+                        <ImageIcon size={17} />
+                        <input type="file" accept="image/*" onChange={(e) => handlePhoto(idx, e.target.files)} className="hidden" />
+                      </label>
                     </div>
-                </div>
-                {generalPhotos.length > 0 &&
-        <div className="flex gap-[0.8rem] flex-wrap mt-[1rem]">
-                        {generalPhotos.map((p, pIdx) =>
-          <div key={pIdx} className="relative w-[80px] h-[80px] rounded-[10px] overflow-[hidden] border-[2px_solid_var(--color-border)]">
-                                <img src={p} alt="Evidencia" className="w-[100%] h-[100%] object-fit-[cover]" />
-                                <button onClick={() => removeGeneralPhoto(pIdx)} className="absolute top-[0] right-[0] bg-[#ef4444] text-[#fff] border-none w-[22px] h-[22px] text-[12px] flex items-center justify-center cursor-pointer">✕</button>
-                            </div>
-          )}
-                    </div>
-        }
-            </div>
+                  </div>
 
-            <div className="card p-[1.2rem] mb-[1.5rem] bg-[var(--color-surface)] border-[2px_solid_var(--color-border)]">
-                <label className="block text-[0.85rem] font-[800] text-[var(--color-text)] uppercase mb-[0.8rem]">Observaciones Generales</label>
-                <textarea
-          value={generalObservations}
-          onChange={(e) => setGeneralObservations(e.target.value)}
-          placeholder="Agregue comentarios adicionales sobre la inspección..." className="w-[100%] p-[0.8rem] rounded-[10px] border-[1px_solid_var(--color-border)] outline-[none] min-h-[80px] resize-[vertical]" />
-
-        
-            </div>
-
-            <div className="card p-[1.2rem] bg-[var(--color-surface)] border-[2px_solid_var(--color-border)] mb-[4rem]">
-                <div className="mb-[1rem]">
-                    <label className="block text-[0.75rem] font-[800] text-[var(--color-text-muted)] mb-[0.5rem] uppercase">Fecha de Inspección</label>
+                  <div className="pt-2 border-t border-dashed border-slate-200 dark:border-slate-700">
                     <input
-            type="date"
-            value={inspectionDate}
-            onChange={(e) => setInspectionDate(e.target.value)} className="w-[100%] p-[0.8rem] rounded-[10px] border-[1px_solid_var(--color-border)] outline-[none] font-[700] font-family-[inherit]" />
+                      type="text"
+                      placeholder="Observaciones / Detalles del punto..."
+                      value={item.notes}
+                      onChange={(e) => handleNotes(idx, e.target.value)}
+                      className="w-full px-3 py-2 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500"
+                    />
+                  </div>
 
-          
+                  {item.photos.length > 0 && (
+                    <div className="flex gap-2 flex-wrap mt-2.5">
+                      {item.photos.map((p: string, pIdx: number) => (
+                        <div key={pIdx} className="relative w-12 h-12 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+                          <img src={p} alt="Evidencia" className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => removePhoto(idx, pIdx)}
+                            className="absolute top-0 right-0 bg-red-500 text-white w-4 h-4 text-[10px] flex items-center justify-center cursor-pointer"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={handleAddItem}
+                className="px-4 py-2.5 mt-1 rounded-xl font-extrabold text-xs bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-300 border-2 border-dashed border-blue-200 dark:border-blue-800 cursor-pointer flex justify-center items-center gap-2 transition-colors mx-auto"
+              >
+                <Plus size={16} /> AGREGAR PUNTO AL CHECKLIST
+              </button>
+            </div>
+          </ModuleFormSection>
+        </div>
+
+        {/* Sección 3: Evidencia General, Observaciones y Firma */}
+        <div id="insp-sec-evidencia">
+          <ModuleFormSection
+            title="Evidencia General y Firma"
+            icon={<FileText size={18} className="text-emerald-500" />}
+          >
+            <div className="space-y-5">
+              <div>
+                <div className="flex flex-wrap justify-between items-center gap-3 mb-2">
+                  <label className="text-xs font-extrabold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Evidencia Fotográfica General</label>
+                  <div className="flex gap-2">
+                    <label className="px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300 font-bold text-xs cursor-pointer flex items-center gap-1.5 transition-colors">
+                      <Camera size={15} /> Cámara
+                      <input type="file" accept="image/*" capture="environment" onChange={(e) => handleGeneralPhoto(e.target.files)} className="hidden" />
+                    </label>
+                    <label className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs cursor-pointer flex items-center gap-1.5 transition-colors">
+                      <ImageIcon size={15} /> Galería
+                      <input type="file" accept="image/*" onChange={(e) => handleGeneralPhoto(e.target.files)} className="hidden" />
+                    </label>
+                  </div>
+                </div>
+
+                {generalPhotos.length > 0 && (
+                  <div className="flex gap-3 flex-wrap mt-3">
+                    {generalPhotos.map((p, pIdx) => (
+                      <div key={pIdx} className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-slate-200 dark:border-slate-700">
+                        <img src={p} alt="Evidencia" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removeGeneralPhoto(pIdx)}
+                          className="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 text-xs flex items-center justify-center cursor-pointer"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-extrabold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                  Observaciones Generales
+                </label>
+                <textarea
+                  value={generalObservations}
+                  onChange={(e) => setGeneralObservations(e.target.value)}
+                  placeholder="Agregue comentarios adicionales sobre la inspección..."
+                  rows={3}
+                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm outline-none focus:border-blue-500 resize-y"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-extrabold text-slate-500 dark:text-slate-400 mb-1.5 uppercase">
+                    <Calendar size={13} /> Fecha de Inspección
+                  </label>
+                  <input
+                    type="date"
+                    value={inspectionDate}
+                    onChange={(e) => setInspectionDate(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-bold outline-none focus:border-blue-500"
+                  />
                 </div>
                 <div>
-                    <label className="block text-[0.75rem] font-[800] text-[var(--color-text-muted)] mb-[0.5rem] uppercase">Firma del Inspector</label>
-                    <input
-            type="text"
-            placeholder="Nombre completo"
-            value={inspectorName}
-            onChange={(e) => setInspectorName(e.target.value)} className="w-[100%] p-[0.8rem] rounded-[10px] border-[1px_solid_var(--color-border)] outline-[none] font-[700]" />
-
-          
+                  <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 mb-1.5 uppercase">
+                    Nombre del Inspector
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Nombre y apellido / Matrícula"
+                    value={inspectorName}
+                    onChange={(e) => setInspectorName(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-bold outline-none focus:border-blue-500"
+                  />
                 </div>
+              </div>
+
+              <div className="pt-4 mt-2 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex items-center gap-2 mb-4">
+                  <Pencil size={17} className="text-blue-500" />
+                  <h4 className="m-0 font-black text-sm uppercase tracking-wide text-slate-800 dark:text-slate-100">
+                    Firmas del Acta de Inspección
+                  </h4>
+                </div>
+
+                <div
+                  className="no-print mb-6 p-3.5 rounded-2xl flex flex-wrap gap-4 justify-center items-center"
+                  style={{
+                    backgroundColor: 'var(--color-background)',
+                    border: '1px solid var(--color-border)'
+                  }}
+                >
+                  <span className="font-black text-xs uppercase text-slate-700 dark:text-slate-200">
+                    Incluir Firmas en el Acta:
+                  </span>
+                  <div className="flex gap-2 flex-wrap justify-center">
+                    {[
+                      { id: 'operator', label: 'Inspector / Operador' },
+                      { id: 'supervisor', label: 'Supervisor / Responsable' },
+                      { id: 'professional', label: 'Profesional H&S' }
+                    ].map((sig) => {
+                      const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                      return (
+                        <button
+                          key={sig.id}
+                          type="button"
+                          onClick={() =>
+                            setShowSignatures((s) => ({
+                              ...s,
+                              [sig.id]: !s[sig.id as keyof typeof showSignatures]
+                            }))
+                          }
+                          style={{
+                            marginBottom: 0,
+                            padding: '0.45rem 0.9rem',
+                            borderRadius: '9999px',
+                            backgroundColor: isChecked ? 'rgba(37, 99, 235, 0.12)' : 'var(--color-surface)',
+                            color: isChecked ? '#2563eb' : 'var(--color-text-light)',
+                            border: `1.5px solid ${isChecked ? '#2563eb' : 'var(--color-border)'}`,
+                            fontWeight: 800,
+                            fontSize: '0.76rem',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.4rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {isChecked && <CheckCircle2 size={14} />}
+                          {sig.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <PdfSignatures
+                  data={{
+                    professionalSignature: professional.signature,
+                    professionalName: professional.name,
+                    professionalLicense: professional.license
+                  }}
+                  box1={
+                    showSignatures.operator
+                      ? {
+                          title: 'INSPECTOR / OPERADOR',
+                          subtitle: (inspectorName || 'Firma / Aclaración').toUpperCase(),
+                          signatureUrl: inspectorSignature || null,
+                          isProfessional: false
+                        }
+                      : null
+                  }
+                  box2={
+                    showSignatures.supervisor
+                      ? {
+                          title: 'SUPERVISOR / RESPONSABLE',
+                          subtitle: 'FIRMA DEL SUPERVISOR',
+                          signatureUrl: supervisorSignature || null,
+                          isProfessional: false
+                        }
+                      : null
+                  }
+                  box3={
+                    showSignatures.professional
+                      ? {
+                          title: 'PROFESIONAL ACTUANTE',
+                          subtitle: (professional.name || 'Firma y Sello').toUpperCase(),
+                          signatureUrl: professional.signature || null,
+                          isProfessional: true,
+                          license: professional.license
+                        }
+                      : null
+                  }
+                />
+
+                {(showSignatures.operator || showSignatures.supervisor) && (
+                  <div className="no-print mt-6 pt-6 border-t grid grid-cols-1 md:grid-cols-2 gap-5" style={{ borderColor: 'var(--color-border)' }}>
+                    {showSignatures.operator && (
+                      <div
+                        className="p-4 rounded-2xl"
+                        style={{
+                          backgroundColor: 'var(--color-surface)',
+                          border: '1px solid var(--color-border)'
+                        }}
+                      >
+                        <SignatureCanvas
+                          onSave={(sig) => setInspectorSignature(sig || '')}
+                          initialImage={inspectorSignature}
+                          label="Firma del Inspector / Operador"
+                        />
+                      </div>
+                    )}
+                    {showSignatures.supervisor && (
+                      <div
+                        className="p-4 rounded-2xl"
+                        style={{
+                          backgroundColor: 'var(--color-surface)',
+                          border: '1px solid var(--color-border)'
+                        }}
+                      >
+                        <SignatureCanvas
+                          onSave={(sig) => setSupervisorSignature(sig || '')}
+                          initialImage={supervisorSignature}
+                          label="Firma del Supervisor / Responsable"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
+          </ModuleFormSection>
+        </div>
+      </div>
+      </ModuleFormDocument>
 
-            {/* Mobile Floating Save Button */}
-            <div style={{ position: 'fixed', bottom: '1rem', left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '400px', zIndex: 10, padding: '0 1rem' }}>
-                <button
-          onClick={(e) => {e.preventDefault();requirePro(handleSave);}}
-          disabled={isSaving} style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none' }} className="w-[100%] p-[0.8rem] rounded-[12px] font-[900] text-[0.9rem] cursor-pointer flex justify-center items-center gap-[0.5rem] shadow-[0_8px_25px_rgba(16,185,129,0.4)] transition-transform hover:-translate-y-1">
-
-          
-                    <Save size={20} /> {isSaving ? 'GUARDANDO...' : 'FINALIZAR INSPECCIÓN'}
-                </button>
-            </div>
-        </div>);
-
+      <ModuleActionBar
+        className="bottom-20 md:bottom-6"
+        actions={[
+          {
+            id: 'back',
+            label: 'Volver',
+            icon: <ArrowLeft size={16} />,
+            variant: 'secondary',
+            onClick: () => navigate('/extintores')
+          },
+          {
+            id: 'all-ok',
+            label: 'Todo OK',
+            icon: <CheckCircle2 size={16} />,
+            variant: 'info',
+            onClick: setAllOk
+          },
+          {
+            id: 'save',
+            label: isSaving ? 'Guardando...' : 'Finalizar Inspección',
+            icon: <Save size={16} />,
+            variant: 'primary',
+            loading: isSaving,
+            disabled: isSaving,
+            onClick: () => requirePro(handleSave)
+          }
+        ]}
+      />
+    </ModuleFormLayout>
+  );
 }

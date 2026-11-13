@@ -49,7 +49,7 @@ export function SkeletonCard({ lines = 2, hasAvatar = false, hasActions = false 
       <Skeleton key={i} width={i === lines - 1 ? '70%' : '100%'} height="0.8rem" />
       )}
       {hasActions &&
-      <div className="flex gap-[0.5rem] mt-[0.5rem] pt-[0.7rem] border-top-[1px_solid_var(--color-border)]">
+      <div className="flex gap-[0.5rem] mt-[0.5rem] pt-[0.7rem] border-t border-[]">
           <Skeleton width="45%" height="2.2rem" borderRadius="10px" />
           <Skeleton width="25%" height="2.2rem" borderRadius="10px" />
           <Skeleton width="25%" height="2.2rem" borderRadius="10px" />
@@ -125,7 +125,7 @@ export const ChecklistItemSkeleton = () =>
 
 export const TableSkeleton = ({ rows = 5 }: {rows?: number;}) =>
 <div className="rounded-[12px] border-[1px_solid_var(--color-border)] bg-[var(--color-surface)] overflow-[hidden]">
-    <div className="p-[1rem] border-bottom-[1px_solid_var(--color-border)] bg-[var(--color-background)]">
+    <div className="p-[1rem] border-b border-[] bg-[var(--color-background)]">
       <Skeleton width="30%" height="16px" />
     </div>
     {[...Array(rows)].map((_, i) =>

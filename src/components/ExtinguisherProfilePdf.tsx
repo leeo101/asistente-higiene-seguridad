@@ -165,7 +165,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
             <div className={isHeadless ? "w-full block" : "flex-[1] flex justify-center"}>
                 <div
           id="pdf-content"
-          className={`pdf-container card print-area w-full max-w-[210mm] block bg-white text-slate-900 rounded-[8px] box-sizing-[border-box] ${isHeadless ? 'shadow-none' : 'box-shadow-[0_20px_40px_rgba(0,0,0,0.1)]'}`}
+          className={`pdf-container card print-area w-full max-w-[210mm] block bg-white text-slate-900 rounded-[8px] box-sizing-[border-box] ${isHeadless ? 'shadow-none' : 'shadow-[]'}`}
           style={{ padding: isHeadless ? '0' : '4mm 10mm 10mm 10mm' }}
           ref={componentRef}>
 

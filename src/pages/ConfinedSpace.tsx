@@ -423,7 +423,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
         fileName={`Espacio_Confinado_${shareItem?.spaceName || 'Sin_Nombre'}.pdf`}
       />
 
-      <div id="pdf-content-confined" className="fixed left-[0] opacity-[0.01] top-[0] pointer-events-[none]">
+      <div id="pdf-content-confined" className="fixed left-[0] opacity-[0.01] top-[0] pointer-events-">
         {shareItem && <ConfinedSpacePdf data={shareItem} customId="pdf-content-confined" />}
       </div>
 
@@ -489,7 +489,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-[0.5rem] mb-[1.5rem] border-bottom-[2px_solid_var(--color-border)] pb-[0.5rem] flex-wrap">
+            <div className="flex gap-[0.5rem] mb-[1.5rem] border-b-2 border-[] pb-[0.5rem] flex-wrap">
 
 
 
@@ -675,7 +675,7 @@ export default function ConfinedSpace(): React.ReactElement | null {
                   fontSize: done ? '1rem' : '0.9rem',
 
                   color: done ? '#fff' : 'inherit'
-                }} className="w-[36px] h-[36px] flex-shrink-[0] rounded-[50%] flex items-center justify-center transition-[all_0.25s]">
+                }} className="w-[36px] h-[36px] shrink-0 rounded-[50%] flex items-center justify-center transition-[all_0.25s]">
                                         {done ? '✓' : item.emoji}
                                     </div>
                                     <div>
@@ -784,10 +784,10 @@ function StatCard({ icon, label, value, color, gradient }) {
                     {React.cloneElement(icon, { color: '#ffffff', size: 20 })}
                 </div>
             </div>
-            <div className="text-[1.5rem] font-[900] text-[var(--color-text)] line-height-[1]">
+            <div className="text-[1.5rem] font-[900] text-[var(--color-text)] leading-[]">
                 {value}
             </div>
-            <div className="text-[0.75rem] font-[600] text-[var(--color-text-muted)] line-height-[1.2] mt-[0.2rem]">
+            <div className="text-[0.75rem] font-[600] text-[var(--color-text-muted)] leading-[] mt-[0.2rem]">
                 {label}
             </div>
         </div>);
@@ -867,13 +867,13 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
             {/* Icono */}
             <div style={{
         background: `${isExpired ? '#9ca3af' : statusConfig.color}15`
-      }} className="w-[56px] h-[56px] rounded-[var(--radius-xl)] flex items-center justify-center flex-shrink-[0]">
+      }} className="w-[56px] h-[56px] rounded-[var(--radius-xl)] flex items-center justify-center shrink-0">
                 <Tent size={28} color={isExpired ? '#9ca3af' : statusConfig.color} strokeWidth={2.5} />
             </div>
 
-            <div className="flex-[1_1_200px] min-width-[0]">
+            <div className="flex-[1_1_200px] min-w-0">
                 <div className="flex items-center gap-[0.75rem] mb-[0.5rem] flex-wrap">
-                    <h3 className="m-[0] text-[1.1rem] font-[800] text-[var(--color-text)] white-space-[nowrap] overflow-[hidden] text-overflow-[ellipsis] max-w-[calc(100vw_-_200px)]">
+                    <h3 className="m-[0] text-[1.1rem] font-[800] text-[var(--color-text)] whitespace- overflow-[hidden] text-overflow-[ellipsis] max-w-[calc(100vw_-_200px)]">
                         {spaceType?.icon} {permit.spaceName}
                     </h3>
                     <span className="px-3 py-1 rounded-full text-xs font-extrabold uppercase shrink-0" style={{ backgroundColor: statusConfig.bg, color: statusConfig.color }}>
@@ -896,7 +896,7 @@ function PermitCard({ permit, statusConfig, onAuthorize, onSuspend, onComplete, 
                 </div>
             </div>
 
-            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-[1rem] mt-[1rem] pt-[1rem] border-top-[1px_solid_var(--color-border)]">
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-[1rem] mt-[1rem] pt-[1rem] border-t border-[]">
                 <span className="text-[0.75rem] text-[var(--color-text-muted)] font-[600] flex items-center gap-[0.4rem]">
                     <Clock size={14} /> Creado: {new Date(permit.createdAt).toLocaleDateString()}
                 </span>
@@ -1055,7 +1055,7 @@ function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onSha
 
 
                 animation: isExpired ? 'none' : 'pulse 2s infinite'
-              }} className="w-[72px] h-[72px] rounded-[var(--radius-xl)] flex flex-col items-center justify-center text-[#fff] flex-shrink-[0]">
+              }} className="w-[72px] h-[72px] rounded-[var(--radius-xl)] flex flex-col items-center justify-center text-[#fff] shrink-0">
                                 <Tent size={32} strokeWidth={2.5} />
                                 <span className="text-[0.65rem] font-[700] mt-[2px]">
                                     {timeRemaining}h
@@ -1092,7 +1092,7 @@ function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onSha
 
 
                     
-                                        <User size={12} className="display-[inline] mr-[4px]" />
+                                        <User size={12} className="inline mr-[4px]" />
                                         {permit.team?.entrants?.length || 0} Entrante(s)
                                     </span>
                                     <span className="p-[0.35rem_0.65rem] bg-[#f59e0b] text-[#fff] rounded-[var(--radius-full)] text-[0.75rem] font-[700]">
@@ -1103,7 +1103,7 @@ function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onSha
 
 
                     
-                                        <Eye size={12} className="display-[inline] mr-[4px]" />
+                                        <Eye size={12} className="inline mr-[4px]" />
                                         {permit.atmosphericReadings?.length || 0} Mediciones
                                     </span>
                                     {!isExpired &&
@@ -1115,7 +1115,7 @@ function ActivePermitsList({ activePermits, onComplete, onSuspend, onView, onSha
 
 
                     
-                                            <Clock size={12} className="display-[inline] mr-[4px]" />
+                                            <Clock size={12} className="inline mr-[4px]" />
                                             Vence en {timeRemaining}h
                                         </span>
                   }
@@ -1178,7 +1178,7 @@ function AtmosphericLimitsPanel({ limits }) {
     <div className="flex flex-col gap-[1.5rem]">
             <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6">
                 <h3 className="m-[0_0_1.5rem_0] text-[1rem] font-[800]">
-                    <Activity size={20} className="display-[inline] mr-[0.5rem]" />
+                    <Activity size={20} className="inline mr-[0.5rem]" />
                     Límites Atmosféricos Oficiales (Res. S.R.T. N° 953/10 & Res. MTEySS 295/03 Anexo IV)
                 </h3>
                 <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(250px,_1fr))] gap-[1rem]">
@@ -1207,7 +1207,7 @@ function AtmosphericLimitsPanel({ limits }) {
                             </div>
                             {key === 'oxygen' &&
             <div className="mt-[0.75rem] text-[0.8rem] text-[var(--color-text-muted)]">
-                                    <AlertCircle size={14} className="display-[inline] mr-[4px]" />
+                                    <AlertCircle size={14} className="inline mr-[4px]" />
                                     Nivel normal: 20.9%
                                 </div>
             }
@@ -1219,7 +1219,7 @@ function AtmosphericLimitsPanel({ limits }) {
             {/* Referencia rápida */}
             <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6">
                 <h3 className="m-[0_0_1rem_0] text-[1rem] font-[800]">
-                    <AlertTriangle size={20} className="display-[inline] mr-[0.5rem]" />
+                    <AlertTriangle size={20} className="inline mr-[0.5rem]" />
                     Condiciones de Peligro Inmediato
                 </h3>
                 <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(200px,_1fr))] gap-[0.75rem]">
@@ -1403,7 +1403,7 @@ function PermitDetailModal({ permit, statusConfig, onClose, onPreview, onDirectP
 
 
                 
-                                    <User size={14} className="display-[inline] mr-[6px]" />
+                                    <User size={14} className="inline mr-[6px]" />
                                     {entrant}
                                 </div>
               )}
@@ -1467,7 +1467,7 @@ function PermitDetailModal({ permit, statusConfig, onClose, onPreview, onDirectP
                         <h4 className="m-[0_0_0.5rem_0] text-[0.85rem] font-[700]">
                             Observaciones
                         </h4>
-                        <p className="m-[0] text-[0.9rem] text-[var(--color-text)] line-height-[1.6]">
+                        <p className="m-[0] text-[0.9rem] text-[var(--color-text)] leading-[]">
                             {permit.observations}
                         </p>
                     </div>
@@ -1475,12 +1475,12 @@ function PermitDetailModal({ permit, statusConfig, onClose, onPreview, onDirectP
 
                 {/* Alerta OSHA */}
                 <div className="p-[1rem] bg-[#fef3c7] border-[1px_solid_#f59e0b] rounded-[var(--radius-lg)] mb-[1.5rem] flex gap-[0.75rem]">
-                    <AlertTriangle size={20} color="#d97706" className="flex-shrink-[0]" />
+                    <AlertTriangle size={20} color="#d97706" className="shrink-0" />
                     <div>
                         <h4 className="m-[0_0_0.25rem_0] text-[0.85rem] font-[700] text-[#d97706]">
                             OSHA 1910.146
                         </h4>
-                        <p className="m-[0] text-[0.8rem] text-[#92400e] line-height-[1.5]">
+                        <p className="m-[0] text-[0.8rem] text-[#92400e] leading-[]">
                             Permiso requerido para espacios confinados. Verificar atmósfera antes y durante la entrada.
                         </p>
                     </div>
@@ -1605,7 +1605,7 @@ function AtmosphericReadingModal({ permit, onSave, onClose, limits }) {
 
           
                     <h2 className="m-[0] text-[1.25rem] font-[900]">
-                        <Wind size={20} className="display-[inline] mr-[0.5rem]" />
+                        <Wind size={20} className="inline mr-[0.5rem]" />
                         Lectura Atmosférica
                     </h2>
                     <button

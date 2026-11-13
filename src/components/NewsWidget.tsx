@@ -243,7 +243,7 @@ export default function NewsWidget() {
   return (
     <div className="mt-[2rem]">
             <div className="flex justify-between items-center mb-[1rem] px-2">
-                <h3 className="text-[1.1rem] font-[900] m-[0] letter-spacing-[-0.5px] flex items-center gap-[0.5rem]">
+                <h3 className="text-[1.1rem] font-[900] m-[0] tracking-[] flex items-center gap-[0.5rem]">
                     <BellRing size={20} color="#f59e0b" /> Novedades Normativas
                 </h3>
             </div>
@@ -256,7 +256,7 @@ export default function NewsWidget() {
 
         
                 <div className="flex gap-[1rem] items-start">
-                    <div className="bg-[rgba(245,158,11,0.15)] text-[#f59e0b] p-[0.8rem] rounded-[12px] flex-shrink-[0]">
+                    <div className="bg-[rgba(245,158,11,0.15)] text-[#f59e0b] p-[0.8rem] rounded-[12px] shrink-0">
 
 
 
@@ -288,14 +288,14 @@ export default function NewsWidget() {
                             {currentNews.title}
                         </h4>
 
-                        <p className="m-[0_0_1rem] text-[0.9rem] text-[var(--color-text-muted)] line-height-[1.4]">
+                        <p className="m-[0_0_1rem] text-[0.9rem] text-[var(--color-text-muted)] leading-[]">
                             {currentNews.description}
                         </p>
 
                         <a
               href={currentNews.link}
               target="_blank"
-              rel="noreferrer" className="display-[inline-flex] items-center gap-[0.3rem] text-[0.85rem] font-[700] text-[var(--color-primary)] text-decoration-[none]">
+              rel="noreferrer" className="inline-flex items-center gap-[0.3rem] text-[0.85rem] font-[700] text-[var(--color-primary)] no-underline">
 
 
 

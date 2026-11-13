@@ -65,10 +65,10 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
             </div>
 
             {/* Printable Document Area */}
-            <div className="flex-[1] flex justify-center overflow-x-[auto]">
+            <div className="flex-[1] flex justify-center overflow-x-">
                 <div
           id={id}
-          className="pdf-container print-area p-[12mm_15mm] bg-[#ffffff] text-[#1e293b] box-shadow-[0_20px_40px_rgba(0,0,0,0.1)] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[9pt] font-family-[Helvetica,_Arial,_sans-serif] border-top-[12px_solid_#2563eb]"
+          className="pdf-container print-area p-[12mm_15mm] bg-[#ffffff] text-[#1e293b] shadow-[] rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[9pt] font-[] border-top-[12px_solid_#2563eb]"
           ref={componentRef}
           style={{
             width: isLandscape ? '297mm' : '210mm',
@@ -100,14 +100,14 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                     {/* Header Sequence */}
                     <div className="flex flex-row justify-between items-start border-bottom-[3px_solid_#e2e8f0] pb-[1.2rem] mb-[1.8rem] w-[100%]">
                         <div className="flex-[1] text-left">
-                            <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.08em]">Sistema de Gestión HSE</p>
+                            <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] tracking-[]">Sistema de Gestión HSE</p>
                             <p className="m-[0] font-[900] text-[0.8rem] uppercase text-[#2563eb]">Doc. Reg. Capacitación</p>
                             <p className="m-[0] text-[0.6rem] text-[#64748b] font-[700] mt-[0.2rem]">Res. S.R.T. 905/15 · Dec. 351/79 Cap. 21</p>
                         </div>
 
                         <div className="flex-[2] flex flex-col items-center justify-center text-center">
-                            <h1 className="m-[0] font-[900] text-[2.2rem] letter-spacing-[-0.02em] uppercase line-height-[1] text-[#0f172a]">ENTRENAMIENTO</h1>
-                            <div className="mt-[0.3rem] bg-[#3b82f6] text-[white] p-[0.2rem_0.8rem] rounded-[12px] text-[0.65rem] font-[800] letter-spacing-[0.1em]">
+                            <h1 className="m-[0] font-[900] text-[2.2rem] tracking-[] uppercase leading-[] text-[#0f172a]">ENTRENAMIENTO</h1>
+                            <div className="mt-[0.3rem] bg-[#3b82f6] text-[white] p-[0.2rem_0.8rem] rounded-[12px] text-[0.65rem] font-[800] tracking-[]">
                                 PLANILLA OFICIAL DE ASISTENCIA Y EVALUACIÓN
                             </div>
                         </div>
@@ -135,9 +135,9 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
 
                     {/* Datos de la Capacitación */}
                     <div className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1.5rem] w-[100%]">
-                        <div className="p-[0.8rem_1rem] bg-[#f8fafc] border-bottom-[1px_solid_#cbd5e1] flex justify-between items-center flex-wrap gap-[0.5rem]">
+                        <div className="p-[0.8rem_1rem] bg-[#f8fafc] border-b border-[] flex justify-between items-center flex-wrap gap-[0.5rem]">
                             <div>
-                                <span className="text-[0.65rem] font-[800] text-[#3b82f6] uppercase letter-spacing-[0.05em] flex items-center gap-[0.4rem]">
+                                <span className="text-[0.65rem] font-[800] text-[#3b82f6] uppercase tracking-[] flex items-center gap-[0.4rem]">
                                     <GraduationCap size={14} /> TEMA DICTADO
                                 </span>
                                 <div className="font-[900] text-[1.2rem] text-[#0f172a] mt-[0.2rem] line-break-[anywhere]">{training.tema || '-'}</div>
@@ -151,39 +151,39 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
                         
                         {/* Fila 1 */}
                         <div className="grid grid-template-columns-[repeat(4,_1fr)] bg-[#ffffff]">
-                            <div className="p-[0.7rem_1rem] border-right-[1px_solid_#cbd5e1] border-bottom-[1px_solid_#cbd5e1]">
+                            <div className="p-[0.7rem_1rem] border-r border-[] border-b border-[]">
                                 <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Calendar size={12} /> FECHA</span>
                                 <div className="font-[700] text-[0.85rem] text-[#334155] mt-[0.2rem]">{training?.fecha ? new Date(training.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') : 'N/A'}</div>
                             </div>
-                            <div className="p-[0.7rem_1rem] border-right-[1px_solid_#cbd5e1] border-bottom-[1px_solid_#cbd5e1]">
+                            <div className="p-[0.7rem_1rem] border-r border-[] border-b border-[]">
                                 <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Clock size={12} /> DURACIÓN</span>
                                 <div className="font-[700] text-[0.85rem] text-[#334155] mt-[0.2rem]">{training.duracion || 0} Horas</div>
                             </div>
-                            <div className="p-[0.7rem_1rem] border-right-[1px_solid_#cbd5e1] border-bottom-[1px_solid_#cbd5e1]">
+                            <div className="p-[0.7rem_1rem] border-r border-[] border-b border-[]">
                                 <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><MapPin size={12} /> LOCACIÓN</span>
                                 <div className="font-[700] text-[0.85rem] text-[#334155] mt-[0.2rem]">{training.ubicacion || 'No esp.'}</div>
                             </div>
-                            <div className="p-[0.7rem_1rem] border-bottom-[1px_solid_#cbd5e1]">
+                            <div className="p-[0.7rem_1rem] border-b border-[]">
                                 <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Briefcase size={12} /> EMPRESA / RAZÓN SOCIAL</span>
-                                <div className="font-[700] text-[0.85rem] text-[#334155] mt-[0.2rem] white-space-[nowrap] text-overflow-[ellipsis]">{training.empresa || 'Aplicable al sitio'}</div>
+                                <div className="font-[700] text-[0.85rem] text-[#334155] mt-[0.2rem] whitespace- text-overflow-[ellipsis]">{training.empresa || 'Aplicable al sitio'}</div>
                             </div>
                         </div>
 
                         {/* Fila 2: Métricas Normativas SRT 905/15 */}
                         <div className="grid grid-template-columns-[repeat(4,_1fr)] bg-[#fcfcfd]">
-                            <div className="p-[0.6rem_1rem] border-right-[1px_solid_#cbd5e1]">
+                            <div className="p-[0.6rem_1rem] border-r border-[]">
                                 <span className="text-[0.58rem] font-[800] text-[#64748b] uppercase">DISERTANTE / MATRÍCULA</span>
                                 <div className="font-[700] text-[0.8rem] text-[#1e293b] mt-[0.1rem] truncate">
                                     {training.expositor || actName || 'A designar'} {actLic ? `· Mat. ${actLic}` : ''}
                                 </div>
                             </div>
-                            <div className="p-[0.6rem_1rem] border-right-[1px_solid_#cbd5e1]">
+                            <div className="p-[0.6rem_1rem] border-r border-[]">
                                 <span className="text-[0.58rem] font-[800] text-[#64748b] uppercase">CATEGORÍA / EJE</span>
                                 <div className="font-[700] text-[0.8rem] text-[#1e293b] mt-[0.1rem] truncate">
                                     {training.categoria || 'Higiene y Seguridad'}
                                 </div>
                             </div>
-                            <div className="p-[0.6rem_1rem] border-right-[1px_solid_#cbd5e1]">
+                            <div className="p-[0.6rem_1rem] border-r border-[]">
                                 <span className="text-[0.58rem] font-[800] text-[#64748b] uppercase">CARGA HORARIA TOTAL</span>
                                 <div className="font-[700] text-[0.8rem] text-[#0284c7] mt-[0.1rem]">
                                     {totalHhc.toFixed(1)} Horas-Hombre (HHC)
@@ -200,7 +200,7 @@ export default function TrainingPdfGenerator({ data, onBack = () => window.histo
 
                     {/* Texto Legal */}
                     <div className="mb-[1.5rem] bg-[#f1f5f9] border-left-[4px_solid_#2563eb] p-[0.8rem_1rem] rounded-[4px]">
-                        <p className="m-[0] text-[0.75rem] text-[#334155] line-height-[1.5] font-[600]">
+                        <p className="m-[0] text-[0.75rem] text-[#334155] leading-[] font-[600]">
                             <strong>MARCO NORMATIVO:</strong> En cumplimiento de la <strong>Ley Nacional N° 19.587</strong> de Higiene y Seguridad en el Trabajo, el <strong>Decreto 351/79 Capítulo 21 (Arts. 208 a 214)</strong> y la <strong>Resolución S.R.T. N° 905/15</strong> (Programa Anual de Capacitación conjunto de los Servicios de Higiene y Seguridad y Medicina Laboral): Los abajo firmantes declaran haber asistido, participado e internalizado la capacitación técnica dictada en la fecha, comprendiendo las medidas preventivas y comprometiéndose a su estricto cumplimiento para preservar su salud psicofísica y la de sus compañeros.
                         </p>
                     </div>

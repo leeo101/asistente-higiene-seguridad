@@ -13,7 +13,7 @@ export default function FleetPdfGenerator({ data, checklistItems }: {data: any;c
     <div className="w-[100%] flex justify-center">
             <div
         id="pdf-content"
-        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[15mm] bg-[#ffffff] text-[#000000] box-sizing-[border-box] m-[0_auto] text-[10pt] font-family-[system-ui,_-apple-system,_sans-serif]">
+        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[15mm] bg-[#ffffff] text-[#000000] box-sizing-[border-box] m-[0_auto] text-[10pt] font-[]">
 
 
 
@@ -46,7 +46,7 @@ export default function FleetPdfGenerator({ data, checklistItems }: {data: any;c
                             <CarFront size={32} color="#38bdf8" />
                         </div>
                         <div>
-                            <h1 className="m-[0] text-[1.8rem] font-[900] letter-spacing-[-0.5px]">INSPECCIÓN PRE-OPERACIONAL</h1>
+                            <h1 className="m-[0] text-[1.8rem] font-[900] tracking-[]">INSPECCIÓN PRE-OPERACIONAL</h1>
                             <p className="m-[4px_0_0_0] text-[1rem] text-[#94a3b8] font-[600]">VEHÍCULOS Y FLOTA</p>
                         </div>
                     </div>
@@ -56,16 +56,16 @@ export default function FleetPdfGenerator({ data, checklistItems }: {data: any;c
                 </div>
 
                 {/* Main Info */}
-                <div style={{ border: `2px solid ${isApto ? '#16a34a' : '#dc2626'}` }} className="bg-[#f8fafc] p-[1.2rem] rounded-[12px] flex justify-space-between items-center mb-[1.5rem] box-shadow-[0_4px_6px_rgba(0,0,0,0.02)]">
+                <div style={{ border: `2px solid ${isApto ? '#16a34a' : '#dc2626'}` }} className="bg-[#f8fafc] p-[1.2rem] rounded-[12px] flex justify-space-between items-center mb-[1.5rem] shadow-[]">
                     <div>
-                        <span className="text-[0.65rem] font-[900] text-[#64748b] block letter-spacing-[1px]">DOMINIO / PATENTE</span>
+                        <span className="text-[0.65rem] font-[900] text-[#64748b] block tracking-[]">DOMINIO / PATENTE</span>
                         <h2 className="m-[4px_0] text-[1.8rem] font-[900] text-[#1e293b] uppercase">{data.plate || 'N/A'}</h2>
                         <span className="text-[0.9rem] font-[700] text-[#475569] flex items-center gap-[6px]">
                             <CarFront size={16} /> {data.vehicleType} | {data.brandModel}
                         </span>
                     </div>
                     <div className="text-right">
-                        <span style={{ background: isApto ? '#dcfce7' : '#fee2e2', color: isApto ? '#15803d' : '#b91c1c', border: `2px solid ${isApto ? '#86efac' : '#fca5a5'}` }} className="p-[0.6rem_2rem] rounded-[30px] font-[900] text-[1.2rem] inline-block box-shadow-[0_2px_4px_rgba(0,0,0,0.05)]">
+                        <span style={{ background: isApto ? '#dcfce7' : '#fee2e2', color: isApto ? '#15803d' : '#b91c1c', border: `2px solid ${isApto ? '#86efac' : '#fca5a5'}` }} className="p-[0.6rem_2rem] rounded-[30px] font-[900] text-[1.2rem] inline-block shadow-[]">
                             {data.status?.toUpperCase() || 'N/A'}
                         </span>
                     </div>
@@ -92,7 +92,7 @@ export default function FleetPdfGenerator({ data, checklistItems }: {data: any;c
 
                 {/* Checklist Section */}
                 <div className="mb-[2rem]">
-                    <h3 className="m-[0_0_1rem_0] text-[1.1rem] font-[900] flex items-center gap-[0.5rem] border-bottom-[2px_solid_#e2e8f0] pb-[0.5rem] text-[#0f172a]">
+                    <h3 className="m-[0_0_1rem_0] text-[1.1rem] font-[900] flex items-center gap-[0.5rem] border-b-2 border-[] pb-[0.5rem] text-[#0f172a]">
 
 
 
@@ -139,7 +139,7 @@ export default function FleetPdfGenerator({ data, checklistItems }: {data: any;c
               }
 
               return (
-                <div key={index} className="flex items-center justify-space-between bg-[white] p-[0.6rem_0.8rem] rounded-[8px] border-[1px_solid_#e2e8f0] box-shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+                <div key={index} className="flex items-center justify-space-between bg-[white] p-[0.6rem_0.8rem] rounded-[8px] border-[1px_solid_#e2e8f0] shadow-[]">
 
 
 
@@ -169,7 +169,7 @@ export default function FleetPdfGenerator({ data, checklistItems }: {data: any;c
 
 
 
-                  }} className="w-[24px] h-[24px] rounded-[6px] flex items-center justify-center font-[900] text-[1rem] flex-shrink-[0]">
+                  }} className="w-[24px] h-[24px] rounded-[6px] flex items-center justify-center font-[900] text-[1rem] shrink-0">
                                         {icon}
                                     </div>
                                 </div>);

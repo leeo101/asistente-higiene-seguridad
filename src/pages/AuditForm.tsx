@@ -461,7 +461,7 @@ export default function AuditForm(): React.ReactElement | null {
                             {audit.checklist.map((item, idx) =>
               <div
                 key={item.id}
-                className="stagger-item card bg-[rgba(var(--color-surface-rgb),_0.4)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[1.5rem] box-shadow-[var(--shadow-sm)] relative overflow-[hidden] transition-[all_0.25s_ease]">
+                className="stagger-item card bg-[rgba(var(--color-surface-rgb),_0.4)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[1.5rem] shadow-[] relative overflow-[hidden] transition-[all_0.25s_ease]">
                                     {/* Left Accent indicator based on compliance status */}
                                     <div style={{
 
@@ -559,7 +559,7 @@ export default function AuditForm(): React.ReactElement | null {
 
                     {/* Reunión de Cierre */}
             <ModuleFormSection title="Minuta y Reunión de Cierre" icon={<Clock />}>
-                    <div className="card bg-[rgba(var(--color-primary-rgb),_0.02)] p-[2rem] rounded-[var(--radius-xl)] border-[1px_solid_var(--glass-border)] box-shadow-[inset_0_0_20px_rgba(var(--color-primary-rgb),_0.01)]">
+                    <div className="card bg-[rgba(var(--color-primary-rgb),_0.02)] p-[2rem] rounded-[var(--radius-xl)] border-[1px_solid_var(--glass-border)] shadow-[]">
                         <div style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }} className="grid gap-[1.5rem]">
                             <div>
                                 <label className="flex items-center gap-1.5 mb-2 text-sm font-semibold text-slate-400">
@@ -605,7 +605,7 @@ export default function AuditForm(): React.ReactElement | null {
                     <div className="card bg-[rgba(var(--color-surface-rgb),_0.3)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[2rem]">
                         {/* Custom visual switches */}
                         <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
-                            <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                            <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase tracking-[]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                             <div className="flex gap-[1rem] flex-wrap justify-center">
                                 {[
                 { id: 'operator', label: 'Persona Auditada' },
@@ -692,7 +692,7 @@ export default function AuditForm(): React.ReactElement | null {
                         {/* Interactive Signature Drawing Pads */}
                         <div className="no-print mt-8 pt-8 border-t border-[var(--color-border)] grid gap-[1.5rem]" style={{ gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))' }}>
                             {showSignatures.operator &&
-              <div className="bg-[rgba(30,_41,_59,_0.1)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[1.25rem] box-shadow-[var(--shadow-sm)]">
+              <div className="bg-[rgba(30,_41,_59,_0.1)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[1.25rem] shadow-[]">
                                     <SignatureCanvas
                   onSave={(sig) => setAudit((prev) => ({ ...prev, operatorSignature: sig || '' }))}
                   initialImage={audit.operatorSignature}
@@ -702,7 +702,7 @@ export default function AuditForm(): React.ReactElement | null {
               }
 
                             {showSignatures.professional &&
-              <div className="bg-[rgba(30,_41,_59,_0.1)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[1.25rem] box-shadow-[var(--shadow-sm)]">
+              <div className="bg-[rgba(30,_41,_59,_0.1)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[1.25rem] shadow-[]">
                                     <SignatureCanvas
                   onSave={(sig) => setAudit((prev) => ({ ...prev, signature: sig || '' }))}
                   initialImage={audit.signature}
@@ -712,7 +712,7 @@ export default function AuditForm(): React.ReactElement | null {
               }
 
                             {showSignatures.supervisor &&
-              <div className="bg-[rgba(30,_41,_59,_0.1)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[1.25rem] box-shadow-[var(--shadow-sm)]">
+              <div className="bg-[rgba(30,_41,_59,_0.1)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] p-[1.25rem] shadow-[]">
                                     <SignatureCanvas
                   onSave={(sig) => setAudit((prev) => ({ ...prev, supervisorSignature: sig || '' }))}
                   initialImage={audit.supervisorSignature}

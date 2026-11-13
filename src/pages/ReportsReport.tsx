@@ -80,7 +80,7 @@ export default function ReportsReport(): React.ReactElement | null {
                 <></>
             </div>
 
-            <div id="pdf-content" className="card report-print p-[3rem] min-h-[29.7cm] h-[auto] pb-[5rem] bg-[#ffffff] text-[#1e293b] box-shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] relative">
+            <div id="pdf-content" className="card report-print p-[3rem] min-h-[29.7cm] h-[auto] pb-[5rem] bg-[#ffffff] text-[#1e293b] shadow-[] relative">
 
 
 
@@ -91,12 +91,12 @@ export default function ReportsReport(): React.ReactElement | null {
 
         
                 {/* Header with Professional Info */}
-                <div className="flex-col sm:flex-row flex justify-space-between border-bottom-[2px_solid_var(--color-primary)] pb-[2rem] mb-[2.5rem] gap-[1.5rem]">
+                <div className="flex-col sm:flex-row flex justify-space-between border-b-2 border-[] pb-[2rem] mb-[2.5rem] gap-[1.5rem]">
                     <div className="flex-[1] flex gap-[1.5rem] items-start">
-                        <CompanyLogo className="h-[60px] w-[auto] object-fit-[contain]" />
+                        <CompanyLogo className="h-[60px] w-[auto] object-" />
                         <div>
-                            <h1 className="m-[0_0_0.5rem_0] text-[var(--color-primary)] text-[2.5rem] font-[900] letter-spacing-[-1px]">INFORME</h1>
-                            <p className="m-[0] text-[0.9rem] text-[#475569] uppercase letter-spacing-[1px]">
+                            <h1 className="m-[0_0_0.5rem_0] text-[var(--color-primary)] text-[2.5rem] font-[900] tracking-[]">INFORME</h1>
+                            <p className="m-[0] text-[0.9rem] text-[#475569] uppercase tracking-[]">
                                 {report.template === 'general' ? 'Informe Técnico' :
                 report.template === 'accident' ? 'Registro de Accidente' :
                 report.template === 'training' ? 'Capacitación de Personal' :
@@ -105,7 +105,7 @@ export default function ReportsReport(): React.ReactElement | null {
                         </div>
                     </div>
                     {profile &&
-          <div className="md:text-right md:border-t-0 md:border-l border-[#e2e8f0] pt-4 md:pt-0 text-right border-left-[1px_solid_#e2e8f0] pl-[2rem]">
+          <div className="md:text-right md:border-t-0 md:border-l border-[#e2e8f0] pt-4 md:pt-0 text-right border-l border-[] pl-[2rem]">
                             <p className="m-[0] font-[700] text-[1.2rem] text-[#1e293b]">{profile.name}</p>
                             <p className="m-[0.2rem_0] text-[0.9rem] text-[#475569]">{profile.profession}</p>
                             {profile.license && <p className="m-[0] text-[0.85rem] text-[#64748b]">Mat: {profile.license}</p>}
@@ -139,19 +139,19 @@ export default function ReportsReport(): React.ReactElement | null {
                 </div>
 
                 {/* Main Content Area / Observations */}
-                <div className="mb-[1rem] text-[var(--color-primary)] font-[800] text-[0.8rem] letter-spacing-[2px] uppercase">OBSERVACIONES</div>
-                <div className="mb-[4rem] border-top-[2px_solid_#f1f5f9] pt-[1rem] text-[#1e293b]">
+                <div className="mb-[1rem] text-[var(--color-primary)] font-[800] text-[0.8rem] tracking-[] uppercase">OBSERVACIONES</div>
+                <div className="mb-[4rem] border-t-2 border-[] pt-[1rem] text-[#1e293b]">
                     <ReportContentRenderer content={report.content} />
                 </div>
 
                 {/* Personnel List Table if applicable */}
                 {(report.template === 'training' || report.template === 'epp') && report.personnel && report.personnel.length > 0 &&
         <div className="mb-[4rem]">
-                        <h4 className="m-[0_0_1rem_0] text-[var(--color-primary)] border-bottom-[1px_solid_#e2e8f0] pb-[0.5rem]">
+                        <h4 className="m-[0_0_1rem_0] text-[var(--color-primary)] border-b border-[] pb-[0.5rem]">
                             Personal Interviniente / Firmas
                         </h4>
                         <div className="overflow-x-auto w-full">
-                            <table className="w-[100%] min-width-[600px] border-collapse-[collapse] text-[0.85rem]">
+                            <table className="w-[100%] min-w-[] border-collapse-[collapse] text-[0.85rem]">
                                 <thead>
                                     <tr className="bg-[#f1f5f9]">
                                         <th className="border-[1px_solid_#e2e8f0] p-[0.8rem] text-left text-[#475569]">Nombre y Apellido</th>
@@ -179,7 +179,7 @@ export default function ReportsReport(): React.ReactElement | null {
 
                 {/* Custom visual switches */}
                 <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center mt-[2.5rem]">
-                    <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase letter-spacing-[0.5px]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
+                    <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase tracking-[]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
                     <div className="flex gap-[1rem] flex-wrap justify-center">
                         {[
             { id: 'operator', label: 'Operador / Empleado' },

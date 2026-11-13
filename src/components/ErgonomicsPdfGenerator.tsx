@@ -69,7 +69,7 @@ export default function ErgonomicsPdfGenerator({
   return (
     <div
       id={customId}
-      className="report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0 bg-[white] text-[#1e293b] p-[12mm_15mm] rounded-[8px] box-shadow-[0_4px_6px_rgba(0,0,0,0.1)] min-h-[29.7cm] h-[auto] font-family-[Helvetica,_Arial,_sans-serif] text-[8.5pt]"
+      className="report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0 bg-[white] text-[#1e293b] p-[12mm_15mm] rounded-[8px] shadow-[] min-h-[29.7cm] h-[auto] font-[] text-[8.5pt]"
       style={{ borderTop: `12px solid ${borderColor}` }}
     >
       <style type="text/css" media="print">

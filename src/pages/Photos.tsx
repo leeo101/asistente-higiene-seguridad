@@ -112,7 +112,7 @@ export default function Photos(): React.ReactElement | null {
 
 
         onClick={triggerCapture} className="border-[2px_dashed_var(--color-primary)] rounded-[24px] min-h-[220px] flex flex-col items-center justify-center bg-[rgba(37,_99,_235,_0.03)] mb-[2rem] cursor-pointer p-[2rem] transition-[all_0.3s_ease]">
-                <div className="bg-[var(--color-primary)] p-[1rem] rounded-[50%] mb-[1rem] box-shadow-[0_8px_16px_rgba(37,_99,_235,_0.2)]">
+                <div className="bg-[var(--color-primary)] p-[1rem] rounded-[50%] mb-[1rem] shadow-[]">
                     <Camera size={32} color="white" />
                 </div>
                 <p className="font-[800] text-center text-[var(--color-primary)] text-[1.1rem]">Toca para capturar fotos</p>
@@ -122,8 +122,8 @@ export default function Photos(): React.ReactElement | null {
             {photos.length > 0 &&
       <div className="grid grid-template-columns-[repeat(auto-fill,_minmax(140px,_1fr))] gap-[1rem] mb-[2rem]">
                     {photos.map((photo, index) =>
-        <div key={index} className="relative rounded-[16px] overflow-[hidden] box-shadow-[0_4px_20px_rgba(0,0,0,0.15)] h-[140px]">
-                            <img src={photo} alt={`Captura ${index}`} className="w-[100%] h-[100%] object-fit-[cover]" />
+        <div key={index} className="relative rounded-[16px] overflow-[hidden] shadow-[] h-[140px]">
+                            <img src={photo} alt={`Captura ${index}`} className="w-[100%] h-[100%] object-" />
                             <button
 
 
@@ -140,7 +140,7 @@ export default function Photos(): React.ReactElement | null {
 
 
 
-            onClick={(e) => {e.stopPropagation();setPhotos(photos.filter((_, i) => i !== index));}} className="absolute top-[8px] right-[8px] w-[32px] h-[32px] bg-[#ef4444] text-[#ffffff] rounded-[10px] border-none cursor-pointer flex items-center justify-center box-shadow-[0_2px_8px_rgba(0,0,0,0.2)]">
+            onClick={(e) => {e.stopPropagation();setPhotos(photos.filter((_, i) => i !== index));}} className="absolute top-[8px] right-[8px] w-[32px] h-[32px] bg-[#ef4444] text-[#ffffff] rounded-[10px] border-none cursor-pointer flex items-center justify-center shadow-[]">
             
                                 <Trash2 size={16} />
                             </button>
@@ -149,7 +149,7 @@ export default function Photos(): React.ReactElement | null {
                 </div>
       }
 
-            <div className="fixed bottom-[0] left-[0] right-[0] p-[1.5rem] bg-[var(--color-background)] border-top-[1px_solid_var(--color-border)] flex gap-[1rem] z-[100]">
+            <div className="fixed bottom-[0] left-[0] right-[0] p-[1.5rem] bg-[var(--color-background)] border-t border-[] flex gap-[1rem] z-[100]">
                 <button
           className="btn-outline flex-[1] flex items-center justify-center gap-[0.5rem] p-[1rem] rounded-[12px] font-[700]"
           onClick={triggerCapture}>

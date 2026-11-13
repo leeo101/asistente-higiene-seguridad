@@ -43,7 +43,7 @@ export default function ProfessionalReportPdfGenerator({ currentReport, customId
       <div
         id={customId || "pdf-content"}
         data-orientation="portrait"
-        className="pdf-container print-area border-none shadow-none w-[100%] max-w-[210mm] min-h-[297mm] p-[10mm_15mm] bg-[#ffffff] text-[#1e293b] box-sizing-[border-box] m-[0_auto] text-[10pt] font-family-[system-ui,_-apple-system,_sans-serif]"
+        className="pdf-container print-area border-none shadow-none w-[100%] max-w-[210mm] min-h-[297mm] p-[10mm_15mm] bg-[#ffffff] text-[#1e293b] box-sizing-[border-box] m-[0_auto] text-[10pt] font-[]"
       >
         <style type="text/css" media="print">
           {`

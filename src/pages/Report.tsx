@@ -168,30 +168,30 @@ export default function Report(): React.ReactElement | null {
                 {/* Header Tripartito HSE */}
                 <div className="flex flex-row justify-space-between items-start border-bottom-[3px_solid_#e2e8f0] pb-[1.2rem] mb-[1.5rem] w-[100%]">
                     <div className="flex-[1] text-left">
-                        <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] letter-spacing-[0.08em]">Sistema de Gestión HSE</p>
+                        <p className="m-[0] font-[800] text-[0.65rem] uppercase text-[#64748b] tracking-[]">Sistema de Gestión HSE</p>
                         <p style={{ color: findingCount > 0 ? '#dc2626' : '#2563eb' }} className="m-[0] font-[900] text-[0.8rem] uppercase">
                             {findingCount > 0 ? `⚠ ${findingCount} HALLAZGO${findingCount > 1 ? 'S' : ''} DETECTADO${findingCount > 1 ? 'S' : ''}` : '✓ SIN HALLAZGOS CRÍTICOS'}
                         </p>
                     </div>
                     <div className="flex-[2] flex flex-col items-center justify-center text-center">
-                        <h1 className="m-[0] font-[900] text-[1.9rem] letter-spacing-[-0.02em] uppercase line-height-[1] text-[#0f172a]">INFORME DE INSPECCIÓN</h1>
-                        <div style={{ background: findingCount > 0 ? '#dc2626' : '#2563eb' }} className="mt-[0.3rem] text-[white] p-[0.2rem_0.8rem] rounded-[12px] text-[0.65rem] font-[800] letter-spacing-[0.1em]">
+                        <h1 className="m-[0] font-[900] text-[1.9rem] tracking-[] uppercase leading-[] text-[#0f172a]">INFORME DE INSPECCIÓN</h1>
+                        <div style={{ background: findingCount > 0 ? '#dc2626' : '#2563eb' }} className="mt-[0.3rem] text-[white] p-[0.2rem_0.8rem] rounded-[12px] text-[0.65rem] font-[800] tracking-[]">
                             PROTOCOLO DE RELEVAMIENTO GENERAL DE RIESGOS
                         </div>
                     </div>
                     <div className="flex-[1] text-right flex flex-col items-end gap-[0.5rem]">
-                        <CompanyLogo className="h-[38px] w-[auto] object-fit-[contain] max-w-[120px]" />
+                        <CompanyLogo className="h-[38px] w-[auto] object- max-w-[120px]" />
                     </div>
                 </div>
 
                 {/* Grilla de datos */}
                 <div className="border-[1px_solid_#cbd5e1] rounded-[6px] mb-[1.5rem] overflow-[hidden]">
-                    <div className="grid grid-template-columns-[2fr_1fr_1fr] bg-[#f8fafc] border-bottom-[1px_solid_#e2e8f0]">
-                        <div className="p-[0.75rem_1rem] border-right-[1px_solid_#e2e8f0]">
+                    <div className="grid grid-template-columns-[2fr_1fr_1fr] bg-[#f8fafc] border-b border-[]">
+                        <div className="p-[0.75rem_1rem] border-r border-[]">
                             <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Building2 size={12} /> REFERENCIA / OBRA</span>
                             <div className="font-[800] text-[0.95rem] text-[#0f172a] mt-[0.2rem]">{inspectionData.name || '-'}</div>
                         </div>
-                        <div className="p-[0.75rem_1rem] border-right-[1px_solid_#e2e8f0]">
+                        <div className="p-[0.75rem_1rem] border-r border-[]">
                             <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><Calendar size={12} /> FECHA</span>
                             <div className="font-[700] text-[0.9rem] text-[#334155] mt-[0.2rem]">{new Date(inspectionData.date).toLocaleDateString('es-AR')}</div>
                         </div>
@@ -201,14 +201,14 @@ export default function Report(): React.ReactElement | null {
                         </div>
                     </div>
                     <div className="grid grid-template-columns-[1fr_1fr] bg-[#ffffff]">
-                        <div className="p-[0.75rem_1rem] border-right-[1px_solid_#e2e8f0]">
+                        <div className="p-[0.75rem_1rem] border-r border-[]">
                             <span className="text-[0.6rem] font-[800] text-[#64748b] uppercase flex items-center gap-[0.3rem]"><User size={12} /> PROFESIONAL ACTUANTE</span>
                             <div className="font-[700] text-[0.9rem] text-[#334155] mt-[0.2rem]">{professional?.name || 'No especificado'}</div>
                         </div>
                         <div className="p-[0.75rem_1rem] flex items-center gap-[1rem]">
                             <div style={{ background: findingCount > 0 ? '#fef2f2' : '#f0fdf4', border: `1px solid ${findingCount > 0 ? '#fca5a5' : '#86efac'}` }} className="p-[0.4rem_1rem] rounded-[8px]">
                                 <span className="text-[0.65rem] font-[800] text-[#64748b] uppercase">HALLAZGOS</span>
-                                <div style={{ color: findingCount > 0 ? '#dc2626' : '#16a34a' }} className="font-[900] text-[1.5rem] line-height-[1]">{findingCount}</div>
+                                <div style={{ color: findingCount > 0 ? '#dc2626' : '#16a34a' }} className="font-[900] text-[1.5rem] leading-[]">{findingCount}</div>
                             </div>
                             <div className="p-[0.4rem_0.8rem] bg-[#eff6ff] border-[1px_solid_#bfdbfe] rounded-[8px] font-[900] text-[0.65rem] text-[#2563eb]">FINALIZADO</div>
                         </div>
@@ -219,7 +219,7 @@ export default function Report(): React.ReactElement | null {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
                     <div className="card p-[1.2rem] text-center bg-[#f8fafc] border-[1px_solid_#e2e8f0]">
                         <div className="text-[1.5rem] font-[900] text-[#172B4D]">{findingCount}</div>
-                        <div className="text-[0.75rem] font-[800] text-[#6B778C] uppercase letter-spacing-[0.5px]">Hallazgos</div>
+                        <div className="text-[0.75rem] font-[800] text-[#6B778C] uppercase tracking-[]">Hallazgos</div>
                     </div>
                     <div className="card p-[1.2rem] text-center bg-[#f8fafc] border-[1px_solid_#e2e8f0]">
                         <div className="text-[1.5rem] font-[900] text-[#172B4D]">
@@ -237,7 +237,7 @@ export default function Report(): React.ReactElement | null {
                 return Math.round(okCount / total * 100) || 0;
               })()}%
                         </div>
-                        <div className="text-[0.75rem] font-[800] text-[#6B778C] uppercase letter-spacing-[0.5px]">Cumplimiento</div>
+                        <div className="text-[0.75rem] font-[800] text-[#6B778C] uppercase tracking-[]">Cumplimiento</div>
                     </div>
                     <div className="card md:col-span-2 p-[1.2rem] bg-[#f8fafc] border-[1px_solid_#e2e8f0]">
                         <div className="text-[0.85rem] font-[800] text-[#6B778C] mb-[0.3rem]">PROFESIONAL ACTUANTE</div>
@@ -249,7 +249,7 @@ export default function Report(): React.ReactElement | null {
                 {/* Header de sección - Resumen */}
                 <div className="bg-[#1e293b] p-[0.6rem_1rem] rounded-[6px_6px_0_0] mb-[0] flex items-center gap-[0.5rem] mt-[0.5rem]">
                     <ShieldCheck size={15} color="#86efac" />
-                    <span className="font-[900] text-[0.78rem] text-[#ffffff] uppercase letter-spacing-[0.04em]">RESUMEN DE INSPECCIÓN POR ÁREAS</span>
+                    <span className="font-[900] text-[0.78rem] text-[#ffffff] uppercase tracking-[]">RESUMEN DE INSPECCIÓN POR ÁREAS</span>
                 </div>
                 <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(200px,_1fr))] gap-[0.8rem] mb-[1.5rem] border-[1px_solid_#cbd5e1] rounded-[0_0_6px_6px] p-[0.8rem] bg-[#f8fafc]">
                     {[
@@ -295,12 +295,12 @@ export default function Report(): React.ReactElement | null {
         <div className="page-break-inside-[avoid] mb-[1.5rem] border-[1px_solid_#fde68a] rounded-[6px] overflow-[hidden]">
                         <div className="bg-[#1e293b] p-[0.6rem_1rem] flex items-center gap-[0.5rem]">
                             <ShieldAlert size={15} color="#fbbf24" />
-                            <span className="font-[900] text-[0.78rem] text-[#ffffff] uppercase letter-spacing-[0.04em]">EVALUACIÓN DE RIESGOS PREVIA (IPER)</span>
+                            <span className="font-[900] text-[0.78rem] text-[#ffffff] uppercase tracking-[]">EVALUACIÓN DE RIESGOS PREVIA (IPER)</span>
                         </div>
-                        <div className="overflow-x-[auto]">
+                        <div className="overflow-x-">
                             <table className="w-[100%] border-collapse-[collapse] text-[0.83rem]">
                                 <thead>
-                                    <tr className="bg-[#f8fafc] border-bottom-[2px_solid_#e2e8f0]">
+                                    <tr className="bg-[#f8fafc] border-b-2 border-[]">
                                         <th className="p-[1rem] text-left font-[900]">Peligro Identificado</th>
                                         <th className="p-[1rem] text-left font-[900]">Riesgo Asociado</th>
                                         <th className="p-[1rem] text-center font-[900]">Probabilidad / Severidad</th>
@@ -309,7 +309,7 @@ export default function Report(): React.ReactElement | null {
                                 </thead>
                                 <tbody>
                                     {riskAssessment.map((risk, idx) =>
-                <tr key={idx} className="border-bottom-[1px_solid_#f1f5f9] page-break-inside-[avoid]">
+                <tr key={idx} className="border-b border-[] page-break-inside-[avoid]">
                                             <td className="p-[1rem] font-[600]">{risk.danger}</td>
                                             <td className="p-[1rem]">{risk.risk}</td>
                                             <td className="p-[1rem] text-center">{risk.probability} x {risk.severity}</td>
@@ -336,15 +336,15 @@ export default function Report(): React.ReactElement | null {
                 {/* Hallazgos - Header oscuro */}
                 <div className="bg-[#1e293b] p-[0.6rem_1rem] rounded-[6px_6px_0_0] flex items-center gap-[0.5rem] mt-[0.5rem]">
                     <TriangleAlert size={15} color="#fca5a5" />
-                    <span className="font-[900] text-[0.78rem] text-[#ffffff] uppercase letter-spacing-[0.04em]">DETALLE DE HALLAZGOS Y DESVÍOS</span>
+                    <span className="font-[900] text-[0.78rem] text-[#ffffff] uppercase tracking-[]">DETALLE DE HALLAZGOS Y DESVÍOS</span>
                     {findingCount > 0 && <span className="ml-[auto] bg-[#dc2626] text-[#fff] p-[0.1rem_0.5rem] rounded-[10px] text-[0.65rem] font-[900]">{findingCount} HALLAZGO{findingCount > 1 ? 'S' : ''}</span>}
                 </div>
 
                 {findings.length > 0 ?
-        <div className="overflow-x-[auto] mb-[1.5rem] border-[1px_solid_#fca5a5] rounded-[0_0_6px_6px]">
+        <div className="overflow-x- mb-[1.5rem] border-[1px_solid_#fca5a5] rounded-[0_0_6px_6px]">
                         <table className="w-[100%] border-collapse-[collapse] text-[0.9rem]">
                             <thead>
-                                <tr className="bg-[#f8fafc] border-bottom-[2px_solid_#e2e8f0]">
+                                <tr className="bg-[#f8fafc] border-b-2 border-[]">
                                     <th className="p-[1rem] text-left font-[900] w-[40px]">#</th>
                                     <th className="p-[1rem] text-left font-[900]">Descripción de la Anomalía</th>
                                     <th className="p-[1rem] text-center font-[900]">Riesgo</th>
@@ -354,7 +354,7 @@ export default function Report(): React.ReactElement | null {
                             </thead>
                             <tbody>
                                 {findings.map((obs, i) =>
-              <tr key={i} className="border-bottom-[1px_solid_#f1f5f9] page-break-inside-[avoid]">
+              <tr key={i} className="border-b border-[] page-break-inside-[avoid]">
                                         <td className="p-[1rem] font-[800] text-[#6B778C]">{i + 1}</td>
                                         <td className="p-[1rem]">
                                             <div className="font-[800] text-[#172B4D] mb-[0.2rem]">{obs.category}</div>
@@ -387,7 +387,7 @@ export default function Report(): React.ReactElement | null {
                       src={img}
                       alt="Hallazgo"
 
-                      onClick={() => window.open(img, '_blank')} className="w-[45px] h-[45px] object-fit-[cover] rounded-[6px] border-[1px_solid_#e2e8f0] cursor-pointer" />
+                      onClick={() => window.open(img, '_blank')} className="w-[45px] h-[45px] object- rounded-[6px] border-[1px_solid_#e2e8f0] cursor-pointer" />
 
                     )}
                                                 {!(obs.photos?.length || obs.photo) && <span className="text-[#cbd5e1] text-[0.7rem]">Sin fotos</span>}
@@ -411,13 +411,13 @@ export default function Report(): React.ReactElement | null {
         <div className="mt-[1.5rem] page-break-before-[auto] border-[1px_solid_#cbd5e1] rounded-[6px] overflow-[hidden]">
                         <div className="bg-[#334155] p-[0.6rem_1rem] flex items-center gap-[0.5rem]">
                             <Camera size={15} color="#fff" />
-                            <span className="font-[900] text-[0.78rem] text-[#ffffff] uppercase letter-spacing-[0.04em]">REGISTRO FOTOGRÁFICO GENERAL DE LA VISITA</span>
+                            <span className="font-[900] text-[0.78rem] text-[#ffffff] uppercase tracking-[]">REGISTRO FOTOGRÁFICO GENERAL DE LA VISITA</span>
                         </div>
                         <div className="grid grid-template-columns-[repeat(2,_1fr)] gap-[1.2rem] p-[1rem] bg-[#f8fafc]">
                             {inspectionData.photos.map((photo, index) =>
-            <div key={index} className="border-[1px_solid_#e2e8f0] rounded-[20px] overflow-[hidden] p-[0.8rem] bg-[#f8fafc] page-break-inside-[avoid] box-shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-                                    <img src={photo} alt={`Evidencia ${index + 1}`} className="w-[100%] h-[260px] object-fit-[cover] rounded-[12px] mb-[0.8rem]" />
-                                    <p className="m-[0] text-[0.8rem] font-[800] text-center text-[#6B778C] uppercase letter-spacing-[1px]">Evidencia Fotográfica #{index + 1}</p>
+            <div key={index} className="border-[1px_solid_#e2e8f0] rounded-[20px] overflow-[hidden] p-[0.8rem] bg-[#f8fafc] page-break-inside-[avoid] shadow-[]">
+                                    <img src={photo} alt={`Evidencia ${index + 1}`} className="w-[100%] h-[260px] object- rounded-[12px] mb-[0.8rem]" />
+                                    <p className="m-[0] text-[0.8rem] font-[800] text-center text-[#6B778C] uppercase tracking-[]">Evidencia Fotográfica #{index + 1}</p>
                                 </div>
             )}
                         </div>

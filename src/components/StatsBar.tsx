@@ -125,7 +125,7 @@ export default function StatsBar() {
                     📊 Actividad del mes
                 </h2>
                 {eppAlert > 0 &&
-        <a href="/ppe-tracker" className="flex items-center gap-[0.4rem] bg-[rgba(239,68,68,0.1)] border-[1px_solid_rgba(239,68,68,0.25)] rounded-[20px] p-[0.3rem_0.8rem] text-[0.72rem] font-[800] text-[#ef4444] text-decoration-[none]">
+        <a href="/ppe-tracker" className="flex items-center gap-[0.4rem] bg-[rgba(239,68,68,0.1)] border-[1px_solid_rgba(239,68,68,0.25)] rounded-[20px] p-[0.3rem_0.8rem] text-[0.72rem] font-[800] text-[#ef4444] no-underline">
                         <TriangleAlert size={12} /> {eppAlert} EPP por vencer
                     </a>
         }
@@ -158,7 +158,7 @@ export default function StatsBar() {
                     </div>
                     <div>
                         <div className="text-[0.9rem] font-[800] text-[var(--color-text)] mb-[0.2rem]">Índice de Seguridad</div>
-                        <div className="text-[0.75rem] text-[var(--color-text-muted)] line-height-[1.3]">
+                        <div className="text-[0.75rem] text-[var(--color-text-muted)] leading-[]">
                             {safetyScore > 85 ? 'Excelente desempeño preventivo.' : safetyScore > 60 ? 'Buen nivel, mantenga las inspecciones.' : 'Atención: Se requiere reforzar controles.'}
                         </div>
                     </div>
@@ -191,7 +191,7 @@ export default function StatsBar() {
                             {stat.icon}
                             <span className="text-[0.72rem] font-[700] text-[var(--color-text-muted)]">{stat.label}</span>
                         </div>
-                        <div style={{ color: stat.color }} className="text-[1.8rem] font-[900] line-height-[1]">
+                        <div style={{ color: stat.color }} className="text-[1.8rem] font-[900] leading-[]">
                             <AnimatedNumber value={stat.total} />
                         </div>
                         <div className="text-[0.65rem] text-[var(--color-text-muted)] mt-[0.3rem]">
