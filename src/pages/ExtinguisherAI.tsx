@@ -365,7 +365,7 @@ export default function ExtinguisherAI() {
 
   return (
     <AnimatedPage>
-      <div className="max-w-7xl mx-auto pb-16 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto pb-24 md:pb-16 px-4 sm:px-6 lg:px-8">
         {/* Modales de Confirmación y Compartir */}
         <ConfirmModal
           isOpen={!!deleteTarget}
@@ -788,8 +788,8 @@ Generado con Asistente HYS`
 
             {/* Toolbar de Búsqueda y Botones de Acción */}
             <div className="mt-8 space-y-4">
-              <div className="flex flex-row items-center justify-between gap-3">
-                <div className="relative flex-1 max-w-xs h-[38px]">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="relative flex-1 min-w-[200px] sm:max-w-xs h-[38px]">
                   <Search
                     size={16}
                     className="text-slate-400 pointer-events-none z-10"

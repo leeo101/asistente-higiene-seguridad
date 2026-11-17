@@ -273,9 +273,9 @@ export const ExtinguisherManometerAnalyzer: React.FC<ExtinguisherManometerAnalyz
           <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
 
           {/* Guía de Encuadre Visual Overlay */}
-          <div className="absolute inset-0 border-2 border-dashed border-rose-500/60 m-8 rounded-2xl pointer-events-none flex flex-col items-center justify-between p-4">
-            <div className="bg-slate-950/80 backdrop-blur-md px-3 py-1 rounded-full border border-rose-500/40 text-[11px] font-black text-rose-300 flex items-center gap-1.5 shadow-lg">
-              <Gauge size={14} /> Enfocar Manómetro y Marbete en la Grilla
+          <div className="absolute inset-0 border-2 border-dashed border-rose-500/60 m-3 sm:m-8 rounded-2xl pointer-events-none flex flex-col items-center justify-between p-2.5 sm:p-4">
+            <div className="bg-slate-950/80 backdrop-blur-md px-2.5 sm:px-3 py-1 rounded-full border border-rose-500/40 text-[10px] sm:text-[11px] font-black text-rose-300 flex items-center gap-1.5 shadow-lg text-center">
+              <Gauge size={14} className="shrink-0" /> Enfocar Manómetro y Marbete
             </div>
 
             {/* Marcadores de Esquina */}
@@ -290,31 +290,31 @@ export const ExtinguisherManometerAnalyzer: React.FC<ExtinguisherManometerAnalyz
           </div>
 
           {/* Botones de Control de Captura */}
-          <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-2.5 px-3 z-20">
+          <div className="absolute bottom-3 sm:bottom-4 left-0 right-0 flex items-center justify-center gap-2 sm:gap-2.5 px-2 sm:px-3 z-20">
             <button
               type="button"
               onClick={handleNativeCapture}
-              className="p-3 bg-rose-600 hover:bg-rose-500 text-white rounded-2xl border border-rose-400 shadow-xl transition-all flex items-center gap-1.5 text-xs font-bold cursor-pointer active:scale-95"
+              className="px-3 py-2.5 sm:p-3 bg-rose-600 hover:bg-rose-500 text-white rounded-2xl border border-rose-400 shadow-xl transition-all flex items-center gap-1.5 text-[11px] sm:text-xs font-bold cursor-pointer active:scale-95 whitespace-nowrap"
               title="Abrir cámara del teléfono en alta resolución"
             >
-              <Camera size={16} /> Cámara Teléfono HD
+              <Camera size={15} /> Cámara HD
             </button>
 
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="p-3 bg-slate-900/90 hover:bg-slate-800 text-white rounded-2xl border border-slate-700 shadow-xl transition-all flex items-center gap-1.5 text-xs font-bold"
+              className="px-3 py-2.5 sm:p-3 bg-slate-900/90 hover:bg-slate-800 text-white rounded-2xl border border-slate-700 shadow-xl transition-all flex items-center gap-1.5 text-[11px] sm:text-xs font-bold whitespace-nowrap cursor-pointer"
             >
-              <Upload size={16} /> Subir
+              <Upload size={15} /> Subir Foto
             </button>
 
             <button
               type="button"
               onClick={handleCapture}
-              className="p-3.5 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white rounded-full border-4 border-white/20 shadow-2xl transition-transform active:scale-95 flex items-center justify-center cursor-pointer"
+              className="p-3 sm:p-3.5 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white rounded-full border-4 border-white/20 shadow-2xl transition-transform active:scale-95 flex items-center justify-center cursor-pointer shrink-0"
               title="Capturar desde visor web"
             >
-              <Camera size={22} />
+              <Camera size={20} />
             </button>
           </div>
         </div>

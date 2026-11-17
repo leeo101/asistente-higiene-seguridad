@@ -252,8 +252,8 @@ export default function AIGeneralCameraManager(): React.ReactElement | null {
 
         {/* Toolbar de Búsqueda y Botones estilo Aptitudes Médicas */}
         <div className="mt-8 space-y-4">
-          <div className="flex flex-row items-center justify-between gap-3">
-            <div className="relative flex-1 max-w-xs h-[38px]">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="relative flex-1 min-w-[200px] sm:max-w-xs h-[38px]">
               <Search
                 size={16}
                 className="text-slate-400 pointer-events-none z-10"

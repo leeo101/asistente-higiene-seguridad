@@ -53,7 +53,7 @@ const formatType = (tipo: string) => {
 };
 
 
-export default function ExtinguisherProfilePdf({ data, onBack = () => window.history.back(), isHeadless = false }: {data: any;onBack?: () => void;isHeadless?: boolean;}): React.ReactElement | null {
+export default function ExtinguisherProfilePdf({ data, onBack = () => window.history.back(), isHeadless = false, pdfElementId = 'pdf-content' }: {data: any;onBack?: () => void;isHeadless?: boolean;pdfElementId?: string;}): React.ReactElement | null {
   const componentRef = useRef<HTMLDivElement>(null);
   const [showShare, setShowShare] = useState(false);
 
@@ -61,7 +61,7 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
 
   const handlePrint = async () => {
     try {
-      await printElementAsDocument('pdf-content', `Ficha Técnica - Extintor #${data.numero || 'Reporte'}`, false);
+      await printElementAsDocument(pdfElementId, `Ficha Técnica - Extintor #${data.numero || 'Reporte'}`, false);
     } catch {
       window.print();
     }
@@ -164,9 +164,9 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
 
             <div className={isHeadless ? "w-full block" : "flex-[1] flex justify-center"}>
                 <div
-          id="pdf-content"
-          className={`pdf-container card print-area w-full max-w-[210mm] block bg-white text-slate-900 rounded-[8px] box-sizing-[border-box] ${isHeadless ? 'shadow-none' : 'shadow-[]'}`}
-          style={{ padding: isHeadless ? '0' : '4mm 10mm 10mm 10mm' }}
+          id={pdfElementId}
+          className={`pdf-container card print-area w-full max-w-[210mm] block bg-white text-slate-900 rounded-[8px] box-sizing-[border-box] ${isHeadless ? 'shadow-none' : 'shadow-md'}`}
+          style={{ padding: isHeadless ? '6mm 8mm' : '4mm 10mm 10mm 10mm' }}
           ref={componentRef}>
 
                     <style type="text/css">
@@ -297,10 +297,32 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
                                         <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Sello IRAM / OPDS</div>
                                         <div className="text-[10pt] font-[800] text-slate-900">{data.selloIRAM || '-'}</div>
                                     </div>
-                                    <div className="col-span-2">
+                                    <div>
                                         <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Nº Serie (Tubo)</div>
                                         <div className="text-[10pt] font-[800] text-slate-900">{data.numeroSerie || '-'}</div>
                                     </div>
+                                    <div>
+                                        <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Potencial Extintor</div>
+                                        <div className="text-[10pt] font-[800] text-slate-900">{data.potencialExtintor || '3A 10B C'}</div>
+                                    </div>
+                                    {data.recargadora && (
+                                      <div>
+                                          <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Taller Recargador</div>
+                                          <div className="text-[10pt] font-[800] text-slate-900">{data.recargadora}</div>
+                                      </div>
+                                    )}
+                                    {data.tipoMontaje && (
+                                      <div>
+                                          <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Montaje / Soporte</div>
+                                          <div className="text-[10pt] font-[800] text-slate-900">{data.tipoMontaje}</div>
+                                      </div>
+                                    )}
+                                    {data.observaciones && (
+                                      <div className="col-span-2">
+                                          <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Observaciones Técnicas</div>
+                                          <div className="text-[9.5pt] font-[700] text-slate-800">{data.observaciones}</div>
+                                      </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

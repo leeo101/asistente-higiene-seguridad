@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import {
   Flame, Plus, Search, MapPin, QrCode, ArrowLeft, ShieldCheck, Activity, CheckCircle,
-  Calendar, Edit3, Trash2, Printer, AlertTriangle, CheckCircle2, Camera, Share2, Pencil, Download, FileSpreadsheet, CalendarDays, History, UploadCloud, DownloadCloud, Info, Save, Settings, ChevronDown, Sparkles } from
+  Calendar, Edit3, Trash2, Printer, AlertTriangle, CheckCircle2, Camera, Share2, Pencil, Download, FileSpreadsheet, CalendarDays, History, UploadCloud, DownloadCloud, Info, Save, Settings, ChevronDown, Sparkles, XCircle, AlertOctagon, Eye } from
 'lucide-react';
 import { ModuleFormLayout, ModuleFormDocument, ModuleFormSection, ModuleActionBar, ModuleFormToolbar } from '../components/module';
 import { useAuth } from '../contexts/AuthContext';
@@ -61,6 +61,7 @@ export default function ExtintoresManager() {
   const [shareItem, setShareItem] = useState<any | null>(null);
   const [printItem, setPrintItem] = useState<any | null>(null);
   const [viewingPdf, setViewingPdf] = useState<any | null>(null);
+  const [previewItem, setPreviewItem] = useState<any | null>(null);
 
   const [globalShowSignatures, setGlobalShowSignatures] = useState({ operator: false, professional: true, supervisor: false });
   const [globalSignaturesData, setGlobalSignaturesData] = useState({ operatorSignature: '', supervisorSignature: '' });
@@ -68,21 +69,29 @@ export default function ExtintoresManager() {
   const [customCapacityMode, setCustomCapacityMode] = useState(false);
   const CAPACITY_PRESETS = ['1 kg', '2.5 kg', '3.5 kg', '5 kg', '10 kg', '25 kg', '50 kg', '10 lts'];
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     numero: '',
     numeroSerie: '',
     tipo: 'ABC (PQS)',
     capacidad: '5 kg',
+    potencialExtintor: '3A 10B C',
     ubicacion: '',
     empresa: '',
     marca: '',
+    recargadora: '',
+    tipoMontaje: 'Soporte mural (1.20m - 1.50m)',
     fechaFabricacion: '',
     vencimientoRecarga: '',
     vencimientoPH: '',
     selloIRAM: '',
     estadoFisico: 'Operativo',
+    observaciones: '',
+    checkManometro: true,
+    checkPrecinto: true,
+    checkSenalizacion: true,
+    checkAcceso: true,
     foto: null,
-    showSignatures: { professional: true, supervisor: false, operator: false },
+    showSignatures: { professional: true, supervisor: true, operator: true },
     operatorSignature: '',
     supervisorSignature: '',
     professionalSignature: '',
@@ -462,26 +471,50 @@ export default function ExtintoresManager() {
       numeroSerie: '',
       tipo: 'ABC (PQS)',
       capacidad: '5 kg',
+      potencialExtintor: '3A 10B C',
       ubicacion: '',
       marca: '',
+      recargadora: '',
+      tipoMontaje: 'Soporte mural (1.20m - 1.50m)',
       fechaFabricacion: '',
       vencimientoRecarga: '',
       vencimientoPH: '',
       selloIRAM: '',
       estadoFisico: 'Operativo',
+      observaciones: '',
+      checkManometro: true,
+      checkPrecinto: true,
+      checkSenalizacion: true,
+      checkAcceso: true,
       foto: null,
       empresa: '',
-      showSignatures: { professional: true, supervisor: false, operator: false },
+      showSignatures: { professional: true, supervisor: true, operator: true },
       operatorSignature: '',
       supervisorSignature: '',
-      professionalSignature: '',
-      professionalName: '',
-      professionalLicense: ''
+      professionalSignature: professionalData?.signature || '',
+      professionalName: professionalData?.name || '',
+      professionalLicense: professionalData?.license || ''
     });
   };
 
   const handleEdit = (ext) => {
-    setFormData(ext);
+    setFormData({
+      ...ext,
+      potencialExtintor: ext.potencialExtintor || '3A 10B C',
+      recargadora: ext.recargadora || '',
+      tipoMontaje: ext.tipoMontaje || 'Soporte mural (1.20m - 1.50m)',
+      observaciones: ext.observaciones || '',
+      checkManometro: ext.checkManometro !== undefined ? ext.checkManometro : true,
+      checkPrecinto: ext.checkPrecinto !== undefined ? ext.checkPrecinto : true,
+      checkSenalizacion: ext.checkSenalizacion !== undefined ? ext.checkSenalizacion : true,
+      checkAcceso: ext.checkAcceso !== undefined ? ext.checkAcceso : true,
+      showSignatures: ext.showSignatures || { professional: true, supervisor: true, operator: true },
+      operatorSignature: ext.operatorSignature || '',
+      supervisorSignature: ext.supervisorSignature || '',
+      professionalSignature: ext.professionalSignature || professionalData?.signature || '',
+      professionalName: ext.professionalName || professionalData?.name || '',
+      professionalLicense: ext.professionalLicense || professionalData?.license || ''
+    });
     setEditingId(ext.id);
     setShowForm(true);
   };
@@ -774,272 +807,275 @@ export default function ExtintoresManager() {
   });
 
   const columns = [
-  {
-    header: 'Nº',
-    accessor: 'index',
-    width: '60px',
-    render: (_: any, idx: number) =>
-    <div className="font-black text-white text-sm text-center bg-slate-800 dark:bg-slate-600 py-1.5 px-2 rounded-lg shadow-sm">
-                    {idx + 1}
-                </div>
-
-  },
-  {
-    header: 'Chapa',
-    accessor: 'numero',
-    sortable: true,
-    render: (item: any) => {
-      const stCarga = getRecargaExpirationStatus(item.vencimientoRecarga);
-      const isExpired = stCarga.color === '#ef4444' || getPHExpirationStatus(item.vencimientoPH).color === '#ef4444';
-      const lastInspection = item.inspections && item.inspections.length > 0 ? item.inspections[item.inspections.length - 1] : null;
-      return (
-        <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                            <div style={{ background: isExpired ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', color: isExpired ? '#ef4444' : '#10b981' }} className="p-[0.3rem] rounded-[6px]">
-                                <Flame size={14} />
-                            </div>
-                            <span className="font-extrabold">#{item.numero}</span>
-                        </div>
-                        {lastInspection &&
-          <div style={{
-            background: lastInspection.resultado === 'C' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
-            color: lastInspection.resultado === 'C' ? '#10b981' : '#ef4444'
-
-          }} className="inline-flex items-center gap-[0.1rem] text-[0.6rem] font-[900] p-[0.05rem_0.2rem] rounded-[4px] w-[fit-content]">
-                                INSP: {lastInspection.resultado}
-                            </div>
-          }
-                    </div>);
-
-    }
-  },
-  {
-    header: 'Tipo',
-    accessor: 'tipo',
-    sortable: true,
-    render: (item: any) =>
-    <div className="flex flex-col gap-0.5">
-                    <span className="py-1 px-2.5 bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-md text-xs font-bold w-fit">
-                        {formatType(item.tipo)} — {item.capacidad}
-                    </span>
-                    {item.fechaFabricacion &&
-      <span className="text-[0.7rem] text-slate-500 dark:text-slate-400 font-semibold">
-                            Fab: {new Date(item.fechaFabricacion + 'T12:00:00Z').toLocaleDateString('es-AR')}
-                        </span>
+    {
+      header: 'Equipo / Chapa',
+      accessor: 'numero',
+      sortable: true,
+      render: (item: any) => (
+        <div>
+          <div style={{ color: '#000000', fontWeight: '900', fontSize: '14px', lineHeight: '1.2' }}>
+            🔥 Chapa #{item.numero}
+          </div>
+          <div style={{ color: '#1e293b', fontWeight: '800', fontSize: '12px', marginTop: '2px' }}>
+            {item.marca ? `${item.marca} ` : ''}{item.numeroSerie ? `• Serie: ${item.numeroSerie}` : ''}
+          </div>
+          {item.selloIRAM && (
+            <div style={{ color: '#64748b', fontSize: '11px', fontWeight: '600', marginTop: '1px' }}>
+              Sello IRAM/OPDS: {item.selloIRAM}
+            </div>
+          )}
+        </div>
+      )
+    },
+    {
+      header: 'Agente y Potencial',
+      accessor: 'tipo',
+      sortable: true,
+      render: (item: any) => (
+        <div>
+          <span style={{ color: '#0f172a', fontWeight: '900', fontSize: '13px', display: 'block' }}>
+            {formatType(item.tipo)} — {item.capacidad}
+          </span>
+          <span style={{ color: '#475569', fontWeight: '700', fontSize: '11px', display: 'block', marginTop: '2px' }}>
+            Potencial: {item.potencialExtintor || '3A 10B C'}
+          </span>
+          {item.fechaFabricacion && (
+            <span style={{ color: '#64748b', fontSize: '10px', fontWeight: '600' }}>
+              Fab: {new Date(item.fechaFabricacion + 'T12:00:00Z').toLocaleDateString('es-AR')}
+            </span>
+          )}
+        </div>
+      )
+    },
+    {
+      header: 'Ubicación y Empresa',
+      accessor: 'ubicacion',
+      sortable: true,
+      render: (item: any) => (
+        <div>
+          <div style={{ color: '#0f172a', fontWeight: '800', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <MapPin size={13} className="text-rose-500 shrink-0" /> {item.ubicacion || '-'}
+          </div>
+          {item.empresa && (
+            <div style={{ color: '#64748b', fontSize: '11px', fontWeight: '700', marginTop: '2px' }}>
+              🏢 {item.empresa}
+            </div>
+          )}
+          {item.tipoMontaje && (
+            <div style={{ color: '#94a3b8', fontSize: '10px', fontWeight: '600', marginTop: '1px' }}>
+              {item.tipoMontaje}
+            </div>
+          )}
+        </div>
+      )
+    },
+    {
+      header: 'Dictamen y Vigencia',
+      accessor: 'vencimientoRecarga',
+      sortable: true,
+      render: (item: any) => {
+        const cat = getExtStatusCategory(item);
+        const stCarga = getRecargaExpirationStatus(item.vencimientoRecarga);
+        const stPH = getPHExpirationStatus(item.vencimientoPH);
+        return (
+          <div>
+            {cat === 'operativos' ? (
+              <span style={{ backgroundColor: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', padding: '4px 10px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <CheckCircle2 size={14} /> Operativo Vigente
+              </span>
+            ) : cat === 'porVencer' ? (
+              <span style={{ backgroundColor: '#fffbeb', color: '#d97706', border: '1px solid #fde68a', padding: '4px 10px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <AlertTriangle size={14} /> Próx. Vencer / Revisión
+              </span>
+            ) : (
+              <span style={{ backgroundColor: '#fef2f2', color: '#dc2626', border: '1px solid #fecdd3', padding: '4px 10px', borderRadius: '6px', fontWeight: '900', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <XCircle size={14} /> Vencido / Baja
+              </span>
+            )}
+            <div style={{ fontSize: '11px', color: '#334155', fontWeight: '700', marginTop: '4px' }}>
+              Carga: {stCarga.expirationDate || '-'} • PH: {stPH.expirationDate || '-'}
+            </div>
+          </div>
+        );
       }
-                </div>
-
-  },
-  {
-    header: 'Empresa',
-    accessor: 'empresa',
-    sortable: true,
-    render: (item: any) =>
-    <span className="font-bold text-sm">
-                    {item.empresa || '-'}
-                </span>
-
-  },
-  {
-    header: 'Ubicación',
-    accessor: 'ubicacion',
-    sortable: true,
-    render: (item: any) =>
-    <span className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
-                    <MapPin size={14} /> {item.ubicacion}
-                </span>
-
-  },
-  {
-    header: 'Carga',
-    accessor: 'vencimientoRecarga',
-    sortable: true,
-    render: (item: any) => {
-      const st = getRecargaExpirationStatus(item.vencimientoRecarga);
-      return (
-        <span style={{ color: st.color }} className="font-[800] text-[0.85rem] flex items-center gap-[0.3rem]">
-                        {st.icon && st.icon} {st.label} <br/>({st.expirationDate || '-'})
-                    </span>);
-
-    }
-  },
-  {
-    header: 'P.H.',
-    accessor: 'vencimientoPH',
-    sortable: true,
-    render: (item: any) => {
-      const st = getPHExpirationStatus(item.vencimientoPH);
-      return (
-        <span style={{ color: st.color }} className="font-[800] text-[0.85rem] flex items-center gap-[0.3rem]">
-                        {st.icon && st.icon} {st.label} <br/>({st.expirationDate || '-'})
-                    </span>);
-
-    }
-  },
-  {
-    header: 'Vida Útil',
-    accessor: 'fechaFabricacion',
-    sortable: true,
-    render: (item: any) => {
-      const st = getLifespanStatus(item.fechaFabricacion);
-      if (!st) return <span className="text-slate-500 dark:text-slate-400 text-sm font-bold">Sin Dato</span>;
-      return (
-        <span style={{ color: st.color }} className="font-[800] text-[0.85rem] flex items-center gap-[0.3rem]">
-                        {st.icon && st.icon} {st.label}
-                    </span>);
-
-    }
-  },
-  {
-    header: 'Última Inspec.',
-    accessor: 'id',
-    sortable: false,
-    render: (item: any) => {
-      const lastInspection = item.inspections && item.inspections.length > 0 ? item.inspections[item.inspections.length - 1] : null;
-      if (!lastInspection) return <span className="text-slate-500 dark:text-slate-400 text-sm font-bold">-</span>;
-      return (
-        <span style={{ color: lastInspection.resultado === 'C' ? '#10b981' : '#ef4444' }} className="inline-flex items-center gap-[0.3rem] font-[700] text-[0.8rem]">
-                        <ShieldCheck size={14} /> 
-                        {new Date(lastInspection.fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')}
-                    </span>);
-
-    }
-  },
-  {
-    header: 'Acciones',
-    accessor: 'id',
-    render: (item: any) => {
-      const lastInspection = item.inspections && item.inspections.length > 0 ? item.inspections[item.inspections.length - 1] : null;
-      let isInspectedRecently = false;
-      if (lastInspection) {
-        const d = new Date(lastInspection.fechaVisita + 'T12:00:00Z');
-        const today = new Date();
-        const diffDays = Math.ceil((today.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
-        if (diffDays <= 35) {// 35 days to allow a bit of overlap for monthly inspections
-          isInspectedRecently = true;
-        }
+    },
+    {
+      header: 'Controles Físicos',
+      accessor: 'estadoFisico',
+      render: (item: any) => {
+        const mOk = item.checkManometro !== false;
+        const pOk = item.checkPrecinto !== false;
+        const sOk = item.checkSenalizacion !== false;
+        const aOk = item.checkAcceso !== false;
+        return (
+          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', maxWidth: '210px' }}>
+            <span style={{ backgroundColor: mOk ? '#f0fdf4' : '#fef2f2', color: mOk ? '#15803d' : '#dc2626', border: `1px solid ${mOk ? '#bbf7d0' : '#fecdd3'}`, padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>
+              {mOk ? '✓' : '✕'} Manómetro
+            </span>
+            <span style={{ backgroundColor: pOk ? '#eff6ff' : '#fef2f2', color: pOk ? '#1d4ed8' : '#dc2626', border: `1px solid ${pOk ? '#bfdbfe' : '#fecdd3'}`, padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>
+              {pOk ? '✓' : '✕'} Precinto
+            </span>
+            <span style={{ backgroundColor: sOk ? '#fff7ed' : '#fef2f2', color: sOk ? '#c2410c' : '#dc2626', border: `1px solid ${sOk ? '#fed7aa' : '#fecdd3'}`, padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>
+              {sOk ? '✓' : '✕'} Baliza
+            </span>
+            <span style={{ backgroundColor: aOk ? '#fdf4ff' : '#fef2f2', color: aOk ? '#86198f' : '#dc2626', border: `1px solid ${aOk ? '#f5d0fe' : '#fecdd3'}`, padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>
+              {aOk ? '✓' : '✕'} Acceso
+            </span>
+          </div>
+        );
       }
+    },
+    {
+      header: 'Última Inspec.',
+      accessor: 'id',
+      sortable: false,
+      render: (item: any) => {
+        const lastInspection = item.inspections && item.inspections.length > 0 ? item.inspections[item.inspections.length - 1] : null;
+        if (!lastInspection) return <span style={{ color: '#94a3b8', fontSize: '12px', fontStyle: 'italic' }}>Sin inspección</span>;
+        const isOk = lastInspection.resultado === 'C' || lastInspection.resultado === 'APROBADO';
+        return (
+          <span style={{ color: isOk ? '#16a34a' : '#dc2626', fontWeight: '900', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <ShieldCheck size={14} />
+            {new Date(lastInspection.fechaVisita + 'T12:00:00Z').toLocaleDateString('es-AR')}
+          </span>
+        );
+      }
+    },
+    {
+      header: 'Acciones',
+      accessor: 'id',
+      render: (item: any) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setPreviewItem(item)}
+            title="Vista Previa e Impresión A4"
+            style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Eye size={12} /> Previa
+          </button>
 
-      const inspColor = isInspectedRecently ? '#10b981' : '#ef4444';
-      const inspBg = isInspectedRecently ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)';
-      const inspBorder = isInspectedRecently ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
-
-      return (
-        <div className="flex items-center gap-1 overflow-x-auto whitespace-nowrap min-w-0">
           <button
             onClick={() => navigate(`/extintores/inspect/${item.id}`)}
-            className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white border-none text-[11px] font-extrabold rounded-lg cursor-pointer inline-flex items-center gap-1 shrink-0 transition-colors shadow-xs"
-            title="Inspeccionar Extintor">
-            <ShieldCheck size={13} /> Insp
+            title="Inspeccionar Extintor NFPA 10"
+            style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <ShieldCheck size={12} /> Insp
           </button>
 
           <button
             onClick={() => handleEdit(item)}
             title="Editar Extintor"
-            className="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white border-none text-[11px] font-extrabold rounded-lg cursor-pointer inline-flex items-center gap-1 shrink-0 transition-colors shadow-xs">
-            <Edit3 size={13} /> Editar
+            style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Edit3 size={12} /> Editar
           </button>
 
           <button
             onClick={() => requirePro(() => generateQR(item))}
             title="Ver Código QR"
-            className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-none text-[11px] font-extrabold rounded-lg cursor-pointer inline-flex items-center gap-1 shrink-0 transition-colors shadow-xs">
-            <QrCode size={13} /> QR
+            style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <QrCode size={12} /> QR
           </button>
 
           <button
             onClick={() => requirePro(() => setShareItem(item))}
-            title="Compartir Ficha"
-            className="px-2.5 py-1.5 bg-violet-600 hover:bg-violet-700 text-white border-none text-[11px] font-extrabold rounded-lg cursor-pointer inline-flex items-center gap-1 shrink-0 transition-colors shadow-xs">
-            <Share2 size={13} /> Compartir
+            title="Compartir / Exportar PDF"
+            style={{ backgroundColor: '#4f46e5', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Share2 size={12} /> PDF
           </button>
 
           <button
             onClick={() => handleDelete(item.id)}
             title="Eliminar Extintor"
-            className="px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white border-none text-[11px] font-extrabold rounded-lg cursor-pointer inline-flex items-center gap-1 shrink-0 transition-colors shadow-xs">
-            <Trash2 size={13} /> Eliminar
+            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '4px 10px', fontSize: '11px', fontWeight: '800', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Trash2 size={12} /> Eliminar
           </button>
         </div>
-      );
+      )
     }
-  }];
+  ];
 
+  const stats = { total: baseFiltered.length, vencidos: 0, porVencer: 0, operativos: 0 };
+  baseFiltered.forEach((ext) => {
+    const cat = getExtStatusCategory(ext);
+    stats[cat]++;
+  });
+  const complRate = stats.total > 0 ? Math.round(((stats.total - stats.vencidos) / stats.total) * 100) : 100;
 
   return (
-    <div className="container max-w-[1200px] mx-auto px-4 pb-32">
-            {!showForm &&
-      <>
-                    <PremiumHeader onBack={showForm ? () => {setShowForm(false);} : undefined}
+    <div className="container pb-[6rem] min-h-[100vh] flex flex-col pt-4">
+      <PremiumHeader
+        onBack={showForm ? () => { setShowForm(false); setEditingId(null); } : undefined}
         title="Control de Matafuegos"
-        subtitle="Inventario, trazabilidad NFPA 10 y Códigos QR"
-        icon={<Flame size={32} color="#ffffff" />}
-        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)" />
-        
+        subtitle="Gestión de extintores, vencimientos de carga y prueba hidráulica (IRAM 3517-2 / Dec. 351/79)"
+        icon={<Flame size={36} color="#ffffff" />}
+        color="linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)"
+      />
 
-                    <div className="flex justify-end gap-2.5 mb-4 mt-2 flex-wrap">
-                        <button
-                            onClick={() => navigate('/extinguisher-ai')}
-                            className="min-h-[3.25rem] px-5 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white border-none font-extrabold text-sm cursor-pointer inline-flex items-center justify-center gap-2 shadow-md hover:-translate-y-0.5 transition-all"
-                        >
-                            <Sparkles size={18} /> Analizar con IA
-                        </button>
-                        <button
-                            onClick={() => requirePro(() => setShowForm(true))}
-                            className="min-h-[3.25rem] px-6 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white border-none font-extrabold text-base cursor-pointer inline-flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_12px_25px_rgba(16,185,129,0.4)] hover:-translate-y-0.5 whitespace-nowrap transition-all"
-                        >
-                            <Plus size={22} strokeWidth={2.5} /> Registrar Matafuego
-                        </button>
-                    </div>
+      {!showForm && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div
+            onClick={() => setStatusFilter('all')}
+            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              statusFilter === 'all'
+                ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 shadow-md'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-blue-400'
+            }`}
+          >
+            <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Total Registrados</span>
+              <Flame size={20} />
+            </div>
+            <div className="text-2xl font-black text-slate-900 dark:text-white">{stats.total}</div>
+            <span className="text-[11px] text-slate-500">Equipos en padrón</span>
+          </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 animate-fade-in">
-                        {(() => {
-                            const stats = { total: baseFiltered.length, vencidos: 0, porVencer: 0, operativos: 0 };
-                            baseFiltered.forEach(ext => {
-                                const cat = getExtStatusCategory(ext);
-                                stats[cat]++;
-                            });
-                            const complRate = stats.total > 0 ? Math.round(((stats.total - stats.vencidos) / stats.total) * 100) : 100;
-                            return (
-                                <>
-                                    <button
-                                        type="button"
-                                        onClick={() => setStatusFilter('all')}
-                                        className={`bg-white dark:bg-slate-800 p-3 sm:p-5 rounded-2xl border shadow-sm flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left cursor-pointer transition-all hover:-translate-y-0.5 ${statusFilter === 'all' ? 'border-blue-500 ring-2 ring-blue-500/30' : 'border-slate-200 dark:border-slate-700'}`}
-                                    >
-                                        <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-xl"><Flame size={20} className="sm:w-6 sm:h-6" /></div>
-                                        <div className="overflow-hidden w-full"><p className="text-[0.65rem] sm:text-sm text-slate-500 dark:text-slate-400 font-bold mb-0 sm:mb-1 uppercase truncate">Total Equipos</p><h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white m-0">{stats.total}</h3></div>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setStatusFilter(prev => prev === 'vencidos' ? 'all' : 'vencidos')}
-                                        className={`bg-white dark:bg-slate-800 p-3 sm:p-5 rounded-2xl border shadow-sm flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left cursor-pointer transition-all hover:-translate-y-0.5 ${statusFilter === 'vencidos' ? 'border-red-500 ring-2 ring-red-500/30' : 'border-slate-200 dark:border-slate-700'}`}
-                                    >
-                                        <div className="p-2 sm:p-3 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 rounded-xl"><AlertTriangle size={20} className="sm:w-6 sm:h-6" /></div>
-                                        <div className="overflow-hidden w-full"><p className="text-[0.65rem] sm:text-sm text-slate-500 dark:text-slate-400 font-bold mb-0 sm:mb-1 uppercase truncate">Vencidos / Baja</p><h3 className="text-xl sm:text-2xl font-black text-red-600 dark:text-red-400 m-0">{stats.vencidos}</h3></div>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setStatusFilter(prev => prev === 'porVencer' ? 'all' : 'porVencer')}
-                                        className={`bg-white dark:bg-slate-800 p-3 sm:p-5 rounded-2xl border shadow-sm flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left cursor-pointer transition-all hover:-translate-y-0.5 ${statusFilter === 'porVencer' ? 'border-amber-500 ring-2 ring-amber-500/30' : 'border-slate-200 dark:border-slate-700'}`}
-                                    >
-                                        <div className="p-2 sm:p-3 bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 rounded-xl"><Calendar size={20} className="sm:w-6 sm:h-6" /></div>
-                                        <div className="overflow-hidden w-full"><p className="text-[0.65rem] sm:text-sm text-slate-500 dark:text-slate-400 font-bold mb-0 sm:mb-1 uppercase truncate" title="Próximos a Vencer">Próx. a Vencer</p><h3 className="text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400 m-0">{stats.porVencer}</h3></div>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setStatusFilter(prev => prev === 'operativos' ? 'all' : 'operativos')}
-                                        className={`bg-white dark:bg-slate-800 p-3 sm:p-5 rounded-2xl border shadow-sm flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left cursor-pointer transition-all hover:-translate-y-0.5 ${statusFilter === 'operativos' ? 'border-emerald-500 ring-2 ring-emerald-500/30' : 'border-slate-200 dark:border-slate-700'}`}
-                                    >
-                                        <div className="p-2 sm:p-3 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-xl"><Activity size={20} className="sm:w-6 sm:h-6" /></div>
-                                        <div className="overflow-hidden w-full"><p className="text-[0.65rem] sm:text-sm text-slate-500 dark:text-slate-400 font-bold mb-0 sm:mb-1 uppercase truncate" title="Cumplimiento">Cumplimiento</p><h3 className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 m-0">{complRate}%</h3></div>
-                                    </button>
-                                </>
-                            );
-                        })()}
-                    </div>
-                </>
-      }
+          <div
+            onClick={() => setStatusFilter('operativos')}
+            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              statusFilter === 'operativos'
+                ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 shadow-md'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-emerald-400'
+            }`}
+          >
+            <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Operativos Vigentes</span>
+              <CheckCircle2 size={20} />
+            </div>
+            <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{stats.operativos}</div>
+            <span className="text-[11px] text-slate-500">Equipos habilitados ({complRate}%)</span>
+          </div>
+
+          <div
+            onClick={() => setStatusFilter('porVencer')}
+            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              statusFilter === 'porVencer'
+                ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 shadow-md'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-amber-400'
+            }`}
+          >
+            <div className="flex items-center justify-between text-amber-600 dark:text-amber-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Próximos a Vencer</span>
+              <AlertTriangle size={20} />
+            </div>
+            <div className="text-2xl font-black text-amber-600 dark:text-amber-400">{stats.porVencer}</div>
+            <span className="text-[11px] text-slate-500">Vencen en ≤ 30 días / En revisión</span>
+          </div>
+
+          <div
+            onClick={() => setStatusFilter('vencidos')}
+            className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              statusFilter === 'vencidos'
+                ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-500 shadow-md'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-rose-400'
+            }`}
+          >
+            <div className="flex items-center justify-between text-rose-600 dark:text-rose-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider">Vencidos / Baja</span>
+              <XCircle size={20} />
+            </div>
+            <div className="text-2xl font-black text-rose-600 dark:text-rose-400">{stats.vencidos}</div>
+            <span className="text-[11px] text-slate-500">Requieren recarga o P.H.</span>
+          </div>
+        </div>
+      )}
 
             {showGlobalSignatureModal && createPortal(
       <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
@@ -1370,571 +1406,1053 @@ export default function ExtintoresManager() {
       }
 
 
-            {showForm ?
-      <div className="animate-fade-in ats-editor-panel">
-                    {(() => {
-                      const filledCount = [
-                        formData.numero,
-                        formData.ubicacion,
-                        formData.tipo,
-                        formData.capacidad,
-                        formData.vencimientoRecarga,
-                        formData.vencimientoPH,
-                        formData.fechaFabricacion
-                      ].filter(Boolean).length;
-                      const pct = Math.round((filledCount / 7) * 100);
-                      const recargaSt = formData.vencimientoRecarga ? getRecargaExpirationStatus(formData.vencimientoRecarga) : null;
-                      const phSt = formData.vencimientoPH ? getPHExpirationStatus(formData.vencimientoPH) : null;
-                      const vidaSt = formData.fechaFabricacion ? getLifespanStatus(formData.fechaFabricacion) : null;
-                      const scrollToSection = (step: number, id: string) => {
-                        setActiveFormStep(step);
-                        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      };
-                      return (
-                    <ModuleFormLayout>
-                        <ModuleFormToolbar
-                            title={editingId ? `Editar Extintor #${formData.numero || ''}` : 'Registrar Nuevo Extintor'}
-                            subtitle="Ficha Técnica y Trazabilidad IRAM 3517-2 / NFPA 10"
-                            icon={<Flame size={28} className="text-amber-500" />}
-                            progress={{
-                              percent: pct,
-                              label: pct === 100 ? 'Ficha completa' : `${filledCount}/7 campos clave`,
-                              color: pct >= 80 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#3b82f6'
+            {showForm ? (
+              <div className="glass-card p-6 sm:p-8 mt-6 rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl space-y-6 animate-fade-in">
+                {(() => {
+                  const recargaSt = formData.vencimientoRecarga ? getRecargaExpirationStatus(formData.vencimientoRecarga) : null;
+                  const phSt = formData.vencimientoPH ? getPHExpirationStatus(formData.vencimientoPH) : null;
+                  const vidaSt = formData.fechaFabricacion ? getLifespanStatus(formData.fechaFabricacion) : null;
+                  const isInoperante = formData.estadoFisico === 'Fuera de Servicio' || formData.estadoFisico === 'Dado de Baja';
+
+                  const regAlerts = [];
+                  if (vidaSt && vidaSt.label.includes('BAJA')) {
+                    regAlerts.push('Cilindro con vida útil cumplida (> 20 años desde fabricación). Según Norma IRAM 3517-2 debe ser retirado de servicio e inutilizado.');
+                  }
+                  if (recargaSt && recargaSt.label === 'Vencido') {
+                    regAlerts.push(`Carga anual vencida (${recargaSt.expirationDate}). Debe enviarse a taller habilitado y colocarse extintor sustituto de igual potencial.`);
+                  }
+                  if (phSt && phSt.label === 'Vencido') {
+                    regAlerts.push(`Prueba Hidráulica quinquenal (5 años) vencida (${phSt.expirationDate}). Prohibido recargar sin ensayo hidrostático previo.`);
+                  }
+                  if (isInoperante) {
+                    regAlerts.push(`Equipo calificado como "${formData.estadoFisico}". No computa para cubrir el potencial extintor del sector (Dec. 351/79 Anexo VII).`);
+                  }
+                  if (formData.checkManometro === false || formData.checkPrecinto === false || formData.checkSenalizacion === false || formData.checkAcceso === false) {
+                    regAlerts.push('Desvío físico en campo detectado (manómetro, precinto, baliza o acceso obstruido). Requiere acción correctiva inmediata.');
+                  }
+
+                  return (
+                    <>
+                      {/* Header del Formulario estilo Aptitudes Médicas */}
+                      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700 flex-wrap gap-3">
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => { setShowForm(false); setEditingId(null); }}
+                            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer mr-1"
+                            title="Volver al Padrón"
+                          >
+                            <ArrowLeft size={20} />
+                          </button>
+                          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+                            <Flame size={22} />
+                          </div>
+                          <div>
+                            <h2 className="m-0 text-xl font-extrabold text-slate-900 dark:text-white">
+                              {editingId ? `Editar Matafuego #${formData.numero || ''}` : 'Nuevo Registro de Matafuego'}
+                            </h2>
+                            <p className="m-0 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                              Complete los datos técnicos, fechas reglamentarias y controles IRAM 3517-2 / Dec. 351/79
+                            </p>
+                          </div>
+                        </div>
+
+                        <label className="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-xs rounded-xl cursor-pointer shadow-sm transition-all flex items-center gap-2">
+                          <Sparkles size={15} /> {isScanningMarbete ? 'Analizando marbete...' : 'Escanear Marbete con IA'}
+                          <input type="file" accept="image/*" capture="environment" ref={marbeteCameraRef} onChange={handleMarbeteScan} className="hidden" />
+                        </label>
+                      </div>
+
+                      {/* Banner de Auditoría Regulatoria en Vivo (Estilo Aptitudes Médicas) */}
+                      {regAlerts.length > 0 ? (
+                        <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 space-y-2">
+                          <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-extrabold text-xs uppercase tracking-wider">
+                            <AlertOctagon size={16} /> Auditoría Regulatoria Dec. 351/79 Anexo VII &amp; Norma IRAM 3517-2
+                          </div>
+                          <ul className="m-0 pl-4 space-y-1 text-xs text-amber-900 dark:text-amber-200 font-semibold list-disc">
+                            {regAlerts.map((alert, idx) => (
+                              <li key={idx}>{alert}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : (
+                        <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-700/50 flex items-center gap-2.5 text-xs text-emerald-800 dark:text-emerald-300 font-bold">
+                          <CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                          <span>Vigencia de carga anual, prueba hidráulica, vida útil y controles físicos conformes al Dec. 351/79 Anexo VII y Norma IRAM 3517-2.</span>
+                        </div>
+                      )}
+
+                      {/* Grilla Principal de Campos Técnicos */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+                        <div>
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Nº Chapa / Identificador *</label>
+                          <input
+                            required
+                            type="text"
+                            value={formData.numero}
+                            onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 outline-none font-semibold text-sm text-slate-900 dark:text-white"
+                            placeholder="Ej. EXT-001 o Nº Marbete"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Razón Social / Establecimiento</label>
+                          <input
+                            type="text"
+                            value={formData.empresa || ''}
+                            onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 outline-none font-semibold text-sm text-slate-900 dark:text-white"
+                            placeholder="Ej. Planta Industrial S.A."
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Ubicación Física / Sector *</label>
+                          <input
+                            required
+                            type="text"
+                            value={formData.ubicacion}
+                            onChange={(e) => setFormData({ ...formData, ubicacion: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 outline-none font-semibold text-sm text-slate-900 dark:text-white"
+                            placeholder="Ej. Pasillo Principal / Sala de Tableros"
+                          />
+                        </div>
+
+                        {/* Guía Oficial Dec. 351/79 Anexo VII & IRAM 3517-2 */}
+                        <div className="col-span-full p-4 rounded-2xl bg-gradient-to-r from-amber-900/10 to-orange-900/10 border border-amber-500/20">
+                          <div className="flex items-center gap-2 mb-2 font-black text-xs text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+                            <Sparkles size={16} /> Guía Oficial Dec. 351/79 Anexo VII &amp; IRAM 3517-2 — Clases de Fuego y Agentes Extintores
+                          </div>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {[
+                              { id: 'a', label: '🔥 Clase A (Sólidos: Madera/Papel)', tip: 'Agentes: Agua, Espuma AFFF, Polvo ABC. Distancia máx: 20 metros.' },
+                              { id: 'b', label: '🛢️ Clase B (Líquidos e Inflamables)', tip: 'Agentes: Polvo ABC, Espuma AFFF, CO2. Distancia máx: 15 metros.' },
+                              { id: 'c', label: '⚡ Clase C (Riesgo Eléctrico)', tip: 'Agentes no conductores: CO2, Polvo ABC, Haloclean HCFC. Prohibido Agua/Espuma.' },
+                              { id: 'd', label: '⚙️ Clase D (Metales Combustibles)', tip: 'Agentes especiales: Polvo específico para Magnesio, Sodio, Aluminio o Litio.' },
+                              { id: 'k', label: '🍳 Clase K (Aceites y Cocinas)', tip: 'Agente específico: Acetato de Potasio (saponificación y enfriamiento).' }
+                            ].map((item) => (
+                              <div
+                                key={item.id}
+                                className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-extrabold text-slate-800 dark:text-slate-200 shadow-sm cursor-default"
+                                title={item.tip}
+                              >
+                                {item.label}
+                              </div>
+                            ))}
+                          </div>
+                          <p className="m-0 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                            💡 Criterio reglamentario: Altura de montaje de 1,20 m a 1,50 m sobre el nivel del solado. Recarga obligatoria anual (1 año) y Prueba Hidráulica cada 5 años (IRAM 3517-2).
+                          </p>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Tipo de Agente Extintor</label>
+                          <select
+                            value={formatType(formData.tipo)}
+                            onChange={(e) => {
+                              const nextTipo = e.target.value;
+                              const defaultPot = nextTipo.includes('CO2') ? '5B C' : nextTipo === 'K' ? '2A K' : '3A 10B C';
+                              setFormData({ ...formData, tipo: nextTipo, potencialExtintor: formData.potencialExtintor || defaultPot });
                             }}
-                            steps={['Datos Generales', 'Control y Mantenimiento', 'Firmas']}
-                            currentStep={activeFormStep}
-                            onBack={() => { setShowForm(false); setEditingId(null); }}
-                            onStepClick={(step) => {
-                              if (step === 1) scrollToSection(1, 'ext-sec-general');
-                              if (step === 2) scrollToSection(2, 'ext-sec-control');
-                              if (step === 3) scrollToSection(3, 'ext-sec-firmas');
-                            }}
-                        />
-                    
-                    <ModuleFormDocument id="extinguisher-form">
-                        {/* Encabezado de Ficha estilo ATS */}
-                        <div
-                            className="flex flex-col sm:flex-row justify-between items-center pb-5 mb-6 w-full gap-4"
-                            style={{ borderBottom: '3px solid var(--color-border)' }}
-                        >
-                            <div className="text-center sm:text-left">
-                                <p className="m-0 font-bold text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                                    Sistema de Gestión Preventiva
-                                </p>
-                                <p className="m-0 font-black text-xs uppercase text-slate-800 dark:text-slate-100">
-                                    Ley 19.587 • Dec. 351/79 • IRAM 3517-2
-                                </p>
-                            </div>
-
-                            <div className="flex flex-col items-center justify-center text-center">
-                                <h1 className="m-0 font-black text-2xl sm:text-3xl tracking-tight uppercase leading-none text-slate-900 dark:text-white">
-                                    MATAFUEGO
-                                </h1>
-                                <p className="m-0 font-black text-[10px] uppercase tracking-widest mt-1 text-slate-500 dark:text-slate-400">
-                                    Ficha Técnica y Control de Extintor
-                                </p>
-                            </div>
-
-                            <div className="text-center sm:text-right flex flex-col items-center sm:items-end gap-1.5">
-                                <CompanyLogo className="h-[38px] max-w-[120px]" />
-                                <span
-                                    className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full"
-                                    style={{
-                                        backgroundColor: 'rgba(245, 158, 11, 0.14)',
-                                        color: '#d97706'
-                                    }}
-                                >
-                                    {formData.numero ? `CHAPA #${formData.numero}` : 'NUEVO EQUIPO'}
-                                </span>
-                            </div>
+                            className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 outline-none font-semibold text-sm text-slate-900 dark:text-white cursor-pointer"
+                          >
+                            {types.map((t) => <option key={t} value={t}>{t}</option>)}
+                          </select>
                         </div>
 
-                        <div className="no-print mb-6 p-4 bg-gradient-to-r from-sky-500/10 to-indigo-500/10 rounded-2xl border border-sky-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-sky-500/20 text-sky-600 dark:text-sky-400 rounded-xl">
-                                    <Sparkles size={24} className="animate-pulse" />
-                                </div>
-                                <div>
-                                    <h4 className="m-0 font-extrabold text-slate-800 dark:text-slate-200">Autocompletado Rápido con IA</h4>
-                                    <p className="m-0 text-xs text-slate-500 dark:text-slate-400">Subí una foto del marbete/etiqueta para completar automáticamente tipo, capacidad y vencimientos.</p>
-                                </div>
-                            </div>
-                            <label className="shrink-0 px-5 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-sm rounded-xl cursor-pointer shadow-[0_4px_12px_rgba(2,132,199,0.3)] transition-transform hover:-translate-y-0.5 flex items-center gap-2">
-                                <Camera size={18} /> {isScanningMarbete ? 'Analizando...' : 'Escanear Etiqueta'}
-                                <input type="file" accept="image/*" capture="environment" ref={marbeteCameraRef} onChange={handleMarbeteScan} className="hidden" />
-                            </label>
-                        </div>
-                        <div id="ext-sec-general" className="scroll-mt-24">
-                        <ModuleFormSection title="Datos Generales" icon={<Info size={20} />}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                            <div>
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">Nº CHAPA / ID</label>
-                                <input required type="text" value={formData.numero} onChange={(e) => setFormData({ ...formData, numero: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: EXT-01" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">CLIENTE / EMPRESA</label>
-                                <input type="text" value={formData.empresa || ''} onChange={(e) => setFormData({ ...formData, empresa: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: Empresa S.A." />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">Nº DE SERIE (FABRICANTE)</label>
-                                <input type="text" value={formData.numeroSerie} onChange={(e) => setFormData({ ...formData, numeroSerie: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 12345678" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">MARCA</label>
-                                <input type="text" value={formData.marca} onChange={(e) => setFormData({ ...formData, marca: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: Georgia, Melisam..." />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">TIPO DE AGENTE</label>
-                                <select value={formatType(formData.tipo)} onChange={(e) => setFormData({ ...formData, tipo: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
-                                    {types.map((t) => <option key={t} value={t}>{t}</option>)}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">CAPACIDAD</label>
-                                {!(customCapacityMode || (Boolean(formData.capacidad) && !CAPACITY_PRESETS.includes(formData.capacidad))) ? (
-                                    <select
-                                        value={CAPACITY_PRESETS.includes(formData.capacidad) ? formData.capacidad : '5 kg'}
-                                        onChange={(e) => {
-                                            if (e.target.value === '__custom__') {
-                                                setCustomCapacityMode(true);
-                                            } else {
-                                                setCustomCapacityMode(false);
-                                                setFormData({ ...formData, capacidad: e.target.value });
-                                            }
-                                        }}
-                                        className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none"
-                                    >
-                                        {CAPACITY_PRESETS.map((cap) => (
-                                            <option key={cap} value={cap}>{cap}</option>
-                                        ))}
-                                        <option value="__custom__">✏️ Personalizar / Editar...</option>
-                                    </select>
-                                ) : (
-                                    <div className="flex gap-1.5">
-                                        <input
-                                            type="text"
-                                            value={formData.capacidad}
-                                            onChange={(e) => setFormData({ ...formData, capacidad: e.target.value })}
-                                            className="w-full p-3 rounded-xl border border-blue-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none"
-                                            placeholder="Ej: 7 kg"
-                                            autoFocus
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setCustomCapacityMode(false);
-                                                if (!CAPACITY_PRESETS.includes(formData.capacidad)) {
-                                                    setFormData({ ...formData, capacidad: '5 kg' });
-                                                }
-                                            }}
-                                            className="px-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 shrink-0 cursor-pointer"
-                                            title="Volver al listado"
-                                        >
-                                            Lista
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                            <div>
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">UBICACIÓN FÍSICA</label>
-                                <input required type="text" value={formData.ubicacion} onChange={(e) => setFormData({ ...formData, ubicacion: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: Pasillo principal 1er piso" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">ESTADO FÍSICO</label>
-                                <select value={formData.estadoFisico || 'Operativo'} onChange={(e) => setFormData({ ...formData, estadoFisico: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
-                                    <option value="Operativo">✅ Operativo</option>
-                                    <option value="Revisión">⚠️ En Revisión</option>
-                                    <option value="En Recarga">🔄 En Recarga (Taller)</option>
-                                    <option value="Fuera de Servicio">🚫 Fuera de Servicio</option>
-                                    <option value="Dado de Baja">🗑️ Dado de Baja</option>
-                                </select>
-                            </div>
-                            <div className="col-span-full">
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">FOTO DEL EQUIPO (OPCIONAL)</label>
-                                <div className="flex items-center gap-4">
-                                    <label className={`px-6 py-3 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-dashed border-blue-500/40 rounded-xl cursor-pointer flex items-center gap-2 font-extrabold transition-opacity ${isUploadingPhoto ? 'opacity-50 pointer-events-none' : 'hover:bg-blue-50 dark:hover:bg-blue-900/30'}`}>
-                                        <Camera size={20} /> {isUploadingPhoto ? 'Optimizando...' : 'Subir Foto'}
-                                        <input type="file" accept="image/*" disabled={isUploadingPhoto} onChange={handlePhotoUpload} className="hidden" />
-                                    </label>
-                                    {formData.foto &&
-                                        <div className="relative w-[60px] h-[60px] rounded-lg overflow-hidden border-2 border-slate-300 dark:border-slate-600 shadow-sm">
-                                            <img src={formData.foto} alt="Extintor" className="w-full h-full object-cover" />
-                                            <button type="button" onClick={() => setFormData({ ...formData, foto: null })} className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white border-none w-[20px] h-[20px] text-[10px] flex items-center justify-center cursor-pointer transition-colors" title="Eliminar foto">✕</button>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                        </ModuleFormSection>
-                        </div>
-
-                        <div id="ext-sec-control" className="scroll-mt-24">
-                        <ModuleFormSection title="Control y Mantenimiento" icon={<Calendar size={20} />}>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/70">
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">FECHA DE FABRICACIÓN</label>
-                                <input type="date" value={formData.fechaFabricacion} onChange={(e) => setFormData({ ...formData, fechaFabricacion: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" />
-                                {vidaSt && (
-                                    <span className="inline-flex items-center gap-1 mt-2 text-[11px] font-extrabold px-2.5 py-1 rounded-lg" style={{ backgroundColor: vidaSt.bg, color: vidaSt.color }}>
-                                        {vidaSt.icon} {vidaSt.label}
-                                    </span>
-                                )}
-                            </div>
-                            <div className="p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/70">
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">ÚLTIMA CARGA (ANUAL)</label>
-                                <input required type="date" value={formData.vencimientoRecarga} onChange={(e) => setFormData({ ...formData, vencimientoRecarga: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" />
-                                {recargaSt?.expirationDate && (
-                                    <span className="inline-flex items-center gap-1 mt-2 text-[11px] font-extrabold px-2.5 py-1 rounded-lg" style={{ backgroundColor: recargaSt.bg, color: recargaSt.color }}>
-                                        {recargaSt.icon} {recargaSt.label} (Vto: {recargaSt.expirationDate})
-                                    </span>
-                                )}
-                            </div>
-                            <div className="p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/70">
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">ÚLTIMA PRUEBA HIDRÁULICA (5 AÑOS)</label>
-                                <input type="date" value={formData.vencimientoPH} onChange={(e) => setFormData({ ...formData, vencimientoPH: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" />
-                                {phSt?.expirationDate && (
-                                    <span className="inline-flex items-center gap-1 mt-2 text-[11px] font-extrabold px-2.5 py-1 rounded-lg" style={{ backgroundColor: phSt.bg, color: phSt.color }}>
-                                        {phSt.icon} {phSt.label} (Vto: {phSt.expirationDate})
-                                    </span>
-                                )}
-                            </div>
-                            <div className="p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/70">
-                                <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase mb-2">SELLO IRAM / OPDS</label>
-                                <input type="text" value={formData.selloIRAM} onChange={(e) => setFormData({ ...formData, selloIRAM: e.target.value })} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 12345" />
-                            </div>
-                        </div>
-                        </ModuleFormSection>
-                        </div>
-
-                        <div id="ext-sec-firmas" className="scroll-mt-24">
-                        <ModuleFormSection title="Firmas de la Ficha" icon={<Pencil size={20} />}>
-                            <div
-                                className="no-print mb-6 p-3.5 rounded-2xl flex flex-wrap gap-4 justify-center items-center"
-                                style={{
-                                    backgroundColor: 'var(--color-background)',
-                                    border: '1px solid var(--color-border)'
-                                }}
+                        <div>
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Capacidad Nominal</label>
+                          {!(customCapacityMode || (Boolean(formData.capacidad) && !CAPACITY_PRESETS.includes(formData.capacidad))) ? (
+                            <select
+                              value={CAPACITY_PRESETS.includes(formData.capacidad) ? formData.capacidad : '5 kg'}
+                              onChange={(e) => {
+                                if (e.target.value === '__custom__') {
+                                  setCustomCapacityMode(true);
+                                } else {
+                                  setCustomCapacityMode(false);
+                                  setFormData({ ...formData, capacidad: e.target.value });
+                                }
+                              }}
+                              className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 outline-none font-semibold text-sm text-slate-900 dark:text-white cursor-pointer"
                             >
-                                <span className="font-black text-xs uppercase text-slate-700 dark:text-slate-200">
-                                    Incluir Firmas en el PDF:
-                                </span>
-                                <div className="flex gap-2 flex-wrap justify-center">
-                                    {[
-                                        { id: 'operator', label: 'Responsable / Operador' },
-                                        { id: 'supervisor', label: 'Supervisor / Cliente' },
-                                        { id: 'professional', label: 'Profesional H&S' }
-                                    ].map((sig) => {
-                                        const isChecked = !!formData.showSignatures?.[sig.id as keyof typeof formData.showSignatures];
-                                        return (
-                                            <button
-                                                key={sig.id}
-                                                type="button"
-                                                onClick={() =>
-                                                    setFormData((prev: any) => ({
-                                                        ...prev,
-                                                        showSignatures: {
-                                                            ...prev.showSignatures,
-                                                            [sig.id]: !isChecked
-                                                        }
-                                                    }))
-                                                }
-                                                style={{
-                                                    marginBottom: 0,
-                                                    padding: '0.45rem 0.9rem',
-                                                    borderRadius: '9999px',
-                                                    backgroundColor: isChecked ? 'rgba(37, 99, 235, 0.12)' : 'var(--color-surface)',
-                                                    color: isChecked ? '#2563eb' : 'var(--color-text-light)',
-                                                    border: `1.5px solid ${isChecked ? '#2563eb' : 'var(--color-border)'}`,
-                                                    fontWeight: 800,
-                                                    fontSize: '0.76rem',
-                                                    display: 'inline-flex',
-                                                    alignItems: 'center',
-                                                    gap: '0.4rem',
-                                                    cursor: 'pointer'
-                                                }}
-                                            >
-                                                {isChecked && <CheckCircle2 size={14} />}
-                                                {sig.label}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            <PdfSignatures
-                                data={{
-                                    ...formData,
-                                    professionalSignature: professionalData?.signature,
-                                    professionalName: professionalData?.name,
-                                    professionalLicense: professionalData?.license
+                              {CAPACITY_PRESETS.map((cap) => (
+                                <option key={cap} value={cap}>{cap}</option>
+                              ))}
+                              <option value="__custom__">✏️ Personalizar / Editar...</option>
+                            </select>
+                          ) : (
+                            <div className="flex gap-1.5">
+                              <input
+                                type="text"
+                                value={formData.capacidad}
+                                onChange={(e) => setFormData({ ...formData, capacidad: e.target.value })}
+                                className="w-full p-3 rounded-xl border border-amber-500 bg-white dark:bg-slate-900 font-semibold text-sm text-slate-900 dark:text-white outline-none"
+                                placeholder="Ej: 7 kg"
+                                autoFocus
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setCustomCapacityMode(false);
+                                  if (!CAPACITY_PRESETS.includes(formData.capacidad)) {
+                                    setFormData({ ...formData, capacidad: '5 kg' });
+                                  }
                                 }}
-                                box1={
-                                    formData.showSignatures?.operator
-                                        ? {
-                                            title: 'RESPONSABLE / OPERADOR',
-                                            subtitle: 'FIRMA DEL RESPONSABLE',
-                                            signatureUrl: formData.operatorSignature || null,
-                                            isProfessional: false
-                                        }
-                                        : null
-                                }
-                                box2={
-                                    formData.showSignatures?.supervisor
-                                        ? {
-                                            title: 'SUPERVISOR / CLIENTE',
-                                            subtitle: 'FIRMA DEL SUPERVISOR',
-                                            signatureUrl: formData.supervisorSignature || null,
-                                            isProfessional: false
-                                        }
-                                        : null
-                                }
-                                box3={
-                                    formData.showSignatures?.professional
-                                        ? {
-                                            title: 'PROFESIONAL ACTUANTE',
-                                            subtitle: (professionalData?.name || 'Firma y Sello').toUpperCase(),
-                                            signatureUrl: professionalData?.signature || null,
-                                            isProfessional: true,
-                                            license: professionalData?.license
-                                        }
-                                        : null
-                                }
-                            />
-
-                            {(formData.showSignatures?.operator || formData.showSignatures?.supervisor) && (
-                                <div className="no-print mt-6 pt-6 border-t grid grid-cols-1 md:grid-cols-2 gap-5" style={{ borderColor: 'var(--color-border)' }}>
-                                    {formData.showSignatures?.operator && (
-                                        <div
-                                            className="p-4 rounded-2xl"
-                                            style={{
-                                                backgroundColor: 'var(--color-surface)',
-                                                border: '1px solid var(--color-border)'
-                                            }}
-                                        >
-                                            <SignatureCanvas
-                                                onSave={(sig) => setFormData((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
-                                                initialImage={formData.operatorSignature}
-                                                label="Firma del Responsable / Operador"
-                                            />
-                                        </div>
-                                    )}
-                                    {formData.showSignatures?.supervisor && (
-                                        <div
-                                            className="p-4 rounded-2xl"
-                                            style={{
-                                                backgroundColor: 'var(--color-surface)',
-                                                border: '1px solid var(--color-border)'
-                                            }}
-                                        >
-                                            <SignatureCanvas
-                                                onSave={(sig) => setFormData((prev: any) => ({ ...prev, supervisorSignature: sig || '' }))}
-                                                initialImage={formData.supervisorSignature}
-                                                label="Firma del Supervisor / Cliente"
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </ModuleFormSection>
+                                className="px-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-200 shrink-0 cursor-pointer"
+                              >
+                                Lista
+                              </button>
+                            </div>
+                          )}
                         </div>
-                    </ModuleFormDocument>
 
-                    <ModuleActionBar
+                        <div>
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Potencial Extintor (Dec. 351/79)</label>
+                          <select
+                            value={formData.potencialExtintor || '3A 10B C'}
+                            onChange={(e) => setFormData({ ...formData, potencialExtintor: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 outline-none font-semibold text-sm text-slate-900 dark:text-white cursor-pointer"
+                          >
+                            <option value="1A 2B C">1A 2B C (1 kg / 2.5 kg)</option>
+                            <option value="3A 10B C">3A 10B C (5 kg Estándar)</option>
+                            <option value="6A 40B C">6A 40B C (5 kg / 10 kg Alta Eficiencia)</option>
+                            <option value="10A 60B C">10A 60B C (10 kg / 25 kg Industrial)</option>
+                            <option value="20A 80B C">20A 80B C (Carro 25 kg / 50 kg)</option>
+                            <option value="5B C">5B C (CO₂ 3.5 kg / 5 kg)</option>
+                            <option value="10B C">10B C (CO₂ 10 kg)</option>
+                            <option value="2A">2A (Agua 10 lts)</option>
+                            <option value="2A 10B">2A 10B (Espuma AFFF 10 lts)</option>
+                            <option value="2A K">2A K (Acetato de Potasio 6 lts / 10 lts)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Marca / Fabricante</label>
+                          <input
+                            type="text"
+                            value={formData.marca}
+                            onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 outline-none font-semibold text-sm text-slate-900 dark:text-white"
+                            placeholder="Ej. Melisam, Georgia, Yukon, Drago..."
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Nº de Serie del Cilindro</label>
+                          <input
+                            type="text"
+                            value={formData.numeroSerie}
+                            onChange={(e) => setFormData({ ...formData, numeroSerie: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 outline-none font-semibold text-sm text-slate-900 dark:text-white"
+                            placeholder="Acuñado en ojiva del cilindro"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Sello IRAM / Marbete OPDS-GCBA</label>
+                          <input
+                            type="text"
+                            value={formData.selloIRAM}
+                            onChange={(e) => setFormData({ ...formData, selloIRAM: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 outline-none font-semibold text-sm text-slate-900 dark:text-white"
+                            placeholder="Ej. DPS-123456 / IRAM 3517"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Taller Recargador Habilitado</label>
+                          <input
+                            type="text"
+                            value={formData.recargadora || ''}
+                            onChange={(e) => setFormData({ ...formData, recargadora: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 outline-none font-semibold text-sm text-slate-900 dark:text-white"
+                            placeholder="Nombre o Nº de Registro del Taller"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Soporte y Altura de Montaje</label>
+                          <select
+                            value={formData.tipoMontaje || 'Soporte mural (1.20m - 1.50m)'}
+                            onChange={(e) => setFormData({ ...formData, tipoMontaje: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 outline-none font-semibold text-sm text-slate-900 dark:text-white cursor-pointer"
+                          >
+                            <option value="Soporte mural (1.20m - 1.50m)">Soporte mural con chapa baliza (1,20m - 1,50m)</option>
+                            <option value="Gabinete / Nicho vidriado">Gabinete / Nicho metálico señalizado</option>
+                            <option value="Pedestal / Columna baliza">Pedestal / Columna de piso demarcada</option>
+                            <option value="Carro rodante">Carro rodante de intervención</option>
+                            <option value="Soporte vehicular">Soporte vehicular con abrazadera rápida</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Dictamen / Estado Operativo</label>
+                          <select
+                            value={formData.estadoFisico || 'Operativo'}
+                            onChange={(e) => {
+                              const nextEst = e.target.value;
+                              const isBaja = nextEst === 'Fuera de Servicio' || nextEst === 'Dado de Baja';
+                              setFormData((prev: any) => ({
+                                ...prev,
+                                estadoFisico: nextEst,
+                                checkManometro: isBaja ? false : prev.checkManometro,
+                                checkPrecinto: isBaja ? false : prev.checkPrecinto
+                              }));
+                            }}
+                            className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 outline-none font-extrabold text-sm cursor-pointer"
+                            style={{
+                              color: formData.estadoFisico === 'Operativo' ? '#10b981' :
+                                     formData.estadoFisico === 'Fuera de Servicio' || formData.estadoFisico === 'Dado de Baja' ? '#ef4444' : '#f59e0b'
+                            }}
+                          >
+                            <option value="Operativo">🟢 OPERATIVO Y HABILITADO</option>
+                            <option value="Revisión">🟡 EN REVISIÓN / CON OBSERVACIONES</option>
+                            <option value="En Recarga">🔄 EN RECARGA (TALLER / CON SUSTITUTO)</option>
+                            <option value="Fuera de Servicio">🔴 FUERA DE SERVICIO (DESPRESURIZADO / DAÑADO)</option>
+                            <option value="Dado de Baja">⚫ DADO DE BAJA (VIDA ÚTIL CUMPLIDA &gt;20 AÑOS)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Fecha de Fabricación (20 Años máx)</label>
+                          <input
+                            type="date"
+                            value={formData.fechaFabricacion}
+                            onChange={(e) => setFormData({ ...formData, fechaFabricacion: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 outline-none font-semibold text-sm text-slate-900 dark:text-white"
+                          />
+                          {vidaSt && (
+                            <span className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-extrabold px-2.5 py-0.5 rounded-md" style={{ backgroundColor: vidaSt.bg, color: vidaSt.color }}>
+                              {vidaSt.icon} {vidaSt.label}
+                            </span>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Fecha Última Recarga (Anual) *</label>
+                          <input
+                            required
+                            type="date"
+                            value={formData.vencimientoRecarga}
+                            onChange={(e) => setFormData({ ...formData, vencimientoRecarga: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 outline-none font-semibold text-sm text-slate-900 dark:text-white"
+                          />
+                          {recargaSt?.expirationDate && (
+                            <span className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-extrabold px-2.5 py-0.5 rounded-md" style={{ backgroundColor: recargaSt.bg, color: recargaSt.color }}>
+                              {recargaSt.icon} {recargaSt.label} (Vto: {recargaSt.expirationDate})
+                            </span>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">Fecha Última Prueba Hidráulica (5 Años)</label>
+                          <input
+                            type="date"
+                            value={formData.vencimientoPH}
+                            onChange={(e) => setFormData({ ...formData, vencimientoPH: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 outline-none font-semibold text-sm text-slate-900 dark:text-white"
+                          />
+                          {phSt?.expirationDate && (
+                            <span className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-extrabold px-2.5 py-0.5 rounded-md" style={{ backgroundColor: phSt.bg, color: phSt.color }}>
+                              {phSt.icon} {phSt.label} (Vto: {phSt.expirationDate})
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Tarjetas Interactivas de Verificación Física en Campo (Estilo Aptitudes Médicas) */}
+                      <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 space-y-3">
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <span className="block text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                            Verificación Física Rápida en Campo (IRAM 3517-2 / NFPA 10)
+                          </span>
+                          {isInoperante && (
+                            <span className="text-[11px] font-extrabold text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-950/60 px-2 py-0.5 rounded-md">
+                              ⛔ Equipo Fuera de Servicio / Dado de Baja
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                          {[
+                            { key: 'checkManometro', label: 'Manómetro en Zona Verde', icon: <Activity size={18} /> },
+                            { key: 'checkPrecinto', label: 'Precinto y Chaveta Intactos', icon: <ShieldCheck size={18} /> },
+                            { key: 'checkSenalizacion', label: 'Chapa Baliza y Señalización', icon: <Flame size={18} /> },
+                            { key: 'checkAcceso', label: 'Acceso Libre (Sin Obstrucción)', icon: <MapPin size={18} /> }
+                          ].map((chk) => {
+                            const isOk = formData[chk.key] !== false;
+                            return (
+                              <div
+                                key={chk.key}
+                                onClick={() => setFormData((prev: any) => ({ ...prev, [chk.key]: !isOk }))}
+                                style={{
+                                  backgroundColor: isOk ? '#dcfce7' : '#fff5f5',
+                                  border: isOk ? '2px solid #16a34a' : '1px solid #fca5a5',
+                                  color: isOk ? '#15803d' : '#991b1b',
+                                  padding: '12px 14px',
+                                  borderRadius: '12px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  cursor: 'pointer',
+                                  userSelect: 'none'
+                                }}
+                              >
+                                <div className="flex items-center gap-2.5">
+                                  <span style={{ color: isOk ? '#16a34a' : '#dc2626' }}>{chk.icon}</span>
+                                  <span style={{ fontSize: '12px', fontWeight: '800' }}>{chk.label}</span>
+                                </div>
+                                <div
+                                  style={{
+                                    width: '22px',
+                                    height: '22px',
+                                    borderRadius: '6px',
+                                    backgroundColor: isOk ? '#16a34a' : '#ef4444',
+                                    color: '#ffffff',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '13px',
+                                    fontWeight: '900'
+                                  }}
+                                >
+                                  {isOk ? '✓' : '✕'}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Observaciones y Evidencia Fotográfica */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                            Observaciones Técnicas y Recomendaciones de Mantenimiento
+                          </label>
+                          <textarea
+                            value={formData.observaciones || ''}
+                            onChange={(e) => setFormData({ ...formData, observaciones: e.target.value })}
+                            rows={3}
+                            className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 outline-none font-semibold text-sm text-slate-900 dark:text-white"
+                            placeholder="Ej. Verificar estado de manguera y tobera mensualmente. Mantener despejado a 1,50 m de radio..."
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-extrabold mb-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                            Fotografía del Equipo (Opcional)
+                          </label>
+                          <div className="flex items-center gap-3">
+                            <label className={`flex-1 py-3 px-4 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-dashed border-blue-500/40 rounded-xl cursor-pointer flex items-center justify-center gap-2 font-extrabold text-xs transition-opacity ${isUploadingPhoto ? 'opacity-50 pointer-events-none' : 'hover:bg-blue-50 dark:hover:bg-blue-900/30'}`}>
+                              <Camera size={18} /> {isUploadingPhoto ? 'Optimizando...' : 'Subir / Tomar Foto'}
+                              <input type="file" accept="image/*" disabled={isUploadingPhoto} onChange={handlePhotoUpload} className="hidden" />
+                            </label>
+                            {formData.foto && (
+                              <div className="relative w-[64px] h-[64px] rounded-xl overflow-hidden border-2 border-slate-300 dark:border-slate-600 shadow-sm shrink-0">
+                                <img src={formData.foto} alt="Extintor" className="w-full h-full object-cover" />
+                                <button
+                                  type="button"
+                                  onClick={() => setFormData({ ...formData, foto: null })}
+                                  className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white border-none w-[20px] h-[20px] text-[10px] flex items-center justify-center cursor-pointer"
+                                  title="Eliminar foto"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* ─── SECCIÓN 4: FIRMAS DIGITALIZADAS Y VALIDACIÓN DOCUMENTAL (ESTILO APTITUDES MÉDICAS) ─── */}
+                      <div className="pt-6 border-t border-slate-200 dark:border-slate-700 space-y-6">
+                        <div className="flex items-center justify-between flex-wrap gap-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
+                              <Pencil size={20} />
+                            </div>
+                            <div>
+                              <h4 className="m-0 font-black text-sm uppercase text-slate-900 dark:text-white tracking-tight">
+                                4. Firmas Digitalizadas y Validación Documental
+                              </h4>
+                              <p className="m-0 text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                                Si el responsable del sector no está presente ahora, su recuadro queda en blanco para firmar en campo. El Profesional H&amp;S queda firmado digitalmente.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Selector de Firmas a Incluir en la Ficha */}
+                        <div className="p-5 bg-slate-100/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl flex flex-col gap-3 items-center justify-center">
+                          <div className="text-slate-800 dark:text-slate-200 font-extrabold text-xs uppercase tracking-wider">
+                            INCLUIR FIRMAS EN LA FICHA IMPRESA / PDF:
+                          </div>
+                          <div className="flex gap-3 flex-wrap justify-center">
+                            {[
+                              { id: 'operator', label: 'Responsable / Operador (Opcional en planta)' },
+                              { id: 'supervisor', label: 'Supervisor / Cliente' },
+                              { id: 'professional', label: 'Profesional H&S (Digitalizada)' }
+                            ].map((sig) => {
+                              const isChecked = !!formData.showSignatures?.[sig.id];
+                              return (
+                                <label
+                                  key={sig.id}
+                                  className="flex items-center gap-2 cursor-pointer select-none px-3.5 py-2 rounded-full font-extrabold text-xs transition-all text-center"
+                                  style={{
+                                    border: isChecked ? '1.5px solid #059669' : '1px solid #cbd5e1',
+                                    background: isChecked ? 'rgba(5, 150, 105, 0.12)' : 'transparent',
+                                    color: isChecked ? '#059669' : '#64748b'
+                                  }}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={(e) =>
+                                      setFormData((prev: any) => ({
+                                        ...prev,
+                                        showSignatures: {
+                                          ...prev.showSignatures,
+                                          [sig.id]: e.target.checked
+                                        }
+                                      }))
+                                    }
+                                    className="hidden"
+                                  />
+                                  <div
+                                    style={{
+                                      border: isChecked ? '2px solid #059669' : '2px solid #94a3b8',
+                                      background: isChecked ? '#059669' : 'transparent'
+                                    }}
+                                    className="w-4 h-4 rounded flex items-center justify-center transition-all"
+                                  >
+                                    {isChecked && <CheckCircle2 size={12} color="white" />}
+                                  </div>
+                                  {sig.label}
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Vista Previa Visual en Vivo de los Recuadros de Firma */}
+                        <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs">
+                          <div className="text-[11px] font-black uppercase tracking-wider text-slate-400 text-center mb-1">
+                            VISTA PREVIA DE FIRMAS EN EL DOCUMENTO
+                          </div>
+                          <PdfSignatures
+                            data={{
+                              ...formData,
+                              professionalSignature: formData.professionalSignature || professionalData?.signature,
+                              professionalStamp: professionalData?.stamp,
+                              professionalName: formData.professionalName || professionalData?.name,
+                              professionalLicense: formData.professionalLicense || professionalData?.license
+                            }}
+                            box1={
+                              formData.showSignatures?.operator
+                                ? {
+                                    title: 'RESPONSABLE / OPERADOR',
+                                    subtitle: 'FIRMA EN PLANTA / ACLARACIÓN',
+                                    signatureUrl: formData.operatorSignature || null,
+                                    isProfessional: false
+                                  }
+                                : null
+                            }
+                            box2={
+                              formData.showSignatures?.supervisor
+                                ? {
+                                    title: 'SUPERVISOR / CLIENTE',
+                                    subtitle: (formData.empresa || 'FIRMA Y SELLO SUPERVISOR').toUpperCase(),
+                                    signatureUrl: formData.supervisorSignature || null,
+                                    isProfessional: false
+                                  }
+                                : null
+                            }
+                            box3={
+                              formData.showSignatures?.professional
+                                ? {
+                                    title: 'PROFESIONAL HIGIENE Y SEGURIDAD',
+                                    subtitle: (formData.professionalName || professionalData?.name || 'FIRMA Y SELLO PROFESIONAL').toUpperCase(),
+                                    signatureUrl: formData.professionalSignature || professionalData?.signature || null,
+                                    stampUrl: professionalData?.stamp || null,
+                                    isProfessional: true,
+                                    license: formData.professionalLicense || professionalData?.license || null
+                                  }
+                                : null
+                            }
+                          />
+                        </div>
+
+                        {/* Paneles Interactivos de Firma Digital en Pantalla */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
+                          {formData.showSignatures?.operator && (
+                            <div className="p-4 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xs">
+                              <SignatureCanvas
+                                onSave={(sig) => setFormData((prev: any) => ({ ...prev, operatorSignature: sig || '' }))}
+                                initialImage={formData.operatorSignature}
+                                label="Firma del Responsable / Operador (Opcional)"
+                              />
+                            </div>
+                          )}
+
+                          {formData.showSignatures?.supervisor && (
+                            <div className="p-4 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xs">
+                              <SignatureCanvas
+                                onSave={(sig) => setFormData((prev: any) => ({ ...prev, supervisorSignature: sig || '' }))}
+                                initialImage={formData.supervisorSignature}
+                                label="Firma del Supervisor / Cliente (Opcional)"
+                              />
+                            </div>
+                          )}
+
+                          {formData.showSignatures?.professional && (
+                            <div className="p-4 bg-emerald-50/40 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl shadow-xs">
+                              <SignatureCanvas
+                                onSave={(sig) => setFormData((prev: any) => ({ ...prev, professionalSignature: sig || '' }))}
+                                initialImage={formData.professionalSignature || professionalData?.signature || ''}
+                                label={`Firma Profesional H&S (${formData.professionalName || professionalData?.name || 'Actuante'})`}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Botones de Acción Inferiores Estilo Aptitudes Médicas */}
+                      <div className="flex flex-wrap items-center justify-end gap-3 pt-6 border-t border-slate-200 dark:border-slate-700">
+                        <button
+                          type="button"
+                          onClick={() => { setShowForm(false); setEditingId(null); }}
+                          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '12px 24px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)' }}
+                        >
+                          <ArrowLeft size={18} /> Cancelar / Volver
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPreviewItem({ ...formData, id: formData.id || editingId || 'ext-' + Date.now() })}
+                          style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '12px 24px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(2, 132, 199, 0.3)' }}
+                        >
+                          <Printer size={18} /> Vista Previa / Imprimir A4
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => requirePro(() => handleSave({ preventDefault: () => {} } as any))}
+                          style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '12px 28px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4)' }}
+                        >
+                          <CheckCircle2 size={18} />
+                          <span>{editingId ? 'Actualizar Matafuego' : 'Guardar Matafuego'}</span>
+                        </button>
+                      </div>
+
+                      <ModuleActionBar
                         className="bottom-20 md:bottom-6"
                         actions={[
-                            {
-                                id: 'cancel',
-                                label: 'Cancelar',
-                                icon: <ArrowLeft size={16} />,
-                                variant: 'secondary',
-                                onClick: () => { setShowForm(false); setEditingId(null); }
-                            },
-                            ...(editingId ? [{
-                                id: 'history',
-                                label: 'Historial',
-                                icon: <History size={16} />,
-                                variant: 'info' as const,
-                                onClick: () => setShowHistoryModal(formData)
-                            }] : []),
-                            {
-                                id: 'pdf',
-                                label: 'PDF',
-                                icon: <Printer size={16} />,
-                                variant: 'primary',
-                                hideOnMobile: true,
-                                onClick: () => handlePrintIndividualForm({ ...formData, id: (formData as any).id || editingId || 'ext-' + Date.now() })
-                            },
-                            {
-                                id: 'share',
-                                label: 'Compartir',
-                                icon: <Share2 size={16} />,
-                                variant: 'warning',
-                                onClick: () => setShareItem({ ...formData, id: (formData as any).id || editingId || 'ext-' + Date.now() })
-                            },
-                            {
-                                id: 'save',
-                                label: 'Guardar Extintor',
-                                icon: <Save size={16} />,
-                                variant: 'primary',
-                                onClick: () => requirePro(() => handleSave({ preventDefault: () => {} } as any))
-                            }
+                          {
+                            id: 'cancel',
+                            label: 'Cancelar',
+                            icon: <ArrowLeft size={16} />,
+                            variant: 'secondary',
+                            onClick: () => { setShowForm(false); setEditingId(null); }
+                          },
+                          ...(editingId ? [{
+                            id: 'history',
+                            label: 'Historial',
+                            icon: <History size={16} />,
+                            variant: 'info' as const,
+                            onClick: () => setShowHistoryModal(formData)
+                          }] : []),
+                          {
+                            id: 'preview',
+                            label: 'Vista Previa A4',
+                            icon: <Eye size={16} />,
+                            variant: 'primary',
+                            hideOnMobile: true,
+                            onClick: () => setPreviewItem({ ...formData, id: formData.id || editingId || 'ext-' + Date.now() })
+                          },
+                          {
+                            id: 'share',
+                            label: 'Compartir',
+                            icon: <Share2 size={16} />,
+                            variant: 'warning',
+                            onClick: () => setShareItem({ ...formData, id: formData.id || editingId || 'ext-' + Date.now() })
+                          },
+                          {
+                            id: 'save',
+                            label: editingId ? 'Actualizar' : 'Guardar Matafuego',
+                            icon: <Save size={16} />,
+                            variant: 'primary',
+                            onClick: () => requirePro(() => handleSave({ preventDefault: () => {} } as any))
+                          }
                         ]}
-                    />
-                    </ModuleFormLayout>
-                      );
-                    })()}
-                </div> :
-
-      <>
-                    <div className="mb-8 flex gap-4 flex-wrap items-stretch bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700">
-                        <div className="flex-[1_1_250px] relative h-[52px]">
-                            <Search 
-                              size={20} 
-                              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" 
-                            />
-                            <input
-                              type="text"
-                              placeholder="Buscar por Nº, tipo o ubicación..."
-                              value={searchTerm}
-                              onChange={(e) => setSearchTerm(e.target.value)}
-                              className="w-full h-[52px] pl-12 pr-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm font-semibold focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-colors shadow-xs"
-                            />
-                        </div>
-                        <div className="flex-[1_1_250px] relative">
-                            <select
-              value={filterEmpresa}
-              onChange={(e) => setFilterEmpresa(e.target.value)}
-              className="w-full h-[52px] py-3 pr-10 pl-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-sm outline-none appearance-none cursor-pointer focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-semibold">
-              
-                                <option value="">🏢 Todas las Empresas</option>
-                                {uniqueEmpresas.map((emp) =>
-              <option key={emp} value={emp}>{emp}</option>
-              )}
-                            </select>
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                            </div>
-                        </div>
+                      />
+                    </>
+                  );
+                })()}
+              </div>
+            ) : (
+              /* Vista de Padrón e Historial Estilo Aptitudes Médicas */
+              <div className="mt-8 space-y-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                  {/* Buscador + Filtro Empresa Compactos */}
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 w-full md:w-auto">
+                    <div className="relative flex-1 sm:max-w-xs h-[38px]">
+                      <Search
+                        size={16}
+                        className="text-slate-400 pointer-events-none z-10"
+                        style={{
+                          position: 'absolute',
+                          left: '0.75rem',
+                          top: 0,
+                          bottom: 0,
+                          marginTop: 'auto',
+                          marginBottom: 'auto',
+                          display: 'block'
+                        }}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Buscar chapa, tipo o ubicación..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ paddingLeft: '2.25rem', paddingRight: '0.75rem', height: '38px', width: '100%', boxSizing: 'border-box', outline: 'none' }}
+                        className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                      />
                     </div>
-                    {/* Panel unificado de Herramientas de Gestión */}
-                    <div 
-                        className="bg-white dark:bg-slate-800 rounded-[24px] border border-slate-200 dark:border-slate-700 shadow-[0_4px_20px_rgba(0,0,0,0.03)] mb-[2rem] overflow-hidden"
+
+                    <select
+                      value={filterEmpresa}
+                      onChange={(e) => setFilterEmpresa(e.target.value)}
+                      style={{ height: '38px', padding: '0 12px', outline: 'none' }}
+                      className="w-full sm:w-auto bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-200 shadow-sm cursor-pointer focus:border-blue-500"
                     >
-                        <button 
-                            onClick={() => setShowTools(!showTools)}
-                            className={`w-full flex items-center justify-between p-[1.5rem] bg-transparent border-none cursor-pointer outline-none focus:outline-none focus:ring-0 active:bg-slate-50 dark:active:bg-slate-700 md:hover:bg-slate-50 md:dark:hover:bg-slate-700 transition-colors ${showTools ? 'rounded-t-[24px]' : 'rounded-[24px]'}`}
-                        >
-                            <h3 className="m-0 flex items-center gap-2 text-slate-800 dark:text-slate-100 text-lg font-black">
-                                <Settings size={22} className="text-blue-500" /> Herramientas de Gestión y Exportación
-                            </h3>
-                            <ChevronDown size={24} className={`text-slate-400 transition-transform duration-300 ${showTools ? 'rotate-180' : ''}`} />
-                        </button>
-                        
-                        <div className={`transition-all duration-300 ease-in-out ${showTools ? 'max-h-[1000px] opacity-100 px-[1.5rem] pb-[1.5rem]' : 'max-h-0 opacity-0 px-[1.5rem] pb-0 overflow-hidden'}`}>
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                            <div className="flex flex-col items-center text-center gap-2">
-                                <button onClick={downloadTemplate} className="w-full h-10 px-2 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white border-none cursor-pointer font-extrabold text-[11px] tracking-wide flex items-center justify-center gap-1.5 shadow-md hover:-translate-y-0.5 transition-all whitespace-nowrap">
-                                    <DownloadCloud size={16} /> PLANTILLA
-                                </button>
-                                <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-medium">Excel en blanco<br/>para llenar</span>
-                            </div>
-                            
-                            <div className="flex flex-col items-center text-center gap-2">
-                                <button onClick={() => setShowBulkImportModal(true)} className="w-full h-10 px-2 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-none cursor-pointer font-extrabold text-[11px] tracking-wide flex items-center justify-center gap-1.5 shadow-md hover:-translate-y-0.5 transition-all whitespace-nowrap">
-                                    <UploadCloud size={16} /> IMPORTAR
-                                </button>
-                                <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-medium">Cargar datos<br/>masivamente</span>
-                            </div>
-                            
-                            <div className="flex flex-col items-center text-center gap-2">
-                                <button onClick={() => setShowCalendar(true)} className="w-full h-10 px-2 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white border-none cursor-pointer font-extrabold text-[11px] tracking-wide flex items-center justify-center gap-1.5 shadow-md hover:-translate-y-0.5 transition-all whitespace-nowrap">
-                                    <CalendarDays size={16} /> CALENDARIO
-                                </button>
-                                <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-medium">Ver próximos<br/>vencimientos</span>
-                            </div>
+                      <option value="">🏢 Todas las Empresas</option>
+                      {uniqueEmpresas.map((emp) => (
+                        <option key={emp} value={emp}>{emp}</option>
+                      ))}
+                    </select>
+                  </div>
 
-                            {filtered.length > 0 ? (
-                                <>
-                                    <div className="flex flex-col items-center text-center gap-2">
-                                        <button onClick={() => requirePro(() => setShowGlobalSignatureModal(true))} className="w-full h-10 px-2 rounded-full bg-gradient-to-br from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 text-white border-none cursor-pointer font-extrabold text-[11px] tracking-wide flex items-center justify-center gap-1.5 shadow-md hover:-translate-y-0.5 transition-all whitespace-nowrap">
-                                            <Pencil size={16} /> FIRMAS
-                                        </button>
-                                        <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-medium">Configurar firma<br/>del reporte</span>
-                                    </div>
-                                    
-                                    <div className="flex flex-col items-center text-center gap-2">
-                                        <button onClick={() => requirePro(handleExportExcel)} className="w-full h-10 px-2 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white border-none cursor-pointer font-extrabold text-[11px] tracking-wide flex items-center justify-center gap-1.5 shadow-md hover:-translate-y-0.5 transition-all whitespace-nowrap">
-                                            <Download size={16} /> EXPORTAR
-                                        </button>
-                                        <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-medium">Bajar listado<br/>actual a Excel</span>
-                                    </div>
-                                    
-                                    <div className="flex flex-col items-center text-center gap-2">
-                                        <button onClick={() => requirePro(() => setShareItem(filtered))} className="w-full h-10 px-2 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-none cursor-pointer font-extrabold text-[11px] tracking-wide flex items-center justify-center gap-1.5 shadow-md hover:-translate-y-0.5 transition-all whitespace-nowrap">
-                                            <Share2 size={16} /> COMPARTIR
-                                        </button>
-                                        <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-medium">Enviar link<br/>de la lista</span>
-                                    </div>
+                  {/* Botones de Acción Compactos Estilo Aptitudes Médicas */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      onClick={downloadTemplate}
+                      title="Descargar plantilla Excel en blanco"
+                      style={{
+                        backgroundColor: '#475569',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '6px 12px',
+                        fontSize: '12px',
+                        fontWeight: '800',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        whiteSpace: 'nowrap',
+                        height: '34px'
+                      }}
+                    >
+                      <DownloadCloud size={14} />
+                      <span>Plantilla</span>
+                    </button>
 
-                                    <div className="flex flex-col items-center text-center gap-2">
-                                        <button onClick={() => requirePro(handlePrintPdf)} className="w-full h-10 px-2 rounded-full bg-gradient-to-br from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white border-none cursor-pointer font-extrabold text-[11px] tracking-wide flex items-center justify-center gap-1.5 shadow-md hover:-translate-y-0.5 transition-all whitespace-nowrap">
-                                            <Printer size={16} /> IMPRIMIR
-                                        </button>
-                                        <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-medium">Generar reporte<br/>completo (A4)</span>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="col-span-2 md:col-span-4 flex items-center justify-center border-l border-slate-100 dark:border-slate-700 pl-4">
-                                    <span className="text-xs text-slate-400 font-bold uppercase tracking-wider text-center">
-                                        ⚠️ Registrá o importá equipos para habilitar firmas y exportación de PDFs
-                                    </span>
-                                </div>
-                            )}
-                        </div>
-                        </div>
+                    <button
+                      onClick={() => setShowBulkImportModal(true)}
+                      title="Importar matafuegos masivamente desde Excel/CSV"
+                      style={{
+                        backgroundColor: '#4f46e5',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '6px 12px',
+                        fontSize: '12px',
+                        fontWeight: '800',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        whiteSpace: 'nowrap',
+                        height: '34px'
+                      }}
+                    >
+                      <UploadCloud size={14} />
+                      <span>Importar</span>
+                    </button>
+
+                    <button
+                      onClick={() => setShowCalendar(true)}
+                      title="Calendario de próximos vencimientos"
+                      style={{
+                        backgroundColor: '#d97706',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '6px 12px',
+                        fontSize: '12px',
+                        fontWeight: '800',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        whiteSpace: 'nowrap',
+                        height: '34px'
+                      }}
+                    >
+                      <CalendarDays size={14} />
+                      <span>Vencimientos</span>
+                    </button>
+
+                    <button
+                      onClick={() => requirePro(handleExportExcel)}
+                      title="Exportar padrón de extintores en Excel"
+                      style={{
+                        backgroundColor: '#0284c7',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '6px 12px',
+                        fontSize: '12px',
+                        fontWeight: '800',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        whiteSpace: 'nowrap',
+                        height: '34px',
+                        boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)'
+                      }}
+                    >
+                      <FileSpreadsheet size={14} />
+                      <span>Exportar Excel</span>
+                    </button>
+
+                    {filtered.length > 0 && (
+                      <button
+                        onClick={() => requirePro(handlePrintPdf)}
+                        title="Imprimir padrón completo en A4"
+                        style={{
+                          backgroundColor: '#dc2626',
+                          color: '#ffffff',
+                          border: 'none',
+                          padding: '6px 12px',
+                          fontSize: '12px',
+                          fontWeight: '800',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          whiteSpace: 'nowrap',
+                          height: '34px'
+                        }}
+                      >
+                        <Printer size={14} />
+                        <span>Imprimir A4</span>
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => navigate('/extinguisher-ai')}
+                      title="Escanear manómetro y extintor con Visión IA"
+                      style={{
+                        backgroundColor: '#7c3aed',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '6px 12px',
+                        fontSize: '12px',
+                        fontWeight: '800',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        whiteSpace: 'nowrap',
+                        height: '34px',
+                        boxShadow: '0 2px 6px rgba(124, 58, 237, 0.3)'
+                      }}
+                    >
+                      <Sparkles size={14} />
+                      <span>Matafuegos IA</span>
+                    </button>
+
+                    <button
+                      onClick={() => requirePro(() => { setEditingId(null); setShowForm(true); })}
+                      style={{
+                        backgroundColor: '#059669',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '6px 14px',
+                        fontSize: '12px',
+                        fontWeight: '800',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        whiteSpace: 'nowrap',
+                        height: '34px',
+                        boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
+                      }}
+                    >
+                      <Plus size={14} />
+                      <span>Nuevo Matafuego</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Pestañas de Filtro (Filter Tabs) Estilo Aptitudes Médicas */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+                  <button
+                    onClick={() => setStatusFilter('all')}
+                    style={{
+                      backgroundColor: statusFilter === 'all' ? '#2563eb' : '#ffffff',
+                      color: statusFilter === 'all' ? '#ffffff' : '#334155',
+                      border: statusFilter === 'all' ? '1px solid #2563eb' : '1px solid #cbd5e1',
+                      padding: '6px 12px',
+                      borderRadius: '8px',
+                      fontWeight: '800',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Todos ({stats.total})
+                  </button>
+                  <button
+                    onClick={() => setStatusFilter('operativos')}
+                    style={{
+                      backgroundColor: statusFilter === 'operativos' ? '#059669' : '#ffffff',
+                      color: statusFilter === 'operativos' ? '#ffffff' : '#334155',
+                      border: statusFilter === 'operativos' ? '1px solid #059669' : '1px solid #cbd5e1',
+                      padding: '6px 12px',
+                      borderRadius: '8px',
+                      fontWeight: '800',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Operativos Vigentes ({stats.operativos})
+                  </button>
+                  <button
+                    onClick={() => setStatusFilter('porVencer')}
+                    style={{
+                      backgroundColor: statusFilter === 'porVencer' ? '#d97706' : '#ffffff',
+                      color: statusFilter === 'porVencer' ? '#ffffff' : '#334155',
+                      border: statusFilter === 'porVencer' ? '1px solid #d97706' : '1px solid #cbd5e1',
+                      padding: '6px 12px',
+                      borderRadius: '8px',
+                      fontWeight: '800',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Próximos a Vencer / Revisión ({stats.porVencer})
+                  </button>
+                  <button
+                    onClick={() => setStatusFilter('vencidos')}
+                    style={{
+                      backgroundColor: statusFilter === 'vencidos' ? '#dc2626' : '#ffffff',
+                      color: statusFilter === 'vencidos' ? '#ffffff' : '#334155',
+                      border: statusFilter === 'vencidos' ? '1px solid #dc2626' : '1px solid #cbd5e1',
+                      padding: '6px 12px',
+                      borderRadius: '8px',
+                      fontWeight: '800',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Vencidos / Baja ({stats.vencidos})
+                  </button>
+                </div>
+
+                {/* Tabla de Datos en Tarjeta Limpia */}
+                <div className="glass-card p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+                  <DataTable
+                    data={filtered}
+                    columns={columns}
+                    searchPlaceholder=""
+                    emptyMessage="No hay matafuegos registrados."
+                    emptyIcon={<Flame size={48} />}
+                    hideHeader={true}
+                  />
+                </div>
+
+                {!showGlobalSignatureModal && !showCalendar && !showHistoryModal && !showQrModal && !shareItem && !showBulkImportModal && !previewItem && (
+                  <ModuleActionBar
+                    className="bottom-20 md:bottom-6"
+                    actions={[
+                      {
+                        id: 'new-ext',
+                        label: 'Nuevo Matafuego',
+                        icon: <Plus size={16} />,
+                        variant: 'primary',
+                        onClick: () => requirePro(() => { setEditingId(null); setShowForm(true); })
+                      },
+                      {
+                        id: 'ai-ext',
+                        label: 'Matafuegos IA',
+                        icon: <Sparkles size={16} />,
+                        variant: 'info',
+                        onClick: () => navigate('/extinguisher-ai')
+                      },
+                      {
+                        id: 'cal-ext',
+                        label: 'Vencimientos',
+                        icon: <CalendarDays size={16} />,
+                        variant: 'warning',
+                        hideOnMobile: true,
+                        onClick: () => setShowCalendar(true)
+                      }
+                    ]}
+                  />
+                )}
+              </div>
+            )}
+
+            {/* Modal de Vista Previa A4 e Impresión Directa (Estilo Aptitudes Médicas) */}
+            {previewItem && (
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in no-print">
+                <div className="relative w-full max-w-[920px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+                  <div className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-slate-700/80 bg-slate-800/90 select-none flex-wrap gap-2">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-amber-500/20 text-amber-400 rounded-xl">
+                        <Flame size={20} />
+                      </div>
+                      <div>
+                        <h2 className="text-base sm:text-lg font-bold text-white leading-tight m-0">
+                          Vista Previa de Impresión A4 (1 Hoja)
+                        </h2>
+                        <p className="text-xs text-slate-400 m-0">
+                          Ficha Técnica de Extintor • Chapa #{previewItem.numero || '-'} ({previewItem.tipo || 'ABC'} - {previewItem.capacidad || '5 kg'})
+                        </p>
+                      </div>
                     </div>
 
-                    <DataTable
-                        data={filtered}
-                        columns={columns}
-                        searchPlaceholder=""
-                        emptyMessage="No hay extintores registrados."
-                        emptyIcon={<Flame size={48} />}
-                        hideHeader={true} />
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => printElementAsDocument('pdf-modal-preview-extinguisher', `Ficha_Extintor_${previewItem.numero || 'Equipo'}`)}
+                        style={{ backgroundColor: '#f59e0b', color: '#0f172a', border: 'none', padding: '8px 16px', fontSize: '12px', fontWeight: '900', borderRadius: '10px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                      >
+                        <Printer size={16} /> Imprimir / PDF
+                      </button>
+                      <button
+                        onClick={() => setPreviewItem(null)}
+                        className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer bg-transparent border-none"
+                        title="Cerrar vista previa"
+                      >
+                        <XCircle size={20} />
+                      </button>
+                    </div>
+                  </div>
 
-                    {!showGlobalSignatureModal && !showCalendar && !showHistoryModal && !showQrModal && !shareItem && !showBulkImportModal && (
-                        <ModuleActionBar
-                            className="bottom-20 md:bottom-6"
-                            actions={[
-                                {
-                                    id: 'new-ext',
-                                    label: 'Registrar Matafuego',
-                                    icon: <Plus size={16} />,
-                                    variant: 'primary',
-                                    onClick: () => requirePro(() => setShowForm(true))
-                                },
-                                {
-                                    id: 'ai-ext',
-                                    label: 'Analizar con IA',
-                                    icon: <Sparkles size={16} />,
-                                    variant: 'info',
-                                    onClick: () => navigate('/extinguisher-ai')
-                                },
-                                {
-                                    id: 'cal-ext',
-                                    label: 'Vencimientos',
-                                    icon: <CalendarDays size={16} />,
-                                    variant: 'warning',
-                                    hideOnMobile: true,
-                                    onClick: () => setShowCalendar(true)
-                                }
-                            ]}
-                        />
-                    )}
-        
-
-                </>
-      }
+                  <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/70 flex justify-center">
+                    <div className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
+                      <ExtinguisherProfilePdf
+                        data={previewItem}
+                        isHeadless={true}
+                        pdfElementId="pdf-modal-preview-extinguisher"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Confirm Modal */}
             <ConfirmModal
