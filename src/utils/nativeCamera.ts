@@ -130,16 +130,25 @@ export const captureFromNativeCamera = async (
     };
 
     // Si el usuario cancela la cámara en el navegador móvil
+    const handleCancel = () => {
+      if (!isDone) {
+        isDone = true;
+        cleanup();
+        resolve(null);
+      }
+    };
+
     const handleFocusBack = () => {
       setTimeout(() => {
-        if (!isDone) {
+        if (!isDone && (!input.files || input.files.length === 0)) {
           isDone = true;
           cleanup();
           resolve(null);
         }
-      }, 1000);
+      }, 4000);
     };
 
+    input.addEventListener('cancel', handleCancel, { once: true });
     window.addEventListener('focus', handleFocusBack, { once: true });
     document.body.appendChild(input);
     input.click();

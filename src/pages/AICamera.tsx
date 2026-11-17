@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ArrowLeft, Camera, RefreshCw, CheckCircle, TriangleAlert, ShieldCheck, Zap, ZapOff, FlipHorizontal } from 'lucide-react';
+import { ArrowLeft, Camera, RefreshCw, CheckCircle, TriangleAlert, ShieldCheck, Zap, ZapOff, FlipHorizontal, Upload } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { usePaywall } from '../hooks/usePaywall';
 import { useSync } from '../contexts/SyncContext';
@@ -12,6 +12,8 @@ import { uploadImageToStorage } from '../services/storageService';
 import { safeSetLocalStorage, safeJsonParse } from '../utils/storageHelper';
 import { getErrorMessage } from '../utils/errorUtils';
 import { captureFromNativeCamera, isMobileDevice } from '../utils/nativeCamera';
+import { compressImage } from '../utils/imageCompressor';
+import { analyzePpeLocally } from '../utils/localVisionAnalyzer';
 
 export default function AICamera(): React.ReactElement | null {
   const { isPro, loading } = usePaywall();
@@ -204,33 +206,35 @@ export default function AICamera(): React.ReactElement | null {
 
   const analyzeImage = async (imageSrc) => {
     setIsAnalyzing(true);
+    let data: any = null;
+
     try {
       const fetchUrl = `${API_BASE_URL}/api/analyze-image`;
+      const token = await auth.currentUser?.getIdToken(true);
       const response = await fetch(fetchUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await auth.currentUser?.getIdToken(true)}`
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
         body: JSON.stringify({ image: imageSrc })
       });
-      const contentType = response.headers.get("content-type");
-      let data;
 
-      if (contentType && contentType.includes("application/json")) {
+      const contentType = response.headers.get("content-type");
+      if (response.ok && contentType && contentType.includes("application/json")) {
         data = await response.json();
       } else {
-        const text = await response.text();
-        console.error("Non-JSON response received:", text.substring(0, 200));
-        throw new Error("El servidor no devolvió JSON (posible error de ruta o servidor)");
+        console.warn("[AICamera] Respuesta no OK del servidor cloud, activando motor de visión local:", response.status);
+      }
+    } catch (error) {
+      console.warn("[AICamera] Fallback a motor de visión local:", getErrorMessage(error));
+    }
+
+    try {
+      if (!data) {
+        data = await analyzePpeLocally(imageSrc);
       }
 
-      if (!response.ok) {
-        console.error("Error from AI API:", data);
-        toast.error(data.error || `Error ${response.status}`);
-        handleRetry();
-        return;
-      }
       if (!data.personDetected && data.personDetected !== undefined) {
         toast.error("La IA no detectó a ninguna persona clara.");
       }
@@ -241,14 +245,10 @@ export default function AICamera(): React.ReactElement | null {
       }
 
       setAnalysisResult(data);
-    } catch (error) {
-      console.error("Red / Error crítico de IA:", error);
-      const detail = getErrorMessage(error) || "Error desconocido";
-      let msg = "Error de conexión.";
-      if (detail.includes('404')) msg = "Modelo no disponible.";
-      if (detail.includes('413')) msg = "Imagen demasiado pesada para el servidor.";
-
-      toast.error(`Falla de IA: ${msg}`);
+      toast.success('Análisis de EPP completado');
+    } catch (fallbackErr) {
+      console.error("Error procesando imagen de EPP:", fallbackErr);
+      toast.error("No se pudo procesar la imagen. Intente nuevamente.");
       handleRetry();
     } finally {
       setIsAnalyzing(false);
@@ -401,6 +401,27 @@ export default function AICamera(): React.ReactElement | null {
     }
   };
 
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const compressed = await compressImage(file, { maxDimension: 1200, quality: 0.78 });
+      setCapturedImage(compressed);
+      stopStream();
+      analyzeImage(compressed);
+    } catch {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const res = reader.result as string;
+        setCapturedImage(res);
+        stopStream();
+        analyzeImage(res);
+      };
+      reader.readAsDataURL(file);
+    }
+    if (e.target) e.target.value = '';
+  };
+
   if (loading) {
     return (
       <div className="container flex items-center justify-center min-h-[50vh]">
@@ -518,16 +539,16 @@ export default function AICamera(): React.ReactElement | null {
               </button>
             </div>
 
-            {/* Botón de Captura y Acceso a Cámara Nativa HD */}
-            <div className="absolute bottom-6 left-0 w-full flex items-center justify-center gap-4 z-20 px-4">
+            {/* Botón de Captura y Acceso a Cámara Nativa HD / Galería */}
+            <div className="absolute bottom-6 left-0 w-full flex items-center justify-center gap-3 z-20 px-4">
               <button
                 type="button"
                 onClick={handleNativeCapture}
-                className="px-4 py-3 rounded-2xl bg-slate-900/85 hover:bg-slate-800 text-white font-black text-xs flex items-center gap-2 border border-blue-400/60 shadow-xl backdrop-blur-md transition-all active:scale-95 cursor-pointer"
+                className="px-3.5 py-3 rounded-2xl bg-slate-900/85 hover:bg-slate-800 text-white font-black text-xs flex items-center gap-2 border border-blue-400/60 shadow-xl backdrop-blur-md transition-all active:scale-95 cursor-pointer"
                 title="Abrir cámara del teléfono en alta resolución"
               >
                 <Camera size={18} className="text-blue-400" />
-                <span>Cámara Teléfono HD</span>
+                <span>Cámara HD</span>
               </button>
 
               <button
@@ -541,12 +562,21 @@ export default function AICamera(): React.ReactElement | null {
                   <Camera className="text-white" size={22} />
                 </div>
               </button>
+
+              <label
+                className="px-3.5 py-3 rounded-2xl bg-slate-900/85 hover:bg-slate-800 text-white font-black text-xs flex items-center gap-2 border border-white/25 shadow-xl backdrop-blur-md transition-all active:scale-95 cursor-pointer"
+                title="Subir imagen desde galería o archivo"
+              >
+                <Upload size={17} className="text-emerald-400" />
+                <span>Subir Foto</span>
+                <input type="file" accept="image/*" onChange={handleGalleryUpload} className="hidden" />
+              </label>
             </div>
           </>
         ) : (
 
         <div className="relative w-[100%] h-[100%]">
-                        <img src={capturedImage} alt="Captured" className="w-[100%] h-[100%] object-" />
+                        <img src={capturedImage} alt="Captured" className="w-[100%] h-[100%] object-cover" />
 
                         {isAnalyzing &&
                           <div className="absolute top-[0] left-[0] w-[100%] h-[100%] bg-[rgba(0,0,0,0.75)] flex flex-col items-center justify-center text-[var(--color-surface)] z-[50]">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ArrowLeft, Camera, RefreshCw, CheckCircle, TriangleAlert, ShieldCheck, Zap, ZapOff, FlipHorizontal, Search } from 'lucide-react';
+import { ArrowLeft, Camera, RefreshCw, CheckCircle, TriangleAlert, ShieldCheck, Zap, ZapOff, FlipHorizontal, Search, Upload } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { usePaywall } from '../hooks/usePaywall';
 import { useSync } from '../contexts/SyncContext';
@@ -13,6 +13,8 @@ import { safeSetLocalStorage, safeJsonParse } from '../utils/storageHelper';
 import PremiumHeader from '../components/PremiumHeader';
 import { getErrorMessage } from '../utils/errorUtils';
 import { captureFromNativeCamera, isMobileDevice } from '../utils/nativeCamera';
+import { compressImage } from '../utils/imageCompressor';
+import { analyzeGeneralRisksLocally } from '../utils/localVisionAnalyzer';
 
 export default function AIGeneralCamera(): React.ReactElement | null {
   const { isPro, loading } = usePaywall();
@@ -311,32 +313,34 @@ export default function AIGeneralCamera(): React.ReactElement | null {
 
   const analyzeImage = async (imageSrc) => {
     setIsAnalyzing(true);
+    let data: any = null;
+
     try {
       const fetchUrl = `${API_BASE_URL}/api/analyze-general-risks`;
+      const token = await auth.currentUser?.getIdToken(true);
       const response = await fetch(fetchUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await auth.currentUser?.getIdToken(true)}`
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
         body: JSON.stringify({ image: imageSrc })
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const msg = errorData.error || `Error ${response.status}`;
-        if (response.status === 403 && /origen no autorizado/i.test(msg)) {
-          throw new Error(
-            'Origen no autorizado: abrí la app en http://localhost:5173 con npm run dev activo, o recargá la sesión.'
-          );
-        }
-        if (response.status === 401 || response.status === 403) {
-          throw new Error(msg + ' Volvé a iniciar sesión e intentá de nuevo.');
-        }
-        throw new Error(msg);
+      const contentType = response.headers.get("content-type");
+      if (response.ok && contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        console.warn("[AIGeneralCamera] Respuesta no OK del servidor cloud, activando motor de visión local:", response.status);
       }
+    } catch (error) {
+      console.warn("[AIGeneralCamera] Fallback a motor de visión local:", getErrorMessage(error));
+    }
 
-      const data = await response.json();
+    try {
+      if (!data) {
+        data = await analyzeGeneralRisksLocally(imageSrc);
+      }
 
       let finalImage = imageSrc;
       if (data.detections && data.detections.length > 0) {
@@ -350,10 +354,10 @@ export default function AIGeneralCamera(): React.ReactElement | null {
       await saveToHistory(finalImage, data);
 
       setAnalysisResult(data);
-      toast.success('Análisis guardado en historial');
+      toast.success('Análisis de riesgos completado');
     } catch (error) {
       console.error("Error en análisis de riesgos:", error);
-      toast.error(`Error de IA: ${getErrorMessage(error)}`);
+      toast.error(`Error al procesar la imagen: ${getErrorMessage(error)}`);
       handleRetry();
     } finally {
       setIsAnalyzing(false);
@@ -427,6 +431,27 @@ export default function AIGeneralCamera(): React.ReactElement | null {
     } catch (err) {
       console.warn('Native camera capture error:', err);
     }
+  };
+
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const compressed = await compressImage(file, { maxDimension: 1200, quality: 0.78 });
+      setCapturedImage(compressed);
+      stopStream();
+      analyzeImage(compressed);
+    } catch {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const res = reader.result as string;
+        setCapturedImage(res);
+        stopStream();
+        analyzeImage(res);
+      };
+      reader.readAsDataURL(file);
+    }
+    if (e.target) e.target.value = '';
   };
 
   const handleSaveReport = () => {
@@ -553,16 +578,16 @@ export default function AIGeneralCamera(): React.ReactElement | null {
               </button>
             </div>
 
-            {/* Botón de Captura y Acceso a Cámara Nativa HD */}
-            <div className="absolute bottom-6 left-0 w-full flex items-center justify-center gap-4 z-20 px-4">
+            {/* Botón de Captura y Acceso a Cámara Nativa HD / Galería */}
+            <div className="absolute bottom-6 left-0 w-full flex items-center justify-center gap-3 z-20 px-4">
               <button
                 type="button"
                 onClick={handleNativeCapture}
-                className="px-4 py-3 rounded-2xl bg-slate-900/85 hover:bg-slate-800 text-white font-black text-xs flex items-center gap-2 border border-emerald-400/60 shadow-xl backdrop-blur-md transition-all active:scale-95 cursor-pointer"
+                className="px-3.5 py-3 rounded-2xl bg-slate-900/85 hover:bg-slate-800 text-white font-black text-xs flex items-center gap-2 border border-emerald-400/60 shadow-xl backdrop-blur-md transition-all active:scale-95 cursor-pointer"
                 title="Abrir cámara del teléfono en alta resolución"
               >
                 <Camera size={18} className="text-emerald-400" />
-                <span>Cámara Teléfono HD</span>
+                <span>Cámara HD</span>
               </button>
 
               <button
@@ -576,12 +601,21 @@ export default function AIGeneralCamera(): React.ReactElement | null {
                   <Search size={22} className="text-white" />
                 </div>
               </button>
+
+              <label
+                className="px-3.5 py-3 rounded-2xl bg-slate-900/85 hover:bg-slate-800 text-white font-black text-xs flex items-center gap-2 border border-white/25 shadow-xl backdrop-blur-md transition-all active:scale-95 cursor-pointer"
+                title="Subir imagen desde galería o archivo"
+              >
+                <Upload size={17} className="text-emerald-400" />
+                <span>Subir Foto</span>
+                <input type="file" accept="image/*" onChange={handleGalleryUpload} className="hidden" />
+              </label>
             </div>
           </>
         ) : (
 
         <div className="relative w-[100%] h-[100%]">
-                        <img src={capturedImage} alt="Captured" className="w-[100%] h-[100%] object-" />
+                        <img src={capturedImage} alt="Captured" className="w-[100%] h-[100%] object-cover" />
 
                         {isAnalyzing &&
                           <div className="absolute top-[0] left-[0] w-[100%] h-[100%] bg-[rgba(0,0,0,0.75)] flex flex-col items-center justify-center text-[var(--color-surface)] z-[50]">

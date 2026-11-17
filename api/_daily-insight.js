@@ -58,7 +58,13 @@ IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON. Sea conciso y valioso.`;
             }
         }
 
-        if (!result) throw new Error(lastError?.message || 'Modelos de Texto IA fallaron');
+        if (!result) {
+            return res.status(200).json({
+                title: "Verificación de Permisos y EPP",
+                content: "Validá los permisos de trabajo críticos y el estado de los EPP certificados (Res. 299/11) antes de iniciar cada turno.",
+                category: "Prevención"
+            });
+        }
         const responseText = result.response.text();
 
         let cleanedJson = responseText.trim();

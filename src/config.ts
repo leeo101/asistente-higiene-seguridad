@@ -20,15 +20,15 @@ export const API_BASE_URL: string = (() => {
   }
   if (typeof window !== 'undefined') {
     if (Capacitor.isNativePlatform()) {
-      return 'https://asistentehs.com';
+      return 'https://www.asistentehs.com';
     }
     const origin = window.location.origin || '';
     const host = window.location.host || '';
     if (origin.startsWith('capacitor://') || origin.startsWith('ionic://') || host === 'localhost') {
-      return 'https://asistentehs.com';
+      return 'https://www.asistentehs.com';
     }
-    if (host.includes('web.app') || host.includes('firebaseapp.com')) {
-      return 'https://asistentehs.com';
+    if (host.includes('web.app') || host.includes('firebaseapp.com') || host === 'asistentehs.com') {
+      return 'https://www.asistentehs.com';
     }
   }
   return '';

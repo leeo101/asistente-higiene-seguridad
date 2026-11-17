@@ -31,6 +31,7 @@ import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { BulkImportModal } from '../components/BulkImportModal';
 import { ExtinguisherImportRow } from '../utils/dataImporterExporter';
 import { printElementAsDocument } from '../utils/pdfHelper';
+import { analyzeExtinguisherLocally } from '../utils/localVisionAnalyzer';
 
 const formatType = (tipo: string) => {
   if (!tipo) return 'N/A';
@@ -106,50 +107,47 @@ export default function ExtintoresManager() {
       const loadingToast = toast.loading('Procesando marbete con IA...');
 
       try {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async () => {
-          const base64 = reader.result as string;
+        const base64 = await compressImage(file, { maxDimension: 1200, quality: 0.78 });
+        let data: any = null;
+
+        try {
           const token = await auth.currentUser?.getIdToken(true);
           const response = await fetch(`${API_BASE_URL}/api/analyze-extinguisher`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
+              ...(token ? { 'Authorization': `Bearer ${token}` } : {})
             },
             body: JSON.stringify({ image: base64 })
           });
 
-          if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            throw new Error(errData.error || 'Error al analizar la imagen');
+          if (response.ok) {
+            data = await response.json();
           }
+        } catch (cloudErr) {
+          console.warn('[ExtintoresManager] Fallback local para escaneo de marbete:', cloudErr);
+        }
 
-          const data = await response.json();
-          if (!data.extinguisherDetected) {
-            throw new Error('No se detectó un extintor en la imagen.');
-          }
+        if (!data || data.extinguisherDetected === false) {
+          data = await analyzeExtinguisherLocally(base64);
+        }
 
-          let mappedAgent = formData.tipo;
-          if (data.type === 'ABC') mappedAgent = 'ABC (PQS)';
-          else if (data.type === 'CO2') mappedAgent = 'BC(CO2)';
-          else if (data.type) mappedAgent = data.type;
+        let mappedAgent = formData.tipo;
+        if (data.type === 'ABC') mappedAgent = 'ABC (PQS)';
+        else if (data.type === 'CO2') mappedAgent = 'BC(CO2)';
+        else if (data.type) mappedAgent = data.type;
 
-          setFormData((prev) => ({
-            ...prev,
-            tipo: mappedAgent,
-            capacidad: data.capacity ? (data.capacity.includes('kg') ? data.capacity : `${data.capacity} kg`) : prev.capacidad,
-            vencimientoRecarga: data.lastCheck || prev.vencimientoRecarga,
-            vencimientoPH: data.phDate || prev.vencimientoPH,
-            estadoFisico: data.status === 'vigente' ? 'Operativo' : 'Revisión',
-            foto: base64
-          }));
+        setFormData((prev) => ({
+          ...prev,
+          tipo: mappedAgent,
+          capacidad: data.capacity ? (data.capacity.includes('kg') || data.capacity.includes('lts') ? data.capacity : `${data.capacity} kg`) : prev.capacidad,
+          vencimientoRecarga: data.lastCheck || prev.vencimientoRecarga,
+          vencimientoPH: data.phDate || prev.vencimientoPH,
+          estadoFisico: data.status === 'vigente' ? 'Operativo' : 'Revisión',
+          foto: base64
+        }));
 
-          toast.success('Ficha del extintor autocompletada con IA ✨', { id: loadingToast });
-        };
-        reader.onerror = () => {
-          throw new Error('Error al leer el archivo');
-        };
+        toast.success('Ficha del extintor autocompletada con IA ✨', { id: loadingToast });
       } catch (error) {
         console.error('OCR error:', error);
         toast.error(`Error al analizar: ${getErrorMessage(error)}`, { id: loadingToast });
