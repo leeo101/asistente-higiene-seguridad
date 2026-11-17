@@ -1,59 +1,73 @@
 import React, { useRef, useState } from 'react';
-import { Calendar, Flame, MapPin, Hash, ShieldCheck, AlertTriangle, ArrowLeft, Printer, Share2 } from 'lucide-react';
+import { Calendar, Flame, MapPin, Hash, ShieldCheck, ArrowLeft, Printer, Share2 } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfSignatures from './PdfSignatures';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import ShareModal from './ShareModal';
 import { printElementAsDocument } from '../utils/pdfHelper';
 
-const getRecargaExpirationStatus = (dateStr) => {
-  if (!dateStr) return { text: 'Sin Datos', color: '#64748b', expirationDate: null };
+const getRecargaExpirationStatus = (dateStr: any) => {
+  if (!dateStr) return { text: 'Sin Datos', color: '#64748b', bg: '#f1f5f9', border: '#cbd5e1', expirationDate: null, baseDate: null };
   const d = new Date(dateStr + 'T12:00:00Z');
-  if (isNaN(d.getTime())) return { text: 'Sin Datos', color: '#64748b', expirationDate: null };
+  if (isNaN(d.getTime())) return { text: 'Sin Datos', color: '#64748b', bg: '#f1f5f9', border: '#cbd5e1', expirationDate: null, baseDate: null };
+  const baseDate = d.toLocaleDateString('es-AR');
   d.setFullYear(d.getFullYear() + 1);
   const today = new Date();
   const diffDays = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   const expDate = d.toLocaleDateString('es-AR');
-  if (diffDays < 0) return { text: 'Vencido', color: '#ef4444', expirationDate: expDate };
-  if (diffDays <= 30) return { text: 'Por vencer', color: '#f59e0b', expirationDate: expDate };
-  return { text: 'Vigente', color: '#10b981', expirationDate: expDate };
+  if (diffDays < 0) return { text: 'VENCIDO', color: '#dc2626', bg: '#fef2f2', border: '#fecdd3', expirationDate: expDate, baseDate };
+  if (diffDays <= 30) return { text: 'POR VENCER', color: '#d97706', bg: '#fffbeb', border: '#fde68a', expirationDate: expDate, baseDate };
+  return { text: 'VIGENTE', color: '#059669', bg: '#ecfdf5', border: '#a7f3d0', expirationDate: expDate, baseDate };
 };
 
 const getPHExpirationStatus = (dateStr: string) => {
-  if (!dateStr) return { text: 'Sin Datos', color: '#64748b' };
+  if (!dateStr) return { text: 'Sin Datos', color: '#64748b', bg: '#f1f5f9', border: '#cbd5e1', expirationDate: null, baseDate: null };
   const d = new Date(dateStr + 'T12:00:00Z');
-  if (isNaN(d.getTime())) return { text: 'Sin Datos', color: '#64748b' };
+  if (isNaN(d.getTime())) return { text: 'Sin Datos', color: '#64748b', bg: '#f1f5f9', border: '#cbd5e1', expirationDate: null, baseDate: null };
+  const baseDate = d.toLocaleDateString('es-AR');
   d.setFullYear(d.getFullYear() + 5);
   const today = new Date();
   const diffDays = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  if (diffDays < 0) return { text: 'Vencido', color: '#ef4444', expirationDate: d.toLocaleDateString('es-AR') };
-  if (diffDays <= 30) return { text: 'Por vencer', color: '#f59e0b', expirationDate: d.toLocaleDateString('es-AR') };
-  return { text: 'Vigente', color: '#10b981', expirationDate: d.toLocaleDateString('es-AR') };
+  const expDate = d.toLocaleDateString('es-AR');
+  if (diffDays < 0) return { text: 'VENCIDO', color: '#dc2626', bg: '#fef2f2', border: '#fecdd3', expirationDate: expDate, baseDate };
+  if (diffDays <= 30) return { text: 'POR VENCER', color: '#d97706', bg: '#fffbeb', border: '#fde68a', expirationDate: expDate, baseDate };
+  return { text: 'VIGENTE', color: '#059669', bg: '#ecfdf5', border: '#a7f3d0', expirationDate: expDate, baseDate };
 };
 
 const getLifespanStatus = (fechaFab: string) => {
-  if (!fechaFab) return { text: 'Sin Datos', color: '#64748b', expirationDate: null };
-  const d = new Date(fechaFab);
+  if (!fechaFab) return { text: 'Sin Datos', color: '#64748b', bg: '#f1f5f9', border: '#cbd5e1', expirationDate: null, baseDate: null };
+  const d = new Date(fechaFab + 'T12:00:00Z');
+  if (isNaN(d.getTime())) return { text: 'Sin Datos', color: '#64748b', bg: '#f1f5f9', border: '#cbd5e1', expirationDate: null, baseDate: null };
+  const baseDate = d.toLocaleDateString('es-AR');
   const limitDate = new Date(d);
   limitDate.setFullYear(limitDate.getFullYear() + 20);
   const today = new Date();
   const diffDays = Math.ceil((limitDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   const expDate = limitDate.toLocaleDateString('es-AR');
-  if (diffDays < 0) return { text: 'DAR DE BAJA', color: '#dc2626', expirationDate: expDate };
-  if (diffDays <= 180) return { text: 'Por vencer', color: '#f59e0b', expirationDate: expDate };
-  return { text: 'Vigente', color: '#10b981', expirationDate: expDate };
+  if (diffDays < 0) return { text: 'DAR DE BAJA', color: '#dc2626', bg: '#fef2f2', border: '#fecdd3', expirationDate: expDate, baseDate };
+  if (diffDays <= 180) return { text: 'POR VENCER', color: '#d97706', bg: '#fffbeb', border: '#fde68a', expirationDate: expDate, baseDate };
+  return { text: 'VIGENTE', color: '#059669', bg: '#ecfdf5', border: '#a7f3d0', expirationDate: expDate, baseDate };
 };
 
 const formatType = (tipo: string) => {
-  if (!tipo) return 'N/A';
+  if (!tipo) return 'ABC (PQS)';
   const t = String(tipo).toUpperCase();
-  if (t === 'ABC') return 'HCFC';
-  if (t === 'BC') return 'CO2';
+  if (t === 'ABC') return 'ABC (PQS)';
+  if (t === 'BC') return 'BC (CO2)';
   return tipo;
 };
 
-
-export default function ExtinguisherProfilePdf({ data, onBack = () => window.history.back(), isHeadless = false, pdfElementId = 'pdf-content' }: {data: any;onBack?: () => void;isHeadless?: boolean;pdfElementId?: string;}): React.ReactElement | null {
+export default function ExtinguisherProfilePdf({
+  data,
+  onBack = () => window.history.back(),
+  isHeadless = false,
+  pdfElementId = 'pdf-content'
+}: {
+  data: any;
+  onBack?: () => void;
+  isHeadless?: boolean;
+  pdfElementId?: string;
+}): React.ReactElement | null {
   const componentRef = useRef<HTMLDivElement>(null);
   const [showShare, setShowShare] = useState(false);
 
@@ -71,10 +85,11 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
   const phStatus = getPHExpirationStatus(data.vencimientoPH);
   const lifespanStatus = getLifespanStatus(data.fechaFabricacion);
 
-  let actSignature = null;
-  let actStamp = null;
-  let actName = null;
-  let actLic = null;
+  let actSignature = data?.professionalSignature || null;
+  let actStamp = data?.professionalStamp || null;
+  let actName = data?.professionalName || null;
+  let actLic = data?.professionalLicense || null;
+  let actTitle = data?.professionalTitle || null;
 
   try {
     const lsPersonal = localStorage.getItem('personalData');
@@ -82,13 +97,16 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
     const legacySig = localStorage.getItem('capturedSignature');
     if (lsStamp) {
       const parsed = JSON.parse(lsStamp);
-      actSignature = parsed.signature;actStamp = parsed.stamp;
-    } else if (legacySig) {
+      if (!actSignature) actSignature = parsed.signature;
+      if (!actStamp) actStamp = parsed.stamp;
+    } else if (!actSignature && legacySig) {
       actSignature = legacySig;
     }
     if (lsPersonal) {
       const pd = JSON.parse(lsPersonal);
-      actName = pd.name;actLic = pd.license;
+      actName = actName || pd.name || pd.fullName;
+      actLic = actLic || pd.license || pd.matricula;
+      actTitle = actTitle || pd.profession || pd.profesion || pd.title;
     }
   } catch (e) {}
 
@@ -98,9 +116,10 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
       const historyRaw = localStorage.getItem('extintores_history');
       if (historyRaw) {
         const history = JSON.parse(historyRaw);
-        const matches = history.filter((h: any) =>
-          (data.id && String(h.extintorId) === String(data.id)) ||
-          (data.numero && String(h.extintorNum) === String(data.numero || data.chapa))
+        const matches = history.filter(
+          (h: any) =>
+            (data.id && String(h.extintorId) === String(data.id)) ||
+            (data.numero && String(h.extintorNum) === String(data.numero || data.chapa))
         );
         if (matches.length > 0) {
           matches.sort((a: any, b: any) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
@@ -114,11 +133,11 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
           inspector: actName || 'Técnico Especialista HSE',
           resultado: last.resultado === 'C' ? 'APROBADO' : 'RECHAZADO',
           items: [
-            { text: 'Manómetro (presión operable)', status: last.controles?.manometro || 'C', notes: '' },
-            { text: 'Acceso sin obstrucciones', status: last.controles?.acceso || 'C', notes: '' },
-            { text: 'Señalización reglamentaria', status: last.controles?.senalizacion || 'C', notes: '' },
-            { text: 'Manguera y boquilla', status: last.controles?.manguera || 'C', notes: '' },
-            { text: 'Estado físico del cilindro', status: last.controles?.cilindro || 'C', notes: '' }
+            { text: 'Manómetro en zona verde (presión operable)', status: last.controles?.manometro || 'C', notes: '' },
+            { text: 'Visibilidad y acceso libre sin obstrucciones', status: last.controles?.acceso || 'C', notes: '' },
+            { text: 'Cartelería y señalización reglamentaria (baliza/chapa)', status: last.controles?.senalizacion || 'C', notes: '' },
+            { text: 'Manguera y boquilla libres de obstrucciones o grietas', status: last.controles?.manguera || 'C', notes: '' },
+            { text: 'Estado físico general del cilindro (sin abolladuras ni óxido)', status: last.controles?.cilindro || 'C', notes: '' }
           ],
           observaciones: last.observacion || ''
         };
@@ -126,32 +145,71 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
     } catch (e) {}
   }
 
-  // NOTA: Si no hay inspección real registrada, latestInspection = null.
-  // El PDF mostrará "Sin inspecciones registradas" en lugar de datos inventados.
-  // NO se sintetiza información que el usuario no haya cargado.}
+  // Determinar Dictamen General del Equipo
+  const isBaja =
+    lifespanStatus.text === 'DAR DE BAJA' ||
+    data.estadoFisico === 'Fuera de Servicio' ||
+    data.estadoFisico === 'Dado de Baja' ||
+    recargaStatus.text === 'VENCIDO' ||
+    phStatus.text === 'VENCIDO' ||
+    latestInspection?.resultado === 'RECHAZADO' ||
+    latestInspection?.resultado === 'NC';
+
+  const isWarning =
+    !isBaja &&
+    (recargaStatus.text === 'POR VENCER' ||
+      phStatus.text === 'POR VENCER' ||
+      lifespanStatus.text === 'POR VENCER' ||
+      data.estadoFisico === 'Revisión' ||
+      data.estadoFisico === 'En Recarga' ||
+      data.checkManometro === false ||
+      data.checkPrecinto === false ||
+      data.checkSenalizacion === false ||
+      data.checkAcceso === false);
+
+  const dictamenLabel = isBaja
+    ? 'NO HABILITADO · VENCIDO / FUERA DE SERVICIO'
+    : isWarning
+    ? 'CON OBSERVACIONES · PRÓXIMO A VENCER / REVISIÓN'
+    : 'OPERATIVO Y HABILITADO · EN REGLA (IRAM 3517-2)';
+
+  const dictamenBadgeBg = isBaja ? '#dc2626' : isWarning ? '#d97706' : '#059669';
+  const dictamenBoxBg = isBaja ? '#fef2f2' : isWarning ? '#fffbeb' : '#ecfdf5';
+  const dictamenBorder = isBaja ? '#fca5a5' : isWarning ? '#fcd34d' : '#6ee7b7';
+
+  const mOk = data.checkManometro !== false;
+  const pOk = data.checkPrecinto !== false;
+  const sOk = data.checkSenalizacion !== false;
+  const aOk = data.checkAcceso !== false;
 
   return (
-    <div id="extinguisher-profile-wrap" className={isHeadless ? "w-full min-h-0 block p-0 m-0" : "container pb-[3rem] min-h-[100vh] flex flex-col"}>
-            {!isHeadless &&
-      <div className="no-print flex items-center justify-space-between mb-[1.5rem] z-[10] flex-wrap gap-[1rem]">
-                    <div className="flex items-center gap-[1rem]">
-                        <button onClick={onBack} className="p-[0.5rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] cursor-pointer rounded-[50%] text-[var(--color-text)]">
-                            <ArrowLeft size={20} />
-                        </button>
-                        <h1 className="m-[0] text-[1.5rem] font-[800]">Previsualización de Ficha</h1>
-                    </div>
-                    <div className="flex gap-[0.8rem]">
-                        <button onClick={() => setShowShare(true)} className="p-[0.5rem_1rem] flex items-center gap-[0.5rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[8px] cursor-pointer font-[600] text-[var(--color-text)]">
-                            <Share2 size={18} /> Compartir Ficha
-                        </button>
-                        <button onClick={handlePrint} className="btn-primary m-[0] flex items-center gap-[0.5rem]">
-                            <Printer size={18} /> Imprimir / Exportar PDF
-                        </button>
-                    </div>
-                </div>
-      }
-            
-            <ShareModal
+    <div id="extinguisher-profile-wrap" className={isHeadless ? 'w-full min-h-0 block p-0 m-0' : 'container pb-[3rem] min-h-[100vh] flex flex-col'}>
+      {!isHeadless && (
+        <div className="no-print flex items-center justify-between mb-[1.5rem] z-[10] flex-wrap gap-[1rem]">
+          <div className="flex items-center gap-[1rem]">
+            <button
+              onClick={onBack}
+              className="p-[0.5rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] cursor-pointer rounded-[50%] text-[var(--color-text)]"
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <h1 className="m-[0] text-[1.5rem] font-[800]">Previsualización de Ficha</h1>
+          </div>
+          <div className="flex gap-[0.8rem]">
+            <button
+              onClick={() => setShowShare(true)}
+              className="p-[0.5rem_1rem] flex items-center gap-[0.5rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[8px] cursor-pointer font-[600] text-[var(--color-text)]"
+            >
+              <Share2 size={18} /> Compartir Ficha
+            </button>
+            <button onClick={handlePrint} className="btn-primary m-[0] flex items-center gap-[0.5rem]">
+              <Printer size={18} /> Imprimir / Exportar PDF
+            </button>
+          </div>
+        </div>
+      )}
+
+      <ShareModal
         isOpen={showShare}
         open={showShare}
         onClose={() => setShowShare(false)}
@@ -159,348 +217,522 @@ export default function ExtinguisherProfilePdf({ data, onBack = () => window.his
         text={`📋 Ficha de Extintor\n🔥 Chapa: ${data.numero}\n📍 Ubicación: ${data.ubicacion}`}
         rawMessage={''}
         elementIdToPrint="pdf-content"
-        fileName={`Ficha_Extintor_${data.numero || 'Reporte'}.pdf`} />
-      
+        fileName={`Ficha_Extintor_${data.numero || 'Reporte'}.pdf`}
+      />
 
-            <div className={isHeadless ? "w-full block" : "flex-[1] flex justify-center"}>
-                <div
+      <div className={isHeadless ? 'w-full block' : 'flex-[1] flex justify-center'}>
+        <div
           id={pdfElementId}
-          className={`pdf-container card print-area w-full max-w-[210mm] block bg-white text-slate-900 rounded-[8px] box-sizing-[border-box] ${isHeadless ? 'shadow-none' : 'shadow-md'}`}
-          style={{ padding: isHeadless ? '6mm 8mm' : '4mm 10mm 10mm 10mm' }}
-          ref={componentRef}>
-
-                    <style type="text/css">
-                        {`
-                            @page { size: A4 portrait; margin: 6mm; }
-                            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: #ffffff !important; }
-                            .no-print { display: none !important; }
-                            .print-area { 
-                                box-shadow: none !important; 
-                                margin: 0 !important; 
-                                padding: 0 !important; 
-                                width: 100% !important; 
-                                max-width: none !important;
-                                border: none !important;
-                                min-height: 0 !important;
-                                height: auto !important;
-                                display: block !important;
-                                overflow: visible !important;
-                                background: #ffffff !important;
-                                color: #0f172a !important;
-                            }
-                            #extinguisher-profile-wrap, #pdf-content {
-                                font-size: 0.85rem !important;
-                                width: 100% !important;
-                                min-height: 0 !important;
-                                height: auto !important;
-                                margin: 0 !important;
-                                display: block !important;
-                                overflow: visible !important;
-                                background: #ffffff !important;
-                                color: #0f172a !important;
-                            }
-                            #pdf-content td, #pdf-content th {
-                                padding: 6px 10px !important;
-                                font-size: 9.5pt !important;
-                                line-height: 1.35 !important;
-                                box-sizing: border-box !important;
-                                color: #0f172a !important;
-                            }
-                            .pdf-export-mode #pdf-content td, .pdf-export-mode #pdf-content th {
-                                padding: 6px 10px !important;
-                                font-size: 9.5pt !important;
-                                color: #0f172a !important;
-                            }
-                            .pdf-export-mode #pdf-content {
-                                overflow: visible !important;
-                                background: #ffffff !important;
-                                padding: 0 !important;
-                                display: block !important;
-                            }
-                            #extinguisher-profile-wrap > div {
-                                flex: none !important;
-                                display: block !important;
-                                min-height: 0 !important;
-                            }
-                            tr {
-                                page-break-inside: avoid !important;
-                                break-inside: avoid !important;
-                            }
-                            .avoid-break {
-                                page-break-inside: avoid !important;
-                                break-inside: avoid !important;
-                            }
-                            .avoid-break-strictly {
-                                page-break-inside: avoid !important;
-                                break-inside: avoid !important;
-                            }
-                            .page-break-before {
-                                page-break-before: always !important;
-                                break-before: page !important;
-                            }
-                        `}
-                    </style>
-
-                    <div className="border-b-[2.5px] border-slate-900 pb-[6px] mb-[8px] flex justify-between items-center avoid-break">
-                        <div>
-                            <h1 style={{ color: '#0f172a' }} className="m-[0_0_2px_0] text-[18pt] font-[900] uppercase tracking-tight">
-                                Ficha Técnica de Extintor
-                            </h1>
-                            <p style={{ color: '#475569' }} className="m-[0] text-[9.5pt] font-[700]">
-                                Documento de Trazabilidad e Inventario
-                            </p>
-                        </div>
-                        <CompanyLogo style={{ maxHeight: '38px', maxWidth: '130px', objectFit: 'contain' }} />
-                    </div>
-
-                    <div className="flex gap-[12px] mb-[8px] avoid-break">
-                        <div className="w-[125px] shrink-0">
-                            {data.foto ?
-              <img src={data.foto} alt="Extintor" className="w-full h-[135px] object-cover rounded-[8px] border-[2px] border-solid border-[#94a3b8]" /> :
-
-              <div className="w-full h-[135px] bg-slate-100 rounded-[8px] border-[2px] border-dashed border-[#cbd5e1] flex items-center justify-center">
-                                    <Flame size={42} color="#64748b" />
-                                </div>
+          className="pdf-container print-area bg-white text-slate-900 font-sans w-full max-w-[800px] mx-auto shadow-none print:shadow-none print:p-0"
+          style={{ padding: '8px 12px', boxSizing: 'border-box' }}
+          ref={componentRef}
+        >
+          <style type="text/css">
+            {`
+              @page { size: A4 portrait; margin: 7mm 8mm; }
+              body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: #ffffff !important; }
+              .no-print { display: none !important; }
+              .avoid-break, .avoid-break-strictly, .pdf-signatures-wrapper, .pdf-brand-container, tr {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
               }
-                        </div>
+            `}
+          </style>
 
-                        <div className="flex-1">
-                            <div className="bg-slate-50 border-[1.5px] border-slate-300 rounded-[8px] p-[10px_14px]">
-                                <h3 className="m-[0_0_8px_0] text-[11pt] text-slate-900 flex items-center gap-[6px] border-b border-slate-300 pb-[4px] font-[900]">
-                                    <Hash size={16} color="#2563eb" /> Identificación del Equipo
-                                </h3>
-                                
-                                <div className="grid grid-cols-2 gap-[6px] break-words">
-                                    <div>
-                                        <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Nº Chapa / Interno</div>
-                                        <div className="text-[10.5pt] font-[900] text-slate-900">{data.numero || '-'}</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Tipo y Capacidad</div>
-                                        <div className="text-[10.5pt] font-[900] text-slate-900">{formatType(data.tipo)} - {data.capacidad}</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Ubicación</div>
-                                        <div className="text-[10pt] font-[800] text-slate-900 flex items-center gap-[4px]">
-                                            <MapPin size={13} color="#dc2626" /> {data.ubicacion || '-'}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Empresa / Cliente</div>
-                                        <div className="text-[10pt] font-[800] text-slate-900">{data.empresa || '-'}</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Marca / Fabricante</div>
-                                        <div className="text-[10pt] font-[800] text-slate-900">{data.marca || 'Sin especificar'}</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Sello IRAM / OPDS</div>
-                                        <div className="text-[10pt] font-[800] text-slate-900">{data.selloIRAM || '-'}</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Nº Serie (Tubo)</div>
-                                        <div className="text-[10pt] font-[800] text-slate-900">{data.numeroSerie || '-'}</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Potencial Extintor</div>
-                                        <div className="text-[10pt] font-[800] text-slate-900">{data.potencialExtintor || '3A 10B C'}</div>
-                                    </div>
-                                    {data.recargadora && (
-                                      <div>
-                                          <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Taller Recargador</div>
-                                          <div className="text-[10pt] font-[800] text-slate-900">{data.recargadora}</div>
-                                      </div>
-                                    )}
-                                    {data.tipoMontaje && (
-                                      <div>
-                                          <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Montaje / Soporte</div>
-                                          <div className="text-[10pt] font-[800] text-slate-900">{data.tipoMontaje}</div>
-                                      </div>
-                                    )}
-                                    {data.observaciones && (
-                                      <div className="col-span-2">
-                                          <div className="text-[8.5pt] text-[#475569] font-[800] uppercase tracking-wider">Observaciones Técnicas</div>
-                                          <div className="text-[9.5pt] font-[700] text-slate-800">{data.observaciones}</div>
-                                      </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="mb-[12px] avoid-break">
-                        <h3 className="m-[0_0_8px_0] text-[11pt] text-slate-900 flex items-center gap-[6px] border-b-[2px] border-slate-900 pb-[4px] font-[900]">
-                            <Calendar size={16} color="#d97706" /> Control de Vencimientos
-                        </h3>
-                        
-                        <table className="w-full border-collapse table-fixed break-words text-[9.5pt] font-sans">
-                            <thead>
-                                <tr className="avoid-break avoid-break-strictly break-inside-avoid bg-slate-100">
-                                    <th className="border border-slate-300 p-2 text-left w-[25%] font-[900] text-slate-900">Vencimiento Recarga</th>
-                                    <th className="border border-slate-300 p-2 text-left w-[25%] font-[900] text-slate-900">Vencimiento P.H. (5 Años)</th>
-                                    <th className="border border-slate-300 p-2 text-left w-[25%] font-[900] text-slate-900">Fecha Fabricación</th>
-                                    <th className="border border-slate-300 p-2 text-left w-[25%] font-[900] text-slate-900">Vida Útil (20 Años)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr className="avoid-break avoid-break-strictly break-inside-avoid">
-                                    <td className="border border-slate-300 p-2">
-                                        <div className="text-[10pt] font-[900] text-slate-900">{recargaStatus.expirationDate || '-'}</div>
-                                        <div style={{ color: recargaStatus.color }} className="font-[900] mt-[2px] text-[8.5pt]">{recargaStatus.text}</div>
-                                    </td>
-                                    <td className="border border-slate-300 p-2">
-                                        <div className="text-[10pt] font-[900] text-slate-900">{phStatus.expirationDate ? phStatus.expirationDate : '-'}</div>
-                                        <div style={{ color: phStatus.color }} className="font-[900] mt-[2px] text-[8.5pt]">{phStatus.text}</div>
-                                    </td>
-                                    <td className="border border-slate-300 p-2">
-                                        <div className="text-[10pt] font-[900] text-slate-900">{data.fechaFabricacion ? new Date(data.fechaFabricacion).toLocaleDateString('es-AR') : '-'}</div>
-                                    </td>
-                                    <td className="border border-slate-300 p-2">
-                                        <div className="text-[10pt] font-[900] text-slate-900">{lifespanStatus.expirationDate || '-'}</div>
-                                        {lifespanStatus &&
-                                        <div style={{ color: lifespanStatus.color }} className="font-[900] mt-[2px] text-[8.5pt]">{lifespanStatus.text}</div>
-                                        }
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div className="mb-[12px]">
-                        <h3 className="m-[0_0_8px_0] text-[11pt] text-slate-900 flex items-center gap-[6px] border-b-[2px] border-slate-900 pb-[4px] font-[900] avoid-break">
-                            <ShieldCheck size={16} color="#059669" /> Registro de Control e Inspección
-                        </h3>
-                        
-                        <div>
-                        {latestInspection ? (
-                            <div>
-                                <div className="flex justify-between mb-[8px] text-[9.5pt] bg-slate-50 p-[6px_10px] rounded-[6px] border border-slate-300 avoid-break">
-                                    <div><strong className="text-slate-600">Fecha:</strong> <span className="font-[900] text-slate-900">{new Date(latestInspection.fecha).toLocaleDateString('es-AR')}</span></div>
-                                    <div><strong className="text-slate-600">Inspector:</strong> <span className="font-[900] text-slate-900">{latestInspection.inspector || '-'}</span></div>
-                                    <div><strong className="text-slate-600">Resultado:</strong> <span className={`font-[900] ml-1 ${latestInspection.resultado === 'APROBADO' || latestInspection.resultado === 'C' ? 'text-emerald-700' : 'text-red-700'}`}>{latestInspection.resultado || 'COMPLETADO'}</span></div>
-                                </div>
-                                
-                                <table className="w-full border-collapse break-words text-[9.5pt] font-sans mt-2">
-                                    <thead>
-                                        <tr className="avoid-break break-inside-avoid bg-slate-100" style={{ pageBreakInside: 'avoid' }}>
-                                            <th className="border border-slate-300 p-2 text-left w-[46%] font-[900] text-slate-900">Ítem a Verificar</th>
-                                            <th className="border border-slate-300 p-2 text-center w-[24%] font-[900] text-slate-900">Estado</th>
-                                            <th className="border border-slate-300 p-2 text-left w-[30%] font-[900] text-slate-900">Observación</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {latestInspection.items?.map((item: any, idx: number) => {
-                                            const isOk = item.status === 'C' || item.status === 'OK' || item.status === 'APROBADO';
-                                            const isFail = item.status === 'NC' || item.status === 'RECHAZADO';
-                                            const statusColor = isOk ? '#059669' : isFail ? '#dc2626' : '#475569';
-                                            const statusLabel = isOk ? 'CONFORME (C)' : isFail ? 'NO CONFORME (NC)' : item.status || 'N/A';
-                                            const obsText = (item.notes && item.notes.trim().length > 0)
-                                                ? item.notes
-                                                : (item.observacion && item.observacion.trim().length > 0)
-                                                    ? item.observacion
-                                                    : 'Sin observación';
-
-                                            return (
-                                                <tr key={idx} className="avoid-break break-inside-avoid" style={{ background: idx % 2 === 1 ? '#f8fafc' : '#ffffff', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
-                                                    <td className="border border-slate-300 p-2 text-slate-900 font-bold break-words whitespace-normal">
-                                                        {item.text}
-                                                    </td>
-                                                    <td style={{ color: statusColor }} className="border border-slate-300 p-2 text-center font-[900] whitespace-nowrap">
-                                                        {statusLabel}
-                                                    </td>
-                                                    <td className="border border-slate-300 p-2 text-slate-700 italic break-words whitespace-normal">
-                                                        {obsText}
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-
-                                {latestInspection.observaciones &&
-                                    <div className="mt-[8px] text-[9.5pt] bg-[#fffbeb] p-[8px_12px] rounded-[6px] border-[1.5px] border-[#fde68a] text-[#78350f] avoid-break" style={{ pageBreakInside: 'avoid' }}>
-                                        <strong className="block mb-[2px] font-[900] text-[#92400e]">Observaciones Generales:</strong>
-                                        {latestInspection.observaciones}
-                                    </div>
-                                }
-
-                                {(latestInspection.fotos && latestInspection.fotos.length > 0 || latestInspection.items && latestInspection.items.some((i) => i.photos && i.photos.length > 0)) &&
-                                    <div className="mt-[10px] border-t-[1.5px] border-dashed border-slate-300 pt-[8px] avoid-break" style={{ pageBreakInside: 'avoid' }}>
-                                        <h4 className="m-[0_0_8px_0] text-[9.5pt] text-slate-900 font-[900]">📸 Evidencia Fotográfica</h4>
-                                        
-                                        {latestInspection.fotos && latestInspection.fotos.length > 0 &&
-                                            <div className="mb-[8px] avoid-break">
-                                                <span className="text-[8.5pt] font-[800] text-[#475569] block mb-[4px]">General:</span>
-                                                <div className="flex gap-[8px] flex-wrap">
-                                                    {latestInspection.fotos.map((foto, fIdx) =>
-                                                        <img key={`gen-f-${fIdx}`} src={foto} alt="Evidencia" className="w-[70px] h-[70px] object-cover rounded-[6px] border border-slate-300" />
-                                                    )}
-                                                </div>
-                                            </div>
-                                        }
-
-                                        {latestInspection.items && latestInspection.items.some((i) => i.photos && i.photos.length > 0) &&
-                                            <div className="flex gap-[10px] flex-wrap">
-                                                {latestInspection.items.filter((i) => i.photos && i.photos.length > 0).map((item, idx) =>
-                                                    <div key={`item-f-${idx}`} className="flex flex-col gap-[4px] avoid-break">
-                                                        <span className="text-[8pt] font-[800] text-slate-700 max-w-[110px] whitespace-nowrap overflow-hidden text-ellipsis">{item.text}</span>
-                                                        <div className="flex gap-[4px]">
-                                                            {item.photos.map((foto, pIdx) =>
-                                                                <img key={`ip-${idx}-${pIdx}`} src={foto} alt="Evidencia Ítem" className="w-[55px] h-[55px] object-cover rounded-[4px] border border-slate-300" />
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        }
-                                    </div>
-                                }
-
-                            </div>
-                        ) : (
-                            <div style={{ padding: '16px', textAlign: 'center', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1.5px dashed #cbd5e1', color: '#64748b' }}>
-                                <p style={{ margin: 0, fontWeight: 800, fontSize: '10pt' }}>⚠️ Sin inspecciones registradas</p>
-                                <p style={{ margin: '4px 0 0 0', fontSize: '8.5pt', fontStyle: 'italic' }}>No se han realizado inspecciones para este equipo todavía.</p>
-                            </div>
-                        )}
-                        </div>
-                    </div>
-
-                    {/* Bloque unificado de Firmas y Pie de Documento con protección estricta contra saltos de página */}
-                    <div 
-                        className="avoid-break avoid-break-strictly break-inside-avoid w-full block mt-3" 
-                        data-avoid-break="true"
-                        data-orphan-threshold="260"
-                        style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
-                    >
-                        <PdfSignatures
-                            data={data}
-                            box1={data.showSignatures?.operator ? {
-                            title: 'RESPONSABLE DE CONTROL',
-                            subtitle: 'Inspección de Campo',
-                            signatureUrl: data.operatorSignature || null,
-                            isProfessional: false
-                            } : null}
-                            box2={data.showSignatures?.professional !== false ? {
-                            title: 'PROFESIONAL DE HIGIENE Y SEGURIDAD',
-                            subtitle: (latestInspection?.inspector || actName || 'Firma y Sello H&S').toUpperCase(),
-                            signatureUrl: actSignature || null,
-                            stampUrl: actStamp || null,
-                            isProfessional: true,
-                            license: actLic || null
-                            } : null}
-                            box3={data.showSignatures?.supervisor ? {
-                            title: 'RESPONSABLE DEL ESTABLECIMIENTO',
-                            subtitle: 'Conformidad y Recepción',
-                            signatureUrl: data.supervisorSignature || null,
-                            isProfessional: false
-                            } : null} 
-                        />
-                        <div className="mt-2">
-                            <PdfBrandingFooter />
-                        </div>
-                    </div>
+          {/* ─── ENCABEZADO MEMBRETADO OFICIAL ─── */}
+          <div
+            style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
+            className="flex items-center justify-between pb-1.5 border-b-2 border-slate-900 mb-1.5 avoid-break"
+          >
+            <div className="flex items-center gap-2.5">
+              <CompanyLogo className="h-9 w-auto max-w-[110px] object-contain" />
+              <div>
+                <div
+                  style={{ backgroundColor: '#fef3c7', color: '#92400e', border: '1px solid #fde68a' }}
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[6pt] font-black uppercase tracking-wider mb-0.5"
+                >
+                  <Flame size={9} color="#d97706" /> Protección Contra Incendios · Ley 19.587 · Dec. 351/79 Anexo VII · IRAM 3517-2
                 </div>
+                <h1 style={{ color: '#0f172a' }} className="text-[12pt] font-black uppercase tracking-tight m-0 leading-none">
+                  FICHA TÉCNICA Y ACTA DE INSPECCIÓN DE MATAFUEGO
+                </h1>
+                <p style={{ color: '#475569' }} className="text-[7pt] font-bold uppercase tracking-wide m-0 mt-0.5 leading-none">
+                  Trazabilidad de Extintor, Vencimientos Reglamentarios y Control Periódico NFPA 10
+                </p>
+              </div>
             </div>
-        </div>);
+            <div className="text-right shrink-0">
+              <span
+                style={{ backgroundColor: '#0f172a', color: '#ffffff' }}
+                className="inline-block text-[9px] font-mono font-black px-2 py-0.5 rounded"
+              >
+                CHAPA #{data.numero || data.chapa || 'S/N'}
+              </span>
+              <p style={{ color: '#475569' }} className="text-[7pt] font-extrabold m-0 mt-0.5">
+                FECHA: {new Date().toLocaleDateString('es-AR')}
+              </p>
+            </div>
+          </div>
+
+          {/* ─── BANNER EJECUTIVO DE DICTAMEN Y VIGENCIA ─── */}
+          <div
+            style={{
+              backgroundColor: dictamenBoxBg,
+              border: `1.5px solid ${dictamenBorder}`,
+              breakInside: 'avoid',
+              pageBreakInside: 'avoid'
+            }}
+            className="px-2.5 py-1.5 rounded-lg mb-1.5 flex items-center justify-between gap-2 avoid-break"
+          >
+            <div>
+              <span style={{ color: '#475569' }} className="text-[6.5pt] font-black uppercase tracking-widest block leading-none">
+                DICTAMEN TÉCNICO Y CONDICIÓN OPERATIVA DEL EQUIPO
+              </span>
+              <div className="flex items-center gap-2 mt-1">
+                <span
+                  style={{ backgroundColor: dictamenBadgeBg, color: '#ffffff' }}
+                  className="font-black text-[9px] px-2 py-0.5 rounded uppercase tracking-wide inline-block leading-tight"
+                >
+                  {dictamenLabel}
+                </span>
+                <span style={{ color: '#0f172a' }} className="text-[8pt] font-black">
+                  {formatType(data.tipo)} ({data.capacidad || '5 kg'}) · Potencial {data.potencialExtintor || '3A 10B C'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="text-right border-l border-slate-300 pl-2.5">
+                <span style={{ color: '#475569' }} className="text-[6pt] font-extrabold block uppercase leading-none">
+                  VTO. CARGA ANUAL
+                </span>
+                <span style={{ color: recargaStatus.color }} className="text-[8.5pt] font-black block leading-tight">
+                  {recargaStatus.expirationDate || 'Sin fecha'}
+                </span>
+                <span style={{ color: recargaStatus.color }} className="text-[6pt] font-extrabold uppercase block leading-none">
+                  {recargaStatus.text}
+                </span>
+              </div>
+              <div className="text-right border-l border-slate-300 pl-2.5">
+                <span style={{ color: '#475569' }} className="text-[6pt] font-extrabold block uppercase leading-none">
+                  VTO. P. HIDRÁULICA
+                </span>
+                <span style={{ color: phStatus.color }} className="text-[8.5pt] font-black block leading-tight">
+                  {phStatus.expirationDate || 'Sin fecha'}
+                </span>
+                <span style={{ color: phStatus.color }} className="text-[6pt] font-extrabold uppercase block leading-none">
+                  {phStatus.text}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* ─── SECCIÓN 1: DATOS TÉCNICOS DEL EQUIPO Y UBICACIÓN ─── */}
+          <div
+            style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
+            className="mb-1.5 border border-slate-300 rounded-lg overflow-hidden avoid-break"
+          >
+            <div
+              style={{ backgroundColor: '#0f172a', color: '#ffffff' }}
+              className="text-[8px] font-black px-2.5 py-1 uppercase tracking-wider flex items-center justify-between"
+            >
+              <span className="flex items-center gap-1">
+                <Hash size={9} /> 1. IDENTIFICACIÓN TÉCNICA DEL EQUIPO, UBICACIÓN Y ESTABLECIMIENTO
+              </span>
+              <span className="text-[7px] font-bold text-slate-300">ANEXO VII DEC. 351/79</span>
+            </div>
+
+            <div className="p-1.5 bg-slate-50/70 flex gap-2 items-stretch">
+              {data.foto && (
+                <div className="w-[70px] shrink-0 flex items-center justify-center">
+                  <img
+                    src={data.foto}
+                    alt="Extintor"
+                    className="w-[70px] h-[74px] object-cover rounded border border-slate-300"
+                  />
+                </div>
+              )}
+
+              <div className="flex-1 grid grid-cols-4 gap-x-2.5 gap-y-1 text-xs">
+                <div>
+                  <span className="text-[6.5pt] font-black text-slate-400 uppercase block leading-none">Nº Chapa / ID</span>
+                  <span className="font-black text-slate-900 text-[10px]">#{data.numero || data.chapa || '-'}</span>
+                </div>
+                <div>
+                  <span className="text-[6.5pt] font-black text-slate-400 uppercase block leading-none">Agente y Capacidad</span>
+                  <span className="font-extrabold text-slate-900 text-[10px]">
+                    {formatType(data.tipo)} — {data.capacidad || '5 kg'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[6.5pt] font-black text-slate-400 uppercase block leading-none">Potencial Extintor</span>
+                  <span className="font-extrabold text-slate-900 text-[10px]">{data.potencialExtintor || '3A 10B C'}</span>
+                </div>
+                <div>
+                  <span className="text-[6.5pt] font-black text-slate-400 uppercase block leading-none">Estado Operativo</span>
+                  <span className="font-extrabold text-slate-900 text-[10px]">{data.estadoFisico || 'Operativo'}</span>
+                </div>
+
+                <div className="col-span-2">
+                  <span className="text-[6.5pt] font-black text-slate-400 uppercase block leading-none">Ubicación / Sector Asignado</span>
+                  <span className="font-extrabold text-slate-900 text-[10px] flex items-center gap-1">
+                    <MapPin size={9} color="#dc2626" /> {data.ubicacion || 'Sin ubicación especificada'}
+                  </span>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-[6.5pt] font-black text-slate-400 uppercase block leading-none">Razón Social / Establecimiento</span>
+                  <span className="font-bold text-slate-800 text-[10px]">{data.empresa || 'Planta Principal'}</span>
+                </div>
+
+                <div className="border-t border-slate-200 pt-0.5">
+                  <span className="text-[6pt] font-black text-slate-400 uppercase block leading-none">Marca / Fabricante</span>
+                  <span className="font-bold text-slate-800 text-[9.5px]">{data.marca || 'Estándar IRAM'}</span>
+                </div>
+                <div className="border-t border-slate-200 pt-0.5">
+                  <span className="text-[6pt] font-black text-slate-400 uppercase block leading-none">Nº de Serie Cilindro</span>
+                  <span className="font-bold font-mono text-slate-800 text-[9.5px]">{data.numeroSerie || '-'}</span>
+                </div>
+                <div className="border-t border-slate-200 pt-0.5">
+                  <span className="text-[6pt] font-black text-slate-400 uppercase block leading-none">Sello IRAM / OPDS</span>
+                  <span className="font-bold text-slate-800 text-[9.5px]">{data.selloIRAM || '-'}</span>
+                </div>
+                <div className="border-t border-slate-200 pt-0.5">
+                  <span className="text-[6pt] font-black text-slate-400 uppercase block leading-none">Soporte / Montaje</span>
+                  <span className="font-bold text-slate-800 text-[9px] leading-tight block">
+                    {data.tipoMontaje || 'Soporte mural (1.20m - 1.50m)'}
+                  </span>
+                </div>
+
+                {(data.recargadora || data.observaciones) && (
+                  <div className="col-span-4 border-t border-slate-200 pt-0.5 flex flex-wrap justify-between gap-2">
+                    {data.recargadora && (
+                      <div>
+                        <span className="text-[6pt] font-black text-slate-400 uppercase mr-1">Taller Recargador:</span>
+                        <span className="font-bold text-slate-800 text-[9px]">{data.recargadora}</span>
+                      </div>
+                    )}
+                    {data.observaciones && (
+                      <div className="flex-1">
+                        <span className="text-[6pt] font-black text-slate-400 uppercase mr-1">Notas Técnicas:</span>
+                        <span className="font-semibold text-slate-700 text-[9px] italic">{data.observaciones}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* ─── SECCIÓN 2: CRONOGRAMA DE VENCIMIENTOS Y CONTROLES FÍSICOS DE CAMPO ─── */}
+          <div
+            style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
+            className="mb-1.5 border border-slate-300 rounded-lg overflow-hidden avoid-break"
+          >
+            <div
+              style={{ backgroundColor: '#0f172a', color: '#ffffff' }}
+              className="text-[8px] font-black px-2.5 py-1 uppercase tracking-wider flex items-center justify-between"
+            >
+              <span className="flex items-center gap-1">
+                <Calendar size={9} /> 2. CONTROL DE VENCIMIENTOS REGLAMENTARIOS Y VERIFICACIÓN FÍSICA RÁPIDA
+              </span>
+              <span className="text-[7px] font-bold text-slate-300">NORMA IRAM 3517-2</span>
+            </div>
+
+            <div className="p-1.5 bg-white space-y-1">
+              <div className="grid grid-cols-3 gap-1.5">
+                <div
+                  style={{ backgroundColor: recargaStatus.bg, borderColor: recargaStatus.border }}
+                  className="px-2 py-1 rounded border flex items-center justify-between"
+                >
+                  <div>
+                    <span className="text-[6pt] font-black text-slate-500 uppercase block leading-none">
+                      Recarga Anual (1 Año)
+                    </span>
+                    <span className="text-[8.5pt] font-black text-slate-900 block leading-tight">
+                      Vto: {recargaStatus.expirationDate || '-'}
+                    </span>
+                    <span className="text-[6pt] text-slate-500 font-semibold block leading-none">
+                      Últ. Carga: {recargaStatus.baseDate || '-'}
+                    </span>
+                  </div>
+                  <span
+                    style={{ backgroundColor: recargaStatus.color, color: '#ffffff' }}
+                    className="text-[6pt] font-black px-1.5 py-0.5 rounded uppercase shrink-0"
+                  >
+                    {recargaStatus.text}
+                  </span>
+                </div>
+
+                <div
+                  style={{ backgroundColor: phStatus.bg, borderColor: phStatus.border }}
+                  className="px-2 py-1 rounded border flex items-center justify-between"
+                >
+                  <div>
+                    <span className="text-[6pt] font-black text-slate-500 uppercase block leading-none">
+                      Prueba Hidráulica (5 Años)
+                    </span>
+                    <span className="text-[8.5pt] font-black text-slate-900 block leading-tight">
+                      Vto: {phStatus.expirationDate || '-'}
+                    </span>
+                    <span className="text-[6pt] text-slate-500 font-semibold block leading-none">
+                      Últ. P.H.: {phStatus.baseDate || '-'}
+                    </span>
+                  </div>
+                  <span
+                    style={{ backgroundColor: phStatus.color, color: '#ffffff' }}
+                    className="text-[6pt] font-black px-1.5 py-0.5 rounded uppercase shrink-0"
+                  >
+                    {phStatus.text}
+                  </span>
+                </div>
+
+                <div
+                  style={{ backgroundColor: lifespanStatus.bg, borderColor: lifespanStatus.border }}
+                  className="px-2 py-1 rounded border flex items-center justify-between"
+                >
+                  <div>
+                    <span className="text-[6pt] font-black text-slate-500 uppercase block leading-none">
+                      Vida Útil Cilindro (20 Años)
+                    </span>
+                    <span className="text-[8.5pt] font-black text-slate-900 block leading-tight">
+                      Baja: {lifespanStatus.expirationDate || '-'}
+                    </span>
+                    <span className="text-[6pt] text-slate-500 font-semibold block leading-none">
+                      Fabricación: {lifespanStatus.baseDate || '-'}
+                    </span>
+                  </div>
+                  <span
+                    style={{ backgroundColor: lifespanStatus.color, color: '#ffffff' }}
+                    className="text-[6pt] font-black px-1.5 py-0.5 rounded uppercase shrink-0"
+                  >
+                    {lifespanStatus.text}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-4 gap-1.5">
+                {[
+                  { label: 'Manómetro (Presión)', ok: mOk },
+                  { label: 'Precinto y Chaveta', ok: pOk },
+                  { label: 'Chapa Baliza / Señal.', ok: sOk },
+                  { label: 'Acceso Despejado', ok: aOk }
+                ].map((chk, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      backgroundColor: chk.ok ? '#f0fdf4' : '#fef2f2',
+                      borderColor: chk.ok ? '#bbf7d0' : '#fecdd3'
+                    }}
+                    className="px-2 py-0.5 rounded border flex items-center justify-between"
+                  >
+                    <span className="text-[6.5pt] font-extrabold text-slate-800 truncate">{chk.label}</span>
+                    <span
+                      style={{ color: chk.ok ? '#15803d' : '#dc2626' }}
+                      className="text-[6.5pt] font-black uppercase ml-1 shrink-0"
+                    >
+                      {chk.ok ? '✓ OK' : '✕ OBS'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ─── SECCIÓN 3: REGISTRO DE INSPECCIÓN PERIÓDICA (NFPA 10 / IRAM 3517-2) ─── */}
+          <div className="mb-1.5 border border-slate-300 rounded-lg overflow-hidden avoid-break">
+            <div
+              style={{ backgroundColor: '#0f172a', color: '#ffffff' }}
+              className="text-[8px] font-black px-2.5 py-1 uppercase tracking-wider flex items-center justify-between"
+            >
+              <span className="flex items-center gap-1">
+                <ShieldCheck size={9} /> 3. LISTA DE VERIFICACIÓN E INSPECCIÓN PERIÓDICA (NORMA NFPA 10 / IRAM 3517-2)
+              </span>
+              {latestInspection && (
+                <span className="text-[7px] font-bold text-slate-200">
+                  FECHA: {new Date(latestInspection.fecha).toLocaleDateString('es-AR')} · INSPECTOR:{' '}
+                  {(latestInspection.inspector || actName || 'HSE').toUpperCase()} · RESULTADO:{' '}
+                  {latestInspection.resultado || 'APROBADO'}
+                </span>
+              )}
+            </div>
+
+            <div className="p-1.5 bg-white">
+              {latestInspection ? (
+                <div>
+                  {/* Grilla de 2 columnas para los puntos de control NFPA 10 para máxima legibilidad en 1 sola hoja A4 */}
+                  <div className="grid grid-cols-2 gap-1">
+                    {latestInspection.items?.map((item: any, idx: number) => {
+                      const isOk = item.status === 'C' || item.status === 'OK' || item.status === 'APROBADO';
+                      const isFail = item.status === 'NC' || item.status === 'RECHAZADO';
+                      const statusBg = isOk ? '#059669' : isFail ? '#dc2626' : '#475569';
+                      const rowBg = isFail ? '#fef2f2' : idx % 2 === 0 ? '#f8fafc' : '#ffffff';
+                      const rowBorder = isFail ? '#fecdd3' : '#e2e8f0';
+                      const statusLabel = isOk ? 'CONFORME' : isFail ? 'NO CONFORME' : item.status || 'N/A';
+                      const obsText =
+                        item.notes && item.notes.trim().length > 0
+                          ? item.notes
+                          : item.observacion && item.observacion.trim().length > 0
+                          ? item.observacion
+                          : '';
+
+                      return (
+                        <div
+                          key={idx}
+                          style={{ backgroundColor: rowBg, border: `1px solid ${rowBorder}` }}
+                          className="px-2 py-1 rounded flex items-center justify-between gap-1.5"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-[6.8pt] font-black text-slate-500 shrink-0">{idx + 1}.</span>
+                              <span className="text-[7pt] font-bold text-slate-900 leading-tight truncate">
+                                {item.text}
+                              </span>
+                            </div>
+                            {obsText && (
+                              <div className="text-[6.3pt] text-slate-600 italic pl-3 leading-none mt-0.5 truncate">
+                                Obs: {obsText}
+                              </div>
+                            )}
+                          </div>
+                          <span
+                            style={{ backgroundColor: statusBg, color: '#ffffff' }}
+                            className="text-[6pt] font-black px-1.5 py-0.5 rounded uppercase shrink-0 leading-none"
+                          >
+                            {statusLabel}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {latestInspection.observaciones && (
+                    <div
+                      style={{ backgroundColor: '#fffbeb', border: '1px solid #fde68a', color: '#78350f' }}
+                      className="mt-1 text-[7.5pt] px-2 py-1 rounded"
+                    >
+                      <strong className="font-black text-[#92400e] mr-1">Observaciones Generales:</strong>
+                      <span>{latestInspection.observaciones}</span>
+                    </div>
+                  )}
+
+                  {((latestInspection.fotos && latestInspection.fotos.length > 0) ||
+                    (latestInspection.items && latestInspection.items.some((i: any) => i.photos && i.photos.length > 0))) && (
+                    <div className="mt-1 border-t border-dashed border-slate-300 pt-1">
+                      <span className="text-[7pt] text-slate-800 font-black block mb-1">📸 Evidencia Fotográfica:</span>
+                      <div className="flex gap-1.5 flex-wrap items-center">
+                        {latestInspection.fotos?.map((foto: string, fIdx: number) => (
+                          <img
+                            key={`gen-f-${fIdx}`}
+                            src={foto}
+                            alt="Evidencia"
+                            className="w-[46px] h-[46px] object-cover rounded border border-slate-300"
+                          />
+                        ))}
+                        {latestInspection.items
+                          ?.filter((i: any) => i.photos && i.photos.length > 0)
+                          .map((item: any, idx: number) =>
+                            item.photos.map((foto: string, pIdx: number) => (
+                              <img
+                                key={`ip-${idx}-${pIdx}`}
+                                src={foto}
+                                alt="Evidencia Ítem"
+                                className="w-[46px] h-[46px] object-cover rounded border border-slate-300"
+                              />
+                            ))
+                          )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    padding: '6px 10px',
+                    textAlign: 'center',
+                    backgroundColor: '#f8fafc',
+                    borderRadius: '6px',
+                    border: '1px dashed #cbd5e1',
+                    color: '#64748b'
+                  }}
+                >
+                  <p style={{ margin: 0, fontWeight: 800, fontSize: '7.5pt' }}>
+                    Equipo registrado en padrón — Controles físicos verificados en Sección 2
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ─── BLOQUE UNIFICADO DE FIRMAS Y PIE LEGAL ─── */}
+          <div
+            className="avoid-break avoid-break-strictly break-inside-avoid w-full block"
+            data-avoid-break="true"
+            style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
+          >
+            {(() => {
+              const sigShow = latestInspection?.showSignatures || data.showSignatures || {
+                operator: false,
+                professional: true,
+                supervisor: false
+              };
+              const opSig = latestInspection?.inspectorSignature || data.operatorSignature || null;
+              const supSig = latestInspection?.supervisorSignature || data.supervisorSignature || null;
+              const proSig = latestInspection?.professionalSignature || data.professionalSignature || actSignature || null;
+              return (
+                <PdfSignatures
+                  data={{
+                    ...data,
+                    showSignatures: sigShow,
+                    professionalSignature: proSig,
+                    professionalStamp: actStamp,
+                    professionalName: actName,
+                    professionalLicense: actLic,
+                    professionalTitle: actTitle
+                  }}
+                  compact={true}
+                  hideFooter={true}
+                  box1={
+                    sigShow?.operator
+                      ? {
+                          title: 'RESPONSABLE DE CONTROL',
+                          subtitle: 'INSPECCIÓN DE CAMPO',
+                          signatureUrl: opSig,
+                          isProfessional: false
+                        }
+                      : null
+                  }
+                  box2={
+                    sigShow?.professional !== false
+                      ? {
+                          title: (actTitle || 'PROFESIONAL DE HIGIENE Y SEGURIDAD').toUpperCase(),
+                          subtitle: (latestInspection?.inspector || actName || 'FIRMA Y SELLO H&S').toUpperCase(),
+                          signatureUrl: proSig,
+                          stampUrl: actStamp || null,
+                          isProfessional: true,
+                          license: actLic || null,
+                          profession: actTitle || null
+                        }
+                      : null
+                  }
+                  box3={
+                    sigShow?.supervisor
+                      ? {
+                          title: 'RESPONSABLE DEL ESTABLECIMIENTO',
+                          subtitle: (data.empresa || 'CONFORMIDAD Y RECEPCIÓN').toUpperCase(),
+                          signatureUrl: supSig,
+                          isProfessional: false
+                        }
+                      : null
+                  }
+                />
+              );
+            })()}
+            <div className="mt-1">
+              <PdfBrandingFooter />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

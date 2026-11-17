@@ -294,7 +294,7 @@ export async function printElementAsDocument(
   iframe.style.zIndex = '-9999';
 
   await new Promise<void>(resolve => {
-    const timeout = setTimeout(resolve, 2000);
+    const timeout = setTimeout(resolve, 600);
     iframe.onload = () => {
       clearTimeout(timeout);
       resolve();
@@ -305,7 +305,7 @@ export async function printElementAsDocument(
 
   const doc = iframe.contentWindow?.document;
   if (doc) {
-    // Esperar a que todas las imágenes dentro del iframe terminen de cargarse
+    // Esperar brevemente a que las imágenes dentro del iframe terminen de cargarse sin perder la activación del usuario
     const images = Array.from(doc.querySelectorAll('img'));
     await Promise.all(
       images.map(img => {
@@ -313,14 +313,14 @@ export async function printElementAsDocument(
         return new Promise<void>(resolve => {
           img.onload = () => resolve();
           img.onerror = () => resolve();
-          setTimeout(resolve, 2500);
+          setTimeout(resolve, 500);
         });
       })
     );
   }
 
-  // Margen de seguridad para que el motor de renderizado calcule fuentes y layout
-  await new Promise(r => setTimeout(r, 350));
+  // Margen corto para mantener activo el user gesture de impresión en Chrome/Edge
+  await new Promise(r => setTimeout(r, 120));
 
   try {
     iframe.contentWindow?.focus();
@@ -379,9 +379,11 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
       }
     }
 
-    // ── Dimensiones A4 exactas @ 96 DPI ───────────────────────────────────────
+    // ── Dimensiones A4 internas exactas @ 96 DPI (con márgenes de 10mm por lado) ──
     const MM_TO_PX = 96 / 25.4; // 3.7795…
-    const targetWidth = Math.round((effectiveLandscape ? 297 : 210) * MM_TO_PX);
+    const pageInnerWidthMM = (effectiveLandscape ? 297 : 210) - 20;
+    const pageInnerHeightMM = (effectiveLandscape ? 210 : 297) - 20;
+    const targetWidth = Math.floor(pageInnerWidthMM * MM_TO_PX);
 
     // ── Contenedor off-screen ─────────────────────────────────────────────────
     const offscreenContainer = document.createElement('div');
@@ -583,53 +585,110 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
     // inner.height = pageSize.height - margin.top - margin.bottom = 297 - 20 = 277mm (portrait)
     // ratio = inner.height / inner.width
     // pxPageHeight = Math.floor(targetWidth * ratio)
-    const pageInnerWidthMM = (effectiveLandscape ? 297 : 210) - 20;
-    const pageInnerHeightMM = (effectiveLandscape ? 210 : 297) - 20;
     const exactPageRatio = pageInnerHeightMM / pageInnerWidthMM;
     const exactPxPageHeight = Math.floor(targetWidth * exactPageRatio);
-
-    // ── Saltos de página nativos de html2pdf ─────────────────────────────────
-    // html2pdf maneja los saltos de página basándose en las directivas de CSS
-    // 'page-break-inside: avoid' y la lista de selectores de 'opt.pagebreak.avoid'.
-    // Únicamente para tablas 'tbody.ext-row' se inserta spacer si excede la página.
-    const cloneRect = clone.getBoundingClientRect();
-    if (cloneRect.height > exactPxPageHeight + 15) {
-      // Manejar tbody.ext-row dentro de tablas (html2canvas requiere tbody spacer en tables)
-      const extRowEls = Array.from(clone.querySelectorAll('tbody.ext-row')) as HTMLElement[];
-      for (const extRow of extRowEls) {
-        const rowRect = extRow.getBoundingClientRect();
-        const freshCloneRect = clone.getBoundingClientRect();
-        const topPx = rowRect.top - freshCloneRect.top;
-        const heightPx = rowRect.height;
-
-        if (topPx > exactPxPageHeight * 0.3 && heightPx > 0 && heightPx < exactPxPageHeight * 0.9) {
-          const pageAtTop = Math.floor(topPx / exactPxPageHeight);
-          const safetyBuffer = 20;
-          const pageAtBottom = Math.floor((topPx + heightPx + safetyBuffer) / exactPxPageHeight);
-          if (pageAtBottom > pageAtTop) {
-            const spaceLeftOnPage = (pageAtTop + 1) * exactPxPageHeight - topPx;
-            const spacerHeight = Math.ceil(spaceLeftOnPage) + 4;
-
-            const colCount = extRow.closest('table')?.querySelectorAll('thead tr th').length ?? 7;
-            const spacerTbody = document.createElement('tbody');
-            const spacerTr = document.createElement('tr');
-            const spacerTd = document.createElement('td');
-            spacerTd.setAttribute('colspan', String(colCount));
-            spacerTd.style.cssText = `height: ${spacerHeight}px; padding: 0; border: none !important; background: transparent !important; visibility: hidden;`;
-            spacerTr.appendChild(spacerTd);
-            spacerTbody.appendChild(spacerTr);
-            extRow.parentNode?.insertBefore(spacerTbody, extRow);
-            await new Promise(r => requestAnimationFrame(r));
-          }
-        }
-      }
-    }
 
     try {
       await waitForImages(clone);
       await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
       const renderWait = ('ontouchstart' in window || window.innerWidth < 768) ? 500 : 200;
       await new Promise(r => setTimeout(r, renderWait));
+
+      const ATOMIC_SELECTOR =
+        '[data-avoid-break], .pdf-signatures-wrapper, .pdf-brand-container, .avoid-break, .avoid-break-strictly, .break-inside-avoid, .report-callout, .signature-block, tbody.ext-row, tr';
+
+      const cloneRect = clone.getBoundingClientRect();
+      if (cloneRect.height > exactPxPageHeight + 12) {
+        const candidates = Array.from(
+          clone.querySelectorAll(`.page-break-before, .force-page-break, ${ATOMIC_SELECTOR}`)
+        ) as HTMLElement[];
+
+        for (const el of candidates) {
+          // Ignorar contenedores raíz del documento PDF
+          if (
+            el === clone ||
+            el.classList.contains('pdf-container') ||
+            el.classList.contains('print-area') ||
+            el.id?.startsWith('pdf-') ||
+            el.id?.endsWith('-wrap')
+          ) {
+            continue;
+          }
+
+          // Si el elemento está dentro de un bloque atómico padre que ya cabe en 1 página, no partirlo por dentro
+          const parentAtomic = el.parentElement?.closest(ATOMIC_SELECTOR) as HTMLElement | null;
+          if (
+            parentAtomic &&
+            parentAtomic !== clone &&
+            !parentAtomic.classList.contains('pdf-container') &&
+            !parentAtomic.classList.contains('print-area') &&
+            parentAtomic.getBoundingClientRect().height < exactPxPageHeight * 0.88
+          ) {
+            continue;
+          }
+
+          // No insertar divs de salto como hijos directos de un flex row o grid
+          const parentStyle = el.parentElement ? originalGetComputedStyle(el.parentElement) : null;
+          if (
+            parentStyle &&
+            ((parentStyle.display.includes('flex') && !parentStyle.flexDirection.startsWith('column')) ||
+              parentStyle.display.includes('grid'))
+          ) {
+            continue;
+          }
+
+          const elRect = el.getBoundingClientRect();
+          const freshCloneRect = clone.getBoundingClientRect();
+          const topPx = elRect.top - freshCloneRect.top;
+          const heightPx = elRect.height;
+
+          if (heightPx <= 0) continue;
+
+          const isExplicitBefore =
+            el.classList.contains('page-break-before') || el.classList.contains('force-page-break');
+
+          const pageAtTop = Math.floor(topPx / exactPxPageHeight);
+          const safetyBuffer = 18;
+          const pageAtBottom = Math.floor((topPx + heightPx + safetyBuffer) / exactPxPageHeight);
+
+          const shouldPushToNextPage =
+            (isExplicitBefore && topPx % exactPxPageHeight > 24) ||
+            (pageAtBottom > pageAtTop && heightPx < exactPxPageHeight - safetyBuffer - 10);
+
+          if (shouldPushToNextPage) {
+            const spaceLeftOnPage = (pageAtTop + 1) * exactPxPageHeight - topPx;
+            const spacerHeight = Math.ceil(spaceLeftOnPage) + 8;
+
+            if (el.tagName === 'TBODY') {
+              const colCount = el.closest('table')?.querySelectorAll('thead tr th').length ?? 7;
+              const spacerTbody = document.createElement('tbody');
+              const spacerTr = document.createElement('tr');
+              const spacerTd = document.createElement('td');
+              spacerTd.setAttribute('colspan', String(colCount));
+              spacerTd.style.cssText = `height: ${spacerHeight}px; padding: 0; border: none !important; background: transparent !important; visibility: hidden;`;
+              spacerTr.appendChild(spacerTd);
+              spacerTbody.appendChild(spacerTr);
+              el.parentNode?.insertBefore(spacerTbody, el);
+            } else if (el.tagName === 'TR') {
+              const colCount = el.closest('table')?.querySelectorAll('thead tr th').length || el.children.length || 4;
+              const spacerTr = document.createElement('tr');
+              const spacerTd = document.createElement('td');
+              spacerTd.setAttribute('colspan', String(colCount));
+              spacerTd.style.cssText = `height: ${spacerHeight}px; padding: 0 !important; border: none !important; background: transparent !important;`;
+              spacerTr.appendChild(spacerTd);
+              el.parentNode?.insertBefore(spacerTr, el);
+            } else {
+              el.style.setProperty('margin-top', '0px', 'important');
+              const newTopPx = el.getBoundingClientRect().top - clone.getBoundingClientRect().top;
+              const exactSpacerHeight = Math.max(4, Math.ceil((pageAtTop + 1) * exactPxPageHeight - newTopPx) + 8);
+              const spacerDiv = document.createElement('div');
+              spacerDiv.style.cssText = `display: block; width: 100%; height: ${exactSpacerHeight}px; margin: 0; padding: 0; border: none; background: transparent;`;
+              el.parentNode?.insertBefore(spacerDiv, el);
+            }
+            await new Promise(r => requestAnimationFrame(r));
+          }
+        }
+      }
 
       offscreenContainer.getBoundingClientRect();
       clone.getBoundingClientRect();
@@ -667,31 +726,10 @@ export async function generatePdfBlob(elementId: string, isLandscape: boolean = 
           orientation: (effectiveLandscape ? 'landscape' : 'portrait') as 'landscape' | 'portrait'
         },
         pagebreak: {
-          mode: ['css', 'legacy'],
-          before: ['.page-break-before', '.force-page-break'],
-          avoid: [
-            'tr',
-            'td',
-            'th',
-            'p',
-            'li',
-            'h1',
-            'h2',
-            'h3',
-            'h4',
-            '.report-callout',
-            '.avoid-break',
-            '.avoid-break-strictly',
-            '.break-inside-avoid',
-            '.pdf-signatures-wrapper',
-            '.pdf-signatures-container',
-            '.pdf-brand-container',
-            '.signature-block',
-            '.ext-row',
-            '.hazard-row',
-            '.card',
-            '[data-avoid-break]'
-          ]
+          mode: [] as any,
+          before: [],
+          after: [],
+          avoid: []
         }
       };
 

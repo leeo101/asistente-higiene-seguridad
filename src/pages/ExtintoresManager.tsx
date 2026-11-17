@@ -30,7 +30,7 @@ import ExcelJS from 'exceljs';
 import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { BulkImportModal } from '../components/BulkImportModal';
 import { ExtinguisherImportRow } from '../utils/dataImporterExporter';
-import { printElementAsDocument } from '../utils/pdfHelper';
+import { printElementAsDocument, generatePdfBlob } from '../utils/pdfHelper';
 import { analyzeExtinguisherLocally } from '../utils/localVisionAnalyzer';
 
 const formatType = (tipo: string) => {
@@ -659,11 +659,11 @@ export default function ExtintoresManager() {
 
   const handlePrintIndividualForm = async (itemData: any) => {
     const title = `Ficha Técnica - Extintor #${itemData?.numero || 'S-N'}`;
-    const toastId = toast.loading('Preparando ficha para impresión...');
+    const toastId = toast.loading('Abriendo diálogo de impresión / guardar PDF...');
 
     try {
       setPrintItem(itemData);
-      await new Promise((r) => setTimeout(r, 350));
+      await new Promise((r) => setTimeout(r, 150));
 
       const element = document.getElementById('pdf-content-print');
       if (!element) {
@@ -690,6 +690,51 @@ export default function ExtintoresManager() {
         setPrintItem(null);
       }, 1500);
     }
+  };
+
+  const handleDownloadIndividualPdf = async (itemData: any) => {
+    const toastId = toast.loading('Generando PDF A4...');
+    try {
+      setPrintItem(itemData);
+      await new Promise((r) => setTimeout(r, 200));
+      const pdfBlob = await generatePdfBlob('pdf-content-print', false);
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Ficha_Extintor_${itemData?.numero || 'Reporte'}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+      toast.success('¡PDF descargado con éxito!', { id: toastId });
+    } catch (err) {
+      console.error('[ExtintoresManager] Error al descargar PDF:', err);
+      toast.error('Error al generar el PDF', { id: toastId });
+    } finally {
+      setTimeout(() => setPrintItem(null), 1000);
+    }
+  };
+
+  const handleOpenInspectionFromForm = async () => {
+    const targetId = editingId || formData.id || Date.now().toString();
+    const cleanNumero = (formData.numero || '').trim() || `EXT-${String(targetId).slice(-4)}`;
+    const cleanUbicacion = (formData.ubicacion || '').trim() || 'Planta Principal';
+
+    const entryToSave = {
+      ...formData,
+      id: targetId,
+      numero: cleanNumero,
+      ubicacion: cleanUbicacion,
+      updatedAt: new Date().toISOString()
+    };
+
+    const exists = extintores.some((ext: any) => String(ext.id) === String(targetId));
+    const updated = exists
+      ? extintores.map((ext: any) => (String(ext.id) === String(targetId) ? entryToSave : ext))
+      : [entryToSave, ...extintores];
+
+    await saveToStorage(updated);
+    navigate(`/extintores/inspect/${targetId}`);
   };
 
   const handleExportExcel = async () => {
@@ -807,6 +852,15 @@ export default function ExtintoresManager() {
   });
 
   const columns = [
+    {
+      header: 'Nº',
+      accessor: 'index',
+      render: (_: any, idx: number) => (
+        <div className="font-black text-white text-sm text-center bg-slate-800 dark:bg-slate-600 py-1.5 px-2.5 rounded-lg shadow-sm min-w-[36px] inline-block">
+          {idx + 1}
+        </div>
+      )
+    },
     {
       header: 'Equipo / Chapa',
       accessor: 'numero',
@@ -1457,10 +1511,22 @@ export default function ExtintoresManager() {
                           </div>
                         </div>
 
-                        <label className="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-xs rounded-xl cursor-pointer shadow-sm transition-all flex items-center gap-2">
-                          <Sparkles size={15} /> {isScanningMarbete ? 'Analizando marbete...' : 'Escanear Marbete con IA'}
-                          <input type="file" accept="image/*" capture="environment" ref={marbeteCameraRef} onChange={handleMarbeteScan} className="hidden" />
-                        </label>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <button
+                            type="button"
+                            onClick={() => requirePro(handleOpenInspectionFromForm)}
+                            style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none' }}
+                            className="px-4 py-2 hover:opacity-90 text-white font-extrabold text-xs rounded-xl cursor-pointer shadow-sm transition-all flex items-center gap-1.5"
+                            title="Abrir checklist de inspección NFPA 10 / IRAM 3517-2 de este matafuego"
+                          >
+                            <ShieldCheck size={15} /> Inspeccionar (NFPA 10)
+                          </button>
+
+                          <label className="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-xs rounded-xl cursor-pointer shadow-sm transition-all flex items-center gap-2">
+                            <Sparkles size={15} /> {isScanningMarbete ? 'Analizando marbete...' : 'Escanear Marbete con IA'}
+                            <input type="file" accept="image/*" capture="environment" ref={marbeteCameraRef} onChange={handleMarbeteScan} className="hidden" />
+                          </label>
+                        </div>
                       </div>
 
                       {/* Banner de Auditoría Regulatoria en Vivo (Estilo Aptitudes Médicas) */}
@@ -2018,263 +2084,110 @@ export default function ExtintoresManager() {
                         </div>
                       </div>
 
-                      {/* Botones de Acción Inferiores Estilo Aptitudes Médicas */}
+                      {/* Barra Única de Acciones del Formulario: Cancelar, Inspeccionar, Compartir, Imprimir y Guardar Matafuego */}
                       <div className="flex flex-wrap items-center justify-end gap-3 pt-6 border-t border-slate-200 dark:border-slate-700">
                         <button
                           type="button"
                           onClick={() => { setShowForm(false); setEditingId(null); }}
-                          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '12px 24px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)' }}
+                          style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', padding: '12px 22px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)' }}
                         >
-                          <ArrowLeft size={18} /> Cancelar / Volver
+                          <ArrowLeft size={18} /> Cancelar
                         </button>
+
+                        {editingId && (
+                          <button
+                            type="button"
+                            onClick={() => setShowHistoryModal(formData)}
+                            style={{ backgroundColor: '#475569', color: '#ffffff', border: 'none', padding: '12px 20px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(71, 85, 105, 0.25)' }}
+                          >
+                            <History size={18} /> Historial
+                          </button>
+                        )}
+
                         <button
                           type="button"
-                          onClick={() => setPreviewItem({ ...formData, id: formData.id || editingId || 'ext-' + Date.now() })}
-                          style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '12px 24px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(2, 132, 199, 0.3)' }}
+                          onClick={() => requirePro(handleOpenInspectionFromForm)}
+                          style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none', padding: '12px 22px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(217, 119, 6, 0.3)' }}
                         >
-                          <Printer size={18} /> Vista Previa / Imprimir A4
+                          <ShieldCheck size={18} /> Inspeccionar
                         </button>
+
+                        <button
+                          type="button"
+                          onClick={() => requirePro(() => setShareItem({ ...formData, id: formData.id || editingId || 'ext-' + Date.now() }))}
+                          style={{ backgroundColor: '#7c3aed', color: '#ffffff', border: 'none', padding: '12px 22px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)' }}
+                        >
+                          <Share2 size={18} /> Compartir
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => requirePro(() => handlePrintIndividualForm({ ...formData, id: formData.id || editingId || 'ext-' + Date.now() }))}
+                          style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none', padding: '12px 22px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(2, 132, 199, 0.3)' }}
+                        >
+                          <Printer size={18} /> Imprimir
+                        </button>
+
                         <button
                           type="button"
                           onClick={() => requirePro(() => handleSave({ preventDefault: () => {} } as any))}
-                          style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '12px 28px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4)' }}
+                          style={{ backgroundColor: '#059669', color: '#ffffff', border: 'none', padding: '12px 26px', fontSize: '13px', fontWeight: '900', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4)' }}
                         >
                           <CheckCircle2 size={18} />
-                          <span>{editingId ? 'Actualizar Matafuego' : 'Guardar Matafuego'}</span>
+                          <span>Guardar Matafuego</span>
                         </button>
                       </div>
-
-                      <ModuleActionBar
-                        className="bottom-20 md:bottom-6"
-                        actions={[
-                          {
-                            id: 'cancel',
-                            label: 'Cancelar',
-                            icon: <ArrowLeft size={16} />,
-                            variant: 'secondary',
-                            onClick: () => { setShowForm(false); setEditingId(null); }
-                          },
-                          ...(editingId ? [{
-                            id: 'history',
-                            label: 'Historial',
-                            icon: <History size={16} />,
-                            variant: 'info' as const,
-                            onClick: () => setShowHistoryModal(formData)
-                          }] : []),
-                          {
-                            id: 'preview',
-                            label: 'Vista Previa A4',
-                            icon: <Eye size={16} />,
-                            variant: 'primary',
-                            hideOnMobile: true,
-                            onClick: () => setPreviewItem({ ...formData, id: formData.id || editingId || 'ext-' + Date.now() })
-                          },
-                          {
-                            id: 'share',
-                            label: 'Compartir',
-                            icon: <Share2 size={16} />,
-                            variant: 'warning',
-                            onClick: () => setShareItem({ ...formData, id: formData.id || editingId || 'ext-' + Date.now() })
-                          },
-                          {
-                            id: 'save',
-                            label: editingId ? 'Actualizar' : 'Guardar Matafuego',
-                            icon: <Save size={16} />,
-                            variant: 'primary',
-                            onClick: () => requirePro(() => handleSave({ preventDefault: () => {} } as any))
-                          }
-                        ]}
-                      />
                     </>
                   );
                 })()}
               </div>
             ) : (
-              /* Vista de Padrón e Historial Estilo Aptitudes Médicas */
-              <div className="mt-8 space-y-4">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                  {/* Buscador + Filtro Empresa Compactos */}
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 w-full md:w-auto">
-                    <div className="relative flex-1 sm:max-w-xs h-[38px]">
-                      <Search
-                        size={16}
-                        className="text-slate-400 pointer-events-none z-10"
-                        style={{
-                          position: 'absolute',
-                          left: '0.75rem',
-                          top: 0,
-                          bottom: 0,
-                          marginTop: 'auto',
-                          marginBottom: 'auto',
-                          display: 'block'
-                        }}
-                      />
-                      <input
-                        type="text"
-                        placeholder="Buscar chapa, tipo o ubicación..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{ paddingLeft: '2.25rem', paddingRight: '0.75rem', height: '38px', width: '100%', boxSizing: 'border-box', outline: 'none' }}
-                        className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-                      />
-                    </div>
+              /* Vista de Padrón e Historial */
+              <div className="mt-8 space-y-5">
+                {/* Buscador Grande + Filtro Empresa + Botón Nuevo Matafuego */}
+                <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4 bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700">
+                  <div className="relative flex-[2_1_320px] min-w-0">
+                    <Search
+                      size={20}
+                      className="text-slate-400 pointer-events-none z-10"
+                      style={{
+                        position: 'absolute',
+                        left: '1rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        display: 'block'
+                      }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Buscar por Nº de chapa, tipo de agente o ubicación..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      style={{
+                        paddingLeft: '3rem',
+                        paddingRight: '1rem',
+                        height: '52px',
+                        width: '100%',
+                        boxSizing: 'border-box',
+                        fontSize: '16px',
+                        outline: 'none'
+                      }}
+                      className="bg-slate-50 dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-2xl font-bold text-slate-900 dark:text-white placeholder:text-slate-400 shadow-xs focus:border-blue-500 focus:bg-white dark:focus:bg-slate-950 transition-all"
+                    />
+                  </div>
 
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-[1_1_auto]">
                     <select
                       value={filterEmpresa}
                       onChange={(e) => setFilterEmpresa(e.target.value)}
-                      style={{ height: '38px', padding: '0 12px', outline: 'none' }}
-                      className="w-full sm:w-auto bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-200 shadow-sm cursor-pointer focus:border-blue-500"
+                      style={{ height: '52px', padding: '0 16px', fontSize: '14px', outline: 'none' }}
+                      className="flex-1 bg-slate-50 dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-2xl font-bold text-slate-800 dark:text-slate-200 shadow-xs cursor-pointer focus:border-blue-500"
                     >
                       <option value="">🏢 Todas las Empresas</option>
                       {uniqueEmpresas.map((emp) => (
                         <option key={emp} value={emp}>{emp}</option>
                       ))}
                     </select>
-                  </div>
-
-                  {/* Botones de Acción Compactos Estilo Aptitudes Médicas */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <button
-                      onClick={downloadTemplate}
-                      title="Descargar plantilla Excel en blanco"
-                      style={{
-                        backgroundColor: '#475569',
-                        color: '#ffffff',
-                        border: 'none',
-                        padding: '6px 12px',
-                        fontSize: '12px',
-                        fontWeight: '800',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '5px',
-                        whiteSpace: 'nowrap',
-                        height: '34px'
-                      }}
-                    >
-                      <DownloadCloud size={14} />
-                      <span>Plantilla</span>
-                    </button>
-
-                    <button
-                      onClick={() => setShowBulkImportModal(true)}
-                      title="Importar matafuegos masivamente desde Excel/CSV"
-                      style={{
-                        backgroundColor: '#4f46e5',
-                        color: '#ffffff',
-                        border: 'none',
-                        padding: '6px 12px',
-                        fontSize: '12px',
-                        fontWeight: '800',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '5px',
-                        whiteSpace: 'nowrap',
-                        height: '34px'
-                      }}
-                    >
-                      <UploadCloud size={14} />
-                      <span>Importar</span>
-                    </button>
-
-                    <button
-                      onClick={() => setShowCalendar(true)}
-                      title="Calendario de próximos vencimientos"
-                      style={{
-                        backgroundColor: '#d97706',
-                        color: '#ffffff',
-                        border: 'none',
-                        padding: '6px 12px',
-                        fontSize: '12px',
-                        fontWeight: '800',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '5px',
-                        whiteSpace: 'nowrap',
-                        height: '34px'
-                      }}
-                    >
-                      <CalendarDays size={14} />
-                      <span>Vencimientos</span>
-                    </button>
-
-                    <button
-                      onClick={() => requirePro(handleExportExcel)}
-                      title="Exportar padrón de extintores en Excel"
-                      style={{
-                        backgroundColor: '#0284c7',
-                        color: '#ffffff',
-                        border: 'none',
-                        padding: '6px 12px',
-                        fontSize: '12px',
-                        fontWeight: '800',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '5px',
-                        whiteSpace: 'nowrap',
-                        height: '34px',
-                        boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)'
-                      }}
-                    >
-                      <FileSpreadsheet size={14} />
-                      <span>Exportar Excel</span>
-                    </button>
-
-                    {filtered.length > 0 && (
-                      <button
-                        onClick={() => requirePro(handlePrintPdf)}
-                        title="Imprimir padrón completo en A4"
-                        style={{
-                          backgroundColor: '#dc2626',
-                          color: '#ffffff',
-                          border: 'none',
-                          padding: '6px 12px',
-                          fontSize: '12px',
-                          fontWeight: '800',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '5px',
-                          whiteSpace: 'nowrap',
-                          height: '34px'
-                        }}
-                      >
-                        <Printer size={14} />
-                        <span>Imprimir A4</span>
-                      </button>
-                    )}
-
-                    <button
-                      onClick={() => navigate('/extinguisher-ai')}
-                      title="Escanear manómetro y extintor con Visión IA"
-                      style={{
-                        backgroundColor: '#7c3aed',
-                        color: '#ffffff',
-                        border: 'none',
-                        padding: '6px 12px',
-                        fontSize: '12px',
-                        fontWeight: '800',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '5px',
-                        whiteSpace: 'nowrap',
-                        height: '34px',
-                        boxShadow: '0 2px 6px rgba(124, 58, 237, 0.3)'
-                      }}
-                    >
-                      <Sparkles size={14} />
-                      <span>Matafuegos IA</span>
-                    </button>
 
                     <button
                       onClick={() => requirePro(() => { setEditingId(null); setShowForm(true); })}
@@ -2282,23 +2195,169 @@ export default function ExtintoresManager() {
                         backgroundColor: '#059669',
                         color: '#ffffff',
                         border: 'none',
-                        padding: '6px 14px',
-                        fontSize: '12px',
-                        fontWeight: '800',
-                        borderRadius: '8px',
+                        padding: '0 22px',
+                        fontSize: '14px',
+                        fontWeight: '900',
+                        borderRadius: '16px',
                         cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '6px',
+                        justifyContent: 'center',
+                        gap: '8px',
                         whiteSpace: 'nowrap',
-                        height: '34px',
-                        boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)'
+                        height: '52px',
+                        boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)'
                       }}
                     >
-                      <Plus size={14} />
+                      <Plus size={18} strokeWidth={2.5} />
                       <span>Nuevo Matafuego</span>
                     </button>
                   </div>
+                </div>
+
+                {/* Apartado Desplegable de Herramientas de Gestión, Firmas y Exportación */}
+                <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setShowTools(!showTools)}
+                    className={`w-full flex items-center justify-between px-5 py-4 bg-transparent border-none cursor-pointer outline-none hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${showTools ? 'border-b border-slate-200 dark:border-slate-700' : ''}`}
+                  >
+                    <div className="flex items-center gap-2.5 text-left">
+                      <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                        <Settings size={20} />
+                      </div>
+                      <div>
+                        <h3 className="m-0 text-slate-800 dark:text-slate-100 text-base sm:text-lg font-black">
+                          Herramientas de Gestión, Firmas y Exportación
+                        </h3>
+                        <p className="m-0 text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                          Tocá acá para desplegar Plantilla, Importar, Vencimientos, Firmas, Exportar, Imprimir y Matafuegos IA
+                        </p>
+                      </div>
+                    </div>
+                    <ChevronDown
+                      size={24}
+                      className={`text-slate-500 shrink-0 transition-transform duration-300 ${showTools ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+
+                  {showTools && (
+                    <div className="p-5 bg-slate-50/60 dark:bg-slate-900/40 animate-fade-in">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+                        <div className="flex flex-col items-center text-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={downloadTemplate}
+                            style={{ backgroundColor: '#475569', color: '#ffffff', border: 'none' }}
+                            className="w-full h-10 px-3 rounded-xl cursor-pointer font-extrabold text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm hover:opacity-90 transition-all whitespace-nowrap"
+                          >
+                            <DownloadCloud size={15} /> Plantilla
+                          </button>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-medium">
+                            Excel en blanco
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col items-center text-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setShowBulkImportModal(true)}
+                            style={{ backgroundColor: '#4f46e5', color: '#ffffff', border: 'none' }}
+                            className="w-full h-10 px-3 rounded-xl cursor-pointer font-extrabold text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm hover:opacity-90 transition-all whitespace-nowrap"
+                          >
+                            <UploadCloud size={15} /> Importar
+                          </button>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-medium">
+                            Carga masiva
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col items-center text-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setShowCalendar(true)}
+                            style={{ backgroundColor: '#d97706', color: '#ffffff', border: 'none' }}
+                            className="w-full h-10 px-3 rounded-xl cursor-pointer font-extrabold text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm hover:opacity-90 transition-all whitespace-nowrap"
+                          >
+                            <CalendarDays size={15} /> Vencimientos
+                          </button>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-medium">
+                            Ver calendario
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col items-center text-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => requirePro(() => setShowGlobalSignatureModal(true))}
+                            style={{ backgroundColor: '#7c3aed', color: '#ffffff', border: 'none' }}
+                            className="w-full h-10 px-3 rounded-xl cursor-pointer font-extrabold text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm hover:opacity-90 transition-all whitespace-nowrap"
+                          >
+                            <Pencil size={15} /> Firmas
+                          </button>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-medium">
+                            Firmas del reporte
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col items-center text-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => requirePro(handleExportExcel)}
+                            style={{ backgroundColor: '#0284c7', color: '#ffffff', border: 'none' }}
+                            className="w-full h-10 px-3 rounded-xl cursor-pointer font-extrabold text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm hover:opacity-90 transition-all whitespace-nowrap"
+                          >
+                            <FileSpreadsheet size={15} /> Exportar
+                          </button>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-medium">
+                            Bajar a Excel
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col items-center text-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => requirePro(() => setShareItem(filtered))}
+                            style={{ backgroundColor: '#2563eb', color: '#ffffff', border: 'none' }}
+                            className="w-full h-10 px-3 rounded-xl cursor-pointer font-extrabold text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm hover:opacity-90 transition-all whitespace-nowrap"
+                          >
+                            <Share2 size={15} /> Compartir
+                          </button>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-medium">
+                            Enviar listado
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col items-center text-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => requirePro(handlePrintPdf)}
+                            style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none' }}
+                            className="w-full h-10 px-3 rounded-xl cursor-pointer font-extrabold text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm hover:opacity-90 transition-all whitespace-nowrap"
+                          >
+                            <Printer size={15} /> Imprimir
+                          </button>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-medium">
+                            Reporte A4
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col items-center text-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => navigate('/extinguisher-ai')}
+                            style={{ backgroundColor: '#9333ea', color: '#ffffff', border: 'none' }}
+                            className="w-full h-10 px-3 rounded-xl cursor-pointer font-extrabold text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm hover:opacity-90 transition-all whitespace-nowrap"
+                          >
+                            <Sparkles size={15} /> Matafuegos IA
+                          </button>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-medium">
+                            Escáner con IA
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Pestañas de Filtro (Filter Tabs) Estilo Aptitudes Médicas */}
@@ -2372,36 +2431,6 @@ export default function ExtintoresManager() {
                     hideHeader={true}
                   />
                 </div>
-
-                {!showGlobalSignatureModal && !showCalendar && !showHistoryModal && !showQrModal && !shareItem && !showBulkImportModal && !previewItem && (
-                  <ModuleActionBar
-                    className="bottom-20 md:bottom-6"
-                    actions={[
-                      {
-                        id: 'new-ext',
-                        label: 'Nuevo Matafuego',
-                        icon: <Plus size={16} />,
-                        variant: 'primary',
-                        onClick: () => requirePro(() => { setEditingId(null); setShowForm(true); })
-                      },
-                      {
-                        id: 'ai-ext',
-                        label: 'Matafuegos IA',
-                        icon: <Sparkles size={16} />,
-                        variant: 'info',
-                        onClick: () => navigate('/extinguisher-ai')
-                      },
-                      {
-                        id: 'cal-ext',
-                        label: 'Vencimientos',
-                        icon: <CalendarDays size={16} />,
-                        variant: 'warning',
-                        hideOnMobile: true,
-                        onClick: () => setShowCalendar(true)
-                      }
-                    ]}
-                  />
-                )}
               </div>
             )}
 
@@ -2424,14 +2453,23 @@ export default function ExtintoresManager() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <button
-                        onClick={() => printElementAsDocument('pdf-modal-preview-extinguisher', `Ficha_Extintor_${previewItem.numero || 'Equipo'}`)}
-                        style={{ backgroundColor: '#f59e0b', color: '#0f172a', border: 'none', padding: '8px 16px', fontSize: '12px', fontWeight: '900', borderRadius: '10px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                        type="button"
+                        onClick={() => requirePro(() => handleDownloadIndividualPdf(previewItem))}
+                        style={{ backgroundColor: '#7c3aed', color: '#ffffff', border: 'none', padding: '8px 16px', fontSize: '12px', fontWeight: '900', borderRadius: '10px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                       >
-                        <Printer size={16} /> Imprimir / PDF
+                        <Download size={16} /> Descargar PDF
                       </button>
                       <button
+                        type="button"
+                        onClick={() => requirePro(() => handlePrintIndividualForm(previewItem))}
+                        style={{ backgroundColor: '#f59e0b', color: '#0f172a', border: 'none', padding: '8px 16px', fontSize: '12px', fontWeight: '900', borderRadius: '10px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                      >
+                        <Printer size={16} /> Imprimir
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => setPreviewItem(null)}
                         className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer bg-transparent border-none"
                         title="Cerrar vista previa"
