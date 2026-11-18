@@ -46,14 +46,16 @@ Formato de respuesta JSON estricto:
 IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON. Sea conciso y valioso.`;
 
         let result;
-        let lastError;
         for (const modelName of models) {
             try {
                 const model = genAI.getGenerativeModel({ model: modelName });
                 result = await model.generateContent(prompt);
                 if (result) break;
             } catch (err) {
-                lastError = err;
+                const msg = String(err?.message || '');
+                if (msg.includes('402') || msg.includes('Payment Required') || msg.includes('prepayment credits')) {
+                    break;
+                }
                 continue;
             }
         }
@@ -68,16 +70,19 @@ IMPORTANTE: Devuelve ÚNICAMENTE el objeto JSON. Sea conciso y valioso.`;
         const responseText = result.response.text();
 
         let cleanedJson = responseText.trim();
-        if (cleanedJson.startsWith('\`\`\`json')) {
-            cleanedJson = cleanedJson.replace(/\`\`\`json/, '').replace(/\`\`\`$/, '').trim();
-        } else if (cleanedJson.startsWith('\`\`\`')) {
-            cleanedJson = cleanedJson.replace(/\`\`\`/, '').replace(/\`\`\`$/, '').trim();
+        if (cleanedJson.startsWith('```json')) {
+            cleanedJson = cleanedJson.replace(/```json/, '').replace(/```$/, '').trim();
+        } else if (cleanedJson.startsWith('```')) {
+            cleanedJson = cleanedJson.replace(/```/, '').replace(/```$/, '').trim();
         }
 
         const parsedData = JSON.parse(cleanedJson);
         return res.status(200).json(parsedData);
     } catch (error) {
-        console.error("Error generating daily insight Serverless:", error);
-        return res.status(500).json({ error: 'Error generando el consejo diario', details: error.message });
+        return res.status(200).json({
+            title: "Verificación de Permisos y EPP",
+            content: "Validá los permisos de trabajo críticos y el estado de los EPP certificados (Res. 299/11) antes de iniciar cada turno.",
+            category: "Prevención"
+        });
     }
 }

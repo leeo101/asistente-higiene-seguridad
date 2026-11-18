@@ -4105,10 +4105,10 @@ html.pdf-export-mode, body.pdf-export-mode {
     border-color: rgba(59,130,246,0.2);
 }
 /* Quick Access */
-.bento-quick { grid-column: span 6; grid-row: span 1;
+.bento-quick { grid-column: span 12; grid-row: span 1;
     --bento-accent: 99 102 241;
-    background: rgba(255,255,255,0.02);
-    border-color: rgba(255,255,255,0.07);
+    background: linear-gradient(145deg, rgba(99,102,241,0.09) 0%, rgba(59,130,246,0.04) 100%);
+    border-color: rgba(99,102,241,0.22);
 }
 
 /* ---- Tablet (≤1100px) ---- */

@@ -422,18 +422,52 @@ export default function Home(): React.ReactElement {
       }
     };
 
+    const CURATED_HOME_INSIGHTS: DailyInsight[] = [
+      {
+        category: "Trabajo en Altura • Res. SRT 61/23",
+        title: "Verificación de Distancia Libre de Caída (DLC)",
+        content: "Antes de autorizar tareas sobre 2 metros, validá que el punto de anclaje soporte 22 kN y que el amortiguador de impacto tenga margen suficiente sobre el nivel inferior."
+      },
+      {
+        category: "Riesgo Eléctrico • Res. SRT 900/15",
+        title: "Continuidad de Masas y Disyuntores Diferenciales",
+        content: "En tableros de obra y planta, exigí prueba mensual del botón de test en diferenciales (≤ 30 mA) y protocolo vigente de puesta a tierra menor a 10 Ω."
+      },
+      {
+        category: "Gestión de EPP • Res. SRT 299/11",
+        title: "Trazabilidad de Certificación Sello S / IRAM",
+        content: "Toda entrega de protección personal debe registrar lote, marca y certificación oficial en la planilla individual firmada por el trabajador para validez ante ART."
+      },
+      {
+        category: "Protección Contra Incendios • Dec. 351/79",
+        title: "Control de Carga de Fuego y Extintores",
+        content: "Verificá que los matafuegos tengan control trimestral vigente, manómetro en zona operativa, precinto intacto y pasillo de acceso libre de obstrucciones."
+      },
+      {
+        category: "Espacios Confinados • Res. SRT 953/10",
+        title: "Monitoreo Atmosférico Previo al Ingreso",
+        content: "Nunca autorices el ingreso sin medir primero Oxígeno (19.5% a 23.5%), LEL (< 10%) y gases tóxicos (CO / H2S), manteniendo vigía permanente en el exterior."
+      },
+      {
+        category: "Bloqueo LOTO • Dec. 351/79 & OSHA 1910",
+        title: "Las 5 Reglas de Oro en Mantenimiento",
+        content: "Corte efectivo de fuente, bloqueo mecánico con candado personal, verificación de energía residual cero, puesta a tierra y señalización antes de intervenir equipos."
+      }
+    ];
+
     const loadDailyInsight = async (): Promise<void> => {
-      const fallbackInsight = {
-        title: "Revisá tus permisos de trabajo",
-        content: "Recordá que los permisos de trabajo en altura vencen diariamente. Verificá que todos estén firmados por el supervisor antes de iniciar la jornada.",
-        category: "Seguridad Preventiva"
-      };
+      const defaultInsight = CURATED_HOME_INSIGHTS[new Date().getDate() % CURATED_HOME_INSIGHTS.length];
 
       try {
         const today = new Date().toDateString();
         const cached = localStorage.getItem('daily_insight_cache');
         const parsedCache = safeJsonParse<{ date?: string; data?: any } | null>(cached, null);
-        if (parsedCache && parsedCache.date === today && parsedCache.data) {
+        if (
+          parsedCache &&
+          parsedCache.date === today &&
+          parsedCache.data &&
+          parsedCache.data.title !== 'IA y Seguridad Laboral'
+        ) {
           setDailyInsight(parsedCache.data);
           return;
         }
@@ -449,18 +483,18 @@ export default function Home(): React.ReactElement {
         if (response.ok) {
           const data = await response.json();
           const insightObj = data.insight || (data.title && data.content ? data : null);
-          if (insightObj) {
+          if (insightObj && insightObj.title !== 'IA y Seguridad Laboral') {
             setDailyInsight(insightObj);
             localStorage.setItem('daily_insight_cache', JSON.stringify({ date: today, data: insightObj }));
             return;
           }
         }
 
-        // If we reach here, API didn't return a valid insight
-        setDailyInsight(fallbackInsight);
+        setDailyInsight(defaultInsight);
+        localStorage.setItem('daily_insight_cache', JSON.stringify({ date: today, data: defaultInsight }));
       } catch (err) {
         console.error("Error fetching daily insight:", err);
-        setDailyInsight(fallbackInsight);
+        setDailyInsight(defaultInsight);
       }
     };
 
@@ -602,310 +636,573 @@ export default function Home(): React.ReactElement {
               }
             `}</style>
             <div className="stagger-item animation-delay-[0.1s]">
-              <div className="flex items-center gap-[0.6rem] flex-wrap mb-[2rem]">
-                <div style={{ backdropFilter: isMobile ? 'none' : 'blur(8px)' }} className="inline-flex items-center gap-[0.5rem] p-[0.4rem_0.8rem] bg-[rgba(59,130,246,0.15)] border-[1px_solid_rgba(59,130,246,0.3)] rounded-[100px]">
-                  <Shield size={14} color="#60a5fa" weight="bold" />
-                  <span className="text-[0.75rem] font-[800] text-[#60a5fa] uppercase tracking-[]">{t('home.private_dashboard')}</span>
+              <div className="flex items-center justify-between gap-[0.6rem] flex-wrap mb-[1.2rem]">
+                <div className="flex items-center gap-[0.6rem] flex-wrap">
+                  <div style={{ backdropFilter: isMobile ? 'none' : 'blur(8px)' }} className="inline-flex items-center gap-[0.5rem] p-[0.4rem_0.8rem] bg-[rgba(59,130,246,0.18)] border border-[rgba(59,130,246,0.35)] rounded-full">
+                    <Shield size={14} color="#60a5fa" weight="bold" />
+                    <span className="text-[0.73rem] font-extrabold text-[#93c5fd] uppercase tracking-wider">{t('home.private_dashboard')}</span>
+                  </div>
+                  <div
+                    onClick={() => navigate('/legislation')}
+                    style={{ backdropFilter: isMobile ? 'none' : 'blur(8px)' }}
+                    className="inline-flex items-center gap-[0.5rem] p-[0.4rem_0.85rem] bg-[rgba(16,185,129,0.18)] border border-[rgba(16,185,129,0.38)] rounded-full cursor-pointer hover:bg-[rgba(16,185,129,0.28)] transition-colors"
+                    title="Ver biblioteca legal del país activo"
+                  >
+                    <Gavel size={14} color="#34d399" weight="bold" />
+                    <span className="text-[0.73rem] font-extrabold text-[#6ee7b7] uppercase tracking-wider">
+                      {countryNorms.flag} {countryNorms.name} · {countryNorms.general} / {countryNorms.decree}
+                    </span>
+                  </div>
                 </div>
-                <div
-                  onClick={() => navigate('/legislation')}
-                  style={{ backdropFilter: isMobile ? 'none' : 'blur(8px)' }}
-                  className="inline-flex items-center gap-[0.5rem] p-[0.4rem_0.85rem] bg-[rgba(16,185,129,0.15)] border-[1px_solid_rgba(16,185,129,0.35)] rounded-[100px] cursor-pointer hover:bg-[rgba(16,185,129,0.25)] transition-colors"
-                  title="Ver biblioteca legal del país activo"
-                >
-                  <Gavel size={14} color="#34d399" weight="bold" />
-                  <span className="text-[0.75rem] font-[800] text-[#34d399] uppercase tracking-[]">
-                    {countryNorms.flag} {countryNorms.name} · {countryNorms.general} / {countryNorms.decree}
+
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/15 text-xs font-bold text-slate-200">
+                  <CalendarBlank size={14} weight="duotone" color="#60a5fa" />
+                  <span className="capitalize">
+                    {new Date().toLocaleDateString('es-AR', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
                   </span>
                 </div>
               </div>
               
-              <div style={{ backdropFilter: isMobile ? 'none' : 'blur(12px)' }} className="flex items-center gap-[1.5rem] bg-[rgba(255,255,255,0.03)] border-[1px_solid_rgba(255,255,255,0.08)] p-[1.5rem] rounded-[24px] shadow-[] relative overflow-[hidden]">
-                <div className="absolute top-[-50%] left-[-10%] w-[150px] h-[150px] bg-[radial-gradient(circle,_rgba(59,130,246,0.15)_0%,_transparent_70%)] pointer-events-" />
-                
-                <div className="w-[115px] h-[64px] bg-transparent flex items-center justify-center shrink-0">
-                  <img src="/logo.png?v=3" alt="Logo" className="w-[100%] h-[100%] object- filter-[drop-shadow(0_4px_10px_rgba(0,0,0,0.45))]" />
+              <div
+                style={{ backdropFilter: isMobile ? 'none' : 'blur(14px)' }}
+                className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 bg-[rgba(15,23,42,0.55)] border border-[rgba(255,255,255,0.14)] p-5 sm:p-6 rounded-[26px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] relative overflow-hidden"
+              >
+                <div className="absolute top-[-50%] left-[-10%] w-[240px] h-[240px] bg-[radial-gradient(circle,_rgba(59,130,246,0.22)_0%,_transparent_70%)] pointer-events-none" />
+                <div className="absolute bottom-[-40%] right-[-5%] w-[220px] h-[220px] bg-[radial-gradient(circle,_rgba(16,185,129,0.16)_0%,_transparent_70%)] pointer-events-none" />
+
+                <div className="flex items-center gap-4 sm:gap-5 relative z-[1] min-w-0">
+                  <div className="w-[86px] sm:w-[110px] h-[56px] sm:h-[64px] bg-white/5 border border-white/10 rounded-2xl p-2 flex items-center justify-center shrink-0">
+                    <img src="/logo.png?v=3" alt="Logo" className="w-full h-full object-contain filter-[drop-shadow(0_4px_10px_rgba(0,0,0,0.45))]" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[10px] font-black uppercase tracking-wider">
+                        ● Panel Operativo Activo
+                      </span>
+                      {personalDataObj?.license && (
+                        <span className="px-2.5 py-0.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-[10px] font-black uppercase tracking-wider">
+                          Mat. {personalDataObj.license}
+                        </span>
+                      )}
+                    </div>
+                    <h1
+                      style={{ color: '#ffffff', marginBottom: 0 }}
+                      className="text-[clamp(1.45rem,_3.5vw,_2.2rem)] font-black !text-white m-0 leading-tight tracking-tight flex items-center gap-2 flex-wrap"
+                    >
+                      <span>{t('home.hello')}, {userName}</span>
+                      {isSubscribed && (
+                        <Crown
+                          size={24}
+                          color="#fbbf24"
+                          weight="fill"
+                          className="inline align-middle filter-[drop-shadow(0_2px_8px_rgba(245,158,11,0.5))]"
+                        />
+                      )}
+                    </h1>
+                    <p className="text-slate-300 text-xs sm:text-sm m-[0.35rem_0_0] font-medium">
+                      {t('home.subtitle')}
+                    </p>
+                  </div>
                 </div>
-                <div className="relative z-[1]">
-                  <h1 className="text-[clamp(1.8rem,_4vw,_2.4rem)] font-[900] text-[white] m-[0] leading-[] font-[]">
-                    {t('home.hello')}, {userName} {isSubscribed && <Crown size={24} color="#f59e0b" weight="fill" className="inline vertical-align-[middle] ml-[0.5rem] filter-[drop-shadow(0_2px_8px_rgba(245,158,11,0.4))]" />}
-                  </h1>
-                  <p className="text-[rgba(255,255,255,0.6)] text-[1.05rem] m-[0.4rem_0_0] font-[500]">
-                    {t('home.subtitle')}
-                  </p>
+
+                {/* Botonera de Creación Rápida 1-Clic en el Banner */}
+                <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 relative z-[1] shrink-0">
+                  {[
+                    { label: '+ Nuevo ATS', to: '/ats', icon: <ShieldCheck size={16} weight="duotone" />, bg: 'rgba(16,185,129,0.2)', border: 'rgba(16,185,129,0.45)', text: '#6ee7b7' },
+                    { label: '+ Checklist', to: '/checklists', icon: <ClipboardText size={16} weight="duotone" />, bg: 'rgba(20,184,166,0.2)', border: 'rgba(20,184,166,0.45)', text: '#5eead4' },
+                    { label: '+ Permiso', to: '/work-permit', icon: <Key size={16} weight="duotone" />, bg: 'rgba(59,130,246,0.22)', border: 'rgba(59,130,246,0.45)', text: '#93c5fd' },
+                    { label: '✨ Asesor IA', to: '/ai-advisor', icon: <Robot size={16} weight="duotone" />, bg: 'rgba(168,85,247,0.24)', border: 'rgba(168,85,247,0.5)', text: '#d8b4fe' },
+                  ].map((btn) => (
+                    <button
+                      key={btn.to}
+                      type="button"
+                      onClick={() => navigate(btn.to)}
+                      style={{ background: btn.bg, borderColor: btn.border, color: btn.text }}
+                      className="px-3.5 py-2.5 rounded-xl border text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer hover:brightness-125 transition-all shadow-sm"
+                    >
+                      {btn.icon}
+                      <span>{btn.label}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
 
             <div className="bento-container stagger-item animation-delay-[0.2s]">
+              {/* TARJETA 1: RESUMEN DIARIO IA + RADAR OPERATIVO */}
               <div className="bento-item bento-main">
-                <div style={{ filter: isMobile ? 'none' : 'blur(20px)' }} className="absolute top-[-30%] right-[-10%] w-[220px] h-[220px] bg-[radial-gradient(circle,_rgba(168,85,247,0.2)_0%,_transparent_70%)] pointer-events-" />
+                <div style={{ filter: isMobile ? 'none' : 'blur(20px)' }} className="absolute top-[-30%] right-[-10%] w-[220px] h-[220px] bg-[radial-gradient(circle,_rgba(168,85,247,0.22)_0%,_transparent_70%)] pointer-events-none" />
 
-                <div className="flex justify-space-between items-start mb-[1.2rem] relative z-[1]">
+                <div className="flex justify-between items-start gap-3 mb-3.5 relative z-[1]">
                   <div>
-                    <div className="inline-flex items-center gap-[0.4rem] bg-[rgba(168,85,247,0.15)] border-[1px_solid_rgba(168,85,247,0.3)] rounded-[100px] p-[0.25rem_0.7rem] mb-[0.7rem]">
-                      <Sparkle size={12} color="#c084fc" weight="fill" />
-                      <span className="text-[0.65rem] font-[800] text-[#c084fc] uppercase tracking-[]">{t('home.ai_today')}</span>
+                    <div className="inline-flex items-center gap-1.5 bg-[rgba(168,85,247,0.2)] border border-[rgba(168,85,247,0.4)] rounded-full px-3 py-1 mb-2">
+                      <Sparkle size={12} color="#d8b4fe" weight="fill" />
+                      <span className="text-[0.65rem] font-black text-[#d8b4fe] uppercase tracking-wider">{t('home.ai_today')}</span>
                     </div>
-                    <h2 className="text-[clamp(1.3rem,_2.5vw,_1.7rem)] font-[900] text-[white] m-[0] leading-[] font-[]">
+                    <h2 style={{ color: '#ffffff' }} className="text-[clamp(1.25rem,_2.2vw,_1.55rem)] font-black !text-white m-0 leading-tight">
                       {t('home.daily_summary')}
                     </h2>
-                    <p className="text-[rgba(255,255,255,0.55)] text-[0.85rem] m-[0.3rem_0_0] font-[500]">
+                    <p className="text-slate-300 text-xs m-[0.25rem_0_0] font-medium">
                       {t('home.daily_subtitle')}
                     </p>
                   </div>
-                  <div className="w-[42px] h-[42px] rounded-[14px] bg-[linear-gradient(135deg,_rgba(139,92,246,0.3),_rgba(59,130,246,0.2))] border-[1px_solid_rgba(139,92,246,0.3)] flex items-center justify-center shrink-0">
-                    <Robot size={22} weight="duotone" color="#c084fc" />
-                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const tips: DailyInsight[] = [
+                        {
+                          category: "Trabajo en Altura • Res. SRT 61/23",
+                          title: "Verificación de Distancia Libre de Caída (DLC)",
+                          content: "Antes de autorizar tareas sobre 2 metros, validá que el punto de anclaje soporte 22 kN y que el amortiguador de impacto tenga margen suficiente sobre el nivel inferior."
+                        },
+                        {
+                          category: "Riesgo Eléctrico • Res. SRT 900/15",
+                          title: "Continuidad de Masas y Disyuntores Diferenciales",
+                          content: "En tableros de obra y planta, exigí prueba mensual del botón de test en diferenciales (≤ 30 mA) y protocolo vigente de puesta a tierra menor a 10 Ω."
+                        },
+                        {
+                          category: "Gestión de EPP • Res. SRT 299/11",
+                          title: "Trazabilidad de Certificación Sello S / IRAM",
+                          content: "Toda entrega de protección personal debe registrar lote, marca y certificación oficial en la planilla individual firmada por el trabajador para validez ante ART."
+                        },
+                        {
+                          category: "Protección Contra Incendios • Dec. 351/79",
+                          title: "Control de Carga de Fuego y Extintores",
+                          content: "Verificá que los matafuegos tengan control trimestral vigente, manómetro en zona operativa, precinto intacto y pasillo de acceso libre de obstrucciones."
+                        },
+                        {
+                          category: "Espacios Confinados • Res. SRT 953/10",
+                          title: "Monitoreo Atmosférico Previo al Ingreso",
+                          content: "Nunca autorices el ingreso sin medir primero Oxígeno (19.5% a 23.5%), LEL (< 10%) y gases tóxicos (CO / H2S), manteniendo vigía permanente en el exterior."
+                        },
+                        {
+                          category: "Bloqueo LOTO • Dec. 351/79 & OSHA 1910",
+                          title: "Las 5 Reglas de Oro en Mantenimiento",
+                          content: "Corte efectivo de fuente, bloqueo mecánico con candado personal, verificación de energía residual cero, puesta a tierra y señalización antes de intervenir equipos."
+                        }
+                      ];
+                      const currentIdx = tips.findIndex((item) => item.title === dailyInsight?.title);
+                      const nextTip = tips[(currentIdx + 1) % tips.length];
+                      setDailyInsight(nextTip);
+                      localStorage.setItem('daily_insight_cache', JSON.stringify({ date: new Date().toDateString(), data: nextTip }));
+                    }}
+                    title="Ver otro consejo técnico normativo"
+                    className="px-3 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/35 border border-purple-400/35 text-purple-200 text-[11px] font-black flex items-center gap-1.5 cursor-pointer shrink-0 transition-all"
+                  >
+                    <Sparkle size={14} weight="fill" color="#d8b4fe" />
+                    <span>Otro Consejo</span>
+                  </button>
                 </div>
 
-                <div className="flex-[1] relative z-[1]">
-                  {currentUser && dailyInsight ?
-                  <div className="bg-[rgba(0,0,0,0.25)] p-[1.2rem] rounded-[18px] border-[1px_solid_rgba(255,255,255,0.08)] h-[100%] flex flex-col justify-center gap-[0.5rem]">
-                      <div className="flex items-center gap-[0.5rem]">
-                        <span className="text-[0.65rem] text-[#c084fc] font-[800] uppercase tracking-[]">
+                {/* Bloque de Consejo Técnico IA */}
+                <div className="relative z-[1] mb-3.5">
+                  {currentUser && dailyInsight ? (
+                    <div className="bg-[rgba(15,23,42,0.65)] p-4 rounded-2xl border border-white/10 flex flex-col gap-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[0.68rem] text-[#d8b4fe] font-black uppercase tracking-wider bg-purple-500/15 px-2.5 py-0.5 rounded-full border border-purple-400/25">
                           {dailyInsight.category}
                         </span>
-                        <div className="flex-[1] h-[1px] bg-[rgba(255,255,255,0.08)]" />
+                        <Robot size={18} weight="duotone" color="#c084fc" />
                       </div>
-                      <h4 className="m-[0] text-[1rem] font-[800] text-[#fff] leading-[]">{dailyInsight.title}</h4>
-                      <p className="m-[0] text-[0.85rem] text-[rgba(255,255,255,0.65)] leading-[]">{dailyInsight.content}</p>
-                    </div> :
+                      <h4 style={{ color: '#ffffff' }} className="m-0 text-sm sm:text-[0.95rem] font-extrabold !text-white leading-snug">
+                        {dailyInsight.title}
+                      </h4>
+                      <p className="m-0 text-xs sm:text-[0.82rem] text-slate-300 leading-relaxed">
+                        {dailyInsight.content}
+                      </p>
 
-                  <div className="bg-[rgba(0,0,0,0.2)] rounded-[18px] border-[1px_solid_rgba(255,255,255,0.06)] flex-[1] h-[100%] flex items-center justify-center min-h-[100px]">
-                      <div className="flex flex-col items-center gap-[0.5rem] text-[rgba(255,255,255,0.3)]">
-                        <Sparkle size={24} weight="duotone" />
-                        <span className="text-[0.8rem]">Cargando análisis diario...</span>
+                      <div className="flex flex-wrap items-center gap-2 pt-2 mt-1 border-t border-white/10">
+                        <button
+                          type="button"
+                          onClick={() => navigate('/ai-advisor')}
+                          className="flex-1 min-w-[130px] px-3 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/45 border border-purple-400/35 text-purple-100 text-[11px] font-extrabold flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                        >
+                          <Robot size={14} weight="duotone" />
+                          <span>Consultar Asesor IA</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => navigate('/toolbox-talk')}
+                          className="flex-1 min-w-[130px] px-3 py-1.5 rounded-xl bg-blue-600/25 hover:bg-blue-600/40 border border-blue-400/35 text-blue-100 text-[11px] font-extrabold flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                        >
+                          <ChatText size={14} weight="duotone" />
+                          <span>Armar Charla 5 Min</span>
+                        </button>
                       </div>
                     </div>
-                  }
+                  ) : (
+                    <div className="bg-[rgba(0,0,0,0.2)] rounded-2xl border border-white/10 p-5 flex items-center justify-center min-h-[110px]">
+                      <div className="flex flex-col items-center gap-2 text-slate-400">
+                        <Sparkle size={24} weight="duotone" />
+                        <span className="text-xs font-semibold">Cargando análisis diario...</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-[0.5rem] mt-[1rem] relative z-[1]">
-                  <div className="flex gap-[0.4rem] flex-wrap">
-                    {[
-                    { label: 'Documentos', value: stats.reduce((a, s) => a + s.value, 0), color: '#a855f7' },
-                    { label: 'Esta semana', value: recentWorks.filter((w) => new Date(w.date).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000).length, color: '#60a5fa' }].
-                    map((pill) =>
-                    <div key={pill.label} style={{ border: `1px solid ${pill.color}30` }} className="inline-flex items-center gap-[0.3rem] bg-[rgba(0,0,0,0.3)] rounded-[100px] p-[0.2rem_0.65rem]">
-                        <span style={{ color: pill.color }} className="font-[900] text-[0.9rem]">{pill.value}</span>
-                        <span className="text-[rgba(255,255,255,0.45)] text-[0.7rem] font-[600]">{pill.label}</span>
+                {/* Radar Operativo 2x2 (aprovecha el espacio inferior del Resumen Diario) */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-auto relative z-[1]">
+                  {[
+                    {
+                      label: 'Docs Totales',
+                      value: stats.reduce((a, s) => a + s.value, 0),
+                      color: '#c084fc',
+                      sub: 'En historial'
+                    },
+                    {
+                      label: 'Esta Semana',
+                      value: recentWorks.filter((w) => new Date(w.date).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000).length,
+                      color: '#60a5fa',
+                      sub: 'Últimos 7 días'
+                    },
+                    {
+                      label: 'Módulos Activos',
+                      value: Object.values(moduleCounts).filter((c) => c > 0).length || stats.filter((s) => s.value > 0).length,
+                      color: '#34d399',
+                      sub: 'Con registros'
+                    },
+                    {
+                      label: 'Inspecciones',
+                      value: (stats.find((s) => s.label === 'Checklists')?.value || 0) + (stats.find((s) => s.label === 'Inspecciones')?.value || 0),
+                      color: '#fbbf24',
+                      sub: 'Campo y Check'
+                    }
+                  ].map((metric) => (
+                    <div
+                      key={metric.label}
+                      className="bg-[rgba(15,23,42,0.55)] border border-white/10 rounded-xl p-2.5 flex flex-col justify-between"
+                    >
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-300 truncate">
+                        {metric.label}
+                      </span>
+                      <div className="flex items-baseline justify-between gap-1 mt-1">
+                        <span style={{ color: metric.color }} className="text-lg font-black leading-none">
+                          {metric.value}
+                        </span>
+                        <span className="text-[9px] font-semibold text-slate-400 truncate">
+                          {metric.sub}
+                        </span>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
+              {/* TARJETA 2: SCORE H&S + DESGLOSE DE CUMPLIMIENTO */}
               <div className="bento-item bento-score">
-                <div style={{ filter: isMobile ? 'none' : 'blur(25px)' }} className="absolute bottom-[-20%] left-[50%] transform-[translateX(-50%)] w-[180px] h-[180px] bg-[radial-gradient(circle,_rgba(16,185,129,0.2)_0%,_transparent_70%)] pointer-events-" />
+                <div style={{ filter: isMobile ? 'none' : 'blur(25px)' }} className="absolute bottom-[-20%] left-[50%] transform-[translateX(-50%)] w-[180px] h-[180px] bg-[radial-gradient(circle,_rgba(16,185,129,0.22)_0%,_transparent_70%)] pointer-events-none" />
 
-                <div className="flex justify-between items-center mb-[0.5rem] relative z-[1]">
-                  <h3 className="m-[0] text-[0.95rem] font-[800] text-[white] flex items-center gap-[0.4rem]">
-                    <Shield size={16} color="#34d399" weight="duotone" />
-                    Score H&amp;S
+                <div className="flex justify-between items-center mb-2.5 relative z-[1]">
+                  <h3 style={{ color: '#ffffff' }} className="m-0 text-[0.95rem] font-extrabold !text-white flex items-center gap-1.5">
+                    <Shield size={17} color="#34d399" weight="duotone" />
+                    <span>Score H&amp;S</span>
                   </h3>
-                  <span className="text-[0.65rem] text-[rgba(255,255,255,0.4)] font-[600]">Este mes</span>
+                  <span className="text-[0.65rem] text-emerald-300 bg-emerald-500/15 border border-emerald-400/25 px-2 py-0.5 rounded-full font-extrabold">
+                    Este mes
+                  </span>
                 </div>
 
                 {(() => {
                   const totalDocs = stats.reduce((a, s) => a + s.value, 0);
                   const accidents = stats.find((s) => s.label === 'Accidentes')?.value ?? 0;
                   const permisos = stats.find((s) => s.label === 'Permisos')?.value ?? 0;
+                  const atsCount = stats.find((s) => s.label === 'ATS')?.value ?? 0;
+                  const checkCount = stats.find((s) => s.label === 'Checklists')?.value ?? 0;
                   const raw = Math.min(100, Math.max(0,
-                  60 + Math.min(totalDocs * 3, 30) - accidents * 8 + Math.min(permisos * 2, 10)
+                    60 + Math.min(totalDocs * 3, 30) - accidents * 8 + Math.min(permisos * 2, 10)
                   ));
                   const score = totalDocs === 0 ? 0 : raw;
                   const gaugeOffset = 283 - 283 * score / 100;
                   const scoreColor = score >= 80 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
                   const scoreLabel = score >= 80 ? 'Excelente' : score >= 50 ? 'En Progreso' : score === 0 ? 'Sin datos' : 'Atención';
+
+                  const prevPct = Math.min(100, (atsCount + permisos) * 25);
+                  const checkPct = Math.min(100, checkCount * 35);
+                  const zeroAccPct = accidents === 0 ? 100 : Math.max(25, 100 - accidents * 25);
+
                   return (
-                    <div className="flex-[1] flex flex-row items-center justify-center gap-[1rem] relative z-[1]">
-                      <div style={{ '--score-glow-color': scoreColor } as React.CSSProperties} className="relative inline-flex items-center justify-center gauge-fill-glow">
-                        <svg width="80" height="80" viewBox="0 0 120 120">
-                          <circle className="gauge-track" cx="60" cy="60" r="45" strokeWidth="8" />
-                          <circle
-                            className="gauge-fill"
-                            cx="60" cy="60" r="45"
-                            strokeWidth="8"
-                            stroke={scoreColor}
-                            style={{ '--gauge-offset': gaugeOffset } as React.CSSProperties}
-                            transform="rotate(-90 60 60)" />
-                          
-                        </svg>
-                        <div className="absolute text-center flex flex-col items-center justify-center">
-                          <div style={{ color: scoreColor }} className="text-[1.4rem] font-[900] leading-[]">{score}</div>
-                          <div className="text-[0.55rem] text-[rgba(255,255,255,0.5)] font-[700] uppercase tracking-[]">/ 100</div>
-                        </div>
-                      </div>
-                      <div className="text-left flex flex-col justify-center">
-                        <div style={{ color: scoreColor }} className="text-[1.1rem] font-[800]">{scoreLabel}</div>
-                        <div className="text-[0.72rem] text-[rgba(255,255,255,0.55)] mt-[0.1rem]">
-                          {totalDocs} doc{totalDocs !== 1 ? 's' : ''} registrados
-                        </div>
-                        {accidents > 0 &&
-                        <div className="inline-flex items-center gap-[0.3rem] bg-[rgba(239,68,68,0.15)] border-[1px_solid_rgba(239,68,68,0.25)] rounded-[100px] p-[0.2rem_0.5rem] mt-[0.4rem] w-[fit-content]">
-                            <Warning size={12} color="#ef4444" weight="fill" />
-                            <span className="text-[0.65rem] text-[#ef4444] font-[700]">{accidents} accidente{accidents !== 1 ? 's' : ''}</span>
+                    <div className="flex-1 flex flex-col justify-between gap-3 relative z-[1]">
+                      <div className="flex items-center gap-3.5">
+                        <div style={{ '--score-glow-color': scoreColor } as React.CSSProperties} className="relative inline-flex items-center justify-center gauge-fill-glow shrink-0">
+                          <svg width="78" height="78" viewBox="0 0 120 120">
+                            <circle className="gauge-track" cx="60" cy="60" r="45" strokeWidth="9" />
+                            <circle
+                              className="gauge-fill"
+                              cx="60" cy="60" r="45"
+                              strokeWidth="9"
+                              stroke={scoreColor}
+                              style={{ '--gauge-offset': gaugeOffset } as React.CSSProperties}
+                              transform="rotate(-90 60 60)"
+                            />
+                          </svg>
+                          <div className="absolute text-center flex flex-col items-center justify-center">
+                            <div style={{ color: scoreColor }} className="text-[1.35rem] font-black leading-none">{score}</div>
+                            <div className="text-[0.55rem] text-slate-300 font-bold uppercase">/ 100</div>
                           </div>
-                        }
+                        </div>
+
+                        <div className="text-left flex flex-col justify-center min-w-0">
+                          <div style={{ color: scoreColor }} className="text-base font-black leading-tight">{scoreLabel}</div>
+                          <div className="text-xs text-slate-300 mt-0.5 font-semibold">
+                            {totalDocs} doc{totalDocs !== 1 ? 's' : ''} registrados
+                          </div>
+                          {accidents > 0 ? (
+                            <button
+                              type="button"
+                              onClick={() => navigate('/accident-investigation')}
+                              className="inline-flex items-center gap-1 bg-rose-500/20 border border-rose-400/35 rounded-full px-2.5 py-0.5 mt-1.5 w-fit cursor-pointer hover:bg-rose-500/30 transition-colors"
+                            >
+                              <Warning size={11} color="#fda4af" weight="fill" />
+                              <span className="text-[0.65rem] text-rose-200 font-extrabold">
+                                {accidents} accidente{accidents !== 1 ? 's' : ''}
+                              </span>
+                            </button>
+                          ) : (
+                            <div className="inline-flex items-center gap-1 bg-emerald-500/20 border border-emerald-400/35 rounded-full px-2.5 py-0.5 mt-1.5 w-fit">
+                              <CheckCircle size={11} color="#6ee7b7" weight="fill" />
+                              <span className="text-[0.65rem] text-emerald-200 font-extrabold">0 Accidentes</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>);
+
+                      {/* Mini barras de desglose del Score */}
+                      <div className="bg-[rgba(15,23,42,0.55)] border border-white/10 rounded-xl p-2.5 flex flex-col gap-1.5">
+                        {[
+                          { label: 'Prevención (ATS / Permisos)', pct: prevPct, color: '#10b981' },
+                          { label: 'Control Campo (Checklists)', pct: checkPct, color: '#38bdf8' },
+                          { label: 'Índice Siniestralidad', pct: zeroAccPct, color: accidents === 0 ? '#10b981' : '#f59e0b' }
+                        ].map((bar) => (
+                          <div key={bar.label} className="flex flex-col gap-0.5">
+                            <div className="flex justify-between text-[10px] font-bold text-slate-300">
+                              <span className="truncate">{bar.label}</span>
+                              <span style={{ color: bar.color }} className="font-black">{bar.pct}%</span>
+                            </div>
+                            <div className="h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
+                              <div
+                                style={{ width: `${bar.pct}%`, background: bar.color }}
+                                className="h-full rounded-full transition-all duration-500"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
                 })()}
               </div>
 
+              {/* TARJETA 3: KPIs RÁPIDOS INTERACTIVOS (GRILLA DE 6 INDICADORES CLAVE) */}
               <div className="bento-item bento-kpi">
-                <h3 className="m-[0_0_0.9rem_0] text-[0.95rem] font-[800] text-[white] flex items-center gap-[0.4rem]">
-                  <ChartPieSlice size={16} color="#f59e0b" weight="duotone" />
-                  KPIs Rápidos
-                </h3>
-                <div className="flex flex-col gap-[0.6rem] flex-[1]">
-                  {stats.filter((s) => ['ATS', 'Permisos', 'Checklists'].includes(s.label)).map((stat, i) => {
-                    const buildSparkline = (key: string) => {
-                      try {
-                        const raw = localStorage.getItem(key);
-                        const items = safeJsonParse<any[]>(raw, []);
-                        const weeks: number[] = Array(7).fill(0);
-                        items.forEach((item: any) => {
-                          const d = new Date(item.fecha || item.createdAt || item.date || 0);
-                          const daysAgo = Math.floor((Date.now() - d.getTime()) / 86400000);
-                          if (daysAgo >= 0 && daysAgo < 7) weeks[6 - daysAgo]++;
-                        });
-                        return weeks;
-                      } catch {return [0, 0, 0, 0, 0, 0, 0];}
-                    };
-                    const points = buildSparkline(stat.key);
-                    const maxP = Math.max(...points, 1);
-                    const W = 80,H = 28;
-                    const svgPoints = points.map((v, idx) =>
-                    `${idx / 6 * W},${H - v / maxP * (H - 4)}`
-                    ).join(' ');
-                    const pathD = `M ${svgPoints.split(' ').map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p}`).join(' ').replace(/^M /, '')}`;
-                    const areaD = `${pathD} L ${W},${H} L 0,${H} Z`;
+                <div className="flex items-center justify-between mb-2.5 relative z-[1]">
+                  <h3 style={{ color: '#ffffff' }} className="m-0 text-[0.95rem] font-extrabold !text-white flex items-center gap-1.5">
+                    <ChartPieSlice size={17} color="#fbbf24" weight="duotone" />
+                    <span>KPIs Rápidos</span>
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/safety-kpis')}
+                    className="text-[10px] font-extrabold text-amber-300 hover:text-amber-200 bg-amber-500/15 border border-amber-400/25 px-2.5 py-0.5 rounded-full cursor-pointer transition-colors"
+                  >
+                    Ver Estadísticas →
+                  </button>
+                </div>
 
-                    return (
-                      <div key={stat.key} className="flex items-center gap-[0.6rem] bg-[rgba(0,0,0,0.2)] rounded-[10px] border-[1px_solid_rgba(255,255,255,0.06)] p-[0.4rem_0.7rem]">
-                        <div style={{ background: `${stat.color}20` }} className="w-[26px] h-[26px] rounded-[8px] flex items-center justify-center shrink-0">
-                          {React.cloneElement(stat.icon as React.ReactElement<any>, { size: 14, color: stat.color })}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 flex-1 relative z-[1]">
+                  {[
+                    { label: 'ATS', count: stats.find((s) => s.label === 'ATS')?.value ?? 0, to: '/ats', color: '#10b981', icon: <ShieldCheck size={16} weight="duotone" /> },
+                    { label: 'Checklists', count: stats.find((s) => s.label === 'Checklists')?.value ?? 0, to: '/checklists', color: '#14b8a6', icon: <ClipboardText size={16} weight="duotone" /> },
+                    { label: 'Permisos', count: stats.find((s) => s.label === 'Permisos')?.value ?? 0, to: '/work-permit', color: '#60a5fa', icon: <Key size={16} weight="duotone" /> },
+                    { label: 'Informes', count: stats.find((s) => s.label === 'Informes')?.value ?? 0, to: '/reports', color: '#f472b6', icon: <FileText size={16} weight="duotone" /> },
+                    { label: 'Carga Fuego', count: stats.find((s) => s.label === 'Carga Fuego')?.value ?? 0, to: '/fire-load', color: '#fb923c', icon: <Fire size={16} weight="duotone" /> },
+                    { label: 'Matafuegos', count: moduleCounts['/extintores'] ?? 0, to: '/extintores', color: '#f87171', icon: <Fire size={16} weight="duotone" /> }
+                  ].map((kpi) => (
+                    <div
+                      key={kpi.label}
+                      onClick={() => navigate(kpi.to)}
+                      className="bg-[rgba(15,23,42,0.58)] hover:bg-[rgba(30,41,59,0.8)] border border-white/10 hover:border-white/25 rounded-xl p-2.5 flex flex-col justify-between cursor-pointer transition-all group"
+                    >
+                      <div className="flex items-center justify-between gap-1">
+                        <div
+                          style={{ background: `${kpi.color}22`, color: kpi.color }}
+                          className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                        >
+                          {kpi.icon}
                         </div>
-                        <div className="flex-[1] min-w-0">
-                          <div className="text-[0.7rem] text-[rgba(255,255,255,0.6)] font-[600]">{stat.label}</div>
-                        </div>
-                        <svg width={W} height={H} className="sparkline-svg" style={{ color: stat.color, '--sparkline-len': '300', '--spark-delay': `${0.3 + i * 0.1}s` } as React.CSSProperties}>
-                          <defs>
-                            <linearGradient id={`sg-${i}`} x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor={stat.color} stopOpacity="0.4" />
-                              <stop offset="100%" stopColor={stat.color} stopOpacity="0" />
-                            </linearGradient>
-                          </defs>
-                          <path d={areaD} fill={`url(#sg-${i})`} className="sparkline-area" />
-                          <polyline points={svgPoints} className="sparkline-line" />
-                        </svg>
-                        <div className="kpi-value-glow" style={{ fontSize: '1.4rem', fontWeight: 900, color: stat.color, minWidth: '2ch', textAlign: 'right', '--kpi-delay': `${0.4 + i * 0.1}s` } as React.CSSProperties}>
-                          {stat.value}
-                        </div>
-                      </div>);
-
-                  })}
+                        <span
+                          style={{ color: kpi.color }}
+                          className="text-xl font-black leading-none tracking-tight"
+                        >
+                          {kpi.count}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-1 mt-2">
+                        <span className="text-[11px] font-bold text-slate-200 truncate">{kpi.label}</span>
+                        <CaretRight size={11} className="text-slate-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              {!isMobile &&
+              {/* TARJETA 4: ACTIVIDAD RECIENTE MEJORADA */}
               <div className="bento-item bento-timeline">
-                <div className="flex justify-space-between items-center mb-[0.8rem]">
-                  <h3 className="m-[0] text-[0.95rem] font-[800] text-[white] flex items-center gap-[0.4rem]">
-                    <Activity size={16} color="#60a5fa" weight="duotone" />
-                    Actividad Reciente
-                  </h3>
-                  {recentWorks.length > 0 &&
-                  <span className="text-[0.65rem] text-[rgba(255,255,255,0.35)] font-[600]">
-                      {recentWorks.length} entradas
-                    </span>
-                  }
+                <div className="flex items-center justify-between gap-2 mb-3 relative z-[1]">
+                  <div className="flex items-center gap-2">
+                    <h3 style={{ color: '#ffffff' }} className="m-0 text-[0.95rem] font-extrabold !text-white flex items-center gap-1.5">
+                      <Activity size={17} color="#60a5fa" weight="duotone" />
+                      <span>Actividad Reciente</span>
+                    </h3>
+                    {recentWorks.length > 0 && (
+                      <span className="text-[0.65rem] text-blue-200 bg-blue-500/20 border border-blue-400/30 px-2 py-0.5 rounded-full font-extrabold">
+                        {recentWorks.length} entradas
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate('/history')}
+                    className="text-[11px] font-extrabold text-blue-300 hover:text-white bg-blue-500/15 hover:bg-blue-500/30 border border-blue-400/30 px-2.5 py-1 rounded-full cursor-pointer transition-colors"
+                  >
+                    Ver Historial →
+                  </button>
                 </div>
-                <div className="flex-[1] relative flex flex-col gap-[0]">
-                  {recentWorks.length > 0 &&
-                  <div className="absolute left-[4px] top-[5px] bottom-[5px] w-[1px] bg-[linear-gradient(to_bottom,_rgba(59,130,246,0.4),_transparent)] rounded-[1px]" />
-                  }
-                  {recentWorks.length > 0 ? recentWorks.slice(0, 4).map((work, i) => {
-                    const tc = typeColors[work.type] || typeColors['ATS'];
-                    return (
-                      <div
-                        key={i}
-                        onClick={() => handleRecentWorkClick(work.type)}
-                        style={{ marginBottom: i < 3 ? '0.2rem' : 0 }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'} className="flex items-start gap-[0.75rem] p-[0.5rem_0.5rem_0.5rem_0] cursor-pointer rounded-[10px] transition-[background_0.2s]">
-                        
-                        <div className="pl-[0px] pt-[3px] shrink-0">
-                          <div className="timeline-dot ml-[0]" style={{ color: tc.text }} />
-                        </div>
-                        <div className="overflow-[hidden] flex-[1]">
-                          <div className="text-[white] text-[0.8rem] font-[700] whitespace- overflow-[hidden] text-overflow-[ellipsis]">
-                            {work.title || 'Sin título'}
+
+                <div className="flex-1 flex flex-col gap-2 relative z-[1]">
+                  {recentWorks.length > 0 ? (
+                    recentWorks.slice(0, 4).map((work, i) => {
+                      const tc = typeColors[work.type] || typeColors['ATS'];
+                      return (
+                        <div
+                          key={i}
+                          onClick={() => handleRecentWorkClick(work.type)}
+                          className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-[rgba(15,23,42,0.55)] hover:bg-[rgba(30,41,59,0.85)] border border-white/10 hover:border-blue-400/35 cursor-pointer transition-all group"
+                        >
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div
+                              style={{ background: tc.bg, color: tc.text }}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border border-white/10"
+                            >
+                              {tc.icon}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="text-white text-xs sm:text-[0.82rem] font-extrabold truncate">
+                                {work.title || 'Documento sin título'}
+                              </div>
+                              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                                <span
+                                  style={{ color: tc.text, background: `${tc.text}22` }}
+                                  className="text-[10px] font-black uppercase rounded px-1.5 py-0.2"
+                                >
+                                  {work.type}
+                                </span>
+                                {work.subtitle && (
+                                  <span className="text-[11px] text-slate-300 font-medium truncate max-w-[180px]">
+                                    • {work.subtitle}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-[0.4rem] mt-[1px]">
-                            <span style={{ color: tc.text, background: `${tc.text}18` }} className="text-[0.65rem] font-[700] rounded-[4px] p-[0_4px]">{work.type}</span>
-                            <span className="text-[0.65rem] text-[rgba(255,255,255,0.3)] font-[500]">
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-[11px] text-slate-300 font-bold bg-white/5 px-2 py-0.5 rounded-md border border-white/10">
                               {new Date(work.date).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })}
                             </span>
+                            <CaretRight size={14} className="text-slate-400 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
                           </div>
                         </div>
-                      </div>);
-
-                  }) :
-                  <div className="flex-[1] flex flex-col items-center justify-center text-[rgba(255,255,255,0.25)] gap-[0.5rem] p-[1rem]">
+                      );
+                    })
+                  ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center text-slate-400 gap-2 p-4 bg-[rgba(15,23,42,0.4)] rounded-2xl border border-white/10">
                       <ClockCounterClockwise size={28} weight="duotone" />
-                      <span className="text-[0.8rem] font-[600]">Sin actividad reciente</span>
+                      <span className="text-xs font-bold">Sin actividad reciente registrada</span>
                     </div>
-                  }
+                  )}
                 </div>
               </div>
-              }
 
-              {!isMobile &&
+              {/* TARJETA 5: MIS FAVORITOS Y ACCESOS RÁPIDOS FIJADOS (12 COLUMNAS COMPLETAS) */}
               <div className="bento-item bento-quick">
-                <div className="flex items-center justify-between mb-[0.8rem]">
-                  <h3 className="m-0 text-[0.95rem] font-[800] text-[white] flex items-center gap-[0.4rem]">
-                    <Star size={16} color="#f59e0b" weight="fill" />
-                    {t('home.my_favorites')}
-                  </h3>
-                  <span className="text-[0.65rem] text-[rgba(255,255,255,0.4)] font-[600]">
-                    {favorites.length} {t('home.pinned')}
-                  </span>
+                <div className="flex items-center justify-between gap-2 flex-wrap mb-3 relative z-[1]">
+                  <div className="flex items-center gap-2">
+                    <h3 style={{ color: '#ffffff' }} className="m-0 text-[0.95rem] font-extrabold !text-white flex items-center gap-1.5">
+                      <Star size={17} color="#fbbf24" weight="fill" />
+                      <span>{t('home.my_favorites')}</span>
+                    </h3>
+                    <span className="text-[0.65rem] text-amber-200 bg-amber-500/20 border border-amber-400/30 px-2.5 py-0.5 rounded-full font-extrabold">
+                      {favorites.length} {t('home.pinned')}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveCategory('all');
+                      document.getElementById('pro-vault-section')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="text-[11px] font-extrabold text-indigo-200 hover:text-white bg-indigo-500/20 hover:bg-indigo-500/35 border border-indigo-400/30 px-3 py-1 rounded-full cursor-pointer transition-colors"
+                  >
+                    Ver todos los módulos ({localizedQuickLinks.length}) ↓
+                  </button>
                 </div>
-                <div className="grid gap-[0.5rem] flex-[1]" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))' }}>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 flex-1 relative z-[1]">
                   {(localizedQuickLinks.filter((l) => favorites.includes(l.to)).length > 0
                     ? localizedQuickLinks.filter((l) => favorites.includes(l.to)).slice(0, 8)
-                    : localizedQuickLinks.filter((l) => l.featured).slice(0, 6)
+                    : localizedQuickLinks.filter((l) => l.featured).slice(0, 8)
                   ).map((link) => {
                     const hexToRgb = (hex: string) => {
                       const m = hex.replace('#', '').match(/.{2}/g);
                       if (!m) return '59 130 246';
                       return `${parseInt(m[0], 16)} ${parseInt(m[1], 16)} ${parseInt(m[2], 16)}`;
                     };
+                    const count = moduleCounts[link.to] || 0;
                     return (
                       <div
                         key={link.to}
                         className="bento-quick-card relative group"
-                        style={{ '--card-accent-rgb': hexToRgb(link.color), padding: '0.6rem 0.4rem' } as React.CSSProperties}
-                        onClick={() => navigate(link.to)}>
-                        
-                        <div style={{ color: link.color }}>
-                          {React.cloneElement(link.icon as React.ReactElement<any>, { size: 22 })}
+                        style={{
+                          '--card-accent-rgb': hexToRgb(link.color),
+                          padding: '0.75rem 0.55rem',
+                          background: 'rgba(15,23,42,0.58)',
+                          borderColor: 'rgba(255,255,255,0.12)'
+                        } as React.CSSProperties}
+                        onClick={() => navigate(link.to)}
+                      >
+                        {count > 0 && (
+                          <span
+                            style={{ background: `${link.color}30`, color: link.color, borderColor: `${link.color}50` }}
+                            className="absolute top-1.5 right-1.5 text-[9px] font-black px-1.5 py-0.2 rounded-full border"
+                          >
+                            {count}
+                          </span>
+                        )}
+                        <div
+                          style={{ color: link.color, background: `${link.color}18` }}
+                          className="w-9 h-9 rounded-xl flex items-center justify-center"
+                        >
+                          {React.cloneElement(link.icon as React.ReactElement<any>, { size: 20 })}
                         </div>
-                        <div className="text-[white] font-[700] text-[0.68rem] leading-[]">{link.label}</div>
-                        {link.norm &&
-                        <span style={{ color: `${link.color}aa`, background: `${link.color}15` }} className="text-[0.58rem] font-[700] rounded-[4px] p-[1px_5px]">
+                        <div className="text-white font-extrabold text-xs leading-tight truncate w-full">
+                          {link.label}
+                        </div>
+                        {link.norm && (
+                          <span
+                            style={{ color: link.color, background: `${link.color}18` }}
+                            className="text-[10px] font-bold rounded px-1.5 py-0.5 truncate max-w-full"
+                          >
                             {link.norm}
                           </span>
-                        }
-                      </div>);
-
+                        )}
+                      </div>
+                    );
                   })}
                 </div>
               </div>
-              }
-
             </div>
           </div>
         </div>
@@ -914,7 +1211,7 @@ export default function Home(): React.ReactElement {
           {/* Centro de Mando Ejecutivo & Semáforo de Vencimientos */}
           <CommandCenterDashboard />
 
-          <div className="mb-[4rem]">
+          <div id="pro-vault-section" className="mb-[4rem]">
             <div className="flex flex-col gap-[1.5rem] mb-[2rem]" style={{ minWidth: 0 }}>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-[1rem]">
                 <div>

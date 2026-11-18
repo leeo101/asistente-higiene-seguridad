@@ -9,7 +9,8 @@ import {
   Share2, Save, ArrowLeft, ArrowRight, Info, Pencil, Camera,
   Flame, Zap, Siren, Lightbulb, Activity, CheckCircle2,
   Search, QrCode, Download, FileText, ClipboardList,
-  HardHat, Ear, Eye as EyeIcon, Mic, Wrench, BookOpen, Pickaxe, Package, Tractor
+  HardHat, Ear, Eye as EyeIcon, Mic, Wrench, BookOpen, Pickaxe, Package, Tractor,
+  ChevronDown, Sparkles, Layers, XCircle
 } from 'lucide-react';
 import { DataTable } from '../components/DataTable';
 import { downloadCSV } from '../services/exportCsv';
@@ -579,7 +580,7 @@ const getChecklistStatus = (id: string, fallbackItem?: any) => {
       parsed = hist.find((h: any) => h.id === id);
     }
   }
-  if (!parsed) return { label: 'Aprobado', color: '#10b981', bg: 'rgba(16,185,129,0.1)' };
+  if (!parsed) return { label: 'Aprobado', color: '#10b981', bg: 'rgba(16,185,129,0.12)', ok: 0, total: 0, pct: 100 };
   try {
     let items = parsed.items || parsed.checks || [];
     if (parsed.activeSections) {
@@ -589,16 +590,36 @@ const getChecklistStatus = (id: string, fallbackItem?: any) => {
     }
 
     const arr = Array.isArray(items) ? items : [];
+    const ok = arr.filter((c: any) => c.status === 'OK' || c.status === 'CUMPLE' || c.value === 'SI' || c.estado === 'SI').length;
     const nok = arr.filter((c: any) => c.status === 'NC' || c.status === 'FAIL' || c.value === 'NO' || c.estado === 'NO' || c.checked === false || c.result === 'no').length;
+    const na = arr.filter((c: any) => c.status === 'NA').length;
     const obs = arr.filter((c: any) => c.observation || c.observacion || c.observaciones).length;
-    if (arr.length === 0) return { label: 'Vacío', color: '#64748b', bg: 'rgba(100,116,139,0.1)' };
-    if (nok > 0) return { label: 'Rechazado', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' };
-    if (obs > 0) return { label: 'Con Obs.', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' };
-    return { label: 'Aprobado', color: '#10b981', bg: 'rgba(16,185,129,0.1)' };
+    const eligible = Math.max(0, arr.length - na);
+    const pct = eligible > 0 ? Math.round((ok / eligible) * 100) : arr.length > 0 ? Math.round((ok / arr.length) * 100) : 100;
+
+    if (arr.length === 0) return { label: 'Sin Ítems', color: '#64748b', bg: 'rgba(100,116,139,0.12)', ok: 0, total: 0, pct: 0 };
+    if (nok > 0) return { label: 'Rechazado', color: '#ef4444', bg: 'rgba(239,68,68,0.12)', ok, total: arr.length, pct };
+    if (obs > 0 || (parsed.actionPlan && parsed.actionPlan.length > 0)) return { label: 'Con Obs.', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', ok, total: arr.length, pct };
+    return { label: 'Aprobado', color: '#10b981', bg: 'rgba(16,185,129,0.12)', ok, total: arr.length, pct };
   } catch {
-    return { label: 'Aprobado', color: '#10b981', bg: 'rgba(16,185,129,0.1)' };
+    return { label: 'Aprobado', color: '#10b981', bg: 'rgba(16,185,129,0.12)', ok: 0, total: 0, pct: 100 };
   }
 };
+
+const EPP_CATALOG_OPTIONS = [
+  { id: 'casco', label: 'Casco de Seguridad', norm: 'IRAM 3620', icon: HardHat },
+  { id: 'calzado', label: 'Calzado de Seguridad', norm: 'IRAM 3610', icon: ShieldCheck },
+  { id: 'anteojos', label: 'Protección Ocular', norm: 'IRAM 3630', icon: EyeIcon },
+  { id: 'protector_facial', label: 'Protector Facial Integral', norm: 'ANSI Z87.1', icon: ShieldCheck },
+  { id: 'auditiva', label: 'Protección Auditiva', norm: 'IRAM 4060', icon: Ear },
+  { id: 'guantes', label: 'Guantes de Protección', norm: 'IRAM 3607', icon: ShieldCheck },
+  { id: 'guantes_dielectricos', label: 'Guantes Dieléctricos', norm: 'IRAM 3604', icon: Zap },
+  { id: 'arnes', label: 'Arnés Anticaídas', norm: 'IRAM 3622-1', icon: Activity },
+  { id: 'respiratoria', label: 'Protección Respiratoria', norm: 'IRAM 3648', icon: Activity },
+  { id: 'chaleco', label: 'Chaleco Reflectivo', norm: 'EN 20471', icon: Flame },
+  { id: 'calzado_dielectrico', label: 'Calzado Dieléctrico', norm: 'ASTM F2413', icon: Zap },
+  { id: 'ropa_ignifuga', label: 'Ropa de Trabajo / Ignífuga', norm: 'NFPA 2112', icon: Flame }
+];
 
 export default function ChecklistManager(): React.ReactElement | null {
   const { requirePro } = usePaywall();
@@ -609,6 +630,8 @@ export default function ChecklistManager(): React.ReactElement | null {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [showForm, setShowForm] = useState(false);
+  const [showTools, setShowTools] = useState(false);
+  const [viewAllSteps, setViewAllSteps] = useState(false);
   const [history, setHistory] = useState([]);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [qrTarget, setQrTarget] = useState(null);
@@ -622,7 +645,30 @@ export default function ChecklistManager(): React.ReactElement | null {
       setDirectPrintItem(parsed);
       setTimeout(() => {
         printElementAsDocument('checklist-direct-print');
-      }, 150);
+      }, 120);
+    });
+  };
+
+  const handleDownloadFromPreview = async (targetElementId: string, nameHint?: string) => {
+    requirePro(async () => {
+      const toastId = toast.loading('Generando archivo PDF...');
+      try {
+        const blob = await generatePdfBlob(targetElementId, false);
+        const safeName = `Checklist_${String(nameHint || checklistTitle || 'Inspeccion').replace(/[^a-z0-9]/gi, '_')}.pdf`;
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = safeName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => window.URL.revokeObjectURL(url), 1500);
+        toast.success('¡PDF descargado con éxito!', { id: toastId });
+      } catch (err) {
+        console.error('Error al descargar PDF de checklist:', err);
+        toast.dismiss(toastId);
+        printElementAsDocument(targetElementId);
+      }
     });
   };
 
@@ -1060,7 +1106,94 @@ export default function ChecklistManager(): React.ReactElement | null {
       ...section,
       items: section.items.map((item) => ({ ...item, status: 'OK' }))
     })));
-    toast.success('Todos los ítems marcados como OK');
+    toast.success('Todos los ítems marcados como CUMPLE (C) ✅');
+  };
+
+  const addCustomSection = () => {
+    const customId = `custom_${Date.now()}`;
+    const newSec = {
+      id: customId,
+      title: `SECCIÓN PERSONALIZADA #${activeSections.length + 1}`,
+      isMandatory: false,
+      items: [
+        { text: 'Verificar condiciones operativas y protecciones físicas del sector', status: 'OK', observation: '' },
+        { text: 'Verificar orden, limpieza, demarcación y ausencia de riesgos visibles', status: 'OK', observation: '' },
+        { text: 'Verificar provisión y uso efectivo de EPP certificados (Res. 299/11)', status: 'OK', observation: '' }
+      ]
+    };
+    setActiveSections((prev) => [...prev, newSec]);
+    toast.success('Sección personalizada agregada');
+  };
+
+  const generateActionPlanFromNc = () => {
+    const failedItems: { text: string; observation?: string; sectionTitle: string }[] = [];
+    activeSections.forEach((sec: any) => {
+      (sec.items || []).forEach((it: any) => {
+        if (it.status === 'FAIL' || it.status === 'NC') {
+          failedItems.push({
+            text: it.text || 'Punto observado',
+            observation: it.observation,
+            sectionTitle: sec.title || 'Inspección'
+          });
+        }
+      });
+    });
+
+    if (failedItems.length === 0) {
+      toast('No hay ítems marcados como NO CUMPLE (NC) para generar acciones.', { icon: 'ℹ️' });
+      return;
+    }
+
+    const existingTexts = new Set(actionPlan.map((a: any) => a.action));
+    const defaultDue = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const generated = failedItems
+      .map((fi, i) => ({
+        id: Date.now() + i,
+        action: `Corregir desvío en [${fi.sectionTitle}]: ${fi.text}${fi.observation ? ` (${fi.observation})` : ''}`,
+        responsible: inspectionInfo.responsableArea || companyInfo.responsable || 'Supervisión Operativa',
+        dueDate: defaultDue,
+        priority: 'alto'
+      }))
+      .filter((a) => !existingTexts.has(a.action));
+
+    if (generated.length === 0) {
+      toast.success('Las no conformidades ya están incluidas en el Plan de Acción');
+      return;
+    }
+
+    setActionPlan((prev) => [...prev, ...generated]);
+    toast.success(`Se agregaron ${generated.length} acciones correctivas al Plan de Acción 🎯`);
+  };
+
+  const suggestNormsFromTemplates = () => {
+    const normsSet = new Set<string>(selectedNorms);
+    normsSet.add('ley19587');
+    normsSet.add('dec351');
+    normsSet.add('res299');
+    normsSet.add('iso45001');
+
+    const activeIds = activeSections.map((s: any) => s.id);
+    if (activeIds.some((id: string) => ['scaffolding', 'circular_saw', 'trabajos_altura', 'izaje_gruas', 'const_excavaciones', 'const_demolicion'].includes(id))) {
+      normsSet.add('dec911');
+    }
+    if (activeIds.some((id: string) => id.startsWith('min_'))) {
+      normsSet.add('dec249');
+    }
+    if (activeIds.includes('extintores_checklist')) {
+      normsSet.add('nfpa10');
+    }
+    if (activeIds.includes('tableros_electricos')) {
+      normsSet.add('nfpa70e');
+    }
+    if (activeIds.includes('espacios_confinados')) {
+      normsSet.add('res295');
+    }
+    if (activeIds.includes('ergonomia_oficina')) {
+      normsSet.add('res886');
+    }
+
+    setSelectedNorms(Array.from(normsSet));
+    toast.success('Normativas aplicables sugeridas seleccionadas ⚖️');
   };
 
   // Progress calculation
@@ -1213,15 +1346,32 @@ export default function ChecklistManager(): React.ReactElement | null {
 
   },
   {
-    header: 'Estado',
+    header: 'Cumplimiento / Estado',
     accessor: 'id',
     render: (item: any) => {
-      const st = getChecklistStatus(item.id);
+      const st = getChecklistStatus(item.id, item);
       return (
-        <span style={{ background: st.bg, color: st.color }} className="p-[0.25rem_0.7rem] rounded-[999px] text-[0.72rem] font-[800]">
-                        {st.label}
-                    </span>);
-
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <span style={{ background: st.bg, color: st.color }} className="px-2.5 py-0.5 rounded-full text-[0.7rem] font-extrabold uppercase tracking-wide">
+              {st.label}
+            </span>
+            {st.total > 0 && (
+              <span className="text-[0.68rem] font-black text-[var(--color-text-muted)]">
+                {st.pct}% ({st.ok}/{st.total})
+              </span>
+            )}
+          </div>
+          {st.total > 0 && (
+            <div className="w-28 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div
+                style={{ width: `${st.pct}%`, backgroundColor: st.color }}
+                className="h-full rounded-full transition-all"
+              />
+            </div>
+          )}
+        </div>
+      );
     }
   },
   {
@@ -1300,106 +1450,101 @@ export default function ChecklistManager(): React.ReactElement | null {
 
             {!showForm ?
       <>
-                    
-                    {/* KPIs */}
-                    <div className="no-print grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                        <div 
+                    {/* 4 Tarjetas Ejecutivas de KPIs */}
+                    <div className="no-print grid grid-cols-2 lg:grid-cols-4 gap-3.5 mb-5">
+                        <div
                             onClick={() => setOnlyNcFilter(false)}
-                            className="p-4 rounded-2xl border transition-all cursor-pointer bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-blue-400"
+                            className="p-4 rounded-2xl border transition-all cursor-pointer bg-white dark:bg-slate-800/90 border-slate-200 dark:border-slate-700/80 hover:border-blue-400 shadow-xs"
                         >
-                            <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 mb-2">
-                                <span className="text-xs font-bold uppercase tracking-wider">Total Checklists</span>
-                                <ClipboardCheck size={20} />
+                            <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 mb-1.5">
+                                <span className="text-[11px] font-black uppercase tracking-wider">Total Checklists</span>
+                                <ClipboardCheck size={19} />
                             </div>
                             <div className="text-2xl font-black text-slate-900 dark:text-white">{history.length}</div>
-                            <span className="text-[11px] text-slate-500">Formularios registrados</span>
+                            <span className="text-[11px] font-semibold text-slate-500">Protocolos registrados</span>
                         </div>
 
-                        <div 
+                        <div
+                            onClick={() => setOnlyNcFilter(false)}
+                            className="p-4 rounded-2xl border transition-all cursor-pointer bg-white dark:bg-slate-800/90 border-slate-200 dark:border-slate-700/80 hover:border-emerald-400 shadow-xs"
+                        >
+                            <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-1.5">
+                                <span className="text-[11px] font-black uppercase tracking-wider">Aprobados (OK)</span>
+                                <CheckCircle2 size={19} />
+                            </div>
+                            <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                                {history.filter((h: any) => getChecklistStatus(h.id, h).label === 'Aprobado').length}
+                            </div>
+                            <span className="text-[11px] font-semibold text-slate-500">Sin desvíos críticos</span>
+                        </div>
+
+                        <div
                             onClick={() => setOnlyNcFilter(!onlyNcFilter)}
-                            className={`p-4 rounded-2xl border transition-all cursor-pointer select-none ${
-                                onlyNcFilter 
-                                    ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-500 shadow-md ring-2 ring-rose-500/30' 
-                                    : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-rose-400'
+                            className={`p-4 rounded-2xl border transition-all cursor-pointer select-none shadow-xs ${
+                                onlyNcFilter
+                                    ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-500 ring-2 ring-rose-500/30'
+                                    : 'bg-white dark:bg-slate-800/90 border-slate-200 dark:border-slate-700/80 hover:border-rose-400'
                             }`}
                         >
-                            <div className="flex items-center justify-between text-rose-600 dark:text-rose-400 mb-2">
-                                <span className="text-xs font-bold uppercase tracking-wider">Rechazados / NC</span>
-                                <TriangleAlert size={20} />
+                            <div className="flex items-center justify-between text-rose-600 dark:text-rose-400 mb-1.5">
+                                <span className="text-[11px] font-black uppercase tracking-wider">Con Desvíos / NC</span>
+                                <TriangleAlert size={19} />
                             </div>
                             <div className="text-2xl font-black text-rose-600 dark:text-rose-400">
-                                {history.filter(h => getChecklistStatus(h.id).label === 'Rechazado').length}
+                                {history.filter((h: any) => {
+                                  const lbl = getChecklistStatus(h.id, h).label;
+                                  return lbl === 'Rechazado' || lbl === 'Con Obs.';
+                                }).length}
                             </div>
                             <span className="text-[11px] font-bold text-rose-500">
-                                {onlyNcFilter ? 'Filtrando desvíos (haz clic para ver todos)' : 'Con observaciones críticas (clic para filtrar)'}
+                                {onlyNcFilter ? 'Filtrando desvíos (clic ver todos)' : 'Clic para filtrar observados'}
                             </span>
                         </div>
 
-                        <div className="p-4 rounded-2xl border transition-all bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80">
-                            <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-2">
-                                <span className="text-xs font-bold uppercase tracking-wider">Última Semana</span>
-                                <CheckCircle2 size={20} />
+                        <div className="p-4 rounded-2xl border transition-all bg-white dark:bg-slate-800/90 border-slate-200 dark:border-slate-700/80 shadow-xs">
+                            <div className="flex items-center justify-between text-indigo-600 dark:text-indigo-400 mb-1.5">
+                                <span className="text-[11px] font-black uppercase tracking-wider">Últimos 7 Días</span>
+                                <Activity size={19} />
                             </div>
-                            <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-                                {history.filter(h => new Date(h.fecha) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}
+                            <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400">
+                                {history.filter((h: any) => new Date(h.fecha) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}
                             </div>
-                            <span className="text-[11px] text-slate-500">Inspeccionados recientemente</span>
+                            <span className="text-[11px] font-semibold text-slate-500">Relevamientos recientes</span>
                         </div>
                     </div>
 
-                    <div className="mb-[1.5rem] flex gap-[1rem] flex-wrap items-center">
-                        <button
-                            onClick={startNewBlankChecklist}
-                            style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', padding: '0.6rem 1.2rem', fontSize: '0.85rem', fontWeight: '800', borderRadius: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}
-                            className="transition-transform hover:-translate-y-0.5 whitespace-nowrap h-[54px]">
-                            <Plus size={18} strokeWidth={2.5} /> NUEVO CHECKLIST
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setShowIndustryModal(true)}
-                            className="h-[54px] px-4 rounded-[16px] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs uppercase flex items-center gap-2 cursor-pointer transition-all shadow-[0_4px_16px_rgba(37,99,235,0.3)] hover:-translate-y-0.5 whitespace-nowrap border-none"
-                        >
-                            <BookOpen size={17} /> Catálogo por Industria
-                        </button>
-                        <button
-                            onClick={() => setOnlyNcFilter(!onlyNcFilter)}
-                            className={`h-[54px] px-4 rounded-[16px] border-[2px_solid_var(--color-border)] font-extrabold text-xs uppercase flex items-center gap-2 cursor-pointer transition-all shadow-[0_4px_20px_rgba(0,0,0,0.05)] ${
-                                onlyNcFilter 
-                                    ? 'bg-rose-600 text-white border-rose-600' 
-                                    : 'bg-[var(--color-surface)] text-[var(--color-text)] hover:border-rose-400'
-                            }`}
-                        >
-                            <TriangleAlert size={16} /> {onlyNcFilter ? 'VER TODOS LOS CHECKLISTS' : 'VER SOLO DESVÍOS PENDIENTES'}
-                        </button>
-                        <div className="flex-[1_1_300px] relative h-[54px]">
-                            <Search 
-                              size={20} 
-                              className="text-[var(--color-text-muted)] pointer-events-none z-10" 
-                              style={{ 
-                                position: 'absolute', 
-                                left: '1.2rem', 
-                                top: 0, 
-                                bottom: 0, 
-                                marginTop: 'auto', 
-                                marginBottom: 'auto', 
-                                display: 'block' 
-                              }} 
+                    {/* Barra Principal de Búsqueda, Filtro y Acciones Primarias (Responsiva para Celular) */}
+                    <div className="no-print mb-4 flex flex-col sm:flex-row gap-2.5 sm:gap-3 flex-wrap items-stretch sm:items-center">
+                        <div className="w-full sm:flex-[2_1_300px] relative h-[50px] sm:h-[52px]">
+                            <Search
+                              size={20}
+                              className="text-[var(--color-text-muted)] pointer-events-none z-10"
+                              style={{
+                                position: 'absolute',
+                                left: '1rem',
+                                top: 0,
+                                bottom: 0,
+                                marginTop: 'auto',
+                                marginBottom: 'auto',
+                                display: 'block'
+                              }}
                             />
                             <input
                               type="text"
-                              placeholder="Buscar por equipo, empresa o serial..."
+                              placeholder="Buscar por equipo, sector, empresa o serie..."
                               value={searchTerm}
-                              onChange={(e) => setSearchTerm(e.target.value)} 
-                              style={{ width: '100%', height: '54px', paddingLeft: '3.5rem', paddingRight: '1rem', outline: 'none', boxSizing: 'border-box' }}
-                              className="rounded-[16px] border-[2px_solid_var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] text-[1rem] font-medium focus:border-[var(--color-primary)] transition-all shadow-[0_4px_20px_rgba(0,0,0,0.05)]" 
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              style={{ width: '100%', height: '100%', paddingLeft: '3rem', paddingRight: '1rem', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }}
+                              className="rounded-2xl border-2 border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] font-bold focus:border-blue-500 transition-all shadow-xs"
                             />
                         </div>
-                        <div className="flex-[0_1_250px]">
+
+                        <div className="w-full sm:flex-[1_1_190px]">
                             <select
                                 value={filterEmpresa}
                                 onChange={(e) => setFilterEmpresa(e.target.value)}
-                                style={{ color: filterEmpresa ? 'var(--color-text)' : 'var(--color-text-muted)' }}
-                                className="w-[100%] h-[54px] px-[1rem] rounded-[16px] border-[2px_solid_var(--color-border)] text-[1rem] outline-[none] bg-[var(--color-surface)] shadow-[]"
+                                style={{ color: filterEmpresa ? 'var(--color-text)' : 'var(--color-text-muted)', height: '50px' }}
+                                className="w-full px-4 rounded-2xl border-2 border-[var(--color-border)] text-sm font-bold outline-none bg-[var(--color-surface)] shadow-xs"
                             >
                                 <option value="">Todas las Empresas</option>
                                 {uniqueEmpresas.map((emp: any) => (
@@ -1407,6 +1552,103 @@ export default function ChecklistManager(): React.ReactElement | null {
                                 ))}
                             </select>
                         </div>
+
+                        <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
+                          <button
+                              type="button"
+                              onClick={() => setShowIndustryModal(true)}
+                              style={{ height: '50px' }}
+                              className="px-3 sm:px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-[11px] sm:text-xs uppercase flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-md whitespace-nowrap border-none"
+                          >
+                              <BookOpen size={16} /> Catálogo Industria
+                          </button>
+
+                          <button
+                              onClick={startNewBlankChecklist}
+                              style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', fontWeight: '900', borderRadius: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)', height: '50px' }}
+                              className="px-3 sm:px-5 text-[11px] sm:text-xs uppercase flex items-center justify-center gap-1.5 transition-transform hover:-translate-y-0.5 whitespace-nowrap"
+                          >
+                              <Plus size={17} strokeWidth={2.5} /> NUEVO CHECKLIST
+                          </button>
+                        </div>
+                    </div>
+
+                    {/* Apartado Desplegable de Herramientas, Plantillas Rápidas y Exportación */}
+                    <div className="no-print mb-5">
+                      <button
+                        type="button"
+                        onClick={() => setShowTools(!showTools)}
+                        className="w-full py-2.5 px-4 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text)] font-extrabold text-xs uppercase tracking-wider flex items-center justify-between cursor-pointer hover:border-blue-400 transition-all shadow-2xs"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Settings size={15} className="text-blue-500" />
+                          Herramientas de Gestión, Plantillas Rápidas y Exportación
+                        </span>
+                        <ChevronDown
+                          size={17}
+                          style={{
+                            transform: showTools ? 'rotate(180deg)' : 'rotate(0deg)',
+                            transition: 'transform 0.2s'
+                          }}
+                        />
+                      </button>
+
+                      {showTools && (
+                        <div className="mt-2 p-4 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-md flex flex-col gap-3">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setOnlyNcFilter(!onlyNcFilter)}
+                              className={`px-3.5 py-2 rounded-xl font-extrabold text-xs uppercase flex items-center gap-2 cursor-pointer border transition-all ${
+                                onlyNcFilter
+                                  ? 'bg-rose-600 text-white border-rose-600'
+                                  : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/20'
+                              }`}
+                            >
+                              <TriangleAlert size={14} />
+                              {onlyNcFilter ? 'Mostrando Solo Desvíos (Ver Todos)' : 'Filtrar Solo Desvíos / NC'}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={handleExportCSV}
+                              className="px-3.5 py-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 font-extrabold text-xs uppercase flex items-center gap-2 cursor-pointer transition-all"
+                            >
+                              <Download size={14} /> Exportar Historial CSV
+                            </button>
+                          </div>
+
+                          <div className="border-t border-[var(--color-border)] pt-2.5">
+                            <span className="text-[10px] font-black uppercase text-[var(--color-text-muted)] tracking-wider block mb-2">
+                              ⚡ Iniciar Inspección Rápida desde Plantilla Oficial:
+                            </span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {[
+                                { key: 'general_audit', label: '🏢 Relevamiento General Planta' },
+                                { key: 'scaffolding', label: '🏗️ Andamios (Dec. 911)' },
+                                { key: 'trabajos_altura', label: '🧗 Trabajo en Altura' },
+                                { key: 'tableros_electricos', label: '⚡ Tableros Eléctricos' },
+                                { key: 'autoelevadores', label: '🚜 Autoelevadores (Res. 960/15)' },
+                                { key: 'extintores_checklist', label: '🧯 Matafuegos (NFPA 10)' },
+                                { key: 'ind_loto_bloqueo', label: '🔒 Bloqueo LOTO' },
+                                { key: 'espacios_confinados', label: '🕳️ Espacios Confinados' }
+                              ].map((tpl) => (
+                                <button
+                                  key={tpl.key}
+                                  type="button"
+                                  onClick={() => {
+                                    startNewBlankChecklist();
+                                    setTimeout(() => toggleTemplate(tpl.key), 50);
+                                  }}
+                                  className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-blue-600 hover:text-white text-[var(--color-text)] text-xs font-bold border border-[var(--color-border)] cursor-pointer transition-all"
+                                >
+                                  {tpl.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <DataTable
@@ -1487,63 +1729,164 @@ export default function ChecklistManager(): React.ReactElement | null {
             </div>
 
             <ModuleFormLayout>
-            {/* Progress Section */}
-            <div className="no-print mb-[2rem] mt-[1.5rem] p-[2.5rem_2rem] bg-[var(--color-surface)] rounded-[24px] border-[1px_solid_var(--color-border)] flex flex-col gap-[1.2rem] shadow-[]">
-                <div className="flex items-center justify-space-between gap-[1.5rem] flex-wrap">
-                    <div className="flex items-center gap-4">
-                        <div>
-                            <h2 className="m-[0] text-[clamp(1.1rem,_4vw,_1.4rem)] font-[900] text-[var(--color-text)] tracking-[] flex items-center gap-[0.6rem]">
-                                <ShieldCheck className="text-blue-600" size={24} />
-                                Relevamiento de Condiciones
-                            </h2>
-                            <p className="m-[0] text-[var(--color-text-muted)] font-[600] text-[0.75rem] uppercase tracking-[]">Progreso del Checklist</p>
+            {/* Panel Ejecutivo de Estado en Vivo y Navegación de Secciones */}
+            {(() => {
+              const allItems = activeSections.flatMap((s: any) => s.items || []);
+              const totalCount = allItems.length;
+              const okCount = allItems.filter((i: any) => i.status === 'OK' || i.status === 'CUMPLE').length;
+              const failCount = allItems.filter((i: any) => i.status === 'FAIL' || i.status === 'NC').length;
+              const naCount = allItems.filter((i: any) => i.status === 'NA').length;
+              const answeredCount = okCount + failCount + naCount;
+              const completionPct = totalCount > 0 ? Math.round((answeredCount / totalCount) * 100) : 0;
+              const eligible = Math.max(0, totalCount - naCount);
+              const conformityPct = eligible > 0 ? Math.round((okCount / eligible) * 100) : 100;
+
+              return (
+                <div className="no-print mb-5 mt-3 p-5 bg-[var(--color-surface)] rounded-3xl border border-[var(--color-border)] flex flex-col gap-4 shadow-sm">
+                  <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center font-black ${
+                        failCount > 0
+                          ? 'bg-rose-500/15 text-rose-500 border border-rose-500/30'
+                          : 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'
+                      }`}>
+                        {failCount > 0 ? <TriangleAlert size={22} /> : <ShieldCheck size={22} />}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h2 className="m-0 text-base sm:text-lg font-black text-[var(--color-text)]">
+                            {checklistTitle || 'PROTOCOLO DE CHECKLIST'}
+                          </h2>
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                            failCount > 0
+                              ? 'bg-rose-500 text-white'
+                              : totalCount > 0 && okCount > 0
+                              ? 'bg-emerald-500 text-white'
+                              : 'bg-blue-600 text-white'
+                          }`}>
+                            {failCount > 0
+                              ? `⚠ ${failCount} DESVÍO${failCount > 1 ? 'S' : ''} (NC)`
+                              : totalCount > 0
+                              ? `✓ ${conformityPct}% CONFORME`
+                              : 'EN CONFIGURACIÓN'}
+                          </span>
                         </div>
+                        <p className="m-0 text-xs text-[var(--color-text-muted)] font-semibold mt-0.5">
+                          {activeSections.length} {activeSections.length === 1 ? 'sección activa' : 'secciones activas'} • {answeredCount}/{totalCount} puntos evaluados ({completionPct}%)
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-[0.6rem] shrink-0">
-                        <span style={{ color: progressColor }} className="text-[1.4rem] font-[900]">{progressPct}%</span>
-                        <span className="text-[0.75rem] font-[700] text-[var(--color-text-muted)]">{progressLabel}</span>
-                    </div>
-                </div>
 
-                {/* Progress Bar Graphic */}
-                <div className="flex flex-col gap-[0.6rem] mt-[1rem]">
-                    <div className="h-[8px] bg-[var(--color-background)] rounded-[999px] overflow-hidden">
-                        <div style={{
-                width: `${progressPct}%`
-              }} className="h-full bg-blue-600 rounded-[999px] transition-[width_0.5s_cubic-bezier(0.4,_0,_0.2,_1)] shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+                    <div className="flex items-center gap-2 ml-auto">
+                      <span className="px-3 py-1.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-xs font-black uppercase">
+                        Paso {currentStep} de {totalSteps}
+                      </span>
                     </div>
-                </div>
-            </div>
+                  </div>
 
-            {currentStep === 1 &&
+                  {/* Mini KPIs en vivo */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
+                    <div className="p-2.5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)] flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] font-extrabold uppercase text-[var(--color-text-muted)] block">Total Puntos</span>
+                        <span className="text-base sm:text-lg font-black text-[var(--color-text)]">{totalCount}</span>
+                      </div>
+                      <ClipboardList size={18} className="text-blue-500 shrink-0" />
+                    </div>
+                    <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] font-extrabold uppercase text-emerald-600 dark:text-emerald-400 block">Cumple (C)</span>
+                        <span className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400">{okCount}</span>
+                      </div>
+                      <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />
+                    </div>
+                    <div className="p-2.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] font-extrabold uppercase text-rose-600 dark:text-rose-400 block">No Cumple (NC)</span>
+                        <span className="text-base sm:text-lg font-black text-rose-600 dark:text-rose-400">{failCount}</span>
+                      </div>
+                      <XCircle size={18} className="text-rose-500 shrink-0" />
+                    </div>
+                    <div className="p-2.5 rounded-2xl bg-slate-500/10 border border-slate-500/30 flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] font-extrabold uppercase text-[var(--color-text-muted)] block">No Aplica (N/A)</span>
+                        <span className="text-base sm:text-lg font-black text-[var(--color-text)]">{naCount}</span>
+                      </div>
+                      <Activity size={18} className="text-slate-400 shrink-0" />
+                    </div>
+                  </div>
+
+                  {/* Pestañas de navegación por pasos responsivas */}
+                  <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-1.5">
+                    {[
+                      { step: 1, label: '1. Datos' },
+                      { step: 2, label: `2. Puntos (${totalCount})` },
+                      { step: 3, label: `3. EPP y Fotos (${epps.length + fotos.length})` },
+                      { step: 4, label: `4. Plan y Normas (${actionPlan.length})` },
+                      { step: 5, label: '5. Firma y Cierre' }
+                    ].map((t) => {
+                      const active = currentStep === t.step;
+                      return (
+                        <button
+                          key={t.step}
+                          type="button"
+                          onClick={() => {
+                            setViewAllSteps(false);
+                            setCurrentStep(t.step);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
+                          className={`px-3 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap cursor-pointer border transition-all text-center flex-1 ${
+                            t.step === 5 ? 'col-span-2 sm:col-span-1' : ''
+                          } ${
+                            active
+                              ? 'bg-blue-600 text-white border-blue-500 shadow-xs'
+                              : 'bg-[var(--color-background)] text-[var(--color-text-muted)] border-[var(--color-border)] hover:text-[var(--color-text)]'
+                          }`}
+                        >
+                          {t.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {(viewAllSteps || currentStep === 1) &&
         <ModuleFormDocument>
-            <div id="checklist-editor-content" className="card ats-editor-panel w-[100%] box-sizing-[border-box] p-[1rem] m-[0_auto] mb-[2rem]">
-                <div className="flex flex-col sm:flex-row justify-between items-center w-full gap-4 sm:gap-6 border-b-4 pb-6 mb-8 border-color-[var(--color-border)]">
-                    {/* Top Left Text */}
-                    <div className="w-full sm:w-auto sm:flex-1 text-center sm:text-left">
-                        <p className="m-[0] font-[700] text-[0.65rem] uppercase text-[var(--color-text-muted)] tracking-[]">Sistema de Gestión</p>
-                        <p className="m-[0] font-[900] text-[0.75rem] uppercase text-[var(--color-text)]">Control HYS</p>
-                    </div>
-
-                    {/* Center Main Title */}
-                    <div className="w-full sm:w-auto sm:flex-1 flex flex-col items-center justify-center text-center">
-                        <input
-                  value={checklistTitle}
-                  onChange={(e) => setChecklistTitle(e.target.value)}
-
-                  title="Haz clic para editar el título" className="m-[0] font-[900] text-[clamp(1.5rem,_4vw,_2.5rem)] tracking-[] uppercase leading-[] text-center bg-[transparent] border-none border-bottom-[1px_dashed_var(--color-border)] outline-[none] text-[var(--color-text)] w-[100%] max-w-[500px]" />
-                
-                        <p className="m-[0] text-[var(--color-text-muted)] font-[900] text-[0.6rem] uppercase tracking-[] mt-[0.25rem]">Inspección de Seguridad</p>
-                    </div>
-
-                    {/* Right Document Counter + Logo */}
-                    <div className="w-full sm:w-auto sm:flex-1 flex flex-col items-center sm:items-end gap-2 text-center sm:text-right">
-                        <CompanyLogo className="h-[40px] max-w-[120px]" />
+            <div id="checklist-editor-content" className="card ats-editor-panel w-full box-border p-5 sm:p-6 mx-auto mb-6 rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm">
+                <div className="flex flex-col sm:flex-row justify-between items-center w-full gap-4 border-b border-[var(--color-border)] pb-4 mb-5">
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                        <div className="p-2.5 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                          <Building2 size={22} />
+                        </div>
                         <div>
-                            <div className="text-[0.6rem] font-[900] text-[var(--color-border)] uppercase tracking-[] mb-[0.25rem]">PÁGINA</div>
-                            <div className="font-[900] text-[1.5rem] text-[var(--color-text)]">01 / 01</div>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 block">
+                            SECCIÓN 1 • ENCABEZADO Y TRAZABILIDAD
+                          </span>
+                          <h3 className="m-0 text-base font-black text-[var(--color-text)]">
+                            Datos del Establecimiento y Equipo / Sector Auditado
+                          </h3>
                         </div>
                     </div>
+
+                    <div className="flex items-center gap-3 ml-auto">
+                        <CompanyLogo className="h-[36px] max-w-[110px]" />
+                    </div>
+                </div>
+
+                {/* Título Editable del Protocolo */}
+                <div className="mb-4 p-3.5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]">
+                  <label className="text-[10px] font-black uppercase tracking-wider text-[var(--color-text-muted)] block mb-1">
+                    TÍTULO OFICIAL DEL CHECKLIST / PROTOCOLO (EDITABLE)
+                  </label>
+                  <input
+                    type="text"
+                    value={checklistTitle}
+                    onChange={(e) => setChecklistTitle(e.target.value)}
+                    placeholder="Ej: CHECKLIST DE INSPECCIÓN DE SEGURIDAD"
+                    className="w-full bg-transparent border-none outline-none font-black text-base sm:text-xl text-[var(--color-text)] uppercase tracking-tight"
+                  />
                 </div>
 
                 {(() => {
@@ -1562,726 +1905,1032 @@ export default function ChecklistManager(): React.ReactElement | null {
                       <span>🛑 EQUIPO FUERA DE SERVICIO — BLOQUEO PREVENTIVO ({failCount} {failCount === 1 ? 'DESVÍO CRÍTICO' : 'DESVÍOS CRÍTICOS'})</span>
                     </div>
                   )}
-                  <div className="hover:border-blue-400/50 hover:shadow-md border-[2px_solid_var(--color-border)] rounded-[16px] mb-[2.5rem] w-[100%] overflow-[hidden] bg-[var(--color-surface)] shadow-[] transition-[all_0.3s] grid-column-[1_/_-1]">
-                            <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 border-b-2 border-[] w-[100%]">
-                                <div className="sm:col-span-2 print:col-span-2"><DocBox label="CLIENTE / EMPRESA" value={companyInfo.name} onChange={(v) => setCompanyInfo({ ...companyInfo, name: v })} large /></div>
-                                <div className="sm:col-span-2 print:col-span-2"><DocBox label="UBICACIÓN / DIRECCIÓN" value={companyInfo.address} onChange={(v) => setCompanyInfo({ ...companyInfo, address: v })} /></div>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 w-[100%] border-b-2 border-[]">
-                                <div className="sm:col-span-1 print:col-span-1"><DocBox label="FECHA" value={inspectionInfo.date} onChange={(v) => setInspectionInfo({ ...inspectionInfo, date: v })} type="date" /></div>
-                                
-                                {!(hasVehicles && !hasTools && !hasPermits && !hasHeavy && !hasExtinguishers) &&
-                    <div className="sm:col-span-2 print:col-span-2"><DocBox label={hasPermits ? "SECTOR / ÁREA" : "ÁREA / EQUIPO INSPECCIONADO"} value={inspectionInfo.item} onChange={(v) => setInspectionInfo({ ...inspectionInfo, item: v })} /></div>
-                    }
-                                
-                                {!hasPermits && !hasVehicles &&
-                    <div className="sm:col-span-1 print:col-span-1"><DocBox label={hasExtinguishers ? "CHAPA / NÚMERO" : "Nº IDENTIFICACIÓN (SERIAL)"} value={inspectionInfo.serial} onChange={(v) => setInspectionInfo({ ...inspectionInfo, serial: v })} /></div>
-                    }
-                                
-                                {hasVehicles &&
-                    <>
-                                        <div className="sm:col-span-1 print:col-span-1"><DocBox label="MARCA / MODELO" value={inspectionInfo.marca || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, marca: v })} /></div>
-                                        <div className="sm:col-span-1 print:col-span-1"><DocBox label="DOMINIO (PATENTE)" value={inspectionInfo.patente || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, patente: v })} /></div>
-                                        <div className="sm:col-span-1 print:col-span-1"><DocBox label="KILOMETRAJE / HORÓMETRO" value={inspectionInfo.horometro || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, horometro: v })} /></div>
-                                    </>
-                    }
-                            </div>
-                            
-                            {(hasTools || hasHeavy) && !hasVehicles &&
-                  <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 w-[100%] border-b-2 border-[]">
-                                    <div className="sm:col-span-2 print:col-span-2"><DocBox label="MARCA / MODELO" value={inspectionInfo.marca || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, marca: v })} /></div>
-                                </div>
-                  }
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="sm:col-span-2">
+                      <DocBox label="CLIENTE / EMPRESA / RAZÓN SOCIAL" value={companyInfo.name} onChange={(v) => setCompanyInfo({ ...companyInfo, name: v })} large />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <DocBox label="UBICACIÓN / PLANTA / OBRA" value={companyInfo.address} onChange={(v) => setCompanyInfo({ ...companyInfo, address: v })} />
+                    </div>
 
-                            {hasPermits &&
-                  <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 w-[100%] border-b-2 border-[]">
-                                    <div className="sm:col-span-2 print:col-span-2"><DocBox label="Nº PERMISO DE TRABAJO (PT)" value={inspectionInfo.pt || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, pt: v })} /></div>
-                                    <div className="sm:col-span-2 print:col-span-2"><DocBox label="RESPONSABLE DEL ÁREA / SUPERVISOR" value={inspectionInfo.responsableArea || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, responsableArea: v })} /></div>
-                                </div>
-                  }
+                    <div>
+                      <DocBox label="FECHA DE INSPECCIÓN" value={inspectionInfo.date} onChange={(v) => setInspectionInfo({ ...inspectionInfo, date: v })} type="date" />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <DocBox label={hasPermits ? "SECTOR / ÁREA OPERATIVA" : "EQUIPO / MÁQUINA / SECTOR AUDITADO"} value={inspectionInfo.item} onChange={(v) => setInspectionInfo({ ...inspectionInfo, item: v })} />
+                    </div>
+                    <div>
+                      <DocBox label={hasExtinguishers ? "CHAPA / N° EXTINTOR" : "N° SERIE / CÓDIGO INTERNO"} value={inspectionInfo.serial} onChange={(v) => setInspectionInfo({ ...inspectionInfo, serial: v })} />
+                    </div>
 
-                            {hasExtinguishers &&
-                  <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 w-[100%] border-b-2 border-[]">
-                                    <div className="sm:col-span-1 print:col-span-1 bg-[rgba(239,_68,_68,_0.05)]">
-                                        <DocBox label="VENCIMIENTO CARGA" value={inspectionInfo.expirationDate || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, expirationDate: v })} type="date" />
-                                    </div>
-                                    <div className="sm:col-span-3 print:col-span-3 bg-[rgba(239,_68,_68,_0.05)]">
-                                        <DocBox label="OBSERVACIONES EXTINTOR" value={inspectionInfo.extinguisherObs || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, extinguisherObs: v })} />
-                                    </div>
-                                </div>
-                  }
-                            <div className="grid grid-cols-1 sm:grid-cols-4 print:grid-cols-4 w-[100%]">
-                                <div className="sm:col-span-2 print:col-span-2"><DocBox label="INSPECTOR / RESPONSABLE" value={companyInfo.inspector} onChange={(v) => setCompanyInfo({ ...companyInfo, inspector: v })} /></div>
-                                <div className="sm:col-span-2 print:col-span-2"><DocBox label="PROFESIONAL HYS" value={professional.name} onChange={() => {}} /></div>
-                            </div>
+                    {hasVehicles && (
+                      <>
+                        <div>
+                          <DocBox label="MARCA / MODELO" value={inspectionInfo.marca || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, marca: v })} />
                         </div>
-                    </div>);
+                        <div>
+                          <DocBox label="DOMINIO (PATENTE)" value={inspectionInfo.patente || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, patente: v })} />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <DocBox label="KILOMETRAJE / HORÓMETRO" value={inspectionInfo.horometro || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, horometro: v })} />
+                        </div>
+                      </>
+                    )}
 
+                    {(hasTools || hasHeavy) && !hasVehicles && (
+                      <div className="sm:col-span-2">
+                        <DocBox label="MARCA / MODELO DEL EQUIPO" value={inspectionInfo.marca || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, marca: v })} />
+                      </div>
+                    )}
+
+                    {hasPermits && (
+                      <>
+                        <div className="sm:col-span-2">
+                          <DocBox label="N° PERMISO DE TRABAJO (PT)" value={inspectionInfo.pt || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, pt: v })} />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <DocBox label="RESPONSABLE DEL ÁREA / SUPERVISOR" value={inspectionInfo.responsableArea || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, responsableArea: v })} />
+                        </div>
+                      </>
+                    )}
+
+                    {hasExtinguishers && (
+                      <>
+                        <div>
+                          <DocBox label="VENCIMIENTO DE CARGA" value={inspectionInfo.expirationDate || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, expirationDate: v })} type="date" />
+                        </div>
+                        <div className="sm:col-span-3">
+                          <DocBox label="OBSERVACIÓN TÉCNICA EXTINTOR" value={inspectionInfo.extinguisherObs || ''} onChange={(v) => setInspectionInfo({ ...inspectionInfo, extinguisherObs: v })} />
+                        </div>
+                      </>
+                    )}
+
+                    <div className="sm:col-span-2">
+                      <DocBox label="INSPECTOR ACTUANTE / AUDITOR" value={companyInfo.inspector} onChange={(v) => setCompanyInfo({ ...companyInfo, inspector: v })} />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <DocBox label="RESPONSABLE DEL SECTOR / OPERADOR" value={companyInfo.responsable} onChange={(v) => setCompanyInfo({ ...companyInfo, responsable: v })} />
+                    </div>
+                  </div>
+                </div>
+              );
             })()}
             </div>
         </ModuleFormDocument>
         }
 
-            {/* TEMPLATE SELECTOR - Responsive Grid */}
-            {currentStep === 2 && (
-            <div className="no-print mb-[1.5rem] space-y-3">
-              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 text-white rounded-2xl shadow-sm gap-3 flex-wrap border border-blue-500/30">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-blue-500/20 border border-blue-400/30 rounded-xl text-blue-300">
-                    <BookOpen size={22} />
+            {/* SECCIÓN 2: SELECTOR DE PLANTILLAS Y EVALUACIÓN DE PUNTOS DE INSPECCIÓN */}
+            {(viewAllSteps || currentStep === 2) && (
+            <div className="no-print mb-6 space-y-4">
+              <div className="p-5 rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm space-y-4">
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 text-white rounded-2xl shadow-sm gap-3 flex-wrap border border-blue-500/30">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-blue-500/20 border border-blue-400/30 rounded-xl text-blue-300">
+                      <BookOpen size={22} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-blue-300 block">
+                        SECCIÓN 2 • PLANTILLAS Y PROTOCOLOS DE VERIFICACIÓN
+                      </span>
+                      <h4 className="text-sm sm:text-base font-black m-0 text-white flex items-center gap-2 flex-wrap">
+                        Seleccioná Plantillas Oficiales o Creá una Sección a Medida
+                      </h4>
+                      <p className="text-xs text-blue-200 mt-0.5 m-0">
+                        Podés combinar múltiples plantillas en una misma acta de inspección.
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-sm font-black m-0 text-white flex items-center gap-2">
-                      Catálogo Normativo por Industria
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/30 text-blue-200 border border-blue-400/30">Construcción / Industria / Minería / Agro</span>
-                    </h4>
-                    <p className="text-xs text-blue-200 mt-0.5 m-0">Explora checklists técnicos predefinidos con marcos legales específicos, frecuencias recomendadas y puntos críticos.</p>
+                  <div className="flex items-center gap-2 flex-wrap ml-auto">
+                    <button
+                      type="button"
+                      onClick={addCustomSection}
+                      className="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase rounded-xl transition-all cursor-pointer border-none shadow-md flex items-center gap-1.5"
+                    >
+                      <Plus size={15} /> + Sección Personalizada
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowIndustryModal(true)}
+                      className="px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs uppercase rounded-xl transition-all cursor-pointer border-none shadow-md flex items-center gap-1.5"
+                    >
+                      <BookOpen size={15} /> Catálogo por Industria
+                    </button>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setShowIndustryModal(true)}
-                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs uppercase rounded-xl transition-all cursor-pointer border-none shadow-md flex items-center gap-1.5 ml-auto"
-                >
-                  <BookOpen size={15} /> Abrir Catálogo
-                </button>
-              </div>
 
-              {/* Pestañas de Categoría para evitar aglomeración */}
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
-                {[
-                  { id: 'all', label: 'Todos', icon: null, count: Object.keys(DEFAULT_TEMPLATES).length },
-                  { id: 'construccion', label: 'Construcción', icon: <HardHat size={14} />, count: Object.values(DEFAULT_TEMPLATES).filter(t => t.category === 'construccion').length },
-                  { id: 'industria', label: 'Industria & Planta', icon: <Wrench size={14} />, count: Object.values(DEFAULT_TEMPLATES).filter(t => t.category === 'industria').length },
-                  { id: 'mineria', label: 'Minería (Dec. 249/07)', icon: <Pickaxe size={14} />, count: Object.values(DEFAULT_TEMPLATES).filter(t => t.category === 'mineria').length },
-                  { id: 'general', label: 'Generales & EPP', icon: <ShieldCheck size={14} />, count: Object.values(DEFAULT_TEMPLATES).filter(t => t.category === 'general').length }
-                ].map(cat => {
-                  const isCurrent = templateCategoryTab === cat.id;
-                  return (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      onClick={() => setTemplateCategoryTab(cat.id as any)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer border ${
-                        isCurrent
-                          ? 'bg-blue-600 text-white border-blue-500 shadow-xs'
-                          : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/60'
-                      }`}
-                    >
-                      {cat.icon}
-                      <span>{cat.label}</span>
-                      <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
-                        isCurrent ? 'bg-blue-800/80 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
-                      }`}>
-                        {cat.count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+                {/* Pestañas de Categoría */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
+                  {[
+                    { id: 'all', label: 'Todos', icon: null, count: Object.keys(DEFAULT_TEMPLATES).length },
+                    { id: 'construccion', label: 'Construcción (Dec. 911)', icon: <HardHat size={14} />, count: Object.values(DEFAULT_TEMPLATES).filter(t => t.category === 'construccion').length },
+                    { id: 'industria', label: 'Industria & Planta (Dec. 351)', icon: <Wrench size={14} />, count: Object.values(DEFAULT_TEMPLATES).filter(t => t.category === 'industria').length },
+                    { id: 'mineria', label: 'Minería (Dec. 249/07)', icon: <Pickaxe size={14} />, count: Object.values(DEFAULT_TEMPLATES).filter(t => t.category === 'mineria').length },
+                    { id: 'general', label: 'Generales & EPP', icon: <ShieldCheck size={14} />, count: Object.values(DEFAULT_TEMPLATES).filter(t => t.category === 'general').length }
+                  ].map(cat => {
+                    const isCurrent = templateCategoryTab === cat.id;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => setTemplateCategoryTab(cat.id as any)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer border ${
+                          isCurrent
+                            ? 'bg-blue-600 text-white border-blue-500 shadow-xs'
+                            : 'bg-[var(--color-background)] text-[var(--color-text)] border-[var(--color-border)] hover:border-blue-400'
+                        }`}
+                      >
+                        {cat.icon}
+                        <span>{cat.label}</span>
+                        <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                          isCurrent ? 'bg-blue-800/80 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                        }`}>
+                          {cat.count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-[0.8rem]">
-                {Object.entries(DEFAULT_TEMPLATES)
-                  .filter(([_, value]) => templateCategoryTab === 'all' || value.category === templateCategoryTab)
-                  .map(([key, value]) => {
-                  const active = activeSections.some((s) => s.id === key);
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => toggleTemplate(key)}
-                      className="card p-[0.8rem_0.5rem] m-[0] flex flex-col items-center justify-center gap-[0.4rem] text-center min-h-[80px]"
-                      style={{
-                        border: active ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                        background: active ? 'var(--color-background)' : 'var(--color-surface)'
-                      }}>
-                      <div style={{ color: active ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>
-                        {React.cloneElement(value.icon as React.ReactElement<any>, { size: 20 })}
-                      </div>
-                      <span className="text-[0.65rem] font-[800] leading-[]">{value.title}</span>
-                    </button>
-                  );
-                })}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
+                  {Object.entries(DEFAULT_TEMPLATES)
+                    .filter(([_, value]) => templateCategoryTab === 'all' || value.category === templateCategoryTab)
+                    .map(([key, value]) => {
+                    const active = activeSections.some((s) => s.id === key);
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => toggleTemplate(key)}
+                        className={`p-3 rounded-2xl flex flex-col items-center justify-center gap-1.5 text-center min-h-[78px] cursor-pointer transition-all border ${
+                          active
+                            ? 'bg-blue-600/15 border-2 border-blue-500 text-blue-600 dark:text-blue-400 shadow-sm'
+                            : 'bg-[var(--color-background)] border-[var(--color-border)] text-[var(--color-text)] hover:border-blue-400/60'
+                        }`}
+                      >
+                        <div className={active ? 'text-blue-500' : 'text-[var(--color-text-muted)]'}>
+                          {React.cloneElement(value.icon as React.ReactElement<any>, { size: 20 })}
+                        </div>
+                        <span className="text-[0.7rem] font-extrabold leading-tight">{value.title}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
             )}
-            
-            {/* EDITABLE SECTIONS - Responsive */}
-            {currentStep === 2 &&
-        <div className="no-print mb-8">
-                {activeSections.length > 0 && (
-                  <div className="flex justify-between items-center mb-4 p-4 bg-emerald-500/10 border-2 border-emerald-500/30 rounded-xl flex-wrap gap-3">
+
+            {/* SECCIONES ACTIVAS EDITABLES */}
+            {(viewAllSteps || currentStep === 2) &&
+        <div className="no-print mb-6">
+                {activeSections.length === 0 ? (
+                  <div className="p-8 rounded-3xl border-2 border-dashed border-[var(--color-border)] bg-[var(--color-surface)] text-center flex flex-col items-center gap-3">
+                    <ClipboardList size={38} className="text-blue-500 opacity-80" />
+                    <div>
+                      <h4 className="m-0 text-base font-black text-[var(--color-text)]">Aún no seleccionaste puntos de inspección</h4>
+                      <p className="m-0 mt-1 text-xs text-[var(--color-text-muted)] max-w-md">
+                        Hacé clic en cualquiera de las tarjetas de plantillas de arriba o creá una sección personalizada para empezar a evaluar.
+                      </p>
+                    </div>
+                    <div className="flex gap-2 flex-wrap justify-center mt-1">
+                      <button
+                        type="button"
+                        onClick={() => toggleTemplate('general_audit')}
+                        className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-extrabold uppercase border-none cursor-pointer"
+                      >
+                        Cargar Relevamiento General
+                      </button>
+                      <button
+                        type="button"
+                        onClick={addCustomSection}
+                        className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold uppercase border-none cursor-pointer"
+                      >
+                        + Crear Sección Vacía
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex justify-between items-center mb-4 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex-wrap gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-emerald-500/20 text-emerald-600 rounded-lg">
+                      <div className="p-2 bg-emerald-500/20 text-emerald-500 rounded-xl">
                         <CheckCircle2 size={22} />
                       </div>
                       <div>
-                        <h4 className="text-sm font-black uppercase text-[var(--color-text)] m-0">Evaluación de Ítems</h4>
-                        <p className="text-xs text-[var(--color-text-muted)] m-0">Valida los puntos del relevamiento. Puedes marcar todos de una sola vez.</p>
+                        <h4 className="text-sm font-black uppercase text-[var(--color-text)] m-0">Evaluación Técnica de Puntos</h4>
+                        <p className="text-xs text-[var(--color-text-muted)] m-0">
+                          Calificá cada criterio como <strong>C (Cumple)</strong>, <strong>NC (No Cumple)</strong> o <strong>N/A (No Aplica)</strong>.
+                        </p>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={checkAllGlobalOk}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs uppercase px-4 py-2.5 rounded-lg shadow-sm flex items-center gap-2 cursor-pointer border-none transition-all active:scale-95 ml-auto"
-                    >
-                      <CheckCircle2 size={16} /> MARCAR TODO COMO OK
-                    </button>
+                    <div className="flex items-center gap-2 flex-wrap ml-auto">
+                      <button
+                        type="button"
+                        onClick={generateActionPlanFromNc}
+                        className="bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs uppercase px-3.5 py-2.5 rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer border-none transition-all"
+                      >
+                        <Sparkles size={15} /> Generar Plan desde NC
+                      </button>
+                      <button
+                        type="button"
+                        onClick={checkAllGlobalOk}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs uppercase px-4 py-2.5 rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer border-none transition-all active:scale-95"
+                      >
+                        <CheckCircle2 size={16} /> MARCAR TODO OK (C)
+                      </button>
+                    </div>
                   </div>
                 )}
-                {activeSections.map((section) => {
-            return (
-              <div key={section.id} className="card p-[0] mb-[1.5rem]">
-                            <div className="bg-[var(--color-background)] p-[1rem] border-b-2 border-[] flex flex-col gap-[0.8rem] items-center">
-                                <input
-                    className="font-black text-xl uppercase tracking-tighter bg-transparent outline-none w-full rounded-lg p-2 focus:ring-0 text-center placeholder:text-slate-400 m-[0] text-[var(--color-text)]"
-                    style={{ border: '2px solid #1e293b' }}
-                    value={section.title}
-                    onChange={(e) => updateSectionTitle(section.id, e.target.value)} />
-                  
-                                <div className="flex gap-[0.5rem] flex-wrap justify-center">
-                                    <button
-                      onClick={() => removeSection(section.id)} 
-                      style={{ backgroundColor: '#ef4444', color: '#ffffff' }}
-                      className="p-[0.4rem_0.8rem] text-[0.65rem] font-[900] border-none rounded-[4px] cursor-pointer flex items-center gap-[0.4rem] whitespace-">
-                                        <X size={12} strokeWidth={4} /> QUITAR
-                                    </button>
-                                    <button
-                      onClick={() => checkAllOk(section.id)} 
-                      style={{ backgroundColor: '#10b981', color: '#ffffff' }}
-                      className="p-[0.4rem_0.8rem] text-[0.65rem] font-[900] border-none rounded-[4px] cursor-pointer whitespace-">
-                                        TODO OK
-                                    </button>
-                                    <button
-                      onClick={() => addItem(section.id)} 
-                      style={{ backgroundColor: '#3b82f6', color: '#ffffff' }}
-                      className="p-[0.4rem_0.8rem] text-[0.65rem] font-[900] border-none rounded-[4px] cursor-pointer whitespace-">
-                                        + ITEM
-                                    </button>
+
+                {activeSections.map((section, secIndex) => {
+                  const secOk = (section.items || []).filter((i: any) => i.status === 'OK').length;
+                  const secFail = (section.items || []).filter((i: any) => i.status === 'FAIL' || i.status === 'NC').length;
+                  return (
+                    <div key={section.id} className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden mb-5 shadow-sm">
+                      <div className="bg-slate-900 text-white p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                          <span className="w-7 h-7 rounded-lg bg-blue-600 text-white font-black text-xs flex items-center justify-center shrink-0">
+                            {secIndex + 1}
+                          </span>
+                          <input
+                            className="font-black text-sm sm:text-base uppercase tracking-tight bg-white/10 hover:bg-white/15 focus:bg-white/20 border border-white/20 outline-none w-full rounded-xl px-3 py-1.5 text-white placeholder:text-slate-400"
+                            value={section.title}
+                            onChange={(e) => updateSectionTitle(section.id, e.target.value)}
+                            title="Editar nombre de la sección"
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-2 flex-wrap shrink-0">
+                          <span className="text-[11px] font-extrabold text-slate-300 px-2.5 py-1 rounded-lg bg-white/10">
+                            {secOk}/{section.items.length} OK {secFail > 0 ? `• ${secFail} NC` : ''}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => checkAllOk(section.id)}
+                            className="px-3 py-1.5 text-[11px] font-black uppercase bg-emerald-600 hover:bg-emerald-500 text-white border-none rounded-xl cursor-pointer flex items-center gap-1"
+                          >
+                            <Check size={13} /> Todo OK
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => addItem(section.id)}
+                            className="px-3 py-1.5 text-[11px] font-black uppercase bg-blue-600 hover:bg-blue-500 text-white border-none rounded-xl cursor-pointer flex items-center gap-1"
+                          >
+                            <Plus size={13} /> + Punto
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeSection(section.id)}
+                            className="px-2.5 py-1.5 text-[11px] font-black uppercase bg-rose-600/90 hover:bg-rose-600 text-white border-none rounded-xl cursor-pointer flex items-center gap-1"
+                            title="Quitar sección"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="divide-y divide-[var(--color-border)]">
+                        {section.items.map((item, idx) => {
+                          const isFail = item.status === 'FAIL' || item.status === 'NC';
+                          const isOk = item.status === 'OK';
+                          return (
+                            <div
+                              key={idx}
+                              className={`p-3.5 sm:p-4 transition-colors ${
+                                isFail
+                                  ? 'bg-rose-500/5'
+                                  : isOk
+                                  ? 'bg-emerald-500/[0.02]'
+                                  : 'bg-transparent'
+                              }`}
+                            >
+                              <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+                                {/* Número + Criterio */}
+                                <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                                  <div
+                                    className={`w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0 mt-0.5 ${
+                                      isFail
+                                        ? 'bg-rose-600 text-white'
+                                        : isOk
+                                        ? 'bg-emerald-600 text-white'
+                                        : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
+                                    }`}
+                                  >
+                                    {idx + 1}
+                                  </div>
+                                  <textarea
+                                    rows={1}
+                                    value={item.text}
+                                    onInput={(e) => {
+                                      const target = e.target as any;
+                                      target.style.height = 'auto';
+                                      target.style.height = target.scrollHeight + 'px';
+                                    }}
+                                    onChange={(e) => updateItem(section.id, idx, 'text', e.target.value)}
+                                    className="flex-1 w-full px-2.5 py-1.5 font-bold text-sm outline-none bg-[var(--color-background)] border border-[var(--color-border)] focus:border-blue-500 resize-none rounded-xl text-[var(--color-text)]"
+                                  />
                                 </div>
-                            </div>
 
-                            <div>
-                                {section.items.map((item, idx) =>
-                  <div key={idx} style={{ borderBottom: idx === section.items.length - 1 ? 'none' : '1px solid var(--color-border)' }} className="flex flex-col gap-[0]">
-                                        <div className="flex items-center p-[1rem] gap-[0.8rem] flex-wrap">
-                                            <div 
-                                                style={{ backgroundColor: '#1e293b', color: '#ffffff', minWidth: '32px', height: '32px', fontSize: '0.9rem' }}
-                                                className="rounded-[6px] flex items-center justify-center font-[900] shrink-0">
-                                                {idx + 1}
-                                            </div>
-                                            <textarea
-                        rows={1}
+                                {/* Botones de Estado (C / NC / N/A) + Eliminar */}
+                                <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 w-full sm:w-auto">
+                                  <div className="flex flex-1 sm:flex-initial items-center gap-1.5 bg-[var(--color-background)] p-1 rounded-xl border border-[var(--color-border)]">
+                                    <StatusBtn active={item.status === 'OK'} type="OK" onClick={() => updateItem(section.id, idx, 'status', 'OK')} label="✓ C" />
+                                    <StatusBtn active={item.status === 'FAIL'} type="FAIL" onClick={() => updateItem(section.id, idx, 'status', 'FAIL')} label="✕ NC" />
+                                    <StatusBtn active={item.status === 'NA'} type="NA" onClick={() => updateItem(section.id, idx, 'status', 'NA')} label="— N/A" />
+                                  </div>
 
-                        value={item.text}
-                        onInput={(e) => {
-                          const target = e.target as any;
-                          target.style.height = 'auto';
-                          target.style.height = target.scrollHeight + 'px';
-                        }}
-                        onChange={(e) => updateItem(section.id, idx, 'text', e.target.value)} 
-                        style={{ border: '2px solid #1e293b' }}
-                        className="flex-[1] min-w-[200px] p-2 font-bold text-[0.9rem] outline-none bg-transparent resize-none rounded-md text-[var(--color-text)]" />
-                      
-                                            <button
-                        onClick={() => {
-                          const toastId = toast(
-                            <div className="flex items-center gap-[0.8rem]">
-                                                            <span className="text-[0.9rem]">¿Eliminar este punto?</span>
-                                                            <button
-                                onClick={() => {removeItem(section.id, idx);toast.dismiss(toastId);}} className="bg-red-500 hover:bg-red-600 text-[#ffffff] border-none rounded-[8px] p-[0.3rem_0.7rem] cursor-pointer font-[800] text-[0.8rem]">
+                                  <button
+                                    type="button"
+                                    onClick={() => removeItem(section.id, idx)}
+                                    title="Eliminar punto"
+                                    className="p-2 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border border-rose-500/20 cursor-pointer transition-colors shrink-0"
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                </div>
+                              </div>
 
-                                Sí</button>
-                                                        </div>,
-                            { duration: 4000, icon: '🗑️' }
-                          );
-                        }}
+                              {/* Barra de observación, dictado y evidencia por ítem */}
+                              <div className="mt-2.5 pl-0 sm:pl-9 flex flex-wrap items-center gap-2">
+                                <input
+                                  type="text"
+                                  placeholder={isFail ? 'Describa la no conformidad o desvío detectado...' : 'Agregar observación opcional para este punto...'}
+                                  value={item.observation || ''}
+                                  onChange={(e) => updateItem(section.id, idx, 'observation', e.target.value)}
+                                  className={`flex-1 min-w-[180px] px-3 py-1.5 rounded-xl text-xs font-semibold outline-none border ${
+                                    isFail
+                                      ? 'bg-rose-500/10 border-rose-500/40 text-[var(--color-text)]'
+                                      : 'bg-[var(--color-background)] border-[var(--color-border)] text-[var(--color-text)]'
+                                  }`}
+                                />
+                                <SpeechButton onTranscript={(text) => updateItem(section.id, idx, 'observation', item.observation ? `${item.observation} ${text}` : text)} />
 
-                        title="Eliminar" 
-                        style={{ backgroundColor: '#fee2e2', color: '#ef4444', border: '1px solid #fca5a5' }}
-                        className="rounded-[8px] cursor-pointer p-[0.3rem_0.45rem] flex items-center shrink-0">
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                        <div className="flex flex-col gap-[0.5rem] p-[0.5rem_1rem] bg-[var(--color-background)] border-top-[1px_dashed_var(--color-border)]">
-                                            <div className="flex items-center justify-space-between gap-[1rem] flex-wrap">
-                                                <div className="ats-status-group shrink-0" style={{ border: '2px solid #cbd5e1', borderRadius: '10px', padding: '4px', display: 'flex', gap: '4px' }}>
-                                                    <StatusBtn active={item.status === 'OK'} type="OK" onClick={() => updateItem(section.id, idx, 'status', 'OK')} label="C" />
-                                                    <StatusBtn active={item.status === 'FAIL'} type="FAIL" onClick={() => updateItem(section.id, idx, 'status', 'FAIL')} label="NC" />
-                                                    <StatusBtn active={item.status === 'NA'} type="NA" onClick={() => updateItem(section.id, idx, 'status', 'NA')} label="N/A" />
-                                                </div>
+                                <input
+                                  type="file"
+                                  id={`file-input-${section.id}-${idx}`}
+                                  onChange={async (e) => {
+                                    const files = Array.from(e.target.files || []);
+                                    if (files.length === 0) return;
+                                    const compressedPhotos = [];
+                                    for (const file of files) {
+                                      try {
+                                        const comp = await compressImage(file, { maxDimension: 640, quality: 0.65 });
+                                        if (comp) compressedPhotos.push(comp);
+                                      } catch (err) {
+                                        console.warn('Error compressing item photo:', err);
+                                      }
+                                    }
+                                    if (compressedPhotos.length > 0) {
+                                      updateItem(section.id, idx, 'photos', [...(item.photos || []), ...compressedPhotos]);
+                                    }
+                                  }}
+                                  accept="image/*"
+                                  capture="environment"
+                                  multiple
+                                  style={{ display: 'none' }}
+                                />
 
-                                                <div className="flex-[1] flex gap-[0.5rem] items-center min-w-[]">
-                                                    <input
-                            type="text"
-                            placeholder="Observación / Anomalía..."
-                            value={item.observation || ''}
-                            style={{ border: '2px solid #1e293b', padding: '0.5rem', borderRadius: '0.5rem', flex: 1, minWidth: '150px' }}
-                            onChange={(e) => updateItem(section.id, idx, 'observation', e.target.value)} 
-                            className="text-sm font-bold outline-none text-slate-900 dark:text-slate-100 bg-transparent" />
-                                                    <SpeechButton onTranscript={(text) => updateItem(section.id, idx, 'observation', item.observation ? `${item.observation} ${text}` : text)} />
+                                <button
+                                  type="button"
+                                  onClick={() => document.getElementById(`file-input-${section.id}-${idx}`)?.click()}
+                                  title="Adjuntar foto de evidencia"
+                                  className="px-3 py-1.5 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 hover:bg-indigo-600 hover:text-white cursor-pointer flex items-center gap-1.5 text-xs font-extrabold transition-colors"
+                                >
+                                  <Camera size={14} />
+                                  <span>Foto ({item.photos?.length || 0})</span>
+                                </button>
+                              </div>
 
-                                                    <input
-                            type="file"
-                            id={`file-input-${section.id}-${idx}`}
-                            onChange={async (e) => {
-                              const files = Array.from(e.target.files || []);
-                              if (files.length === 0) return;
-                              const compressedPhotos = [];
-                              for (const file of files) {
-                                try {
-                                  const comp = await compressImage(file, { maxDimension: 640, quality: 0.65 });
-                                  if (comp) compressedPhotos.push(comp);
-                                } catch (err) {
-                                  console.warn('Error compressing item photo:', err);
-                                }
-                              }
-                              if (compressedPhotos.length > 0) {
-                                updateItem(section.id, idx, 'photos', [...(item.photos || []), ...compressedPhotos]);
-                              }
-                            }}
-                            accept="image/*"
-                            capture="environment"
-                            multiple 
-                            style={{ display: 'none' }} />
-
-                          
-
-                                                    <button
-                            onClick={() => document.getElementById(`file-input-${section.id}-${idx}`)?.click()}
-                            title="Capturar foto de evidencia" 
-                            style={{ backgroundColor: '#6366f1', color: '#ffffff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '8px' }}
-                            className="cursor-pointer flex items-center gap-[0.3rem] text-[0.75rem] font-bold m-0 shadow-sm">
-                            
-                                                        <Camera size={16} />
-                                                        <span>{item.photos?.length || 0}</span>
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            {item.photos && item.photos.length > 0 &&
-                      <div className="flex gap-[0.4rem] flex-wrap mt-[0.2rem]">
-                                                    {item.photos.map((photo, pIdx) =>
-                        <div key={pIdx} className="relative w-[40px] h-[40px] rounded-[6px] overflow-[hidden] border-[1px_solid_var(--color-border)]">
-                                                            <img src={photo} alt="" className="w-[100%] h-[100%] object-" />
-                                                            <button
-                            onClick={() => {
-                              const updatedPhotos = item.photos.filter((_, i) => i !== pIdx);
-                              updateItem(section.id, idx, 'photos', updatedPhotos);
-                            }} className="absolute top-[0] right-[0] bg-red-500 hover:bg-red-600 text-[#fff] border-none w-[14px] h-[14px] flex items-center justify-center cursor-pointer text-[0.55rem] p-[0]">
-
-                            
-                                                                ✕
-                                                            </button>
-                                                        </div>
-                        )}
-                                                </div>
-                      }
-                                        </div>
+                              {item.photos && item.photos.length > 0 && (
+                                <div className="flex gap-2 flex-wrap mt-2 pl-0 sm:pl-9">
+                                  {item.photos.map((photo, pIdx) => (
+                                    <div key={pIdx} className="relative w-12 h-12 rounded-xl overflow-hidden border border-[var(--color-border)]">
+                                      <img src={photo} alt="" className="w-full h-full object-cover" />
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const updatedPhotos = item.photos.filter((_, i) => i !== pIdx);
+                                          updateItem(section.id, idx, 'photos', updatedPhotos);
+                                        }}
+                                        className="absolute top-0 right-0 bg-red-600 text-white border-none w-4 h-4 flex items-center justify-center cursor-pointer text-[10px] p-0"
+                                      >
+                                        ✕
+                                      </button>
                                     </div>
-                  )}
+                                  ))}
+                                </div>
+                              )}
                             </div>
-                        </div>);
-
-          })}
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
             </div>
         }
 
             {/* FORMULARIOS EDITABLES - NO PRINT */}
             
-          {currentStep === 3 && (
-            <div className="wizard-step-anim">
-              <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.8rem] text-[var(--color-primary)] font-[900] text-[1.2rem] uppercase tracking-[]">
-                  <HardHat size={24} className="text-blue-600" /> EPPs Obligatorios y Evidencia
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-[2rem]">
-                  {/* EPPs Selector */}
-                  <div style={{ border: '2px solid #cbd5e1', borderRadius: '16px', padding: '1.5rem', backgroundColor: '#ffffff', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
-                      <h4 className="m-[0_0_1rem_0] text-[0.9rem] font-[800] uppercase text-[var(--color-text)]">Selección de EPPs</h4>
-                      <div className="flex flex-wrap gap-[0.8rem]">
-                          {[
-                              { id: 'casco', label: 'Casco', icon: HardHat },
-                              { id: 'guantes', label: 'Guantes', icon: ShieldCheck },
-                              { id: 'anteojos', label: 'Anteojos', icon: EyeIcon },
-                              { id: 'auditiva', label: 'Prot. Auditiva', icon: Ear },
-                              { id: 'arnes', label: 'Arnés', icon: Activity },
-                              { id: 'calzado', label: 'Calzado Seg.', icon: ShieldCheck }
-                          ].map(epp => {
-                              const isSelected = epps?.includes(epp.id);
-                              const Icon = epp.icon;
-                              return (
-                                  <button
-                                      key={epp.id}
-                                      onClick={() => {
-                                          const current = epps || [];
-                                          const updated = isSelected ? current.filter(e => e !== epp.id) : [...current, epp.id];
-                                          setEpps(updated);
-                                      }}
-                                      style={{ 
-                                          border: isSelected ? '2px solid #3b82f6' : '2px solid #cbd5e1', 
-                                          backgroundColor: isSelected ? '#eff6ff' : '#f8fafc', 
-                                          color: isSelected ? '#1d4ed8' : '#475569',
-                                          padding: '0.6rem 1rem', 
-                                          borderRadius: '12px',
-                                          cursor: 'pointer'
-                                      }}
-                                      className="flex items-center gap-[0.5rem] transition-colors"
-                                  >
-                                      <Icon size={18} />
-                                      <span className="font-[800] text-[0.8rem]">{epp.label}</span>
-                                  </button>
-                              );
-                          })}
-                      </div>
+          {/* SECCIÓN 3: EPP CERTIFICADOS (RES. SRT 299/11) Y EVIDENCIA FOTOGRÁFICA */}
+          {(viewAllSteps || currentStep === 3) && (
+            <div className="no-print mb-6 p-5 sm:p-6 rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm">
+              <div className="flex items-center justify-between gap-3 flex-wrap border-b border-[var(--color-border)] pb-4 mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+                    <HardHat size={22} />
                   </div>
-
-                  {/* Photo Upload */}
-                  <div style={{ border: '2px solid #cbd5e1', borderRadius: '16px', padding: '1.5rem', backgroundColor: '#ffffff', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
-                      <h4 className="m-[0_0_1rem_0] text-[0.9rem] font-[800] uppercase text-[var(--color-text)]">Evidencia Fotográfica</h4>
-                      <p className="text-[0.8rem] text-[var(--color-text-muted)] mb-[1rem]">Adjunte hasta 2 fotografías de los hallazgos de la inspección.</p>
-                      
-                      <div className="flex gap-[1rem]">
-                          {[0, 1].map(index => {
-                              const photoUrl = fotos?.[index];
-                              return (
-                                  <div key={index} 
-                                      style={{ border: '2px dashed #94a3b8', borderRadius: '12px', backgroundColor: '#f8fafc', minHeight: '120px' }}
-                                      className="flex-[1] aspect-square flex items-center justify-center relative overflow-hidden transition-colors">
-                                      {photoUrl ? (
-                                          <>
-                                              <img src={photoUrl} alt={`Evidencia ${index + 1}`} className="w-full h-full object-cover" />
-                                              <button
-                                                  onClick={() => {
-                                                      const newFotos = [...(fotos || [])];
-                                                      newFotos.splice(index, 1);
-                                                      setFotos(newFotos);
-                                                  }}
-                                                  className="absolute top-[0.5rem] right-[0.5rem] bg-red-500 text-white p-[0.4rem] rounded-full shadow-md hover:bg-red-600"
-                                              >
-                                                  <Trash2 size={14} />
-                                              </button>
-                                          </>
-                                      ) : (
-                                          <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center text-[var(--color-text-muted)]">
-                                              <Camera size={24} className="mb-[0.5rem]" />
-                                              <span className="text-[0.7rem] font-[700] uppercase">Subir Foto</span>
-                                              <input
-                                                  type="file"
-                                                  accept="image/*"
-                                                  className="hidden"
-                                                  onChange={async (e) => {
-                                                      const file = e.target.files?.[0];
-                                                      if (file) {
-                                                          try {
-                                                              const compressed = await compressImage(file, { maxDimension: 640, quality: 0.65 });
-                                                              const newFotos = [...(fotos || [])];
-                                                              newFotos[index] = compressed || '';
-                                                              setFotos(newFotos);
-                                                          } catch (err) {
-                                                              console.warn('Error compressing general photo:', err);
-                                                              const reader = new FileReader();
-                                                              reader.onloadend = () => {
-                                                                  const newFotos = [...(fotos || [])];
-                                                                  newFotos[index] = reader.result as string;
-                                                                  setFotos(newFotos);
-                                                              };
-                                                              reader.readAsDataURL(file);
-                                                          }
-                                                      }
-                                                  }}
-                                              />
-                                          </label>
-                                      )}
-                                  </div>
-                              );
-                          })}
-                      </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 block">
+                      SECCIÓN 3 • DOTACIÓN PREVENTIVA Y REGISTRO VISUAL
+                    </span>
+                    <h3 className="m-0 text-base font-black text-[var(--color-text)]">
+                      EPP Obligatorios Verificados (Res. SRT 299/11) y Evidencia Fotográfica
+                    </h3>
                   </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setEpps(['casco', 'calzado', 'anteojos', 'guantes'])}
+                  className="px-3.5 py-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/30 hover:bg-blue-600 hover:text-white text-xs font-extrabold uppercase cursor-pointer transition-all"
+                >
+                  ✓ Seleccionar Kit Básico EPP
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Catálogo de 12 EPPs Certificados */}
+                <div className="lg:col-span-7">
+                  <label className="text-xs font-black uppercase text-[var(--color-text-muted)] block mb-3">
+                    Seleccioná los EPP auditados en el sector ({epps.length} seleccionados):
+                  </label>
+                  <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2.5">
+                    {EPP_CATALOG_OPTIONS.map((epp) => {
+                      const isSelected = epps?.includes(epp.id);
+                      const Icon = epp.icon;
+                      return (
+                        <button
+                          key={epp.id}
+                          type="button"
+                          onClick={() => {
+                            const current = epps || [];
+                            const updated = isSelected ? current.filter((e) => e !== epp.id) : [...current, epp.id];
+                            setEpps(updated);
+                          }}
+                          className={`p-3 rounded-2xl border text-left flex items-start gap-2.5 cursor-pointer transition-all ${
+                            isSelected
+                              ? 'bg-blue-600/15 border-2 border-blue-500 text-blue-600 dark:text-blue-300 shadow-xs'
+                              : 'bg-[var(--color-background)] border-[var(--color-border)] text-[var(--color-text)] hover:border-blue-400/60'
+                          }`}
+                        >
+                          <div className={`p-1.5 rounded-lg shrink-0 ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-slate-800 text-[var(--color-text-muted)]'}`}>
+                            <Icon size={16} />
+                          </div>
+                          <div className="min-w-0">
+                            <span className="font-extrabold text-xs block leading-snug">{epp.label}</span>
+                            <span className="text-[10px] font-bold text-[var(--color-text-muted)] block mt-0.5">{epp.norm}</span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Evidencia Fotográfica Global (hasta 4 fotos) */}
+                <div className="lg:col-span-5">
+                  <label className="text-xs font-black uppercase text-[var(--color-text-muted)] block mb-3">
+                    Fotografías Generales del Relevamiento ({fotos?.filter(Boolean).length || 0}/4):
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[0, 1, 2, 3].map((index) => {
+                      const photoUrl = fotos?.[index];
+                      return (
+                        <div
+                          key={index}
+                          className="aspect-video sm:aspect-square rounded-2xl border-2 border-dashed border-[var(--color-border)] bg-[var(--color-background)] flex items-center justify-center relative overflow-hidden hover:border-blue-400 transition-colors"
+                        >
+                          {photoUrl ? (
+                            <>
+                              <img src={photoUrl} alt={`Evidencia ${index + 1}`} className="w-full h-full object-cover" />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newFotos = [...(fotos || [])];
+                                  newFotos.splice(index, 1);
+                                  setFotos(newFotos);
+                                }}
+                                className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1.5 rounded-full shadow-md border-none cursor-pointer"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </>
+                          ) : (
+                            <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center text-[var(--color-text-muted)] p-3 text-center">
+                              <Camera size={22} className="mb-1.5 text-blue-500" />
+                              <span className="text-[11px] font-extrabold uppercase">Foto #{index + 1}</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    try {
+                                      const compressed = await compressImage(file, { maxDimension: 640, quality: 0.65 });
+                                      const newFotos = [...(fotos || [])];
+                                      newFotos[index] = compressed || '';
+                                      setFotos(newFotos.filter(Boolean));
+                                    } catch (err) {
+                                      console.warn('Error compressing general photo:', err);
+                                      const reader = new FileReader();
+                                      reader.onloadend = () => {
+                                        const newFotos = [...(fotos || [])];
+                                        newFotos[index] = reader.result as string;
+                                        setFotos(newFotos.filter(Boolean));
+                                      };
+                                      reader.readAsDataURL(file);
+                                    }
+                                  }
+                                }}
+                              />
+                            </label>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
-
-          {currentStep === 4 &&
-        <div className="no-print mb-8">
+          {/* SECCIÓN 4: OBSERVACIONES, PLAN DE ACCIÓN (CAPA) Y NORMATIVA LEGAL */}
+          {(viewAllSteps || currentStep === 4) &&
+        <div className="no-print mb-6 space-y-5">
                 {/* OBSERVACIONES GENERALES */}
-                <div className="border-[2px_solid_#3b82f6] rounded-[12px] p-[1.5rem] bg-blue-50/50 dark:bg-slate-800/80 mb-[1.5rem] relative">
-                    <div className="absolute top-[-12px] left-[20px] bg-blue-600 text-white p-[4px_12px] text-[0.65rem] font-[900] uppercase tracking-[] rounded-[4px]">
-                        📝 Observaciones Generales
-                    </div>
-                    <div className="flex justify-between items-center mb-2 mt-2">
-                        <label className="text-xs font-black uppercase text-slate-700 dark:text-slate-300">Resumen u observaciones adicionales</label>
+                <div className="rounded-3xl border border-[var(--color-border)] p-5 sm:p-6 bg-[var(--color-surface)] shadow-sm">
+                    <div className="flex justify-between items-center mb-3 flex-wrap gap-2">
+                        <div>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 block">
+                            SECCIÓN 4A • DICTAMEN Y COMENTARIOS
+                          </span>
+                          <label className="text-sm font-black uppercase text-[var(--color-text)]">
+                            Observaciones Generales y Conclusiones del Inspector
+                          </label>
+                        </div>
                         <SpeechButton onTranscript={(text) => setObservations((prev) => prev ? `${prev} ${text}` : text)} />
                     </div>
                     <textarea
                         rows={3}
                         value={observations}
                         onChange={(e) => setObservations(e.target.value)}
-                        placeholder="Ingrese observaciones generales dictando por voz o escribiendo aquí..."
-                        className="w-full p-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg text-sm font-semibold outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+                        placeholder="Ingrese observaciones generales, recomendaciones operativas o conclusiones técnicas..."
+                        className="w-full p-3.5 border border-[var(--color-border)] focus:border-blue-500 rounded-2xl text-sm font-semibold outline-none bg-[var(--color-background)] text-[var(--color-text)]"
                     />
                 </div>
 
-                {/* PLAN DE ACCIÓN - FORMULARIO */}
-                <div className="border-[2px_solid_#f59e0b] rounded-[12px] p-[1.5rem] bg-[linear-gradient(135deg,_#fffbeb_0%,_#fef3c7_100%)] relative">
-                    <div className="absolute top-[-12px] left-[20px] bg-amber-500 hover:bg-amber-600 text-[#fff] p-[4px_12px] text-[0.65rem] font-[900] uppercase tracking-[] rounded-[4px]">
-                        🎯 Plan de Acción
-                    </div>
-                    <div className="flex justify-between items-center mb-2 mt-2">
-                        <label className="text-xs font-black uppercase text-amber-900">Agregar Medida Correctiva</label>
-                        <SpeechButton onTranscript={(text) => setNewAction((prev) => ({ ...prev, action: prev.action ? `${prev.action} ${text}` : text }))} />
-                    </div>
-                    <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(150px,_1fr))] gap-[0.8rem] mb-[1rem]">
-                        <input type="text" placeholder="Acción correctiva" value={newAction.action} onChange={(e) => setNewAction({ ...newAction, action: e.target.value })} className="p-[0.6rem_0.8rem] border border-slate-300 dark:border-slate-600 rounded-[8px] text-[0.85rem] font-[600] outline-[none]" />
-                        <input type="text" placeholder="Responsable" value={newAction.responsible} onChange={(e) => setNewAction({ ...newAction, responsible: e.target.value })} className="p-[0.6rem_0.8rem] border border-slate-300 dark:border-slate-600 rounded-[8px] text-[0.85rem] font-[600] outline-[none]" />
-                        <div className="flex gap-[0.5rem]">
-                            <input type="date" value={newAction.dueDate} onChange={(e) => setNewAction({ ...newAction, dueDate: e.target.value })} className="flex-[1] p-[0.6rem_0.8rem] border border-slate-300 dark:border-slate-600 rounded-[8px] text-[0.85rem] font-[600] outline-[none]" />
-                            <select value={newAction.priority} onChange={(e) => setNewAction({ ...newAction, priority: e.target.value })} className="p-[0.6rem_0.8rem] border border-slate-300 dark:border-slate-600 rounded-[8px] text-[0.85rem] font-[600] outline-[none] bg-white dark:bg-slate-800">
-                                <option value="bajo">🟢 Bajo</option>
-                                <option value="medio">🟡 Medio</option>
-                                <option value="alto">🟠 Alto</option>
-                                <option value="critico">🔴 Crítico</option>
-                            </select>
-                        </div>
-                        <button onClick={() => {if (newAction.action.trim()) {setActionPlan([...actionPlan, { ...newAction, id: Date.now() }]);setNewAction({ action: '', responsible: '', dueDate: '', priority: 'medio' });toast.success('Acción agregada ✅');}}} className="p-[0.6rem_1rem] bg-amber-500 hover:bg-amber-600 text-[#fff] font-[900] text-[0.85rem] rounded-[8px] border-none cursor-pointer flex items-center justify-center gap-[0.5rem]">
-                            <Plus size={16} /> AGREGAR
-                        </button>
-                    </div>
-                    {actionPlan.length > 0 &&
-            <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(280px,_1fr))] gap-[0.8rem]">
-                            {actionPlan.map((action, idx) =>
-              <div key={action.id} className="bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 rounded-[8px] p-[0.8rem] flex flex-col gap-[0.5rem]">
-                                    <div className="flex items-start gap-[0.5rem]">
-                                        <div className="min-w-[] h-[24px] bg-amber-500 hover:bg-amber-600 text-[#fff] rounded-[50%] flex items-center justify-center text-[0.75rem] font-[900] shrink-0">{idx + 1}</div>
-                                        <div className="flex-[1]">
-                                            <p className="m-[0] font-[700] text-[0.85rem] text-slate-800 dark:text-slate-200">{action.action}</p>
-                                            <div className="flex flex-wrap gap-[0.5rem] mt-[0.3rem] text-[0.75rem]">
-                                                {action.responsible && <span className="text-slate-600 dark:text-slate-400">👤 {action.responsible}</span>}
-                                                {action.dueDate && <span className="text-red-600 dark:text-red-400">📅 {new Date(action.dueDate).toLocaleDateString('es-AR')}</span>}
-                                                <span style={{ background: action.priority === 'critico' ? '#fef2f2' : action.priority === 'alto' ? '#fff7ed' : action.priority === 'medio' ? '#fefce8' : '#f0fdf4', color: action.priority === 'critico' ? '#dc2626' : action.priority === 'alto' ? '#ea580c' : action.priority === 'medio' ? '#ca8a04' : '#16a34a' }} className="p-[0.2rem_0.5rem] rounded-[4px] font-[700] text-[0.7rem]">
-                                                    {action.priority === 'critico' ? '🔴' : action.priority === 'alto' ? '🟠' : action.priority === 'medio' ? '🟡' : '🟢'} {action.priority.toUpperCase()}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <button onClick={() => {setActionPlan(actionPlan.filter((a) => a.id !== action.id));toast.success('Acción eliminada');}} className="bg-[rgba(239,68,68,0.08)] border-[1px_solid_rgba(239,68,68,0.2)] rounded-[6px] cursor-pointer text-[#ef4444] p-[0.3rem] flex items-center shrink-0">
-                                            <X size={14} />
-                                        </button>
-                                    </div>
-                                </div>
-              )}
-                        </div>
-            }
-                </div>
-
-                {/* PRÓXIMA REVISIÓN */}
-                <div className="mt-[1rem] p-[1rem] bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-[12px] flex flex-wrap gap-[1rem] items-center justify-space-between">
-                    <div className="flex items-center gap-[0.8rem]">
-                        <Calendar size={24} color="#2563eb" />
+                {/* PLAN DE ACCIÓN CORRECTIVA (CAPA) */}
+                <div className="rounded-3xl border border-amber-500/40 p-5 sm:p-6 bg-[var(--color-surface)] shadow-sm">
+                    <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
                         <div>
-                            <p className="m-[0] font-[900] text-[0.85rem] text-[#1e3a8a] uppercase">Próxima Revisión Programada</p>
-                            <p className="m-[0] text-[0.75rem] text-[#64748b]">Seleccioná la fecha para el próximo control</p>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-amber-500 block">
+                            SECCIÓN 4B • SEGUIMIENTO DE DESVÍOS (CAPA)
+                          </span>
+                          <label className="text-sm font-black uppercase text-[var(--color-text)]">
+                            Plan de Acción Correctiva ({actionPlan.length})
+                          </label>
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <button
+                            type="button"
+                            onClick={generateActionPlanFromNc}
+                            className="px-3 py-1.5 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500 hover:text-white text-xs font-extrabold uppercase flex items-center gap-1.5 cursor-pointer transition-all"
+                          >
+                            <Sparkles size={14} /> Autocompletar desde Desvíos (NC)
+                          </button>
+                          <SpeechButton onTranscript={(text) => setNewAction((prev) => ({ ...prev, action: prev.action ? `${prev.action} ${text}` : text }))} />
                         </div>
                     </div>
-                    <input type="date" value={nextReview} onChange={(e) => setNextReview(e.target.value)} className="p-[0.6rem_0.8rem] border border-blue-300 dark:border-blue-700 rounded-[8px] text-[0.85rem] font-[600] outline-[none] bg-white dark:bg-slate-800" />
+
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 mb-4">
+                        <input
+                          type="text"
+                          placeholder="Describir acción correctiva o preventiva..."
+                          value={newAction.action}
+                          onChange={(e) => setNewAction({ ...newAction, action: e.target.value })}
+                          className="sm:col-span-5 px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl text-sm font-semibold outline-none bg-[var(--color-background)] text-[var(--color-text)]"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Responsable asignado"
+                          value={newAction.responsible}
+                          onChange={(e) => setNewAction({ ...newAction, responsible: e.target.value })}
+                          className="sm:col-span-3 px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl text-sm font-semibold outline-none bg-[var(--color-background)] text-[var(--color-text)]"
+                        />
+                        <input
+                          type="date"
+                          value={newAction.dueDate}
+                          onChange={(e) => setNewAction({ ...newAction, dueDate: e.target.value })}
+                          className="sm:col-span-2 px-3 py-2.5 border border-[var(--color-border)] rounded-xl text-xs font-bold outline-none bg-[var(--color-background)] text-[var(--color-text)]"
+                        />
+                        <div className="sm:col-span-2 flex gap-2">
+                          <select
+                            value={newAction.priority}
+                            onChange={(e) => setNewAction({ ...newAction, priority: e.target.value })}
+                            className="flex-1 px-2.5 py-2.5 border border-[var(--color-border)] rounded-xl text-xs font-bold outline-none bg-[var(--color-background)] text-[var(--color-text)]"
+                          >
+                            <option value="bajo">🟢 Bajo</option>
+                            <option value="medio">🟡 Medio</option>
+                            <option value="alto">🟠 Alto</option>
+                            <option value="critico">🔴 Crítico</option>
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (newAction.action.trim()) {
+                                setActionPlan([...actionPlan, { ...newAction, id: Date.now() }]);
+                                setNewAction({ action: '', responsible: '', dueDate: '', priority: 'medio' });
+                                toast.success('Acción agregada ✅');
+                              }
+                            }}
+                            className="px-3.5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-black text-xs rounded-xl border-none cursor-pointer flex items-center justify-center shrink-0"
+                            title="Agregar acción"
+                          >
+                            <Plus size={16} />
+                          </button>
+                        </div>
+                    </div>
+
+                    {actionPlan.length > 0 && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                        {actionPlan.map((action, idx) => (
+                          <div key={action.id} className="bg-[var(--color-background)] border border-amber-500/30 rounded-2xl p-3.5 flex items-start gap-3">
+                            <div className="w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center text-xs font-black shrink-0 mt-0.5">
+                              {idx + 1}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="m-0 font-bold text-xs sm:text-sm text-[var(--color-text)]">{action.action}</p>
+                              <div className="flex flex-wrap gap-2 mt-1.5 text-[11px] font-bold">
+                                {action.responsible && <span className="text-[var(--color-text-muted)]">👤 {action.responsible}</span>}
+                                {action.dueDate && <span className="text-rose-500">📅 {new Date(action.dueDate).toLocaleDateString('es-AR')}</span>}
+                                <span className="px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 uppercase text-[10px] font-black">
+                                  {action.priority}
+                                </span>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActionPlan(actionPlan.filter((a) => a.id !== action.id));
+                                toast.success('Acción eliminada');
+                              }}
+                              className="p-1.5 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border-none cursor-pointer shrink-0"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                 </div>
 
-                {/* NORMATIVA APLICABLE */}
-                <div className="mt-[1rem] border-[2px_solid_#c084fc] rounded-[12px] p-[1.5rem] bg-[linear-gradient(135deg,_#faf5ff_0%,_#f3e8ff_100%)] relative">
-                    <div className="absolute top-[-12px] left-[20px] bg-[#9333ea] text-[#fff] p-[4px_12px] text-[0.65rem] font-[900] uppercase tracking-[] rounded-[4px]">
-                        📚 Normativa Aplicable
+                {/* PRÓXIMA REVISIÓN + NORMATIVA APLICABLE */}
+                <div className="rounded-3xl border border-[var(--color-border)] p-5 sm:p-6 bg-[var(--color-surface)] shadow-sm space-y-5">
+                  <div className="p-4 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)] flex flex-wrap gap-4 items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Calendar size={22} className="text-blue-500" />
+                      <div>
+                        <p className="m-0 font-black text-sm text-[var(--color-text)] uppercase">Próxima Revisión Programada</p>
+                        <p className="m-0 text-xs text-[var(--color-text-muted)]">Fecha sugerida para la próxima auditoría periódica</p>
+                      </div>
                     </div>
-                    <p className="text-[0.8rem] text-slate-600 dark:text-slate-400 mb-[1rem] mt-[0.5rem]">Seleccioná las normativas que aplican a esta inspección:</p>
-                    {Array.from(new Set(availableNorms.map((norm) => norm.category))).map((category) =>
-            <div key={category} className="mb-[1rem]">
-                            <h4 className="text-[0.75rem] font-[900] text-[#64748b] uppercase mb-[0.5rem]">{category}</h4>
-                            <div className="grid grid-template-columns-[repeat(auto-fit,_minmax(200px,_1fr))] gap-[0.5rem]">
-                                {availableNorms.filter((norm) => norm.category === category).map((norm) =>
-                <label key={norm.id} style={{ background: selectedNorms.includes(norm.id) ? '#faf5ff' : '#ffffff', border: `1px solid ${selectedNorms.includes(norm.id) ? '#a855f7' : '#e2e8f0'}` }} className="flex items-start gap-[0.8rem] p-[0.8rem] rounded-[8px] cursor-pointer transition-[all_0.2s] hover:border-purple-400 shadow-sm">
-                                        <div className="flex-shrink-0 mt-[1px] flex items-center justify-center">
-                                            <input type="checkbox" checked={selectedNorms.includes(norm.id)} onChange={(e) => {if (e.target.checked) {setSelectedNorms([...selectedNorms, norm.id]);} else {setSelectedNorms(selectedNorms.filter((id) => id !== norm.id));}}} className="w-[18px] h-[18px] cursor-pointer outline-none focus:ring-0 focus:outline-none m-0 p-0" style={{ accentColor: '#9333ea' }} />
-                                        </div>
-                                        <span className="text-[0.85rem] font-[900] text-[#0f172a] leading-tight flex-1 text-left">{norm.name}</span>
-                                    </label>
-                )}
-                            </div>
+                    <input
+                      type="date"
+                      value={nextReview}
+                      onChange={(e) => setNextReview(e.target.value)}
+                      className="px-3.5 py-2 border border-[var(--color-border)] rounded-xl text-sm font-bold outline-none bg-[var(--color-surface)] text-[var(--color-text)]"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between gap-2 flex-wrap mb-3">
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-purple-500 block">
+                          SECCIÓN 4C • ENCUADRE REGULATORIO
+                        </span>
+                        <h4 className="m-0 text-sm font-black uppercase text-[var(--color-text)]">
+                          Normativa Legal Aplicable ({selectedNorms.length} seleccionadas)
+                        </h4>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={suggestNormsFromTemplates}
+                        className="px-3.5 py-1.5 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 hover:bg-purple-600 hover:text-white text-xs font-extrabold uppercase flex items-center gap-1.5 cursor-pointer transition-all"
+                      >
+                        <Sparkles size={14} /> Sugerir Normativa Automática
+                      </button>
+                    </div>
+
+                    {Array.from(new Set(availableNorms.map((norm) => norm.category))).map((category) => (
+                      <div key={category} className="mb-3">
+                        <h5 className="text-[11px] font-black text-[var(--color-text-muted)] uppercase mb-2">{category}</h5>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                          {availableNorms
+                            .filter((norm) => norm.category === category)
+                            .map((norm) => {
+                              const isSelected = selectedNorms.includes(norm.id);
+                              return (
+                                <label
+                                  key={norm.id}
+                                  className={`flex items-start gap-2.5 p-2.5 rounded-xl cursor-pointer border transition-all ${
+                                    isSelected
+                                      ? 'bg-purple-500/15 border-purple-500 text-[var(--color-text)]'
+                                      : 'bg-[var(--color-background)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-purple-400/50'
+                                  }`}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSelectedNorms([...selectedNorms, norm.id]);
+                                      } else {
+                                        setSelectedNorms(selectedNorms.filter((id) => id !== norm.id));
+                                      }
+                                    }}
+                                    className="w-4 h-4 mt-0.5 cursor-pointer shrink-0"
+                                    style={{ accentColor: '#9333ea' }}
+                                  />
+                                  <span className="text-xs font-extrabold leading-tight flex-1 text-left">{norm.name}</span>
+                                </label>
+                              );
+                            })}
                         </div>
-            )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
             </div>
         }
 
-            {/* Firmas y Autorizaciones */}
-            {currentStep === 5 &&
-        <div className="no-print card mt-[1.5rem] bg-[var(--color-surface)] border-[1px_solid_var(--color-border)] rounded-[var(--radius-xl)] p-[2rem]">
-                <h3 className="mt-[0] mb-[2rem] flex items-center gap-[0.7rem] text-[var(--color-primary)] font-[900] text-[1.2rem] uppercase tracking-[]">
-                    <Pencil size={24} /> Firmas y Autorizaciones
-                </h3>
+            {/* SECCIÓN 5: FIRMAS Y AUTORIZACIONES */}
+            {(viewAllSteps || currentStep === 5) &&
+        <div className="no-print mt-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-3xl p-5 sm:p-6 shadow-sm">
+                <div className="flex items-center gap-3 border-b border-[var(--color-border)] pb-4 mb-5">
+                  <div className="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    <Pencil size={22} />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 block">
+                      SECCIÓN 5 • VALIDACIÓN Y CIERRE DE INSPECCIÓN
+                    </span>
+                    <h3 className="m-0 text-base font-black text-[var(--color-text)]">
+                      Firmas Digitales y Pie Institucional con QR
+                    </h3>
+                  </div>
+                </div>
 
-                {/* Custom visual switches */}
-                {/* Custom visual switches */}
-                <div className="no-print mb-8 p-6 bg-[rgba(30,_41,_59,_0.2)] border-[1px_solid_var(--glass-border)] rounded-[var(--radius-xl)] w-[100%] flex flex-col gap-[1.25rem] justify-center items-center">
-                    <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase tracking-[]">INCLUIR FIRMAS EN EL DOCUMENTO:</div>
-                    <div className="flex gap-[1rem] flex-wrap justify-center">
+                {/* Selector de firmas e información institucional */}
+                <div className="no-print mb-6 p-4 bg-[var(--color-background)] border border-[var(--color-border)] rounded-2xl flex flex-col gap-3">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <span className="text-[var(--color-text)] font-extrabold text-xs uppercase tracking-wider">
+                        Seleccioná las firmas a incluir en el PDF:
+                      </span>
+                      <label
+                        className="flex items-center gap-2 cursor-pointer select-none px-3.5 py-1.5 rounded-full font-extrabold text-xs transition-all"
+                        style={{
+                          border: showFooter ? '1px solid #10b981' : '1px solid #cbd5e1',
+                          background: showFooter ? 'rgba(16, 185, 129, 0.12)' : 'transparent',
+                          color: showFooter ? '#10b981' : '#64748b'
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={showFooter}
+                          onChange={(e) => setShowFooter(e.target.checked)}
+                          className="hidden"
+                        />
+                        <CheckCircle2 size={14} />
+                        <span>Incluir Pie Legal y QR</span>
+                      </label>
+                    </div>
+
+                    <div className="flex gap-2.5 flex-wrap">
                         {[
-              { id: 'operator', label: 'Responsable / Operador' },
-              { id: 'supervisor', label: 'Supervisión / Verificador' },
-              { id: 'professional', label: 'Profesional / Inspector' }].
-              map((sig) => {
-                const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
-                return (
-                  <label
-                    key={sig.id}
-                    className="flex items-center gap-2 cursor-pointer select-none p-[0.6rem_1.2rem] rounded-full font-[800] text-[0.8rem] transition-all"
-                    style={{
-                      border: isChecked ? '1px solid #3b82f6' : '1px solid #cbd5e1',
-                      background: isChecked ? '#eff6ff' : 'transparent',
-                      color: isChecked ? '#2563eb' : '#64748b',
-                    }}>
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))}
-                      className="hidden"
-                    />
-                    <div
-                      style={{
-                        border: isChecked ? '2px solid #3b82f6' : '2px solid #94a3b8',
-                        background: isChecked ? '#3b82f6' : 'transparent'
-                      }}
-                      className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-all flex-shrink-0">
-                      {isChecked && <CheckCircle2 size={12} color="white" />}
-                    </div>
-                    <span className="whitespace-nowrap leading-none mt-[1px]">{sig.label}</span>
-                  </label>
-                );
-              })}
-                    </div>
-
-                    <div className="text-[var(--color-text)] font-[800] text-[0.85rem] uppercase tracking-[] mt-2">PIE DE PÁGINA INSTITUCIONAL / QR:</div>
-                    <div className="flex gap-[1rem] flex-wrap justify-center">
-                        <label
-                          className="flex items-center gap-2 cursor-pointer select-none p-[0.6rem_1.2rem] rounded-full font-[800] text-[0.8rem] transition-all"
-                          style={{
-                            border: showFooter ? '1px solid #10b981' : '1px solid #cbd5e1',
-                            background: showFooter ? '#ecfdf5' : 'transparent',
-                            color: showFooter ? '#059669' : '#64748b',
-                          }}>
-                          <input
-                            type="checkbox"
-                            checked={showFooter}
-                            onChange={(e) => setShowFooter(e.target.checked)}
-                            className="hidden"
-                          />
-                          <div
-                            style={{
-                              border: showFooter ? '2px solid #10b981' : '2px solid #94a3b8',
-                              background: showFooter ? '#10b981' : 'transparent'
-                            }}
-                            className="w-[16px] h-[16px] rounded-[4px] flex items-center justify-center transition-all flex-shrink-0">
-                            {showFooter && <CheckCircle2 size={12} color="white" />}
-                          </div>
-                          <span className="whitespace-nowrap leading-none mt-[1px]">Incluir Pie de Página institucional con QR</span>
-                        </label>
+                          { id: 'operator', label: 'Responsable / Operador' },
+                          { id: 'professional', label: 'Profesional Actuante H&S' },
+                          { id: 'supervisor', label: 'Supervisión / Verificador' }
+                        ].map((sig) => {
+                          const isChecked = showSignatures[sig.id as keyof typeof showSignatures];
+                          return (
+                            <label
+                              key={sig.id}
+                              className="flex items-center gap-2 cursor-pointer select-none px-4 py-2 rounded-xl font-extrabold text-xs transition-all"
+                              style={{
+                                border: isChecked ? '1.5px solid #3b82f6' : '1px solid var(--color-border)',
+                                background: isChecked ? 'rgba(59, 130, 246, 0.12)' : 'var(--color-surface)',
+                                color: isChecked ? '#3b82f6' : 'var(--color-text-muted)'
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={(e) => setShowSignatures((s) => ({ ...s, [sig.id]: e.target.checked }))}
+                                className="hidden"
+                              />
+                              <div
+                                style={{
+                                  border: isChecked ? '2px solid #3b82f6' : '2px solid #94a3b8',
+                                  background: isChecked ? '#3b82f6' : 'transparent'
+                                }}
+                                className="w-4 h-4 rounded flex items-center justify-center transition-all shrink-0"
+                              >
+                                {isChecked && <Check size={11} color="white" strokeWidth={3} />}
+                              </div>
+                              <span>{sig.label}</span>
+                            </label>
+                          );
+                        })}
                     </div>
                 </div>
 
-                {/* On-Sheet Visual Preview of PDF signature blocks */}
-                <div className="mb-[2.5rem]">
-                    <PdfSignatures
-              data={{
-                operatorSignature,
-                signature,
-                supervisorSignature,
-                showSignatures,
-                professionalSignature: professional.signature,
-                professionalName: professional.name,
-                professionalLicense: professional.license,
-                professionalStamp: professional.stamp
-              }}
-              box1={showSignatures.operator ? {
-                title: 'RESPONSABLE / OPERADOR',
-                subtitle: 'Control Operativo',
-                signatureUrl: operatorSignature || null,
-                isProfessional: false
-              } : null}
-              box2={showSignatures.professional ? {
-                title: 'PROFESIONAL',
-                subtitle: (professional.name || 'Firma de Especialista').toUpperCase(),
-                signatureUrl: signature || professional.signature || null,
-                stampUrl: professional.stamp || null,
-                isProfessional: true,
-                license: professional.license
-              } : null}
-              box3={showSignatures.supervisor ? {
-                title: 'SUPERVISIÓN / VERIFICADOR',
-                subtitle: 'Cierre de Inspección',
-                signatureUrl: supervisorSignature || null,
-                isProfessional: false
-              } : null} />
-            
-            {showFooter && <PdfBrandingFooter />}
+                {/* Vista previa en vivo del bloque de firmas sobre papel claro (Responsiva en celular) */}
+                <div
+                  className="mb-6 p-3 sm:p-4 rounded-2xl border border-slate-300 bg-white text-slate-900 overflow-x-auto"
+                  style={{ backgroundColor: '#ffffff', color: '#0f172a' }}
+                >
+                    <div className="min-w-[540px] sm:min-w-0">
+                      <PdfSignatures
+                        compact={true}
+                        hideFooter={true}
+                        data={{
+                          operatorSignature,
+                          signature,
+                          supervisorSignature,
+                          showSignatures,
+                          professionalSignature: professional.signature,
+                          professionalName: professional.name,
+                          professionalLicense: professional.license,
+                          professionalStamp: professional.stamp
+                        }}
+                        box1={showSignatures.operator ? {
+                          title: 'RESPONSABLE / OPERADOR',
+                          subtitle: inspectionInfo.responsableArea || companyInfo.responsable || 'Control Operativo',
+                          signatureUrl: operatorSignature || null,
+                          isProfessional: false
+                        } : null}
+                        box2={showSignatures.professional ? {
+                          title: 'PROFESIONAL ACTUANTE H&S',
+                          subtitle: (professional.name || companyInfo.inspector || 'Firma de Especialista').toUpperCase(),
+                          signatureUrl: signature || professional.signature || null,
+                          stampUrl: professional.stamp || null,
+                          isProfessional: true,
+                          license: professional.license
+                        } : null}
+                        box3={showSignatures.supervisor ? {
+                          title: 'SUPERVISIÓN / VERIFICADOR',
+                          subtitle: 'Cierre de Inspección',
+                          signatureUrl: supervisorSignature || null,
+                          isProfessional: false
+                        } : null}
+                      />
+                      {showFooter && <PdfBrandingFooter />}
+                    </div>
                 </div>
 
-                {/* Interactive Signature Drawing Pads */}
-                <div className="mt-8 pt-8 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 gap-8 grid gap-[2rem]" style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }}>
-                    {showSignatures.operator &&
-            <SignatureCanvas
-              onSave={(sig) => setOperatorSignature(sig || '')}
-              initialImage={operatorSignature}
-              label="Firma de Responsable / Operador" />
-
-            }
-                    
-                    {showSignatures.professional &&
-            <SignatureCanvas
-              onSave={(sig) => setSignature(sig || '')}
-              initialImage={signature}
-              label="Firma de Profesional / Inspector" />
-
-            }
-
-                    {showSignatures.supervisor &&
-            <SignatureCanvas
-              onSave={(sig) => setSupervisorSignature(sig || '')}
-              initialImage={supervisorSignature}
-              label="Firma de Supervisión / Verificador" />
-            }
-
-        </div>
+                {/* Pizarras de Firma Digital */}
+                <div className="pt-4 border-t border-[var(--color-border)] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                    {showSignatures.operator && (
+                      <SignatureCanvas
+                        onSave={(sig) => setOperatorSignature(sig || '')}
+                        initialImage={operatorSignature}
+                        label="Firma de Responsable / Operador"
+                      />
+                    )}
+                    {showSignatures.professional && (
+                      <SignatureCanvas
+                        onSave={(sig) => setSignature(sig || '')}
+                        initialImage={signature}
+                        label="Firma de Profesional / Inspector"
+                      />
+                    )}
+                    {showSignatures.supervisor && (
+                      <SignatureCanvas
+                        onSave={(sig) => setSupervisorSignature(sig || '')}
+                        initialImage={supervisorSignature}
+                        label="Firma de Supervisión / Verificador"
+                      />
+                    )}
+                </div>
         </div>
       }
       </ModuleFormLayout>
 
-      <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 mt-6 pt-6 border-t border-slate-200 dark:border-slate-700 no-print w-full">
-          {currentStep > 1 
-              ? <button onClick={prevStep} style={{ backgroundColor: '#475569', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><ArrowLeft size={16} /> ANTERIOR</button>
-              : <button onClick={() => { setShowForm(false); setCurrentStep(1); }} style={{ backgroundColor: '#ef4444', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><ArrowLeft size={16} /> CANCELAR</button>
-          }
-          
-          {currentStep < totalSteps && 
-              <button onClick={nextStep} style={{ backgroundColor: '#2563eb', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95">SIGUIENTE <ArrowRight size={16} /></button>
-          }
-          {currentStep === totalSteps && 
-              <>
-                 <button type="button" onClick={() => {
-                   const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, showFooter, operatorSignature, signature, supervisorSignature, equipo: inspectionInfo?.item || checklistTitle || 'Checklist', empresa: companyInfo?.name || '-', fecha: inspectionInfo?.date || new Date().toISOString() };
-                   setPreviewItem(data);
-                 }} style={{ backgroundColor: '#0284c7', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><EyeIcon size={16} /> PREVIA A4</button>
-                 <button type="button" onClick={() => requirePro(() => {
-                   const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, showFooter, operatorSignature, signature, supervisorSignature, equipo: inspectionInfo?.item || checklistTitle || 'Checklist', empresa: companyInfo?.name || '-', fecha: inspectionInfo?.date || new Date().toISOString() };
-                   setDirectPrintItem(data);
-                   setTimeout(() => {
-                     printElementAsDocument('checklist-direct-print');
-                   }, 150);
-                 })} style={{ backgroundColor: '#1e293b', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><Printer size={16} /> IMPRIMIR</button>
-                 <button onClick={() => requirePro(() => {
-                   const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, showFooter, operatorSignature, signature, supervisorSignature, equipo: inspectionInfo?.item || checklistTitle || 'Checklist', empresa: companyInfo?.name || '-', fecha: inspectionInfo?.date || new Date().toISOString() };
-                   setAutoPrintShare(false);
-                   setShareItem(data as any);
-                 })} style={{ backgroundColor: '#3b82f6', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-sm text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><Share2 size={16} /> COMPARTIR</button>
-                 <button disabled={isSaving} onClick={(e) => requirePro(() => handleSave())} style={{ backgroundColor: isSaving ? '#94a3b8' : '#059669', color: '#fff' }} className="px-3 py-2 rounded-[8px] font-[800] cursor-pointer flex items-center justify-center gap-[0.4rem] border-none shadow-[0_4px_12px_rgba(5,150,105,0.3)] text-xs flex-1 min-w-[120px] sm:flex-none transition-transform active:scale-95"><Save size={16} /> {isSaving ? 'GUARDANDO...' : 'GUARDAR'}</button>
-              </>
-          }
+      {/* Barra de Navegación Centrada: En pasos 1 a 4 solo muestra Cancelar/Anterior y Siguiente; en paso 5 (Firma y Cierre) habilita Previa A4, Compartir, Imprimir y Guardar */}
+      <div className="flex flex-col items-center justify-center gap-3 mt-6 p-4 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-md no-print w-full">
+          {currentStep < totalSteps ? (
+            <div className="flex items-center justify-center gap-3 w-full max-w-md mx-auto">
+              {currentStep > 1 ? (
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  style={{ backgroundColor: '#475569', color: '#fff' }}
+                  className="flex-1 py-3 px-5 rounded-xl font-extrabold cursor-pointer flex items-center justify-center gap-2 border-none shadow-xs text-xs sm:text-sm uppercase transition-transform active:scale-95"
+                >
+                  <ArrowLeft size={16} /> PASO ANTERIOR
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => { setShowForm(false); setCurrentStep(1); setSearchParams({}); }}
+                  style={{ backgroundColor: '#ef4444', color: '#fff' }}
+                  className="flex-1 py-3 px-5 rounded-xl font-extrabold cursor-pointer flex items-center justify-center gap-2 border-none shadow-xs text-xs sm:text-sm uppercase transition-transform active:scale-95"
+                >
+                  <ArrowLeft size={16} /> CANCELAR
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={nextStep}
+                style={{ backgroundColor: '#2563eb', color: '#fff' }}
+                className="flex-1 py-3 px-5 rounded-xl font-extrabold cursor-pointer flex items-center justify-center gap-2 border-none shadow-md text-xs sm:text-sm uppercase transition-transform active:scale-95"
+              >
+                SIGUIENTE PASO <ArrowRight size={16} />
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2.5 w-full">
+              <div className="grid grid-cols-2 sm:flex items-center justify-center gap-2.5 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  style={{ backgroundColor: '#475569', color: '#fff' }}
+                  className="py-3 px-4 rounded-xl font-extrabold cursor-pointer flex items-center justify-center gap-1.5 border-none shadow-xs text-xs uppercase transition-transform active:scale-95"
+                >
+                  <ArrowLeft size={16} /> PASO ANTERIOR
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { setShowForm(false); setCurrentStep(1); setSearchParams({}); }}
+                  style={{ backgroundColor: '#ef4444', color: '#fff' }}
+                  className="py-3 px-4 rounded-xl font-extrabold cursor-pointer flex items-center justify-center gap-1.5 border-none shadow-xs text-xs uppercase transition-transform active:scale-95"
+                >
+                  <X size={16} /> CANCELAR
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, showFooter, operatorSignature, signature, supervisorSignature, equipo: inspectionInfo?.item || checklistTitle || 'Checklist', empresa: companyInfo?.name || '-', fecha: inspectionInfo?.date || new Date().toISOString() };
+                    setPreviewItem(data);
+                  }}
+                  style={{ backgroundColor: '#0284c7', color: '#fff' }}
+                  className="py-3 px-4 rounded-xl font-extrabold cursor-pointer flex items-center justify-center gap-1.5 border-none shadow-xs text-xs uppercase transition-transform active:scale-95"
+                >
+                  <EyeIcon size={16} /> PREVIA A4
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => requirePro(() => {
+                    const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, showFooter, operatorSignature, signature, supervisorSignature, equipo: inspectionInfo?.item || checklistTitle || 'Checklist', empresa: companyInfo?.name || '-', fecha: inspectionInfo?.date || new Date().toISOString() };
+                    setAutoPrintShare(false);
+                    setShareItem(data as any);
+                  })}
+                  style={{ backgroundColor: '#3b82f6', color: '#fff' }}
+                  className="py-3 px-4 rounded-xl font-extrabold cursor-pointer flex items-center justify-center gap-1.5 border-none shadow-xs text-xs uppercase transition-transform active:scale-95"
+                >
+                  <Share2 size={16} /> COMPARTIR
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => requirePro(() => {
+                    const data = { id: searchParams.get('id') || Date.now().toString(), checklistTitle, companyInfo, inspectionInfo, activeSections, observations, actionPlan, nextReview, selectedNorms, epps, fotos, showSignatures, showFooter, operatorSignature, signature, supervisorSignature, equipo: inspectionInfo?.item || checklistTitle || 'Checklist', empresa: companyInfo?.name || '-', fecha: inspectionInfo?.date || new Date().toISOString() };
+                    setDirectPrintItem(data);
+                    setTimeout(() => {
+                      printElementAsDocument('checklist-direct-print');
+                    }, 120);
+                  })}
+                  style={{ backgroundColor: '#1e293b', color: '#fff' }}
+                  className="col-span-2 sm:col-span-1 py-3 px-4 rounded-xl font-extrabold cursor-pointer flex items-center justify-center gap-1.5 border-none shadow-xs text-xs uppercase transition-transform active:scale-95"
+                >
+                  <Printer size={16} /> IMPRIMIR
+                </button>
+
+                <button
+                  type="button"
+                  disabled={isSaving}
+                  onClick={() => requirePro(() => handleSave())}
+                  style={{ backgroundColor: isSaving ? '#94a3b8' : '#059669', color: '#fff' }}
+                  className="col-span-2 sm:col-span-1 py-3 px-6 rounded-xl font-black cursor-pointer flex items-center justify-center gap-2 border-none shadow-[0_4px_14px_rgba(5,150,105,0.4)] text-xs sm:text-sm uppercase transition-transform active:scale-95"
+                >
+                  <Save size={16} /> {isSaving ? 'GUARDANDO...' : 'GUARDAR CHECKLIST'}
+                </button>
+              </div>
+            </div>
+          )}
       </div>
       </>
       }
@@ -2290,31 +2939,40 @@ export default function ChecklistManager(): React.ReactElement | null {
       {previewItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
           <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none flex-wrap gap-3">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-500/20 text-blue-400 rounded-xl">
                   <FileText size={20} />
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+                  <h2 className="text-base sm:text-lg font-bold text-white leading-tight m-0">
                     Vista Previa A4 • Checklist de Inspección
                   </h2>
-                  <p className="text-xs text-slate-400">
-                    {previewItem.checklistTitle || previewItem.equipo || 'Inspección de Seguridad'} • Visualización exacta para impresión
+                  <p className="text-xs text-slate-400 m-0">
+                    {previewItem.checklistTitle || previewItem.equipo || 'Inspección de Seguridad'} • Visualización exacta para impresión y descarga
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
                 <button
+                  type="button"
+                  onClick={() => handleDownloadFromPreview('checklist-preview-modal-content', previewItem.equipo || previewItem.checklistTitle)}
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-extrabold text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl shadow-lg shadow-emerald-500/20 transition-all cursor-pointer border-none"
+                >
+                  <Download size={16} /> Descargar PDF
+                </button>
+                <button
+                  type="button"
                   onClick={() => requirePro(() => printElementAsDocument('checklist-preview-modal-content'))}
-                  className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-lg shadow-blue-500/20 transition-all cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-extrabold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-lg shadow-blue-500/20 transition-all cursor-pointer border-none"
                 >
                   <Printer size={16} /> Imprimir / PDF
                 </button>
                 <button
+                  type="button"
                   onClick={() => setPreviewItem(null)}
-                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer"
+                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl transition-colors cursor-pointer border-none bg-transparent"
                   title="Cerrar vista previa"
                 >
                   <X size={20} />
@@ -2333,10 +2991,11 @@ export default function ChecklistManager(): React.ReactElement | null {
             </div>
 
             <div className="px-6 py-3 border-t border-slate-700/80 bg-slate-800/90 flex items-center justify-between text-xs text-slate-400">
-              <span>Formato reglamentario Ley 19.587 / Dec. 351 / Dec. 911 • Renglones y párrafos preservados</span>
+              <span>Formato reglamentario Ley 19.587 / Dec. 351 / Dec. 911 • Firmas y sellos protegidos contra cortes de página</span>
               <button
+                type="button"
                 onClick={() => setPreviewItem(null)}
-                className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+                className="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors cursor-pointer border-none bg-transparent"
               >
                 Cerrar
               </button>
@@ -2384,28 +3043,44 @@ export default function ChecklistManager(): React.ReactElement | null {
 }
 
 function DocBox({ label, value, onChange, type = "text", large = false, highlight = false, flex = 1, list = null }) {
-    return (
-        <div className={`p-3 min-w-0 flex flex-col justify-center sm:border-r-2 last:border-r-0 sm:print:border-r-2 border-slate-200 ${highlight ? 'bg-slate-50/50 dark:bg-slate-800' : ''}`}>
-            <label className="text-[0.65rem] font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-widest block mb-2 leading-tight text-left">{label}</label>
-            <input
+  return (
+    <div className={`p-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] flex flex-col justify-center transition-colors focus-within:border-blue-500 ${highlight ? 'ring-1 ring-blue-500/30' : ''}`}>
+      <label className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-wider block mb-1 leading-tight text-left">
+        {label}
+      </label>
+      <input
         type={type}
         list={list}
-        className={`w-full p-2 border-2 border-slate-800 dark:border-slate-400 rounded-md outline-none bg-transparent font-black ${large ? 'text-lg tracking-tight' : 'text-sm uppercase'} text-black dark:text-white focus:bg-yellow-50 dark:focus:bg-slate-700 text-left transition-colors min-w-0`}
+        className={`w-full px-2 py-1.5 rounded-lg outline-none bg-transparent border-none font-extrabold ${large ? 'text-base tracking-tight' : 'text-sm'} text-[var(--color-text)] text-left min-w-0`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="" />
-      
-        </div>);
-
+        placeholder="Completar..."
+      />
+    </div>
+  );
 }
 
 function StatusBtn({ active, type, onClick, label }) {
-  const classes = `ats-status-btn ${active ? type === 'OK' ? 'active-ok' : type === 'FAIL' ? 'active-fail' : 'active-na' : ''}`;
-  return (
-    <button className={classes} onClick={onClick}>
-            {label}
-        </button>);
+  const activeStyle =
+    type === 'OK'
+      ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+      : type === 'FAIL'
+      ? 'bg-rose-600 text-white border-rose-600 shadow-xs'
+      : 'bg-slate-600 text-white border-slate-600 shadow-xs';
+  const idleStyle =
+    'bg-transparent text-[var(--color-text-muted)] border-transparent hover:bg-slate-200/50 dark:hover:bg-slate-700/50';
 
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-black uppercase border cursor-pointer transition-all text-center justify-center ${
+        active ? activeStyle : idleStyle
+      }`}
+    >
+      {label}
+    </button>
+  );
 }
 
 function SpeechButton({ onTranscript }: { onTranscript: (text: string) => void }) {
