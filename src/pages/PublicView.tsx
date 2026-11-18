@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchPublicDoc, fetchPublicLogo } from '../services/cloudSync';
-import { FileText, ArrowLeft, Loader2, AlertTriangle, Printer, Download, ShieldCheck } from 'lucide-react';
+import { FileText, AlertTriangle, Printer, Download, ShieldCheck, Share2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import LoadingScreen from '../components/LoadingScreen';
+import { generatePdfBlob, printElementAsDocument } from '../utils/pdfHelper';
 
 // PDF Generators
 import ATSPdfGenerator from '../components/ATSPdfGenerator';
@@ -14,27 +16,61 @@ import LightingPdfGenerator from '../components/LightingPdfGenerator';
 import ChecklistPdfGenerator from '../components/ChecklistPdfGenerator';
 import AccidentPdfGenerator from '../components/AccidentPdfGenerator';
 import TrainingPdfGenerator from '../components/TrainingPdfGenerator';
-import ExtinguisherPdfGenerator from '../components/ExtinguisherPdfGenerator';
+import ExtinguisherProfilePdf from '../components/ExtinguisherProfilePdf';
 import ThermalStressPdfGenerator from '../components/ThermalStressPdfGenerator';
 import DrillPdfGenerator from '../components/DrillPdfGenerator';
 import StopCardPdfGenerator from '../components/StopCardPdfGenerator';
 import RiskAssessmentPdfGenerator from '../components/RiskAssessmentPdfGenerator';
 import PublicWorkerPassView from '../components/PublicWorkerPassView';
+import LiftingPdfGenerator from '../components/LiftingPdfGenerator';
+import LOTOPdf from '../components/LOTOPdf';
+import RiskMapPdfGenerator from '../components/RiskMapPdfGenerator';
+import ExtinguisherAIPdfGenerator from '../components/ExtinguisherAIPdfGenerator';
+import AiAdvisorPdfGenerator from '../components/AiAdvisorPdfGenerator';
 
 export default function PublicView(): React.ReactElement | null {
   const { uid, cat, id } = useParams();
   const navigate = useNavigate();
-  const [docData, setDocData] = useState(null);
+  const [docData, setDocData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isPrintMode, setIsPrintMode] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [mobileScale, setMobileScale] = useState(1);
+  const [scaledHeight, setScaledHeight] = useState<number | null>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
+
+  const effectiveCat = cat || (docData?._publicCategory as string) || '';
+
+  // Escalar proporcionalmente la hoja A4 (794px) en pantallas de celulares para que se vea completa sin recortes
+  useEffect(() => {
+    const updateScale = () => {
+      const vw = window.innerWidth;
+      if (vw < 820 && effectiveCat !== 'worker' && effectiveCat !== 'pasaporte' && effectiveCat !== 'legajo' && effectiveCat !== 'asset') {
+        const s = Math.max(0.38, Math.min(1, (vw - 20) / 794));
+        setMobileScale(s);
+      } else {
+        setMobileScale(1);
+      }
+    };
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, [effectiveCat]);
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    if (searchParams.get('print') === 'true') {
-      setIsPrintMode(true);
+    if (!sheetRef.current || mobileScale >= 1) {
+      setScaledHeight(null);
+      return;
     }
-  }, []);
+    const updateHeight = () => {
+      if (sheetRef.current) {
+        setScaledHeight(Math.ceil(sheetRef.current.scrollHeight * mobileScale) + 24);
+      }
+    };
+    updateHeight();
+    const timer = setTimeout(updateHeight, 400);
+    return () => clearTimeout(timer);
+  }, [docData, mobileScale]);
 
   useEffect(() => {
     const loadDoc = async () => {
@@ -42,8 +78,9 @@ export default function PublicView(): React.ReactElement | null {
         const searchParams = new URLSearchParams(window.location.search);
         const queryId = searchParams.get('id');
         const targetId = id || queryId;
+        const targetUid = uid || 'guest';
 
-        if (uid && cat === 'asset' && targetId) {
+        if (cat === 'asset' && targetId) {
           let foundAsset: any = null;
           try {
             const saved = localStorage.getItem('ehs_assets');
@@ -79,28 +116,50 @@ export default function PublicView(): React.ReactElement | null {
               lastInspection: new Date().toISOString().slice(0, 10)
             });
           }
-        } else if (uid && cat && targetId) {
-          const data = await fetchPublicDoc(uid, cat, targetId);
+        } else if (cat && targetId) {
+          const data: any = await fetchPublicDoc(targetUid, cat, targetId);
           if (data) {
-            setDocData(data);
+            // Hidratar datos de firma, profesional y logo en el navegador visitante (sin pisar sesión propia si existe)
             try {
-              const logoData = await fetchPublicLogo(uid);
-              if (logoData && logoData.logo) {
-                window.sharedLogoData = logoData;
+              if (data._sharedPersonalData && !localStorage.getItem('personalData')) {
+                localStorage.setItem('personalData', JSON.stringify(data._sharedPersonalData));
+              }
+              if (data._sharedSignatureStampData && !localStorage.getItem('signatureStampData')) {
+                localStorage.setItem('signatureStampData', JSON.stringify(data._sharedSignatureStampData));
+              }
+              if (data._sharedCompanyLogo) {
+                (window as any).sharedLogoData = { logo: data._sharedCompanyLogo, show: true };
+                if (!localStorage.getItem('companyLogo')) {
+                  localStorage.setItem('companyLogo', String(data._sharedCompanyLogo));
+                }
+              } else if (targetUid && targetUid !== 'guest' && targetUid !== 'pub') {
+                const logoData = await fetchPublicLogo(targetUid);
+                if (logoData && logoData.logo) {
+                  (window as any).sharedLogoData = logoData;
+                  if (!localStorage.getItem('companyLogo')) {
+                    localStorage.setItem('companyLogo', String(logoData.logo));
+                  }
+                }
               }
             } catch (logoErr) {
-              console.warn('Could not fetch shared logo:', logoErr);
+              console.warn('Could not hydrate shared metadata:', logoErr);
             }
+            setDocData(data);
           } else {
-            setError('Documento no encontrado o expirado en el servidor.');
+            setError('Documento no encontrado o aún no sincronizado en la nube.');
           }
         } else if (targetId) {
-          // Documento verificado vía QR directo por ID
-          setDocData({
-            isVerifiedIdOnly: true,
-            docId: targetId,
-            verificationTime: new Date().toISOString()
-          });
+          // Intentar buscar en public_verifications por ID directo antes de mostrar solo el portal de código
+          const directData: any = await fetchPublicDoc('guest', 'snapshot', targetId);
+          if (directData) {
+            setDocData(directData);
+          } else {
+            setDocData({
+              isVerifiedIdOnly: true,
+              docId: targetId,
+              verificationTime: new Date().toISOString()
+            });
+          }
         } else if (window.location.pathname.startsWith('/verify')) {
           setDocData({
             isVerificationPortal: true
@@ -108,15 +167,9 @@ export default function PublicView(): React.ReactElement | null {
         } else {
           setError('Enlace de verificación no válido o ausente.');
         }
-
-        if (searchParams.get('print') === 'true') {
-          setTimeout(() => {
-            window.print();
-          }, 1000);
-        }
       } catch (err) {
         console.error(err);
-        setError('Error al cargar la información de verificación.');
+        setError('Error al cargar la información del documento público.');
       } finally {
         setLoading(false);
       }
@@ -170,47 +223,150 @@ export default function PublicView(): React.ReactElement | null {
 
   if (error) {
     return (
-      <div className="p-[2rem] text-center mt-[5rem]">
-                <AlertTriangle size={48} color="#ef4444" className="mb-[1rem]" />
-                <h2 className="font-[800]">{error}</h2>
-                <></>
-            </div>);
-
+      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
+        <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl flex flex-col items-center">
+          <AlertTriangle size={48} color="#ef4444" className="mb-4" />
+          <h2 className="font-black text-lg text-white mb-2">{error}</h2>
+          <p className="text-xs text-slate-400 leading-relaxed mb-6">
+            Si acabás de crear este registro, abrí nuevamente el botón de QR o Compartir desde tu sesión para sincronizarlo instantáneamente.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-xl text-sm border-none cursor-pointer"
+          >
+            Reintentar carga
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const renderGenerator = () => {
-    switch (cat) {
-      case 'ats': return <ATSPdfGenerator atsData={docData} />;
-      case 'camera': return <AiReportPdfGenerator item={docData} />;
-      case 'permit': return <WorkPermitPdfGenerator data={docData} />;
-      case 'fireload': return <FireLoadPdfGenerator data={docData} />;
-      case 'matrix': return <RiskMatrixPdfGenerator data={docData} />;
-      case 'lighting': return <LightingPdfGenerator data={docData} />;
-      case 'checklist': return <ChecklistPdfGenerator checklistData={docData} />;
-      case 'accident': return <AccidentPdfGenerator report={docData} onBack={() => navigate(-1)} />;
-      case 'training': return <TrainingPdfGenerator data={docData} />;
+    switch (effectiveCat) {
+      case 'ats':
+        return <ATSPdfGenerator atsData={docData} />;
+      case 'camera':
+        return <AiReportPdfGenerator item={docData} />;
+      case 'permit':
+        return <WorkPermitPdfGenerator data={docData} />;
+      case 'fireload':
+        return <FireLoadPdfGenerator data={docData} />;
+      case 'matrix':
+        return <RiskMatrixPdfGenerator data={docData} />;
+      case 'lighting':
+        return <LightingPdfGenerator data={docData} />;
+      case 'checklist':
+        return <ChecklistPdfGenerator checklistData={docData} isHeadless={true} />;
+      case 'accident':
+        return <AccidentPdfGenerator report={docData} isHeadless={true} onBack={() => navigate(-1)} />;
+      case 'training':
+        return <TrainingPdfGenerator data={docData} isHeadless={true} />;
       case 'extinguisher':
       case 'extintor':
+        if (docData?.confidence !== undefined || (docData?.type && !docData?.numero && !docData?.agente)) {
+          return <ExtinguisherAIPdfGenerator item={docData} />;
+        }
+        if (docData?.analysis) {
+          return <AiReportPdfGenerator item={docData} />;
+        }
         return <PublicExtinguisherView data={docData} id={id} />;
-      case 'thermal': return <ThermalStressPdfGenerator data={docData} />;
-      case 'drill': return <DrillPdfGenerator report={docData} onBack={() => navigate(-1)} />;
-      case 'stopcard': return <StopCardPdfGenerator card={docData} />;
-      case 'riskassessment': return <RiskAssessmentPdfGenerator assessmentData={docData} />;
+      case 'lifting':
+        return <LiftingPdfGenerator data={docData} />;
+      case 'loto':
+        return <LOTOPdf data={docData} />;
+      case 'riskmap':
+        return <RiskMapPdfGenerator data={docData} />;
+      case 'advisor':
+      case 'ai_advisor_history':
+        return <AiAdvisorPdfGenerator data={docData} />;
+      case 'thermal':
+        return <ThermalStressPdfGenerator data={docData} isHeadless={true} />;
+      case 'drill':
+        return <DrillPdfGenerator report={docData} isHeadless={true} onBack={() => navigate(-1)} />;
+      case 'stopcard':
+        return <StopCardPdfGenerator card={docData} />;
+      case 'riskassessment':
+        return <RiskAssessmentPdfGenerator assessmentData={docData} />;
       case 'worker':
       case 'pasaporte':
       case 'legajo':
         return <PublicWorkerPassView data={docData} id={id} />;
       case 'asset':
         return <PublicAssetQRView data={docData} id={id} onBack={() => navigate('/asset-scanner')} />;
-      default: return <div>Categoría no soportada.</div>;
+      case 'snapshot':
+        return (
+          <div
+            id="pdf-content"
+            className="pdf-container print-area w-full max-w-[210mm] bg-white text-slate-900 p-4 sm:p-6 mx-auto box-border"
+            dangerouslySetInnerHTML={{ __html: docData?.htmlSnapshot || '' }}
+          />
+        );
+      default:
+        if (docData?.htmlSnapshot) {
+          return (
+            <div
+              id="pdf-content"
+              className="pdf-container print-area w-full max-w-[210mm] bg-white text-slate-900 p-4 sm:p-6 mx-auto box-border"
+              dangerouslySetInnerHTML={{ __html: docData.htmlSnapshot }}
+            />
+          );
+        }
+        return <div className="p-8 text-center font-bold text-slate-700">Categoría no soportada.</div>;
+    }
+  };
+
+  const docTitle =
+    docData?.title ||
+    docData?.tema ||
+    docData?.empresa ||
+    docData?.company ||
+    docData?.equipo ||
+    docData?.name ||
+    (docData?.numero ? `Matafuego_${docData.numero}` : 'Documento_HYS');
+
+  const handleDownloadPdf = async () => {
+    if (isDownloading) return;
+    setIsDownloading(true);
+    const toastId = toast.loading('Generando archivo PDF...');
+    try {
+      const targetElId = document.getElementById('pdf-content') ? 'pdf-content' : 'public-pdf-sheet';
+      const isLandscape = Boolean(docData?.isLandscape || effectiveCat === 'matrix');
+      const blob = await generatePdfBlob(targetElId, isLandscape);
+      const safeName = `${String(docTitle).replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'documento_hys'}.pdf`;
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = safeName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => window.URL.revokeObjectURL(url), 1500);
+      toast.success('¡PDF descargado!', { id: toastId });
+    } catch (err) {
+      console.error('Error al descargar PDF público:', err);
+      toast.dismiss(toastId);
+      handlePrintPdf();
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handlePrintPdf = async () => {
+    const targetElId = document.getElementById('pdf-content') ? 'pdf-content' : 'public-pdf-sheet';
+    const isLandscape = Boolean(docData?.isLandscape || effectiveCat === 'matrix');
+    try {
+      await printElementAsDocument(targetElId, String(docTitle), isLandscape);
+    } catch {
+      window.print();
     }
   };
 
   const handleShare = async () => {
+    const cleanUrl = window.location.href.replace(/[?&]print=true/g, '');
     const shareData = {
-      title: `Asistente HYS - ${docData.tema || docData.company || docData.equipo || 'Documento'}`,
-      text: `Revisá este documento de Higiene y Seguridad: ${docData.tema || docData.company || ''}`,
-      url: window.location.href
+      title: `Asistente H&S - ${docTitle}`,
+      text: `Visualizá este documento verificado de Higiene y Seguridad: ${docTitle}`,
+      url: cleanUrl
     };
 
     if (navigator.share) {
@@ -220,321 +376,229 @@ export default function PublicView(): React.ReactElement | null {
         console.log('Error sharing:', err);
       }
     } else {
-      // Fallback: Copy to clipboard
-      navigator.clipboard.writeText(window.location.href);
-      alert('Enlace copiado al portapapeles');
+      navigator.clipboard.writeText(cleanUrl);
+      toast.success('Enlace copiado al portapapeles');
     }
   };
 
+  const isCardView =
+    effectiveCat === 'worker' ||
+    effectiveCat === 'pasaporte' ||
+    effectiveCat === 'legajo' ||
+    effectiveCat === 'asset';
+
   return (
-    <div style={{ background: isPrintMode ? '#fff' : 'var(--color-background)' }} className="min-h-[100vh] pb-[4rem]">
-            {!isPrintMode &&
-      <div className="no-print p-[0.75rem_1.5rem] bg-[var(--glass-bg)] backdrop-filter-[blur(12px)] webkit-backdrop-filter-[blur(12px)] border-b border-[] flex items-center justify-space-between sticky top-[0] z-[1000] shadow-[]">
+    <div style={{ background: '#0f172a', minHeight: '100vh', paddingBottom: '4rem' }}>
+      {/* Barra superior pública fija (sin necesidad de login) */}
+      <div
+        className="no-print"
+        style={{
+          padding: '0.75rem 1rem',
+          background: 'rgba(15, 23, 42, 0.95)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.75rem',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1000,
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.35)'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: 0 }}>
+          <div
+            style={{
+              width: '36px',
+              height: '36px',
+              background: '#ffffff',
+              borderRadius: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '4px',
+              flexShrink: 0
+            }}
+          >
+            <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+            <span style={{ fontWeight: 900, fontSize: '0.9rem', color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              Asistente H&amp;S
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <div style={{ width: '6px', height: '6px', background: '#10b981', borderRadius: '50%' }} />
+              <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Vista Pública QR Verificada
+              </span>
+            </div>
+          </div>
+        </div>
 
-
-
-
-
-
-
-
-
-
-
-
-        
-                    <div className="flex items-center gap-[0.8rem]">
-                        <div className="w-[36px] h-[36px] bg-[#ffffff] rounded-[10px] flex items-center justify-center shadow-[] p-[5px]">
-
-
-
-
-
-
-
-
-
-            
-                            <img src="/logo.png" alt="Logo" className="w-[100%] h-[100%] object-" />
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="font-[900] text-[0.95rem] text-[var(--color-text)] tracking-[]">Asistente HYS</span>
-                            <div className="flex items-center gap-[0.3rem]">
-                                <div className="w-[6px] h-[6px] bg-[#10b981] rounded-[50%]"></div>
-                                <span className="text-[0.65rem] font-[800] text-[#10b981] uppercase">Documento Verificado</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className="flex gap-[0.6rem]">
-                        <button
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+          <button
             onClick={handleShare}
+            title="Compartir enlace"
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              color: '#e2e8f0',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              padding: '0.5rem 0.65rem',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <Share2 size={17} />
+          </button>
 
+          <button
+            onClick={handlePrintPdf}
+            title="Imprimir"
+            style={{
+              background: 'rgba(59, 130, 246, 0.18)',
+              color: '#93c5fd',
+              border: '1px solid rgba(59, 130, 246, 0.35)',
+              padding: '0.5rem 0.85rem',
+              borderRadius: '10px',
+              fontWeight: 800,
+              fontSize: '0.78rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              cursor: 'pointer'
+            }}
+          >
+            <Printer size={16} /> <span className="hidden sm:inline">Imprimir</span>
+          </button>
 
+          <button
+            onClick={handleDownloadPdf}
+            disabled={isDownloading}
+            style={{
+              background: 'linear-gradient(135deg, #10b981, #059669)',
+              color: '#ffffff',
+              border: 'none',
+              padding: '0.55rem 1rem',
+              borderRadius: '10px',
+              fontWeight: 900,
+              fontSize: '0.8rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              cursor: isDownloading ? 'wait' : 'pointer',
+              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.35)'
+            }}
+          >
+            <Download size={16} />
+            <span>{isDownloading ? 'Generando...' : 'Descargar PDF'}</span>
+          </button>
+        </div>
+      </div>
 
+      {/* Contenedor del Documento (Fuerza tema claro papel A4 para evitar textos blancos sobre fondo blanco) */}
+      <div
+        style={{
+          maxWidth: isCardView ? '900px' : '840px',
+          margin: '1.25rem auto 0',
+          padding: isCardView ? '0 1rem' : '0 8px',
+          display: 'flex',
+          justifyContent: 'center',
+          overflowX: 'hidden'
+        }}
+      >
+        <div
+          style={{
+            width: isCardView ? '100%' : mobileScale < 1 ? `${Math.round(794 * mobileScale)}px` : '100%',
+            height: scaledHeight ? `${scaledHeight}px` : 'auto',
+            position: 'relative',
+            display: 'flex',
+            justifyContent: 'center'
+          }}
+        >
+          <div
+            ref={sheetRef}
+            id="public-pdf-sheet"
+            style={{
+              '--color-text': '#0f172a',
+              '--color-text-muted': '#475569',
+              '--color-text-light': '#64748b',
+              '--color-surface': '#ffffff',
+              '--color-surface-solid': '#ffffff',
+              '--color-background': '#f8fafc',
+              '--color-border': '#cbd5e1',
+              colorScheme: 'light',
+              backgroundColor: isCardView ? 'transparent' : '#ffffff',
+              color: '#0f172a',
+              width: isCardView ? '100%' : '794px',
+              minWidth: isCardView ? '0' : '794px',
+              borderRadius: isCardView ? '0' : '16px',
+              boxShadow: isCardView ? 'none' : '0 25px 60px rgba(0, 0, 0, 0.5)',
+              overflow: 'hidden',
+              transform: !isCardView && mobileScale < 1 ? `scale(${mobileScale})` : 'none',
+              transformOrigin: 'top center'
+            } as React.CSSProperties}
+          >
+            {renderGenerator()}
+          </div>
+        </div>
+      </div>
 
-
-
-
-
-
-
-
-            title="Compartir enlace" className="bg-[rgba(59,_130,_246,_0.1)] text-[var(--color-primary)] border-[1px_solid_rgba(59,_130,_246,_0.2)] p-[0.5rem] rounded-[10px] cursor-pointer flex items-center justify-center">
-            
-                            <Download size={18} />
-                        </button>
-                        <button
-            onClick={() => window.print()} className="bg-[var(--color-primary)] text-[white] border-none p-[0.5rem_1.2rem] rounded-[10px] font-[800] text-[0.85rem] flex items-center gap-[0.5rem] cursor-pointer shadow-[]">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-                            <Printer size={18} /> <span className="hidden-mobile">PDF</span>
-                        </button>
-                    </div>
-                </div>
-      }
-
-            <div className="max-w-[900px] m-[2rem_auto] p-[0_1rem]">
-                <div className="bg-[var(--color-surface)] rounded-[24px] p-[2rem] shadow-[] border-[1px_solid_var(--color-border)] relative">
-
-
-
-
-
-
-          
-                    {/* Decorative verify badge */}
-                    <div className="no-print absolute top-[1.5rem] right-[1.5rem] opacity-[0.1] pointer-events-">
-
-
-
-
-
-            
-                        <FileText size={80} />
-                    </div>
-
-                    <div id="pdf-content">
-                        {renderGenerator()}
-                    </div>
-                </div>
-            </div>
-
-            <div className="no-print text-center mt-[3rem] p-[0_2rem]">
-                <p className="text-[0.78rem] text-[var(--color-text-muted)] leading-[] font-[500] max-w-[400px] m-[0_auto]">
-
-
-
-
-
-
-          
-                    Este documento es una copia auténtica generada mediante <strong>Asistente HYS</strong>.<br />
-                    Escanee el código QR original para verificar la integridad de la información.
-                </p>
-                <div className="mt-[1.5rem] flex justify-center gap-[1.5rem] opacity-[0.5]">
-                    <Shield size={20} />
-                    <KeySquare size={20} />
-                    <Activity size={20} />
-                </div>
-            </div>
-        </div>);
-
+      <div className="no-print text-center mt-8 px-6">
+        <p style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 500, maxWidth: '440px', margin: '0 auto', lineHeight: 1.5 }}>
+          Este documento es una copia auténtica verificada mediante <strong>Asistente H&amp;S</strong>.<br />
+          Podés visualizarlo en pantalla o tocar <strong>Descargar PDF</strong> arriba para guardarlo en tu teléfono.
+        </p>
+        <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center', gap: '1.5rem', opacity: 0.45, color: '#94a3b8' }}>
+          <Shield size={20} />
+          <KeySquare size={20} />
+          <Activity size={20} />
+        </div>
+      </div>
+    </div>
+  );
 }
 
-const Shield = ({ size }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>;
-const KeySquare = ({ size }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.4 2.7a2.5 2.5 0 0 1 3.4 0l4.5 4.5a2.5 2.5 0 0 1 0 3.4l-11 11.1L2 22l.3-7.3 10.1-12z" /></svg>;
-const Activity = ({ size }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>;
+const Shield = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+);
+const KeySquare = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12.4 2.7a2.5 2.5 0 0 1 3.4 0l4.5 4.5a2.5 2.5 0 0 1 0 3.4l-11 11.1L2 22l.3-7.3 10.1-12z" />
+  </svg>
+);
+const Activity = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+  </svg>
+);
 
 function PublicExtinguisherView({ data, id }: { data: any; id?: string }) {
-  const ext = Array.isArray(data) ? (data.find((e: any) => String(e.id) === String(id) || String(e.numero) === String(id)) || data[0]) : data;
+  const ext = Array.isArray(data)
+    ? data.find((e: any) => String(e.id) === String(id) || String(e.numero) === String(id)) || data[0]
+    : data;
 
   if (!ext) {
     return (
-      <div className="p-8 text-center text-red-500 font-bold">
+      <div className="p-8 text-center text-red-600 font-bold bg-white">
         No se encontraron datos técnicos para este extintor.
       </div>
     );
   }
 
-  // Calculate status
-  const now = new Date();
-  let isExpired = false;
-  let isExpiringSoon = false;
-
-  if (ext.vencimientoRecarga) {
-    const vRec = new Date(ext.vencimientoRecarga);
-    if (!isNaN(vRec.getTime())) {
-      if (vRec < now) isExpired = true;
-      else if ((vRec.getTime() - now.getTime()) / (1000 * 3600 * 24) <= 30) isExpiringSoon = true;
-    }
-  }
-
-  if (ext.vencimientoPH) {
-    const vPh = new Date(ext.vencimientoPH);
-    if (!isNaN(vPh.getTime()) && vPh < now) {
-      isExpired = true;
-    }
-  }
-
   return (
-    <div className="flex flex-col gap-6 text-left">
-      {/* Banner / Header */}
-      <div className={`p-6 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg ${
-        isExpired
-          ? 'bg-red-500/10 border-red-500/40 text-red-400'
-          : isExpiringSoon
-          ? 'bg-amber-500/10 border-amber-500/40 text-amber-400'
-          : 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400'
-      }`}>
-        <div className="flex items-center gap-4">
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-2xl shadow-inner ${
-            isExpired ? 'bg-red-500/20 text-red-400' : isExpiringSoon ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'
-          }`}>
-            🧯
-          </div>
-          <div>
-            <span className={`text-[0.7rem] px-3 py-1 rounded-full font-black uppercase tracking-wider ${
-              isExpired ? 'bg-red-500/20 text-red-300' : isExpiringSoon ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'
-            }`}>
-              {isExpired ? '🔴 REVISIÓN REQUERIDA / VENCIDO' : isExpiringSoon ? '🟡 PRÓXIMO VENCIMIENTO' : '🟢 OPERATIVO & VIGENTE'}
-            </span>
-            <h2 className="text-xl font-black text-[var(--color-text)] mt-1 mb-0">
-              Matafuego N° {ext.numero || ext.id || 'N/A'}
-            </h2>
-            <p className="text-xs text-[var(--color-text-muted)] m-0 mt-0.5">
-              Ficha Técnica Digital Verificada · Control de extintores Dec 351/79
-            </p>
-          </div>
-        </div>
-
-        <div className="text-right sm:border-l sm:border-white/10 sm:pl-6">
-          <span className="text-xs text-[var(--color-text-muted)] block font-semibold">Empresa / Cliente</span>
-          <span className="text-sm font-extrabold text-[var(--color-text)]">{ext.empresa || 'Gestión HyS'}</span>
-        </div>
-      </div>
-
-      {/* Grid Specs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Card 1: Datos de Ubicación y Agente */}
-        <div className="p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col gap-3">
-          <h3 className="text-xs font-black uppercase text-blue-400 tracking-wider m-0 flex items-center gap-2">
-            📍 Ubicación y Especificaciones
-          </h3>
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <div>
-              <span className="text-[var(--color-text-muted)] block">Ubicación / Sector:</span>
-              <strong className="text-[var(--color-text)] font-extrabold">{ext.ubicacion || 'Sector General'}</strong>
-            </div>
-            <div>
-              <span className="text-[var(--color-text-muted)] block">Agente Extintor:</span>
-              <strong className="text-blue-400 font-extrabold">{ext.agente || 'Polvo ABC'}</strong>
-            </div>
-            <div>
-              <span className="text-[var(--color-text-muted)] block">Capacidad (kg):</span>
-              <strong className="text-[var(--color-text)] font-extrabold">{ext.capacidad || 5} kg</strong>
-            </div>
-            <div>
-              <span className="text-[var(--color-text-muted)] block">N° de Serie / Patente:</span>
-              <strong className="text-[var(--color-text)] font-extrabold">{ext.nroSerie || ext.patente || 'S/N'}</strong>
-            </div>
-            {ext.marca && (
-              <div>
-                <span className="text-[var(--color-text-muted)] block">Marca / Fabricante:</span>
-                <strong className="text-[var(--color-text)] font-extrabold">{ext.marca}</strong>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Card 2: Vencimientos y Pruebas */}
-        <div className="p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col gap-3">
-          <h3 className="text-xs font-black uppercase text-amber-400 tracking-wider m-0 flex items-center gap-2">
-            📅 Fechas de Inspección & Vencimiento
-          </h3>
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <div>
-              <span className="text-[var(--color-text-muted)] block">Última Recarga:</span>
-              <strong className="text-[var(--color-text)] font-extrabold">
-                {ext.ultimaCarga || ext.fechaInspeccion || 'Verificada'}
-              </strong>
-            </div>
-            <div>
-              <span className="text-[var(--color-text-muted)] block">Vencimiento Recarga:</span>
-              <strong className={`font-extrabold ${isExpired ? 'text-red-400' : 'text-emerald-400'}`}>
-                {ext.vencimientoRecarga || 'Al día'}
-              </strong>
-            </div>
-            <div>
-              <span className="text-[var(--color-text-muted)] block">Última Prueba Hidráulica (PH):</span>
-              <strong className="text-[var(--color-text)] font-extrabold">{ext.ultimaPH || 'Conforme'}</strong>
-            </div>
-            <div>
-              <span className="text-[var(--color-text-muted)] block">Próxima Prueba Hidráulica (PH):</span>
-              <strong className="text-blue-400 font-extrabold">{ext.vencimientoPH || 'En término'}</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Estado Físico & Componentes */}
-      <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
-        <h3 className="text-xs font-black uppercase text-emerald-400 tracking-wider m-0 mb-3">
-          🔎 Inspección Visual de Componentes
-        </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-center">
-          <div className="p-2.5 rounded-xl bg-black/20 border border-white/5">
-            <span className="text-[var(--color-text-muted)] block text-[0.68rem]">Manómetro</span>
-            <span className="font-extrabold text-emerald-400">✓ Conforme</span>
-          </div>
-          <div className="p-2.5 rounded-xl bg-black/20 border border-white/5">
-            <span className="text-[var(--color-text-muted)] block text-[0.68rem]">Manguera / Boquilla</span>
-            <span className="font-extrabold text-emerald-400">✓ Conforme</span>
-          </div>
-          <div className="p-2.5 rounded-xl bg-black/20 border border-white/5">
-            <span className="text-[var(--color-text-muted)] block text-[0.68rem]">Precinto / Pasador</span>
-            <span className="font-extrabold text-emerald-400">✓ Intacto</span>
-          </div>
-          <div className="p-2.5 rounded-xl bg-black/20 border border-white/5">
-            <span className="text-[var(--color-text-muted)] block text-[0.68rem]">Chapa / Pintura</span>
-            <span className="font-extrabold text-emerald-400">✓ Buen Estado</span>
-          </div>
-        </div>
-        {ext.observaciones && (
-          <p className="text-xs text-[var(--color-text-muted)] mt-3 mb-0 italic">
-            <strong>Observaciones del Técnico:</strong> {ext.observaciones}
-          </p>
-        )}
-      </div>
-
-      {/* Firma del Responsable */}
-      <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-between text-xs">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">
-            ✍️
-          </div>
-          <div>
-            <span className="font-extrabold text-[var(--color-text)] block">Técnico Auditing / Prevencionista Responsable</span>
-            <span className="text-[var(--color-text-muted)] text-[0.7rem]">Verificación Digital Auténtica por Asistente HYS</span>
-          </div>
-        </div>
-        <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 font-extrabold text-[0.7rem] uppercase">
-          Verificado
-        </span>
-      </div>
+    <div className="bg-white text-slate-900">
+      <ExtinguisherProfilePdf
+        data={ext}
+        isHeadless={true}
+        pdfElementId="pdf-content"
+      />
     </div>
   );
 }
@@ -550,13 +614,13 @@ function PublicAssetQRView({ data, id, onBack }: { data: any; id?: string; onBac
       : '#dc2626';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', textAlign: 'left' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', textAlign: 'left', background: '#0f172a', padding: '1rem', borderRadius: '18px' }}>
       <div
         style={{
           padding: '1.5rem',
           borderRadius: '18px',
           border: `2px solid ${statusColor}`,
-          background: 'var(--color-background)',
+          background: '#1e293b',
           display: 'flex',
           flexWrap: 'wrap',
           alignItems: 'center',
@@ -580,10 +644,10 @@ function PublicAssetQRView({ data, id, onBack }: { data: any; id?: string; onBac
           >
             ESTADO: {status}
           </span>
-          <h2 style={{ margin: '8px 0 4px', fontSize: '1.35rem', fontWeight: 900, color: 'var(--color-text)' }}>
+          <h2 style={{ margin: '8px 0 4px', fontSize: '1.35rem', fontWeight: 900, color: '#ffffff' }}>
             {data.name || `Activo ${id}`}
           </h2>
-          <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>
+          <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700, color: '#94a3b8' }}>
             Ficha Oficial de Inspección QR/NFC • ISO 55001 / Ley 19.587
           </p>
         </div>
@@ -613,14 +677,14 @@ function PublicAssetQRView({ data, id, onBack }: { data: any; id?: string; onBac
           style={{
             padding: '1.25rem',
             borderRadius: '16px',
-            background: 'var(--color-background)',
-            border: '1px solid var(--color-border)'
+            background: '#1e293b',
+            border: '1px solid #334155'
           }}
         >
-          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>
             Código ID de Activo
           </div>
-          <div style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--color-text)', marginTop: '4px', fontFamily: 'monospace' }}>
+          <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#ffffff', marginTop: '4px', fontFamily: 'monospace' }}>
             {data.id || id}
           </div>
         </div>
@@ -629,14 +693,14 @@ function PublicAssetQRView({ data, id, onBack }: { data: any; id?: string; onBac
           style={{
             padding: '1.25rem',
             borderRadius: '16px',
-            background: 'var(--color-background)',
-            border: '1px solid var(--color-border)'
+            background: '#1e293b',
+            border: '1px solid #334155'
           }}
         >
-          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>
             Categoría / Tipo de Equipo
           </div>
-          <div style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--color-text)', marginTop: '4px' }}>
+          <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#ffffff', marginTop: '4px' }}>
             {data.category || 'Equipamiento Industrial'}
           </div>
         </div>
@@ -645,14 +709,14 @@ function PublicAssetQRView({ data, id, onBack }: { data: any; id?: string; onBac
           style={{
             padding: '1.25rem',
             borderRadius: '16px',
-            background: 'var(--color-background)',
-            border: '1px solid var(--color-border)'
+            background: '#1e293b',
+            border: '1px solid #334155'
           }}
         >
-          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>
             Ubicación Física / Sector
           </div>
-          <div style={{ fontSize: '1rem', fontWeight: 800, color: '#059669', marginTop: '4px' }}>
+          <div style={{ fontSize: '1rem', fontWeight: 800, color: '#34d399', marginTop: '4px' }}>
             📍 {data.location || 'Sector Principal'}
           </div>
         </div>
@@ -661,14 +725,14 @@ function PublicAssetQRView({ data, id, onBack }: { data: any; id?: string; onBac
           style={{
             padding: '1.25rem',
             borderRadius: '16px',
-            background: 'var(--color-background)',
-            border: '1px solid var(--color-border)'
+            background: '#1e293b',
+            border: '1px solid #334155'
           }}
         >
-          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
-            Nº de Serie & Última Inspección
+          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>
+            Nº de Serie &amp; Última Inspección
           </div>
-          <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-text)', marginTop: '4px' }}>
+          <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#ffffff', marginTop: '4px' }}>
             Serie: {data.serialNumber || 'S/N'} • 📅 {data.lastInspection || '-'}
           </div>
         </div>
@@ -679,14 +743,14 @@ function PublicAssetQRView({ data, id, onBack }: { data: any; id?: string; onBac
           style={{
             padding: '1.1rem 1.25rem',
             borderRadius: '16px',
-            background: 'var(--color-background)',
-            border: '1px solid var(--color-border)',
+            background: '#1e293b',
+            border: '1px solid #334155',
             fontSize: '0.85rem',
             fontWeight: 600,
-            color: 'var(--color-text)'
+            color: '#f8fafc'
           }}
         >
-          <strong style={{ display: 'block', marginBottom: '4px', color: 'var(--color-text-muted)', textTransform: 'uppercase', fontSize: '0.72rem' }}>
+          <strong style={{ display: 'block', marginBottom: '4px', color: '#94a3b8', textTransform: 'uppercase', fontSize: '0.72rem' }}>
             Observaciones Técnicas:
           </strong>
           {data.notes}

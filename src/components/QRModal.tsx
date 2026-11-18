@@ -2,24 +2,30 @@ import React, { useState, useEffect, useRef } from 'react';
 import QRCode from 'qrcode';
 import { X, Download, Printer, Copy, Check, QrCode } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { publishPublicVerification } from '../services/cloudSync';
 
 interface QRModalProps {
   text: string;
   title?: string;
   details?: React.ReactNode;
+  docData?: Record<string, unknown>;
   onClose: () => void;
 }
 
-export default function QRModal({ text, title = 'Código QR', details, onClose }: QRModalProps) {
+export default function QRModal({ text, title = 'Código QR', details, docData, onClose }: QRModalProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [dataUrl, setDataUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [syncState, setSyncState] = useState<'syncing' | 'ready'>('syncing');
+
+  // Limpiar ?print=true para que al escanear en celular se abra el visor público interactivo y no dispare impresión en blanco
+  const cleanText = text ? text.replace(/\?print=true$/, '').replace(/\?print=true&/, '?').replace(/&print=true/, '') : '';
 
   useEffect(() => {
-    if (!text || !canvasRef.current) return;
+    if (!cleanText || !canvasRef.current) return;
     QRCode.toCanvas(
       canvasRef.current,
-      text,
+      cleanText,
       {
         width: 320,
         margin: 2,
@@ -31,7 +37,38 @@ export default function QRModal({ text, title = 'Código QR', details, onClose }
         }
       }
     );
-  }, [text]);
+  }, [cleanText]);
+
+  // Publicar instantáneamente el documento en Firestore (public_verifications) para que se vea desde cualquier celular sin login
+  useEffect(() => {
+    if (!cleanText) {
+      setSyncState('ready');
+      return;
+    }
+    let cancelled = false;
+    const syncPublicDoc = async () => {
+      try {
+        const urlObj = new URL(cleanText, window.location.origin);
+        const parts = urlObj.pathname.split('/').filter(Boolean);
+        // Formato esperado: /v/:uid/:cat/:id
+        if (parts[0] === 'v' && parts.length >= 4) {
+          const [, uid, cat, id] = parts;
+          await publishPublicVerification(decodeURIComponent(uid), decodeURIComponent(cat), decodeURIComponent(id), docData);
+        } else if (parts[0] === 'v' && parts.length === 3) {
+          const [, cat, id] = parts;
+          await publishPublicVerification('guest', decodeURIComponent(cat), decodeURIComponent(id), docData);
+        }
+      } catch {
+        /* ignore */
+      } finally {
+        if (!cancelled) setSyncState('ready');
+      }
+    };
+    syncPublicDoc();
+    return () => {
+      cancelled = true;
+    };
+  }, [cleanText, docData]);
 
   const handleDownload = () => {
     if (!dataUrl) return;
@@ -47,8 +84,8 @@ export default function QRModal({ text, title = 'Código QR', details, onClose }
   };
 
   const handleCopyLink = () => {
-    if (!text) return;
-    navigator.clipboard.writeText(text);
+    if (!cleanText) return;
+    navigator.clipboard.writeText(cleanText);
     setCopied(true);
     toast.success('¡Enlace de verificación copiado!');
     setTimeout(() => setCopied(false), 2500);
@@ -143,7 +180,7 @@ export default function QRModal({ text, title = 'Código QR', details, onClose }
 
           {/* QR Canvas Box */}
           <a
-            href={text}
+            href={cleanText}
             target="_blank"
             rel="noopener noreferrer"
             className="p-3 bg-white rounded-2xl shadow-lg border-2 border-blue-500/20 relative group w-48 h-48 flex items-center justify-center mx-auto transition-transform hover:scale-105 my-2 shrink-0"
@@ -153,7 +190,9 @@ export default function QRModal({ text, title = 'Código QR', details, onClose }
           </a>
 
           <span className="mt-4 mb-0 text-[0.68rem] text-emerald-600 font-black tracking-wider uppercase text-center w-full bg-emerald-50 py-1.5 px-3 rounded-full border border-emerald-200 shrink-0">
-            🟢 ESCANEE PARA VERIFICACIÓN PÚBLICA (MODO LECTURA)
+            {syncState === 'syncing'
+              ? '⏳ SINCRONIZANDO DOCUMENTO PÚBLICO...'
+              : '🟢 ESCANEE PARA VER DOCUMENTO SIN INICIAR SESIÓN'}
           </span>
         </div>
 

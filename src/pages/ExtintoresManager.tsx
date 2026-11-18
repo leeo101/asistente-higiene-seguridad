@@ -32,6 +32,7 @@ import { BulkImportModal } from '../components/BulkImportModal';
 import { ExtinguisherImportRow } from '../utils/dataImporterExporter';
 import { printElementAsDocument, generatePdfBlob } from '../utils/pdfHelper';
 import { analyzeExtinguisherLocally } from '../utils/localVisionAnalyzer';
+import { publishPublicVerification } from '../services/cloudSync';
 
 const formatType = (tipo: string) => {
   if (!tipo) return 'N/A';
@@ -534,10 +535,12 @@ export default function ExtintoresManager() {
 
   const generateQR = async (ext) => {
     try {
-      const link = `${window.location.origin}/extintores/inspect/${ext.id}`;
+      const uid = auth.currentUser?.uid || 'guest';
+      const link = `${window.location.origin}/v/${uid}/extintor/${ext.id}`;
       const url = await QRCode.toDataURL(link, { width: 300, margin: 2, color: { dark: '#000000', light: '#ffffff' } });
       setQrData({ ext, url, link });
       setShowQrModal(true);
+      publishPublicVerification(uid, 'extintor', ext.id, ext).catch(() => {});
     } catch (err) {
       toast.error('Error al generar QR');
       console.error(err);

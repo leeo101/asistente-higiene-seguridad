@@ -290,44 +290,328 @@ export async function loadDocument<T = SyncDocument>(
   return null;
 }
 
-// Mapeo de categorías para QR público
-const categoryMap: Record<string, string> = {
-  'ats': 'ats_history',
-  'camera': 'ai_camera_history',
-  'permit': 'work_permits_history',
-  'checklist': 'tool_checklists_history',
-  'fireload': 'fireload_history',
-  'matrix': 'risk_matrix_history',
-  'lighting': 'lighting_history',
+// Mapeo de categorías para QR público (con claves principales y alternativas)
+export const CATEGORY_KEYS_MAP: Record<string, string[]> = {
+  'ats': ['ats_history'],
+  'camera': ['ai_camera_history'],
+  'permit': ['work_permits_history'],
+  'checklist': ['tool_checklists_history', 'checklists_history'],
+  'fireload': ['fireload_history'],
+  'matrix': ['risk_matrix_history'],
+  'lighting': ['lighting_history'],
+  'accident': ['accident_history'],
+  'training': ['training_history', 'training_sessions_db'],
+  'extinguisher': ['extintores_inventory', 'extinguishers_inventory', 'extinguisher_ai_history', 'extintores_history'],
+  'extintor': ['extintores_inventory', 'extinguishers_inventory', 'extintores_history', 'extinguisher_ai_history'],
+  'thermal': ['thermal_history'],
+  'drill': ['drills_history', 'ehs_drills_db'],
+  'stopcard': ['stop_cards_history'],
+  'riskassessment': ['risk_assessment_history', 'risk_assessments_history'],
+  'worker': ['workers_data'],
+  'pasaporte': ['workers_data'],
+  'legajo': ['workers_data'],
+  'lifting': ['lifting_plans_db'],
+  'loto': ['loto_procedures_db', 'loto_active_db'],
+  'riskmap': ['risk_map_history'],
+  'audit': ['ehs_audits_db'],
+  'capa': ['ehs_capa_db'],
+  'medical': ['ehs_medical_db'],
+  'ergonomics': ['ergonomics_history'],
+  'noise': ['noise_assessments_db'],
+  'chemical': ['chemical_safety_db'],
+  'confined': ['confined_space_permits_db', 'confined_space_permits'],
+  'height': ['working_height_permits_db', 'working_at_height_permits'],
 };
 
 /**
- * Busca un documento específico dentro de una colección en Firestore.
- * Utilizado por el visor público de QR.
+ * Enriquecer un documento con los datos profesionales y firma locales antes de compartirlo por QR.
+ */
+function enrichWithLocalProfile(item: Record<string, unknown>, category?: string): Record<string, unknown> {
+  const enriched: Record<string, unknown> = { ...item };
+  try {
+    const lsPersonal = localStorage.getItem('personalData');
+    const lsStamp = localStorage.getItem('signatureStampData');
+    const legacySig = localStorage.getItem('capturedSignature');
+    const lsLogo = localStorage.getItem('companyLogo');
+
+    if (lsPersonal) {
+      const pd = JSON.parse(lsPersonal);
+      if (!enriched.professionalName && (pd.name || pd.fullName)) {
+        enriched.professionalName = pd.name || pd.fullName;
+      }
+      if (!enriched.professionalLicense && (pd.license || pd.matricula)) {
+        enriched.professionalLicense = pd.license || pd.matricula;
+      }
+      enriched._sharedPersonalData = pd;
+    }
+    if (lsStamp) {
+      const sd = JSON.parse(lsStamp);
+      if (!enriched.professionalSignature && sd.signature) {
+        enriched.professionalSignature = sd.signature;
+      }
+      if (!enriched.professionalStamp && sd.stamp) {
+        enriched.professionalStamp = sd.stamp;
+      }
+      enriched._sharedSignatureStampData = sd;
+    } else if (legacySig && !enriched.professionalSignature) {
+      enriched.professionalSignature = legacySig;
+    }
+    if (lsLogo && !enriched._sharedCompanyLogo) {
+      enriched._sharedCompanyLogo = lsLogo;
+    }
+
+    // Si es un matafuego, adjuntar la última inspección registrada en extintores_history si aún no la tiene
+    if (category === 'extintor' || category === 'extinguisher') {
+      const histRaw = localStorage.getItem('extintores_history');
+      if (histRaw) {
+        const hist = JSON.parse(histRaw);
+        if (Array.isArray(hist)) {
+          const matching = hist.filter(
+            (h: any) => String(h.extintorId) === String(item.id) || String(h.id) === String(item.id)
+          );
+          if (matching.length > 0 && !enriched.lastInspectionData) {
+            enriched.lastInspectionData = matching[matching.length - 1];
+          }
+        }
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return enriched;
+}
+
+/**
+ * Publica un documento específico en la colección pública `public_verifications`
+ * para que cualquier persona que escanee el código QR pueda verlo sin iniciar sesión.
+ */
+export async function publishPublicVerification(
+  uid: string,
+  category: string,
+  docId: string | number,
+  explicitData?: Record<string, unknown>
+): Promise<boolean> {
+  if (!category || !docId) return false;
+
+  let foundItem: Record<string, unknown> | null = explicitData ? { ...explicitData } : null;
+
+  if (!foundItem && typeof window !== 'undefined') {
+    const candidateKeys = CATEGORY_KEYS_MAP[category] || [category];
+    for (const key of candidateKeys) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) continue;
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          const match = parsed.find(
+            (i: any) =>
+              String(i.id) === String(docId) ||
+              String(i.numero) === String(docId) ||
+              String(i.dni) === String(docId)
+          );
+          if (match) {
+            foundItem = { ...match };
+            // Intentar también sincronizar la colección del usuario en segundo plano
+            if (uid && uid !== 'guest' && uid !== 'pub') {
+              saveCollection(uid, key, parsed).catch(() => {});
+            }
+            break;
+          }
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+
+  if (!foundItem) return false;
+
+  const payload = {
+    ...enrichWithLocalProfile(foundItem, category),
+    _publicUid: uid || 'guest',
+    _publicCategory: category,
+    _publicDocId: String(docId),
+    updatedAt: Date.now()
+  };
+
+  try {
+    const safeUid = uid || 'guest';
+    const primaryDocId = `${safeUid}_${category}_${docId}`.replace(/[\/\\?#]/g, '_');
+    const fallbackDocId = `${category}_${docId}`.replace(/[\/\\?#]/g, '_');
+
+    await setDoc(doc(db, 'public_verifications', primaryDocId), payload, { merge: true });
+    await setDoc(doc(db, 'public_verifications', fallbackDocId), payload, { merge: true });
+    return true;
+  } catch (err) {
+    console.warn('[cloudSync] No se pudo publicar en public_verifications:', (err as Error).message);
+    return false;
+  }
+}
+
+/**
+ * Publica un snapshot visual HTML de cualquier documento (#pdf-content) para compartir por QR desde ShareModal.
+ */
+export async function publishPublicHtmlSnapshot(
+  uid: string,
+  snapshotId: string,
+  title: string,
+  htmlContent: string,
+  isLandscape = false
+): Promise<boolean> {
+  if (!snapshotId || !htmlContent) return false;
+  try {
+    const safeUid = uid || 'guest';
+    const docKey = `${safeUid}_snapshot_${snapshotId}`.replace(/[\/\\?#]/g, '_');
+    const payload = enrichWithLocalProfile({
+      id: snapshotId,
+      title,
+      htmlSnapshot: htmlContent,
+      isLandscape,
+      _publicUid: safeUid,
+      _publicCategory: 'snapshot',
+      _publicDocId: snapshotId,
+      updatedAt: Date.now()
+    });
+    await setDoc(doc(db, 'public_verifications', docKey), payload, { merge: true });
+    await setDoc(doc(db, 'public_verifications', `snapshot_${snapshotId}`.replace(/[\/\\?#]/g, '_')), payload, { merge: true });
+    return true;
+  } catch (err) {
+    console.warn('[cloudSync] Error al guardar snapshot HTML público:', (err as Error).message);
+    return false;
+  }
+}
+
+/**
+ * Busca un documento específico en `public_verifications` o dentro de las colecciones del usuario en Firestore.
+ * Utilizado por el visor público de QR (sin necesidad de login).
  */
 export async function fetchPublicDoc(
   uid: string,
   category: string,
   docId: string | number
 ): Promise<SyncItem | null> {
-  if (!uid || !category || !docId) return null;
+  if (!category || !docId) return null;
 
-  const firestoreKey = categoryMap[category] || category;
+  const safeUid = uid || 'guest';
 
-  try {
-    const snap = await getDoc(userDocRef(uid, firestoreKey));
-    if (snap.exists()) {
-      const data = snap.data() as { items?: SyncItem[] };
-      const items = data.items || [];
-      return items.find(i => String(i.id) === String(docId)) || null;
+  // 1. Intentar leer desde public_verifications (funciona siempre sin login y contiene datos enriquecidos)
+  const verificationKeys = [
+    `${safeUid}_${category}_${docId}`.replace(/[\/\\?#]/g, '_'),
+    `${category}_${docId}`.replace(/[\/\\?#]/g, '_'),
+    String(docId).replace(/[\/\\?#]/g, '_')
+  ];
+
+  for (const vKey of verificationKeys) {
+    try {
+      const vSnap = await getDoc(doc(db, 'public_verifications', vKey));
+      if (vSnap.exists()) {
+        const vData = vSnap.data() as SyncItem;
+        return vData;
+      }
+    } catch {
+      /* continue to next candidate */
     }
-  } catch (error) {
-    console.error(
-      `[Sync] Error fetching public doc ${category}/${docId}:`,
-      (error as Error).message
-    );
   }
-  
+
+  // 2. Si el usuario que escanea está en el mismo navegador (o tiene caché local), verificar localStorage
+  if (typeof window !== 'undefined') {
+    const localKeys = CATEGORY_KEYS_MAP[category] || [category];
+    for (const lKey of localKeys) {
+      try {
+        const raw = localStorage.getItem(lKey);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            const match = parsed.find(
+              (i: any) =>
+                String(i.id) === String(docId) ||
+                String(i.numero) === String(docId) ||
+                String(i.dni) === String(docId)
+            );
+            if (match) return enrichWithLocalProfile(match, category) as SyncItem;
+          }
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+
+  // 3. Buscar en las colecciones sincronizadas del usuario en Firestore (users/{uid}/data/{key})
+  if (uid && uid !== 'guest' && uid !== 'pub') {
+    const candidateKeys = CATEGORY_KEYS_MAP[category] || [category];
+    for (const firestoreKey of candidateKeys) {
+      try {
+        const snap = await getDoc(userDocRef(uid, firestoreKey));
+        if (snap.exists()) {
+          const data = snap.data() as { items?: SyncItem[] };
+          const items = data.items || [];
+          const found = items.find(
+            (i: any) =>
+              String(i.id) === String(docId) ||
+              String(i.numero) === String(docId) ||
+              String(i.dni) === String(docId)
+          );
+          if (found) {
+            // Adjuntar también personalData y signatureStampData del autor desde Firestore
+            try {
+              const [personalSnap, stampSnap] = await Promise.all([
+                getDoc(userDocRef(uid, 'personalData')),
+                getDoc(userDocRef(uid, 'signatureStampData'))
+              ]);
+              const enriched: Record<string, unknown> = { ...found };
+              if (personalSnap.exists()) {
+                const pd = personalSnap.data();
+                enriched._sharedPersonalData = pd;
+                if (!enriched.professionalName && (pd.name || pd.fullName)) {
+                  enriched.professionalName = pd.name || pd.fullName;
+                }
+                if (!enriched.professionalLicense && (pd.license || pd.matricula)) {
+                  enriched.professionalLicense = pd.license || pd.matricula;
+                }
+              }
+              if (stampSnap.exists()) {
+                const sd = stampSnap.data();
+                enriched._sharedSignatureStampData = sd;
+                if (!enriched.professionalSignature && sd.signature) {
+                  enriched.professionalSignature = sd.signature;
+                }
+                if (!enriched.professionalStamp && sd.stamp) {
+                  enriched.professionalStamp = sd.stamp;
+                }
+              }
+              // Si es un extintor, buscar también su última inspección en extintores_history
+              if ((category === 'extintor' || category === 'extinguisher') && !enriched.lastInspectionData) {
+                try {
+                  const histSnap = await getDoc(userDocRef(uid, 'extintores_history'));
+                  if (histSnap.exists()) {
+                    const histItems = (histSnap.data() as { items?: any[] }).items || [];
+                    const matching = histItems.filter(
+                      (h: any) => String(h.extintorId) === String(found.id) || String(h.id) === String(found.id)
+                    );
+                    if (matching.length > 0) {
+                      enriched.lastInspectionData = matching[matching.length - 1];
+                    }
+                  }
+                } catch {
+                  /* ignore */
+                }
+              }
+              return enriched as SyncItem;
+            } catch {
+              return found;
+            }
+          }
+        }
+      } catch (error) {
+        console.warn(
+          `[Sync] Error fetching public doc ${category}/${docId} in ${firestoreKey}:`,
+          (error as Error).message
+        );
+      }
+    }
+  }
+
   return null;
 }
 

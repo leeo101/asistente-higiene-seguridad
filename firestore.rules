@@ -21,13 +21,14 @@ service cloud.firestore {
       allow read, write: if isOwner(uid);
 
       // Subcolección de datos sincronizados (módulos EHS)
+      // Lectura pública habilitada (excepto subscriptionData) para permitir visualización vía QR público (/v/:uid/:cat/:id) sin login
       match /data/{key} {
-        allow read: if isOwner(uid);
+        allow read: if key != 'subscriptionData' || isOwner(uid);
         // CRÍTICO: subscriptionData SOLO puede ser escrito por el backend / Admin SDK
         allow write: if isOwner(uid)
                      && key != 'subscriptionData'
                      && request.resource.data.keys().size() < 150
-                     && request.resource.size() < 500 * 1024; // máx 500 KB por documento
+                     && request.resource.size() < 1024 * 1024; // máx 1 MB por documento
       }
 
       // Resto de subcolecciones (legajos, fcmTokens, etc.)
@@ -68,8 +69,9 @@ service cloud.firestore {
 
     // ── Colecciones de Verificación Pública (QR / Hash de documentos) ────────
     match /public_verifications/{documentId} {
-      allow read: if true; // Permite la verificación pública del hash del informe
-      allow write: if false; // Solo generado por backend o usuario autenticado mediante Cloud Function
+      allow read: if true; // Permite la visualización y verificación pública del informe sin login
+      allow write: if isAuthenticated()
+                    && request.resource.size() < 1024 * 1024; // Permite publicar snapshot al compartir por QR
     }
 
     // ── Deny-all por defecto ──────────────────────────────────────────────────

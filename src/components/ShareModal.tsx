@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, Mail, Copy, Check, Printer, Download } from 'lucide-react';
+import { X, Mail, Copy, Check, Printer, Download, QrCode } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createPortal } from 'react-dom';
 import { useMemo } from 'react';
@@ -8,6 +8,9 @@ import { Share } from '@capacitor/share';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { usePaywall } from '../hooks/usePaywall';
 import { generatePdfBlob, printElementAsDocument } from '../utils/pdfHelper';
+import { auth } from '../firebase';
+import { publishPublicHtmlSnapshot } from '../services/cloudSync';
+import QRModal from './QRModal';
 
 interface ShareModalProps {
   isOpen?: boolean;
@@ -42,6 +45,8 @@ export default function ShareModal({
   const [isGenerating, setIsGenerating] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [pendingShareFile, setPendingShareFile] = useState<File | null>(null);
+  const [publicQrUrl, setPublicQrUrl] = useState<string | null>(null);
+  const [isGeneratingQr, setIsGeneratingQr] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -334,6 +339,65 @@ export default function ShareModal({
     }
   };
 
+  const handleShowPublicQr = async () => {
+    const targetId = elementIdToPrint || 'pdf-content';
+    const el = document.getElementById(targetId) || document.querySelector('.pdf-container') as HTMLElement | null;
+    if (!el) {
+      toast.error('No se encontró el documento para generar el código QR.');
+      return;
+    }
+
+    setIsGeneratingQr(true);
+    const toastId = toast.loading('Preparando vista pública para QR...');
+    try {
+      const clone = el.cloneNode(true) as HTMLElement;
+      clone.classList.remove('ats-pdf-offscreen');
+      clone.removeAttribute('data-pdf-offscreen');
+      clone.style.position = 'static';
+      clone.style.left = 'auto';
+      clone.style.top = 'auto';
+      clone.style.zIndex = 'auto';
+      clone.style.opacity = '1';
+      clone.style.visibility = 'visible';
+
+      // Convertir cualquier <canvas> (como firmas o QR internos) a <img> dataURL
+      const origCanvases = el.querySelectorAll('canvas');
+      const cloneCanvases = clone.querySelectorAll('canvas');
+      origCanvases.forEach((origC, idx) => {
+        try {
+          const dataUrl = origC.toDataURL('image/png');
+          const img = document.createElement('img');
+          img.src = dataUrl;
+          img.style.width = `${origC.clientWidth || origC.width}px`;
+          img.style.height = `${origC.clientHeight || origC.height}px`;
+          img.style.display = 'inline-block';
+          if (cloneCanvases[idx] && cloneCanvases[idx].parentNode) {
+            cloneCanvases[idx].parentNode?.replaceChild(img, cloneCanvases[idx]);
+          }
+        } catch {
+          /* ignore */
+        }
+      });
+
+      const uid = auth.currentUser?.uid || 'guest';
+      const snapshotId = `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+      const ok = await publishPublicHtmlSnapshot(uid, snapshotId, title || 'Reporte H&S', clone.outerHTML, isLandscape);
+      toast.dismiss(toastId);
+
+      if (ok) {
+        const shareUrl = `${window.location.origin}/v/${uid}/snapshot/${snapshotId}`;
+        setPublicQrUrl(shareUrl);
+      } else {
+        toast.error('No se pudo sincronizar el QR público en la nube.');
+      }
+    } catch (err) {
+      console.error('Error al generar QR público:', err);
+      toast.error('Error al generar el QR público.', { id: toastId });
+    } finally {
+      setIsGeneratingQr(false);
+    }
+  };
+
   const options = [
   {
     label: 'WhatsApp',
@@ -467,6 +531,43 @@ export default function ShareModal({
               })}
                         </div>
                     </div>
+
+                    {elementIdToPrint && (
+                      <div className="mb-3">
+                        <button
+                          type="button"
+                          onClick={handleShowPublicQr}
+                          disabled={isGeneratingQr}
+                          style={{
+                            width: '100%',
+                            padding: '0.85rem 1rem',
+                            borderRadius: '14px',
+                            background: 'linear-gradient(135deg, #059669, #10b981)',
+                            color: '#ffffff',
+                            border: 'none',
+                            fontWeight: 900,
+                            fontSize: '0.88rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem',
+                            cursor: isGeneratingQr ? 'wait' : 'pointer',
+                            boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)'
+                          }}
+                        >
+                          <QrCode size={20} />
+                          <span>{isGeneratingQr ? 'Generando QR Público...' : 'Mostrar Código QR (Ver sin loguearse)'}</span>
+                        </button>
+                      </div>
+                    )}
+
+                    {publicQrUrl && (
+                      <QRModal
+                        text={publicQrUrl}
+                        title={title || 'Reporte Público H&S'}
+                        onClose={() => setPublicQrUrl(null)}
+                      />
+                    )}
 
                     {message ?
           <div className="share-message-box">

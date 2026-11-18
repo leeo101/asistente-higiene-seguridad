@@ -193,11 +193,18 @@ const RARForm = lazyWithRetry(() => import('./pages/RARForm'));
 
 function GlobalPrintGuard() {
   const { isPro } = usePaywall();
+  const location = useLocation();
+
+  const isPublicQrRoute =
+    location.pathname.startsWith('/v/') ||
+    location.pathname.startsWith('/verify') ||
+    location.pathname.startsWith('/worker-portal') ||
+    location.pathname.startsWith('/sign');
 
   useEffect(() => {
-    // Aplicar clase al body para el bloqueo por CSS (@media print)
+    // Aplicar clase al body para el bloqueo por CSS (@media print), excepto en vistas públicas QR
     if (typeof document !== 'undefined') {
-      if (!isPro) {
+      if (!isPro && !isPublicQrRoute) {
         document.body.classList.add('not-pro-user');
       } else {
         document.body.classList.remove('not-pro-user');
@@ -205,9 +212,9 @@ function GlobalPrintGuard() {
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Bloquear Ctrl+P y Cmd+P
+      // Bloquear Ctrl+P y Cmd+P (excepto en vistas públicas QR)
       if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-        if (!isPro) {
+        if (!isPro && !isPublicQrRoute) {
           e.preventDefault();
           e.stopPropagation();
           toast.error('Impresión y exportación exclusivas para miembros PRO 💎', {
@@ -235,7 +242,7 @@ function GlobalPrintGuard() {
         document.body.classList.remove('not-pro-user');
       }
     };
-  }, [isPro]);
+  }, [isPro, isPublicQrRoute]);
 
   return null;
 }
@@ -574,6 +581,8 @@ function App() {
                   <Route path="/subscribe" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
                   <Route path="/v/:uid/:cat/:id" element={<PublicView />} />
+                  <Route path="/v/:cat/:id" element={<PublicView />} />
+                  <Route path="/v/:id" element={<PublicView />} />
                   <Route path="/chat" element={<ProtectedRoute><ProfessionalChat /></ProtectedRoute>} />
                   <Route path="/mensajes" element={<ProtectedRoute><ProfessionalChat /></ProtectedRoute>} />
 

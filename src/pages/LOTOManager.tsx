@@ -512,7 +512,7 @@ export default function LOTOManager(): React.ReactElement | null {
               </div>
 
               <div className="bg-white p-4 rounded-2xl inline-block border border-slate-200 shadow-sm">
-                <QRCodeSVG value={`${window.location.origin}/v/${currentUser?.uid || 'pub'}/loto/${qrModal.id}?print=true`} size={180} />
+                <QRCodeSVG value={`${window.location.origin}/v/${currentUser?.uid || 'pub'}/loto/${qrModal.id}`} size={180} />
               </div>
 
               <p className="text-xs text-slate-400">
