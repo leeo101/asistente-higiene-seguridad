@@ -283,7 +283,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                     <thead>
                                                         <tr style={{ pageBreakInside: 'avoid', breakInside: 'avoid', backgroundColor: '#f1f5f9' }}>
                                                             <th style={{ color: '#0f172a', width: '9%' }} className="p-[4px_4px] text-center font-[900]">Nº/CHAPA</th>
-                                                            <th style={{ color: '#0f172a', width: '15%' }} className="p-[4px_6px] text-left font-[900]">TIPO / CAP.</th>
+                                                            <th style={{ color: '#0f172a', width: '15%' }} className="p-[4px_6px] text-left font-[900]">TIPO</th>
                                                             <th style={{ color: '#0f172a', width: '15%' }} className="p-[4px_6px] text-left font-[900]">F. FABRICACIÓN</th>
                                                             <th style={{ color: '#0f172a', width: '17%' }} className="p-[4px_6px] text-left font-[900]">UBICACIÓN</th>
                                                             <th style={{ color: '#0f172a', width: '15%' }} className="p-[4px_6px] text-left font-[900]">VENC. CARGA</th>
@@ -330,7 +330,7 @@ export default function ExtinguisherPdfGenerator({ extinguishers, showSignatures
                                                                             <div style={{ fontSize: '7pt', color: '#94a3b8', marginBottom: '1px' }}>{globalIdx + 1}</div>
                                                                             <div>{ext?.numero || ext?.chapa || '-'}</div>
                                                                         </td>
-                                                                        <td style={{ padding: '5px 6px', color: '#374151', fontWeight: 600, fontSize: '8pt' }}>{formatType(ext?.tipo)} {ext?.capacidad ? `- ${ext.capacidad}` : ''}</td>
+                                                                        <td style={{ padding: '5px 6px', color: '#374151', fontWeight: 600, fontSize: '8pt' }}>{formatType(ext?.tipo)}</td>
                                                                         <td style={{ padding: '5px 6px', fontSize: '7.5pt' }}>
                                                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
                                                                                 <span style={{ color: '#475569' }}>Fab: <span style={{ fontWeight: 600 }}>{fabInfo.base}</span></span>
