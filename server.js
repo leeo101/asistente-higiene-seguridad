@@ -4,10 +4,13 @@ import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import compression from 'compression';
-import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
+import { MercadoPagoConfig, Preference, Payment, PreApproval } from 'mercadopago';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { Resend } from 'resend';
 import Stripe from 'stripe';
+import { sendAppMail } from './api/_mailer.js';
+import { getLiveUsdToArsRate } from './api/_subscription-handler.js';
+import { createPaypalCheckout, verifyPaypalPayment, cancelPaypalSubscription } from './api/_paypal.js';
 
 dotenv.config();
 
@@ -96,7 +99,7 @@ app.use(helmet({
             "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
             "font-src": ["'self'", "https://fonts.gstatic.com"],
             "img-src": ["'self'", "data:", "https:", "blob:"],
-            "connect-src": ["'self'", "https://firebase.googleapis.com", "https://firestore.googleapis.com", "https://identitytoolkit.googleapis.com", "https://securetoken.googleapis.com", "wss:", "ws:", "https://generativelanguage.googleapis.com"],
+            "connect-src": ["'self'", "https://firebase.googleapis.com", "https://firestore.googleapis.com", "https://identitytoolkit.googleapis.com", "https://securetoken.googleapis.com", "wss:", "ws:", "https://generativelanguage.googleapis.com", "https://dolarapi.com", "https://api.bluelytics.com.ar"],
             "media-src": ["'self'", "blob:"],
             "object-src": ["'none'"],
             "base-uri": ["'self'"],
@@ -153,7 +156,9 @@ app.use((req, res, next) => {
         '/api/analyze-image',
         '/api/analyze-contractor-doc',
         '/api/analyze-extinguisher',
-        '/api/analyze-general-risks'
+        '/api/analyze-training-sheet',
+        '/api/analyze-general-risks',
+        '/api/vision-ats'
     ];
     if (fileUploadRoutes.includes(req.path)) {
         return next();
@@ -174,8 +179,7 @@ const generalLimiter = rateLimit({
     max: 100, // 100 requests per minute
     message: { error: 'Demasiadas peticiones, intenta de nuevo en un minuto.' },
     standardHeaders: true,
-    legacyHeaders: false,
-    skip: (req) => req.path === '/api/scan-models' // Diagnostic endpoint excluded
+    legacyHeaders: false
 });
 
 // Strict limiter for authentication endpoints - 5 requests per minute
@@ -248,18 +252,32 @@ process.on('uncaughtException', (err) => {
 
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 
-// Admin Authentication Middleware
-const isAdmin = (req, res, next) => {
+// Admin Authentication Middleware (accepts X-Admin-Key OR verified Admin Firebase Token)
+const ADMIN_EMAILS = ['admin@asistentehs.com', 'enzorodriguez31@gmail.com'];
+
+const isAdmin = async (req, res, next) => {
     const adminKey = req.headers['x-admin-key'];
-    if (!process.env.ADMIN_API_KEY) {
-        console.error('[SECURITY] ADMIN_API_KEY not configured in environment.');
-        return res.status(500).json({ error: 'Configuración de seguridad incompleta.' });
+    if (adminKey && process.env.ADMIN_API_KEY && adminKey === process.env.ADMIN_API_KEY) {
+        return next();
     }
-    if (adminKey !== process.env.ADMIN_API_KEY) {
-        console.warn(`[SECURITY] Unauthorized admin access attempt from ${req.ip}`);
-        return res.status(401).json({ error: 'No autorizado' });
+
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ') && admin.apps.length) {
+        try {
+            const token = authHeader.split('Bearer ')[1];
+            const decoded = await admin.auth().verifyIdToken(token);
+            const email = (decoded.email || '').toLowerCase().trim();
+            if (ADMIN_EMAILS.includes(email)) {
+                req.user = decoded;
+                return next();
+            }
+        } catch (err) {
+            console.warn(`[SECURITY] Invalid admin bearer token from ${req.ip}: ${err.message}`);
+        }
     }
-    next();
+
+    console.warn(`[SECURITY] Unauthorized admin access attempt from ${req.ip}`);
+    return res.status(401).json({ error: 'No autorizado' });
 };
 
 // Firebase Auth Verification Middleware
@@ -283,18 +301,11 @@ const verifyFirebaseToken = async (req, res, next) => {
 };
 
 const requirePro = async (req, res, next) => {
-    const ADMIN_EMAILS = ['admin@asistentehs.com', 'enzorodriguez31@gmail.com'];
     const PERMANENT_PRO_EMAILS = ['arielalaniz9@gmail.com'];
-    const SPECIFIC_SUBSCRIPTIONS = {
-        'joaquintunut@gmail.com': new Date('2026-08-15T23:59:59Z').getTime() // Pago 16 de Julio (Vence 15 de Agosto)
-    };
 
     if (req.user && req.user.email) {
         const email = req.user.email.toLowerCase();
         if (ADMIN_EMAILS.includes(email) || PERMANENT_PRO_EMAILS.includes(email)) {
-            return next();
-        }
-        if (SPECIFIC_SUBSCRIPTIONS[email] && Date.now() <= SPECIFIC_SUBSCRIPTIONS[email]) {
             return next();
         }
     }
@@ -341,62 +352,132 @@ const validateStringInput = (field, maxLength = 1000) => {
 };
 
 
-// Payment endpoint - Mercado Pago
-app.post('/api/create-subscription', adminLimiter, async (req, res) => {
+// Live USD -> ARS Exchange Rate Endpoint
+app.get('/api/exchange-rate', async (req, res) => {
     try {
-        const { userId, email, planId, promo } = req.body || {};
+        const rate = await getLiveUsdToArsRate();
+        return res.json({
+            rate,
+            usdPrice: 2.0,
+            arsPrice: Math.round(2.0 * rate),
+            promoUsdPrice: 0.99,
+            promoArsPrice: Math.round(0.99 * rate),
+            currency: 'ARS',
+            updatedAt: new Date().toISOString()
+        });
+    } catch (e) {
+        return res.json({
+            rate: 1600,
+            usdPrice: 2.0,
+            arsPrice: 3200,
+            promoUsdPrice: 0.99,
+            promoArsPrice: 1584,
+            currency: 'ARS',
+            updatedAt: new Date().toISOString()
+        });
+    }
+});
+
+// Payment endpoint - Mercado Pago (Débito Automático con Tarjeta en ARS + Fallback Checkout Tarjeta)
+app.post('/api/create-subscription', adminLimiter, verifyFirebaseToken, async (req, res) => {
+    try {
+        const { planId, promo, billingMode = 'recurring' } = req.body || {};
+        const userId = req.user.uid;
+        const email = req.user.email || req.body?.email;
         const CYBER_MONDAY_DEADLINE = new Date('2026-11-07T17:00:00-03:00').getTime();
         const isCyberMonday = promo === 'cybermonday' && Date.now() <= CYBER_MONDAY_DEADLINE;
-        let amount = isCyberMonday ? 0.99 : 2.00;
+
+        const usdAmount = isCyberMonday ? 0.99 : 2.00;
+        const exchangeRate = await getLiveUsdToArsRate();
+        const amountArs = Math.round(usdAmount * exchangeRate);
+
         let planTitle = isCyberMonday
-            ? 'Asistente H&S – Plan Profesional (Oferta Cyber Monday)'
-            : 'Asistente H&S – Plan Profesional (Acceso Total)';
+            ? `Asistente H&S – Plan Profesional (USD $${usdAmount} / $${amountArs.toLocaleString('es-AR')} ARS)`
+            : `Asistente H&S – Plan Profesional PRO (USD $${usdAmount.toFixed(2)} — Débito Mensual)`;
 
         if (planId === 'student') {
-            amount = isCyberMonday ? 0.99 : 2.00;
-            planTitle = isCyberMonday ? 'Asistente H&S – Plan Estudiante (Oferta Cyber Monday)' : 'Asistente H&S – Plan Estudiante';
+            planTitle = isCyberMonday ? 'Asistente H&S – Plan Estudiante (Oferta)' : 'Asistente H&S – Plan Estudiante (Débito Mensual)';
         } else if (planId === 'enterprise' || planId === 'consultora') {
-            amount = isCyberMonday ? 0.99 : 2.00;
-            planTitle = isCyberMonday ? 'Asistente H&S – Plan Consultora (Oferta Cyber Monday)' : 'Asistente H&S – Plan Consultora';
+            planTitle = isCyberMonday ? 'Asistente H&S – Plan Consultora (Oferta)' : 'Asistente H&S – Plan Consultora (Débito Mensual)';
         }
 
-        console.log(`API Request received for MP payment: ${planTitle} ($${amount} USD) for user ${userId}`);
-        const preference = new Preference(client);
+        const requestOrigin = req.headers.origin;
+        const baseUrl = (requestOrigin && isOriginAllowed(requestOrigin)) ? requestOrigin : 'https://asistentehs.com';
 
-        const protocol = req.headers['x-forwarded-proto'] || 'https';
-        const host = req.headers['host'] || 'asistentehs-b594e.web.app';
-        const baseUrl = `${protocol}://${host}`;
+        let initPoint = null;
+        let subId = null;
 
-        const response = await preference.create({
-            body: {
-                items: [
-                    {
-                        id: planId || 'premium-sub',
-                        title: planTitle,
-                        description: `Acceso completo al ${planTitle}. Suscripción mensual.`,
-                        quantity: 1,
-                        unit_price: amount,
-                        currency_id: 'USD'
+        // 1. Intentar crear Suscripción de Débito Automático Mensual (PreApproval)
+        if (billingMode !== 'single' && email) {
+            try {
+                const preApproval = new PreApproval(client);
+                const preRes = await preApproval.create({
+                    body: {
+                        reason: planTitle,
+                        external_reference: userId,
+                        payer_email: email,
+                        auto_recurring: {
+                            frequency: 1,
+                            frequency_type: 'months',
+                            transaction_amount: amountArs,
+                            currency_id: 'ARS'
+                        },
+                        back_url: `${baseUrl}/subscribe?status=approved&provider=mercadopago`,
+                        status: 'pending'
                     }
-                ],
-                back_urls: {
-                    success: 'https://asistentehs-b594e.web.app/subscribe?status=approved',
-                    failure: 'https://asistentehs-b594e.web.app/subscribe',
-                    pending: 'https://asistentehs-b594e.web.app/subscribe'
-                },
-                external_reference: userId || 'guest',
-                notification_url: `${baseUrl}/api/mercadopago-webhook`,
-                auto_return: 'approved',
-                statement_descriptor: 'ASISTENTE HY&S'
+                });
+                if (preRes && preRes.init_point) {
+                    initPoint = preRes.init_point;
+                    subId = preRes.id;
+                }
+            } catch (preErr) {
+                console.warn('[Server MP PreApproval] Fallback a Checkout de Tarjeta en ARS:', preErr.message);
             }
-        });
+        }
 
-        console.log('Preference created successfully:', response.init_point);
-        res.json({ init_point: response.init_point });
+        // 2. Fallback o pago de 1 mes con tarjeta en ARS
+        if (!initPoint) {
+            const preference = new Preference(client);
+            const response = await preference.create({
+                body: {
+                    items: [
+                        {
+                            id: planId || 'premium-sub',
+                            title: planTitle,
+                            description: `Suscripción mensual con tarjeta de débito o crédito a ${planTitle}.`,
+                            quantity: 1,
+                            unit_price: amountArs,
+                            currency_id: 'ARS'
+                        }
+                    ],
+                    payment_methods: {
+                        excluded_payment_types: [
+                            { id: 'ticket' },
+                            { id: 'atm' }
+                        ],
+                        installments: 1
+                    },
+                    back_urls: {
+                        success: `${baseUrl}/subscribe?status=approved&provider=mercadopago`,
+                        failure: `${baseUrl}/subscribe?status=failed`,
+                        pending: `${baseUrl}/subscribe?status=pending`
+                    },
+                    external_reference: userId,
+                    notification_url: `${baseUrl}/api/mercadopago-webhook`,
+                    auto_return: 'approved',
+                    statement_descriptor: 'ASISTENTE HY&S'
+                }
+            });
+            initPoint = response.init_point;
+            subId = response.id;
+        }
+
+        console.log('MP Subscription/Preference created successfully:', initPoint);
+        res.json({ id: subId, init_point: initPoint, usdAmount, exchangeRate, amountArs });
     } catch (error) {
-        console.error('Error creating Mercado Pago preference:', error.message);
+        console.error('Error creating Mercado Pago subscription:', error.message);
         res.status(500).json({
-            error: 'Error al generar link de pago.'
+            error: 'Error al generar link de adhesión de tarjeta.'
         });
     }
 });
@@ -410,22 +491,43 @@ app.all('/api/mercadopago-webhook', async (req, res) => {
 
         console.log(`[Server] Webhook received: Topic=${topic}, ID=${webhookId}`);
 
-        if (webhookId && (!topic || String(topic).includes('payment'))) {
-            const payment = new Payment(client);
-            const paymentData = await payment.get({ id: webhookId });
+        if (webhookId) {
+            const topicStr = String(topic || '').toLowerCase();
+            const isPreapproval = topicStr.includes('preapproval') || topicStr.includes('subscription_preapproval');
+            const isPayment = !topic || topicStr.includes('payment');
 
-            if (paymentData.status === 'approved') {
-                let userId = paymentData.external_reference;
+            let isAuthorized = false;
+            let isAutoRenew = false;
+            let userId = null;
+            let payerEmail = null;
 
-                if ((!userId || userId === 'guest') && admin.apps.length) {
-                    const payerEmail = paymentData.payer?.email || paymentData.additional_info?.payer?.email;
-                    if (payerEmail) {
-                        try {
-                            const userRecord = await admin.auth().getUserByEmail(payerEmail);
-                            userId = userRecord.uid;
-                        } catch (lookupErr) {
-                            console.warn('Could not find user by email in webhook:', lookupErr.message);
-                        }
+            if (isPreapproval) {
+                const preApproval = new PreApproval(client);
+                const preData = await preApproval.get({ id: webhookId });
+                if (preData.status === 'authorized') {
+                    isAuthorized = true;
+                    isAutoRenew = true;
+                    userId = preData.external_reference;
+                    payerEmail = preData.payer_email;
+                }
+            } else if (isPayment) {
+                const payment = new Payment(client);
+                const paymentData = await payment.get({ id: webhookId });
+                if (paymentData.status === 'approved') {
+                    isAuthorized = true;
+                    isAutoRenew = Boolean(paymentData.metadata?.auto_renew || paymentData.point_of_interaction?.type === 'SUBSCRIPTIONS');
+                    userId = paymentData.external_reference;
+                    payerEmail = paymentData.payer?.email || paymentData.additional_info?.payer?.email;
+                }
+            }
+
+            if (isAuthorized) {
+                if ((!userId || userId === 'guest') && admin.apps.length && payerEmail) {
+                    try {
+                        const userRecord = await admin.auth().getUserByEmail(payerEmail);
+                        userId = userRecord.uid;
+                    } catch (lookupErr) {
+                        console.warn('Could not find user by email in webhook:', lookupErr.message);
                     }
                 }
 
@@ -434,9 +536,9 @@ app.all('/api/mercadopago-webhook', async (req, res) => {
                     const subDoc = await subRef.get();
                     const subData = subDoc.exists ? subDoc.data() : null;
 
-                    // 🔒 IDEMPOTENCY GUARD: Evitar replay attacks o reintentos duplicados que sumen meses indebidamente
+                    // 🔒 IDEMPOTENCY GUARD
                     if (subData?.lastPaymentId && String(subData.lastPaymentId) === String(webhookId)) {
-                        console.log(`[Server] Webhook ${webhookId} ya fue procesado para el usuario ${userId}. Omitiendo extensión duplicada.`);
+                        console.log(`[Server] Webhook ${webhookId} ya fue procesado para el usuario ${userId}.`);
                         return res.status(200).send('Payment already processed');
                     }
 
@@ -451,6 +553,8 @@ app.all('/api/mercadopago-webhook', async (req, res) => {
                         expiry: newExpiry.toString(),
                         provider: 'mercadopago',
                         lastPaymentId: String(webhookId),
+                        autoRenew: isAutoRenew ? 'true' : 'false',
+                        paymentMethod: 'card_auto_debit',
                         updatedAt: Date.now()
                     }, { merge: true });
                     console.log(`[Server] User ${userId} activated PRO via Webhook until ${new Date(newExpiry).toLocaleDateString()}`);
@@ -464,10 +568,56 @@ app.all('/api/mercadopago-webhook', async (req, res) => {
     }
 });
 
-// Payment endpoint - Stripe Internacional
-app.post('/api/create-stripe-subscription', adminLimiter, async (req, res) => {
+// Payment endpoint - PayPal Internacional ($2.00 USD / mes con tarjeta o cuenta PayPal)
+app.post('/api/create-paypal-subscription', adminLimiter, verifyFirebaseToken, async (req, res) => {
     try {
-        const { userId, email, planId = 'pro', promo } = req.body;
+        const { planId = 'pro', promo, billingMode = 'recurring' } = req.body || {};
+        const userId = req.user.uid;
+        const email = req.user.email || req.body?.email;
+        const CYBER_MONDAY_DEADLINE = new Date('2026-11-07T17:00:00-03:00').getTime();
+        const isCyberMonday = promo === 'cybermonday' && Date.now() <= CYBER_MONDAY_DEADLINE;
+
+        const usdAmount = isCyberMonday ? 0.99 : 2.00;
+        let planName = isCyberMonday
+            ? 'Asistente H&S - Plan Profesional PRO (Oferta)'
+            : 'Asistente H&S - Plan Profesional PRO (Acceso Total)';
+
+        if (planId === 'student') {
+            planName = 'Asistente H&S - Plan Estudiante';
+        } else if (planId === 'enterprise' || planId === 'consultora') {
+            planName = 'Asistente H&S - Plan Consultora';
+        }
+
+        const requestOrigin = req.headers.origin;
+        const baseUrl = (requestOrigin && isOriginAllowed(requestOrigin)) ? requestOrigin : 'https://asistentehs.com';
+
+        if (process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET) {
+            const checkout = await createPaypalCheckout({
+                userId,
+                email,
+                usdAmount,
+                planName,
+                baseUrl,
+                billingMode
+            });
+            return res.json({ url: checkout.url, id: checkout.id, type: checkout.type });
+        } else if (process.env.PAYPAL_PAYMENT_LINK) {
+            return res.json({ url: process.env.PAYPAL_PAYMENT_LINK });
+        } else {
+            return res.status(500).json({ error: 'Falta configurar PAYPAL_CLIENT_ID y PAYPAL_CLIENT_SECRET en el servidor.' });
+        }
+    } catch (error) {
+        console.error('Error creando suscripción de PayPal:', error);
+        res.status(500).json({ error: 'Error al generar checkout de PayPal.', details: error.message });
+    }
+});
+
+// Payment endpoint - Stripe Internacional (Legacy fallback)
+app.post('/api/create-stripe-subscription', adminLimiter, verifyFirebaseToken, async (req, res) => {
+    try {
+        const { planId = 'pro', promo } = req.body || {};
+        const userId = req.user.uid;
+        const email = req.user.email || req.body?.email;
         const CYBER_MONDAY_DEADLINE = new Date('2026-11-07T17:00:00-03:00').getTime();
         const isCyberMonday = promo === 'cybermonday' && Date.now() <= CYBER_MONDAY_DEADLINE;
         
@@ -484,9 +634,14 @@ app.post('/api/create-stripe-subscription', adminLimiter, async (req, res) => {
             planTitle = isCyberMonday ? 'Plan Consultora (Oferta Cyber Monday) - Asistente HyS' : 'Plan Consultora - Asistente HyS';
         }
 
+        const requestOrigin = req.headers.origin;
+        const baseUrl = (requestOrigin && isOriginAllowed(requestOrigin)) ? requestOrigin : 'https://asistentehs.com';
+
         if (stripe) {
             const session = await stripe.checkout.sessions.create({
                 payment_method_types: ['card'],
+                locale: 'es-419',
+                billing_address_collection: 'auto',
                 line_items: [
                     {
                         price_data: {
@@ -502,10 +657,10 @@ app.post('/api/create-stripe-subscription', adminLimiter, async (req, res) => {
                     },
                 ],
                 mode: 'subscription',
-                success_url: `https://asistentehs-b594e.web.app/subscribe?status=approved&provider=stripe&session_id={CHECKOUT_SESSION_ID}`,
-                cancel_url: `https://asistentehs-b594e.web.app/subscribe`,
+                success_url: `${baseUrl}/subscribe?status=approved&provider=stripe&session_id={CHECKOUT_SESSION_ID}`,
+                cancel_url: `${baseUrl}/subscribe?status=cancelled`,
                 client_reference_id: userId,
-                customer_email: email,
+                customer_email: email || undefined,
             });
 
             return res.json({ url: session.url });
@@ -522,45 +677,176 @@ app.post('/api/create-stripe-subscription', adminLimiter, async (req, res) => {
 
 // ==========================================
 
-// Payment verification endpoint (Mercado Pago & Stripe)
+// Payment verification endpoint (PayPal, Mercado Pago PreApproval, MP Payment & Stripe)
 app.post('/api/verify-payment', verifyFirebaseToken, async (req, res) => {
     try {
-        const { payment_id, collection_id, session_id } = req.body || {};
+        const { payment_id, collection_id, session_id, preapproval_id, paypal_subscription_id, paypal_order_id } = req.body || {};
         const mpPaymentId = payment_id || collection_id;
+        const uid = req.user.uid;
+        const userEmail = (req.user.email || '').toLowerCase().trim();
+        const subRef = admin.firestore().collection('users').doc(uid).collection('data').doc('subscriptionData');
+
+        // 0. PayPal verification ($2.00 USD)
+        if ((paypal_subscription_id || paypal_order_id) && process.env.PAYPAL_CLIENT_ID) {
+            const ppResult = await verifyPaypalPayment({
+                subscriptionId: paypal_subscription_id,
+                orderId: paypal_order_id
+            });
+            if (ppResult.approved) {
+                const isOwner =
+                    (!ppResult.customId || ppResult.customId === 'guest' || ppResult.customId === uid) ||
+                    (userEmail && ppResult.payerEmail && userEmail === ppResult.payerEmail);
+
+                if (!isOwner) {
+                    console.warn(`[SECURITY] Intento de reclamar pago PayPal ajeno (${ppResult.referenceId}) por uid=${uid}`);
+                    return res.status(403).json({ error: 'Este pago de PayPal no corresponde a tu cuenta.' });
+                }
+
+                const subDoc = await subRef.get();
+                const subData = subDoc.exists ? subDoc.data() : null;
+                if (subData?.lastPaymentId && String(subData.lastPaymentId) === String(ppResult.referenceId)) {
+                    return res.json({ success: true, isPro: true, autoRenew: ppResult.autoRenew, expiry: parseInt(subData.expiry, 10) || Date.now(), alreadyProcessed: true });
+                }
+
+                await admin.auth().setCustomUserClaims(uid, { isPro: true });
+                const currentExpiry = subData?.expiry ? parseInt(subData.expiry, 10) : 0;
+                const baseDate = (currentExpiry && currentExpiry > Date.now()) ? new Date(currentExpiry) : new Date();
+                baseDate.setMonth(baseDate.getMonth() + 1);
+                const newExpiry = baseDate.getTime();
+
+                await subRef.set({
+                    status: 'active',
+                    expiry: newExpiry.toString(),
+                    provider: 'paypal',
+                    lastPaymentId: String(ppResult.referenceId),
+                    autoRenew: ppResult.autoRenew ? 'true' : 'false',
+                    paymentMethod: ppResult.autoRenew ? 'card_auto_debit' : 'card',
+                    subscriptionId: String(ppResult.referenceId),
+                    updatedAt: Date.now()
+                }, { merge: true });
+                return res.json({ success: true, isPro: true, autoRenew: ppResult.autoRenew, expiry: newExpiry });
+            }
+        }
         
-        // Stripe verification
+        // 1. Stripe verification
         if (session_id && stripe) {
             const session = await stripe.checkout.sessions.retrieve(session_id);
             if (session.payment_status === 'paid' || session.status === 'complete') {
-                const uid = req.user.uid;
+                // 🔒 Ownership check
+                const sessionUid = session.client_reference_id;
+                const sessionEmail = (session.customer_email || session.customer_details?.email || '').toLowerCase().trim();
+                const isOwner = (sessionUid && sessionUid !== 'guest' && sessionUid === uid) ||
+                                (userEmail && sessionEmail && userEmail === sessionEmail);
+
+                if (!isOwner) {
+                    console.warn(`[SECURITY] Intento de reclamar sesión de Stripe ajena (${session_id}) por uid=${uid}`);
+                    return res.status(403).json({ error: 'Esta sesión de pago no corresponde a tu cuenta.' });
+                }
+
+                const subDoc = await subRef.get();
+                const subData = subDoc.exists ? subDoc.data() : null;
+                if (subData?.lastPaymentId && String(subData.lastPaymentId) === String(session_id)) {
+                    return res.json({ success: true, isPro: true, autoRenew: true, expiry: parseInt(subData.expiry, 10) || Date.now(), alreadyProcessed: true });
+                }
+
                 await admin.auth().setCustomUserClaims(uid, { isPro: true });
-                const oneMonthFromNow = Date.now() + 30 * 24 * 60 * 60 * 1000;
-                await admin.firestore().collection('users').doc(uid).collection('data').doc('subscriptionData').set({
+                const currentExpiry = subData?.expiry ? parseInt(subData.expiry, 10) : 0;
+                const baseDate = (currentExpiry && currentExpiry > Date.now()) ? new Date(currentExpiry) : new Date();
+                baseDate.setMonth(baseDate.getMonth() + 1);
+                const newExpiry = baseDate.getTime();
+
+                await subRef.set({
                     status: 'active',
-                    expiry: oneMonthFromNow.toString(),
+                    expiry: newExpiry.toString(),
                     provider: 'stripe',
+                    lastPaymentId: String(session_id),
+                    autoRenew: 'true',
+                    paymentMethod: 'card_auto_debit',
+                    subscriptionId: String(session.subscription || session_id),
                     updatedAt: Date.now()
                 }, { merge: true });
-                return res.json({ success: true, isPro: true, expiry: oneMonthFromNow });
+                return res.json({ success: true, isPro: true, autoRenew: true, expiry: newExpiry });
             }
         }
 
-        // Mercado Pago verification
+        // 2. Mercado Pago PreApproval verification (Adhesión de Tarjeta - Débito Automático)
+        if (preapproval_id) {
+            const preApproval = new PreApproval(client);
+            const preInfo = await preApproval.get({ id: preapproval_id });
+            if (preInfo.status === 'authorized' || preInfo.status === 'active') {
+                const extRef = preInfo.external_reference;
+                const payerEmail = (preInfo.payer_email || '').toLowerCase().trim();
+                const isOwner = (extRef && extRef !== 'guest' && extRef === uid) ||
+                                (userEmail && payerEmail && userEmail === payerEmail);
+
+                if (!isOwner && extRef && extRef !== 'guest') {
+                    console.warn(`[SECURITY] Intento de reclamar PreApproval MP ajeno (${preapproval_id}) por uid=${uid}`);
+                    return res.status(403).json({ error: 'Esta suscripción no corresponde a tu cuenta.' });
+                }
+
+                const subDoc = await subRef.get();
+                const subData = subDoc.exists ? subDoc.data() : null;
+                if (subData?.lastPaymentId && String(subData.lastPaymentId) === String(preapproval_id)) {
+                    return res.json({ success: true, isPro: true, autoRenew: true, expiry: parseInt(subData.expiry, 10) || Date.now(), alreadyProcessed: true });
+                }
+
+                await admin.auth().setCustomUserClaims(uid, { isPro: true });
+                const currentExpiry = subData?.expiry ? parseInt(subData.expiry, 10) : 0;
+                const baseDate = (currentExpiry && currentExpiry > Date.now()) ? new Date(currentExpiry) : new Date();
+                baseDate.setMonth(baseDate.getMonth() + 1);
+                const newExpiry = baseDate.getTime();
+
+                await subRef.set({
+                    status: 'active',
+                    expiry: newExpiry.toString(),
+                    provider: 'mercadopago',
+                    lastPaymentId: String(preapproval_id),
+                    autoRenew: 'true',
+                    paymentMethod: 'card_auto_debit',
+                    subscriptionId: String(preapproval_id),
+                    updatedAt: Date.now()
+                }, { merge: true });
+                return res.json({ success: true, isPro: true, autoRenew: true, expiry: newExpiry });
+            }
+        }
+
+        // 3. Mercado Pago Payment verification
         if (mpPaymentId) {
             const payment = new Payment(client);
             const paymentInfo = await payment.get({ id: mpPaymentId });
             if (paymentInfo.status === 'approved') {
-                const uid = req.user.uid;
+                // 🔒 Ownership check
+                const extRef = paymentInfo.external_reference;
+                const payerEmail = (paymentInfo.payer?.email || paymentInfo.additional_info?.payer?.email || '').toLowerCase().trim();
+                const isOwner = (extRef && extRef !== 'guest' && extRef === uid) ||
+                                (userEmail && payerEmail && userEmail === payerEmail);
+
+                if (!isOwner && extRef && extRef !== 'guest') {
+                    console.warn(`[SECURITY] Intento de reclamar pago MP ajeno (${mpPaymentId}) por uid=${uid}`);
+                    return res.status(403).json({ error: 'Este comprobante de pago no corresponde a tu cuenta.' });
+                }
+
+                const subDoc = await subRef.get();
+                const subData = subDoc.exists ? subDoc.data() : null;
+                if (subData?.lastPaymentId && String(subData.lastPaymentId) === String(mpPaymentId)) {
+                    return res.json({ success: true, isPro: true, expiry: parseInt(subData.expiry, 10) || Date.now(), alreadyProcessed: true });
+                }
+
                 await admin.auth().setCustomUserClaims(uid, { isPro: true });
-                const oneMonthFromNow = Date.now() + 30 * 24 * 60 * 60 * 1000;
-                await admin.firestore().collection('users').doc(uid).collection('data').doc('subscriptionData').set({
+                const currentExpiry = subData?.expiry ? parseInt(subData.expiry, 10) : 0;
+                const baseDate = (currentExpiry && currentExpiry > Date.now()) ? new Date(currentExpiry) : new Date();
+                baseDate.setMonth(baseDate.getMonth() + 1);
+                const newExpiry = baseDate.getTime();
+
+                await subRef.set({
                     status: 'active',
-                    expiry: oneMonthFromNow.toString(),
+                    expiry: newExpiry.toString(),
                     provider: 'mercadopago',
                     lastPaymentId: String(mpPaymentId),
+                    paymentMethod: 'card',
                     updatedAt: Date.now()
                 }, { merge: true });
-                return res.json({ success: true, isPro: true, expiry: oneMonthFromNow });
+                return res.json({ success: true, isPro: true, expiry: newExpiry });
             }
         }
 
@@ -571,10 +857,53 @@ app.post('/api/verify-payment', verifyFirebaseToken, async (req, res) => {
     }
 });
 
+// Cancel automatic debit / subscription endpoint
+app.post('/api/cancel-subscription', verifyFirebaseToken, async (req, res) => {
+    try {
+        const uid = req.user.uid;
+        const subRef = admin.firestore().collection('users').doc(uid).collection('data').doc('subscriptionData');
+        const subDoc = await subRef.get();
+        if (subDoc.exists) {
+            const subData = subDoc.data();
+            const subId = subData?.subscriptionId;
+            if (subId && subData?.provider === 'mercadopago' && process.env.MP_ACCESS_TOKEN) {
+                try {
+                    const preApproval = new PreApproval(client);
+                    await preApproval.update({ id: subId, body: { status: 'cancelled' } });
+                } catch (e) {
+                    console.warn('[Server CancelSub] MP warning:', e.message);
+                }
+            } else if (subId && subData?.provider === 'paypal' && process.env.PAYPAL_CLIENT_ID) {
+                try {
+                    await cancelPaypalSubscription(subId);
+                } catch (e) {
+                    console.warn('[Server CancelSub] PayPal warning:', e.message);
+                }
+            } else if (subId && subData?.provider === 'stripe' && stripe && String(subId).startsWith('sub_')) {
+                try {
+                    await stripe.subscriptions.cancel(subId);
+                } catch (e) {
+                    console.warn('[Server CancelSub] Stripe warning:', e.message);
+                }
+            }
+        }
+        await subRef.set({
+            status: 'inactive',
+            autoRenew: 'false',
+            updatedAt: Date.now()
+        }, { merge: true });
+        await admin.auth().setCustomUserClaims(uid, { isPro: false });
+        return res.json({ success: true, message: 'Débito automático y suscripción cancelados.' });
+    } catch (error) {
+        console.error('Cancel subscription error:', error);
+        return res.status(500).json({ error: 'Error al cancelar la suscripción.' });
+    }
+});
+
 // AI VISION API (Gemini)
 // ==========================================
 
-app.post('/api/analyze-image', express.json({ limit: '50mb' }), express.urlencoded({ limit: '50mb', extended: true }), aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
+app.post('/api/analyze-image', aiLimiter, verifyFirebaseToken, requirePro, express.json({ limit: '15mb' }), express.urlencoded({ limit: '15mb', extended: true }), async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
@@ -701,7 +1030,7 @@ REGLAS ESTRICTAS:
 // ==========================================
 // AI CONTRACTOR DOCUMENT ANALYSIS (Gemini)
 // ==========================================
-app.post('/api/analyze-contractor-doc', express.json({ limit: '50mb' }), express.urlencoded({ limit: '50mb', extended: true }), aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
+app.post('/api/analyze-contractor-doc', aiLimiter, verifyFirebaseToken, requirePro, express.json({ limit: '15mb' }), express.urlencoded({ limit: '15mb', extended: true }), async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
@@ -1051,7 +1380,7 @@ CATÁLOGO COMPLETO DE MÓDULOS DE LA PLATAFORMA (usa exactamente estas rutas):
 // ==========================================
 // AI EXTINGUISHER VISION (Gemini)
 // ==========================================
-app.post('/api/analyze-extinguisher', express.json({ limit: '50mb' }), express.urlencoded({ limit: '50mb', extended: true }), aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
+app.post('/api/analyze-extinguisher', aiLimiter, verifyFirebaseToken, requirePro, express.json({ limit: '15mb' }), express.urlencoded({ limit: '15mb', extended: true }), async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
@@ -1184,7 +1513,7 @@ REGLAS:
 // ==========================================
 // AI TRAINING SHEET VISION (Gemini)
 // ==========================================
-app.post('/api/analyze-training-sheet', express.json({ limit: '50mb' }), express.urlencoded({ limit: '50mb', extended: true }), aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
+app.post('/api/analyze-training-sheet', aiLimiter, verifyFirebaseToken, requirePro, express.json({ limit: '15mb' }), express.urlencoded({ limit: '15mb', extended: true }), async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
@@ -1457,8 +1786,10 @@ app.post('/api/ai-report-conclusion', aiLimiter, verifyFirebaseToken, requirePro
 // ==========================================
 app.post('/api/ai-legal-summary', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
     try {
-        const { leyTitle, leyDescription, country = 'argentina' } = req.body;
-        if (!leyTitle) return res.status(400).json({ error: 'Faltan datos de la normativa' });
+        const { ley, leyTitle, leyDescription, country = 'argentina' } = req.body || {};
+        const effectiveTitle = ley || leyTitle;
+        if (!effectiveTitle || typeof effectiveTitle !== 'string') return res.status(400).json({ error: 'Faltan datos de la normativa' });
+        if (effectiveTitle.length > 1000) return res.status(400).json({ error: 'El nombre o texto de la normativa no puede superar los 1.000 caracteres.' });
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'Falta API Key' });
@@ -1478,7 +1809,7 @@ app.post('/api/ai-legal-summary', aiLimiter, verifyFirebaseToken, requirePro, as
             required: ["summary"]
         };
 
-        const prompt = `Realiza un resumen de puntos principales en viñetas para la norma operativa "${leyTitle}".\nDescripción corta: "${leyDescription}"`;
+        const prompt = `Realiza un resumen de puntos principales en viñetas para la norma operativa "${effectiveTitle}".${leyDescription ? `\nDescripción corta: "${leyDescription}"` : ''}`;
 
         let result;
         if (Date.now() >= geminiBillingDepletedUntil) {
@@ -1502,7 +1833,7 @@ app.post('/api/ai-legal-summary', aiLimiter, verifyFirebaseToken, requirePro, as
         }
         if (!result) {
             return res.status(200).json({
-                summary: `• **Normativa:** ${leyTitle}\n• **Alcance:** ${leyDescription || 'Regulación obligatoria de condiciones de Higiene y Seguridad en el Trabajo.'}\n• **Aplicación en campo:** Exige evaluación preventiva de riesgos, implementación de controles de ingeniería, provisión de EPP certificados y capacitación documentada del personal.`
+                summary: `• **Normativa:** ${effectiveTitle}\n• **Alcance:** ${leyDescription || 'Regulación obligatoria de condiciones de Higiene y Seguridad en el Trabajo.'}\n• **Aplicación en campo:** Exige evaluación preventiva de riesgos, implementación de controles de ingeniería, provisión de EPP certificados y capacitación documentada del personal.`
             });
         }
         res.json(JSON.parse(result.response.text()));
@@ -1581,7 +1912,7 @@ app.post('/api/ai-stopcard', aiLimiter, verifyFirebaseToken, requirePro, validat
 // ==========================================
 // AI GENERAL RISKS VISION (Gemini)
 // ==========================================
-app.post('/api/analyze-general-risks', express.json({ limit: '50mb' }), express.urlencoded({ limit: '50mb', extended: true }), aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
+app.post('/api/analyze-general-risks', aiLimiter, verifyFirebaseToken, requirePro, express.json({ limit: '15mb' }), express.urlencoded({ limit: '15mb', extended: true }), async (req, res) => {
     try {
         const { image } = req.body;
         if (!image) return res.status(400).json({ error: 'No se envió imagen' });
@@ -1672,7 +2003,7 @@ REGLAS ESTRICTAS:
 // ==========================================
 // AI CHAT & VOICE DICTATION & EXAMS
 // ==========================================
-app.post('/api/ai-chat', aiLimiter, async (req, res) => {
+app.post('/api/ai-chat', aiLimiter, verifyFirebaseToken, async (req, res) => {
     try {
         const { message, messages, systemInstruction } = req.body || {};
         let prompt = '';
@@ -1682,6 +2013,10 @@ app.post('/api/ai-chat', aiLimiter, async (req, res) => {
             prompt = messages.map(m => `${m.role === 'system' ? 'INSTRUCCIÓN' : m.role === 'user' ? 'USUARIO' : 'ASISTENTE'}: ${m.content}`).join('\n\n');
         } else {
             return res.status(400).json({ error: 'Falta el mensaje o lista de mensajes' });
+        }
+
+        if (prompt.length > 8000) {
+            return res.status(400).json({ error: 'El mensaje excede el límite máximo de 8.000 caracteres.' });
         }
 
         const apiKey = process.env.GEMINI_API_KEY;
@@ -1744,12 +2079,16 @@ app.post('/api/ai-chat', aiLimiter, async (req, res) => {
 // ==========================================
 app.post('/api/predict-accidents', aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
     try {
-        const { historyData } = req.body || {};
-        if (!historyData || !Array.isArray(historyData) || historyData.length === 0) {
+        const { historyData, if: indiceFrecuencia, ig: indiceGravedad, sector } = req.body || {};
+        let normalizedHistory = Array.isArray(historyData) ? historyData : [];
+        if (normalizedHistory.length === 0 && (indiceFrecuencia !== undefined || indiceGravedad !== undefined || sector)) {
+            normalizedHistory = [{ indiceFrecuencia, indiceGravedad, sector: sector || 'General' }];
+        }
+        if (normalizedHistory.length === 0) {
             return res.status(400).json({ error: 'historyData array requerido' });
         }
 
-        const safeHistory = historyData.slice(0, 30);
+        const safeHistory = normalizedHistory.slice(0, 30);
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
 
@@ -1798,8 +2137,10 @@ ${JSON.stringify(safeHistory, null, 2)}`;
         }
 
         if (!result) {
+            const fallbackPred = "Mayor probabilidad de incidentes por sobreesfuerzos, caídas al mismo nivel y uso incompleto de EPP en sectores operativos de alta rotación.";
             return res.status(200).json({
-                prediccionPrincipal: "Mayor probabilidad de incidentes por sobreesfuerzos, caídas al mismo nivel y uso incompleto de EPP en sectores operativos de alta rotación.",
+                prediccionPrincipal: fallbackPred,
+                prediction: fallbackPred,
                 zonasRiesgo: ["Sector Operativo Principal", "Depósito y Logística", "Área de Mantenimiento"],
                 tareasCriticas: ["Movimiento manual de cargas", "Mantenimiento electromecánico", "Trabajos en altura y circulación de autoelevadores"],
                 recomendaciones: [
@@ -1809,7 +2150,11 @@ ${JSON.stringify(safeHistory, null, 2)}`;
                 ]
             });
         }
-        res.json(JSON.parse(result.response.text()));
+        const parsedPred = JSON.parse(result.response.text());
+        res.json({
+            ...parsedPred,
+            prediction: parsedPred.prediccionPrincipal
+        });
     } catch (error) {
         console.error("Error in Predict Accidents:", error.message);
         res.status(500).json({ error: 'Error generando predicción de accidentes', details: error.message });
@@ -1819,10 +2164,11 @@ ${JSON.stringify(safeHistory, null, 2)}`;
 // ==========================================
 // EMERGENCY CHAT BOT
 // ==========================================
-app.post('/api/emergency-chat', aiLimiter, async (req, res) => {
+app.post('/api/emergency-chat', aiLimiter, verifyFirebaseToken, async (req, res) => {
     try {
         const { message, context = 'general', companyContext = '' } = req.body || {};
-        if (!message) return res.status(400).json({ error: 'Mensaje requerido' });
+        if (!message || typeof message !== 'string') return res.status(400).json({ error: 'Mensaje requerido' });
+        if (message.length > 2000) return res.status(400).json({ error: 'El mensaje no puede superar los 2.000 caracteres.' });
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
@@ -1874,7 +2220,7 @@ Instrucciones estrictas:
 // ==========================================
 // VISION ATS
 // ==========================================
-app.post('/api/vision-ats', express.json({ limit: '50mb' }), express.urlencoded({ limit: '50mb', extended: true }), aiLimiter, verifyFirebaseToken, requirePro, async (req, res) => {
+app.post('/api/vision-ats', aiLimiter, verifyFirebaseToken, requirePro, express.json({ limit: '15mb' }), express.urlencoded({ limit: '15mb', extended: true }), async (req, res) => {
     try {
         const { imageBase64 } = req.body || {};
         if (!imageBase64) return res.status(400).json({ error: 'No se envió imagen' });
@@ -1947,18 +2293,15 @@ Devuelve ÚNICAMENTE un array JSON válido con la siguiente estructura:
 
 
 
-// Diagnostic endpoint to scan available models
-app.get('/api/scan-models', async (req, res) => {
+// Diagnostic endpoint to scan available models (Admin Only)
+app.get('/api/scan-models', adminLimiter, isAdmin, async (req, res) => {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: 'API Key missing' });
 
     try {
-        const { GoogleGenerativeAI } = await import("@google/generative-ai");
-        const genAI = new GoogleGenerativeAI(apiKey);
-
         res.json({
             message: 'Diagnostic point reached',
-            keyPrefix: apiKey.substring(0, 6),
+            configured: true,
             sdkVersion: '0.24.1',
             timestamp: new Date().toISOString()
         });
@@ -2018,8 +2361,11 @@ app.post('/api/forgot-password', authLimiter, validateEmail, async (req, res) =>
 
         const urlObj = new URL(firebaseLink);
         const oobCode = urlObj.searchParams.get('oobCode');
-        const origin = req.headers.origin || 'http://localhost:5173';
-        const resetLink = `${origin}/reset-password?oobCode=${oobCode}`;
+        const PRODUCTION_URL = 'https://asistentehs.com';
+        const requestOrigin = req.headers.origin;
+        const ALLOWED_RESET_ORIGINS = ['https://asistentehs.com', 'https://www.asistentehs.com', 'http://localhost:5173', 'http://localhost:4173'];
+        const baseUrl = (requestOrigin && ALLOWED_RESET_ORIGINS.includes(requestOrigin)) ? requestOrigin : PRODUCTION_URL;
+        const resetLink = `${baseUrl}/reset-password?oobCode=${oobCode}`;
 
         console.log(`[PASSWORD RESET] Reset link generated for ${email}. Sending email...`);
 
@@ -2059,17 +2405,11 @@ app.post('/api/forgot-password', authLimiter, validateEmail, async (req, res) =>
             `
         };
 
-        // Send email via Gmail transporter
+        // Send email via centralized mailer
         console.log(`[PASSWORD RESET] Sending email via Gmail SMTP to ${email}...`);
 
         try {
-            const mailTransporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-            });
-            await mailTransporter.sendMail({
-                from: `"Asistente Higiene y Seguridad" <${process.env.EMAIL_USER}>`,
-                replyTo: process.env.EMAIL_USER,
+            await sendAppMail({
                 to: email,
                 subject: 'Restablecer Contraseña - Asistente H&S',
                 html: mailOptions.html
@@ -2176,13 +2516,7 @@ app.post('/api/send-password-changed-email', emailLimiter, validateEmail, async 
     const greeting = name ? `Hola, ${name}` : 'Hola';
 
     try {
-        const mailTransporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-        });
-        await mailTransporter.sendMail({
-            from: `"Asistente Higiene y Seguridad" <${process.env.EMAIL_USER}>`,
-            replyTo: process.env.EMAIL_USER,
+        await sendAppMail({
             to: email,
             subject: 'Tu contraseña ha sido actualizada - Asistente H&S',
             html: `
@@ -2223,12 +2557,7 @@ app.post('/api/send-password-changed-email', emailLimiter, validateEmail, async 
             `
         });
 
-        if (resendError) {
-            console.error('[PASSWORD CHANGED] Resend error:', resendError);
-            return res.json({ success: false, error: resendError.message });
-        }
-
-        console.log(`[PASSWORD CHANGED] Notification sent to ${email}. ID: ${resendData.id}`);
+        console.log(`[PASSWORD CHANGED] Notification sent to ${email}.`);
         return res.json({ success: true });
     } catch (err) {
         console.error('[PASSWORD CHANGED] Error:', err.message);
@@ -2284,13 +2613,7 @@ app.post('/api/welcome-email', emailLimiter, validateEmail, validateStringInput(
     };
 
     try {
-        const mailTransporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-        });
-        await mailTransporter.sendMail({
-            from: `"Asistente Higiene y Seguridad" <${process.env.EMAIL_USER}>`,
-            replyTo: process.env.EMAIL_USER,
+        await sendAppMail({
             to: email,
             subject: '¡Bienvenido al Asistente H&S!',
             html: mailOptions.html

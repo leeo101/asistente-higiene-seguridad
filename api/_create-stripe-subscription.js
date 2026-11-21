@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { setCorsHeaders, verifyToken } from './_verifyToken.js';
+import { isOriginAllowed } from './_cors.js';
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const stripe = stripeSecretKey ? new Stripe(stripeSecretKey) : null;
@@ -45,13 +46,15 @@ export default async function handler(req, res) {
             planName = isCyberMonday ? 'Plan Consultora - Oferta Cyber Monday' : 'Plan Consultora';
         }
 
-        const protocol = req.headers['x-forwarded-proto'] || 'https';
-        const host = req.headers['host'];
-        const baseUrl = `${protocol}://${host}`;
+        const requestOrigin = req.headers.origin;
+        const PRODUCTION_URL = 'https://asistentehs.com';
+        const baseUrl = (requestOrigin && isOriginAllowed(requestOrigin)) ? requestOrigin : PRODUCTION_URL;
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             mode: 'subscription',
+            locale: 'es-419',
+            billing_address_collection: 'auto',
             customer_email: email || undefined,
             client_reference_id: userId || 'guest',
             line_items: [

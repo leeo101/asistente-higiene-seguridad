@@ -251,9 +251,13 @@ Estructura clara:
 4. PREGUNTA CLAVE DE COMPROBACIÓN para hacerle al equipo antes de iniciar.
 Tono directo, profesional y aplicable a campo.`;
 
+      const token = await currentUser?.getIdToken();
       const response = await fetch(`${API_BASE_URL}/api/ai-chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({ message: prompt })
       });
 

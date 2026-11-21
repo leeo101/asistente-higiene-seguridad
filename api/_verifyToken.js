@@ -112,23 +112,7 @@ export async function verifyToken(req, res) {
 
     const publicKeys = await fetchGooglePublicKeysWithRetry();
     if (!publicKeys) {
-        // Si no se pudieron obtener claves públicas pero el token tiene estructura válida de Firebase para nuestro proyecto
-        const payload = decodedHeader.payload;
-        const nowSec = Math.floor(Date.now() / 1000);
-        const validAudience = payload?.aud === 'asistentehs-b594e';
-        const validIssuer = payload?.iss === 'https://securetoken.google.com/asistentehs-b594e';
-        const notExpired = payload?.exp && payload.exp > nowSec;
-
-        if (validAudience && validIssuer && notExpired && (payload?.user_id || payload?.sub)) {
-            console.warn('[AUTH] Servidores de certificados de Google inaccesibles. Autorizando por payload JWT válido verificado estructuralmente.');
-            const uid = payload.user_id || payload.sub;
-            if (!checkUserRateLimit(uid)) {
-                res.status(429).json({ error: `Límite de ${AI_RATE_LIMIT} consultas por minuto alcanzado.` });
-                return null;
-            }
-            return { ...payload, uid };
-        }
-
+        console.error('[AUTH] No se pudieron obtener las claves públicas de Google para verificar el JWT.');
         res.status(503).json({ error: 'Servicio de autenticación no disponible temporalmente. Intenta nuevamente en unos segundos.' });
         return null;
     }
@@ -141,19 +125,24 @@ export async function verifyToken(req, res) {
 
     let decodedToken;
     try {
-        const verifyOptions = { algorithms: ['RS256'] };
+        let projectId = 'asistentehs-b594e';
         if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
             try {
-                const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-                const projectId = serviceAccount.project_id;
-                if (projectId) {
-                    verifyOptions.audience = projectId;
-                    verifyOptions.issuer = `https://securetoken.google.com/${projectId}`;
+                let rawKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+                if (rawKey.startsWith("'") && rawKey.endsWith("'")) rawKey = rawKey.slice(1, -1);
+                const serviceAccount = JSON.parse(rawKey);
+                if (serviceAccount.project_id) {
+                    projectId = serviceAccount.project_id;
                 }
             } catch (e) {
                 console.error('[AUTH] Error parsing FIREBASE_SERVICE_ACCOUNT_KEY for token validation:', e.message);
             }
         }
+        const verifyOptions = {
+            algorithms: ['RS256'],
+            audience: projectId,
+            issuer: `https://securetoken.google.com/${projectId}`
+        };
         decodedToken = jwt.verify(idToken, cert, verifyOptions);
     } catch (error) {
         console.error('[AUTH] Token verification failed:', error.message);

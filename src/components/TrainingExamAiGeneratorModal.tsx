@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../config';
+import { auth } from '../firebase';
 import TrainingExamPdfGenerator from './TrainingExamPdfGenerator';
 
 export interface ExamQuestion {
@@ -121,9 +122,13 @@ Devuelve ÚNICAMENTE un array JSON válido con la siguiente estructura (sin text
   }
 ]`;
 
+      const token = await auth.currentUser?.getIdToken();
       const res = await fetch(`${API_BASE_URL}/api/ai-chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({ message: prompt })
       });
 

@@ -127,6 +127,10 @@
             "destination": "/api/ai.js"
         },
         {
+            "source": "/api/analyze-training-sheet",
+            "destination": "/api/ai.js"
+        },
+        {
             "source": "/api/analyze-image",
             "destination": "/api/ai.js"
         },
@@ -163,6 +167,22 @@
             "destination": "/api/auth.js"
         },
         {
+            "source": "/api/admin/requests",
+            "destination": "/api/auth.js"
+        },
+        {
+            "source": "/api/admin/requests/:id",
+            "destination": "/api/auth.js"
+        },
+        {
+            "source": "/api/register-request",
+            "destination": "/api/auth.js"
+        },
+        {
+            "source": "/api/delete-account",
+            "destination": "/api/auth.js"
+        },
+        {
             "source": "/api/forgot-password",
             "destination": "/api/auth.js"
         },
@@ -175,11 +195,23 @@
             "destination": "/api/auth.js"
         },
         {
+            "source": "/api/exchange-rate",
+            "destination": "/api/subscription-handler.js"
+        },
+        {
+            "source": "/api/create-paypal-subscription",
+            "destination": "/api/subscription-handler.js"
+        },
+        {
             "source": "/api/create-stripe-subscription",
             "destination": "/api/subscription-handler.js"
         },
         {
             "source": "/api/verify-payment",
+            "destination": "/api/subscription-handler.js"
+        },
+        {
+            "source": "/api/cancel-subscription",
             "destination": "/api/subscription-handler.js"
         },
         {

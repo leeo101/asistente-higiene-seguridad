@@ -1,24 +1,40 @@
 import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
-import { UserPlus, Trash2, Mail, Phone, Briefcase, RefreshCw, AlertCircle, ArrowLeft } from 'lucide-react';
+import { UserPlus, Trash2, Mail, Phone, Briefcase, RefreshCw, AlertCircle } from 'lucide-react';
 import { getErrorMessage } from '../utils/errorUtils';
+import { useAuth } from '../contexts/AuthContext';
+import { usePaywall } from '../hooks/usePaywall';
+import { API_BASE_URL } from '../config';
 
 import toast from 'react-hot-toast';
 
 export default function AdminRequests(): React.ReactElement | null {
   const navigate = useNavigate();
-  const [requests, setRequests] = useState([]);
+  const { currentUser } = useAuth();
+  const { isAdmin } = usePaywall();
+  const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    const email = (currentUser.email || '').toLowerCase().trim();
+    if (email !== 'enzorodriguez31@gmail.com' && email !== 'admin@asistentehs.com' && !isAdmin) {
+      toast.error('Acceso exclusivo para administradores');
+      navigate('/');
+    }
+  }, [currentUser, isAdmin, navigate]);
 
   const fetchRequests = async () => {
     setLoading(true);
     setError(null);
     try {
-      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
-      const fetchUrl = isLocal ? `http://${window.location.hostname}:3001/api/admin/requests` : '/api/admin/requests';
-
-      const response = await fetch(fetchUrl);
+      const token = await currentUser?.getIdToken();
+      const response = await fetch(`${API_BASE_URL}/api/admin/requests`, {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        }
+      });
       if (!response.ok) throw new Error('Error al cargar solicitudes');
       const data = await response.json();
       setRequests(data);
@@ -30,8 +46,10 @@ export default function AdminRequests(): React.ReactElement | null {
   };
 
   useEffect(() => {
-    fetchRequests();
-  }, []);
+    if (currentUser) {
+      fetchRequests();
+    }
+  }, [currentUser]);
 
   const handleDelete = async (id) => {
     const toastId = toast(
@@ -41,9 +59,13 @@ export default function AdminRequests(): React.ReactElement | null {
           onClick={async () => {
             toast.dismiss(toastId);
             try {
-              const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
-              const fetchUrl = isLocal ? `http://${window.location.hostname}:3001/api/admin/requests/${id}` : `/api/admin/requests/${id}`;
-              const response = await fetch(fetchUrl, { method: 'DELETE' });
+              const token = await currentUser?.getIdToken();
+              const response = await fetch(`${API_BASE_URL}/api/admin/requests/${id}`, {
+                method: 'DELETE',
+                headers: {
+                  ...(token ? { Authorization: `Bearer ${token}` } : {})
+                }
+              });
               if (!response.ok) throw new Error('Error al eliminar');
               setRequests(requests.filter((req) => req.id !== id));
               toast.success('Solicitud eliminada');

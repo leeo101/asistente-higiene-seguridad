@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Send, AlertTriangle, Phone, Shield, Heart, Flame, Zap, MessageCircle, Loader2, Info, X } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import { auth } from '../firebase';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import toast from 'react-hot-toast';
 
@@ -179,9 +180,13 @@ export default function EmergencyBot(): React.ReactElement | null {
 
     try {
       // Intentar obtener respuesta de la IA
+      const token = await auth.currentUser?.getIdToken();
       const response = await fetch(`${API_BASE_URL}/api/emergency-chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({
           message: userMessage,
           context: selectedEmergency || 'general',

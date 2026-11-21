@@ -175,7 +175,7 @@ Devuelve ÚNICAMENTE un objeto JSON estricto, sin texto adicional, con el siguie
 Importante: Las coordenadas [ymin, xmin, ymax, xmax] deben estar normalizadas de 0 a 1000.`;
 
             const imagePart = { inlineData: { data: base64Data, mimeType } };
-            const models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-pro-latest"];
+            const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"];
 
             let result;
             let lastError;
@@ -255,7 +255,7 @@ Devolvé tu análisis en formato JSON estricto con la siguiente estructura:
   "recomendaciones": ["Rec 1", "Rec 2"]
 }`;
 
-            const models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-pro-latest"];
+            const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"];
             let result;
             let lastError;
             for (const modelName of models) {
@@ -335,7 +335,7 @@ ${companyContext}`;
             
 Mensaje del usuario: ${message}`;
 
-            const models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-pro-latest"];
+            const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"];
             let result;
             let lastError;
             for (const modelName of models) {
@@ -405,7 +405,7 @@ Devolvé UNICAMENTE un JSON array válido con los pasos a seguir, donde cada obj
                 }
             };
 
-            const models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-pro-latest"];
+            const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"];
             let result;
             let lastError;
             for (const modelName of models) {
@@ -817,7 +817,7 @@ exports.analyzeGeneralRisks = onRequest({ timeoutSeconds: 300, memory: "1GiB" },
 
             const apiKey = process.env.GEMINI_API_KEY || "dummy_key_for_build";
             const genAI = new GoogleGenerativeAI(apiKey);
-            const models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-pro-latest"];
+            const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"];
             
             const prompt = `Actúa como experto en higiene y seguridad. Analiza esta imagen y detecta riesgos laborales.
 Devuelve ÚNICAMENTE un objeto JSON estricto con esta estructura:
@@ -891,7 +891,7 @@ exports.analyzeExtinguisher = onRequest({ timeoutSeconds: 300, memory: "1GiB" },
 
             const apiKey = process.env.GEMINI_API_KEY || "dummy_key_for_build";
             const genAI = new GoogleGenerativeAI(apiKey);
-            const models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-pro-latest"];
+            const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"];
             
             const prompt = `Actúa como un inspector estricto y certificado de extintores y protección contra incendios. Analiza detalladamente la imagen de este extintor (matafuegos) e inspecciona sus componentes críticos.
 Devuelve ÚNICAMENTE un JSON estricto con esta estructura:

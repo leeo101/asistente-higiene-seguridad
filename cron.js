@@ -1,6 +1,8 @@
 import cron from 'node-cron';
 import admin from 'firebase-admin';
 import { Resend } from 'resend';
+import { MercadoPagoConfig, PreApproval } from 'mercadopago';
+import { getLiveUsdToArsRate } from './api/_subscription-handler.js';
 
 function getDaysLeft(dateStr, lifespanMonths = 0) {
     if (!dateStr) return null;
@@ -34,7 +36,49 @@ export const initCronJobs = () => {
             const usersSnapshot = await db.collection('users').get();
             let notificationsSent = 0;
 
+            // ── Actualización diaria de suscripciones MP PreApproval al valor del dólar del día (2 USD en ARS) ──
+            let dailyArsAmount = null;
+            let mpPreApproval = null;
+            if (process.env.MP_ACCESS_TOKEN) {
+                try {
+                    const todayRate = await getLiveUsdToArsRate();
+                    dailyArsAmount = Math.round(2.0 * todayRate);
+                    const mpClient = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
+                    mpPreApproval = new PreApproval(mpClient);
+                    console.log(`[CRON] Cotización USD hoy: $${todayRate} ARS -> Suscripción mensual 2 USD = $${dailyArsAmount} ARS`);
+                } catch (rateErr) {
+                    console.warn('[CRON] No se pudo obtener cotización diaria para actualizar PreApprovals:', rateErr.message);
+                }
+            }
+
             for (const userDoc of usersSnapshot.docs) {
+                // Actualizar monto en ARS del débito automático si el usuario tiene tarjeta adherida en Mercado Pago
+                if (mpPreApproval && dailyArsAmount) {
+                    try {
+                        const subSnap = await db.collection('users').doc(userDoc.id).collection('data').doc('subscriptionData').get();
+                        if (subSnap.exists) {
+                            const subData = subSnap.data();
+                            if (
+                                subData?.status === 'active' &&
+                                subData?.provider === 'mercadopago' &&
+                                (subData?.autoRenew === 'true' || subData?.autoRenew === true) &&
+                                subData?.subscriptionId
+                            ) {
+                                await mpPreApproval.update({
+                                    id: String(subData.subscriptionId),
+                                    body: {
+                                        auto_recurring: {
+                                            transaction_amount: dailyArsAmount,
+                                            currency_id: 'ARS'
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    } catch (mpUpdErr) {
+                        // No bloquear el cron si un preapproval puntual ya fue cancelado en MP
+                    }
+                }
                 // 🛡️ Límite de seguridad: nunca enviar más de MAX_EMAILS_PER_RUN en un ciclo
                 if (notificationsSent >= MAX_EMAILS_PER_RUN) {
                     console.warn(`[CRON] Límite de ${MAX_EMAILS_PER_RUN} emails alcanzado. Se procesarán el resto mañana.`);

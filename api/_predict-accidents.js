@@ -23,22 +23,24 @@ export default async function handler(req, res) {
             try { body = JSON.parse(body); } catch { return res.status(400).json({ error: 'JSON inválido' }); }
         }
 
-        const { historyData } = body || {};
-        if (!historyData || !Array.isArray(historyData) || historyData.length === 0) {
+        const { historyData, if: indiceFrecuencia, ig: indiceGravedad, sector } = body || {};
+        let normalizedHistory = Array.isArray(historyData) ? historyData : [];
+        if (normalizedHistory.length === 0 && (indiceFrecuencia !== undefined || indiceGravedad !== undefined || sector)) {
+            normalizedHistory = [{ indiceFrecuencia, indiceGravedad, sector: sector || 'General' }];
+        }
+        if (normalizedHistory.length === 0) {
             return res.status(400).json({ error: 'historyData array requerido' });
         }
 
-        const safeHistory = historyData.slice(0, 30);
+        const safeHistory = normalizedHistory.slice(0, 30);
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const models = [
             "gemini-2.5-flash",
-            "gemini-flash-latest",
-            "gemini-3.5-flash",
-            "gemini-3.8-flash",
-            "gemini-pro-latest"
+            "gemini-2.0-flash",
+            "gemini-flash-latest"
         ];
 
         const responseSchema = {
@@ -88,7 +90,10 @@ ${JSON.stringify(safeHistory, null, 2)}`;
         }
 
         const parsedData = JSON.parse(result.response.text());
-        return res.status(200).json(parsedData);
+        return res.status(200).json({
+            ...parsedData,
+            prediction: parsedData.prediccionPrincipal
+        });
 
     } catch (error) {
         console.error("Error in Predict Accidents:", error.message);

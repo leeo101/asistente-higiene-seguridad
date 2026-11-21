@@ -42,7 +42,45 @@ export default function Subscription(): React.ReactElement | null {
 
   const initialPlan = (location.state as any)?.plan || 'pro';
   const [selectedPlan, setSelectedPlan] = useState<'student' | 'pro' | 'enterprise'>(initialPlan);
-  const [paymentGateway, setPaymentGateway] = useState<'stripe' | 'mercadopago'>('mercadopago');
+  const [paymentGateway, setPaymentGateway] = useState<'paypal' | 'mercadopago'>('mercadopago');
+  const [billingMode, setBillingMode] = useState<'recurring' | 'single'>('recurring');
+  const [hasCardAdhered, setHasCardAdhered] = useState<boolean>(false);
+  const [usdToArsRate, setUsdToArsRate] = useState<number>(1600);
+
+  // Obtener cotización del dólar del día automáticamente
+  useEffect(() => {
+    let mounted = true;
+    const loadExchangeRate = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/exchange-rate`);
+        if (res.ok) {
+          const data = await res.json();
+          if (mounted && data?.rate && Number(data.rate) > 100) {
+            setUsdToArsRate(Number(data.rate));
+            return;
+          }
+        }
+      } catch {
+        // Fallback directo a DolarApi
+      }
+      try {
+        const res2 = await fetch('https://dolarapi.com/v1/dolares/oficial');
+        if (res2.ok) {
+          const data2 = await res2.json();
+          const venta = Number(data2?.venta || data2?.compra);
+          if (mounted && venta && venta > 100) {
+            setUsdToArsRate(venta);
+          }
+        }
+      } catch {
+        // Conservar valor de respaldo
+      }
+    };
+    loadExchangeRate();
+    return () => {
+      mounted = false;
+    };
+  }, []);
   const [isCyberMonday, setIsCyberMonday] = useState<boolean>(() => {
     try {
       if (Date.now() > CYBER_MONDAY_DEADLINE) {
@@ -78,6 +116,9 @@ export default function Subscription(): React.ReactElement | null {
     const paymentStatus = urlParams.get('status') || urlParams.get('collection_status');
     const payment_id = urlParams.get('payment_id') || urlParams.get('collection_id');
     const session_id = urlParams.get('session_id');
+    const preapproval_id = urlParams.get('preapproval_id');
+    const paypal_subscription_id = urlParams.get('subscription_id');
+    const paypal_order_id = urlParams.get('token') || urlParams.get('order_id');
     let subData: any = {};
     try {
       const rawSub = localStorage.getItem('subscriptionData');
@@ -88,13 +129,20 @@ export default function Subscription(): React.ReactElement | null {
       // ignore
     }
 
+    if (subData.autoRenew === true || subData.autoRenew === 'true' || subData.paymentMethod === 'card_auto_debit') {
+      setHasCardAdhered(true);
+    }
+
     if (isPro) {
       setIsSubscribed(true);
       const expiry = parseInt(subData.expiry || '0', 10);
       if (expiry) setExpiryDate(new Date(expiry));
     }
 
-    if (paymentStatus === 'approved' && (payment_id || session_id)) {
+    if (
+      (paymentStatus === 'approved' || preapproval_id || paypal_subscription_id || paypal_order_id) &&
+      (payment_id || session_id || preapproval_id || paypal_subscription_id || paypal_order_id)
+    ) {
       setLoading(true);
       currentUser?.getIdToken().then((token) => {
         fetch(`${API_BASE_URL}/api/verify-payment`, {
@@ -103,26 +151,38 @@ export default function Subscription(): React.ReactElement | null {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
           },
-          body: JSON.stringify({ payment_id, collection_id: payment_id, session_id })
+          body: JSON.stringify({
+            payment_id,
+            collection_id: payment_id,
+            session_id,
+            preapproval_id,
+            paypal_subscription_id,
+            paypal_order_id
+          })
         })
           .then((res) => res.json())
           .then((data) => {
             if (data.success) {
               const newExpiry = data.expiry || Date.now() + 30 * 24 * 60 * 60 * 1000;
+              const isAuto = Boolean(data.autoRenew || preapproval_id || paypal_subscription_id || session_id);
               const updatedSub = {
                 status: 'active',
                 expiry: String(newExpiry),
-                provider: session_id ? 'stripe' : 'mercadopago',
+                provider: paypal_subscription_id || paypal_order_id ? 'paypal' : session_id ? 'stripe' : 'mercadopago',
+                autoRenew: isAuto ? 'true' : 'false',
+                paymentMethod: isAuto ? 'card_auto_debit' : 'card',
                 updatedAt: Date.now()
               };
               localStorage.setItem('subscriptionData', JSON.stringify(updatedSub));
               setIsSubscribed(true);
+              setHasCardAdhered(isAuto);
               setExpiryDate(new Date(newExpiry));
-              toast.success('¡Suscripción activada con éxito!');
+              setShowPricing(false);
+              toast.success(isAuto ? '¡Tarjeta adherida y suscripción PRO activada!' : '¡Suscripción activada con éxito!');
               window.dispatchEvent(new Event('storage'));
               return currentUser.getIdToken(true);
             } else {
-              toast.error('Hubo un error verificando el pago. Contacta soporte.');
+              toast.error('Hubo un error verificando la adhesión de tarjeta. Contacta soporte.');
             }
           })
           .catch((err) => {
@@ -137,7 +197,7 @@ export default function Subscription(): React.ReactElement | null {
     }
   }, [isPro, currentUser]);
 
-  const handleStripe = async () => {
+  const handlePayPal = async () => {
     if (!currentUser) {
       toast.error('Debés iniciar sesión para suscribirte.', { duration: 4000 });
       navigate('/login', { state: { view: 'register' } });
@@ -147,7 +207,7 @@ export default function Subscription(): React.ReactElement | null {
     setLoading(true);
     try {
       const idToken = await currentUser.getIdToken();
-      const response = await fetch(`${API_BASE_URL}/api/create-stripe-subscription`, {
+      const response = await fetch(`${API_BASE_URL}/api/create-paypal-subscription`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -155,7 +215,8 @@ export default function Subscription(): React.ReactElement | null {
         },
         body: JSON.stringify({
           planId: selectedPlan,
-          promo: isCyberMonday ? 'cybermonday' : undefined
+          promo: isCyberMonday ? 'cybermonday' : undefined,
+          billingMode
         })
       });
 
@@ -173,12 +234,12 @@ export default function Subscription(): React.ReactElement | null {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        toast.error(data.error || 'No se pudo generar la sesión de cobro con Stripe.');
+        toast.error(data.error || 'No se pudo generar la sesión de cobro con PayPal.');
         setLoading(false);
       }
     } catch (error: any) {
-      console.error('Stripe Checkout Error:', error);
-      toast.error(error.message || 'Error de conexión con Stripe.');
+      console.error('PayPal Checkout Error:', error);
+      toast.error(error.message || 'Error de conexión con PayPal.');
       setLoading(false);
     }
   };
@@ -201,7 +262,8 @@ export default function Subscription(): React.ReactElement | null {
         },
         body: JSON.stringify({
           planId: selectedPlan,
-          promo: isCyberMonday ? 'cybermonday' : undefined
+          promo: isCyberMonday ? 'cybermonday' : undefined,
+          billingMode
         })
       });
 
@@ -219,7 +281,7 @@ export default function Subscription(): React.ReactElement | null {
       if (data.init_point) {
         window.location.href = data.init_point;
       } else {
-        toast.error(data.error || 'Error al generar el link de pago con Mercado Pago.');
+        toast.error(data.error || 'Error al generar el link de adhesión con Mercado Pago.');
         setLoading(false);
       }
     } catch (error: any) {
@@ -229,18 +291,40 @@ export default function Subscription(): React.ReactElement | null {
     }
   };
 
+  const usdBasePrice = isCyberMonday ? 0.99 : 2.0;
+  const convertedArsPrice = Math.round(usdBasePrice * usdToArsRate);
+  const formattedArs = `$${convertedArsPrice.toLocaleString('es-AR')} ARS`;
+  const formattedOriginalArs = `$${Math.round(2.0 * usdToArsRate).toLocaleString('es-AR')} ARS`;
+
+  const displayPrice =
+    paymentGateway === 'mercadopago'
+      ? formattedArs
+      : isCyberMonday
+      ? '$0.99 USD'
+      : '$2.00 USD';
+
+  const displayOriginalPrice =
+    paymentGateway === 'mercadopago'
+      ? isCyberMonday
+        ? formattedOriginalArs
+        : null
+      : isCyberMonday
+      ? '$2.00 USD'
+      : null;
+
   const plans = [
     {
       id: 'pro',
       name: 'Profesional PRO Ilimitado',
-      price: isCyberMonday ? '$0.99' : '$2',
-      originalPrice: isCyberMonday ? '$2.00' : null,
+      price: '$2.00 USD',
+      subPriceArs: `≈ ${formattedArs} al dólar de hoy ($${usdToArsRate.toLocaleString('es-AR')})`,
+      originalPrice: displayOriginalPrice,
       period: '/ mes',
       icon: <Crown size={22} color="#f59e0b" />,
       desc: isCyberMonday
         ? 'Oferta especial usuarios registrados (Acceso TOTAL)'
-        : 'Acceso total e ilimitado a todos los módulos normativos, PDFs con logo y Asesor IA',
-      badge: isCyberMonday ? '🔥 PROMO (-50%)' : '✦ ACCESO TOTAL'
+        : 'Valor fijo de $2.00 USD mensuales pesificados automáticamente a la cotización del día',
+      badge: isCyberMonday ? '🔥 PROMO (-50%)' : '✦ USD $2 EN PESOS'
     }
   ];
 
@@ -586,6 +670,70 @@ export default function Subscription(): React.ReactElement | null {
                 </div>
               </div>
 
+              {/* Tarjeta de Adhesión a Débito Automático para usuarios actuales */}
+              <div
+                className="rounded-2xl p-4 sm:p-5 mb-5"
+                style={{
+                  backgroundColor: hasCardAdhered
+                    ? 'rgba(37, 99, 235, 0.07)'
+                    : 'rgba(245, 158, 11, 0.09)',
+                  border: `1.5px solid ${
+                    hasCardAdhered ? 'rgba(37, 99, 235, 0.3)' : 'rgba(245, 158, 11, 0.45)'
+                  }`
+                }}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-start gap-3 text-left">
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                      style={{
+                        backgroundColor: hasCardAdhered ? 'rgba(37, 99, 235, 0.15)' : 'rgba(245, 158, 11, 0.2)',
+                        color: hasCardAdhered ? '#2563eb' : '#d97706'
+                      }}
+                    >
+                      <CreditCard size={20} />
+                    </div>
+                    <div>
+                      <div className="text-xs sm:text-sm font-black" style={{ color: 'var(--color-text)' }}>
+                        {hasCardAdhered
+                          ? '✓ Tarjeta de Débito / Crédito Adherida (Débito Automático Activo)'
+                          : '💳 Adherí tu Tarjeta de Débito o Crédito para Renovación Automática'}
+                      </div>
+                      <p className="text-xs m-0 mt-1 leading-relaxed" style={{ color: 'var(--color-text-light)' }}>
+                        {hasCardAdhered
+                          ? 'Tu membresía se debitará automáticamente cada mes sin interrupciones. Podés cambiar de tarjeta o cancelar cuando quieras.'
+                          : 'Vinculá tu tarjeta (Visa, Mastercard, Cabal, Naranja o Amex — Débito o Crédito) para que se debite automáticamente mes a mes y no pierdas el acceso PRO.'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBillingMode('recurring');
+                      setShowPricing(true);
+                    }}
+                    style={{
+                      marginBottom: 0,
+                      padding: '0.65rem 1rem',
+                      borderRadius: '0.85rem',
+                      background: hasCardAdhered
+                        ? 'var(--color-surface)'
+                        : 'linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)',
+                      color: hasCardAdhered ? 'var(--color-text)' : '#ffffff',
+                      border: hasCardAdhered ? '1px solid var(--color-border)' : 'none',
+                      fontWeight: 900,
+                      fontSize: '0.8rem',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0,
+                      boxShadow: hasCardAdhered ? 'none' : '0 6px 16px rgba(37, 99, 235, 0.28)'
+                    }}
+                  >
+                    {hasCardAdhered ? 'Cambiar Tarjeta' : '💳 Adherir Tarjeta Ahora'}
+                  </button>
+                </div>
+              </div>
+
               {/* Botones de Acción Centrados */}
               <div className="flex flex-col gap-2.5">
                 <button
@@ -609,7 +757,7 @@ export default function Subscription(): React.ReactElement | null {
                     boxShadow: '0 8px 20px rgba(37, 99, 235, 0.28)'
                   }}
                 >
-                  <Sparkles size={18} /> Ver Planes y Opciones de Renovación <ArrowRight size={17} />
+                  <CreditCard size={18} /> Adherir Tarjeta (Débito / Crédito) u Opciones de Pago <ArrowRight size={17} />
                 </button>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -641,22 +789,36 @@ export default function Subscription(): React.ReactElement | null {
                     onClick={() => {
                       const toastId = toast(
                         <div className="flex flex-col gap-2">
-                          <span className="text-sm font-bold">⚠️ ¿Cancelar suscripción?</span>
+                          <span className="text-sm font-bold">⚠️ ¿Cancelar débito automático y suscripción?</span>
                           <span className="text-xs text-slate-600">
-                            Perderás el acceso a las funciones exclusivas PRO.
+                            Se dará de baja el cobro automático en tu tarjeta y las funciones PRO.
                           </span>
                           <div className="flex gap-2 mt-1">
                             <button
                               type="button"
                               onClick={async () => {
                                 toast.dismiss(toastId);
+                                try {
+                                  const token = await currentUser?.getIdToken();
+                                  await fetch(`${API_BASE_URL}/api/cancel-subscription`, {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                      ...(token ? { Authorization: `Bearer ${token}` } : {})
+                                    }
+                                  });
+                                } catch (e) {
+                                  console.warn('Error al cancelar en servidor:', e);
+                                }
                                 await syncDocument('subscriptionData', {
                                   status: 'inactive',
+                                  autoRenew: 'false',
                                   expiry: '0'
                                 });
                                 setIsSubscribed(false);
+                                setHasCardAdhered(false);
                                 setExpiryDate(null);
-                                toast.success('Suscripción cancelada.');
+                                toast.success('Débito automático y suscripción cancelados.');
                               }}
                               style={{
                                 marginBottom: 0,
@@ -768,7 +930,7 @@ export default function Subscription(): React.ReactElement | null {
                   },
                   {
                     icon: <Globe className="w-5 h-5" />,
-                    title: 'Mercado Pago o Stripe',
+                    title: 'Mercado Pago o PayPal',
                     desc: 'Activación inmediata en pesos argentinos o dólares. Cancelá cuando quieras con 1 clic.'
                   }
                 ].map((item, i) => (
@@ -900,8 +1062,13 @@ export default function Subscription(): React.ReactElement | null {
                           </span>
                         )}
                         <span className="text-xl font-black block" style={{ color: '#2563eb' }}>
-                          {p.price}
+                          {isCyberMonday ? '$0.99 USD' : p.price}
                         </span>
+                        {paymentGateway === 'mercadopago' && (
+                          <span className="text-xs font-extrabold block" style={{ color: '#059669' }}>
+                            {formattedArs}
+                          </span>
+                        )}
                         <span className="text-[11px] font-bold" style={{ color: 'var(--color-text-light)' }}>
                           {p.period}
                         </span>
@@ -911,12 +1078,50 @@ export default function Subscription(): React.ReactElement | null {
                 })}
               </div>
 
-              <h3 className="text-sm sm:text-base font-black m-0 mb-3" style={{ color: 'var(--color-text)' }}>
-                2. Elegí tu Medio de Pago
+              {paymentGateway === 'mercadopago' && (
+                <div
+                  className="mb-4 p-2.5 rounded-xl flex items-center justify-between text-xs"
+                  style={{
+                    backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    color: 'var(--color-text)'
+                  }}
+                >
+                  <span className="font-bold">
+                    💵 Cotización hoy: <strong>1 USD = ${usdToArsRate.toLocaleString('es-AR')} ARS</strong>
+                  </span>
+                  <span className="font-black text-emerald-600">
+                    ${usdBasePrice.toFixed(2)} USD = {formattedArs}
+                  </span>
+                </div>
+              )}
+
+              <h3 className="text-sm sm:text-base font-black m-0 mb-2" style={{ color: 'var(--color-text)' }}>
+                2. Adherí tu Tarjeta (Débito o Crédito)
               </h3>
+              <p className="text-xs m-0 mb-3" style={{ color: 'var(--color-text-light)' }}>
+                Aceptamos todas las tarjetas de <strong>Débito y Crédito</strong> (Visa, Mastercard, Cabal, Naranja, American Express).
+              </p>
+
+              {/* Tarjetas Aceptadas Badges */}
+              <div className="flex flex-wrap items-center gap-1.5 mb-3.5">
+                {['💳 VISA Débito/Crédito', '💳 Mastercard Débito/Crédito', '💳 Amex', '💳 Cabal / Naranja'].map((cardLabel) => (
+                  <span
+                    key={cardLabel}
+                    className="text-[10px] font-extrabold px-2.5 py-1 rounded-lg"
+                    style={{
+                      backgroundColor: 'var(--color-background)',
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-text)'
+                    }}
+                  >
+                    {cardLabel}
+                  </span>
+                ))}
+              </div>
 
               {/* High-Contrast Gateway Selector */}
-              <div className="grid grid-cols-2 gap-2.5 mb-5">
+              <div className="grid grid-cols-2 gap-2.5 mb-4">
                 <button
                   type="button"
                   onClick={() => setPaymentGateway('mercadopago')}
@@ -952,23 +1157,23 @@ export default function Subscription(): React.ReactElement | null {
                           : 'var(--color-text-light)'
                     }}
                   >
-                    Argentina (Pesos / Tarjetas)
+                    Tarjetas en Pesos (ARS)
                   </span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => setPaymentGateway('stripe')}
+                  onClick={() => setPaymentGateway('paypal')}
                   style={{
                     marginBottom: 0,
                     width: '100%',
                     padding: '0.85rem 0.65rem',
                     borderRadius: '0.95rem',
                     backgroundColor:
-                      paymentGateway === 'stripe' ? '#635bff' : 'var(--color-background)',
-                    color: paymentGateway === 'stripe' ? '#ffffff' : 'var(--color-text)',
+                      paymentGateway === 'paypal' ? '#003087' : 'var(--color-background)',
+                    color: paymentGateway === 'paypal' ? '#ffffff' : 'var(--color-text)',
                     border: `2px solid ${
-                      paymentGateway === 'stripe' ? '#635bff' : 'var(--color-border)'
+                      paymentGateway === 'paypal' ? '#0070ba' : 'var(--color-border)'
                     }`,
                     display: 'flex',
                     flexDirection: 'column',
@@ -976,24 +1181,92 @@ export default function Subscription(): React.ReactElement | null {
                     gap: '0.3rem',
                     cursor: 'pointer',
                     boxShadow:
-                      paymentGateway === 'stripe'
-                        ? '0 6px 16px rgba(99, 91, 255, 0.3)'
+                      paymentGateway === 'paypal'
+                        ? '0 6px 16px rgba(0, 112, 186, 0.35)'
                         : 'none'
                   }}
                 >
-                  <span className="font-black text-xs sm:text-sm">🌎 Stripe Global</span>
+                  <span className="font-black text-xs sm:text-sm">🌎 PayPal Internacional</span>
                   <span
                     className="text-[10px] font-semibold"
                     style={{
                       color:
-                        paymentGateway === 'stripe'
+                        paymentGateway === 'paypal'
                           ? 'rgba(255,255,255,0.9)'
                           : 'var(--color-text-light)'
                     }}
                   >
-                    LatAm & Internacional
+                    Tarjetas en USD / PayPal
                   </span>
                 </button>
+              </div>
+
+              {/* Modalidad de Débito Automático vs 1 Mes */}
+              <div className="mb-4 space-y-2">
+                <span className="text-xs font-extrabold block" style={{ color: 'var(--color-text)' }}>
+                  3. Modalidad de Débito con Tarjeta:
+                </span>
+                <div className="grid grid-cols-1 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setBillingMode('recurring')}
+                    style={{
+                      marginBottom: 0,
+                      width: '100%',
+                      padding: '0.75rem 0.9rem',
+                      borderRadius: '0.85rem',
+                      backgroundColor:
+                        billingMode === 'recurring' ? 'rgba(16, 185, 129, 0.1)' : 'var(--color-background)',
+                      border: `2px solid ${billingMode === 'recurring' ? '#10b981' : 'var(--color-border)'}`,
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    <div>
+                      <div className="text-xs font-black" style={{ color: 'var(--color-text)' }}>
+                        🔄 Adherir Tarjeta — Débito Automático Mensual (Recomendado)
+                      </div>
+                      <div className="text-[11px] mt-0.5" style={{ color: 'var(--color-text-light)' }}>
+                        Ingresás tu tarjeta de débito o crédito una vez y se debita cada mes automáticamente.
+                      </div>
+                    </div>
+                    <CheckCircle2 size={18} color={billingMode === 'recurring' ? '#10b981' : '#94a3b8'} className="shrink-0" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setBillingMode('single')}
+                    style={{
+                      marginBottom: 0,
+                      width: '100%',
+                      padding: '0.65rem 0.9rem',
+                      borderRadius: '0.85rem',
+                      backgroundColor:
+                        billingMode === 'single' ? 'rgba(37, 99, 235, 0.08)' : 'var(--color-background)',
+                      border: `1.5px solid ${billingMode === 'single' ? '#2563eb' : 'var(--color-border)'}`,
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    <div>
+                      <div className="text-xs font-bold" style={{ color: 'var(--color-text)' }}>
+                        1️⃣ Pago con Tarjeta por 1 Mes (Sin renovación automática)
+                      </div>
+                      <div className="text-[11px] mt-0.5" style={{ color: 'var(--color-text-light)' }}>
+                        Ideal para tarjetas prepagas o pago único manual por 30 días.
+                      </div>
+                    </div>
+                    <CheckCircle2 size={16} color={billingMode === 'single' ? '#2563eb' : '#94a3b8'} className="shrink-0" />
+                  </button>
+                </div>
               </div>
 
               {/* Checkout Submit Button */}
@@ -1022,22 +1295,22 @@ export default function Subscription(): React.ReactElement | null {
                 >
                   <CreditCard size={20} color="#ffffff" />
                   {loading
-                    ? 'Generando link de Mercado Pago...'
-                    : `Suscribirme con Mercado Pago (${
-                        plans.find((p) => p.id === selectedPlan)?.price
-                      } USD)`}
+                    ? 'Abriendo adhesión segura de tarjeta...'
+                    : billingMode === 'recurring'
+                    ? `Adherir Tarjeta Débito / Crédito (${displayPrice}/mes)`
+                    : `Pagar 1 Mes con Tarjeta (${displayPrice})`}
                 </button>
               ) : (
                 <button
                   type="button"
-                  onClick={handleStripe}
+                  onClick={handlePayPal}
                   disabled={loading}
                   style={{
                     marginBottom: 0,
                     width: '100%',
                     padding: '0.95rem 1.2rem',
                     borderRadius: '0.95rem',
-                    background: 'linear-gradient(135deg, #635bff 0%, #4f46e5 100%)',
+                    background: 'linear-gradient(135deg, #003087 0%, #0070ba 100%)',
                     color: '#ffffff',
                     border: 'none',
                     fontWeight: 900,
@@ -1047,15 +1320,15 @@ export default function Subscription(): React.ReactElement | null {
                     justifyContent: 'center',
                     gap: '0.5rem',
                     cursor: loading ? 'wait' : 'pointer',
-                    boxShadow: '0 8px 22px rgba(99, 91, 255, 0.35)'
+                    boxShadow: '0 8px 22px rgba(0, 112, 186, 0.35)'
                   }}
                 >
                   <CreditCard size={20} color="#ffffff" />
                   {loading
-                    ? 'Generando sesión Stripe...'
-                    : `Suscribirme con Stripe (${
-                        plans.find((p) => p.id === selectedPlan)?.price
-                      } USD)`}
+                    ? 'Abriendo formulario seguro de PayPal...'
+                    : billingMode === 'recurring'
+                    ? `Adherir Tarjeta / PayPal (${displayPrice}/mes)`
+                    : `Pagar 1 Mes con PayPal (${displayPrice})`}
                 </button>
               )}
 

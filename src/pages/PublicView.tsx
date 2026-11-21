@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import { fetchPublicDoc, fetchPublicLogo } from '../services/cloudSync';
 import { FileText, AlertTriangle, Printer, Download, ShieldCheck, Share2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -298,7 +299,7 @@ export default function PublicView(): React.ReactElement | null {
           <div
             id="pdf-content"
             className="pdf-container print-area w-full max-w-[210mm] bg-white text-slate-900 p-4 sm:p-6 mx-auto box-border"
-            dangerouslySetInnerHTML={{ __html: docData?.htmlSnapshot || '' }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(docData?.htmlSnapshot || '') }}
           />
         );
       default:
@@ -307,7 +308,7 @@ export default function PublicView(): React.ReactElement | null {
             <div
               id="pdf-content"
               className="pdf-container print-area w-full max-w-[210mm] bg-white text-slate-900 p-4 sm:p-6 mx-auto box-border"
-              dangerouslySetInnerHTML={{ __html: docData.htmlSnapshot }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(docData.htmlSnapshot) }}
             />
           );
         }

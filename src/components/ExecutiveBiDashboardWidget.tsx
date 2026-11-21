@@ -60,6 +60,7 @@ export const ExecutiveBiDashboardWidget: React.FC<ExecutiveBiDashboardWidgetProp
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
+          historyData: [{ indiceFrecuencia: currentIf, indiceGravedad: currentIg, sector: currentBenchmark.sectorName }],
           if: currentIf,
           ig: currentIg,
           sector: currentBenchmark.sectorName
@@ -68,7 +69,7 @@ export const ExecutiveBiDashboardWidget: React.FC<ExecutiveBiDashboardWidgetProp
 
       if (res.ok) {
         const data = await res.json();
-        setAiInsight(data.prediction || 'Proyección favorable para el próximo trimestre. Se recomienda reforzar observaciones comportamentales en turno noche.');
+        setAiInsight(data.prediccionPrincipal || data.prediction || 'Proyección favorable para el próximo trimestre. Se recomienda reforzar observaciones comportamentales en turno noche.');
         toast.success('Análisis predictivo listo', { id: toastId });
         setIsAnalyzingAi(false);
         return;

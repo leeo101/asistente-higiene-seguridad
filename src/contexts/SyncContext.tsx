@@ -226,6 +226,7 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
     } catch (e) {
       console.warn(`[SyncContext] Cuota excedida al guardar doc localmente ${key}:`, e);
     }
+    if (key === 'subscriptionData') return;
     if (currentUser) {
       if (!navigator.onLine) {
         markAsDirty(key);

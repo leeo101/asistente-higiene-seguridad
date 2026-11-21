@@ -304,7 +304,7 @@ export default function PaywallModal({ isOpen, onClose }: PaywallModalProps): Re
               margin: 0
             }}
           >
-            🔒 Pagos 100% seguros con Mercado Pago 🇦🇷 y Stripe 🌎 • Sin contratos de permanencia
+            🔒 Pagos 100% seguros con Mercado Pago 🇦🇷 y PayPal 🌎 • Sin contratos de permanencia
           </p>
         </div>
       </div>

@@ -85,7 +85,7 @@ export async function processSyncQueue(uid: string): Promise<void> {
       if (SYNC_COLLECTIONS.includes(key)) {
         const items = safeJsonParse<SyncItem[]>(raw, []);
         await saveCollection(uid, key, items);
-      } else if (SYNC_DOCUMENTS.includes(key)) {
+      } else if (SYNC_DOCUMENTS.includes(key) && key !== 'subscriptionData') {
         const docData = safeJsonParse<SyncDocument>(raw, {});
         await saveDocument(uid, key, docData);
       } else if (SYNC_VALUES.includes(key)) {
@@ -259,7 +259,7 @@ export async function saveDocument<T = SyncDocument>(
   key: string,
   data: T
 ): Promise<void> {
-  if (!uid) return;
+  if (!uid || key === 'subscriptionData') return;
   await setDoc(
     userDocRef(uid, key),
     { ...data, updatedAt: Date.now() },
@@ -436,8 +436,8 @@ export async function publishPublicVerification(
 
   try {
     const safeUid = uid || 'guest';
-    const primaryDocId = `${safeUid}_${category}_${docId}`.replace(/[\/\\?#]/g, '_');
-    const fallbackDocId = `${category}_${docId}`.replace(/[\/\\?#]/g, '_');
+    const primaryDocId = `${safeUid}_${category}_${docId}`.replace(/[/\\?#]/g, '_');
+    const fallbackDocId = `${category}_${docId}`.replace(/[/\\?#]/g, '_');
 
     await setDoc(doc(db, 'public_verifications', primaryDocId), payload, { merge: true });
     await setDoc(doc(db, 'public_verifications', fallbackDocId), payload, { merge: true });
@@ -461,7 +461,7 @@ export async function publishPublicHtmlSnapshot(
   if (!snapshotId || !htmlContent) return false;
   try {
     const safeUid = uid || 'guest';
-    const docKey = `${safeUid}_snapshot_${snapshotId}`.replace(/[\/\\?#]/g, '_');
+    const docKey = `${safeUid}_snapshot_${snapshotId}`.replace(/[/\\?#]/g, '_');
     const payload = enrichWithLocalProfile({
       id: snapshotId,
       title,
@@ -473,7 +473,7 @@ export async function publishPublicHtmlSnapshot(
       updatedAt: Date.now()
     });
     await setDoc(doc(db, 'public_verifications', docKey), payload, { merge: true });
-    await setDoc(doc(db, 'public_verifications', `snapshot_${snapshotId}`.replace(/[\/\\?#]/g, '_')), payload, { merge: true });
+    await setDoc(doc(db, 'public_verifications', `snapshot_${snapshotId}`.replace(/[/\\?#]/g, '_')), payload, { merge: true });
     return true;
   } catch (err) {
     console.warn('[cloudSync] Error al guardar snapshot HTML público:', (err as Error).message);
@@ -496,9 +496,9 @@ export async function fetchPublicDoc(
 
   // 1. Intentar leer desde public_verifications (funciona siempre sin login y contiene datos enriquecidos)
   const verificationKeys = [
-    `${safeUid}_${category}_${docId}`.replace(/[\/\\?#]/g, '_'),
-    `${category}_${docId}`.replace(/[\/\\?#]/g, '_'),
-    String(docId).replace(/[\/\\?#]/g, '_')
+    `${safeUid}_${category}_${docId}`.replace(/[/\\?#]/g, '_'),
+    `${category}_${docId}`.replace(/[/\\?#]/g, '_'),
+    String(docId).replace(/[/\\?#]/g, '_')
   ];
 
   for (const vKey of verificationKeys) {

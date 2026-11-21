@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { setCorsHeaders } from './_verifyToken.js';
+import { verifyToken, setCorsHeaders } from './_verifyToken.js';
 
 export default async function handler(req, res) {
     const corsOk = setCorsHeaders(req, res);
@@ -14,6 +14,9 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
+    const user = await verifyToken(req, res);
+    if (!user) return;
+
     try {
         let body = req.body;
         if (typeof body === 'string') {
@@ -21,7 +24,10 @@ export default async function handler(req, res) {
         }
 
         const { message, context = 'general', companyContext = '' } = body || {};
-        if (!message) return res.status(400).json({ error: 'Mensaje requerido' });
+        if (!message || typeof message !== 'string') return res.status(400).json({ error: 'Mensaje requerido' });
+        if (message.length > 2000) {
+            return res.status(400).json({ error: 'El mensaje no puede superar los 2.000 caracteres.' });
+        }
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
@@ -29,10 +35,8 @@ export default async function handler(req, res) {
         const genAI = new GoogleGenerativeAI(apiKey);
         const models = [
             "gemini-2.5-flash",
-            "gemini-flash-latest",
-            "gemini-3.5-flash",
-            "gemini-3.8-flash",
-            "gemini-pro-latest"
+            "gemini-2.0-flash",
+            "gemini-flash-latest"
         ];
 
         const prompt = `Emergencia reportada por el usuario: "${message}".

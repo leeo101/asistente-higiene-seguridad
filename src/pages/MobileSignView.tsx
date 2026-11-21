@@ -1,12 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useParams } from 'react-router-dom';
 import { Smartphone, CheckCircle2, RotateCcw, Send, ShieldCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function MobileSignView(): React.ReactElement | null {
   const [searchParams] = useSearchParams();
-  const permitId = searchParams.get('permitId') || 'draft';
-  const role = searchParams.get('role') || 'operator';
+  const routeParams = useParams<{ permitId?: string; role?: string }>();
+  const permitId = routeParams.permitId || searchParams.get('permitId') || 'draft';
+  const role = routeParams.role || searchParams.get('role') || 'operator';
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);

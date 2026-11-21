@@ -68,10 +68,8 @@ Devuelve ÚNICAMENTE un array JSON válido con la siguiente estructura:
 
         const models = [
             "gemini-2.5-flash",
-            "gemini-flash-latest",
-            "gemini-3.5-flash",
-            "gemini-3.8-flash",
-            "gemini-pro-latest"
+            "gemini-2.0-flash",
+            "gemini-flash-latest"
         ];
 
         let result;

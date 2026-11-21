@@ -1,9 +1,65 @@
-import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
+import { MercadoPagoConfig, Preference, Payment, PreApproval } from 'mercadopago';
 import { sendAppMail } from './_mailer.js';
 import { getGoogleAccessToken, setFirebaseCustomClaims, getFirebaseUidByEmail } from './_googleAuth.js';
 import { setCorsHeaders, verifyToken } from './_verifyToken.js';
+import { isOriginAllowed } from './_cors.js';
 
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
+
+// ── Cotización en vivo USD -> ARS (con caché de 30 min y doble fuente oficial) ──
+let cachedUsdRate = null;
+let cachedUsdRateExpiry = 0;
+
+export async function getLiveUsdToArsRate() {
+    const now = Date.now();
+    if (cachedUsdRate && now < cachedUsdRateExpiry) {
+        return cachedUsdRate;
+    }
+
+    const dollarType = (process.env.MP_DOLLAR_TYPE || 'oficial').toLowerCase(); // 'oficial', 'blue', 'bolsa', 'tarjeta'
+
+    // Fuente 1: DolarApi.com
+    try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 3500);
+        const res = await fetch(`https://dolarapi.com/v1/dolares/${dollarType}`, { signal: controller.signal });
+        clearTimeout(timeout);
+        if (res.ok) {
+            const data = await res.json();
+            const venta = Number(data?.venta || data?.compra);
+            if (venta && venta > 100) {
+                cachedUsdRate = venta;
+                cachedUsdRateExpiry = now + 30 * 60 * 1000;
+                return venta;
+            }
+        }
+    } catch (e) {
+        console.warn('[ExchangeRate] DolarApi fallback:', e.message);
+    }
+
+    // Fuente 2: Bluelytics API
+    try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 3500);
+        const res = await fetch('https://api.bluelytics.com.ar/v2/latest', { signal: controller.signal });
+        clearTimeout(timeout);
+        if (res.ok) {
+            const data = await res.json();
+            const rateObj = dollarType === 'blue' ? data?.blue : data?.oficial;
+            const venta = Number(rateObj?.value_sell || rateObj?.value_avg);
+            if (venta && venta > 100) {
+                cachedUsdRate = venta;
+                cachedUsdRateExpiry = now + 30 * 60 * 1000;
+                return venta;
+            }
+        }
+    } catch (e) {
+        console.warn('[ExchangeRate] Bluelytics fallback:', e.message);
+    }
+
+    // Fallback seguro si ambas APIs externas no responden
+    return cachedUsdRate || Number(process.env.MP_USD_FALLBACK_RATE) || 1600;
+}
 
 export default async function handler(req, res) {
     // 🔐 Enable secure CORS configuration
@@ -19,92 +75,116 @@ export default async function handler(req, res) {
     const topic = query.topic || query.type || req.body?.type || req.body?.topic || (req.body?.action && req.body.action.startsWith('payment') ? 'payment' : null);
     const webhookId = query.id || query['data.id'] || (req.body && req.body.data && req.body.data.id) || (req.body && req.body.id);
 
-    // DISTINGUISH BETWEEN WEBHOOK AND CREATE PREFERENCE
+    // DISTINGUISH BETWEEN WEBHOOK AND CREATE SUBSCRIPTION / PREFERENCE
     if (webhookId || topic) {
-        // --- WEBHOOK LOGIC ---
+        // --- WEBHOOK LOGIC (PAYMENTS & PREAPPROVAL SUBSCRIPTIONS) ---
         try {
             console.log(`Webhook received: Topic=${topic}, ID=${webhookId}`);
+            if (!webhookId) {
+                return res.status(200).send('No ID');
+            }
 
-            if (!topic || topic === 'payment' || topic === 'payment.created' || topic === 'payment.updated' || String(topic).includes('payment')) {
-                if (!webhookId) {
-                    return res.status(200).send('No ID');
+            const topicStr = String(topic || '').toLowerCase();
+            const isPreapprovalTopic = topicStr.includes('preapproval') || topicStr.includes('subscription_preapproval');
+            const isPaymentTopic = !topic || topicStr.includes('payment');
+
+            let approvedUserId = null;
+            let payerEmail = null;
+            let isAuthorized = false;
+            let isAutoRenew = false;
+
+            if (isPreapprovalTopic) {
+                const preApproval = new PreApproval(client);
+                const preData = await preApproval.get({ id: webhookId });
+                if (preData.status === 'authorized') {
+                    isAuthorized = true;
+                    isAutoRenew = true;
+                    approvedUserId = preData.external_reference;
+                    payerEmail = preData.payer_email;
                 }
+            } else if (isPaymentTopic) {
                 const payment = new Payment(client);
                 const paymentData = await payment.get({ id: webhookId });
-
                 if (paymentData.status === 'approved') {
-                    let userId = paymentData.external_reference;
-                    console.log(`Payment approved for external_reference: ${userId}`);
+                    isAuthorized = true;
+                    isAutoRenew = Boolean(paymentData.metadata?.auto_renew || paymentData.point_of_interaction?.type === 'SUBSCRIPTIONS');
+                    approvedUserId = paymentData.external_reference;
+                    payerEmail = paymentData.payer?.email || paymentData.additional_info?.payer?.email;
+                }
+            }
 
-                    // Si no vino external_reference o vino 'guest', buscar UID por email del pagador
-                    if (!userId || userId === 'guest') {
-                        const payerEmail = paymentData.payer?.email || paymentData.additional_info?.payer?.email;
-                        if (payerEmail) {
-                            console.log(`Searching Firebase UID for payer email: ${payerEmail}`);
-                            userId = await getFirebaseUidByEmail(payerEmail);
-                            console.log(`Found UID: ${userId}`);
+            if (isAuthorized) {
+                let userId = approvedUserId;
+                console.log(`Authorized MP event for external_reference: ${userId}`);
+
+                if (!userId || userId === 'guest') {
+                    if (payerEmail) {
+                        console.log(`Searching Firebase UID for payer email: ${payerEmail}`);
+                        userId = await getFirebaseUidByEmail(payerEmail);
+                        console.log(`Found UID: ${userId}`);
+                    }
+                }
+
+                if (userId && userId !== 'guest') {
+                    const projectId = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY).project_id;
+                    const accessToken = await getGoogleAccessToken();
+                    const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}/data/subscriptionData`;
+                    
+                    // 1. Get current subscription data
+                    const userDocRes = await fetch(firestoreUrl, { 
+                        headers: { Authorization: `Bearer ${accessToken}` } 
+                    });
+                    
+                    let currentExpiry = 0;
+                    let lastPaymentId = null;
+                    if (userDocRes.ok) {
+                        const docData = await userDocRes.json();
+                        if (docData.fields?.lastPaymentId?.stringValue) {
+                            lastPaymentId = docData.fields.lastPaymentId.stringValue;
+                        }
+                        if (docData.fields?.expiry?.stringValue) {
+                            currentExpiry = parseInt(docData.fields.expiry.stringValue, 10);
                         }
                     }
 
-                    if (userId && userId !== 'guest') {
-                        const projectId = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY).project_id;
-                        const accessToken = await getGoogleAccessToken();
-                        const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}/data/subscriptionData`;
-                        
-                        // 1. Get current subscription data
-                        const userDocRes = await fetch(firestoreUrl, { 
-                            headers: { Authorization: `Bearer ${accessToken}` } 
-                        });
-                        
-                        let currentExpiry = 0;
-                        let lastPaymentId = null;
-                        if (userDocRes.ok) {
-                            const docData = await userDocRes.json();
-                            if (docData.fields && docData.fields.lastPaymentId && docData.fields.lastPaymentId.stringValue) {
-                                lastPaymentId = docData.fields.lastPaymentId.stringValue;
-                            }
-                            if (docData.fields && docData.fields.expiry && docData.fields.expiry.stringValue) {
-                                currentExpiry = parseInt(docData.fields.expiry.stringValue, 10);
-                            }
-                        }
-
-                        // 🔒 IDEMPOTENCY GUARD: Evitar replay attacks o reintentos duplicados que sumen meses indebidamente
-                        if (lastPaymentId && String(lastPaymentId) === String(webhookId)) {
-                            console.log(`[Webhook] El pago ID ${webhookId} ya fue procesado para el usuario ${userId}. Omitiendo extensión duplicada.`);
-                            return res.status(200).send('Payment already processed');
-                        }
-
-                        // 2. Calculate new expiry
-                        const baseDate = (currentExpiry && currentExpiry > Date.now()) ? new Date(currentExpiry) : new Date();
-                        baseDate.setMonth(baseDate.getMonth() + 1);
-                        const newExpiry = String(baseDate.getTime());
-
-                        // 3. Update subscription data via REST
-                        const patchUrl = `${firestoreUrl}?updateMask.fieldPaths=status&updateMask.fieldPaths=expiry&updateMask.fieldPaths=updatedAt&updateMask.fieldPaths=lastPaymentId&updateMask.fieldPaths=provider`;
-                        const payload = {
-                            fields: {
-                                status: { stringValue: 'active' },
-                                expiry: { stringValue: newExpiry },
-                                updatedAt: { integerValue: String(Date.now()) },
-                                lastPaymentId: { stringValue: String(webhookId) },
-                                provider: { stringValue: 'mercadopago' }
-                            }
-                        };
-
-                        await fetch(patchUrl, {
-                            method: 'PATCH',
-                            headers: {
-                                'Authorization': `Bearer ${accessToken}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(payload)
-                        });
-
-                        // 4. Update Custom Claims in Firebase Auth
-                        await setFirebaseCustomClaims(userId, { isPro: true });
-
-                        console.log(`User ${userId} updated to PRO until ${new Date(parseInt(newExpiry, 10)).toLocaleDateString()}`);
+                    // 🔒 IDEMPOTENCY GUARD
+                    if (lastPaymentId && String(lastPaymentId) === String(webhookId)) {
+                        console.log(`[Webhook] El evento ID ${webhookId} ya fue procesado para el usuario ${userId}.`);
+                        return res.status(200).send('Event already processed');
                     }
+
+                    // 2. Calculate new expiry
+                    const baseDate = (currentExpiry && currentExpiry > Date.now()) ? new Date(currentExpiry) : new Date();
+                    baseDate.setMonth(baseDate.getMonth() + 1);
+                    const newExpiry = String(baseDate.getTime());
+
+                    // 3. Update subscription data via REST
+                    const patchUrl = `${firestoreUrl}?updateMask.fieldPaths=status&updateMask.fieldPaths=expiry&updateMask.fieldPaths=updatedAt&updateMask.fieldPaths=lastPaymentId&updateMask.fieldPaths=provider&updateMask.fieldPaths=autoRenew&updateMask.fieldPaths=paymentMethod`;
+                    const payload = {
+                        fields: {
+                            status: { stringValue: 'active' },
+                            expiry: { stringValue: newExpiry },
+                            updatedAt: { integerValue: String(Date.now()) },
+                            lastPaymentId: { stringValue: String(webhookId) },
+                            provider: { stringValue: 'mercadopago' },
+                            autoRenew: { stringValue: isAutoRenew ? 'true' : 'false' },
+                            paymentMethod: { stringValue: 'card_auto_debit' }
+                        }
+                    };
+
+                    await fetch(patchUrl, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    // 4. Update Custom Claims in Firebase Auth
+                    await setFirebaseCustomClaims(userId, { isPro: true });
+
+                    console.log(`User ${userId} updated to PRO until ${new Date(parseInt(newExpiry, 10)).toLocaleDateString()}`);
                 }
             }
             return res.status(200).send('OK');
@@ -113,64 +193,108 @@ export default async function handler(req, res) {
             return res.status(200).send('Error processed');
         }
     } else {
-        // --- CREATE PREFERENCE LOGIC ---
+        // --- CREATE SUBSCRIPTION (PREAPPROVAL AUTO-DEBIT OR CARD PREFERENCE IN ARS) ---
         if (req.method !== 'POST') {
             return res.status(405).json({ error: 'Method Not Allowed' });
         }
 
-        // 🔐 Requiere autenticación de usuario para crear preferencia de cobro
+        // 🔐 Requiere autenticación de usuario para crear suscripción
         const user = await verifyToken(req, res);
         if (!user) return;
 
         try {
-            const { planId, promo } = req.body || {};
+            const { planId, promo, billingMode = 'recurring' } = req.body || {};
             const userId = user.uid;
             const email = user.email || req.body?.email;
             const CYBER_MONDAY_DEADLINE = new Date('2026-11-07T17:00:00-03:00').getTime();
             const isCyberMonday = promo === 'cybermonday' && Date.now() <= CYBER_MONDAY_DEADLINE;
 
-            let amount = isCyberMonday ? 0.99 : 2.00;
+            // Conversión dinámica diaria de USD ($2.00 o $0.99 promo) a Pesos Argentinos (ARS)
+            const usdAmount = isCyberMonday ? 0.99 : 2.00;
+            const exchangeRate = await getLiveUsdToArsRate();
+            const amountArs = Math.round(usdAmount * exchangeRate);
+
             let planTitle = isCyberMonday
-                ? 'Asistente H&S – Plan Profesional (Oferta Cyber Monday)'
-                : 'Asistente H&S – Plan Profesional (Acceso Total)';
+                ? `Asistente H&S – Plan Profesional (USD $${usdAmount} / $${amountArs.toLocaleString('es-AR')} ARS)`
+                : `Asistente H&S – Plan Profesional PRO (USD $${usdAmount.toFixed(2)} — Débito Mensual)`;
 
             if (planId === 'student') {
-                amount = isCyberMonday ? 0.99 : 2.00;
-                planTitle = isCyberMonday ? 'Asistente H&S – Plan Estudiante (Oferta Cyber Monday)' : 'Asistente H&S – Plan Estudiante';
+                planTitle = isCyberMonday ? 'Asistente H&S – Plan Estudiante (Oferta)' : 'Asistente H&S – Plan Estudiante (Débito Mensual)';
             } else if (planId === 'enterprise' || planId === 'consultora') {
-                amount = isCyberMonday ? 0.99 : 2.00;
-                planTitle = isCyberMonday ? 'Asistente H&S – Plan Consultora (Oferta Cyber Monday)' : 'Asistente H&S – Plan Consultora';
+                planTitle = isCyberMonday ? 'Asistente H&S – Plan Consultora (Oferta)' : 'Asistente H&S – Plan Consultora (Débito Mensual)';
             }
 
-            const preference = new Preference(client);
+            const requestOrigin = req.headers.origin;
+            const PRODUCTION_URL = 'https://asistentehs.com';
+            const baseUrl = (requestOrigin && isOriginAllowed(requestOrigin)) ? requestOrigin : PRODUCTION_URL;
 
-            const protocol = req.headers['x-forwarded-proto'] || 'http';
-            const host = req.headers['host'];
-            const baseUrl = `${protocol}://${host}`;
+            let initPoint = null;
+            let subId = null;
 
-            const result = await preference.create({
-                body: {
-                    items: [
-                        {
-                            id: planId || 'pro_subscription',
-                            title: planTitle,
-                            description: `Acceso completo al ${planTitle}. Suscripción mensual.`,
-                            quantity: 1,
-                            unit_price: amount,
-                            currency_id: 'USD',
+            // 1. Intentar crear Suscripción de Débito Automático con Tarjeta (PreApproval) si billingMode === 'recurring'
+            if (billingMode !== 'single' && email) {
+                try {
+                    const preApproval = new PreApproval(client);
+                    const preResult = await preApproval.create({
+                        body: {
+                            reason: planTitle,
+                            external_reference: userId || 'guest',
+                            payer_email: email,
+                            auto_recurring: {
+                                frequency: 1,
+                                frequency_type: 'months',
+                                transaction_amount: amountArs,
+                                currency_id: 'ARS'
+                            },
+                            back_url: `${baseUrl}/subscribe?status=approved&provider=mercadopago`,
+                            status: 'pending'
                         }
-                    ],
-                    back_urls: {
-                        success: `${baseUrl}/subscribe?status=approved`,
-                        failure: `${baseUrl}/subscribe?status=failed`,
-                        pending: `${baseUrl}/subscribe?status=pending`
-                    },
-                    external_reference: userId || 'guest',
-                    notification_url: `${baseUrl}/api/mercadopago-webhook`,
-                    auto_return: 'approved',
-                    statement_descriptor: 'ASISTENTE HY&S',
+                    });
+                    if (preResult && preResult.init_point) {
+                        initPoint = preResult.init_point;
+                        subId = preResult.id;
+                    }
+                } catch (preErr) {
+                    console.warn('[MP PreApproval] Fallback a Checkout de Tarjeta en ARS:', preErr.message);
                 }
-            });
+            }
+
+            // 2. Fallback o modo de 1 mes: Checkout con Tarjeta de Débito/Crédito en ARS
+            if (!initPoint) {
+                const preference = new Preference(client);
+                const result = await preference.create({
+                    body: {
+                        items: [
+                            {
+                                id: planId || 'pro_subscription',
+                                title: planTitle,
+                                description: `Suscripción mensual con tarjeta de débito o crédito a ${planTitle}.`,
+                                quantity: 1,
+                                unit_price: amountArs,
+                                currency_id: 'ARS',
+                            }
+                        ],
+                        payment_methods: {
+                            excluded_payment_types: [
+                                { id: 'ticket' },
+                                { id: 'atm' }
+                            ],
+                            installments: 1
+                        },
+                        back_urls: {
+                            success: `${baseUrl}/subscribe?status=approved&provider=mercadopago`,
+                            failure: `${baseUrl}/subscribe?status=failed`,
+                            pending: `${baseUrl}/subscribe?status=pending`
+                        },
+                        external_reference: userId || 'guest',
+                        notification_url: `${baseUrl}/api/mercadopago-webhook`,
+                        auto_return: 'approved',
+                        statement_descriptor: 'ASISTENTE HY&S',
+                    }
+                });
+                initPoint = result.init_point;
+                subId = result.id;
+            }
 
             if (email) {
                 try {
@@ -218,7 +342,13 @@ export default async function handler(req, res) {
                     console.error("Error sending subscription notification:", err);
                 }
             }
-            return res.status(200).json({ id: result.id, init_point: result.init_point });
+            return res.status(200).json({
+                id: subId,
+                init_point: initPoint,
+                usdAmount,
+                exchangeRate,
+                amountArs
+            });
         } catch (error) {
             console.error("MP Error:", error);
             return res.status(500).json({ error: 'Error al crear la preferencia', details: error.message });

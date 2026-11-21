@@ -20,13 +20,14 @@ export default async function handler(req, res) {
     if (!user) return;
 
     try {
-        const { ley } = req.body;
-        if (!ley || typeof ley !== 'string' || !ley.trim()) {
+        const { ley, leyTitle, leyDescription } = req.body || {};
+        const targetLey = ley || (leyTitle ? `${leyTitle}${leyDescription ? `: ${leyDescription}` : ''}` : '');
+        if (!targetLey || typeof targetLey !== 'string' || !targetLey.trim()) {
             return res.status(400).json({ error: 'Faltan datos de la normativa' });
         }
 
         // 🛡️ Seguridad anti-gasto: limitar longitud a 1.000 caracteres
-        if (ley.length > 1000) {
+        if (targetLey.length > 1000) {
             return res.status(400).json({ error: 'El nombre o texto de la normativa no puede superar los 1.000 caracteres.' });
         }
 
@@ -36,13 +37,11 @@ export default async function handler(req, res) {
         const genAI = new GoogleGenerativeAI(apiKey);
         const models = [
             "gemini-2.5-flash",
-            "gemini-flash-latest",
-            "gemini-3.5-flash",
-            "gemini-3.8-flash",
-            "gemini-pro-latest"
+            "gemini-2.0-flash",
+            "gemini-flash-latest"
         ];
 
-        const prompt = `Como experto legislativo en Higiene y Seguridad en Argentina, realiza un resumen directo de esta norma: "${ley}".
+        const prompt = `Como experto legislativo en Higiene y Seguridad en Argentina, realiza un resumen directo de esta norma: "${targetLey}".
 Provee un resumen de puntos principales (en viñetas) que todo prevencionista debe saber de forma rápida para el trabajo de campo. No inventar contenido, basarse en el objeto material de la ley. Devuelve directamente el texto, y usa formato markdown.`;
 
         let result;

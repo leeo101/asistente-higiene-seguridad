@@ -14,11 +14,9 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    // Opcional: verificación de token si viene provisto
-    if (req.headers?.authorization) {
-        const user = await verifyToken(req, res);
-        if (!user) return;
-    }
+    // 🔐 Verificación de token obligatoria para proteger cuota de IA
+    const user = await verifyToken(req, res);
+    if (!user) return;
 
     try {
         let body = req.body;
@@ -37,16 +35,18 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Falta el mensaje o lista de mensajes' });
         }
 
+        if (prompt.length > 8000) {
+            return res.status(400).json({ error: 'El mensaje excede el límite máximo de 8.000 caracteres.' });
+        }
+
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'Falta la API Key de Gemini' });
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const models = [
             "gemini-2.5-flash",
-            "gemini-flash-latest",
-            "gemini-3.5-flash",
-            "gemini-3.8-flash",
-            "gemini-pro-latest"
+            "gemini-2.0-flash",
+            "gemini-flash-latest"
         ];
 
         let result;

@@ -292,7 +292,7 @@ export default function PricingDark({ onStart }: PricingDarkProps) {
           </span>
           <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.82rem' }}>•</span>
           <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', fontWeight: 700 }}>
-            🌎 Stripe (USD Internacional)
+            🌎 PayPal (USD Internacional)
           </span>
           <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.82rem' }}>•</span>
           <span style={{ color: '#34d399', fontSize: '0.82rem', fontWeight: 700 }}>

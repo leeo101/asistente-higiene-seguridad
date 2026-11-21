@@ -103,12 +103,12 @@ export default function SubscriptionRenewalBanner() {
             <p style={{ color: '#e2e8f0', fontSize: '0.78rem', fontWeight: 600, margin: 0, lineHeight: 1.4 }}>
               {isExpiringSoon ? (
                 <>
-                  Vence el <strong style={{ color: '#fbbf24' }}>{formattedExpiry}</strong>. Renová ahora por{' '}
-                  <strong style={{ color: '#fbbf24' }}>$2 USD/mes</strong> para mantener reportes con tu logo y Asesor IA.
+                  Vence el <strong style={{ color: '#fbbf24' }}>{formattedExpiry}</strong>. Adherí tu tarjeta de débito o crédito por{' '}
+                  <strong style={{ color: '#fbbf24' }}>$2 USD/mes (en Pesos al cambio del día)</strong> para renovación automática.
                 </>
               ) : (
                 <>
-                  Activá tu plan Profesional PRO por solo <strong style={{ color: '#fbbf24' }}>$2 USD/mes</strong> para exportar PDFs con tu logo y usar IA ilimitada.
+                  Adherí tu tarjeta de débito o crédito por solo <strong style={{ color: '#fbbf24' }}>$2 USD/mes (en Pesos al cambio del día)</strong> para exportar PDFs con tu logo y usar IA ilimitada.
                 </>
               )}
             </p>
@@ -139,7 +139,7 @@ export default function SubscriptionRenewalBanner() {
               boxShadow: '0 4px 12px rgba(245, 158, 11, 0.35)'
             }}
           >
-            <Sparkles size={15} /> Ver Suscripción <ArrowRight size={14} />
+            <Sparkles size={15} /> Adherir Tarjeta <ArrowRight size={14} />
           </button>
 
           <button
