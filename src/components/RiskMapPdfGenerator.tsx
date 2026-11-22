@@ -1,6 +1,8 @@
 import React, { useRef, useMemo } from 'react';
 import { ArrowLeft, Printer, Map as MapIcon } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import { getSavedProfessionalData } from '../utils/jsPdfSignatureHelper';
+import { DEFAULT_PROFESSION } from '../data/professionOptions';
 import { SAFETY_ICONS } from '../data/mapIcons';
 
 export default function RiskMapPdfGenerator({
@@ -21,36 +23,12 @@ export default function RiskMapPdfGenerator({
   const componentRef = useRef<HTMLDivElement>(null);
 
   // Retrieve professional digital signature stamp & personal credential data
-  let actSignature: string | null = null;
-  let actStamp: string | null = null;
-  let actName: string | null = null;
-  let actLic: string | null = null;
-  let actTitle: string | null = null;
-
-  try {
-    const lsStamp = typeof window !== 'undefined' ? localStorage.getItem('signatureStampData') : null;
-    const legacySig = typeof window !== 'undefined' ? localStorage.getItem('capturedSignature') : null;
-    const lsPersonal = typeof window !== 'undefined' ? localStorage.getItem('personalData') : null;
-
-    if (lsStamp) {
-      const parsed = JSON.parse(lsStamp);
-      actSignature = parsed.signature || null;
-      actStamp = parsed.stamp || null;
-    } else if (legacySig) {
-      actSignature = legacySig;
-    }
-
-    if (lsPersonal) {
-      const pd = JSON.parse(lsPersonal);
-      actName = pd.name || pd.fullName || null;
-      actLic = pd.license || pd.matricula || null;
-      actTitle = pd.profession || pd.profesion || pd.title || pd.titulo || null;
-    }
-  } catch (e) {}
-
-  if (!actTitle || actTitle === 'Técnico' || actTitle === 'PROFESIONAL') {
-    actTitle = 'Técnico Univ. en Higiene y Seguridad Laboral';
-  }
+  const savedPro = getSavedProfessionalData();
+  const actSignature: string | null = savedPro.signature;
+  const actStamp: string | null = savedPro.stamp;
+  const actName: string | null = savedPro.name || null;
+  const actLic: string | null = savedPro.license || null;
+  const actTitle: string = savedPro.profession || DEFAULT_PROFESSION;
 
 
   const handlePrint = () => {
@@ -919,17 +897,17 @@ export default function RiskMapPdfGenerator({
                       {/* Título de la tarjeta */}
                       <div
                         style={{
-                          fontSize: '6.8pt',
+                          fontSize: '6pt',
                           fontWeight: 900,
                           textTransform: 'uppercase',
                           color: '#14532d',
-                          letterSpacing: '0.03em',
+                          letterSpacing: '0.01em',
                           textAlign: 'center',
                           paddingTop: '2px',
                           lineHeight: 1.1
                         }}
                       >
-                        PROFESIONAL DE HIGIENE Y SEGURIDAD
+                        {(actTitle || DEFAULT_PROFESSION).toUpperCase()}
                       </div>
 
                       {/* Contenedor de Firma y Sello Digital */}

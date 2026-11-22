@@ -1,26 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import { ArrowLeft, Printer, Share2, Download, CheckCircle2, TriangleAlert, ShieldCheck, Info } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import {
+  ArrowLeft,
+  Printer,
+  Share2,
+  CheckCircle2,
+  Save,
+  Building2,
+  MapPin,
+  User,
+  FileText,
+  ShieldCheck,
+  AlertTriangle
+} from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 import { usePaywall } from '../hooks/usePaywall';
-import CompanyLogo from '../components/CompanyLogo';
-import PdfSignatures from '../components/PdfSignatures';
+import { useSync } from '../contexts/SyncContext';
+import AiReportPdfGenerator from '../components/AiReportPdfGenerator';
 import { toast } from 'react-hot-toast';
-import PdfBrandingFooter from '../components/PdfBrandingFooter';
 import { printElementAsDocument } from '../utils/pdfHelper';
-import { safeJsonParse, safeGetLocalStorage } from '../utils/storageHelper';
+import { safeGetLocalStorage } from '../utils/storageHelper';
 
 export default function AIReport(): React.ReactElement | null {
   const { requirePro, isPro, loading } = usePaywall();
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
-  const [data, setData] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [signature, setSignature] = useState(null);
+  const { syncCollection } = useSync();
+
+  const [data, setData] = useState<any>(null);
   const [company, setCompany] = useState('');
   const [location, setLocation] = useState('');
+  const [workerName, setWorkerName] = useState('');
+  const [taskDescription, setTaskDescription] = useState('');
+  const [notes, setNotes] = useState('');
+  const [immediateAction, setImmediateAction] = useState('');
+  const [riskLevel, setRiskLevel] = useState('Medio');
+  const [ppeOverrides, setPpeOverrides] = useState({
+    helmetUsed: true,
+    shoesUsed: true,
+    glovesUsed: true,
+    clothingUsed: true,
+    glassesUsed: true,
+    hearingUsed: true
+  });
   const [showShare, setShowShare] = useState(false);
   const [showSignatures, setShowSignatures] = useState({
     operator: true,
@@ -37,20 +58,40 @@ export default function AIReport(): React.ReactElement | null {
 
   useEffect(() => {
     if (loading || !isPro) return;
-    const current = localStorage.getItem('current_ai_inspection');
-    const prof = localStorage.getItem('personalData');
-    const sig = localStorage.getItem('signatureStampData');
-
     const parsedData = safeGetLocalStorage<any>('current_ai_inspection', null);
     if (parsedData) {
       setData(parsedData);
       setCompany(parsedData.company || 'Empresa Local');
       setLocation(parsedData.location || 'Planta Principal');
+      setWorkerName(
+        parsedData.workerName ||
+          parsedData.operator ||
+          (parsedData.type === 'general_risks' ? 'Responsable del Sector' : 'Operario en Puesto')
+      );
+      setTaskDescription(
+        parsedData.taskDescription ||
+          (parsedData.type === 'general_risks'
+            ? 'Inspección general de condiciones y medio ambiente de trabajo (CyMAT)'
+            : 'Verificación en puesto de uso obligatorio de Elementos de Protección Personal')
+      );
+      setNotes(parsedData.notes || parsedData.observations || '');
+      setImmediateAction(parsedData.analysis?.immediateAction || '');
+      setRiskLevel(parsedData.analysis?.riskLevel || (parsedData.analysis?.ppeComplete ? 'Bajo' : 'Alto'));
+      setPpeOverrides({
+        helmetUsed: Boolean(parsedData.analysis?.helmetUsed),
+        shoesUsed: Boolean(parsedData.analysis?.shoesUsed),
+        glovesUsed: Boolean(parsedData.analysis?.glovesUsed),
+        clothingUsed: Boolean(parsedData.analysis?.clothingUsed),
+        glassesUsed:
+          parsedData.analysis?.glassesUsed !== undefined
+            ? Boolean(parsedData.analysis.glassesUsed)
+            : Boolean(parsedData.analysis?.ppeComplete),
+        hearingUsed:
+          parsedData.analysis?.hearingUsed !== undefined
+            ? Boolean(parsedData.analysis.hearingUsed)
+            : Boolean(parsedData.analysis?.ppeComplete)
+      });
     }
-    const profData = safeGetLocalStorage<any>('personalData', null);
-    if (profData) setProfile(profData);
-    const sigData = safeGetLocalStorage<any>('signatureStampData', null);
-    if (sigData) setSignature(sigData);
   }, [isPro, loading]);
 
   if (loading) {
@@ -62,417 +103,367 @@ export default function AIReport(): React.ReactElement | null {
   }
 
   if (!isPro) return null;
+  if (!data) return <div className="container">Cargando informe técnico...</div>;
 
-  if (!data) return <div className="container">Cargando...</div>;
+  const isGeneralRisks = data.type === 'general_risks';
+  const computedPpeComplete =
+    ppeOverrides.helmetUsed &&
+    ppeOverrides.shoesUsed &&
+    ppeOverrides.glovesUsed &&
+    ppeOverrides.clothingUsed;
 
-  const handlePrint = () => requirePro(async () => {
-    try {
-      toast.loading('Preparando impresión...', { id: 'pdf-print' });
-      await printElementAsDocument('pdf-content', `Informe IA – ${company || 'Seguridad'}`);
-      toast.dismiss('pdf-print');
-    } catch (err) {
-      toast.dismiss('pdf-print');
-      console.error('Error al imprimir con iframe, usando fallback nativo:', err);
-      const el = document.getElementById('pdf-content');
-      if (el) {
-        document.body.classList.add('printing-isolated');
-        el.classList.add('isolated-print-target');
-      }
-      window.print();
-      setTimeout(() => {
-        document.body.classList.remove('printing-isolated');
-        if (el) el.classList.remove('isolated-print-target');
-      }, 1000);
+  const mergedReportData = {
+    ...data,
+    company,
+    location,
+    workerName,
+    taskDescription,
+    notes,
+    analysis: {
+      ...(data.analysis || {}),
+      riskLevel,
+      immediateAction,
+      ...(isGeneralRisks
+        ? {}
+        : {
+            ...ppeOverrides,
+            ppeComplete: computedPpeComplete
+          })
     }
-  });
+  };
+
+  const handleSaveChanges = () => {
+    try {
+      localStorage.setItem('current_ai_inspection', JSON.stringify(mergedReportData));
+      const storageKey = isGeneralRisks ? 'ai_general_camera_history' : 'ai_camera_history';
+      const history = safeGetLocalStorage<any[]>(storageKey, []);
+      if (Array.isArray(history) && history.length > 0) {
+        const updated = history.map((item: any) =>
+          String(item.id) === String(mergedReportData.id)
+            ? {
+                ...item,
+                company: mergedReportData.company,
+                location: mergedReportData.location,
+                workerName: mergedReportData.workerName,
+                taskDescription: mergedReportData.taskDescription,
+                notes: mergedReportData.notes,
+                ppeComplete: mergedReportData.analysis?.ppeComplete,
+                analysis: mergedReportData.analysis
+              }
+            : item
+        );
+        localStorage.setItem(storageKey, JSON.stringify(updated));
+        syncCollection(storageKey, updated);
+      }
+      setData(mergedReportData);
+      toast.success('Datos del informe técnico actualizados y sincronizados');
+    } catch (err) {
+      console.error('Error al actualizar informe IA:', err);
+      toast.error('No se pudieron guardar los cambios');
+    }
+  };
+
+  const handlePrint = () =>
+    requirePro(async () => {
+      handleSaveChanges();
+      try {
+        toast.loading('Preparando documento A4...', { id: 'pdf-print' });
+        await printElementAsDocument('pdf-content', `Informe IA – ${company || 'Seguridad'}`);
+        toast.dismiss('pdf-print');
+      } catch (err) {
+        toast.dismiss('pdf-print');
+        console.error('Error al imprimir con iframe, usando fallback nativo:', err);
+        const el = document.getElementById('pdf-content');
+        if (el) {
+          document.body.classList.add('printing-isolated');
+          el.classList.add('isolated-print-target');
+        }
+        window.print();
+        setTimeout(() => {
+          document.body.classList.remove('printing-isolated');
+          if (el) el.classList.remove('isolated-print-target');
+        }, 1000);
+      }
+    });
 
   return (
-    <div className="container max-w-5xl mx-auto pt-6 md:pt-10 pb-24 px-4">
+    <div className="container max-w-5xl mx-auto pt-4 md:pt-8 pb-28 px-3 sm:px-4">
       <ShareModal
         isOpen={showShare}
         open={showShare}
         onClose={() => setShowShare(false)}
         title={`Informe IA – ${company}`}
-        text={`🤖 INFORME DE INSPECCIÓN IA\n\n🏗️ Empresa: ${company}\n📍 Ubicación: ${location}\n📅 Fecha: ${data ? new Date(data.date).toLocaleString() : ''}\n⚠️ Estado: ${data?.analysis?.ppeComplete ? '✅ EPP Completo' : '⚠️ Falta EPP / Peligro'}\n\nGenerado con Asistente HYS`}
-        rawMessage={`🤖 INFORME DE INSPECCIÓN IA\n\n🏗️ Empresa: ${company}\n📍 Ubicación: ${location}\n📅 Fecha: ${data ? new Date(data.date).toLocaleString() : ''}\n⚠️ Estado: ${data?.analysis?.ppeComplete ? '✅ EPP Completo' : '⚠️ Falta EPP / Peligro'}\n\nGenerado con Asistente HYS`}
+        text={`🤖 INFORME TÉCNICO DE INSPECCIÓN IA\n\n🏢 Empresa: ${company}\n📍 Sector: ${location}\n👤 Auditado: ${workerName}\n📅 Fecha: ${data ? new Date(data.date).toLocaleString('es-AR') : ''}\n⚠️ Nivel de Riesgo: ${riskLevel}\n\nGenerado con Asistente H&S`}
+        rawMessage={`🤖 INFORME TÉCNICO DE INSPECCIÓN IA\n\n🏢 Empresa: ${company}\n📍 Sector: ${location}\n👤 Auditado: ${workerName}\n📅 Fecha: ${data ? new Date(data.date).toLocaleString('es-AR') : ''}\n⚠️ Nivel de Riesgo: ${riskLevel}\n\nGenerado con Asistente H&S`}
         elementIdToPrint="pdf-content"
-        fileName={`Informe_IA_${company?.replace(/\s+/g, '_') || 'Sin_Nombre'}.pdf`} 
+        fileName={`Informe_IA_${(company || 'Seguridad').replace(/\s+/g, '_')}.pdf`}
       />
-      
-      <div className="no-print flex justify-between items-center mb-6">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white border-none py-2 px-4 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer">
-          <ArrowLeft size={16} className="text-white" /> VOLVER AL HISTORIAL
+
+      {/* BARRA SUPERIOR RESPONSIVA */}
+      <div className="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-5 bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          style={{ margin: 0, padding: '0 14px', height: '40px', fontSize: '0.78rem' }}
+          className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white border-none rounded-xl font-black transition-all shadow-sm cursor-pointer w-full sm:w-auto"
+        >
+          <ArrowLeft size={16} className="text-blue-400 shrink-0" />
+          <span>VOLVER AL HISTORIAL</span>
         </button>
+
+        <div className="grid grid-cols-3 sm:flex items-center gap-2 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={handleSaveChanges}
+            style={{ margin: 0, padding: '0 12px', height: '40px', fontSize: '0.76rem' }}
+            className="flex items-center justify-center gap-1.5 rounded-xl font-extrabold text-white bg-slate-700 hover:bg-slate-600 border-none cursor-pointer shadow-sm transition-all whitespace-nowrap"
+          >
+            <Save size={15} className="shrink-0" />
+            <span>Guardar</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              handleSaveChanges();
+              requirePro(() => setShowShare(true));
+            }}
+            style={{ margin: 0, padding: '0 12px', height: '40px', fontSize: '0.76rem' }}
+            className="flex items-center justify-center gap-1.5 rounded-xl font-extrabold text-white bg-sky-600 hover:bg-sky-500 border-none cursor-pointer shadow-sm transition-all whitespace-nowrap"
+          >
+            <Share2 size={15} className="shrink-0" />
+            <span>Compartir</span>
+          </button>
+          <button
+            type="button"
+            onClick={handlePrint}
+            style={{ margin: 0, padding: '0 12px', height: '40px', fontSize: '0.76rem' }}
+            className="flex items-center justify-center gap-1.5 rounded-xl font-extrabold text-white bg-emerald-600 hover:bg-emerald-500 border-none cursor-pointer shadow-sm transition-all whitespace-nowrap"
+          >
+            <Printer size={15} className="shrink-0" />
+            <span>PDF A4</span>
+          </button>
+        </div>
       </div>
 
-            <div id="pdf-content" className="card report-print print:p-0 print:m-0 print:border-none print:shadow-none print:min-h-0 p-[1.5rem] sm:p-[2.5rem] min-h-0 h-auto bg-[#ffffff] text-[#1e293b] shadow-[] relative">
-
-                {/* Header */}
-                <div className="grid grid-template-columns-[1fr_2fr_1fr] items-center border-bottom-[4px_solid_var(--color-primary)] pb-[1.5rem] mb-[2rem] w-[100%] gap-[1.5rem]">
-                    <div className="text-left">
-                        <p className="m-[0] font-[700] text-[0.65rem] uppercase text-[#64748b] tracking-[]">Sistema de Gestión</p>
-                        <p className="m-[0] font-[900] text-[0.75rem] uppercase text-[#1e293b]">Control H&S</p>
-                    </div>
-
-                    <div className="text-center">
-                        <h2 className="m-[0] text-[1.2rem] font-[900] text-[var(--color-primary)] uppercase tracking-[] leading-[]">
-                            Informe de Inspección IA
-                        </h2>
-                        <p className="m-[4px_0_0_0] text-[0.65rem] text-[#64748b] font-[600]">Detección de Riesgos y EPP</p>
-                    </div>
-
-                    <div className="flex justify-end">
-                        <CompanyLogo className="h-[45px] w-[auto] max-w-[140px] object-" />
-                    </div>
-                </div>
-
-                {profile && (
-                    <div className="no-print mb-[1.5rem] text-right text-[0.8rem] text-[#64748b]">
-                        <p className="m-[0] font-[700]">Profesional: {profile.name} | Mat: {profile.license}</p>
-                    </div>
-                )}
-
-                {/* Info Block */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-lg border border-slate-200">
-                    <div>
-                        <p className="m-[0] text-[0.7rem] text-[#64748b]">Tipo de Inspección</p>
-                        <p className="m-[0] font-[800] text-[0.9rem] text-[var(--color-primary)]">
-                            {data.type === 'general_risks' ? 'DETECTAR RIESGOS GENERALES' : 'VERIFICAR EPP'}
-                        </p>
-                    </div>
-                    <div>
-                        <p className="m-[0] text-[0.7rem] text-[#64748b]">Empresa / Planta</p>
-                        <input
-                            type="text"
-                            value={company}
-                            onChange={(e) => setCompany(e.target.value)}
-                            className="no-print m-[0] p-[0.2rem_0] font-[600] text-[0.9rem] border-none border-b border-[] bg-[transparent] w-[100%]" 
-                        />
-                        <p className="print-only m-[0] font-[600] text-[0.9rem]">{company}</p>
-                    </div>
-                    <div>
-                        <p className="m-[0] text-[0.7rem] text-[#64748b]">Fecha del Escaneo</p>
-                        <p className="m-[0] font-[600] text-[0.9rem]">{new Date(data.date).toLocaleString('es-AR')}</p>
-                    </div>
-                </div>
-
-                {/* Evidence Photo (Única foto con protección de salto de página y CORS) */}
-                <div className="mb-6 text-center avoid-break break-inside-avoid">
-                    <div className="relative inline-block border-2 border-slate-200 shadow-md rounded-xl overflow-hidden bg-slate-50">
-                        {data.image ? (
-                            <img 
-                                src={data.image} 
-                                alt="Evidencia fotográfica" 
-                                crossOrigin="anonymous"
-                                className="max-w-full block mx-auto object-contain rounded-lg" 
-                                style={{ maxHeight: '280px', width: 'auto', margin: '0 auto' }} 
-                            />
-                        ) : (
-                            <div className="text-slate-400 text-xs p-8 flex flex-col items-center justify-center">
-                                <Info size={32} className="mb-2 text-slate-300" />
-                                <span>Imagen no disponible localmente</span>
-                            </div>
-                        )}
-                        {/* Overlay sobre la foto */}
-                        {data.type === 'general_risks' ? (
-                            <div className="absolute top-2.5 right-2.5 bg-blue-600/90 text-white text-xs font-black px-3 py-1 rounded-full border border-white shadow">
-                                ANÁLISIS ENTORNO
-                            </div>
-                        ) : data.analysis?.ppeComplete ? (
-                            <div className="absolute top-2.5 right-2.5 bg-emerald-600/90 text-white text-xs font-black px-3 py-1 rounded-full border border-white shadow">
-                                ✓ EPP O.K.
-                            </div>
-                        ) : (
-                            <div className="absolute top-2.5 right-2.5 bg-rose-600/90 text-white text-xs font-black px-3 py-1 rounded-full border border-white shadow">
-                                ⚠️ FALTA EPP
-                            </div>
-                        )}
-                    </div>
-                    <p className="mt-2 text-xs text-slate-500 italic">Captura fotográfica del sistema de inspección ocular</p>
-                </div>
-
-                {/* Analysis Results */}
-                <div className="no-break mb-[2.5rem] page-break-inside-[avoid] break-inside-[avoid]">
-                    <h3 className="border-b border-[] pb-[0.5rem] mb-[1rem] text-[#1e293b]">
-                        {data.type === 'general_risks' ? 'Resumen de Riesgos Detectados' : 'Evaluación de EPP Detectada'}
-                    </h3>
-
-                    {data.type !== 'general_risks' ?
-          <>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-4">
-                                {[
-              { label: 'Casco de Seguridad', pass: data.analysis?.helmetUsed },
-              { label: 'Calzado de Seguridad', pass: data.analysis?.shoesUsed },
-              { label: 'Guantes de Trabajo', pass: data.analysis?.glovesUsed },
-              { label: 'Ropa / Chaleco Reflectivo', pass: data.analysis?.clothingUsed }].
-              map((item, i) =>
-              <div key={i} style={{ background: item.pass ? '#f0fdf4' : '#fef2f2', border: `1px solid ${item.pass ? '#bbf7d0' : '#fecaca'}`, color: item.pass ? '#15803d' : '#b91c1c' }} className="p-[0.8rem] rounded-[8px] flex items-center gap-[0.8rem]">
-                                        {item.pass ? <ShieldCheck size={20} /> : <TriangleAlert size={20} />}
-                                        <span className="font-[700] text-[0.9rem]">{item.label}: {item.pass ? 'CUMPLE' : 'FALTA'}</span>
-                                    </div>
-              )}
-                            </div>
-
-                            <div className="mt-[1rem] flex flex-col gap-[1rem]">
-                                <div style={{ background: data.analysis?.ppeComplete ? '#f0fdf4' : '#fff7ed', border: `1px solid ${data.analysis?.ppeComplete ? '#bbf7d0' : '#ffedd5'}`, color: data.analysis?.ppeComplete ? '#15803d' : '#c2410c' }} className="flex flex-wrap gap-[1rem] items-center justify-space-between p-[1rem] rounded-[8px]">
-                                    <div className="flex items-center gap-[0.8rem]">
-                                        {data.analysis?.ppeComplete ? <ShieldCheck /> : <TriangleAlert />}
-                                        <span className="font-[800]">ESTADO GENERAL: {data.analysis?.ppeComplete ? 'ADECUADO' : 'REQUIERE ATENCIÓN INMEDIATA'}</span>
-                                    </div>
-                                    {data.analysis?.riskLevel &&
-                <div style={{
-
-                  background: data.analysis.riskLevel.toLowerCase() === 'crítico' ? '#fef2f2' :
-                  data.analysis.riskLevel.toLowerCase() === 'alto' ? '#fff7ed' :
-                  data.analysis.riskLevel.toLowerCase() === 'medio' ? '#fefce8' : '#f0fdf4',
-                  color: data.analysis.riskLevel.toLowerCase() === 'crítico' ? '#dc2626' :
-                  data.analysis.riskLevel.toLowerCase() === 'alto' ? '#ea580c' :
-                  data.analysis.riskLevel.toLowerCase() === 'medio' ? '#ca8a04' : '#16a34a',
-                  border: `1px solid ${
-                  data.analysis.riskLevel.toLowerCase() === 'crítico' ? '#fecaca' :
-                  data.analysis.riskLevel.toLowerCase() === 'alto' ? '#ffedd5' :
-                  data.analysis.riskLevel.toLowerCase() === 'medio' ? '#fef08a' : '#bbf7d0'}`
-                }} className="p-[0.4rem_1rem] rounded-[20px] text-[0.85rem] font-[900] uppercase">
-                                            Riesgo: {data.analysis.riskLevel}
-                                        </div>
-                }
-                                </div>
-
-                                {data.analysis?.immediateAction &&
-              <div className="p-[1.2rem] rounded-[12px] bg-[#fff1f2] border-[1px_solid_#fecaca] text-[#be123c]">
-                                        <div className="flex items-center gap-[0.8rem] mb-[0.5rem]">
-                                            <TriangleAlert size={18} />
-                                            <span className="font-[800] text-[0.9rem]">ACCIÓN INMEDIATA REQUERIDA (24HS)</span>
-                                        </div>
-                                        <p className="m-[0] text-[0.9rem] leading-[]">{data.analysis.immediateAction}</p>
-                                    </div>
-              }
-
-                                {data.analysis?.applicableLegislation && data.analysis.applicableLegislation.length > 0 &&
-              <div className="p-[1.2rem] rounded-[12px] bg-[#f0fdf4] border-[1px_solid_#bbf7d0] text-[#166534]">
-                                        <div className="flex items-center gap-[0.8rem] mb-[0.5rem]">
-                                            <ShieldCheck size={18} />
-                                            <span className="font-[800] text-[0.9rem]">NORMATIVA APLICABLE (ARG)</span>
-                                        </div>
-                                        <ul className="m-[0] pl-[1.2rem] text-[0.85rem] leading-[]">
-                                            {data.analysis.applicableLegislation.map((leg, i) =>
-                  <li key={i}>{leg}</li>
-                  )}
-                                        </ul>
-                                    </div>
-              }
-                            </div>
-                        </> :
-
-          <div className="flex flex-col gap-[1.2rem]">
-                            <div className="p-[1.5rem] rounded-[12px] bg-[#f8fafc] border-[1px_solid_#e2e8f0] text-[#334155] relative">
-                                <div className="flex items-center justify-space-between mb-[1rem] flex-wrap gap-[1rem]">
-                                    <div className="flex items-center gap-[0.8rem] text-[var(--color-primary)]">
-                                        <Info size={20} />
-                                        <span className="font-[800] text-[1rem]">EVALUACIÓN GENERAL IA</span>
-                                    </div>
-                                    {data.analysis?.riskLevel &&
-                <div style={{
-
-                  background: data.analysis.riskLevel.toLowerCase() === 'crítico' ? '#fef2f2' :
-                  data.analysis.riskLevel.toLowerCase() === 'alto' ? '#fff7ed' :
-                  data.analysis.riskLevel.toLowerCase() === 'medio' ? '#fefce8' : '#f0fdf4',
-                  color: data.analysis.riskLevel.toLowerCase() === 'crítico' ? '#dc2626' :
-                  data.analysis.riskLevel.toLowerCase() === 'alto' ? '#ea580c' :
-                  data.analysis.riskLevel.toLowerCase() === 'medio' ? '#ca8a04' : '#16a34a',
-                  border: `1px solid ${
-                  data.analysis.riskLevel.toLowerCase() === 'crítico' ? '#fecaca' :
-                  data.analysis.riskLevel.toLowerCase() === 'alto' ? '#ffedd5' :
-                  data.analysis.riskLevel.toLowerCase() === 'medio' ? '#fef08a' : '#bbf7d0'}`
-                }} className="p-[0.4rem_1rem] rounded-[20px] text-[0.85rem] font-[900] uppercase">
-                                            Riesgo: {data.analysis.riskLevel}
-                                        </div>
-                }
-                                </div>
-                                <p className="m-[0] text-[0.95rem] leading-[]">{data.analysis?.generalAssessment || 'Análisis ambiental completado.'}</p>
-                            </div>
-
-                            {data.analysis?.immediateAction &&
-            <div className="p-[1.2rem] rounded-[12px] bg-[#fff1f2] border-[1px_solid_#fecaca] text-[#be123c]">
-                                    <div className="flex items-center gap-[0.8rem] mb-[0.5rem]">
-                                        <TriangleAlert size={18} />
-                                        <span className="font-[800] text-[0.9rem]">ACCIÓN INMEDIATA REQUERIDA (24HS)</span>
-                                    </div>
-                                    <p className="m-[0] text-[0.9rem] leading-[]">{data.analysis.immediateAction}</p>
-                                </div>
-            }
-
-                            {data.analysis?.applicableLegislation && data.analysis.applicableLegislation.length > 0 &&
-            <div className="p-[1.2rem] rounded-[12px] bg-[#f0fdf4] border-[1px_solid_#bbf7d0] text-[#166534]">
-                                    <div className="flex items-center gap-[0.8rem] mb-[0.5rem]">
-                                        <ShieldCheck size={18} />
-                                        <span className="font-[800] text-[0.9rem]">NORMATIVA APLICABLE (ARG)</span>
-                                    </div>
-                                    <ul className="m-[0] pl-[1.2rem] text-[0.85rem] leading-[]">
-                                        {data.analysis.applicableLegislation.map((leg, i) =>
-                <li key={i}>{leg}</li>
-                )}
-                                    </ul>
-                                </div>
-            }
-                        </div>
-          }
-                </div>
-
-                {/* Findings Legend (Numbered) */}
-                {data.analysis?.detections && data.analysis.detections.length > 0 &&
-        <div className="no-break mb-[2.5rem] page-break-inside-[avoid] break-inside-[avoid]">
-                        <h4 className="border-b border-[] pb-[0.5rem] mb-[1rem] text-[#1e293b]">Leyenda de Hallazgos en Imagen</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-3">
-                            {data.analysis.detections.map((det, i) => {
-              const severity = (det.severity || '').toLowerCase();
-              const badgeBg = severity === 'crítico' ? '#ef4444' :
-              severity === 'alto' ? '#f97316' :
-              severity === 'medio' ? '#eab308' :
-              severity === 'bajo' ? '#10b981' : '#3b82f6';
-
-              return (
-                <div key={i} className="flex items-center gap-[0.8rem] text-[0.9rem] bg-[#f8fafc] p-[0.5rem] rounded-[8px] border-[1px_solid_#e2e8f0]">
-                                        <div style={{
-
-                    background: badgeBg
-
-
-                  }} className="w-[24px] h-[24px] rounded-[50%] text-[#fff] flex items-center justify-center font-[900] text-[0.75rem] shrink-0">
-                                            {i + 1}
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-[#1e293b] font-[600]">{det.label}</span>
-                                            {det.severity && <span style={{ color: badgeBg }} className="text-[0.7rem] font-[700] uppercase">{det.severity}</span>}
-                                        </div>
-                                    </div>);
-
-            })}
-                        </div>
-                    </div>
-        }
-
-                {/* Additional Findings */}
-                {(data.analysis?.foundRisks?.length > 0 || data.analysis?.detections?.some((d) => d.recommendation)) &&
-        <div className="no-break mb-[3rem] page-break-inside-[avoid] break-inside-[avoid]">
-                        <h4 className="text-[#b91c1c] border-b border-[] pb-[0.5rem] mb-[1rem]">Riesgos y Observaciones Detalladas:</h4>
-                        
-                        {data.analysis?.foundRisks?.length > 0 &&
-          <div className="mb-6">
-                                <h5 className="m-[0_0_0.5rem_0] text-[#334155] text-[0.9rem] font-[700]">Riesgos Generales:</h5>
-                                <ul className="m-[0] pl-[1.5rem] text-[#1e293b] text-[0.9rem] leading-[]">
-                                    {data.analysis.foundRisks.map((risk, i) =>
-              <li key={`risk-${i}`} className="mb-[0.4rem]">{risk}</li>
-              )}
-                                </ul>
-                            </div>
-          }
-
-                        {data.analysis?.detections?.filter((d) => d.recommendation).length > 0 &&
+      {/* PANEL DE EDICIÓN TÉCNICA (NO SE IMPRIME, ACTUALIZA EL PDF EN VIVO) */}
+      <div className="no-print bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 mb-6 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-200 dark:border-slate-800">
           <div>
-                                <h5 className="m-[0_0_0.5rem_0] text-[#334155] text-[0.9rem] font-[700]">Recomendaciones por Hallazgo:</h5>
-                                <ul className="m-[0] pl-[1.5rem] text-[#1e293b] text-[0.9rem] leading-[]">
-                                    {data.analysis.detections.filter((d) => d.recommendation).map((det, i) =>
-              <li key={`rec-${i}`} className="mb-[0.4rem]">
-                                            <strong>{det.label}:</strong> {det.recommendation}
-                                        </li>
-              )}
-                                </ul>
-                            </div>
-          }
-                        <div className="no-print mt-[3rem] p-[1.5rem] bg-[#f8fafc] border-[1px_solid_#e2e8f0] rounded-[16px] w-[100%] flex flex-col items-center gap-[1rem] shadow-[]">
-                    <div className="text-center font-[800] text-[#334155] text-[0.85rem] tracking-[1px] uppercase">
-                        Configuración de Firmas para Exportación
-                    </div>
-                    <div className="flex gap-[1rem] flex-wrap justify-center w-[100%]">
-                        <label className={`flex items-center justify-center gap-[0.5rem] cursor-pointer p-[0.6rem_1.2rem] rounded-[12px] border-[2px_solid] font-[700] text-[0.85rem] transition-all duration-300 flex-[1] min-w-[140px] max-w-[200px] ${showSignatures.operator ? 'bg-[rgba(59,130,246,0.1)] border-[#3b82f6] text-[#2563eb]' : 'bg-white border-[#cbd5e1] text-[#64748b] hover:border-[#94a3b8]'}`}>
-                            <input type="checkbox" checked={showSignatures.operator} onChange={(e) => setShowSignatures((s) => ({ ...s, operator: e.target.checked }))} className="hidden" /> 
-                            <div className={`w-[18px] h-[18px] rounded-[6px] border-[2px_solid] flex items-center justify-center transition-all ${showSignatures.operator ? 'bg-[#3b82f6] border-[#3b82f6]' : 'border-[#cbd5e1]'}`}>
-                                {showSignatures.operator && <CheckCircle2 size={12} color="white" />}
-                            </div>
-                            Operador
-                        </label>
-                        <label className={`flex items-center justify-center gap-[0.5rem] cursor-pointer p-[0.6rem_1.2rem] rounded-[12px] border-[2px_solid] font-[700] text-[0.85rem] transition-all duration-300 flex-[1] min-w-[140px] max-w-[200px] ${showSignatures.supervisor ? 'bg-[rgba(16,185,129,0.1)] border-[#10b981] text-[#059669]' : 'bg-white border-[#cbd5e1] text-[#64748b] hover:border-[#94a3b8]'}`}>
-                            <input type="checkbox" checked={showSignatures.supervisor} onChange={(e) => setShowSignatures((s) => ({ ...s, supervisor: e.target.checked }))} className="hidden" /> 
-                            <div className={`w-[18px] h-[18px] rounded-[6px] border-[2px_solid] flex items-center justify-center transition-all ${showSignatures.supervisor ? 'bg-[#10b981] border-[#10b981]' : 'border-[#cbd5e1]'}`}>
-                                {showSignatures.supervisor && <CheckCircle2 size={12} color="white" />}
-                            </div>
-                            Supervisor
-                        </label>
-                        <label className={`flex items-center justify-center gap-[0.5rem] cursor-pointer p-[0.6rem_1.2rem] rounded-[12px] border-[2px_solid] font-[700] text-[0.85rem] transition-all duration-300 flex-[1] min-w-[140px] max-w-[200px] ${showSignatures.professional ? 'bg-[rgba(236,72,153,0.1)] border-[#ec4899] text-[#be185d]' : 'bg-white border-[#cbd5e1] text-[#64748b] hover:border-[#94a3b8]'}`}>
-                            <input type="checkbox" checked={showSignatures.professional} onChange={(e) => setShowSignatures((s) => ({ ...s, professional: e.target.checked }))} className="hidden" /> 
-                            <div className={`w-[18px] h-[18px] rounded-[6px] border-[2px_solid] flex items-center justify-center transition-all ${showSignatures.professional ? 'bg-[#ec4899] border-[#ec4899]' : 'border-[#cbd5e1]'}`}>
-                                {showSignatures.professional && <CheckCircle2 size={12} color="white" />}
-                            </div>
-                            Profesional
-                        </label>
-                    </div>
-                </div>
-                    </div>
-        }
+            <h3 className="m-0 text-sm sm:text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+              <FileText size={18} className="text-blue-600 dark:text-blue-400 shrink-0" />
+              Datos Técnicos del Acta (Edición en Vivo para el PDF)
+            </h3>
+            <p className="m-0 text-xs text-slate-500 dark:text-slate-400">
+              Completá o ajustá los datos del relevamiento antes de exportar o compartir el PDF oficial.
+            </p>
+          </div>
+          <span className="text-[11px] font-black uppercase px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+            {isGeneralRisks ? 'Modo: Riesgos IA' : 'Modo: Cámara EPP IA'}
+          </span>
+        </div>
 
-                <PdfSignatures
-          data={{
-            ...data,
-            professionalSignature: signature?.signature,
-            professionalStamp: signature?.stamp,
-            professionalName: profile?.name,
-            professionalLicense: profile?.license
-          }}
-          box1={showSignatures.operator ? {
-            title: 'TRABAJADOR / OPERADOR',
-            subtitle: 'Aclaración y Firma',
-            signatureUrl: null,
-            isProfessional: false
-          } : null}
-          box3={showSignatures.supervisor ? {
-            title: 'SUPERVISOR / TESTIGO',
-            subtitle: 'Aclaración y Firma',
-            signatureUrl: null,
-            isProfessional: false
-          } : null}
-          box2={showSignatures.professional ? undefined : null} />
-        
-            <PdfBrandingFooter />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+          <div>
+            <label
+              style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }}
+              className="text-slate-600 dark:text-slate-300 uppercase flex items-center gap-1"
+            >
+              <Building2 size={13} /> Empresa / Cliente
+            </label>
+            <input
+              type="text"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              placeholder="Nombre de la empresa"
+              style={{ margin: 0, padding: '0.5rem 0.75rem', height: '38px', fontSize: '0.84rem' }}
+              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
+            />
+          </div>
 
-                {/* Footer Content (Static in report) */}
-                <div className="relative mt-[30px] pb-[30px] w-[100%] text-center text-[0.7rem] text-[#94a3b8]">
-                    Documento de verificación instantánea generado por Asistente HYS.
-                </div>
+          <div>
+            <label
+              style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }}
+              className="text-slate-600 dark:text-slate-300 uppercase flex items-center gap-1"
+            >
+              <MapPin size={13} /> Sector / Ubicación
+            </label>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Ej: Nave 2 / Taller"
+              style={{ margin: 0, padding: '0.5rem 0.75rem', height: '38px', fontSize: '0.84rem' }}
+              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
+            />
+          </div>
+
+          <div>
+            <label
+              style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }}
+              className="text-slate-600 dark:text-slate-300 uppercase flex items-center gap-1"
+            >
+              <User size={13} /> {isGeneralRisks ? 'Responsable Sector' : 'Operario Auditado'}
+            </label>
+            <input
+              type="text"
+              value={workerName}
+              onChange={(e) => setWorkerName(e.target.value)}
+              placeholder="Nombre y Apellido / Legajo"
+              style={{ margin: 0, padding: '0.5rem 0.75rem', height: '38px', fontSize: '0.84rem' }}
+              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
+            />
+          </div>
+
+          <div>
+            <label
+              style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }}
+              className="text-slate-600 dark:text-slate-300 uppercase flex items-center gap-1"
+            >
+              <AlertTriangle size={13} /> Nivel de Riesgo
+            </label>
+            <select
+              value={riskLevel}
+              onChange={(e) => setRiskLevel(e.target.value)}
+              style={{ margin: 0, padding: '0.45rem 0.75rem', height: '38px', fontSize: '0.84rem' }}
+              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-bold"
+            >
+              <option value="Bajo">Bajo / Controlado</option>
+              <option value="Medio">Medio</option>
+              <option value="Alto">Alto</option>
+              <option value="Crítico">Crítico</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+          <div>
+            <label
+              style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }}
+              className="text-slate-600 dark:text-slate-300 uppercase block"
+            >
+              Acción Correctiva / Preventiva Inmediata (24 hs)
+            </label>
+            <input
+              type="text"
+              value={immediateAction}
+              onChange={(e) => setImmediateAction(e.target.value)}
+              placeholder="Medida inmediata exigida al sector u operario..."
+              style={{ margin: 0, padding: '0.5rem 0.75rem', height: '38px', fontSize: '0.83rem' }}
+              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium"
+            />
+          </div>
+
+          <div>
+            <label
+              style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }}
+              className="text-slate-600 dark:text-slate-300 uppercase block"
+            >
+              Observaciones Adicionales del Profesional
+            </label>
+            <input
+              type="text"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Observaciones técnicas, N° de OT, condiciones del puesto..."
+              style={{ margin: 0, padding: '0.5rem 0.75rem', height: '38px', fontSize: '0.83rem' }}
+              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium"
+            />
+          </div>
+        </div>
+
+        {/* En modo EPP: Botones rápidos para validar/corregir detección de cada EPP */}
+        {!isGeneralRisks && (
+          <div className="mb-4 pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div className="text-xs font-extrabold text-slate-600 dark:text-slate-300 uppercase mb-2 flex items-center gap-1.5">
+              <ShieldCheck size={14} className="text-emerald-500" />
+              Validación Profesional de EPP en Escena (Tocá para alternar Cumple / Falta):
             </div>
-
-            <div className="no-print floating-action-bar fixed bottom-[2rem] left-[50%] -translate-x-1/2 flex gap-3 z-[100] bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-2 px-4 rounded-full shadow-2xl border border-slate-200 dark:border-slate-700">
-                <button onClick={() => toast.success('Los reportes de IA se guardan automáticamente en tu Historial.')} className="h-[38px] px-4 rounded-full flex items-center gap-2 font-bold text-xs text-white bg-slate-700 hover:bg-slate-600 border-none cursor-pointer shadow-sm transition-all">
-                    <CheckCircle2 size={16} /> GUARDADO
-                </button>
-                <button onClick={() => requirePro(() => setShowShare(true))} className="h-[38px] px-4 rounded-full flex items-center gap-2 font-bold text-xs text-white bg-[#0284c7] hover:bg-sky-500 border-none cursor-pointer shadow-sm transition-all">
-                    <Share2 size={16} /> COMPARTIR
-                </button>
-                <button onClick={handlePrint} className="h-[38px] px-4 rounded-full flex items-center gap-2 font-bold text-xs text-white bg-[#059669] hover:bg-emerald-500 border-none cursor-pointer shadow-sm transition-all">
-                    <Printer size={16} /> IMPRIMIR PDF
-                </button>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+              {[
+                { key: 'helmetUsed', label: 'Casco IRAM 3620' },
+                { key: 'shoesUsed', label: 'Calzado IRAM 3610' },
+                { key: 'glovesUsed', label: 'Guantes IRAM 3607' },
+                { key: 'clothingUsed', label: 'Ropa / Chaleco' },
+                { key: 'glassesUsed', label: 'Prot. Ocular' },
+                { key: 'hearingUsed', label: 'Prot. Auditiva' }
+              ].map((item) => {
+                const active = Boolean((ppeOverrides as any)[item.key]);
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() =>
+                      setPpeOverrides((prev) => ({
+                        ...prev,
+                        [item.key]: !(prev as any)[item.key]
+                      }))
+                    }
+                    style={{
+                      margin: 0,
+                      padding: '6px 10px',
+                      height: '36px',
+                      fontSize: '0.73rem',
+                      backgroundColor: active ? '#dcfce7' : '#fee2e2',
+                      color: active ? '#166534' : '#991b1b',
+                      border: `1.5px solid ${active ? '#86efac' : '#fca5a5'}`
+                    }}
+                    className="rounded-xl font-black flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                  >
+                    <span>{active ? '✓' : '✕'}</span>
+                    <span className="truncate">{item.label}</span>
+                  </button>
+                );
+              })}
             </div>
+          </div>
+        )}
 
-            <style>
-                {`
-                .spin { animation: spin 1.5s linear infinite; }
-                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-                
-                @media print {
-                    .report-print {
-                        min-height: 0 !important;
-                        padding: 0 !important;
-                        margin: 0 !important;
-                        box-shadow: none !important;
-                        border: none !important;
-                    }
-                    .no-break {
-                        page-break-inside: avoid !important;
-                        break-inside: avoid !important;
-                    }
-                }
-                `}
-            </style>
-        </div>);
+        {/* Configuración de Firmas */}
+        <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <span className="text-xs font-extrabold text-slate-600 dark:text-slate-300 uppercase">
+            Firmas a incluir en el PDF A4:
+          </span>
+          <div className="grid grid-cols-3 gap-2 w-full sm:w-auto">
+            {[
+              { key: 'operator', label: isGeneralRisks ? 'Resp. Sector' : 'Operador' },
+              { key: 'supervisor', label: 'Supervisor' },
+              { key: 'professional', label: 'Profesional' }
+            ].map((sig) => {
+              const checked = Boolean((showSignatures as any)[sig.key]);
+              return (
+                <button
+                  key={sig.key}
+                  type="button"
+                  onClick={() =>
+                    setShowSignatures((prev) => ({
+                      ...prev,
+                      [sig.key]: !(prev as any)[sig.key]
+                    }))
+                  }
+                  style={{
+                    margin: 0,
+                    padding: '0 12px',
+                    height: '34px',
+                    fontSize: '0.74rem',
+                    backgroundColor: checked ? '#eff6ff' : 'transparent',
+                    color: checked ? '#1d4ed8' : '#64748b',
+                    border: `1.5px solid ${checked ? '#3b82f6' : '#cbd5e1'}`
+                  }}
+                  className="rounded-xl font-extrabold flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                >
+                  <CheckCircle2 size={13} className={checked ? 'text-blue-600' : 'text-slate-400'} />
+                  <span>{sig.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
 
+      {/* VISTA PREVIA Y DOCUMENTO IMPRIMIBLE A4 */}
+      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-x-auto">
+        <AiReportPdfGenerator data={mergedReportData} showSignatures={showSignatures} />
+      </div>
+    </div>
+  );
 }

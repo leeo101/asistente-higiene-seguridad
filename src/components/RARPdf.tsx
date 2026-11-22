@@ -2,6 +2,7 @@ import React from 'react';
 import { Users, Building2, ShieldCheck, Activity, Stethoscope, AlertTriangle, FileSpreadsheet } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import PdfSignatures from './PdfSignatures';
 import type { RARSurvey } from '../types/rar';
 import { calculateRARStats, getAgentByCode, getRecommendedMedicalExams } from '../utils/rarCatalog';
 import { evaluateRarProtocolSafety } from '../utils/srtProtocols';
@@ -271,48 +272,34 @@ export default function RARPdf({ data }: Props): React.ReactElement | null {
           </div>
         )}
 
-        {/* Declaración Jurada y Firmas Bipartitas */}
+        {/* Declaración Jurada y Firmas Bipartitas Estandarizadas */}
         <div className="mt-3 pt-2.5 border-t-2 border-slate-300 text-[8pt]">
-          <p className="text-[6.5pt] text-slate-500 text-center italic mb-2.5">
+          <p className="text-[6.5pt] text-slate-500 text-center italic mb-1.5">
             El presente formulario tiene carácter de Declaración Jurada ante la A.R.T. y la Superintendencia de Riesgos del Trabajo (Res. S.R.T. N° 37/10 y Dec. 658/96). Los datos suministrados son fidedignos y reflejan las condiciones efectivas de exposición en los puestos de trabajo.
           </p>
-          <div className="grid grid-cols-2 gap-4">
-            {/* Firma Empleador */}
-            <div className="border border-slate-300 rounded p-2 text-center flex flex-col justify-between min-h-[85px] bg-white">
-              <span className="font-bold text-slate-700 uppercase text-[7pt] block mb-1">
-                REPRESENTANTE LEGAL / TITULAR EMPLEADOR
-              </span>
-              <div className="border-b border-dashed border-slate-300 w-36 mx-auto my-1.5 text-slate-400 text-[6.5pt] italic">
-                Firma y Aclaración
-              </div>
-              <div className="text-[7.5pt] font-bold text-slate-800">
-                {data.empleadorResponsable || data.razonSocial}
-                <span className="text-[6.5pt] text-slate-500 block font-normal">Titular / Apoderado</span>
-              </div>
-            </div>
-
-            {/* Firma Profesional HyS */}
-            <div className="border border-slate-300 rounded p-2 text-center flex flex-col justify-between min-h-[85px] bg-white">
-              <span className="font-bold text-slate-700 uppercase text-[7pt] block mb-1">
-                PROFESIONAL DE HIGIENE Y SEGURIDAD EN EL TRABAJO
-              </span>
-              <div className="flex-1 flex items-center justify-center py-0.5">
-                {actSignature ? (
-                  <img src={actSignature} alt="Firma Profesional" className="max-h-11 object-contain" />
-                ) : (
-                  <div className="border-b border-dashed border-slate-300 w-36 mx-auto my-1 text-slate-400 text-[6.5pt] italic">
-                    Firma y Sello
-                  </div>
-                )}
-              </div>
-              <div className="text-[7.5pt] font-bold text-slate-800">
-                {actName || data.profesionalNombre || 'Profesional HyS'}
-                <span className="text-[7pt] text-slate-500 block font-normal font-mono">
-                  Mat: {actLic || data.profesionalMatricula || 'Pendiente'}
-                </span>
-              </div>
-            </div>
-          </div>
+          <PdfSignatures
+            compact={true}
+            hideFooter={true}
+            data={{
+              ...data,
+              showSignatures: { operator: true, professional: true, supervisor: false }
+            }}
+            box1={{
+              title: 'REPRESENTANTE LEGAL / TITULAR EMPLEADOR',
+              subtitle: (data.empleadorResponsable || data.razonSocial || 'Titular / Apoderado').toUpperCase(),
+              signatureUrl: null,
+              isProfessional: false
+            }}
+            box2={{
+              title: 'TÉCNICO UNIVERSITARIO EN HIGIENE Y SEGURIDAD LABORAL',
+              subtitle: (actName || data.profesionalNombre || 'Firma y Sello Profesional').toUpperCase(),
+              signatureUrl: actSignature,
+              stampUrl: actStamp,
+              isProfessional: true,
+              license: actLic || data.profesionalMatricula
+            }}
+            box3={null}
+          />
         </div>
 
         <PdfBrandingFooter />

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CompanyLogo from './CompanyLogo';
+import PdfSignatures from './PdfSignatures';
 import { calculatePPEExpiryDays } from '../utils/srtProtocols';
 import ReportContentRenderer from './reports/ReportContentRenderer';
 
@@ -202,28 +203,30 @@ export default function PPEReceiptPdfGenerator({ items = [], receiptData, custom
           </div>
         )}
 
-        {/* Firmas finales */}
-        <div className="flex justify-between items-end mt-[18px] px-8 avoid-break">
-          <div className="w-[42%] text-center">
-            <div className="border-b border-black min-h-[40px] flex items-end justify-center mb-[4px]">
-              {workerSignature ? (
-                <img src={workerSignature} alt="Firma Trabajador" className="max-h-[38px] object-contain" />
-              ) : null}
-            </div>
-            <span className="text-[8pt] font-bold block">Firma del Trabajador</span>
-            <span className="text-[7pt] text-[#555] block">Aclaración: {workerName}</span>
-          </div>
-          <div className="w-[42%] text-center">
-            <div className="border-b border-black min-h-[40px] flex items-end justify-center mb-[4px]">
-              {actSignature ? (
-                <img src={actSignature} alt="Firma Profesional" className="max-h-[38px] object-contain" />
-              ) : null}
-            </div>
-            <span className="text-[8pt] font-bold block">Firma Responsable Higiene y Seguridad / Empleador</span>
-            <span className="text-[7pt] text-[#555] block">
-              {actName ? `${actName}${actLic ? ` • Mat. ${actLic}` : ''}` : 'Sello y Matrícula Profesional'}
-            </span>
-          </div>
+        {/* Firmas finales estandarizadas */}
+        <div className="mt-3 avoid-break">
+          <PdfSignatures
+            compact={true}
+            hideFooter={true}
+            data={{
+              ...receiptData,
+              showSignatures: { operator: true, professional: true, supervisor: false }
+            }}
+            box1={{
+              title: 'FIRMA DEL TRABAJADOR',
+              subtitle: (workerName || 'Aclaración del Trabajador').toUpperCase(),
+              signatureUrl: workerSignature,
+              isProfessional: false
+            }}
+            box2={{
+              title: 'TÉCNICO UNIVERSITARIO EN HIGIENE Y SEGURIDAD LABORAL',
+              subtitle: (actName || 'Firma y Sello Profesional').toUpperCase(),
+              signatureUrl: actSignature,
+              isProfessional: true,
+              license: actLic
+            }}
+            box3={null}
+          />
         </div>
         
         <div className="text-center mt-[15px] text-[6.5pt] text-[#666]">

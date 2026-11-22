@@ -93,11 +93,11 @@ export default function ExcavationSafetyForm(): React.ReactElement | null {
         setProfessionalLicense(lic);
         setCompetentPersonName(prev => prev || name);
 
-        if (prof.toLowerCase().includes('técnico') || prof.toLowerCase().includes('tecnico')) {
-          setProfessionalRole('Técnico en Higiene y Seguridad');
-        } else {
-          setProfessionalRole('Profesional de Higiene y Seguridad');
-        }
+        setProfessionalRole(
+          prof && prof.trim() !== '' && prof !== 'Técnico' && prof !== 'PROFESIONAL'
+            ? prof.trim()
+            : 'Técnico Universitario en Higiene y Seguridad Laboral'
+        );
       }
 
       // Cargar sello y firma digitalizada guardada

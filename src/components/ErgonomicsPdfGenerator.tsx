@@ -2,6 +2,7 @@ import React from 'react';
 import { Building2, MapPin, User, Briefcase, Activity, AlertTriangle, ShieldCheck, CheckCircle2, XCircle } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 import PdfBrandingFooter from './PdfBrandingFooter';
+import PdfSignatures from './PdfSignatures';
 import ReportContentRenderer from './reports/ReportContentRenderer';
 import { OFFICIAL_PLANILLA1_FACTORS, calculateNioshSrt886 } from '../utils/srtProtocols';
 
@@ -381,47 +382,51 @@ export default function ErgonomicsPdfGenerator({
         </div>
       </div>
 
-      {/* Firmas Tripartitas Enterprise */}
-      <div style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }} className="pt-3 border-t-2 border-dashed border-slate-300 flex gap-4 pb-2 justify-end">
-        {showSignatures.operator && (
-          <div style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }} className="flex-1 max-w-[240px] border border-slate-300 rounded-md p-2 flex flex-col items-center">
-            <div className="h-16 w-full flex items-end justify-center border-b border-slate-200 pb-1 mb-1">
-              {data.operatorSignature ? (
-                <img src={data.operatorSignature} alt="Firma Operador" className="max-h-14 object-contain" />
-              ) : null}
-            </div>
-            <p className="m-0 font-black text-[0.68rem] text-slate-800 uppercase">OPERADOR / TRABAJADOR</p>
-            <p className="m-0 text-[0.58rem] text-slate-500">Toma de conocimiento</p>
-          </div>
-        )}
-
-        {showSignatures.supervisor && (
-          <div style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }} className="flex-1 max-w-[240px] border border-slate-300 rounded-md p-2 flex flex-col items-center">
-            <div className="h-16 w-full flex items-end justify-center border-b border-slate-200 pb-1 mb-1">
-              {data.supervisorSignature ? (
-                <img src={data.supervisorSignature} alt="Firma Supervisor" className="max-h-14 object-contain" />
-              ) : null}
-            </div>
-            <p className="m-0 font-black text-[0.68rem] text-slate-800 uppercase">SUPERVISOR / EMPLEADOR</p>
-            <p className="m-0 text-[0.58rem] text-slate-500">Firma Autorizada</p>
-          </div>
-        )}
-
-        {showSignatures.professional && (
-          <div style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }} className="flex-1 max-w-[240px] border border-emerald-300 bg-emerald-50/40 rounded-md p-2 flex flex-col items-center">
-            <div className="h-16 w-full flex items-end justify-center border-b border-emerald-300 pb-1 mb-1">
-              {signature?.signature ? (
-                <img src={signature.signature} alt="Firma Profesional" className="max-h-14 object-contain" />
-              ) : null}
-            </div>
-            <p className="m-0 font-black text-[0.68rem] text-emerald-900 uppercase">PROFESIONAL ACTUANTE</p>
-            <p className="m-0 text-[0.58rem] text-emerald-800 font-bold">{profile?.name || data.profesionalNombre || 'Especialista H&S'}</p>
-            {(profile?.license || data.profesionalMatricula) && (
-              <p className="m-0 text-[0.58rem] text-emerald-700">Mat: {profile?.license || data.profesionalMatricula}</p>
-            )}
-          </div>
-        )}
-      </div>
+      {/* Firmas Oficiales Estandarizadas (Firma y Sello Profesional) */}
+      <PdfSignatures
+        compact={true}
+        hideFooter={true}
+        data={{
+          ...data,
+          showSignatures,
+          professionalSignature: signature?.signature || data.professionalSignature,
+          professionalStamp: signature?.stamp || data.professionalStamp,
+          professionalName: profile?.name || data.profesionalNombre,
+          professionalLicense: profile?.license || data.profesionalMatricula
+        }}
+        box1={
+          showSignatures.operator
+            ? {
+                title: 'OPERADOR / TRABAJADOR',
+                subtitle: 'Toma de Conocimiento',
+                signatureUrl: data.operatorSignature || null,
+                isProfessional: false
+              }
+            : null
+        }
+        box2={
+          showSignatures.professional
+            ? {
+                title: 'TÉCNICO UNIVERSITARIO EN HIGIENE Y SEGURIDAD LABORAL',
+                subtitle: (profile?.name || data.profesionalNombre || 'Firma y Sello Profesional').toUpperCase(),
+                signatureUrl: signature?.signature || data.professionalSignature || null,
+                stampUrl: signature?.stamp || data.professionalStamp || null,
+                isProfessional: true,
+                license: profile?.license || data.profesionalMatricula
+              }
+            : null
+        }
+        box3={
+          showSignatures.supervisor
+            ? {
+                title: 'SUPERVISOR / EMPLEADOR',
+                subtitle: 'Firma Autorizada',
+                signatureUrl: data.supervisorSignature || null,
+                isProfessional: false
+              }
+            : null
+        }
+      />
 
       <PdfBrandingFooter />
     </div>

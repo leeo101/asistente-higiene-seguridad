@@ -93,6 +93,19 @@ export default function ExtinguisherAI() {
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [signature, setSignature] = useState<string | null>(null);
   const [inspectorName, setInspectorName] = useState('');
+  const [formCompany, setFormCompany] = useState('Planta Principal');
+  const [formLocation, setFormLocation] = useState('Sector Operativo');
+  const [formExtinguisherNumber, setFormExtinguisherNumber] = useState('EXT-001');
+  const [formCapacity, setFormCapacity] = useState('5 kg');
+  const [formSignageStatus, setFormSignageStatus] = useState<'conforme' | 'faltante' | 'deteriorada'>('conforme');
+  const [formAccessStatus, setFormAccessStatus] = useState<'libre' | 'obstruido'>('libre');
+  const [formNextCheck, setFormNextCheck] = useState(
+    new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  );
+  const [formPhDate, setFormPhDate] = useState(
+    new Date(Date.now() + 4 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  );
+  const [formNotes, setFormNotes] = useState('');
 
   // Limpieza y poda de historial para proteger la cuota de localStorage (5 MB)
   const sanitizeAndPruneHistory = (items: any[]): any[] => {
@@ -300,20 +313,29 @@ export default function ExtinguisherAI() {
       status: analysisResult.status || analysisResult.expirationStatus || 'vigente',
       manometerStatus: analysisResult.manometerStatus || 'zona_verde',
       manometerMessage: analysisResult.manometerMessage || 'Manómetro en cuadrante verde operativo.',
+      sealStatus: analysisResult.sealStatus || 'intacto',
+      pinStatus: analysisResult.pinStatus || 'presente',
+      hoseStatus: analysisResult.hoseStatus || 'bueno',
       confidence: analysisResult.confidence || 0.95,
-      capacity: analysisResult.capacity || '5 kg',
+      capacity: formCapacity || analysisResult.capacity || '5 kg',
       lastCheck: analysisResult.lastCheck || new Date().toISOString().split('T')[0],
-      nextCheck: analysisResult.nextCheck || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      phDate: analysisResult.phDate || new Date(Date.now() + 365 * 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      lastCharge: analysisResult.lastCheck || new Date().toISOString().split('T')[0],
+      nextCheck: formNextCheck || analysisResult.nextCheck || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      phDate: formPhDate || analysisResult.phDate || new Date(Date.now() + 365 * 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      hydraulicTestExpiry: formPhDate || analysisResult.phDate || new Date(Date.now() + 365 * 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       recommendations: analysisResult.recommendations || [
-        'Verificar presión mensual en manómetro',
-        'Mantener señalización IRAM 10005 visible',
-        'Controlar acceso sin obstáculos a 1.20m - 1.50m de altura'
+        'Verificar presión mensual en manómetro (Norma IRAM 3517-2)',
+        'Mantener chapa baliza y señalización IRAM 10005 visible',
+        'Controlar acceso libre sin obstáculos a 1.20 m - 1.50 m de altura'
       ],
       inspectorName: inspectorName.trim() || 'Inspector Técnico H&S',
       signature: signature || null,
-      company: 'Planta Principal',
-      location: 'Sector General'
+      company: formCompany.trim() || 'Planta Principal',
+      location: formLocation.trim() || 'Sector General',
+      extinguisherNumber: formExtinguisherNumber.trim() || `EXT-${String(history.length + 1).padStart(3, '0')}`,
+      signageStatus: formSignageStatus,
+      accessStatus: formAccessStatus,
+      notes: formNotes.trim()
     };
 
     const updated = [newRecord, ...history];
@@ -326,6 +348,7 @@ export default function ExtinguisherAI() {
     setAnalysisResult(null);
     setSignature(null);
     setInspectorName('');
+    setFormNotes('');
   };
 
   // Métricas KPI
@@ -540,7 +563,7 @@ Generado con Asistente HYS`
               </div>
 
               {/* Botones del Modal */}
-              <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="grid grid-cols-2 sm:flex sm:justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => {
@@ -548,14 +571,17 @@ Generado con Asistente HYS`
                     setSelectedInspection(null);
                     setShareItem(item);
                   }}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-[#059669] text-white flex items-center gap-2 hover:bg-emerald-600 transition-colors cursor-pointer"
+                  style={{ margin: 0, padding: '0 14px', height: '40px', fontSize: '0.78rem' }}
+                  className="rounded-xl font-extrabold bg-[#059669] text-white flex items-center justify-center gap-2 hover:bg-emerald-600 transition-colors cursor-pointer"
                 >
-                  <Share2 size={14} /> Compartir / Imprimir
+                  <Share2 size={14} className="shrink-0" />
+                  <span>Compartir / PDF</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedInspection(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 transition-colors cursor-pointer"
+                  style={{ margin: 0, padding: '0 14px', height: '40px', fontSize: '0.78rem' }}
+                  className="rounded-xl font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 transition-colors cursor-pointer flex items-center justify-center"
                 >
                   Cerrar
                 </button>
@@ -577,7 +603,7 @@ Generado con Asistente HYS`
         {/* MODO CÁMARA / NUEVA INSPECCIÓN */}
         {isCameraVisible ? (
           <div className="mt-6 space-y-6 animate-fade-in">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <button
                 type="button"
                 onClick={() => {
@@ -585,9 +611,11 @@ Generado con Asistente HYS`
                   setCapturedImage(null);
                   setAnalysisResult(null);
                 }}
-                className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer shadow-sm"
+                style={{ margin: 0, padding: '0 14px', height: '40px', fontSize: '0.78rem' }}
+                className="flex items-center justify-center gap-2 font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer shadow-sm"
               >
-                <ArrowLeft size={16} /> Volver al Historial
+                <ArrowLeft size={16} className="shrink-0" />
+                <span>Volver al Historial</span>
               </button>
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 Nueva Inspección Asistida por IA
@@ -604,6 +632,11 @@ Generado con Asistente HYS`
                 }}
                 onAnalysisComplete={(res, img) => {
                   setCapturedImage(img);
+                  setFormNextCheck(
+                    res.expirationDate ||
+                      new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                  );
+                  setFormExtinguisherNumber(`EXT-${String(history.length + 1).padStart(3, '0')}`);
                   setAnalysisResult({
                     extinguisherDetected: true,
                     type: res.type,
@@ -611,25 +644,28 @@ Generado con Asistente HYS`
                     expirationStatus: res.expirationStatus,
                     manometerStatus: res.manometerStatus,
                     manometerMessage: res.manometerMessage,
+                    sealStatus: res.sealStatus,
+                    pinStatus: res.pinStatus,
+                    hoseStatus: res.hoseStatus,
                     confidence: (res.confidenceScore || 95) / 100,
                     recommendations: res.recommendations
                   });
                 }}
               />
             ) : (
-              /* Panel de Revisión y Firma antes de Guardar */
-              <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-xl space-y-6">
-                <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
+              /* Panel de Revisión Técnica y Firma antes de Guardar */
+              <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-4 sm:p-8 shadow-xl space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-200 dark:border-slate-700">
                   <div className="flex items-center gap-3">
-                    <div className="p-3 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 rounded-2xl">
+                    <div className="p-3 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 rounded-2xl shrink-0">
                       <CheckCircle2 size={24} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-slate-900 dark:text-white m-0">
-                        Análisis Completado Exitosamente
+                      <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white m-0">
+                        Diagnóstico IA Completado — Ficha Técnica IRAM 3517-2
                       </h3>
                       <p className="text-xs text-slate-500 m-0">
-                        Revisa los resultados, agrega tu firma y guarda la inspección.
+                        Revisá o completá los datos técnicos del extintor antes de guardar el acta oficial.
                       </p>
                     </div>
                   </div>
@@ -639,65 +675,254 @@ Generado con Asistente HYS`
                       setAnalysisResult(null);
                       setCapturedImage(null);
                     }}
-                    className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-3 py-1.5 rounded-xl hover:bg-slate-200 transition-colors"
+                    style={{ margin: 0, padding: '0 14px', height: '38px', fontSize: '0.78rem' }}
+                    className="flex items-center justify-center gap-1.5 font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 rounded-xl hover:bg-slate-200 transition-colors cursor-pointer"
                   >
-                    <RefreshCw size={14} /> Reintentar
+                    <RefreshCw size={14} className="shrink-0" />
+                    <span>Reintentar Foto</span>
                   </button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Foto Capturada */}
-                  {capturedImage && (
-                    <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-200 dark:border-slate-700 flex items-center justify-center min-h-[260px]">
-                      <img
-                        src={capturedImage}
-                        alt="Captura"
-                        className="max-h-[260px] w-auto object-contain mx-auto"
-                      />
-                      <div className="absolute top-3 right-3">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-black uppercase text-white shadow ${
-                            analysisResult.status === 'vigente' ? 'bg-emerald-600' : 'bg-rose-600'
-                          }`}
+                  {/* Columna Izquierda: Foto + Datos de Identificación */}
+                  <div className="space-y-4">
+                    {capturedImage && (
+                      <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-200 dark:border-slate-700 flex items-center justify-center min-h-[240px]">
+                        <img
+                          src={capturedImage}
+                          alt="Captura"
+                          className="max-h-[240px] w-auto object-contain mx-auto"
+                        />
+                        <div className="absolute top-3 right-3">
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-black uppercase text-white shadow ${
+                              analysisResult.status === 'vigente' ? 'bg-emerald-600' : 'bg-rose-600'
+                            }`}
+                          >
+                            {analysisResult.status === 'vigente' ? 'VIGENTE' : 'REVISIÓN'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }} className="text-slate-600 dark:text-slate-300 uppercase block">
+                          Empresa / Establecimiento
+                        </label>
+                        <input
+                          type="text"
+                          value={formCompany}
+                          onChange={(e) => setFormCompany(e.target.value)}
+                          placeholder="Ej: Planta Principal"
+                          style={{ margin: 0, padding: '0.45rem 0.75rem', height: '38px', fontSize: '0.82rem' }}
+                          className="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-semibold"
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }} className="text-slate-600 dark:text-slate-300 uppercase block">
+                          Sector / Ubicación Física
+                        </label>
+                        <input
+                          type="text"
+                          value={formLocation}
+                          onChange={(e) => setFormLocation(e.target.value)}
+                          placeholder="Ej: Nave 1 / Tablero General"
+                          style={{ margin: 0, padding: '0.45rem 0.75rem', height: '38px', fontSize: '0.82rem' }}
+                          className="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-semibold"
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }} className="text-slate-600 dark:text-slate-300 uppercase block">
+                          N° Extintor / Marbete
+                        </label>
+                        <input
+                          type="text"
+                          value={formExtinguisherNumber}
+                          onChange={(e) => setFormExtinguisherNumber(e.target.value)}
+                          placeholder="Ej: EXT-001"
+                          style={{ margin: 0, padding: '0.45rem 0.75rem', height: '38px', fontSize: '0.82rem' }}
+                          className="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-semibold"
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }} className="text-slate-600 dark:text-slate-300 uppercase block">
+                          Capacidad Nominal
+                        </label>
+                        <select
+                          value={formCapacity}
+                          onChange={(e) => setFormCapacity(e.target.value)}
+                          style={{ margin: 0, padding: '0.45rem 0.75rem', height: '38px', fontSize: '0.82rem' }}
+                          className="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-semibold"
                         >
-                          {analysisResult.status === 'vigente' ? 'VIGENTE' : 'REVISIÓN'}
-                        </span>
+                          <option value="1 kg">1 kg</option>
+                          <option value="2.5 kg">2.5 kg</option>
+                          <option value="3.5 kg">3.5 kg (CO2)</option>
+                          <option value="5 kg">5 kg</option>
+                          <option value="10 kg">10 kg</option>
+                          <option value="25 kg">25 kg (Carro)</option>
+                          <option value="50 kg">50 kg (Carro)</option>
+                          <option value="6 Lts">6 Litros (Clase K)</option>
+                          <option value="10 Lts">10 Litros (Agua/Espuma)</option>
+                        </select>
                       </div>
                     </div>
-                  )}
+                  </div>
 
-                  {/* Resumen del Diagnóstico */}
+                  {/* Columna Derecha: Parámetros Técnicos IRAM 3517-2 + Firma */}
                   <div className="space-y-3">
-                    <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
-                      <div className="text-xs text-slate-400 font-bold uppercase mb-1">Tipo y Estado</div>
-                      <div className="text-base font-black text-slate-900 dark:text-white">
-                        {formatType(analysisResult.type)} — {analysisResult.status === 'vigente' ? 'Apto para Uso' : 'Fuera de Norma'}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }} className="text-slate-600 dark:text-slate-300 uppercase block">
+                          Tipo de Agente Extintor
+                        </label>
+                        <select
+                          value={analysisResult.type || 'ABC'}
+                          onChange={(e) => setAnalysisResult({ ...analysisResult, type: e.target.value })}
+                          style={{ margin: 0, padding: '0.45rem 0.75rem', height: '38px', fontSize: '0.82rem' }}
+                          className="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-bold"
+                        >
+                          <option value="ABC">Polvo Químico ABC</option>
+                          <option value="CO2">Dióxido de Carbono (CO2)</option>
+                          <option value="Agua">Agua Bajo Presión</option>
+                          <option value="Espuma">Espuma Mecánica AFFF</option>
+                          <option value="K">Acetato de Potasio (Clase K)</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }} className="text-slate-600 dark:text-slate-300 uppercase block">
+                          Estado Vigencia Marbete
+                        </label>
+                        <select
+                          value={analysisResult.status || 'vigente'}
+                          onChange={(e) =>
+                            setAnalysisResult({
+                              ...analysisResult,
+                              status: e.target.value,
+                              expirationStatus: e.target.value
+                            })
+                          }
+                          style={{ margin: 0, padding: '0.45rem 0.75rem', height: '38px', fontSize: '0.82rem' }}
+                          className="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-bold"
+                        >
+                          <option value="vigente">✓ Carga Vigente</option>
+                          <option value="por_vencer">⚠️ Próximo a Vencer</option>
+                          <option value="vencido">✕ Vencido (Recargar)</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }} className="text-slate-600 dark:text-slate-300 uppercase block">
+                          Lectura Manómetro
+                        </label>
+                        <select
+                          value={analysisResult.manometerStatus || 'zona_verde'}
+                          onChange={(e) =>
+                            setAnalysisResult({
+                              ...analysisResult,
+                              manometerStatus: e.target.value,
+                              manometerMessage:
+                                e.target.value === 'zona_verde'
+                                  ? 'Manómetro en Rango Operativo (Zona Verde: 1.2-1.4 MPa).'
+                                  : e.target.value === 'descargado'
+                                    ? 'Manómetro en Zona Roja (Descargado / Baja Presión).'
+                                    : e.target.value === 'sobrepresionado'
+                                      ? 'Manómetro Sobrepresionado (Verificar válvula).'
+                                      : 'Sin manómetro (CO2 Alta Presión — Control por peso).'
+                            })
+                          }
+                          style={{ margin: 0, padding: '0.45rem 0.75rem', height: '38px', fontSize: '0.82rem' }}
+                          className="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-bold"
+                        >
+                          <option value="zona_verde">🟢 Zona Verde (1.2-1.4 MPa)</option>
+                          <option value="descargado">🔴 Descargado / Baja Presión</option>
+                          <option value="sobrepresionado">🟠 Sobrepresionado</option>
+                          <option value="no_aplica">🔵 No Aplica (CO2)</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }} className="text-slate-600 dark:text-slate-300 uppercase block">
+                          Vto. Recarga Anual
+                        </label>
+                        <input
+                          type="date"
+                          value={formNextCheck}
+                          onChange={(e) => setFormNextCheck(e.target.value)}
+                          style={{ margin: 0, padding: '0.45rem 0.75rem', height: '38px', fontSize: '0.82rem' }}
+                          className="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-semibold"
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }} className="text-slate-600 dark:text-slate-300 uppercase block">
+                          Chapa Baliza IRAM 10005
+                        </label>
+                        <select
+                          value={formSignageStatus}
+                          onChange={(e) => setFormSignageStatus(e.target.value as any)}
+                          style={{ margin: 0, padding: '0.45rem 0.75rem', height: '38px', fontSize: '0.82rem' }}
+                          className="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-semibold"
+                        >
+                          <option value="conforme">✓ Chapa Baliza Conforme</option>
+                          <option value="faltante">✕ Sin Chapa Baliza</option>
+                          <option value="deteriorada">⚠️ Señalización Deteriorada</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }} className="text-slate-600 dark:text-slate-300 uppercase block">
+                          Acceso y Altura (1.20-1.50m)
+                        </label>
+                        <select
+                          value={formAccessStatus}
+                          onChange={(e) => setFormAccessStatus(e.target.value as any)}
+                          style={{ margin: 0, padding: '0.45rem 0.75rem', height: '38px', fontSize: '0.82rem' }}
+                          className="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-semibold"
+                        >
+                          <option value="libre">✓ Acceso Libre y Altura OK</option>
+                          <option value="obstruido">✕ Acceso Obstruido / Fuera Altura</option>
+                        </select>
                       </div>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
-                      <div className="text-xs text-slate-400 font-bold uppercase mb-1">Lectura de Manómetro</div>
-                      <div className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                        {analysisResult.manometerMessage || 'Presión conforme en rango operativo.'}
-                      </div>
-                    </div>
-
-                    {/* Firma Digital */}
-                    <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 space-y-2">
-                      <div className="text-xs text-slate-500 font-bold uppercase">Firma del Inspector / Auditor</div>
+                    <div>
+                      <label style={{ margin: '0 0 4px 0', fontSize: '0.72rem', fontWeight: 800 }} className="text-slate-600 dark:text-slate-300 uppercase block">
+                        Observaciones Técnicas del Profesional
+                      </label>
                       <input
                         type="text"
-                        placeholder="Nombre y Apellido del Inspector"
+                        value={formNotes}
+                        onChange={(e) => setFormNotes(e.target.value)}
+                        placeholder="Observaciones adicionales (estado soporte, manguera, precinto...)"
+                        style={{ margin: 0, padding: '0.45rem 0.75rem', height: '38px', fontSize: '0.82rem' }}
+                        className="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-medium"
+                      />
+                    </div>
+
+                    {/* Firma Digital del Responsable de Sector (Opcional, la firma del Profesional sale automática del perfil) */}
+                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 space-y-2">
+                      <div className="text-xs text-slate-500 font-bold uppercase">
+                        Firma Conformidad Responsable del Sector (Opcional)
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Nombre y Apellido del Responsable del Sector"
                         value={inspectorName}
                         onChange={(e) => setInspectorName(e.target.value)}
-                        className="w-full h-9 px-3 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white outline-none focus:border-blue-500"
+                        style={{ margin: 0, padding: '0.45rem 0.75rem', height: '36px', fontSize: '0.8rem' }}
+                        className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white outline-none focus:border-blue-500"
                       />
                       <SignatureCanvas onSave={(sig) => setSignature(sig)} />
                     </div>
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                <div className="grid grid-cols-2 sm:flex sm:justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                   <button
                     type="button"
                     onClick={() => {
@@ -705,16 +930,19 @@ Generado con Asistente HYS`
                       setAnalysisResult(null);
                       setCapturedImage(null);
                     }}
-                    className="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+                    style={{ margin: 0, padding: '0 18px', height: '42px', fontSize: '0.8rem' }}
+                    className="rounded-xl font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 transition-colors cursor-pointer flex items-center justify-center"
                   >
                     Cancelar
                   </button>
                   <button
                     type="button"
                     onClick={handleSaveInspection}
-                    className="px-6 py-2.5 rounded-xl text-xs font-extrabold bg-[#059669] hover:bg-emerald-600 text-white flex items-center gap-2 shadow-lg transition-all cursor-pointer"
+                    style={{ margin: 0, padding: '0 20px', height: '42px', fontSize: '0.82rem' }}
+                    className="rounded-xl font-extrabold bg-[#059669] hover:bg-emerald-600 text-white flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
                   >
-                    <CheckCircle2 size={16} /> GUARDAR EN HISTORIAL
+                    <CheckCircle2 size={16} className="shrink-0" />
+                    <span>GUARDAR ACTA</span>
                   </button>
                 </div>
               </div>
@@ -786,20 +1014,18 @@ Generado con Asistente HYS`
               </div>
             </div>
 
-            {/* Toolbar de Búsqueda y Botones de Acción */}
-            <div className="mt-8 space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="relative flex-1 min-w-[200px] sm:max-w-xs h-[38px]">
+            {/* Toolbar de Búsqueda y Botones de Acción Responsiva */}
+            <div className="mt-8 space-y-3.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="relative w-full sm:max-w-xs h-[40px]">
                   <Search
                     size={16}
                     className="text-slate-400 pointer-events-none z-10"
                     style={{
                       position: 'absolute',
-                      left: '0.75rem',
-                      top: 0,
-                      bottom: 0,
-                      marginTop: 'auto',
-                      marginBottom: 'auto',
+                      left: '0.85rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
                       display: 'block'
                     }}
                   />
@@ -808,36 +1034,50 @@ Generado con Asistente HYS`
                     placeholder="Buscar por tipo, estado o sector..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ paddingLeft: '2.25rem', paddingRight: '0.75rem', height: '38px', width: '100%', boxSizing: 'border-box', outline: 'none' }}
-                    className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                    style={{
+                      margin: 0,
+                      marginBottom: 0,
+                      paddingTop: '0.5rem',
+                      paddingBottom: '0.5rem',
+                      paddingLeft: '2.4rem',
+                      paddingRight: '0.85rem',
+                      height: '40px',
+                      width: '100%',
+                      boxSizing: 'border-box',
+                      outline: 'none'
+                    }}
+                    className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                   />
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="grid grid-cols-2 sm:flex items-center gap-2.5 w-full sm:w-auto">
                   {/* Botón Exportar CSV */}
                   <button
                     type="button"
                     onClick={handleExportCSV}
                     title="Exportar historial de inspecciones a CSV"
                     style={{
+                      margin: 0,
                       backgroundColor: '#0284c7',
                       color: '#ffffff',
                       border: 'none',
-                      padding: '6px 14px',
+                      padding: '0 14px',
                       fontSize: '12px',
                       fontWeight: '800',
-                      borderRadius: '8px',
+                      borderRadius: '10px',
                       cursor: 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
+                      justifyContent: 'center',
                       gap: '6px',
                       whiteSpace: 'nowrap',
-                      height: '34px',
+                      height: '40px',
+                      width: '100%',
                       boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)',
                       minHeight: 'unset'
                     }}
                   >
-                    <FileSpreadsheet size={14} />
+                    <FileSpreadsheet size={15} className="shrink-0" />
                     <span>Exportar CSV</span>
                   </button>
 
@@ -847,95 +1087,113 @@ Generado con Asistente HYS`
                     onClick={handleNewInspection}
                     disabled={isOpeningCamera}
                     style={{
+                      margin: 0,
                       backgroundColor: '#059669',
                       color: '#ffffff',
                       border: 'none',
-                      padding: '6px 14px',
+                      padding: '0 14px',
                       fontSize: '12px',
                       fontWeight: '800',
-                      borderRadius: '8px',
+                      borderRadius: '10px',
                       cursor: 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
+                      justifyContent: 'center',
                       gap: '6px',
                       whiteSpace: 'nowrap',
-                      height: '34px',
+                      height: '40px',
+                      width: '100%',
                       boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)',
                       minHeight: 'unset'
                     }}
                   >
-                    <Plus size={14} />
+                    <Plus size={15} className="shrink-0" />
                     <span>Nueva Inspección</span>
                   </button>
                 </div>
               </div>
 
-              {/* Pastillas de Filtro */}
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
+              {/* Pastillas de Filtro Responsivas */}
+              <div className="grid grid-cols-3 sm:flex items-center gap-2 pb-1 max-w-full">
                 <button
+                  type="button"
                   onClick={() => setFilterStatus('all')}
                   style={{
-                    backgroundColor: filterStatus === 'all' ? '#0f172a' : '#ffffff',
-                    color: filterStatus === 'all' ? '#ffffff' : '#334155',
-                    border: filterStatus === 'all' ? 'none' : '1px solid #cbd5e1',
-                    padding: '6px 12px',
-                    borderRadius: '8px',
+                    margin: 0,
+                    backgroundColor: filterStatus === 'all' ? '#0284c7' : undefined,
+                    color: filterStatus === 'all' ? '#ffffff' : undefined,
+                    border: filterStatus === 'all' ? '1px solid #0284c7' : undefined,
+                    padding: '0 12px',
+                    height: '36px',
+                    borderRadius: '10px',
                     fontSize: '12px',
                     fontWeight: '800',
                     cursor: 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
+                    justifyContent: 'center',
                     gap: '6px',
                     whiteSpace: 'nowrap',
                     transition: 'all 0.15s ease',
                     minHeight: 'unset'
                   }}
+                  className={filterStatus === 'all' ? '' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700'}
                 >
                   <span>Todos ({metrics.total})</span>
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => setFilterStatus('vigente')}
                   style={{
-                    backgroundColor: filterStatus === 'vigente' ? '#059669' : '#ffffff',
-                    color: filterStatus === 'vigente' ? '#ffffff' : '#334155',
-                    border: filterStatus === 'vigente' ? 'none' : '1px solid #cbd5e1',
-                    padding: '6px 12px',
-                    borderRadius: '8px',
+                    margin: 0,
+                    backgroundColor: filterStatus === 'vigente' ? '#059669' : undefined,
+                    color: filterStatus === 'vigente' ? '#ffffff' : undefined,
+                    border: filterStatus === 'vigente' ? '1px solid #059669' : undefined,
+                    padding: '0 12px',
+                    height: '36px',
+                    borderRadius: '10px',
                     fontSize: '12px',
                     fontWeight: '800',
                     cursor: 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
+                    justifyContent: 'center',
                     gap: '6px',
                     whiteSpace: 'nowrap',
                     transition: 'all 0.15s ease',
                     minHeight: 'unset'
                   }}
+                  className={filterStatus === 'vigente' ? '' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700'}
                 >
                   <span>Vigentes ({metrics.vigente})</span>
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => setFilterStatus('vencido')}
                   style={{
-                    backgroundColor: filterStatus === 'vencido' ? '#d97706' : '#ffffff',
-                    color: filterStatus === 'vencido' ? '#ffffff' : '#334155',
-                    border: filterStatus === 'vencido' ? 'none' : '1px solid #cbd5e1',
-                    padding: '6px 12px',
-                    borderRadius: '8px',
+                    margin: 0,
+                    backgroundColor: filterStatus === 'vencido' ? '#d97706' : undefined,
+                    color: filterStatus === 'vencido' ? '#ffffff' : undefined,
+                    border: filterStatus === 'vencido' ? '1px solid #d97706' : undefined,
+                    padding: '0 12px',
+                    height: '36px',
+                    borderRadius: '10px',
                     fontSize: '12px',
                     fontWeight: '800',
                     cursor: 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
+                    justifyContent: 'center',
                     gap: '6px',
                     whiteSpace: 'nowrap',
                     transition: 'all 0.15s ease',
                     minHeight: 'unset'
                   }}
+                  className={filterStatus === 'vencido' ? '' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700'}
                 >
-                  <span>Con Desvíos ({metrics.vencido})</span>
+                  <span>Desvíos ({metrics.vencido})</span>
                 </button>
               </div>
             </div>
@@ -954,7 +1212,6 @@ Generado con Asistente HYS`
               <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {filtered.map((item: any) => {
                   const isVig = item.status === 'vigente' || item.expirationStatus === 'vigente';
-                  const extInfo = EXTINTOR_INFO[item.type] || { name: item.type || 'Extintor', color: '#0284c7' };
 
                   return (
                     <div
@@ -969,10 +1226,10 @@ Generado con Asistente HYS`
                             </span>
                             <div>
                               <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm truncate max-w-[180px]">
-                                {formatType(item.type)}
+                                {formatType(item.type)} {item.extinguisherNumber ? `· ${item.extinguisherNumber}` : ''}
                               </h3>
                               <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[180px]">
-                                {item.location || 'Planta Operativa'}
+                                {item.company ? `${item.company} — ` : ''}{item.location || 'Planta Operativa'}
                               </p>
                             </div>
                           </div>
@@ -1022,28 +1279,30 @@ Generado con Asistente HYS`
                         </div>
                       </div>
 
-                      <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-1.5">
+                      <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-700 grid grid-cols-4 sm:flex sm:justify-end gap-1.5">
                         {/* Botón Ver */}
                         <button
                           type="button"
                           onClick={() => setSelectedInspection(item)}
                           title="Ver Diagnóstico Completo"
                           style={{
+                            margin: 0,
                             backgroundColor: '#2563eb',
                             color: '#ffffff',
                             border: 'none',
-                            padding: '4px 8px',
+                            padding: '6px 8px',
                             fontSize: '11px',
                             fontWeight: '700',
-                            borderRadius: '6px',
+                            borderRadius: '8px',
                             cursor: 'pointer',
                             display: 'inline-flex',
                             alignItems: 'center',
+                            justifyContent: 'center',
                             gap: '4px',
                             minHeight: 'unset'
                           }}
                         >
-                          <Eye size={12} />
+                          <Eye size={12} className="shrink-0" />
                           <span>Ver</span>
                         </button>
 
@@ -1051,24 +1310,26 @@ Generado con Asistente HYS`
                         <button
                           type="button"
                           onClick={() => setShareItem(item)}
-                          title="Compartir Informe"
+                          title="Compartir / PDF"
                           style={{
+                            margin: 0,
                             backgroundColor: '#059669',
                             color: '#ffffff',
                             border: 'none',
-                            padding: '4px 8px',
+                            padding: '6px 8px',
                             fontSize: '11px',
                             fontWeight: '700',
-                            borderRadius: '6px',
+                            borderRadius: '8px',
                             cursor: 'pointer',
                             display: 'inline-flex',
                             alignItems: 'center',
+                            justifyContent: 'center',
                             gap: '4px',
                             minHeight: 'unset'
                           }}
                         >
-                          <Share2 size={12} />
-                          <span>Compartir</span>
+                          <Share2 size={12} className="shrink-0" />
+                          <span>PDF</span>
                         </button>
 
                         {/* Botón QR */}
@@ -1080,21 +1341,23 @@ Generado con Asistente HYS`
                           }}
                           title="Código QR"
                           style={{
+                            margin: 0,
                             backgroundColor: '#475569',
                             color: '#ffffff',
                             border: 'none',
-                            padding: '4px 8px',
+                            padding: '6px 8px',
                             fontSize: '11px',
                             fontWeight: '700',
-                            borderRadius: '6px',
+                            borderRadius: '8px',
                             cursor: 'pointer',
                             display: 'inline-flex',
                             alignItems: 'center',
+                            justifyContent: 'center',
                             gap: '4px',
                             minHeight: 'unset'
                           }}
                         >
-                          <QrCode size={12} />
+                          <QrCode size={12} className="shrink-0" />
                           <span>QR</span>
                         </button>
 
@@ -1104,22 +1367,24 @@ Generado con Asistente HYS`
                           onClick={() => setDeleteTarget(item.id)}
                           title="Eliminar Registro"
                           style={{
+                            margin: 0,
                             backgroundColor: '#dc2626',
                             color: '#ffffff',
                             border: 'none',
-                            padding: '4px 8px',
+                            padding: '6px 8px',
                             fontSize: '11px',
                             fontWeight: '700',
-                            borderRadius: '6px',
+                            borderRadius: '8px',
                             cursor: 'pointer',
                             display: 'inline-flex',
                             alignItems: 'center',
+                            justifyContent: 'center',
                             gap: '4px',
                             minHeight: 'unset'
                           }}
                         >
-                          <Trash2 size={12} />
-                          <span>Eliminar</span>
+                          <Trash2 size={12} className="shrink-0" />
+                          <span>Borrar</span>
                         </button>
                       </div>
                     </div>

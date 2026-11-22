@@ -305,20 +305,18 @@ export default function AICameraManager(): React.ReactElement | null {
           </div>
         )}
 
-        {/* Toolbar de Búsqueda y Botones estilo Aptitudes Médicas */}
-        <div className="mt-8 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="relative flex-1 min-w-[200px] sm:max-w-xs h-[38px]">
+        {/* Toolbar de Búsqueda y Botones Responsiva */}
+        <div className="mt-8 space-y-3.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="relative w-full sm:max-w-xs h-[40px]">
               <Search
                 size={16}
                 className="text-slate-400 pointer-events-none z-10"
                 style={{
                   position: 'absolute',
-                  left: '0.75rem',
-                  top: 0,
-                  bottom: 0,
-                  marginTop: 'auto',
-                  marginBottom: 'auto',
+                  left: '0.85rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
                   display: 'block'
                 }}
               />
@@ -327,36 +325,50 @@ export default function AICameraManager(): React.ReactElement | null {
                 placeholder="Buscar por empresa o ubicación..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                style={{ paddingLeft: '2.25rem', paddingRight: '0.75rem', height: '38px', width: '100%', boxSizing: 'border-box', outline: 'none' }}
-                className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                style={{
+                  margin: 0,
+                  marginBottom: 0,
+                  paddingTop: '0.5rem',
+                  paddingBottom: '0.5rem',
+                  paddingLeft: '2.4rem',
+                  paddingRight: '0.85rem',
+                  height: '40px',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  outline: 'none'
+                }}
+                className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
               />
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="grid grid-cols-2 sm:flex items-center gap-2.5 w-full sm:w-auto">
               {/* Botón Exportar CSV */}
               <button
                 type="button"
                 onClick={handleExportCSV}
                 title="Exportar historial de inspecciones a CSV"
                 style={{
+                  margin: 0,
                   backgroundColor: '#0284c7',
                   color: '#ffffff',
                   border: 'none',
-                  padding: '6px 14px',
+                  padding: '0 14px',
                   fontSize: '12px',
                   fontWeight: '800',
-                  borderRadius: '8px',
+                  borderRadius: '10px',
                   cursor: 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   gap: '6px',
                   whiteSpace: 'nowrap',
-                  height: '34px',
+                  height: '40px',
+                  width: '100%',
                   boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)',
                   minHeight: 'unset'
                 }}
               >
-                <FileSpreadsheet size={14} />
+                <FileSpreadsheet size={15} className="shrink-0" />
                 <span>Exportar CSV</span>
               </button>
 
@@ -366,93 +378,111 @@ export default function AICameraManager(): React.ReactElement | null {
                 onClick={handleNewDetection}
                 disabled={isOpeningCamera}
                 style={{
+                  margin: 0,
                   backgroundColor: '#059669',
                   color: '#ffffff',
                   border: 'none',
-                  padding: '6px 14px',
+                  padding: '0 14px',
                   fontSize: '12px',
                   fontWeight: '800',
-                  borderRadius: '8px',
+                  borderRadius: '10px',
                   cursor: 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   gap: '6px',
                   whiteSpace: 'nowrap',
-                  height: '34px',
+                  height: '40px',
+                  width: '100%',
                   boxShadow: '0 2px 6px rgba(5, 150, 105, 0.3)',
                   minHeight: 'unset'
                 }}
               >
-                <Camera size={14} />
+                <Camera size={15} className="shrink-0" />
                 <span>Nueva Detección EPP</span>
               </button>
             </div>
           </div>
 
-          {/* Pastillas de filtro estilo Aptitudes Médicas */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
+          {/* Pastillas de filtro Responsivas */}
+          <div className="grid grid-cols-3 sm:flex items-center gap-2 pb-1 max-w-full">
             <button
+              type="button"
               onClick={() => setFilterStatus('all')}
               style={{
-                backgroundColor: filterStatus === 'all' ? '#0284c7' : '#ffffff',
-                color: filterStatus === 'all' ? '#ffffff' : '#334155',
-                border: filterStatus === 'all' ? 'none' : '1px solid #cbd5e1',
-                padding: '6px 12px',
-                borderRadius: '8px',
+                margin: 0,
+                backgroundColor: filterStatus === 'all' ? '#0284c7' : undefined,
+                color: filterStatus === 'all' ? '#ffffff' : undefined,
+                border: filterStatus === 'all' ? '1px solid #0284c7' : undefined,
+                padding: '0 12px',
+                height: '36px',
+                borderRadius: '10px',
                 fontSize: '12px',
                 fontWeight: '800',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '6px',
                 whiteSpace: 'nowrap',
                 transition: 'all 0.15s ease',
                 minHeight: 'unset'
               }}
+              className={filterStatus === 'all' ? '' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700'}
             >
               <span>Todos ({metrics.total})</span>
             </button>
 
             <button
+              type="button"
               onClick={() => setFilterStatus('ok')}
               style={{
-                backgroundColor: filterStatus === 'ok' ? '#059669' : '#ffffff',
-                color: filterStatus === 'ok' ? '#ffffff' : '#334155',
-                border: filterStatus === 'ok' ? 'none' : '1px solid #cbd5e1',
-                padding: '6px 12px',
-                borderRadius: '8px',
+                margin: 0,
+                backgroundColor: filterStatus === 'ok' ? '#059669' : undefined,
+                color: filterStatus === 'ok' ? '#ffffff' : undefined,
+                border: filterStatus === 'ok' ? '1px solid #059669' : undefined,
+                padding: '0 12px',
+                height: '36px',
+                borderRadius: '10px',
                 fontSize: '12px',
                 fontWeight: '800',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '6px',
                 whiteSpace: 'nowrap',
                 transition: 'all 0.15s ease',
                 minHeight: 'unset'
               }}
+              className={filterStatus === 'ok' ? '' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700'}
             >
-              <span>EPP Conforme ({metrics.eppOk})</span>
+              <span>EPP OK ({metrics.eppOk})</span>
             </button>
 
             <button
+              type="button"
               onClick={() => setFilterStatus('fail')}
               style={{
-                backgroundColor: filterStatus === 'fail' ? '#dc2626' : '#ffffff',
-                color: filterStatus === 'fail' ? '#ffffff' : '#334155',
-                border: filterStatus === 'fail' ? 'none' : '1px solid #cbd5e1',
-                padding: '6px 12px',
-                borderRadius: '8px',
+                margin: 0,
+                backgroundColor: filterStatus === 'fail' ? '#dc2626' : undefined,
+                color: filterStatus === 'fail' ? '#ffffff' : undefined,
+                border: filterStatus === 'fail' ? '1px solid #dc2626' : undefined,
+                padding: '0 12px',
+                height: '36px',
+                borderRadius: '10px',
                 fontSize: '12px',
                 fontWeight: '800',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '6px',
                 whiteSpace: 'nowrap',
                 transition: 'all 0.15s ease',
                 minHeight: 'unset'
               }}
+              className={filterStatus === 'fail' ? '' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700'}
             >
               <span>Falta EPP ({metrics.eppFail})</span>
             </button>
@@ -522,7 +552,7 @@ export default function AICameraManager(): React.ReactElement | null {
                     </div>
                   </div>
 
-                  <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-1.5">
+                  <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-700 grid grid-cols-4 sm:flex sm:justify-end gap-1.5">
                     {/* Botón Ver Reporte */}
                     <button
                       type="button"
@@ -535,21 +565,23 @@ export default function AICameraManager(): React.ReactElement | null {
                       }}
                       title="Ver Reporte Completo"
                       style={{
+                        margin: 0,
                         backgroundColor: '#2563eb',
                         color: '#ffffff',
                         border: 'none',
-                        padding: '4px 8px',
+                        padding: '6px 8px',
                         fontSize: '11px',
                         fontWeight: '700',
-                        borderRadius: '6px',
+                        borderRadius: '8px',
                         cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
+                        justifyContent: 'center',
                         gap: '4px',
                         minHeight: 'unset'
                       }}
                     >
-                      <Eye size={12} />
+                      <Eye size={12} className="shrink-0" />
                       <span>Ver</span>
                     </button>
 
@@ -564,22 +596,24 @@ export default function AICameraManager(): React.ReactElement | null {
                       }}
                       title="Compartir Informe"
                       style={{
+                        margin: 0,
                         backgroundColor: '#059669',
                         color: '#ffffff',
                         border: 'none',
-                        padding: '4px 8px',
+                        padding: '6px 8px',
                         fontSize: '11px',
                         fontWeight: '700',
-                        borderRadius: '6px',
+                        borderRadius: '8px',
                         cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
+                        justifyContent: 'center',
                         gap: '4px',
                         minHeight: 'unset'
                       }}
                     >
-                      <Share2 size={12} />
-                      <span>Compartir</span>
+                      <Share2 size={12} className="shrink-0" />
+                      <span>PDF</span>
                     </button>
 
                     {/* Botón QR */}
@@ -591,21 +625,23 @@ export default function AICameraManager(): React.ReactElement | null {
                       }}
                       title="Código QR"
                       style={{
+                        margin: 0,
                         backgroundColor: '#475569',
                         color: '#ffffff',
                         border: 'none',
-                        padding: '4px 8px',
+                        padding: '6px 8px',
                         fontSize: '11px',
                         fontWeight: '700',
-                        borderRadius: '6px',
+                        borderRadius: '8px',
                         cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
+                        justifyContent: 'center',
                         gap: '4px',
                         minHeight: 'unset'
                       }}
                     >
-                      <QrCode size={12} />
+                      <QrCode size={12} className="shrink-0" />
                       <span>QR</span>
                     </button>
 
@@ -615,22 +651,24 @@ export default function AICameraManager(): React.ReactElement | null {
                       onClick={() => setDeleteTarget(item.id)}
                       title="Eliminar Registro"
                       style={{
+                        margin: 0,
                         backgroundColor: '#dc2626',
                         color: '#ffffff',
                         border: 'none',
-                        padding: '4px 8px',
+                        padding: '6px 8px',
                         fontSize: '11px',
                         fontWeight: '700',
-                        borderRadius: '6px',
+                        borderRadius: '8px',
                         cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
+                        justifyContent: 'center',
                         gap: '4px',
                         minHeight: 'unset'
                       }}
                     >
-                      <Trash2 size={12} />
-                      <span>Eliminar</span>
+                      <Trash2 size={12} className="shrink-0" />
+                      <span>Borrar</span>
                     </button>
                   </div>
                 </div>

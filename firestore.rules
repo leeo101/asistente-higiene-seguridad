@@ -29,8 +29,7 @@ service cloud.firestore {
         // CRÍTICO: subscriptionData SOLO puede ser escrito por el backend / Admin SDK
         allow write: if isOwner(uid)
                      && key != 'subscriptionData'
-                     && request.resource.data.keys().size() < 150
-                     && request.resource.size() < 1024 * 1024; // máx 1 MB por documento
+                     && request.resource.data.keys().size() < 150;
       }
 
       // Resto de subcolecciones (legajos, fcmTokens, etc.)
@@ -38,8 +37,7 @@ service cloud.firestore {
         allow read: if isOwner(uid);
         allow write: if isOwner(uid)
                      && subcollection != 'data'
-                     && request.resource.data.keys().size() < 150
-                     && request.resource.size() < 500 * 1024;
+                     && request.resource.data.keys().size() < 150;
       }
     }
 
@@ -48,8 +46,7 @@ service cloud.firestore {
     match /companies/{companyId}/{document=**} {
       // Lectura y escritura permitida si el token del usuario coincide con el companyId o si es propietario
       allow read: if isAuthenticated() && (request.auth.token.companyId == companyId || isOwner(resource.data.createdBy));
-      allow write: if isAuthenticated() && (request.auth.token.companyId == companyId || isOwner(request.resource.data.createdBy))
-                    && request.resource.size() < 1024 * 1024;
+      allow write: if isAuthenticated() && (request.auth.token.companyId == companyId || isOwner(request.resource.data.createdBy));
     }
 
     // ── Subscripción (PAYWALL) ─────────────────────────────────────────────────
@@ -73,10 +70,8 @@ service cloud.firestore {
     match /public_verifications/{documentId} {
       allow read: if true; // Permite la visualización y verificación pública del informe sin login
       allow create: if isAuthenticated()
-                    && request.resource.size() < 1024 * 1024
                     && (request.resource.data._publicUid == request.auth.uid || request.resource.data._publicUid == 'guest');
       allow update: if isAuthenticated()
-                    && request.resource.size() < 1024 * 1024
                     && (resource.data._publicUid == request.auth.uid || resource.data._publicUid == 'guest');
       allow delete: if isAuthenticated() && resource.data._publicUid == request.auth.uid;
     }

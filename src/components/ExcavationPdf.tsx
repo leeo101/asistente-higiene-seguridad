@@ -53,11 +53,9 @@ export default function ExcavationPdf({
   const verifiedCount = checklistItems.filter(item => Boolean(checklist[item.key])).length;
   const complianceRate = totalChecks > 0 ? Math.round((verifiedCount / totalChecks) * 100) : 100;
 
-  // Título oficial: Solo "Profesional de Higiene y Seguridad" o "Técnico en Higiene y Seguridad"
-  const rawRole = (data.professionalRole || 'Profesional de Higiene y Seguridad').toLowerCase();
-  const finalRoleTitle = (rawRole.includes('técnico') || rawRole.includes('tecnico'))
-    ? 'TÉCNICO EN HIGIENE Y SEGURIDAD'
-    : 'PROFESIONAL DE HIGIENE Y SEGURIDAD';
+  const finalRoleTitle = (
+    data.professionalRole || 'Técnico Universitario en Higiene y Seguridad Laboral'
+  ).toUpperCase();
 
   return (
     <div className="w-[100%] flex justify-center">

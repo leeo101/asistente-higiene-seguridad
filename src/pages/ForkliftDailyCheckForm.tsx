@@ -130,9 +130,10 @@ export default function ForkliftDailyCheckForm(): React.ReactElement | null {
       try {
         const pd = JSON.parse(savedData);
         const userProf = pd?.profession || pd?.profesion || '';
-        const defaultRole = (userProf.toLowerCase().includes('técnico') || userProf.toLowerCase().includes('tecnico'))
-          ? 'Técnico en Higiene y Seguridad'
-          : 'Profesional de Higiene y Seguridad';
+        const defaultRole =
+          userProf && userProf.trim() !== '' && userProf !== 'Técnico' && userProf !== 'PROFESIONAL'
+            ? userProf.trim()
+            : 'Técnico Universitario en Higiene y Seguridad Laboral';
 
         setProfessionalName(pd?.name || pd?.fullName || '');
         setProfessionalLicense(pd?.license || pd?.matricula || '');

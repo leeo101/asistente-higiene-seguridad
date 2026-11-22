@@ -18,14 +18,16 @@ import PremiumHeader from '../components/PremiumHeader';
 import Breadcrumbs from '../components/Breadcrumbs';
 import AnimatedPage from '../components/AnimatedPage';
 
-// Tipos de auditoría según ISO 45001
+// Tipos de auditoría según ISO 45001 y SRT
 const AUDIT_TYPES = [
-{ id: 'internal', name: 'Auditoría Interna', icon: '📋', color: '#3b82f6' },
-{ id: 'external', name: 'Auditoría Externa', icon: '🏢', color: '#8b5cf6' },
-{ id: 'certification', name: 'Certificación', icon: '📜', color: '#10b981' },
-{ id: 'surveillance', name: 'Seguimiento', icon: '👁️', color: '#f59e0b' },
-{ id: 'compliance', name: 'Cumplimiento Legal', icon: '⚖️', color: '#dc2626' },
-{ id: 'supplier', name: 'Proveedor', icon: '🤝', color: '#06b6d4' }];
+  { id: 'internal', name: 'Auditoría Interna', icon: '📋', color: '#3b82f6' },
+  { id: 'external', name: 'Auditoría Externa', icon: '🏢', color: '#8b5cf6' },
+  { id: 'certification', name: 'Certificación', icon: '📜', color: '#10b981' },
+  { id: 'surveillance', name: 'Seguimiento', icon: '👁️', color: '#f59e0b' },
+  { id: 'compliance', name: 'Cumplimiento Legal SRT', icon: '⚖️', color: '#dc2626' },
+  { id: 'supplier', name: 'Contratista / Proveedor', icon: '🤝', color: '#06b6d4' },
+  { id: 'environmental', name: 'Ambiental ISO 14001', icon: '🌱', color: '#16a34a' }
+];
 
 
 // Áreas de auditoría ISO 45001
@@ -120,7 +122,14 @@ export default function AuditManager(): React.ReactElement | null {
   const [filterStatus, setFilterStatus] = useState('all');
   const [activeTab, setActiveTab] = useState('audits');
   const [showFindingModal, setShowFindingModal] = useState(false);
-  const [currentAuditForFinding, setCurrentAuditForFinding] = useState(null);
+  const [currentAuditForFinding, setCurrentAuditForFinding] = useState<any>(null);
+  const [findingDraft, setFindingDraft] = useState({
+    title: '',
+    description: '',
+    severity: 'major',
+    responsible: '',
+    dueDate: ''
+  });
   const [shareItem, setShareItem] = useState<any>(null);
   const [previewAudit, setPreviewAudit] = useState<any>(null);
   const [printAudit, setPrintAudit] = useState<any>(null);
@@ -284,12 +293,28 @@ export default function AuditManager(): React.ReactElement | null {
   };
 
   const filteredAudits = audits.filter((a: any) => {
-    const matchesSearch = a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    a.leadAuditor?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    a.location?.toLowerCase().includes(searchTerm.toLowerCase());
+    const term = searchTerm.toLowerCase();
+    const matchesSearch =
+      (a.title || '').toLowerCase().includes(term) ||
+      (a.auditor || a.leadAuditor || '').toLowerCase().includes(term) ||
+      (a.location || '').toLowerCase().includes(term) ||
+      (a.facilityName || '').toLowerCase().includes(term);
     const matchesStatus = filterStatus === 'all' || a.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
+
+  // Calcular tasa de cumplimiento real promedio a partir de los checklists
+  const avgChecklistCompliance = React.useMemo(() => {
+    if (audits.length === 0) return 0;
+    const rates = audits.map((a: any) => {
+      if (typeof a.complianceRate === 'number') return a.complianceRate;
+      const list = Array.isArray(a.checklist) ? a.checklist : [];
+      const si = list.filter((i: any) => i.status === 'si').length;
+      const no = list.filter((i: any) => i.status === 'no').length;
+      return si + no > 0 ? Math.round((si / (si + no)) * 100) : 100;
+    });
+    return Math.round(rates.reduce((acc, r) => acc + r, 0) / rates.length);
+  }, [audits]);
 
   // Estadísticas
   const stats = {
@@ -299,9 +324,7 @@ export default function AuditManager(): React.ReactElement | null {
     findings: findings.length,
     openFindings: findings.filter((f: any) => f.status === 'open').length,
     criticalFindings: findings.filter((f: any) => f.severity === 'critical').length,
-    complianceRate: audits.length > 0 ?
-    Math.round(audits.filter((a: any) => a.status === 'completed').length / audits.length * 100) :
-    0
+    complianceRate: avgChecklistCompliance
   };
 
   return (
@@ -381,9 +404,9 @@ export default function AuditManager(): React.ReactElement | null {
                 </div>
 
                 <div 
-                  onClick={() => setFilterStatus('findings')}
+                  onClick={() => setActiveTab('findings')}
                   className={`p-4 rounded-2xl border transition-all cursor-pointer ${
-                    filterStatus === 'findings' || filterStatus === 'open_findings'
+                    activeTab === 'findings'
                       ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-500 shadow-md' 
                       : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 hover:border-rose-400'
                   }`}>
@@ -637,9 +660,174 @@ export default function AuditManager(): React.ReactElement | null {
             {activeTab === 'checklist' &&
       <ISOChecklistPanel
         checklist={ISO_CHECKLIST}
-        areas={AUDIT_AREAS} />
+        areas={AUDIT_AREAS}
+        onStartAuditWithAreas={(areaIds: string[]) => navigate('/audit/new', { state: { selectedAreas: areaIds } })} />
 
       }
+
+            {/* Contenedor oculto para impresión directa desde tarjetas */}
+            <div className="ats-pdf-offscreen" id="pdf-direct-audit-print">
+              {printAudit && <AuditPdf data={printAudit} />}
+            </div>
+
+            {/* Modal de Previsualización A4 */}
+            {previewAudit && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+                <div className="relative w-full max-w-[960px] h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden">
+                  <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/80 bg-slate-800/90 select-none">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-500/20 text-blue-400 rounded-xl">
+                        <ClipboardCheck size={20} />
+                      </div>
+                      <div>
+                        <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+                          Vista Previa del Informe Oficial de Auditoría
+                        </h2>
+                        <p className="text-xs text-slate-400">{previewAudit.title}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          const target = previewAudit;
+                          setPreviewAudit(null);
+                          handleDirectPrintFromManager(target);
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg cursor-pointer"
+                      >
+                        <Printer size={16} /> Imprimir / PDF
+                      </button>
+                      <button
+                        onClick={() => setPreviewAudit(null)}
+                        className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-xl cursor-pointer"
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/70 flex justify-center">
+                    <div className="w-full max-w-[210mm] bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300">
+                      <AuditPdf data={previewAudit} customId="pdf-preview-manager-audit" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Modal para agregar Hallazgo rápido */}
+            {showFindingModal && currentAuditForFinding && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+                <div className="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-base font-extrabold text-white m-0">
+                      Registrar Hallazgo — {currentAuditForFinding.title}
+                    </h3>
+                    <button
+                      onClick={() => setShowFindingModal(false)}
+                      className="p-1.5 text-slate-400 hover:text-white rounded-lg cursor-pointer"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 mb-1">Título del Hallazgo *</label>
+                      <input
+                        type="text"
+                        value={findingDraft.title}
+                        onChange={(e) => setFindingDraft({ ...findingDraft, title: e.target.value })}
+                        className="module-form-input"
+                        style={{ padding: '10px 12px', margin: 0 }}
+                        placeholder="Ej: Tablero eléctrico sin contratapa ni disyuntor"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-400 mb-1">Severidad</label>
+                        <select
+                          value={findingDraft.severity}
+                          onChange={(e) => setFindingDraft({ ...findingDraft, severity: e.target.value })}
+                          className="module-form-input"
+                          style={{ padding: '10px 12px', margin: 0 }}
+                        >
+                          {Object.entries(FINDING_SEVERITY).map(([k, v]) => (
+                            <option key={k} value={k}>
+                              {v.icon} {v.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-400 mb-1">Fecha Compromiso</label>
+                        <input
+                          type="date"
+                          value={findingDraft.dueDate}
+                          onChange={(e) => setFindingDraft({ ...findingDraft, dueDate: e.target.value })}
+                          className="module-form-input"
+                          style={{ padding: '10px 12px', margin: 0 }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 mb-1">Responsable</label>
+                      <input
+                        type="text"
+                        value={findingDraft.responsible}
+                        onChange={(e) => setFindingDraft({ ...findingDraft, responsible: e.target.value })}
+                        className="module-form-input"
+                        style={{ padding: '10px 12px', margin: 0 }}
+                        placeholder="Ej: Jefe de Mantenimiento"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 mb-1">Evidencia y Acción Correctiva</label>
+                      <textarea
+                        rows={3}
+                        value={findingDraft.description}
+                        onChange={(e) => setFindingDraft({ ...findingDraft, description: e.target.value })}
+                        className="module-form-input"
+                        style={{ padding: '10px 12px', margin: 0 }}
+                        placeholder="Detalle del desvío observado y medida correctiva requerida..."
+                      />
+                    </div>
+                    <div className="flex justify-end gap-2 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowFindingModal(false)}
+                        className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 cursor-pointer"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!findingDraft.title.trim()) {
+                            toast.error('Ingresá el título del hallazgo.');
+                            return;
+                          }
+                          addFinding({
+                            ...findingDraft,
+                            auditId: currentAuditForFinding.id
+                          });
+                          setFindingDraft({
+                            title: '',
+                            description: '',
+                            severity: 'major',
+                            responsible: '',
+                            dueDate: ''
+                          });
+                          setShowFindingModal(false);
+                          toast.success('Hallazgo registrado correctamente');
+                        }}
+                        className="px-4 py-2 rounded-xl text-xs font-extrabold bg-blue-600 text-white cursor-pointer"
+                      >
+                        Guardar Hallazgo
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <ConfirmModal
         isOpen={confirmModal.isOpen}
@@ -818,16 +1006,26 @@ function AuditCard({ audit, findings, statusConfig, onEdit, onStart, onComplete,
             
                     <span className="flex items-center gap-[0.35rem]">
                         <User size={13} className="text-[var(--color-text-muted)]" />
-                        {audit.leadAuditor || 'Sin auditor'}
+                        {audit.auditor || audit.leadAuditor || 'Sin auditor'}
                     </span>
                     <span className="flex items-center gap-[0.35rem]">
                         <Calendar size={13} className="text-[var(--color-text-muted)]" />
-                        {audit.scheduledDate ? new Date(audit.scheduledDate).toLocaleDateString('es-AR') : '-'}
+                        {(audit.date || audit.scheduledDate)
+                          ? new Date(
+                              (audit.date || audit.scheduledDate) +
+                                ((audit.date || audit.scheduledDate).length === 10 ? 'T12:00:00' : '')
+                            ).toLocaleDateString('es-AR')
+                          : '-'}
                     </span>
                     <span className="flex items-center gap-[0.35rem]">
                         <Shield size={13} className="text-[var(--color-text-muted)]" />
-                        {audit.standard}
+                        {audit.standard || 'Ley 19.587 / ISO 45001'}
                     </span>
+                    {typeof audit.complianceRate === 'number' && (
+                      <span className="px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-blue-500/15 text-blue-600 dark:text-blue-400">
+                        {audit.complianceRate}% Cumplimiento
+                      </span>
+                    )}
                     {openFindings > 0 &&
             <span className="p-[0.2rem_0.5rem] bg-[#fef2f2] border-[1px_solid_#fecaca] text-[#dc2626] rounded-[var(--radius-full)] text-[0.7rem] font-[800] inline-flex items-center gap-[0.25rem]">
 
@@ -1067,25 +1265,77 @@ function FindingsList({ findings, audits, onUpdateStatus, severityConfig, status
 
 }
 
-function ISOChecklistPanel({ checklist, areas }: any) {
+function ISOChecklistPanel({ checklist, onStartAuditWithAreas }: any) {
   return (
     <div className="flex flex-col gap-[1.5rem]">
-            {AUDIT_AREAS.map((area: any) =>
-      <div key={area.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6">
-                    <h3 className="m-[0_0_1rem_0] text-[1rem] font-[800] flex items-center gap-[0.5rem]"><Shield size={18} color="#f59e0b" />Cláusula {area.clause}: {area.name}</h3>
-                    <div className="flex flex-col gap-[0.5rem]">
-                        {checklist[area.id]?.map((item: any) =>
-          <div key={item.id} style={{ background: item.required ? '#f8fafc' : 'var(--color-background)', border: `1px solid ${item.required ? '#e2e8f0' : 'var(--color-border)'}` }} className="p-[0.75rem] rounded-[var(--radius-lg)] flex items-center gap-[0.75rem]">
-                                <span className="text-[0.75rem] font-[800] text-[var(--color-text-muted)] min-w-[]">{item.id}</span>
-                                <span className="flex-[1] text-[0.9rem] font-[500]">{item.question}</span>
-                                {item.required && <span className="text-[0.7rem] font-[700] text-[#dc2626] p-[0.2rem_0.5rem] bg-[#fef2f2] rounded-[var(--radius-full)]">REQUERIDO</span>}
-                            </div>
-          )}
-                    </div>
-                </div>
-      )}
-        </div>);
+      <div className="p-4 rounded-2xl bg-blue-600/10 border border-blue-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h3 className="m-0 text-sm font-extrabold text-blue-400">
+            Guía de Cláusulas ISO 45001:2018 (Cláusulas 4 a 10)
+          </h3>
+          <p className="m-0 mt-0.5 text-xs text-slate-400">
+            Podés iniciar una auditoría con todas las cláusulas ISO 45001 o con una cláusula específica.
+          </p>
+        </div>
+        {onStartAuditWithAreas && (
+          <button
+            type="button"
+            onClick={() => onStartAuditWithAreas(AUDIT_AREAS.map((a) => a.id))}
+            className="px-4 py-2 rounded-xl text-xs font-extrabold bg-blue-600 hover:bg-blue-500 text-white cursor-pointer border-none shrink-0"
+          >
+            + Auditar Norma ISO 45001 Completa
+          </button>
+        )}
+      </div>
 
+      {AUDIT_AREAS.map((area: any) => (
+        <div
+          key={area.id}
+          className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6"
+        >
+          <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
+            <h3 className="m-0 text-[1rem] font-[800] flex items-center gap-[0.5rem]">
+              <Shield size={18} color="#f59e0b" />
+              Cláusula {area.clause}: {area.name}
+            </h3>
+            {onStartAuditWithAreas && (
+              <button
+                type="button"
+                onClick={() => onStartAuditWithAreas([area.id])}
+                className="px-3 py-1 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-700 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 cursor-pointer border border-slate-300 dark:border-slate-600"
+              >
+                Auditar Cláusula {area.clause}
+              </button>
+            )}
+          </div>
+          <div className="flex flex-col gap-[0.5rem]">
+            {checklist[area.id]?.map((item: any) => (
+              <div
+                key={item.id}
+                style={{
+                  background: item.required ? '#f8fafc' : 'var(--color-background)',
+                  border: `1px solid ${item.required ? '#e2e8f0' : 'var(--color-border)'}`
+                }}
+                className="p-[0.75rem] rounded-[var(--radius-lg)] flex items-center gap-[0.75rem]"
+              >
+                <span className="text-[0.75rem] font-[800] text-[var(--color-text-muted)]">
+                  {item.id}
+                </span>
+                <span className="flex-[1] text-[0.9rem] font-[500] text-slate-800">
+                  {item.question}
+                </span>
+                {item.required && (
+                  <span className="text-[0.7rem] font-[700] text-[#dc2626] p-[0.2rem_0.5rem] bg-[#fef2f2] rounded-[var(--radius-full)]">
+                    REQUERIDO
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function InfoDetail({ label, value }: any) {

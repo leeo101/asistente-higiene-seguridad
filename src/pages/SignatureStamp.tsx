@@ -16,6 +16,8 @@ import {
 import { useSync } from '../contexts/SyncContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import PremiumHeader from '../components/PremiumHeader';
+import { getSavedProfessionalData } from '../utils/jsPdfSignatureHelper';
+import { DEFAULT_PROFESSION } from '../data/professionOptions';
 import toast from 'react-hot-toast';
 
 const INK_COLORS = [
@@ -39,6 +41,8 @@ export default function SignatureStamp(): React.ReactElement | null {
   const [isDrawingStamp, setIsDrawingStamp] = useState(false);
   const [signatureImage, setSignatureImage] = useState<string | null>(null);
   const [stampImage, setStampImage] = useState<string | null>(null);
+  const [liveSigPreview, setLiveSigPreview] = useState<string | null>(null);
+  const [liveStampPreview, setLiveStampPreview] = useState<string | null>(null);
   const [signatureStrokeWidth, setSignatureStrokeWidth] = useState<number>(2.5);
   const [stampStrokeWidth, setStampStrokeWidth] = useState<number>(2.5);
   const [inkColor, setInkColor] = useState<string>('#1e3a8a');
@@ -47,48 +51,40 @@ export default function SignatureStamp(): React.ReactElement | null {
   const [saved, setSaved] = useState(false);
 
   // Automatic Stamp Generator fields (pre-populated from personalData)
-  const [stampLine1, setStampLine1] = useState('Ing. / Lic. en Higiene y Seguridad');
-  const [stampLine2, setStampLine2] = useState('Especialista en Higiene y Seguridad en el Trabajo');
-  const [stampLine3, setStampLine3] = useState('Matrícula Profesional: MP 5567');
+  const [stampLine1, setStampLine1] = useState('Profesional de Higiene y Seguridad');
+  const [stampLine2, setStampLine2] = useState(DEFAULT_PROFESSION);
+  const [stampLine3, setStampLine3] = useState('Matrícula Profesional');
   const [stampBorderStyle, setStampBorderStyle] = useState<'box' | 'clean' | 'double'>('box');
   const [stampColor, setStampColor] = useState<string>('#1e3a8a');
 
   useEffect(() => {
-    // Load existing signature & stamp
-    const savedData = localStorage.getItem('signatureStampData');
-    if (savedData) {
-      const trimmed = savedData.trim();
-      if (trimmed.startsWith('data:') || trimmed.startsWith('"data:')) {
-        setSignatureImage(trimmed.startsWith('"') ? trimmed.slice(1, -1) : trimmed);
-      } else {
-        try {
-          const parsed = JSON.parse(trimmed);
-          if (parsed && typeof parsed === 'object') {
-            setSignatureImage(parsed.signature || null);
-            setStampImage(parsed.stamp || null);
-          }
-        } catch (e) {
-          console.warn('Error parsing signatureStampData:', e);
-        }
-      }
+    const pro = getSavedProfessionalData();
+    if (pro.signature) {
+      setSignatureImage(pro.signature);
+      setSignatureHasContent(true);
     }
 
-    // Load personalData to prefill automatic stamp generator
+    // Load explicit stamp from signatureStampData if saved
     try {
-      const rawPersonal = localStorage.getItem('personalData');
-      if (rawPersonal) {
-        const p = JSON.parse(rawPersonal);
-        if (p.name) setStampLine1(p.name);
-        if (p.profession) setStampLine2(p.profession);
-        const licParts = [];
-        if (p.license) licParts.push(`Mat. ${p.license}`);
-        if (p.college) licParts.push(p.college);
-        else if (p.dni) licParts.push(`DNI ${p.dni}`);
-        if (licParts.length > 0) setStampLine3(licParts.join(' · '));
+      const savedData = localStorage.getItem('signatureStampData');
+      if (savedData) {
+        const parsed = JSON.parse(savedData);
+        if (parsed && typeof parsed === 'object' && parsed.stamp) {
+          setStampImage(parsed.stamp);
+          setStampHasContent(true);
+        }
       }
     } catch {
       // ignore
     }
+
+    if (pro.name) setStampLine1(pro.name);
+    if (pro.profession) setStampLine2(pro.profession);
+    const licParts = [];
+    if (pro.license) licParts.push(`Mat. ${pro.license}`);
+    if (pro.college) licParts.push(pro.college);
+    else if (pro.dni) licParts.push(`DNI ${pro.dni}`);
+    if (licParts.length > 0) setStampLine3(licParts.join(' · '));
   }, []);
 
   const getPos = (e: any, canvas: HTMLCanvasElement) => {
@@ -132,8 +128,48 @@ export default function SignatureStamp(): React.ReactElement | null {
   };
 
   const stopDrawing = (type: 'signature' | 'stamp') => {
-    if (type === 'signature') setIsDrawingSignature(false);
-    else setIsDrawingStamp(false);
+    if (type === 'signature') {
+      if (isDrawingSignature) {
+        setIsDrawingSignature(false);
+        const cropped = cropCanvasDataUrl(signatureCanvasRef.current);
+        if (cropped) {
+          setLiveSigPreview(cropped);
+          try {
+            const raw = localStorage.getItem('signatureStampData');
+            const prev = raw ? JSON.parse(raw) : {};
+            const updated = {
+              signature: cropped,
+              stamp: stampImage || liveStampPreview || prev?.stamp || null
+            };
+            localStorage.setItem('signatureStampData', JSON.stringify(updated));
+            localStorage.setItem('capturedSignature', cropped);
+            window.dispatchEvent(new Event('signatureStampUpdated'));
+          } catch {
+            // ignore
+          }
+        }
+      }
+    } else {
+      if (isDrawingStamp) {
+        setIsDrawingStamp(false);
+        const cropped = cropCanvasDataUrl(stampCanvasRef.current);
+        if (cropped) {
+          setLiveStampPreview(cropped);
+          try {
+            const raw = localStorage.getItem('signatureStampData');
+            const prev = raw ? JSON.parse(raw) : {};
+            const updated = {
+              signature: signatureImage || liveSigPreview || prev?.signature || null,
+              stamp: cropped
+            };
+            localStorage.setItem('signatureStampData', JSON.stringify(updated));
+            window.dispatchEvent(new Event('signatureStampUpdated'));
+          } catch {
+            // ignore
+          }
+        }
+      }
+    }
   };
 
   const clearCanvas = (type: 'signature' | 'stamp') => {
@@ -144,9 +180,11 @@ export default function SignatureStamp(): React.ReactElement | null {
     }
     if (type === 'signature') {
       setSignatureImage(null);
+      setLiveSigPreview(null);
       setSignatureHasContent(false);
     } else {
       setStampImage(null);
+      setLiveStampPreview(null);
       setStampHasContent(false);
     }
     toast.success(type === 'signature' ? 'Firma limpiada' : 'Sello limpiado');
@@ -220,13 +258,12 @@ export default function SignatureStamp(): React.ReactElement | null {
     return canvas.toDataURL('image/png');
   };
 
-  // Generate crisp transparent PNG stamp from the 3 text lines
-  const generateOfficialStamp = () => {
+  const buildOfficialStampDataUrl = (): string | null => {
     const canvas = document.createElement('canvas');
     canvas.width = 560;
     canvas.height = 180;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) return null;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = stampColor;
@@ -241,7 +278,6 @@ export default function SignatureStamp(): React.ReactElement | null {
       ctx.lineWidth = 1.5;
       ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
     } else {
-      // Clean top/bottom accent line
       ctx.lineWidth = 2.5;
       ctx.beginPath();
       ctx.moveTo(40, 22);
@@ -254,20 +290,24 @@ export default function SignatureStamp(): React.ReactElement | null {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    // Line 1: Name
-    ctx.font = '900 24px Inter, Arial, sans-serif';
-    ctx.fillText((stampLine1 || 'PROFESIONAL H&S').toUpperCase(), canvas.width / 2, 58, 500);
+    ctx.font = '900 23px Inter, Arial, sans-serif';
+    ctx.fillText((stampLine1 || 'PROFESIONAL H&S').toUpperCase(), canvas.width / 2, 56, 505);
 
-    // Line 2: Profession
-    ctx.font = '700 17px Inter, Arial, sans-serif';
-    ctx.fillText(stampLine2 || 'Especialista en Higiene y Seguridad', canvas.width / 2, 94, 500);
+    ctx.font = '700 16px Inter, Arial, sans-serif';
+    ctx.fillText(stampLine2 || DEFAULT_PROFESSION, canvas.width / 2, 92, 505);
 
-    // Line 3: License / Matrícula
-    ctx.font = '800 16px monospace';
-    ctx.fillText(stampLine3 || 'Matrícula Profesional', canvas.width / 2, 128, 500);
+    ctx.font = '800 15px monospace';
+    ctx.fillText(stampLine3 || 'Matrícula Profesional', canvas.width / 2, 128, 505);
 
-    const pngUrl = canvas.toDataURL('image/png');
+    return canvas.toDataURL('image/png');
+  };
+
+  // Generate crisp transparent PNG stamp from the 3 text lines
+  const generateOfficialStamp = () => {
+    const pngUrl = buildOfficialStampDataUrl();
+    if (!pngUrl) return;
     setStampImage(pngUrl);
+    setLiveStampPreview(pngUrl);
     setStampHasContent(true);
     toast.success('Sello profesional generado con éxito');
   };
@@ -275,9 +315,12 @@ export default function SignatureStamp(): React.ReactElement | null {
   const handleSave = async () => {
     const finalSig =
       signatureImage ||
+      liveSigPreview ||
       (signatureHasContent ? cropCanvasDataUrl(signatureCanvasRef.current) : null);
     const finalStamp =
-      stampImage || (stampHasContent ? cropCanvasDataUrl(stampCanvasRef.current) : null);
+      stampImage ||
+      liveStampPreview ||
+      (stampHasContent ? cropCanvasDataUrl(stampCanvasRef.current) : null);
 
     const data = {
       signature: finalSig,
@@ -286,16 +329,25 @@ export default function SignatureStamp(): React.ReactElement | null {
 
     try {
       localStorage.setItem('signatureStampData', JSON.stringify(data));
+      localStorage.setItem('signature_stamp_data', JSON.stringify(data));
+      if (finalSig) {
+        localStorage.setItem('capturedSignature', finalSig);
+        localStorage.setItem('digital_signature', finalSig);
+      }
+      window.dispatchEvent(new Event('signatureStampUpdated'));
+      window.dispatchEvent(new Event('storage'));
       await syncDocument('signatureStampData', data);
       setSignatureImage(finalSig);
       setStampImage(finalStamp);
       setSaved(true);
-      toast.success('Firma y Sello guardados y sincronizados');
+      toast.success('Firma y Sello guardados y sincronizados en todos los módulos');
       setTimeout(() => {
         setSaved(false);
       }, 2000);
     } catch {
       localStorage.setItem('signatureStampData', JSON.stringify(data));
+      if (finalSig) localStorage.setItem('capturedSignature', finalSig);
+      window.dispatchEvent(new Event('signatureStampUpdated'));
       toast.success('Firma y Sello guardados en el dispositivo');
     }
   };
@@ -1014,9 +1066,9 @@ export default function SignatureStamp(): React.ReactElement | null {
 
               {/* Combined Signature + Stamp Box */}
               <div className="min-h-[120px] flex flex-wrap items-center justify-center gap-4 py-2">
-                {signatureImage ? (
+                {signatureImage || liveSigPreview ? (
                   <img
-                    src={signatureImage}
+                    src={(signatureImage || liveSigPreview)!}
                     alt="Firma en PDF"
                     style={{ maxHeight: '75px', maxWidth: '170px', objectFit: 'contain' }}
                   />
@@ -1024,9 +1076,9 @@ export default function SignatureStamp(): React.ReactElement | null {
                   <span className="text-xs italic text-slate-400">[Firma Ológrafa]</span>
                 )}
 
-                {stampImage ? (
+                {stampImage || liveStampPreview ? (
                   <img
-                    src={stampImage}
+                    src={(stampImage || liveStampPreview)!}
                     alt="Sello en PDF"
                     style={{ maxHeight: '75px', maxWidth: '190px', objectFit: 'contain' }}
                   />

@@ -437,21 +437,26 @@ export default function AICamera(): React.ReactElement | null {
       {/* Header Moderno con Botón Volver Destacado */}
       <div 
         style={{ zIndex: 100 }}
-        className="flex items-center justify-between p-2.5 sm:p-3 px-3 sm:px-4 bg-slate-900/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-xl gap-2"
+        className="grid grid-cols-[auto_1fr_auto] items-center p-2.5 sm:p-3 px-3 sm:px-4 bg-slate-900/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-xl gap-2"
       >
         <button 
+          type="button"
           onClick={() => navigate(-1)} 
           style={{
+            margin: 0,
+            padding: '0 12px',
+            height: '38px',
+            fontSize: '0.75rem',
             background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
             border: '1px solid rgba(255,255,255,0.2)',
             color: '#ffffff',
             boxShadow: '0 4px 15px rgba(0,0,0,0.4)',
             cursor: 'pointer'
           }}
-          className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-black text-xs transition-all hover:scale-105 active:scale-95 shrink-0"
+          className="flex items-center justify-center gap-1.5 rounded-xl font-black transition-all hover:scale-105 active:scale-95 shrink-0"
           title="Volver al Historial"
         >
-          <ArrowLeft size={16} className="text-blue-400" />
+          <ArrowLeft size={15} className="text-blue-400 shrink-0" />
           <span>VOLVER</span>
         </button>
         <div className="flex flex-col items-center text-center min-w-0">
@@ -462,7 +467,7 @@ export default function AICamera(): React.ReactElement | null {
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping shrink-0" /> Visión Artificial EHS
           </span>
         </div>
-        <div className="w-10 sm:w-20 shrink-0" />
+        <div className="w-[78px] sm:w-[88px] shrink-0" />
       </div>
 
       {/* Contenedor de Cámara Moderno */}
@@ -477,13 +482,13 @@ export default function AICamera(): React.ReactElement | null {
             />
 
             {/* HUD Status Pill */}
-            <div className="absolute top-4 left-3 sm:left-1/2 sm:-translate-x-1/2 z-20 px-3 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-slate-600 text-slate-200 text-[11px] sm:text-xs font-bold flex items-center gap-1.5 shadow-lg max-w-[calc(100%-5rem)] truncate">
+            <div className="absolute top-3.5 left-3 sm:left-1/2 sm:-translate-x-1/2 z-20 px-3 py-1.5 rounded-full bg-slate-900/85 backdrop-blur-md border border-slate-600 text-slate-200 text-[11px] sm:text-xs font-bold flex items-center gap-1.5 shadow-lg max-w-[calc(100%-4.75rem)] truncate">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
               <span className="truncate">IA LISTA · Detección de EPP</span>
             </div>
 
             {/* Cuadro de Enfoque con Láser Animado */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[82%] sm:w-[75%] h-[56%] sm:h-[60%] rounded-3xl border border-slate-600 pointer-events-none overflow-hidden">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[82%] sm:w-[75%] h-[54%] sm:h-[60%] rounded-3xl border border-slate-600 pointer-events-none overflow-hidden">
               {/* Esquinas de enfoque */}
               <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-blue-500 rounded-tl-xl shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
               <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-blue-500 rounded-tr-xl shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
@@ -495,69 +500,100 @@ export default function AICamera(): React.ReactElement | null {
             </div>
 
             {/* Controles de cámara superior con Glassmorphism */}
-            <div className="absolute top-4 right-4 flex flex-col gap-3 z-20">
+            <div className="absolute top-3.5 right-3.5 flex flex-col gap-2.5 z-20">
               <button 
+                type="button"
                 onClick={toggleTorch} 
-                className={`w-12 h-12 rounded-2xl backdrop-blur-md flex items-center justify-center cursor-pointer transition-all duration-300 ${
+                style={{ margin: 0, padding: 0, width: '44px', height: '44px' }}
+                className={`rounded-2xl backdrop-blur-md flex items-center justify-center cursor-pointer transition-all duration-300 ${
                   torchOn 
                     ? 'bg-amber-500/30 border border-amber-400 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.4)]' 
-                    : 'bg-slate-900/60 border border-white/20 text-white hover:bg-slate-800/80'
+                    : 'bg-slate-900/70 border border-white/20 text-white hover:bg-slate-800/80'
                 }`}
                 title="Linterna / Flash"
               >
-                {torchOn ? <Zap size={22} fill="currentColor" /> : <ZapOff size={22} />}
+                {torchOn ? <Zap size={20} fill="currentColor" /> : <ZapOff size={20} />}
               </button>
 
               <button 
+                type="button"
                 onClick={switchCamera} 
-                className="w-12 h-12 rounded-2xl bg-slate-900/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-slate-800/80 hover:rotate-180"
+                style={{ margin: 0, padding: 0, width: '44px', height: '44px' }}
+                className="rounded-2xl bg-slate-900/70 backdrop-blur-md border border-white/20 text-white flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-slate-800/80"
                 title="Cambiar Cámara"
               >
-                <FlipHorizontal size={22} />
+                <FlipHorizontal size={20} />
               </button>
             </div>
 
-            {/* Botón de Captura y Acceso a Cámara Nativa HD / Galería */}
-            <div className="absolute bottom-4 sm:bottom-6 left-0 w-full flex items-center justify-center gap-2 sm:gap-3 z-20 px-2 sm:px-4">
-              <button
-                type="button"
-                onClick={handleNativeCapture}
-                className="px-3 sm:px-3.5 py-2.5 sm:py-3 rounded-2xl bg-slate-900/85 hover:bg-slate-800 text-white font-black text-[11px] sm:text-xs flex items-center gap-1.5 sm:gap-2 border border-blue-400/60 shadow-xl backdrop-blur-md transition-all active:scale-95 cursor-pointer whitespace-nowrap"
-                title="Abrir cámara del teléfono en alta resolución"
-              >
-                <Camera size={16} className="text-blue-400 shrink-0" />
-                <span>Cámara HD</span>
-              </button>
+            {/* Botón de Captura Simétrico y Acceso a Cámara Nativa HD / Galería */}
+            <div className="absolute bottom-4 sm:bottom-6 left-0 w-full grid grid-cols-[1fr_auto_1fr] items-center gap-2.5 sm:gap-4 z-20 px-3 sm:px-6">
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleNativeCapture}
+                  style={{
+                    margin: 0,
+                    padding: '0 12px',
+                    height: '42px',
+                    fontSize: '0.76rem'
+                  }}
+                  className="rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-white font-black flex items-center justify-center gap-1.5 border border-blue-400/60 shadow-xl backdrop-blur-md transition-all active:scale-95 cursor-pointer whitespace-nowrap w-full max-w-[130px]"
+                  title="Abrir cámara del teléfono en alta resolución"
+                >
+                  <Camera size={15} className="text-blue-400 shrink-0" />
+                  <span>Cámara HD</span>
+                </button>
+              </div>
 
               <button
+                type="button"
                 onClick={handleCapture}
-                className="group relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/10 backdrop-blur-md cursor-pointer flex items-center justify-center border-2 border-white/60 transition-all duration-300 hover:scale-110 active:scale-95 shadow-xl shrink-0"
-                style={{ outline: 'none' }}
+                style={{
+                  margin: 0,
+                  padding: 0,
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '9999px',
+                  outline: 'none'
+                }}
+                className="group relative rounded-full bg-white/15 backdrop-blur-md cursor-pointer flex items-center justify-center border-2 border-white/70 transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl shrink-0"
                 title="Capturar desde visor web"
               >
-                <div className="absolute inset-0 rounded-full border-2 border-blue-500 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-500 animate-ping" />
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-600 border-2 border-white group-hover:bg-blue-500 transition-all duration-300 flex items-center justify-center shadow-inner">
+                <div className="w-[46px] h-[46px] rounded-full bg-blue-600 border-2 border-white group-hover:bg-blue-500 transition-all duration-300 flex items-center justify-center shadow-inner">
                   <Camera className="text-white" size={20} />
                 </div>
               </button>
 
-              <label
-                className="px-3 sm:px-3.5 py-2.5 sm:py-3 rounded-2xl bg-slate-900/85 hover:bg-slate-800 text-white font-black text-[11px] sm:text-xs flex items-center gap-1.5 sm:gap-2 border border-white/25 shadow-xl backdrop-blur-md transition-all active:scale-95 cursor-pointer whitespace-nowrap"
-                title="Subir imagen desde galería o archivo"
-              >
-                <Upload size={16} className="text-emerald-400 shrink-0" />
-                <span>Subir Foto</span>
-                <input type="file" accept="image/*" onChange={handleGalleryUpload} className="hidden" />
-              </label>
+              <div className="flex justify-start">
+                <label
+                  style={{
+                    margin: 0,
+                    marginBottom: 0,
+                    padding: '0 12px',
+                    height: '42px',
+                    fontSize: '0.76rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  className="rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-white font-black gap-1.5 border border-white/25 shadow-xl backdrop-blur-md transition-all active:scale-95 cursor-pointer whitespace-nowrap w-full max-w-[130px]"
+                  title="Subir imagen desde galería o archivo"
+                >
+                  <Upload size={15} className="text-emerald-400 shrink-0" />
+                  <span>Subir Foto</span>
+                  <input type="file" accept="image/*" onChange={handleGalleryUpload} className="hidden" />
+                </label>
+              </div>
             </div>
           </>
         ) : (
 
-        <div className="relative w-[100%] h-[100%]">
-                        <img src={capturedImage} alt="Captured" className="w-[100%] h-[100%] object-cover" />
+        <div className="relative w-[100%] h-[100%] min-h-[65vh] flex flex-col justify-end">
+                        <img src={capturedImage} alt="Captured" className="absolute inset-0 w-[100%] h-[100%] object-cover" />
 
                         {isAnalyzing &&
-                          <div className="absolute top-[0] left-[0] w-[100%] h-[100%] bg-[rgba(0,0,0,0.75)] flex flex-col items-center justify-center text-[var(--color-surface)] z-[50]">
+                          <div className="absolute top-[0] left-[0] w-[100%] h-[100%] bg-[rgba(0,0,0,0.75)] flex flex-col items-center justify-center text-white z-[50] p-4 text-center">
                                 <div className="relative flex items-center justify-center mb-[1.5rem]">
                                     {/* Spinner giratorio exterior */}
                                     <div className="absolute w-[80px] h-[80px] rounded-full border-2 border-white/20 border-l-blue-500 animate-spin" />
@@ -568,64 +604,83 @@ export default function AICamera(): React.ReactElement | null {
                                         className="w-[50px] h-[50px] object-contain filter grayscale opacity-80 animate-pulse" 
                                     />
                                 </div>
-                                <p className="font-[700] text-[1.2rem] tracking-wide">Analizando Persona...</p>
-                                <p className="text-[0.8rem] text-slate-400 mt-[0.2rem]">Detectando Elementos de Protección Personal (EPP)</p>
+                                <p className="font-[800] text-[1.15rem] tracking-wide m-0">Analizando Operario...</p>
+                                <p className="text-[0.8rem] text-slate-300 mt-1">Detectando Elementos de Protección Personal (EPP)</p>
                             </div>
                         }
 
                         {analysisResult &&
-                          <div className="absolute bottom-[0] left-[0] w-[100%] p-[1.5rem] box-sizing-[border-box] bg-[linear-gradient(transparent,_rgba(0,0,0,0.95))] text-[var(--color-surface)]">
-                                <div className="flex flex-col gap-[0.8rem] mb-[1rem]">
-                                    <div className="flex items-center gap-[1rem] flex-wrap">
+                          <div className="relative z-20 w-[100%] p-4 sm:p-6 box-border bg-gradient-to-t from-slate-950 via-slate-950/95 to-transparent text-white">
+                                <div className="flex flex-col gap-2.5 mb-3">
+                                    <div className="flex items-center gap-2 flex-wrap">
                                         {analysisResult.helmetUsed ?
-                                          <div className="bg-[#10b981] p-[0.6rem_1rem] rounded-[12px] flex items-center gap-[0.5rem]">
-                                              <ShieldCheck size={18} /> <span className="font-[700] text-[0.9rem]">Casco Detectado</span>
+                                          <div className="bg-emerald-600 px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-white shadow">
+                                              <ShieldCheck size={16} className="shrink-0" /> <span className="font-extrabold text-xs">Casco Detectado</span>
                                           </div> :
 
-                                          <div className="bg-[#ef4444] p-[0.6rem_1rem] rounded-[12px] flex items-center gap-[0.5rem]">
-                                              <TriangleAlert size={18} /> <span className="font-[700] text-[0.9rem]">⚠️ FALTA CASCO</span>
+                                          <div className="bg-red-600 px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-white shadow">
+                                              <TriangleAlert size={16} className="shrink-0" /> <span className="font-extrabold text-xs">⚠️ FALTA CASCO</span>
                                           </div>
                                         }
                                         {analysisResult.riskLevel &&
                                           <div style={{
-                                            background: analysisResult.riskLevel.toLowerCase() === 'crítico' ? '#ef4444' :
-                                            analysisResult.riskLevel.toLowerCase() === 'alto' ? '#f97316' :
-                                            analysisResult.riskLevel.toLowerCase() === 'medio' ? '#eab308' : '#10b981'
-                                          }} className="p-[0.6rem_1rem] rounded-[12px] text-[0.85rem] font-[800] text-[#fff] flex items-center">
+                                            background: analysisResult.riskLevel.toLowerCase() === 'crítico' ? '#dc2626' :
+                                            analysisResult.riskLevel.toLowerCase() === 'alto' ? '#ea580c' :
+                                            analysisResult.riskLevel.toLowerCase() === 'medio' ? '#ca8a04' : '#16a34a'
+                                          }} className="px-3 py-1.5 rounded-xl text-xs font-black text-white flex items-center shadow">
                                               RIESGO: {analysisResult.riskLevel.toUpperCase()}
                                           </div>
                                         }
                                     </div>
                                     
                                     {analysisResult.immediateAction &&
-                                      <div className="bg-[rgba(239,_68,_68,_0.1)] border-[1px_solid_rgba(239,_68,_68,_0.3)] p-[0.8rem] rounded-[8px]">
-                                          <p className="m-[0] text-[0.8rem] text-[#fca5a5] font-[700]">
+                                      <div className="bg-red-950/80 border border-red-500/40 p-2.5 rounded-xl">
+                                          <p className="m-0 text-xs text-red-200 font-bold leading-snug">
                                               ⚠️ Acción Inmediata: {analysisResult.immediateAction}
                                           </p>
                                       </div>
                                     }
                                     {analysisResult.applicableLegislation && analysisResult.applicableLegislation.length > 0 &&
-                                      <div className="bg-[rgba(16,_185,_129,_0.1)] border-[1px_solid_rgba(16,_185,_129,_0.3)] p-[0.8rem] rounded-[8px]">
-                                          <p className="m-[0] text-[0.8rem] text-[#6ee7b7] font-[700]">
+                                      <div className="bg-emerald-950/80 border border-emerald-500/40 p-2.5 rounded-xl">
+                                          <p className="m-0 text-xs text-emerald-200 font-bold leading-snug">
                                               ⚖️ Ley/Norma: {analysisResult.applicableLegislation.join(', ')}
                                           </p>
                                       </div>
                                     }
                                 </div>
-                                <div className="flex gap-[0.6rem] w-[100%] justify-center mt-[1rem]">
-                                    <button onClick={handleNativeCapture} className="flex-[1] h-[44px] rounded-[12px] bg-blue-600/85 hover:bg-blue-600 border border-blue-400 text-white flex items-center justify-center gap-[0.4rem] text-[0.82rem] font-[800] cursor-pointer shadow-md transition-all active:scale-98" title="Tomar otra foto con la cámara nativa">
-                                        <Camera size={16} /> Cámara HD
+                                <div className="grid grid-cols-2 sm:flex gap-2.5 w-full mt-3">
+                                    <button
+                                      type="button"
+                                      onClick={handleNativeCapture}
+                                      style={{ margin: 0, padding: '0 12px', height: '44px', fontSize: '0.8rem' }}
+                                      className="sm:flex-1 rounded-xl bg-blue-600 hover:bg-blue-500 border border-blue-400 text-white flex items-center justify-center gap-1.5 font-extrabold cursor-pointer shadow-md transition-all active:scale-95 whitespace-nowrap"
+                                      title="Tomar otra foto con la cámara nativa"
+                                    >
+                                        <Camera size={15} className="shrink-0" />
+                                        <span>Cámara HD</span>
                                     </button>
-                                    <button onClick={handleRetry} className="flex-[1] h-[44px] rounded-[12px] bg-[rgba(255,255,255,0.12)] backdrop-filter-[blur(8px)] border-[1px_solid_rgba(255,255,255,0.25)] text-white flex items-center justify-center gap-[0.4rem] text-[0.82rem] font-[700] cursor-pointer transition-all hover:bg-[rgba(255,255,255,0.22)] active:scale-98">
-                                        <RefreshCw size={16} /> Reintentar
+                                    <button
+                                      type="button"
+                                      onClick={handleRetry}
+                                      style={{ margin: 0, padding: '0 12px', height: '44px', fontSize: '0.8rem' }}
+                                      className="sm:flex-1 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-white/25 text-white flex items-center justify-center gap-1.5 font-bold cursor-pointer transition-all active:scale-95 whitespace-nowrap"
+                                    >
+                                        <RefreshCw size={15} className="shrink-0" />
+                                        <span>Reintentar</span>
                                     </button>
-                                    <button onClick={handleSaveReport} disabled={isSaving} className="flex-[2] h-[44px] rounded-[12px] bg-emerald-600 hover:bg-emerald-500 border-none text-white flex items-center justify-center gap-[0.5rem] text-[0.88rem] font-[800] cursor-pointer shadow-md transition-all hover:brightness-[1.1] active:scale-98" style={{ opacity: isSaving ? 0.7 : 1 }}>
+                                    <button
+                                      type="button"
+                                      onClick={handleSaveReport}
+                                      disabled={isSaving}
+                                      style={{ margin: 0, padding: '0 16px', height: '44px', fontSize: '0.86rem', opacity: isSaving ? 0.7 : 1 }}
+                                      className="col-span-2 sm:flex-[2] rounded-xl bg-emerald-600 hover:bg-emerald-500 border-none text-white flex items-center justify-center gap-2 font-black cursor-pointer shadow-md transition-all active:scale-95 whitespace-nowrap"
+                                    >
                                         {isSaving ? (
                                             <div className="relative flex items-center justify-center">
-                                                <div className="w-[18px] h-[18px] rounded-full border border-white/30 border-t-white animate-spin mr-[0.5rem]" />
+                                                <div className="w-[18px] h-[18px] rounded-full border border-white/30 border-t-white animate-spin mr-2" />
                                                 <span>Guardando...</span>
                                             </div>
-                                        ) : 'Generar Informe'}
+                                        ) : 'Generar Informe Técnico'}
                                     </button>
                                 </div>
                             </div>

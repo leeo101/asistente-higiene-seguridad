@@ -1,86 +1,179 @@
 import React from 'react';
-import { ClipboardCheck, CheckCircle2, AlertTriangle, User, Calendar, MapPin, ShieldCheck, Flag, CheckSquare, XSquare, AlertOctagon, HelpCircle } from 'lucide-react';
-import CompanyLogo from './CompanyLogo';
+import {
+  ClipboardCheck,
+  CheckCircle2,
+  AlertOctagon,
+  ShieldCheck
+} from 'lucide-react';
 import DualPdfHeader from './DualPdfHeader';
 import PdfBrandingFooter from './PdfBrandingFooter';
 import PdfSignatures from './PdfSignatures';
 import ReportContentRenderer from './reports/ReportContentRenderer';
+import { getSavedProfessionalData } from '../utils/jsPdfSignatureHelper';
+import { DEFAULT_PROFESSION } from '../data/professionOptions';
 
-export default function AuditPdf({ data, customId }: { data: any; customId?: string }): React.ReactElement | null {
+const SEVERITY_BADGE: Record<
+  string,
+  { label: string; bg: string; text: string; border: string }
+> = {
+  critical: { label: 'CRÍTICO', bg: '#fee2e2', text: '#991b1b', border: '#f87171' },
+  major: { label: 'MAYOR', bg: '#ffedd5', text: '#9a3412', border: '#fb923c' },
+  minor: { label: 'MENOR', bg: '#fef9c3', text: '#854d0e', border: '#facc15' },
+  observation: { label: 'OBSERVACIÓN', bg: '#dbeafe', text: '#1e40af', border: '#60a5fa' }
+};
+
+export default function AuditPdf({
+  data,
+  customId
+}: {
+  data: any;
+  customId?: string;
+}): React.ReactElement | null {
   if (!data) return null;
 
-  // Obtención segura de firma desde personalData o del dato en sí
-  let actSignature = data.signature || null;
-  let actName = data.professionalName || data.auditor || data.leadAuditor || null;
-  let actLic = data.license || data.professionalLicense || null;
-  let actStamp = data.professionalStamp || null;
-  let actTitle = data.auditorRole || null;
+  // Obtención segura y unificada de firma, sello y título profesional desde Mi Perfil
+  const savedPro = getSavedProfessionalData();
+  const actSignature =
+    typeof data.signature === 'string' && data.signature.startsWith('data:image/')
+      ? data.signature
+      : savedPro.signature;
+  const actStamp =
+    typeof data.professionalStamp === 'string' && data.professionalStamp.startsWith('data:image/')
+      ? data.professionalStamp
+      : savedPro.stamp;
+  const actName =
+    data.professionalName || data.auditor || data.leadAuditor || savedPro.name || null;
+  const actLic = data.license || data.professionalLicense || savedPro.license || null;
+  const finalRoleTitle = (
+    savedPro.profession ||
+    data.auditorRole ||
+    DEFAULT_PROFESSION
+  ).toUpperCase();
 
-  // Si no trae firmas directas, intentar heredar de localStorage (fallback global pro)
-  if (typeof window !== 'undefined') {
-    try {
-      const lsPersonal = localStorage.getItem('personalData');
-      const lsStamp = localStorage.getItem('signatureStampData') || localStorage.getItem('signature_stamp_data');
-      const legacySig = localStorage.getItem('capturedSignature') || localStorage.getItem('digital_signature');
-
-      if (lsStamp) {
-        const parsed = JSON.parse(lsStamp);
-        if (!actSignature) actSignature = parsed.signature;
-        if (!actStamp) actStamp = parsed.stamp;
-      } else if (legacySig && !actSignature) {
-        actSignature = legacySig;
-      }
-
-      if (lsPersonal) {
-        const pd = JSON.parse(lsPersonal);
-        actName = actName || pd.name || pd.fullName;
-        actLic = actLic || pd.license || pd.matricula;
-        if (!actTitle) {
-          const prof = pd.profession || pd.profesion || '';
-          actTitle = (prof.toLowerCase().includes('técnico') || prof.toLowerCase().includes('tecnico'))
-            ? 'Técnico en Higiene y Seguridad'
-            : 'Profesional de Higiene y Seguridad';
-        }
-      }
-    } catch (e) {}
-  }
-
-  // Título oficial: Solo "Profesional de Higiene y Seguridad" o "Técnico en Higiene y Seguridad"
-  const rawRole = (data.auditorRole || actTitle || '').toLowerCase();
-  const finalRoleTitle = (rawRole.includes('técnico') || rawRole.includes('tecnico'))
-    ? 'TÉCNICO EN HIGIENE Y SEGURIDAD'
-    : 'PROFESIONAL DE HIGIENE Y SEGURIDAD';
-
-  // Cómputo dinámico de métricas a partir del checklist real
+  // Cómputo de métricas del checklist
   const checklist = Array.isArray(data.checklist) ? data.checklist : [];
   const totalItems = checklist.length;
   const conformitiesCount = checklist.filter((item: any) => item.status === 'si').length;
   const nonConformitiesCount = checklist.filter((item: any) => item.status === 'no').length;
   const naCount = checklist.filter((item: any) => item.status === 'na').length;
-  
-  // Porcentaje de cumplimiento sobre los aplicables
-  const evaluatedItems = conformitiesCount + nonConformitiesCount;
-  const complianceRate = evaluatedItems > 0 
-    ? Math.round((conformitiesCount / evaluatedItems) * 100) 
-    : (data.complianceRate || 100);
+  const criticalCount = checklist.filter(
+    (item: any) => item.status === 'no' && item.severity === 'critical'
+  ).length;
+  const majorCount = checklist.filter(
+    (item: any) => item.status === 'no' && (item.severity === 'major' || !item.severity)
+  ).length;
 
-  // Lista de desvíos detectados
+  const evaluatedItems = conformitiesCount + nonConformitiesCount;
+  const complianceRate =
+    evaluatedItems > 0
+      ? Math.round((conformitiesCount / evaluatedItems) * 100)
+      : data.complianceRate ?? 100;
+
   const nonConformitiesList = checklist.filter((item: any) => item.status === 'no');
 
-  // Tipo de auditoría legible
-  const auditTypeLabel = 
-    data.auditType === 'external' ? 'Auditoría Externa' :
-    data.auditType === 'certification' ? 'Auditoría de Certificación' :
-    data.auditType === 'surveillance' ? 'Auditoría de Seguimiento' :
-    data.auditType === 'compliance' ? 'Auditoría de Cumplimiento Legal' :
-    data.auditType === 'supplier' ? 'Auditoría de Proveedor' :
-    'Auditoría Interna EHS';
+  // Resumen agrupado por categoría / bloque
+  const categorySummary = (() => {
+    const map = new Map<
+      string,
+      { name: string; total: number; si: number; no: number; na: number }
+    >();
+    checklist.forEach((item: any) => {
+      const cat = item.category || 'Relevamiento General';
+      const entry = map.get(cat) || { name: cat, total: 0, si: 0, no: 0, na: 0 };
+      entry.total += 1;
+      if (item.status === 'si') entry.si += 1;
+      else if (item.status === 'no') entry.no += 1;
+      else entry.na += 1;
+      map.set(cat, entry);
+    });
+    return Array.from(map.values()).map((c) => {
+      const ev = c.si + c.no;
+      const pct = ev > 0 ? Math.round((c.si / ev) * 100) : 100;
+      return { ...c, evaluated: ev, pct };
+    });
+  })();
+
+  // Clasificación automática del dictamen ejecutivo
+  const dictamenMeta =
+    criticalCount > 0 || (evaluatedItems > 0 && complianceRate < 65)
+      ? {
+          badge: 'DICTAMEN CONDICIONADO • ACCIÓN INMEDIATA REQUERIDA',
+          color: '#b91c1c',
+          bg: '#fef2f2',
+          border: '#ef4444'
+        }
+      : nonConformitiesCount > 0
+      ? {
+          badge: 'DICTAMEN CON OBSERVACIONES • PLAN DE ADECUACIÓN ACTIVO',
+          color: '#b45309',
+          bg: '#fffbeb',
+          border: '#f59e0b'
+        }
+      : {
+          badge: 'DICTAMEN TÉCNICO FAVORABLE • CUMPLIMIENTO NORMATIVO ÓPTIMO',
+          color: '#047857',
+          bg: '#ecfdf5',
+          border: '#10b981'
+        };
+
+  const auditTypeLabel =
+    data.auditType === 'external'
+      ? 'Auditoría Externa / ART'
+      : data.auditType === 'certification'
+      ? 'Auditoría de Certificación'
+      : data.auditType === 'surveillance'
+      ? 'Auditoría de Seguimiento'
+      : data.auditType === 'compliance'
+      ? 'Cumplimiento Legal SRT'
+      : data.auditType === 'supplier'
+      ? 'Auditoría a Contratista / Proveedor'
+      : data.auditType === 'environmental'
+      ? 'Auditoría Ambiental ISO 14001'
+      : 'Auditoría Interna SGSST';
+
+  const statusLabel =
+    data.status === 'completed'
+      ? 'COMPLETADA / CERRADA'
+      : data.status === 'in_progress'
+      ? 'EN EJECUCIÓN'
+      : data.status === 'draft'
+      ? 'BORRADOR'
+      : 'PLANIFICADA';
+
+  const rawDate = data.date || data.scheduledDate;
+  const formattedDate = rawDate
+    ? new Date(rawDate + (rawDate.length === 10 ? 'T12:00:00' : '')).toLocaleDateString('es-AR')
+    : '-';
+
+  const closingDate = data.closingMeeting?.date
+    ? new Date(
+        data.closingMeeting.date +
+          (data.closingMeeting.date.length === 10 ? 'T12:00:00' : '')
+      ).toLocaleDateString('es-AR')
+    : formattedDate;
+
+  // Proporciones barra visual
+  const siWidth = totalItems > 0 ? Math.round((conformitiesCount / totalItems) * 100) : 100;
+  const noWidth = totalItems > 0 ? Math.round((nonConformitiesCount / totalItems) * 100) : 0;
 
   return (
-    <div className="w-[100%] flex justify-center">
+    <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
       <div
-        id={customId || "pdf-content"}
-        className="pdf-container print-area w-[100%] max-w-[210mm] min-h-[297mm] p-[6mm_10mm] bg-[#ffffff] text-[#1e293b] box-shadow-none rounded-[8px] box-sizing-[border-box] m-[0_auto] text-[9pt] font-[] border-t-4 border-blue-600"
+        id={customId || 'pdf-content'}
+        className="pdf-container print-area"
+        style={{
+          width: '100%',
+          maxWidth: '210mm',
+          minHeight: '297mm',
+          padding: '6mm 9mm',
+          backgroundColor: '#ffffff',
+          color: '#0f172a',
+          boxSizing: 'border-box',
+          margin: '0 auto',
+          fontSize: '8.5pt',
+          fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+          borderTop: '5px solid #1e3a8a'
+        }}
       >
         <style type="text/css" media="print">
           {`
@@ -88,8 +181,9 @@ export default function AuditPdf({ data, customId }: { data: any; customId?: str
             body { 
               -webkit-print-color-adjust: exact !important; 
               print-color-adjust: exact !important; 
-              font-family: system-ui, -apple-system, sans-serif; 
-              background: white !important; 
+              font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; 
+              background: #ffffff !important; 
+              color: #0f172a !important;
             }
             .no-print, .module-form-layout, .module-form-toolbar, .module-action-bar, nav, aside, .sidebar { 
               display: none !important; 
@@ -104,29 +198,12 @@ export default function AuditPdf({ data, customId }: { data: any; customId?: str
               padding: 0 !important; 
               width: 100% !important; 
               max-width: none !important; 
-              border-top: 4px solid #2563eb !important; 
+              border-top: 5px solid #1e3a8a !important; 
               border-radius: 0 !important; 
               min-height: 0 !important; 
               height: auto !important; 
               max-height: none !important;
             }
-            .striped-row:nth-child(even) { background-color: #f8fafc; }
-            
-            /* Preservación de renglones y párrafos */
-            .report-content-renderer p {
-              margin-top: 0 !important;
-              margin-bottom: 0.4rem !important;
-              min-height: 1.2em !important;
-              line-height: 1.4 !important;
-            }
-            .report-content-renderer p:empty,
-            .report-content-renderer p > br:only-child {
-              display: inline-block !important;
-              min-height: 1.2em !important;
-              content: "" !important;
-            }
-            
-            /* Saltos de página limpios */
             .audit-table tr {
               page-break-inside: avoid !important;
               break-inside: avoid !important;
@@ -138,257 +215,1262 @@ export default function AuditPdf({ data, customId }: { data: any; customId?: str
           `}
         </style>
 
-        {/* Encabezado Principal Institucional con Logos Centrados */}
+        {/* ENCABEZADO OFICIAL CON LOGOS */}
         <DualPdfHeader
-          title="INFORME OFICIAL DE AUDITORÍA EHS"
-          subtitle="Dictamen de Cumplimiento Legal y Verificación Técnica según ISO 45001 / ISO 19011"
-          normBadge={`ISO 45001:2018 · ${auditTypeLabel.toUpperCase()}`}
+          title="ACTA E INFORME TÉCNICO DE AUDITORÍA EHS"
+          subtitle="Relevamiento de Cumplimiento Legal y Sistema de Gestión (Ley 19.587 / Dec. 351/79 / ISO 45001 / ISO 19011)"
+          normBadge={`${(data.standard || 'LEY 19.587 / ISO 45001').slice(0, 36).toUpperCase()} · ${auditTypeLabel.toUpperCase()}`}
           normBadgeColor="blue"
           normBadgeIcon={<ClipboardCheck size={12} />}
-          documentId={data.id || (data.assessmentNumber || 'AUD-ISO-45001')}
-          establishmentName={data.facilityName || data.location || 'Establecimiento Operativo'}
-          date={data.date ? new Date(data.date).toLocaleDateString('es-AR') : (data.scheduledDate ? new Date(data.scheduledDate).toLocaleDateString('es-AR') : undefined)}
-          className="mb-4"
+          documentId={data.id || data.assessmentNumber || 'AUD-EHS-001'}
+          establishmentName={
+            data.facilityName || data.location || 'Establecimiento Operativo Auditado'
+          }
+          date={formattedDate !== '-' ? formattedDate : undefined}
+          className="mb-2.5"
         />
 
-        {/* Aspecto Evaluado y Metadatos de la Auditoría */}
-        <div className="border border-slate-300 rounded-lg mb-2.5 w-full overflow-hidden shadow-xs text-slate-900">
-          <div className="px-3 py-1.5 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-            <span className="text-[6.5pt] font-extrabold text-blue-600 uppercase tracking-wider flex items-center gap-1">
-              <Flag size={12} /> PROCESO AUDITADO
-            </span>
-            <span className="text-[6.5pt] font-mono text-slate-500 font-bold">
-              ID: {data.id || (data.assessmentNumber || 'AUD-ISO-45001')}
-            </span>
-          </div>
-          <div className="px-3 py-1 bg-white">
-            <div className="font-extrabold text-[10.5pt] text-slate-900 leading-tight">
-              {data.auditTitle || data.title || 'Auditoría General de Higiene y Seguridad'}
+        {/* BANNER EJECUTIVO DE CALIFICACIÓN Y DICTAMEN */}
+        <div
+          className="avoid-break"
+          style={{
+            border: `1.5px solid ${dictamenMeta.border}`,
+            backgroundColor: dictamenMeta.bg,
+            borderRadius: '6px',
+            padding: '7px 10px',
+            marginBottom: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '10px'
+          }}
+        >
+          <div style={{ flex: 1 }}>
+            <div
+              style={{
+                fontSize: '6.5pt',
+                fontWeight: 900,
+                color: dictamenMeta.color,
+                letterSpacing: '0.5px',
+                textTransform: 'uppercase',
+                marginBottom: '2px'
+              }}
+            >
+              {dictamenMeta.badge}
+            </div>
+            <div
+              style={{
+                fontSize: '9.8pt',
+                fontWeight: 900,
+                color: '#0f172a',
+                lineHeight: 1.2
+              }}
+            >
+              {data.auditTitle || data.title || 'Auditoría Integral de Higiene y Seguridad en el Trabajo'}
+            </div>
+            {/* Barra de proporción visual */}
+            <div
+              style={{
+                marginTop: '5px',
+                height: '6px',
+                width: '100%',
+                backgroundColor: '#e2e8f0',
+                borderRadius: '999px',
+                overflow: 'hidden',
+                display: 'flex'
+              }}
+            >
+              {siWidth > 0 && (
+                <div style={{ width: `${siWidth}%`, backgroundColor: '#059669', height: '100%' }} />
+              )}
+              {noWidth > 0 && (
+                <div style={{ width: `${noWidth}%`, backgroundColor: '#dc2626', height: '100%' }} />
+              )}
             </div>
           </div>
-          
-          <div className="grid grid-cols-3 border-t border-slate-200 bg-slate-50/50 text-[7.2pt]">
-            <div className="p-1 px-3 border-r border-slate-200">
-              <span className="text-[5.8pt] font-bold text-slate-500 uppercase flex items-center gap-1"><Calendar size={9} className="text-blue-600" /> FECHA</span>
-              <div className="font-bold text-slate-900 mt-0.5">
-                {data.date ? new Date(data.date).toLocaleDateString('es-AR') : (data.scheduledDate || '-')}
-              </div>
+
+          {/* Score grande a la derecha */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              border: `1.5px solid ${dictamenMeta.border}`,
+              borderRadius: '6px',
+              padding: '4px 12px',
+              textAlign: 'center',
+              minWidth: '88px'
+            }}
+          >
+            <div
+              style={{
+                fontSize: '15pt',
+                fontWeight: 900,
+                color: dictamenMeta.color,
+                lineHeight: 1.05
+              }}
+            >
+              {complianceRate}%
             </div>
-            <div className="p-1 px-3 border-r border-slate-200">
-              <span className="text-[5.8pt] font-bold text-slate-500 uppercase flex items-center gap-1"><MapPin size={9} className="text-blue-600" /> PLANTA / SECTOR</span>
-              <div className="font-bold text-slate-900 mt-0.5 truncate">{data.location || 'Sede Principal'}</div>
-            </div>
-            <div className="p-1 px-3">
-              <span className="text-[5.8pt] font-bold text-slate-500 uppercase flex items-center gap-1">
-                <User size={9} className="text-blue-600" /> {finalRoleTitle}
-              </span>
-              <div className="font-bold text-slate-900 mt-0.5 truncate">{actName || 'Especialista EHS'}</div>
+            <div
+              style={{
+                fontSize: '5.5pt',
+                fontWeight: 800,
+                color: '#475569',
+                textTransform: 'uppercase',
+                letterSpacing: '0.4px'
+              }}
+            >
+              CUMPLIMIENTO
             </div>
           </div>
         </div>
 
-        {/* Panel de Métricas Cuantitativas de Desempeño */}
-        <div className="grid grid-cols-4 gap-2 mb-2.5">
-          <div className="p-1.5 rounded-lg border border-slate-200 bg-slate-50 text-center">
-            <span className="text-[5.8pt] font-bold text-slate-500 uppercase tracking-wider block">Ítems Evaluados</span>
-            <span className="text-sm font-black text-slate-800">{totalItems || evaluatedItems || 10}</span>
+        {/* SECCIÓN I: FICHA TÉCNICA DEL ESTABLECIMIENTO Y AUDITORÍA */}
+        <div className="avoid-break" style={{ marginBottom: '8px' }}>
+          <div
+            style={{
+              backgroundColor: '#0f172a',
+              color: '#ffffff',
+              padding: '3.5px 8px',
+              fontSize: '6.8pt',
+              fontWeight: 900,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              borderTopLeftRadius: '5px',
+              borderTopRightRadius: '5px',
+              display: 'flex',
+              justifyContent: 'space-between'
+            }}
+          >
+            <span>SECCIÓN I — FICHA TÉCNICA DEL ESTABLECIMIENTO Y EQUIPO AUDITOR</span>
+            <span>ESTADO: {statusLabel}</span>
           </div>
 
-          <div className="p-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-center">
-            <span className="text-[5.8pt] font-bold text-emerald-700 uppercase tracking-wider block">Conformidades</span>
-            <span className="text-sm font-black text-emerald-600">
-              {totalItems > 0 ? conformitiesCount : (data.conformities || 10)}
-            </span>
+          <table
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              border: '1px solid #cbd5e1',
+              fontSize: '7.1pt'
+            }}
+          >
+            <tbody>
+              <tr>
+                <td
+                  style={{
+                    width: '18%',
+                    backgroundColor: '#f1f5f9',
+                    padding: '3.5px 6px',
+                    fontWeight: 800,
+                    color: '#334155',
+                    border: '1px solid #cbd5e1',
+                    textTransform: 'uppercase',
+                    fontSize: '6.2pt'
+                  }}
+                >
+                  Razón Social / Planta
+                </td>
+                <td
+                  style={{
+                    width: '32%',
+                    padding: '3.5px 6px',
+                    fontWeight: 700,
+                    color: '#0f172a',
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  {data.facilityName || data.location || 'Establecimiento Operativo'}
+                </td>
+                <td
+                  style={{
+                    width: '18%',
+                    backgroundColor: '#f1f5f9',
+                    padding: '3.5px 6px',
+                    fontWeight: 800,
+                    color: '#334155',
+                    border: '1px solid #cbd5e1',
+                    textTransform: 'uppercase',
+                    fontSize: '6.2pt'
+                  }}
+                >
+                  CUIT / Identificación
+                </td>
+                <td
+                  style={{
+                    width: '32%',
+                    padding: '3.5px 6px',
+                    fontWeight: 700,
+                    color: '#0f172a',
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  {data.cuit || 'Registrado en Legajo Técnico'}
+                </td>
+              </tr>
+
+              <tr>
+                <td
+                  style={{
+                    backgroundColor: '#f1f5f9',
+                    padding: '3.5px 6px',
+                    fontWeight: 800,
+                    color: '#334155',
+                    border: '1px solid #cbd5e1',
+                    textTransform: 'uppercase',
+                    fontSize: '6.2pt'
+                  }}
+                >
+                  Ubicación / Domicilio
+                </td>
+                <td
+                  style={{
+                    padding: '3.5px 6px',
+                    fontWeight: 700,
+                    color: '#0f172a',
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  {data.location || 'Planta Principal'}
+                </td>
+                <td
+                  style={{
+                    backgroundColor: '#f1f5f9',
+                    padding: '3.5px 6px',
+                    fontWeight: 800,
+                    color: '#334155',
+                    border: '1px solid #cbd5e1',
+                    textTransform: 'uppercase',
+                    fontSize: '6.2pt'
+                  }}
+                >
+                  Sector / Proceso
+                </td>
+                <td
+                  style={{
+                    padding: '3.5px 6px',
+                    fontWeight: 700,
+                    color: '#0f172a',
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  {data.department || 'Instalaciones Generales y Sectores Operativos'}
+                </td>
+              </tr>
+
+              <tr>
+                <td
+                  style={{
+                    backgroundColor: '#f1f5f9',
+                    padding: '3.5px 6px',
+                    fontWeight: 800,
+                    color: '#334155',
+                    border: '1px solid #cbd5e1',
+                    textTransform: 'uppercase',
+                    fontSize: '6.2pt'
+                  }}
+                >
+                  Norma / Marco Legal
+                </td>
+                <td
+                  style={{
+                    padding: '3.5px 6px',
+                    fontWeight: 800,
+                    color: '#1e40af',
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  {data.standard || 'Ley 19.587 / Dec. 351/79 / ISO 45001:2018'}
+                </td>
+                <td
+                  style={{
+                    backgroundColor: '#f1f5f9',
+                    padding: '3.5px 6px',
+                    fontWeight: 800,
+                    color: '#334155',
+                    border: '1px solid #cbd5e1',
+                    textTransform: 'uppercase',
+                    fontSize: '6.2pt'
+                  }}
+                >
+                  Fecha y Duración
+                </td>
+                <td
+                  style={{
+                    padding: '3.5px 6px',
+                    fontWeight: 700,
+                    color: '#0f172a',
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  {formattedDate} {data.duration ? `(${data.duration})` : ''}
+                </td>
+              </tr>
+
+              <tr>
+                <td
+                  style={{
+                    backgroundColor: '#f1f5f9',
+                    padding: '3.5px 6px',
+                    fontWeight: 800,
+                    color: '#334155',
+                    border: '1px solid #cbd5e1',
+                    textTransform: 'uppercase',
+                    fontSize: '6.2pt'
+                  }}
+                >
+                  Auditor Líder Actuante
+                </td>
+                <td
+                  style={{
+                    padding: '3.5px 6px',
+                    fontWeight: 800,
+                    color: '#0f172a',
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  {actName || 'Profesional EHS'} {actLic ? `• Mat. ${actLic}` : ''}
+                </td>
+                <td
+                  style={{
+                    backgroundColor: '#f1f5f9',
+                    padding: '3.5px 6px',
+                    fontWeight: 800,
+                    color: '#334155',
+                    border: '1px solid #cbd5e1',
+                    textTransform: 'uppercase',
+                    fontSize: '6.2pt'
+                  }}
+                >
+                  Responsable Auditado
+                </td>
+                <td
+                  style={{
+                    padding: '3.5px 6px',
+                    fontWeight: 700,
+                    color: '#0f172a',
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  {data.auditedPerson || 'Responsable Operativo de Planta'}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* INDICADORES CUANTITATIVOS DE LA AUDITORÍA */}
+        <div
+          className="avoid-break"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(5, 1fr)',
+            gap: '6px',
+            marginBottom: '8px'
+          }}
+        >
+          <div
+            style={{
+              border: '1px solid #cbd5e1',
+              backgroundColor: '#f8fafc',
+              borderRadius: '5px',
+              padding: '4px 6px',
+              textAlign: 'center'
+            }}
+          >
+            <div style={{ fontSize: '5.6pt', fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>
+              Puntos Relevados
+            </div>
+            <div style={{ fontSize: '10.5pt', fontWeight: 900, color: '#0f172a' }}>{totalItems}</div>
           </div>
 
-          <div className="p-1.5 rounded-lg border border-rose-200 bg-rose-50 text-center">
-            <span className="text-[5.8pt] font-bold text-rose-700 uppercase tracking-wider block">No Conformidades</span>
-            <span className="text-sm font-black text-rose-600">
-              {totalItems > 0 ? nonConformitiesCount : (data.nonConformities || 0)}
-            </span>
+          <div
+            style={{
+              border: '1px solid #6ee7b7',
+              backgroundColor: '#ecfdf5',
+              borderRadius: '5px',
+              padding: '4px 6px',
+              textAlign: 'center'
+            }}
+          >
+            <div style={{ fontSize: '5.6pt', fontWeight: 800, color: '#065f46', textTransform: 'uppercase' }}>
+              ✓ Conformidades
+            </div>
+            <div style={{ fontSize: '10.5pt', fontWeight: 900, color: '#059669' }}>
+              {conformitiesCount}
+            </div>
           </div>
 
-          <div className="p-1.5 rounded-lg border border-blue-200 bg-blue-50 text-center">
-            <span className="text-[5.8pt] font-bold text-blue-700 uppercase tracking-wider block">Cumplimiento Global</span>
-            <span className="text-sm font-black text-blue-600">{complianceRate}%</span>
+          <div
+            style={{
+              border: '1px solid #fca5a5',
+              backgroundColor: '#fef2f2',
+              borderRadius: '5px',
+              padding: '4px 6px',
+              textAlign: 'center'
+            }}
+          >
+            <div style={{ fontSize: '5.6pt', fontWeight: 800, color: '#991b1b', textTransform: 'uppercase' }}>
+              ✗ No Conformidades
+            </div>
+            <div style={{ fontSize: '10.5pt', fontWeight: 900, color: '#dc2626' }}>
+              {nonConformitiesCount}
+            </div>
+          </div>
+
+          <div
+            style={{
+              border: '1px solid #fdba74',
+              backgroundColor: '#fff7ed',
+              borderRadius: '5px',
+              padding: '4px 6px',
+              textAlign: 'center'
+            }}
+          >
+            <div style={{ fontSize: '5.6pt', fontWeight: 800, color: '#9a3412', textTransform: 'uppercase' }}>
+              Críticos / Mayores
+            </div>
+            <div style={{ fontSize: '10.5pt', fontWeight: 900, color: '#ea580c' }}>
+              {criticalCount + majorCount}
+            </div>
+          </div>
+
+          <div
+            style={{
+              border: '1px solid #cbd5e1',
+              backgroundColor: '#f8fafc',
+              borderRadius: '5px',
+              padding: '4px 6px',
+              textAlign: 'center'
+            }}
+          >
+            <div style={{ fontSize: '5.6pt', fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>
+              • No Aplicables
+            </div>
+            <div style={{ fontSize: '10.5pt', fontWeight: 900, color: '#64748b' }}>{naCount}</div>
           </div>
         </div>
 
-        {/* Objetivo y Alcance */}
-        <div className="grid grid-cols-2 gap-2 mb-2.5">
-          <div className="border border-slate-200 p-2 rounded-lg bg-white">
-            <span className="text-[5.8pt] font-black text-slate-500 uppercase block mb-0.5 border-b border-slate-100 pb-0.5">
-              OBJETIVO DE LA AUDITORÍA
-            </span>
-            <div className="text-[7pt] text-slate-700 leading-snug">
-              <ReportContentRenderer content={data.objective || 'Verificar el grado de cumplimiento de los procedimientos internos de Higiene, Seguridad y Medio Ambiente, y los requisitos legales obligatorios aplicables a la operación.'} isPrint={true} />
+        {/* SECCIÓN II: OBJETIVO Y ALCANCE */}
+        <div
+          className="avoid-break"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '8px',
+            marginBottom: '8px'
+          }}
+        >
+          <div
+            style={{
+              border: '1px solid #cbd5e1',
+              borderRadius: '5px',
+              overflow: 'hidden',
+              backgroundColor: '#ffffff'
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: '#1e3a8a',
+                color: '#ffffff',
+                padding: '3px 8px',
+                fontSize: '6.2pt',
+                fontWeight: 900,
+                textTransform: 'uppercase',
+                letterSpacing: '0.4px'
+              }}
+            >
+              OBJETIVO TÉCNICO-LEGAL DE LA AUDITORÍA
+            </div>
+            <div style={{ padding: '5px 8px', fontSize: '6.9pt', color: '#1e293b', lineHeight: 1.38 }}>
+              <ReportContentRenderer
+                content={
+                  data.objective ||
+                  'Verificar el grado de cumplimiento de los procedimientos internos de Higiene, Seguridad y Medio Ambiente, y los requisitos legales obligatorios aplicables a la operación.'
+                }
+                isPrint={true}
+              />
             </div>
           </div>
 
-          <div className="border border-slate-200 p-2 rounded-lg bg-white">
-            <span className="text-[5.8pt] font-black text-slate-500 uppercase block mb-0.5 border-b border-slate-100 pb-0.5">
-              ALCANCE Y METODOLOGÍA
-            </span>
-            <div className="text-[7pt] text-slate-700 leading-snug">
-              <ReportContentRenderer content={data.scope || 'Observación técnica directa en puestos de trabajo, entrevistas a operarios/supervisores y examen de registros documentales del Sistema de Gestión de Seguridad y Salud en el Trabajo (SGSST).'} isPrint={true} />
+          <div
+            style={{
+              border: '1px solid #cbd5e1',
+              borderRadius: '5px',
+              overflow: 'hidden',
+              backgroundColor: '#ffffff'
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: '#1e3a8a',
+                color: '#ffffff',
+                padding: '3px 8px',
+                fontSize: '6.2pt',
+                fontWeight: 900,
+                textTransform: 'uppercase',
+                letterSpacing: '0.4px'
+              }}
+            >
+              ALCANCE, CRITERIOS Y METODOLOGÍA APLICADA
+            </div>
+            <div style={{ padding: '5px 8px', fontSize: '6.9pt', color: '#1e293b', lineHeight: 1.38 }}>
+              <ReportContentRenderer
+                content={
+                  data.scope ||
+                  'Observación técnica directa en puestos de trabajo, entrevistas a operarios/supervisores y examen de registros documentales del Sistema de Gestión de Seguridad y Salud en el Trabajo (SGSST).'
+                }
+                isPrint={true}
+              />
             </div>
           </div>
         </div>
 
-        {/* TABLA OFICIAL DE RESULTADOS DEL CHECKLIST AUDITADO */}
-        {checklist.length > 0 ? (
-          <div className="mb-2.5">
-            <div className="flex items-center gap-1.5 mb-1.5 pb-0.5 border-b-2 border-slate-800 avoid-break">
-              <div className="w-1.5 h-3.5 bg-blue-600 rounded-xs"></div>
-              <h3 className="text-[7.5pt] font-black text-slate-900 uppercase tracking-wider m-0">
-                RELEVAMIENTO TÉCNICO DETALLADO (CHECKLIST DE CUMPLIMIENTO)
-              </h3>
+        {/* SECCIÓN III: RESUMEN EJECUTIVO POR BLOQUE / CATEGORÍA (SI HAY MÁS DE 1 BLOQUE) */}
+        {categorySummary.length > 1 && (
+          <div className="avoid-break" style={{ marginBottom: '8px' }}>
+            <div
+              style={{
+                backgroundColor: '#0f172a',
+                color: '#ffffff',
+                padding: '3.5px 8px',
+                fontSize: '6.8pt',
+                fontWeight: 900,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                borderTopLeftRadius: '5px',
+                borderTopRightRadius: '5px'
+              }}
+            >
+              SECCIÓN II — SÍNTESIS DE CUMPLIMIENTO POR BLOQUE / CAPÍTULO AUDITADO
             </div>
 
-            <div className="border border-slate-300 rounded-lg overflow-hidden shadow-xs w-full">
-              <table style={{ tableLayout: 'fixed', width: '100%', boxSizing: 'border-box' }} className="border-collapse text-[7.5pt] audit-table w-full">
-                <colgroup>
-                  <col style={{ width: '18%' }} />
-                  <col style={{ width: '44%' }} />
-                  <col style={{ width: '16%' }} />
-                  <col style={{ width: '22%' }} />
-                </colgroup>
-                <thead>
-                  <tr className="bg-slate-900 text-white text-left font-bold text-[7pt]">
-                    <th style={{ padding: '4px 6px', wordBreak: 'break-word', overflowWrap: 'break-word' }}>Norma / Ref. Legal</th>
-                    <th style={{ padding: '4px 6px', wordBreak: 'break-word', overflowWrap: 'break-word' }}>Aspecto / Requisito Auditado</th>
-                    <th style={{ padding: '4px 6px', textAlign: 'center', wordBreak: 'break-word', overflowWrap: 'break-word' }}>Dictamen</th>
-                    <th style={{ padding: '4px 6px', wordBreak: 'break-word', overflowWrap: 'break-word' }}>Observación / Evidencia</th>
+            <table
+              style={{
+                width: '100%',
+                borderCollapse: 'collapse',
+                border: '1px solid #cbd5e1',
+                fontSize: '6.8pt'
+              }}
+            >
+              <thead>
+                <tr style={{ backgroundColor: '#f1f5f9', color: '#0f172a', fontWeight: 800 }}>
+                  <th style={{ padding: '3px 6px', border: '1px solid #cbd5e1', textAlign: 'left' }}>
+                    Bloque / Capítulo Normativo
+                  </th>
+                  <th style={{ padding: '3px 6px', border: '1px solid #cbd5e1', textAlign: 'center', width: '10%' }}>
+                    Total
+                  </th>
+                  <th style={{ padding: '3px 6px', border: '1px solid #cbd5e1', textAlign: 'center', width: '13%' }}>
+                    ✓ Conformes
+                  </th>
+                  <th style={{ padding: '3px 6px', border: '1px solid #cbd5e1', textAlign: 'center', width: '13%' }}>
+                    ✗ Desvíos
+                  </th>
+                  <th style={{ padding: '3px 6px', border: '1px solid #cbd5e1', textAlign: 'center', width: '10%' }}>
+                    • N/A
+                  </th>
+                  <th style={{ padding: '3px 6px', border: '1px solid #cbd5e1', textAlign: 'center', width: '18%' }}>
+                    Nivel Cumplimiento
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {categorySummary.map((cat, idx) => (
+                  <tr
+                    key={cat.name}
+                    style={{ backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}
+                  >
+                    <td
+                      style={{
+                        padding: '3px 6px',
+                        border: '1px solid #cbd5e1',
+                        fontWeight: 800,
+                        color: '#0f172a'
+                      }}
+                    >
+                      {cat.name}
+                    </td>
+                    <td
+                      style={{
+                        padding: '3px 6px',
+                        border: '1px solid #cbd5e1',
+                        textAlign: 'center',
+                        fontWeight: 700
+                      }}
+                    >
+                      {cat.total}
+                    </td>
+                    <td
+                      style={{
+                        padding: '3px 6px',
+                        border: '1px solid #cbd5e1',
+                        textAlign: 'center',
+                        fontWeight: 800,
+                        color: '#059669'
+                      }}
+                    >
+                      {cat.si}
+                    </td>
+                    <td
+                      style={{
+                        padding: '3px 6px',
+                        border: '1px solid #cbd5e1',
+                        textAlign: 'center',
+                        fontWeight: 800,
+                        color: cat.no > 0 ? '#dc2626' : '#64748b'
+                      }}
+                    >
+                      {cat.no}
+                    </td>
+                    <td
+                      style={{
+                        padding: '3px 6px',
+                        border: '1px solid #cbd5e1',
+                        textAlign: 'center',
+                        color: '#64748b'
+                      }}
+                    >
+                      {cat.na}
+                    </td>
+                    <td
+                      style={{
+                        padding: '3px 6px',
+                        border: '1px solid #cbd5e1',
+                        textAlign: 'center',
+                        fontWeight: 900,
+                        color:
+                          cat.pct >= 80 ? '#059669' : cat.pct >= 60 ? '#d97706' : '#dc2626'
+                      }}
+                    >
+                      {cat.evaluated > 0 ? `${cat.pct}%` : 'N/A'}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {checklist.map((item: any, idx: number) => {
-                    const isConforme = item.status === 'si';
-                    const isNoConforme = item.status === 'no';
-                    const isNA = item.status === 'na';
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-                    return (
-                      <tr key={item.id || idx} className="border-b border-slate-200 striped-row">
-                        <td style={{ padding: '3.5px 6px', wordBreak: 'break-word', overflowWrap: 'break-word' }} className="font-bold text-slate-800 align-top">
-                          <span className="inline-block px-1 py-0.2 rounded text-[6.5pt] bg-slate-100 text-slate-700 border border-slate-200 font-mono">
-                            {item.legal || item.clause || `Item ${idx + 1}`}
+        {/* SECCIÓN IV: MATRIZ DETALLADA DEL RELEVAMIENTO TÉCNICO (CHECKLIST COMPLETO) */}
+        {checklist.length > 0 && (
+          <div style={{ marginBottom: '8px' }}>
+            <div
+              className="avoid-break"
+              style={{
+                backgroundColor: '#0f172a',
+                color: '#ffffff',
+                padding: '4px 8px',
+                fontSize: '6.8pt',
+                fontWeight: 900,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                borderTopLeftRadius: '5px',
+                borderTopRightRadius: '5px',
+                display: 'flex',
+                justifyContent: 'space-between'
+              }}
+            >
+              <span>
+                SECCIÓN {categorySummary.length > 1 ? 'III' : 'II'} — MATRIZ DETALLADA DEL RELEVAMIENTO TÉCNICO-LEGAL
+              </span>
+              <span>{checklist.length} REQUISITOS VERIFICADOS</span>
+            </div>
+
+            <table
+              className="audit-table"
+              style={{
+                width: '100%',
+                tableLayout: 'fixed',
+                borderCollapse: 'collapse',
+                border: '1px solid #cbd5e1',
+                fontSize: '6.9pt'
+              }}
+            >
+              <colgroup>
+                <col style={{ width: '5%' }} />
+                <col style={{ width: '17%' }} />
+                <col style={{ width: '42%' }} />
+                <col style={{ width: '13%' }} />
+                <col style={{ width: '23%' }} />
+              </colgroup>
+              <thead>
+                <tr style={{ backgroundColor: '#1e293b', color: '#ffffff', fontWeight: 800, fontSize: '6.5pt' }}>
+                  <th style={{ padding: '4px', border: '1px solid #334155', textAlign: 'center' }}>N°</th>
+                  <th style={{ padding: '4px 6px', border: '1px solid #334155', textAlign: 'left' }}>
+                    Norma / Ref. Legal
+                  </th>
+                  <th style={{ padding: '4px 6px', border: '1px solid #334155', textAlign: 'left' }}>
+                    Requisito Técnico-Legal Verificado
+                  </th>
+                  <th style={{ padding: '4px', border: '1px solid #334155', textAlign: 'center' }}>
+                    Dictamen
+                  </th>
+                  <th style={{ padding: '4px 6px', border: '1px solid #334155', textAlign: 'left' }}>
+                    Evidencia / Observación de Campo
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {checklist.map((item: any, idx: number) => {
+                  const isConforme = item.status === 'si';
+                  const isNoConforme = item.status === 'no';
+                  const isNA = item.status === 'na';
+                  const prevCat = idx > 0 ? checklist[idx - 1]?.category : null;
+                  const showCatRow = item.category && item.category !== prevCat;
+                  const sevBadge =
+                    SEVERITY_BADGE[item.severity || 'major'] || SEVERITY_BADGE.major;
+
+                  return (
+                    <React.Fragment key={item.id || idx}>
+                      {showCatRow && (
+                        <tr style={{ backgroundColor: '#dbeafe' }}>
+                          <td
+                            colSpan={5}
+                            style={{
+                              padding: '3.5px 8px',
+                              fontWeight: 900,
+                              fontSize: '6.6pt',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.4px',
+                              color: '#1e3a8a',
+                              border: '1px solid #93c5fd'
+                            }}
+                          >
+                            ■ {item.category}
+                          </td>
+                        </tr>
+                      )}
+                      <tr
+                        style={{
+                          backgroundColor: isNoConforme
+                            ? '#fff1f2'
+                            : idx % 2 === 0
+                            ? '#ffffff'
+                            : '#f8fafc'
+                        }}
+                      >
+                        <td
+                          style={{
+                            padding: '3.5px 4px',
+                            border: '1px solid #cbd5e1',
+                            textAlign: 'center',
+                            fontWeight: 800,
+                            color: '#475569',
+                            verticalAlign: 'top'
+                          }}
+                        >
+                          {String(idx + 1).padStart(2, '0')}
+                        </td>
+
+                        <td
+                          style={{
+                            padding: '3.5px 5px',
+                            border: '1px solid #cbd5e1',
+                            verticalAlign: 'top',
+                            wordBreak: 'break-word'
+                          }}
+                        >
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              padding: '1.5px 5px',
+                              borderRadius: '3px',
+                              fontSize: '6pt',
+                              fontWeight: 800,
+                              backgroundColor: '#f1f5f9',
+                              color: '#0f172a',
+                              border: '1px solid #cbd5e1'
+                            }}
+                          >
+                            {item.legal || item.clause || `Ítem ${idx + 1}`}
                           </span>
                         </td>
-                        <td style={{ padding: '3.5px 6px', wordBreak: 'break-word', overflowWrap: 'break-word' }} className="text-slate-700 font-medium align-top leading-tight text-[7.2pt]">
+
+                        <td
+                          style={{
+                            padding: '3.5px 6px',
+                            border: '1px solid #cbd5e1',
+                            fontWeight: 700,
+                            color: '#0f172a',
+                            lineHeight: 1.32,
+                            verticalAlign: 'top',
+                            wordBreak: 'break-word'
+                          }}
+                        >
                           {item.question}
                         </td>
-                        <td style={{ padding: '3.5px 6px', textAlign: 'center', wordBreak: 'break-word' }} className="align-top">
+
+                        <td
+                          style={{
+                            padding: '3.5px 4px',
+                            border: '1px solid #cbd5e1',
+                            textAlign: 'center',
+                            verticalAlign: 'top'
+                          }}
+                        >
                           {isConforme && (
-                            <span className="inline-block px-1.5 py-0.5 rounded-full text-[6.2pt] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            <span
+                              style={{
+                                display: 'inline-block',
+                                padding: '2px 6px',
+                                borderRadius: '999px',
+                                fontSize: '5.8pt',
+                                fontWeight: 900,
+                                backgroundColor: '#d1fae5',
+                                color: '#065f46',
+                                border: '1px solid #34d399'
+                              }}
+                            >
                               ✓ CONFORME
                             </span>
                           )}
                           {isNoConforme && (
-                            <span className="inline-block px-1.5 py-0.5 rounded-full text-[6.2pt] font-black bg-rose-100 text-rose-800 border border-rose-300">
-                              ✗ DESVÍO
-                            </span>
+                            <div
+                              style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: '2px'
+                              }}
+                            >
+                              <span
+                                style={{
+                                  display: 'inline-block',
+                                  padding: '2px 6px',
+                                  borderRadius: '999px',
+                                  fontSize: '5.8pt',
+                                  fontWeight: 900,
+                                  backgroundColor: '#fee2e2',
+                                  color: '#991b1b',
+                                  border: '1px solid #f87171'
+                                }}
+                              >
+                                ✗ DESVÍO
+                              </span>
+                              <span
+                                style={{
+                                  display: 'inline-block',
+                                  padding: '1px 4px',
+                                  borderRadius: '3px',
+                                  fontSize: '5.3pt',
+                                  fontWeight: 900,
+                                  backgroundColor: sevBadge.bg,
+                                  color: sevBadge.text,
+                                  border: `1px solid ${sevBadge.border}`
+                                }}
+                              >
+                                {sevBadge.label}
+                              </span>
+                            </div>
                           )}
                           {isNA && (
-                            <span className="inline-block px-1.5 py-0.5 rounded-full text-[6.2pt] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                            <span
+                              style={{
+                                display: 'inline-block',
+                                padding: '2px 6px',
+                                borderRadius: '999px',
+                                fontSize: '5.8pt',
+                                fontWeight: 800,
+                                backgroundColor: '#f1f5f9',
+                                color: '#475569',
+                                border: '1px solid #cbd5e1'
+                              }}
+                            >
                               • N/A
                             </span>
                           )}
                         </td>
-                        <td style={{ padding: '3.5px 6px', wordBreak: 'break-word', overflowWrap: 'break-word' }} className="text-slate-600 text-[7pt] align-top">
+
+                        <td
+                          style={{
+                            padding: '3.5px 6px',
+                            border: '1px solid #cbd5e1',
+                            verticalAlign: 'top',
+                            fontSize: '6.5pt',
+                            lineHeight: 1.3,
+                            wordBreak: 'break-word'
+                          }}
+                        >
                           {item.observation ? (
-                            <span className={isNoConforme ? 'text-rose-700 font-semibold' : ''}>
+                            <span
+                              style={{
+                                color: isNoConforme ? '#991b1b' : '#1e293b',
+                                fontWeight: isNoConforme ? 700 : 500
+                              }}
+                            >
                               {item.observation}
                             </span>
                           ) : (
-                            <span className="text-slate-400 italic">Sin observaciones</span>
+                            <span style={{ color: '#64748b', fontStyle: 'italic' }}>
+                              {isConforme
+                                ? 'Verificado conforme en planta'
+                                : isNA
+                                ? 'No aplica al sector'
+                                : 'Desvío constatado en inspección'}
+                            </span>
                           )}
                         </td>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* SECCIÓN V: PLAN DE ACCIÓN CORRECTIVA Y PREVENTIVA (CAPA) */}
+        {nonConformitiesList.length > 0 ? (
+          <div className="avoid-break" style={{ marginBottom: '8px' }}>
+            <div
+              style={{
+                backgroundColor: '#991b1b',
+                color: '#ffffff',
+                padding: '4px 8px',
+                fontSize: '6.8pt',
+                fontWeight: 900,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                borderTopLeftRadius: '5px',
+                borderTopRightRadius: '5px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}
+            >
+              <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <AlertOctagon size={12} /> SECCIÓN {categorySummary.length > 1 ? 'IV' : 'III'} — PLAN DE ACCIÓN CORRECTIVA (CAPA) SOBRE DESVÍOS DETECTADOS
+              </span>
+              <span>{nonConformitiesList.length} ACCIONES REQUERIDAS</span>
             </div>
+
+            <table
+              className="audit-table"
+              style={{
+                width: '100%',
+                tableLayout: 'fixed',
+                borderCollapse: 'collapse',
+                border: '1px solid #fca5a5',
+                fontSize: '6.7pt'
+              }}
+            >
+              <colgroup>
+                <col style={{ width: '12%' }} />
+                <col style={{ width: '32%' }} />
+                <col style={{ width: '34%' }} />
+                <col style={{ width: '13%' }} />
+                <col style={{ width: '9%' }} />
+              </colgroup>
+              <thead>
+                <tr style={{ backgroundColor: '#fef2f2', color: '#7f1d1d', fontWeight: 900, fontSize: '6.3pt' }}>
+                  <th style={{ padding: '3.5px 5px', border: '1px solid #fca5a5', textAlign: 'left' }}>
+                    Severidad / Norma
+                  </th>
+                  <th style={{ padding: '3.5px 5px', border: '1px solid #fca5a5', textAlign: 'left' }}>
+                    Hallazgo / Requisito Incumplido
+                  </th>
+                  <th style={{ padding: '3.5px 5px', border: '1px solid #fca5a5', textAlign: 'left' }}>
+                    Acción Correctiva / Medida Técnica Requerida
+                  </th>
+                  <th style={{ padding: '3.5px 5px', border: '1px solid #fca5a5', textAlign: 'left' }}>
+                    Responsable
+                  </th>
+                  <th style={{ padding: '3.5px 4px', border: '1px solid #fca5a5', textAlign: 'center' }}>
+                    Plazo
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {nonConformitiesList.map((nc: any, idx: number) => {
+                  const sev = SEVERITY_BADGE[nc.severity || 'major'] || SEVERITY_BADGE.major;
+                  return (
+                    <tr key={nc.id || idx} style={{ backgroundColor: '#ffffff' }}>
+                      <td
+                        style={{
+                          padding: '3.5px 5px',
+                          border: '1px solid #fca5a5',
+                          verticalAlign: 'top'
+                        }}
+                      >
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            padding: '1.5px 5px',
+                            borderRadius: '3px',
+                            fontSize: '5.8pt',
+                            fontWeight: 900,
+                            backgroundColor: sev.bg,
+                            color: sev.text,
+                            border: `1px solid ${sev.border}`
+                          }}
+                        >
+                          {sev.label}
+                        </span>
+                        <div
+                          style={{
+                            fontSize: '5.8pt',
+                            fontWeight: 800,
+                            color: '#334155',
+                            marginTop: '2px'
+                          }}
+                        >
+                          {nc.legal}
+                        </div>
+                      </td>
+
+                      <td
+                        style={{
+                          padding: '3.5px 5px',
+                          border: '1px solid #fca5a5',
+                          verticalAlign: 'top',
+                          color: '#0f172a',
+                          wordBreak: 'break-word'
+                        }}
+                      >
+                        <div style={{ fontWeight: 800, lineHeight: 1.28 }}>{nc.question}</div>
+                        {nc.observation && (
+                          <div
+                            style={{
+                              color: '#991b1b',
+                              fontWeight: 600,
+                              marginTop: '2px',
+                              fontSize: '6.3pt'
+                            }}
+                          >
+                            • Evidencia: {nc.observation}
+                          </div>
+                        )}
+                      </td>
+
+                      <td
+                        style={{
+                          padding: '3.5px 5px',
+                          border: '1px solid #fca5a5',
+                          verticalAlign: 'top',
+                          color: '#0f172a',
+                          fontWeight: 700,
+                          lineHeight: 1.3,
+                          wordBreak: 'break-word'
+                        }}
+                      >
+                        {nc.correctiveAction ||
+                          'Ejecutar adecuación técnica/documental inmediata y presentar evidencia al Servicio de Higiene y Seguridad.'}
+                      </td>
+
+                      <td
+                        style={{
+                          padding: '3.5px 5px',
+                          border: '1px solid #fca5a5',
+                          verticalAlign: 'top',
+                          fontWeight: 700,
+                          color: '#1e293b',
+                          wordBreak: 'break-word'
+                        }}
+                      >
+                        {nc.responsible || data.auditedPerson || 'Resp. de Planta'}
+                      </td>
+
+                      <td
+                        style={{
+                          padding: '3.5px 4px',
+                          border: '1px solid #fca5a5',
+                          verticalAlign: 'top',
+                          textAlign: 'center',
+                          fontWeight: 800,
+                          color: '#991b1b'
+                        }}
+                      >
+                        {nc.dueDate
+                          ? new Date(nc.dueDate + 'T12:00:00').toLocaleDateString('es-AR')
+                          : '15 días'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         ) : (
-          /* En caso de que no tenga checklist desglosado, mostrar bloque de hallazgos tradicional pero bien formateado */
-          <div className="mb-[1.5rem] border border-slate-200 rounded-lg p-3 bg-white">
-            <h4 className="text-xs font-bold text-slate-600 uppercase mb-2">Hallazgos y Observaciones Detectadas</h4>
-            <div className="text-[8.5pt] text-slate-800">
-              <ReportContentRenderer content={data.findings || '✓ Se constató el cumplimiento general de las normativas de seguridad.\n✓ Uso de EPP conforme al nivel de riesgo.\n✓ No se detectaron desvíos críticos que supongan peligro inminente.'} isPrint={true} />
-            </div>
-          </div>
-        )}
-
-        {/* CUADRO DESTACADO DE NO CONFORMIDADES CRÍTICAS SI EXISTEN */}
-        {nonConformitiesList.length > 0 && (
-          <div className="mb-[1.5rem] p-3 rounded-lg border-l-4 border-rose-600 bg-rose-50 avoid-break shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertOctagon size={16} className="text-rose-600" />
-              <span className="text-xs font-black uppercase text-rose-900 tracking-wider">
-                DESVÍOS CRÍTICOS DETECTADOS (PLAN DE ACCIÓN REQUERIDO)
+          evaluatedItems > 0 && (
+            <div
+              className="avoid-break"
+              style={{
+                marginBottom: '8px',
+                padding: '6px 10px',
+                borderRadius: '5px',
+                backgroundColor: '#ecfdf5',
+                border: '1.5px solid #10b981',
+                color: '#065f46',
+                fontSize: '7.2pt',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <CheckCircle2 size={14} color="#059669" />
+              <span>
+                SIN NO CONFORMIDADES PENDIENTES: Todos los puntos aplicables evaluados en el establecimiento resultaron CONFORMES a la normativa vigente.
               </span>
             </div>
-            <ul className="m-0 pl-5 text-[8.5pt] text-rose-950 space-y-1">
-              {nonConformitiesList.map((nc: any, idx: number) => (
-                <li key={nc.id || idx}>
-                  <strong>{nc.legal || `Requisito ${idx + 1}`}:</strong> {nc.question}
-                  {nc.observation && <span className="block italic text-rose-800 mt-0.5">• Evidencia: {nc.observation}</span>}
-                </li>
-              ))}
-            </ul>
-          </div>
+          )
         )}
 
-        {/* Reunión de Cierre y Conclusiones */}
-        <div className="avoid-break border-l-4 border-blue-600 bg-blue-50/70 p-2.5 rounded-r-lg mb-2.5">
-          <span className="text-[6.5pt] font-black text-blue-900 block mb-0.5 uppercase tracking-wider">
-            MINUTA DE CIERRE Y CONCLUSIÓN TÉCNICA DEL AUDITOR
-          </span>
-          {data.closingMeeting?.participants && (
-            <p className="text-[6.8pt] text-blue-950 font-bold mb-1">
-              👥 Participantes del cierre: <span className="font-normal">{data.closingMeeting.participants}</span>
-            </p>
-          )}
-          <div className="text-[7.2pt] text-blue-950 leading-relaxed font-medium">
-            <ReportContentRenderer content={data.closingMeeting?.conclusions || data.conclusion || 'La auditoría concluye que el establecimiento mantiene condiciones operativas con adecuada adhesión al Sistema de Gestión EHS, debiendo implementarse las acciones correctivas señaladas dentro de los plazos establecidos.'} isPrint={true} />
+        {/* SECCIÓN VI: MINUTA DE REUNIÓN DE CIERRE Y DICTAMEN TÉCNICO FINAL */}
+        <div
+          className="avoid-break"
+          style={{
+            border: '1.5px solid #1e3a8a',
+            borderRadius: '5px',
+            overflow: 'hidden',
+            marginBottom: '10px',
+            backgroundColor: '#ffffff'
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: '#1e3a8a',
+              color: '#ffffff',
+              padding: '4px 8px',
+              fontSize: '6.8pt',
+              fontWeight: 900,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <ShieldCheck size={12} /> MINUTA DE REUNIÓN DE CIERRE Y DICTAMEN TÉCNICO DEL AUDITOR
+            </span>
+            <span>FECHA DE CIERRE: {closingDate}</span>
+          </div>
+
+          <div style={{ padding: '7px 10px' }}>
+            {(data.closingMeeting?.participants || data.auditTeam) && (
+              <div
+                style={{
+                  fontSize: '6.8pt',
+                  color: '#0f172a',
+                  marginBottom: '5px',
+                  paddingBottom: '4px',
+                  borderBottom: '1px solid #e2e8f0'
+                }}
+              >
+                <strong style={{ textTransform: 'uppercase', color: '#1e3a8a' }}>
+                  Participantes del Cierre:
+                </strong>{' '}
+                <span style={{ fontWeight: 600 }}>
+                  {data.closingMeeting?.participants || data.auditTeam}
+                </span>
+              </div>
+            )}
+
+            {data.closingMeeting?.strengths && (
+              <div
+                style={{
+                  marginBottom: '6px',
+                  padding: '5px 8px',
+                  borderRadius: '4px',
+                  backgroundColor: '#f0fdf4',
+                  borderLeft: '3.5px solid #059669',
+                  fontSize: '6.9pt',
+                  color: '#064e3b',
+                  lineHeight: 1.35
+                }}
+              >
+                <strong
+                  style={{
+                    display: 'block',
+                    fontSize: '6.1pt',
+                    textTransform: 'uppercase',
+                    color: '#047857',
+                    marginBottom: '1px'
+                  }}
+                >
+                  ✓ Fortalezas y Aspectos Positivos Destacados:
+                </strong>
+                {data.closingMeeting.strengths}
+              </div>
+            )}
+
+            <div
+              style={{
+                fontSize: '7.1pt',
+                color: '#0f172a',
+                lineHeight: 1.42,
+                fontWeight: 600
+              }}
+            >
+              <ReportContentRenderer
+                content={
+                  data.closingMeeting?.conclusions ||
+                  data.conclusion ||
+                  'La auditoría concluye que el establecimiento mantiene condiciones operativas con adecuada adhesión al Sistema de Gestión de Higiene y Seguridad en el Trabajo, debiendo implementarse las acciones correctivas señaladas dentro de los plazos establecidos.'
+                }
+                isPrint={true}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Firmas de Responsabilidad */}
-        <div className="avoid-break mt-2">
+        {/* SECCIÓN VII: FIRMAS DE RESPONSABILIDAD */}
+        <div className="avoid-break" style={{ marginTop: '6px' }}>
           <PdfSignatures
             compact={true}
             hideFooter={true}
             data={data}
-            box1={!data.showSignatures || data.showSignatures.operator ? {
-              title: 'PERSONA AUDITADA / RESPONSABLE',
-              subtitle: 'Firma de Conformidad',
-              signatureUrl: data.operatorSignature || null,
-              isProfessional: false
-            } : null}
-            box2={!data.showSignatures || data.showSignatures.professional ? {
-              title: finalRoleTitle,
-              subtitle: (actName || 'Firma y Sello').toUpperCase(),
-              signatureUrl: actSignature,
-              stampUrl: actStamp,
-              isProfessional: true,
-              license: actLic
-            } : null}
-            box3={!data.showSignatures || data.showSignatures.supervisor ? {
-              title: 'SUPERVISIÓN / GERENCIA',
-              subtitle: 'Aprobación de Informe',
-              signatureUrl: data.supervisorSignature || null,
-              isProfessional: false
-            } : null}
+            box1={
+              !data.showSignatures || data.showSignatures.operator
+                ? {
+                    title: 'PERSONA AUDITADA / RESPONSABLE',
+                    subtitle: (data.auditedPerson || 'Firma de Conformidad').toUpperCase(),
+                    signatureUrl: data.operatorSignature || null,
+                    isProfessional: false
+                  }
+                : null
+            }
+            box2={
+              !data.showSignatures || data.showSignatures.professional
+                ? {
+                    title: finalRoleTitle,
+                    subtitle: (actName || 'Firma y Sello').toUpperCase(),
+                    signatureUrl: actSignature,
+                    stampUrl: actStamp,
+                    isProfessional: true,
+                    license: actLic
+                  }
+                : null
+            }
+            box3={
+              !data.showSignatures || data.showSignatures.supervisor
+                ? {
+                    title: 'SUPERVISIÓN / DIRECCIÓN',
+                    subtitle: 'Aprobación de Informe',
+                    signatureUrl: data.supervisorSignature || null,
+                    isProfessional: false
+                  }
+                : null
+            }
           />
         </div>
 
         <PdfBrandingFooter />
 
         {/* Pie de página legal */}
-        <div className="w-full text-center text-[7pt] text-slate-400 mt-4 font-medium border-t border-slate-200 pt-2">
-          Documento generado por Asistente de Higiene y Seguridad • Conforme a Directrices ISO 19011 e ISO 45001:2018
+        <div
+          style={{
+            width: '100%',
+            textAlign: 'center',
+            fontSize: '6.3pt',
+            color: '#64748b',
+            marginTop: '6px',
+            fontWeight: 600,
+            borderTop: '1px solid #cbd5e1',
+            paddingTop: '4px'
+          }}
+        >
+          Acta e Informe Oficial de Auditoría EHS • Conforme a Ley Nacional N° 19.587, Decreto 351/79, Directrices ISO 19011 e ISO 45001:2018
         </div>
       </div>
     </div>

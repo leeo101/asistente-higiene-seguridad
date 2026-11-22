@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { formatProfessionTitle } from '../data/professionOptions';
+import { formatProfessionTitle, DEFAULT_PROFESSION } from '../data/professionOptions';
+import { getSavedProfessionalData } from '../utils/jsPdfSignatureHelper';
 
 const croppedCache = new Map<string, string>();
 
@@ -22,9 +23,12 @@ function AutoCroppedImg({
       setCroppedSrc(croppedCache.get(src)!);
       return;
     }
+    setCroppedSrc(src);
     let active = true;
     const img = new Image();
-    img.crossOrigin = 'anonymous';
+    if (!src.startsWith('data:')) {
+      img.crossOrigin = 'anonymous';
+    }
     img.onload = () => {
       try {
         const w = img.naturalWidth || img.width;
@@ -51,8 +55,7 @@ function AutoCroppedImg({
             const g = data[idx + 1];
             const b = data[idx + 2];
             const a = data[idx + 3];
-            // Pixel visible y no blanco puro de fondo
-            if (a > 20 && !(r > 245 && g > 245 && b > 245)) {
+            if (a > 15 && !(r > 248 && g > 248 && b > 248)) {
               found = true;
               if (x < minX) minX = x;
               if (x > maxX) maxX = x;
@@ -89,7 +92,7 @@ function AutoCroppedImg({
           }
         }
       } catch {
-        // Fallback to original src
+        // Conservar imagen original
       }
     };
     img.src = src;
@@ -145,6 +148,18 @@ export default function PdfSignatures({
   hideFooter = false,
   compact = false
 }: PdfSignaturesProps) {
+  const [, setStorageTick] = useState(0);
+
+  useEffect(() => {
+    const onStorageChange = () => setStorageTick((t) => t + 1);
+    window.addEventListener('storage', onStorageChange);
+    window.addEventListener('signatureStampUpdated', onStorageChange);
+    return () => {
+      window.removeEventListener('storage', onStorageChange);
+      window.removeEventListener('signatureStampUpdated', onStorageChange);
+    };
+  }, []);
+
   const getVal = (keys: string[]) => {
     for (const k of keys) {
       if (data && data[k] !== undefined && data[k] !== null && String(data[k]).trim() !== '') {
@@ -154,44 +169,62 @@ export default function PdfSignatures({
     return null;
   };
 
-  let actSignature = getVal(['professionalSignature', 'signature', 'auditorSignature', 'evaluadorFirma']);
-  let actStamp = getVal(['professionalStamp', 'stamp', 'sello', 'profesionalSello']);
-  let actName = getVal(['professionalName', 'responsable', 'leadAuditor', 'expositor', 'evaluador', 'profesionalNombre', 'name', 'nombre']);
-  let actLic = getVal(['professionalLicense', 'license', 'matricula', 'profesionalMatricula']);
-  let actTitle = getVal(['professionalTitle', 'profesion', 'profession', 'profesionalTitulo']);
-  let supervisorSignature = getVal(['capatazSignature', 'supervisorSignature', 'responsableFirma']);
-  let operatorSignature = getVal(['operatorSignature', 'operadorFirma']);
+  // Cargar datos unificados del perfil profesional (Firma, Sello, Título y Matrícula)
+  const savedPro = getSavedProfessionalData();
 
-  if (!actSignature || !actStamp) {
-    try {
-      const lsStamp = typeof window !== 'undefined' ? localStorage.getItem('signatureStampData') : null;
-      const legacySig = typeof window !== 'undefined' ? localStorage.getItem('capturedSignature') : null;
-      if (lsStamp) {
-        const parsed = JSON.parse(lsStamp);
-        if (!actSignature) actSignature = parsed.signature;
-        if (!actStamp) actStamp = parsed.stamp;
-      } else if (legacySig && !actSignature) {
-        actSignature = legacySig;
-      }
-    } catch (e) {}
-  }
+  const dataSig = getVal([
+    'professionalSignature',
+    'signature',
+    'auditorSignature',
+    'evaluadorFirma'
+  ]);
+  const dataStamp = getVal(['professionalStamp', 'stamp', 'sello', 'profesionalSello']);
+  const dataName = getVal([
+    'professionalName',
+    'responsable',
+    'auditor',
+    'leadAuditor',
+    'expositor',
+    'evaluador',
+    'profesionalNombre',
+    'name',
+    'nombre'
+  ]);
+  const dataLic = getVal([
+    'professionalLicense',
+    'license',
+    'matricula',
+    'profesionalMatricula'
+  ]);
+  const dataTitle = getVal([
+    'professionalTitle',
+    'profesion',
+    'profession',
+    'profesionalTitulo'
+  ]);
+  const supervisorSignature = getVal([
+    'capatazSignature',
+    'supervisorSignature',
+    'responsableFirma'
+  ]);
+  const operatorSignature = getVal(['operatorSignature', 'operadorFirma']);
 
-  let profileProfessionTitle: string | null = null;
-  try {
-    const lsPersonal = typeof window !== 'undefined' ? localStorage.getItem('personalData') : null;
-    if (lsPersonal) {
-      const pd = JSON.parse(lsPersonal);
-      actName = actName || pd.name || pd.fullName;
-      actLic = actLic || pd.license || pd.matricula;
-      profileProfessionTitle = pd.profession || pd.profesion || pd.title || pd.titulo || null;
-    }
-  } catch (e) {}
+  const actSignature =
+    typeof dataSig === 'string' && dataSig.startsWith('data:image/')
+      ? dataSig
+      : savedPro.signature;
+  const actStamp =
+    typeof dataStamp === 'string' && dataStamp.startsWith('data:image/')
+      ? dataStamp
+      : savedPro.stamp;
+  const actName = savedPro.name || dataName || '';
+  const actLic = savedPro.license || dataLic || '';
+  const actTitle = formatProfessionTitle(savedPro.profession || dataTitle || DEFAULT_PROFESSION);
 
-  actTitle = formatProfessionTitle(profileProfessionTitle || actTitle);
-  const professionalDisplayTitle = (actTitle || 'PROFESIONAL DE HIGIENE Y SEGURIDAD').toUpperCase();
+  const professionalDisplayTitle = (actTitle || DEFAULT_PROFESSION).toUpperCase();
   const professionalDisplayName = (actName || 'FIRMA Y SELLO PROFESIONAL').toUpperCase();
 
-  // Detección inteligente de cajas pasadas por props para evitar cruces
+  // Detección inteligente de cajas pasadas por props
   let customOpBox: SignatureBoxProps | null = null;
   let customSupBox: SignatureBoxProps | null = null;
   let customProBox: SignatureBoxProps | null = null;
@@ -199,11 +232,27 @@ export default function PdfSignatures({
   const passedBoxes = [box1, box2, box3];
   passedBoxes.forEach((b) => {
     if (!b) return;
-    if (b.isProfessional) {
+    if (
+      b.isProfessional ||
+      (b.title &&
+        /HIGIENE Y SEGURIDAD|TÉCNICO UNIVERSITARIO|TECNICO UNIVERSITARIO|LICENCIADO EN HIGIENE|INGENIERO.*HIGIENE|PROFESIONAL ACTUANTE/i.test(
+          b.title
+        ))
+    ) {
       customProBox = b;
-    } else if (b.title && /SUPERVIS|JEFE|AUDIT|DIRECTOR|MÉDICO|MEDICO|EVALUADOR|EMISOR|AUTORIZANTE|PLANTA/i.test(b.title)) {
+    } else if (
+      b.title &&
+      /SUPERVIS|JEFE|DIRECTOR|MÉDICO|MEDICO|EMISOR|AUTORIZANTE|PLANTA|GERENCIA|EMPLEADOR/i.test(
+        b.title
+      )
+    ) {
       customSupBox = b;
-    } else if (b.title && /OPERADOR|RESPONSABLE|TRABAJADOR|EMPLEADO|ELECTRICISTA|EJECUTANTE|SOLICITANTE/i.test(b.title)) {
+    } else if (
+      b.title &&
+      /OPERADOR|RESPONSABLE|TRABAJADOR|EMPLEADO|ELECTRICISTA|EJECUTANTE|SOLICITANTE|AUDITAD/i.test(
+        b.title
+      )
+    ) {
       customOpBox = b;
     }
   });
@@ -232,18 +281,23 @@ export default function PdfSignatures({
     isProfessional: false
   };
 
-  // Determinar visibilidad de cada rol
-  const showOp = data?.showSignatures?.operator !== undefined
-    ? Boolean(data.showSignatures.operator)
-    : (box1 !== undefined ? box1 !== null : true);
-  const showPro = data?.showSignatures?.professional !== undefined
-    ? Boolean(data.showSignatures.professional)
-    : ((box2 !== undefined || box3 !== undefined)
-      ? (customProBox !== null || (box2 !== null && (box2?.isProfessional || !box2?.title?.includes('SUPERVIS'))))
-      : true);
-  const showSup = data?.showSignatures?.supervisor !== undefined
-    ? Boolean(data.showSignatures.supervisor)
-    : (customSupBox !== null || (box3 !== undefined ? box3 !== null : true));
+  const showOp =
+    data?.showSignatures?.operator !== undefined
+      ? Boolean(data.showSignatures.operator)
+      : box1 !== undefined
+      ? box1 !== null
+      : true;
+  const showPro =
+    data?.showSignatures?.professional !== undefined
+      ? Boolean(data.showSignatures.professional)
+      : box2 !== undefined || box3 !== undefined
+      ? customProBox !== null ||
+        (box2 !== null && (box2?.isProfessional || !box2?.title?.includes('SUPERVIS')))
+      : true;
+  const showSup =
+    data?.showSignatures?.supervisor !== undefined
+      ? Boolean(data.showSignatures.supervisor)
+      : customSupBox !== null || (box3 !== undefined ? box3 !== null : true);
 
   const boxes: SignatureBoxProps[] = [];
 
@@ -252,14 +306,30 @@ export default function PdfSignatures({
   }
 
   if (showPro) {
-    const pBox = customProBox || (box2 && box2.isProfessional ? box2 : defaultBox2);
-    // Garantizar que el título sea SIEMPRE el título profesional elegido en Mi Perfil y el subtítulo el nombre
+    const pBox: SignatureBoxProps =
+      customProBox || (box2 && box2.isProfessional ? box2 : defaultBox2);
+    const resolvedSig =
+      typeof pBox.signatureUrl === 'string' && pBox.signatureUrl.trim().startsWith('data:image/')
+        ? pBox.signatureUrl.trim()
+        : actSignature;
+    const resolvedStamp =
+      typeof pBox.stampUrl === 'string' && pBox.stampUrl.trim().startsWith('data:image/')
+        ? pBox.stampUrl.trim()
+        : actStamp;
+
+    const cleanSub = (pBox.subtitle || '').trim();
+    const isGenericSub =
+      !cleanSub ||
+      /^(FIRMA|FIRMA\s*\/?\s*ACLARACI[OÓ]N|FIRMA\s*Y\s*SELLO|FIRMA\s*Y\s*SELLO\s*PROFESIONAL|ESPECIALISTA\s*H&?S|PROFESIONAL\s*H&?S)$/i.test(
+        cleanSub
+      );
+
     boxes.push({
       ...pBox,
       title: professionalDisplayTitle,
-      subtitle: (pBox.subtitle && pBox.subtitle !== 'Firma / Aclaración' && pBox.subtitle !== 'FIRMA Y SELLO')
-        ? pBox.subtitle.toUpperCase()
-        : professionalDisplayName,
+      subtitle: !isGenericSub ? cleanSub.toUpperCase() : professionalDisplayName,
+      signatureUrl: resolvedSig,
+      stampUrl: resolvedStamp,
       isProfessional: true,
       license: pBox.license || actLic,
       profession: actTitle
@@ -267,7 +337,10 @@ export default function PdfSignatures({
   }
 
   if (showSup) {
-    boxes.push(customSupBox || (box3 !== undefined && box3 !== null && !box3.isProfessional ? box3 : defaultBox3));
+    boxes.push(
+      customSupBox ||
+        (box3 !== undefined && box3 !== null && !box3.isProfessional ? box3 : defaultBox3)
+    );
   }
 
   if (boxes.length === 0) return null;
@@ -279,14 +352,14 @@ export default function PdfSignatures({
         compact ? 'mt-1.5 pt-2 pb-1' : 'mt-4 pt-4 pb-2'
       } border-t-2 border-slate-300 text-center mx-auto`}
     >
-      <div 
+      <div
         style={{
           breakInside: 'avoid',
           pageBreakInside: 'avoid',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'stretch'
-        }} 
+        }}
         className={`avoid-break avoid-break-strictly break-inside-avoid flex justify-center items-stretch w-full ${
           compact ? 'gap-2.5' : 'gap-4'
         } flex-wrap mx-auto text-center`}
@@ -296,8 +369,10 @@ export default function PdfSignatures({
           const borderCol = isPro ? '#10b981' : '#cbd5e1';
           const bgCol = isPro ? '#f0fdf4' : '#f8fafc';
           const textCol = isPro ? '#065f46' : '#0f172a';
-          const hasSig = typeof box.signatureUrl === 'string' && box.signatureUrl.trim().length > 5;
-          const hasStamp = typeof box.stampUrl === 'string' && box.stampUrl.trim().length > 5;
+          const hasSig =
+            typeof box.signatureUrl === 'string' && box.signatureUrl.trim().length > 10;
+          const hasStamp =
+            typeof box.stampUrl === 'string' && box.stampUrl.trim().length > 10;
 
           return (
             <div
@@ -324,7 +399,7 @@ export default function PdfSignatures({
               {isPro && (
                 <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-green-600 rounded-t-xl" />
               )}
-              
+
               {/* Contenedor centrado de firma e imagen de sello */}
               <div
                 style={{
@@ -332,24 +407,24 @@ export default function PdfSignatures({
                   alignItems: 'center',
                   justifyContent: 'center',
                   width: '100%',
-                  minHeight: compact ? '48px' : '56px'
+                  minHeight: compact ? '50px' : '58px'
                 }}
                 className="w-full text-center border-b border-dashed border-slate-300 pb-1.5 mb-1.5 flex items-center justify-center gap-2 mx-auto"
               >
                 {hasSig && (
                   <AutoCroppedImg
                     src={box.signatureUrl!}
-                    alt="Firma"
-                    maxHeight={compact ? 46 : 54}
-                    maxWidth={145}
+                    alt="Firma Profesional"
+                    maxHeight={compact ? 48 : 56}
+                    maxWidth={hasStamp ? 125 : 155}
                   />
                 )}
                 {hasStamp && (
                   <AutoCroppedImg
                     src={box.stampUrl!}
-                    alt="Sello"
-                    maxHeight={compact ? 46 : 54}
-                    maxWidth={115}
+                    alt="Sello Profesional"
+                    maxHeight={compact ? 48 : 56}
+                    maxWidth={hasSig ? 120 : 150}
                   />
                 )}
                 {!hasSig && !hasStamp && (
@@ -363,7 +438,7 @@ export default function PdfSignatures({
                     }}
                   >
                     <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest leading-none text-center">
-                      Firma / Sello
+                      {isPro ? 'Firma y Sello Profesional' : 'Firma / Sello'}
                     </span>
                   </div>
                 )}
@@ -385,24 +460,24 @@ export default function PdfSignatures({
                   style={{
                     color: textCol,
                     fontWeight: 900,
-                    fontSize: '10.5px',
+                    fontSize: '10px',
                     textTransform: 'uppercase',
                     letterSpacing: '-0.01em',
-                    lineHeight: 1.25,
+                    lineHeight: 1.22,
                     textAlign: 'center',
                     width: '100%',
-                    padding: '0 4px'
+                    padding: '0 3px'
                   }}
                 >
                   {box.title}
                 </div>
 
-                {/* NOMBRE Y APELLIDO DEL FIRMANTE / PROFESIONAL (CENTRADO Y CLARO) */}
+                {/* NOMBRE Y APELLIDO DEL FIRMANTE / PROFESIONAL */}
                 <div
                   style={{
                     color: '#0f172a',
                     fontWeight: 800,
-                    fontSize: '11.5px',
+                    fontSize: '11px',
                     textTransform: 'uppercase',
                     letterSpacing: '-0.01em',
                     lineHeight: 1.2,
@@ -416,7 +491,15 @@ export default function PdfSignatures({
 
                 {/* MATRÍCULA PROFESIONAL DESTACADA Y CENTRADA */}
                 {box.license && (
-                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', marginTop: '4px' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      width: '100%',
+                      marginTop: '3px'
+                    }}
+                  >
                     <div
                       style={{
                         display: 'inline-flex',
@@ -428,7 +511,7 @@ export default function PdfSignatures({
                         color: '#ffffff',
                         borderRadius: '6px',
                         fontWeight: 900,
-                        fontSize: '9.5px',
+                        fontSize: '9px',
                         letterSpacing: '0.05em',
                         textTransform: 'uppercase'
                       }}
@@ -445,11 +528,18 @@ export default function PdfSignatures({
 
       {/* Footer de verificación QR centrado */}
       {!hideFooter && (
-        <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }} className="mt-3 pt-2 border-t border-dashed border-slate-300 flex items-center justify-between px-2 avoid-break avoid-break-strictly break-inside-avoid">
+        <div
+          style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
+          className="mt-3 pt-2 border-t border-dashed border-slate-300 flex items-center justify-between px-2 avoid-break avoid-break-strictly break-inside-avoid"
+        >
           <div className="flex items-center gap-2 text-left">
             <div className="w-8 h-8 bg-slate-100 border border-slate-300 rounded p-0.5 flex items-center justify-center shrink-0">
               <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}/v/${data?.id || 'doc'}` : 'https://asistentehs.web.app')}`}
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(
+                  typeof window !== 'undefined'
+                    ? `${window.location.origin}/v/${data?.id || 'doc'}`
+                    : 'https://asistentehs.web.app'
+                )}`}
                 alt="QR Validación"
                 className="w-full h-full object-contain"
               />

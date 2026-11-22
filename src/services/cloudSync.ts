@@ -715,12 +715,14 @@ export const SYNC_VALUES: string[] = [
 ];
 
 /**
- * Al iniciar sesión: descarga todo desde Firestore → localStorage.
+ *Al iniciar sesión: descarga todo desde Firestore → localStorage (respetando cambios locales pendientes).
  */
 export async function pullAllFromCloud(uid: string): Promise<void> {
   if (!uid) return;
+  const dirtyKeys = getDirtyKeys();
   
   for (const key of SYNC_COLLECTIONS) {
+    if (dirtyKeys.includes(key)) continue;
     const items = await loadCollection(uid, key);
     if (items.length > 0) {
       try {
@@ -733,8 +735,44 @@ export async function pullAllFromCloud(uid: string): Promise<void> {
   
   for (const key of SYNC_DOCUMENTS) {
     const data = await loadDocument(uid, key);
-    if (data) {
+    if (data && Object.keys(data).length > 0) {
       try {
+        if (key === 'signatureStampData') {
+          const localRaw = localStorage.getItem('signatureStampData');
+          const localParsed = localRaw ? safeJsonParse<any>(localRaw, null) : null;
+          const cloudSig =
+            typeof (data as any).signature === 'string' && (data as any).signature.length > 3500
+              ? (data as any).signature
+              : null;
+          const localSig =
+            typeof localParsed?.signature === 'string' && localParsed.signature.length > 3500
+              ? localParsed.signature
+              : null;
+          const cloudStamp =
+            typeof (data as any).stamp === 'string' &&
+            (data as any).stamp.length > 150 &&
+            (data as any).stamp.length !== 3058
+              ? (data as any).stamp
+              : null;
+          const localStamp =
+            typeof localParsed?.stamp === 'string' &&
+            localParsed.stamp.length > 150 &&
+            localParsed.stamp.length !== 3058
+              ? localParsed.stamp
+              : null;
+          const merged = {
+            signature: cloudSig || localSig || null,
+            stamp: cloudStamp || localStamp || null
+          };
+          localStorage.setItem(key, JSON.stringify(merged));
+          if (merged.signature) {
+            localStorage.setItem('capturedSignature', merged.signature);
+          }
+          removeFromDirty('signatureStampData');
+          window.dispatchEvent(new Event('signatureStampUpdated'));
+          continue;
+        }
+        if (dirtyKeys.includes(key)) continue;
         localStorage.setItem(key, JSON.stringify(data));
       } catch (e) {
         console.warn(`[cloudSync] Fallo pull setItem en ${key}:`, e);
@@ -743,6 +781,7 @@ export async function pullAllFromCloud(uid: string): Promise<void> {
   }
 
   for (const key of SYNC_VALUES) {
+    if (dirtyKeys.includes(key)) continue;
     const val = await getValue(uid, key);
     if (val !== null && val !== undefined) {
       let strVal = String(val);

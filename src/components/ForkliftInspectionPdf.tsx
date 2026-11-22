@@ -33,11 +33,9 @@ export default function ForkliftInspectionPdf({
   const evaluatedCount = conformitiesCount + nonConformitiesCount;
   const complianceRate = evaluatedCount > 0 ? Math.round((conformitiesCount / evaluatedCount) * 100) : 100;
 
-  // Professional role
-  const rawRole = (data.professionalRole || 'Profesional de Higiene y Seguridad').toLowerCase();
-  const finalRoleTitle = (rawRole.includes('técnico') || rawRole.includes('tecnico'))
-    ? 'TÉCNICO EN HIGIENE Y SEGURIDAD'
-    : 'PROFESIONAL DE HIGIENE Y SEGURIDAD';
+  const finalRoleTitle = (
+    data.professionalRole || 'Técnico Universitario en Higiene y Seguridad Laboral'
+  ).toUpperCase();
 
   return (
     <div className="w-[100%] flex justify-center">

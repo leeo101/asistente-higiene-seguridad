@@ -146,8 +146,6 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
 
     SYNC_DOCUMENTS.forEach(key => {
       const unsub = listenToDocument(currentUser.uid, key, (data: any) => {
-        if (getDirtyKeys().includes(key)) return;
-
         let local: any = null;
         try {
           const raw = localStorage.getItem(key);
@@ -155,6 +153,49 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
         } catch {
           local = null;
         }
+
+        if (key === 'signatureStampData') {
+          const cloudSig =
+            typeof data?.signature === 'string' && data.signature.length > 3500
+              ? data.signature
+              : null;
+          const localSig =
+            typeof local?.signature === 'string' && local.signature.length > 3500
+              ? local.signature
+              : null;
+          const cloudStamp =
+            typeof data?.stamp === 'string' &&
+            data.stamp.length > 150 &&
+            data.stamp.length !== 3058
+              ? data.stamp
+              : null;
+          const localStamp =
+            typeof local?.stamp === 'string' &&
+            local.stamp.length > 150 &&
+            local.stamp.length !== 3058
+              ? local.stamp
+              : null;
+          const merged = {
+            signature: cloudSig || localSig || null,
+            stamp: cloudStamp || localStamp || null
+          };
+          if (JSON.stringify(local) !== JSON.stringify(merged)) {
+            try {
+              localStorage.setItem(key, JSON.stringify(merged));
+              if (merged.signature) {
+                localStorage.setItem('capturedSignature', merged.signature);
+              }
+            } catch (e) {
+              console.warn(`[SyncContext] Fallo setItem listener doc en ${key}:`, e);
+            }
+            setSyncPulse(p => p + 1);
+            window.dispatchEvent(new Event('signatureStampUpdated'));
+            window.dispatchEvent(new Event('storage'));
+          }
+          return;
+        }
+
+        if (getDirtyKeys().includes(key)) return;
 
         if (JSON.stringify(local) !== JSON.stringify(data)) {
           try {
@@ -164,6 +205,7 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({ children }) => {
             console.warn(`[SyncContext] Fallo setItem listener doc en ${key}:`, e);
           }
           setSyncPulse(p => p + 1);
+          window.dispatchEvent(new Event('storage'));
         }
       });
       unsubscribes.push(unsub);

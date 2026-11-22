@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Trash2, Upload, PenTool } from 'lucide-react';
-import { Fingerprint, ShieldCheck, Warning } from '@phosphor-icons/react';
+import { Fingerprint, ShieldCheck } from '@phosphor-icons/react';
 import { isBiometricAvailable, authenticateWithBiometric } from '../services/biometricService';
+import { getSavedProfessionalData } from '../utils/jsPdfSignatureHelper';
 import toast from 'react-hot-toast';
 
 interface SignatureCanvasProps {
@@ -55,16 +56,58 @@ export default function SignatureCanvas({
   // Canvas bloqueado si se requiere biometría y aún no fue verificada
   const isLocked = requireBiometric && bioAvailable === true && !bioVerified;
   const displayLabel = label || title;
+  const isProfessionalCanvas = Boolean(
+    displayLabel &&
+      /PROFESIONAL|TÉCNICO|TECNICO|LICENCIADO|INGENIERO|ESPECIALISTA|HIGIENE Y SEGURIDAD|AUDITOR|EXPOSITOR|EVALUADOR/i.test(
+        displayLabel
+      ) &&
+      !/PERSONA AUDITADA|OPERADOR|TRABAJADOR|SUPERVIS/i.test(displayLabel)
+  );
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasContent, setHasContent] = useState(false);
-  const [image, setImage] = useState<string | null>(initialImage);
+  const [image, setImage] = useState<string | null>(() => {
+    if (initialImage && initialImage.trim().startsWith('data:image/')) return initialImage;
+    if (isProfessionalCanvas) {
+      return getSavedProfessionalData().signature;
+    }
+    return initialImage || null;
+  });
   const [strokeWidth, setStrokeWidth] = useState(2.5);
 
   useEffect(() => {
-    setImage(initialImage);
-    if (initialImage) setHasContent(true);
-  }, [initialImage]);
+    if (initialImage && initialImage.trim().startsWith('data:image/')) {
+      setImage(initialImage);
+      setHasContent(true);
+    } else if (isProfessionalCanvas) {
+      const savedSig = getSavedProfessionalData().signature;
+      if (savedSig) {
+        setImage(savedSig);
+        setHasContent(true);
+      }
+    } else {
+      setImage(initialImage || null);
+      if (initialImage) setHasContent(true);
+    }
+  }, [initialImage, isProfessionalCanvas]);
+
+  useEffect(() => {
+    if (!isProfessionalCanvas) return;
+    const syncFromProfile = () => {
+      const savedSig = getSavedProfessionalData().signature;
+      if (savedSig) {
+        setImage((prev) => prev || savedSig);
+        setHasContent(true);
+      }
+    };
+    window.addEventListener('storage', syncFromProfile);
+    window.addEventListener('signatureStampUpdated', syncFromProfile);
+    return () => {
+      window.removeEventListener('storage', syncFromProfile);
+      window.removeEventListener('signatureStampUpdated', syncFromProfile);
+    };
+  }, [isProfessionalCanvas]);
 
   const getPos = (e: any, canvas: HTMLCanvasElement) => {
     const rect = canvas.getBoundingClientRect();
@@ -151,6 +194,23 @@ export default function SignatureCanvas({
       if (trimCtx) {
         trimCtx.putImageData(ctx.getImageData(minX, minY, trimW, trimH), 0, 0);
         dataUrl = trimCanvas.toDataURL('image/png');
+      }
+    }
+
+    if (isProfessionalCanvas && dataUrl) {
+      try {
+        const raw = localStorage.getItem('signatureStampData');
+        const parsed = raw ? JSON.parse(raw) : {};
+        if (!parsed?.signature) {
+          localStorage.setItem(
+            'signatureStampData',
+            JSON.stringify({ signature: dataUrl, stamp: parsed?.stamp || null })
+          );
+          localStorage.setItem('capturedSignature', dataUrl);
+          window.dispatchEvent(new Event('signatureStampUpdated'));
+        }
+      } catch {
+        // ignore
       }
     }
 
@@ -264,12 +324,13 @@ export default function SignatureCanvas({
         height: `${height}px`,
         opacity: isLocked ? 0.35 : 1,
         pointerEvents: isLocked ? 'none' : 'auto',
-        transition: 'opacity 0.3s'
-      }} className="relative border-[2px_dashed_var(--color-border)] rounded-[12px] bg-[var(--color-surface)] touch-action-[none] overflow-[hidden]">
+        transition: 'opacity 0.3s',
+        backgroundColor: '#ffffff'
+      }} className="relative border-[2px_dashed_#cbd5e1] rounded-[12px] touch-action-[none] overflow-[hidden]">
                 {image ?
-        <div className="relative w-[100%] h-[100%]">
-                        <img src={image} alt="Firma" className="w-[100%] h-[100%] object-" />
-                        <div onClick={clearCanvas} className="absolute top-[0.5rem] right-[0.5rem] bg-[rgba(255,255,255,0.8)] p-[0.25rem] rounded-[50%] cursor-pointer">
+        <div className="relative w-[100%] h-[100%]" style={{ backgroundColor: '#ffffff' }}>
+                        <img src={image} alt="Firma" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '8px', boxSizing: 'border-box', display: 'block' }} />
+                        <div onClick={clearCanvas} className="absolute top-[0.5rem] right-[0.5rem] bg-[rgba(255,255,255,0.9)] p-[0.25rem] rounded-[50%] cursor-pointer">
                             <Trash2 size={16} color="#ef4444" />
                         </div>
                     </div> :
